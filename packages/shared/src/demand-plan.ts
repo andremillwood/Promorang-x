@@ -129,3 +129,72 @@ export function getDemandPlanReadiness(plan: DemandPlan) {
     missing: Array.from(new Set(missing)),
   } as const;
 }
+
+export type CommercialVertical =
+  | "fmcg_retail"
+  | "hospitality_dining"
+  | "events_experiences"
+  | "dtc_ecommerce"
+  | "fitness_studios"
+  | "city_hubs";
+
+export interface CommercialVerticalConfig {
+  id: CommercialVertical;
+  defaultGoal: DemandGoal;
+  primaryProof: DemandProofType;
+  keyMetric: string;
+  defaultActionSequence: DemandActionType[];
+  defaultSharedValue: SharedValueType;
+}
+
+export const COMMERCIAL_VERTICALS: Record<CommercialVertical, CommercialVerticalConfig> = {
+  fmcg_retail: {
+    id: "fmcg_retail",
+    defaultGoal: "drive_sales",
+    primaryProof: "receipt",
+    keyMetric: "Verified In-Cart Conversion & Retail Velocity",
+    defaultActionSequence: ["visit", "purchase", "create", "review"],
+    defaultSharedValue: "gems",
+  },
+  hospitality_dining: {
+    id: "hospitality_dining",
+    defaultGoal: "bring_people",
+    primaryProof: "check_in",
+    keyMetric: "Off-Peak Covers & Foot-Traffic Attribution",
+    defaultActionSequence: ["discover", "visit", "review", "refer"],
+    defaultSharedValue: "promopoints",
+  },
+  events_experiences: {
+    id: "events_experiences",
+    defaultGoal: "mobilize_community",
+    primaryProof: "qr",
+    keyMetric: "Referral Ticket Conversions & Proof of Presence",
+    defaultActionSequence: ["join", "visit", "create", "refer"],
+    defaultSharedValue: "piece",
+  },
+  dtc_ecommerce: {
+    id: "dtc_ecommerce",
+    defaultGoal: "drive_sales",
+    primaryProof: "link",
+    keyMetric: "Zero-Risk Affiliate ROAS & Verified UGC",
+    defaultActionSequence: ["discover", "purchase", "create", "refer"],
+    defaultSharedValue: "promoshare",
+  },
+  fitness_studios: {
+    id: "fitness_studios",
+    defaultGoal: "build_loyalty",
+    primaryProof: "check_in",
+    keyMetric: "90-Day Retention Lift & Buddy Referral Volume",
+    defaultActionSequence: ["join", "visit", "return", "refer"],
+    defaultSharedValue: "promokey",
+  },
+  city_hubs: {
+    id: "city_hubs",
+    defaultGoal: "mobilize_community",
+    primaryProof: "qr",
+    keyMetric: "Cross-Merchant Economic Circulation & Hub Velocity",
+    defaultActionSequence: ["discover", "visit", "purchase", "refer"],
+    defaultSharedValue: "gems",
+  },
+};
+

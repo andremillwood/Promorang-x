@@ -17,6 +17,7 @@ import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { Search, Filter, TrendingUp, Gem, Loader2, TriangleAlert, Route, WalletCards } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { cultureImages } from '@/data/culture-demo';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface Piece {
   id: string;
@@ -37,6 +38,7 @@ interface Piece {
 }
 
 export function TradingMarketplace() {
+  const { t } = useI18n();
   const { user, session } = useAuth();
   const { toast } = useToast();
   const [pieces, setPieces] = useState<Piece[]>([]);
@@ -164,19 +166,19 @@ export function TradingMarketplace() {
         <div className="relative mx-auto max-w-7xl px-5 pb-10 pt-20 sm:px-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400"><Gem className="h-3.5 w-3.5" /> Active piece market</div>
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400"><Gem className="h-3.5 w-3.5" /> {t("tradingMarketplace.heroEyebrow")}</div>
               <h1 className="max-w-3xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">
-                Back the culture already proving itself.
+                {t("tradingMarketplace.heroTitle")}
               </h1>
               <GuidanceDisclosure
                 id="trading-marketplace:piece-market-context"
                 eyebrow="Market guide"
                 title="How to read active Piece markets"
-                summary="Pieces connect moments, stories, hosts, and places to visible market signal."
+                summary={t("tradingMarketplace.heroSubtitle")}
                 className="mt-5 max-w-2xl"
               >
                 <p className="text-base leading-7 text-white/55">
-                  Explore active positions tied to moments, stories, hosts, and places with visible market signal.
+                  {t("tradingMarketplace.heroSubtitle")}
                 </p>
               </GuidanceDisclosure>
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
@@ -208,7 +210,7 @@ export function TradingMarketplace() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search pieces..."
+                placeholder={t("tradingMarketplace.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -276,14 +278,14 @@ export function TradingMarketplace() {
           <div className="rounded-lg border bg-card p-4 shadow-sm">
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <TrendingUp className="h-4 w-4" />
-              Active Pools
+              {t("tradingMarketplace.activePools")}
             </div>
             <div className="text-2xl font-bold mt-1">{pieces.length}</div>
           </div>
           <div className="rounded-lg border bg-card p-4 shadow-sm">
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <Gem className="h-4 w-4" />
-              24h Volume
+              {t("tradingMarketplace.volume24h")}
             </div>
             <div className="text-2xl font-bold mt-1">
               {pieces.reduce((sum, p) => sum + (p.volume_24h || 0), 0).toFixed(0)} Gems
@@ -292,7 +294,7 @@ export function TradingMarketplace() {
           <div className="rounded-lg border bg-card p-4 shadow-sm">
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <TrendingUp className="h-4 w-4" />
-              Your Balance
+              {t("tradingMarketplace.yourBalance")}
             </div>
             <div className="text-2xl font-bold mt-1">{gemsBalance.toFixed(2)} Gems</div>
           </div>

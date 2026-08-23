@@ -10,8 +10,10 @@ import { API_BASE_URL } from '@/lib/api';
 import { useCommerceActions } from '@/hooks/useCommerceActions';
 import { commerceCategorySlug, isSampleCommerceListing } from '@/lib/commerce-provenance';
 import { KINGSTON_EXPERIENCE_LISTINGS } from '@/pages/Marketplace';
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function CommerceDetail() {
+  const { t, locale, formatNumber } = useI18n();
   const { listingId } = useParams();
   const actions = useCommerceActions();
   const queryClient = useQueryClient();
@@ -88,13 +90,13 @@ export default function CommerceDetail() {
     },
   });
 
-  if (q.isLoading) return <div className="mx-auto max-w-6xl p-8">Loading product...</div>;
+  if (q.isLoading) return <div className="mx-auto max-w-6xl p-8">{t("commerce.loading")}</div>;
   const x = q.data;
   if (!x) {
     return (
       <div className="mx-auto max-w-3xl p-10 text-center">
-        <h1 className="text-3xl font-black">This listing is unavailable</h1>
-        <Button asChild className="mt-5"><Link to="/shop">Back to shop</Link></Button>
+        <h1 className="text-3xl font-black">{t("commerce.unavailable")}</h1>
+        <Button asChild className="mt-5"><Link to="/shop">{t("commerce.back")}</Link></Button>
       </div>
     );
   }
@@ -102,8 +104,8 @@ export default function CommerceDetail() {
   const amount = Number(x.price || 0);
   const currency = x.currency || 'USD';
   const price = amount > 0
-    ? new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(amount)
-    : 'Ask merchant';
+    ? new Intl.NumberFormat(locale, { style: 'currency', currency }).format(amount)
+    : t("commerce.askMerchant");
   const canCheckout = amount > 0 && currency.toUpperCase() === 'USD';
   const isSample = isSampleCommerceListing(x);
   const reserveForMerchantPayment = async () => {
@@ -176,15 +178,15 @@ export default function CommerceDetail() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
       <Link to="/shop" className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-        <ArrowLeft className="h-4 w-4" />Shop
+        <ArrowLeft className="h-4 w-4" />{t("commerce.shop")}
       </Link>
       {x.category ? <Link to={`/shop/category/${commerceCategorySlug(x.category)}`} className="ml-3 text-sm text-primary">{x.category}</Link> : null}
-      {isSample ? <div className="mt-5 rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] px-5 py-4 text-sm text-amber-100"><strong>Sample product preview.</strong> This item demonstrates the ecommerce experience. It is not live inventory and cannot be purchased, reserved, or booked.</div> : null}
+      {isSample ? <div className="mt-5 rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] px-5 py-4 text-sm text-amber-100"><strong>{t("commerce.sampleTitle")}</strong> {t("commerce.sampleCopy")}</div> : null}
       <div className="mt-5 overflow-hidden rounded-[2rem] border border-white/10 bg-[#0c0c0c] text-white lg:grid lg:grid-cols-2">
         <div className="relative min-h-[420px] bg-white/5">
           {x.image_url ? <img src={x.image_url} alt={x.name || ''} className="absolute inset-0 h-full w-full object-cover" /> : <ShoppingBag className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 text-white/20" />}
           <button
-            aria-label="Save product"
+            aria-label={t("commerce.save")}
             onClick={() => actions.toggleSave({ type: x.discount_value ? 'offer' : 'product', id: sourceId, title: x.name || 'Product', subtitle: x.merchant_name || undefined, image: x.image_url || undefined })}
             className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-black/65"
           >
@@ -203,33 +205,33 @@ export default function CommerceDetail() {
               {x.service_duration_minutes ? <Badge variant="outline" className="border-white/15 text-white"><CalendarClock className="mr-1 h-3 w-3" />{x.service_duration_minutes} min</Badge> : null}
             </div>
             <h1 className="mt-5 text-5xl font-black tracking-[-.055em]">{x.name}</h1>
-            <p className="mt-5 text-base leading-7 text-white/60">{x.description || 'A product connected to the people, place and Moment around it.'}</p>
+            <p className="mt-5 text-base leading-7 text-white/60">{x.description || t("commerce.fallback")}</p>
             {x.venue_name ? <p className="mt-5 flex items-center gap-2 text-sm text-white/50"><MapPin className="h-4 w-4 text-primary" />{x.venue_name}{x.location ? ` · ${x.location}` : ''}</p> : null}
           </div>
           <div className="mt-10">
             <div className="flex items-end justify-between">
               <div>
                 <p className="text-4xl font-black">{price}</p>
-                <p className="mt-1 text-xs text-white/40">{x.booking_url ? 'Bookable service' : 'Merchant fulfillment'}</p>
+                <p className="mt-1 text-xs text-white/40">{x.booking_url ? t("commerce.bookable") : t("commerce.fulfillment")}</p>
               </div>
               {x.discount_value ? <span className="rounded-full bg-primary px-4 py-2 text-xs font-black text-black">{x.discount_value}{x.discount_type === 'percentage' ? '%' : ''} OFFER</span> : null}
             </div>
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
               <Button size="lg" disabled={isSample || !!actions.busy} onClick={() => actions.purchase(sourceId, amount, 'reservation')}>
-                {isSample ? 'Sample only' : actions.busy ? 'Working...' : x.discount_value ? 'Reserve offer' : 'Reserve'}
+                {isSample ? t("commerce.sampleOnly") : actions.busy ? t("commerce.working") : x.discount_value ? t("commerce.reserveOffer") : t("commerce.reserve")}
               </Button>
               <Button size="lg" variant="outline" disabled={!canCheckout || isSample || checkoutBusy} onClick={beginMerchantCheckout} className="border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white">
-                {checkoutBusy ? 'Opening merchant checkout…' : 'Pay merchant with card'}
+                {checkoutBusy ? t("commerce.cardOpening") : t("commerce.card")}
               </Button>
               <Button size="lg" variant="secondary" disabled={isSample || !merchantMethods.data?.methods.length} onClick={() => setMerchantPayOpen(true)} className="sm:col-span-2">
-                Pay merchant directly
+                {t("commerce.direct")}
               </Button>
               <Button size="lg" variant="secondary" disabled={!canCheckout || isSample || gemCheckoutBusy} onClick={payWithGems} className="sm:col-span-2">
-                {gemCheckoutBusy ? 'Creating merchant Gem Card…' : `Pay ${amount.toLocaleString()} Gems`}
+                {gemCheckoutBusy ? t("commerce.gemsBusy") : t("commerce.gems", { count: formatNumber(amount) })}
               </Button>
             </div>
             {reservationMessage ? <p className="mt-3 rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white/70">{reservationMessage}</p> : null}
-            {x.booking_url && !isSample ? <Button asChild variant="ghost" className="mt-2 w-full text-white/70 hover:text-white"><a href={x.booking_url} target="_blank" rel="noreferrer">Open booking page</a></Button> : null}
+            {x.booking_url && !isSample ? <Button asChild variant="ghost" className="mt-2 w-full text-white/70 hover:text-white"><a href={x.booking_url} target="_blank" rel="noreferrer">{t("commerce.bookingPage")}</a></Button> : null}
             <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/40"><ShieldCheck className="h-4 w-4" />Sold and fulfilled by {x.merchant_name || 'the merchant'}. Tax and delivery are shown by Stripe before payment.</p>
           </div>
         </div>

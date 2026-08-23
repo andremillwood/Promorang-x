@@ -2,6 +2,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { RoleSuccessProgram } from "@/components/dashboard/RoleSuccessProgram";
+import { ResumeMomentumBanner } from "@/components/intent/ResumeMomentumBanner";
+import { IntentCommandHub } from "@/components/intent/IntentCommandHub";
+import { useUserIntentContinuity } from "@/hooks/useUserIntentContinuity";
+import { MobileNotificationBridgeBanner } from "@/components/notifications/MobileNotificationBridgeBanner";
 
 const ParticipantDashboardV2 = lazy(() => import("@/components/dashboards/CulturalCommandHome"));
 const CreatorDashboardV2 = lazy(() => import("@/components/dashboards/CreatorDashboardV2"));
@@ -27,6 +31,8 @@ const dashboardByRole = {
 
 const Dashboard = () => {
   const { user, activeRole, loading } = useAuth();
+  const { activeDraft, dismissDraft } = useUserIntentContinuity();
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -43,10 +49,15 @@ const Dashboard = () => {
   const ResolvedDashboard = dashboardByRole[resolvedRole] || ParticipantDashboardV2;
 
   return (
-    <Suspense fallback={dashboardFallback}>
-      <RoleSuccessProgram role={resolvedRole} />
-      <ResolvedDashboard />
-    </Suspense>
+    <div className="container mx-auto px-4 py-6 max-w-7xl space-y-4">
+      <MobileNotificationBridgeBanner />
+      <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />
+      <IntentCommandHub />
+      <Suspense fallback={dashboardFallback}>
+        <RoleSuccessProgram role={resolvedRole} />
+        <ResolvedDashboard />
+      </Suspense>
+    </div>
   );
 };
 

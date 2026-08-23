@@ -23,6 +23,7 @@ import {
   TrendingUp
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface SearchResult {
   id: string;
@@ -36,6 +37,7 @@ interface SearchResult {
 }
 
 const SearchPage = () => {
+  const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
   const initialCategory = searchParams.get("category") || "all";
@@ -120,21 +122,21 @@ const SearchPage = () => {
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 text-white">
       <SEO
-        title="Search Moments, Venues & Rewards"
-        description="Search Promorang for local moments, merchant discounts, verified rewards, and live creator drops in Kingston and worldwide."
+        title={t("search.seoTitle")}
+        description={t("search.seoDescription")}
       />
 
       <section className="mb-10 overflow-hidden rounded-[2.5rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,85,0,0.2),transparent_40%),linear-gradient(135deg,rgba(15,15,18,0.98),rgba(9,9,11,0.95))] p-6 sm:p-10 shadow-2xl xl:mb-14 xl:py-16">
         <div className="mx-auto max-w-4xl text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#ff5500]/30 bg-[#ff5500]/10 px-3.5 py-1 text-xs font-black uppercase tracking-[0.2em] text-[#ff5500]">
             <Zap className="h-3.5 w-3.5" />
-            Promorang Discovery Engine
+            {t("search.eyebrow")}
           </div>
           <h1 className="font-serif text-4xl font-bold leading-tight tracking-tight text-white sm:text-6xl xl:text-7xl">
-            Find the signal, then act on it.
+            {t("search.title")}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base">
-            Search Moments, merchant venues, brand sponsorship drops, and creators. Discover real-world perks and verified rewards near you.
+            {t("search.copy")}
           </p>
         </div>
 
@@ -143,7 +145,7 @@ const SearchPage = () => {
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Search Moments, Scenes, venues, creators, Kingston..."
+            placeholder={t("search.placeholder")}
             className="h-14 rounded-2xl border-white/15 bg-white/[0.08] pl-12 text-base text-white shadow-2xl placeholder:text-white/40 sm:pr-32 sm:text-lg focus:border-[#ff5500]"
           />
           <Button
@@ -151,7 +153,7 @@ const SearchPage = () => {
             className="h-11 w-full rounded-xl bg-[#ff5500] text-white font-bold hover:bg-[#e04b00] sm:absolute sm:right-2 sm:top-1/2 sm:h-10 sm:w-auto sm:-translate-y-1/2"
             disabled={isLoading}
           >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Search"}
+            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("search.button")}
           </Button>
         </form>
 
@@ -174,26 +176,26 @@ const SearchPage = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-8 w-full justify-start gap-4 rounded-none border-b border-white/10 bg-transparent p-0 sm:gap-8">
-          <TabsTrigger value="all" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">All Results</TabsTrigger>
-          <TabsTrigger value="moment" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">Moments</TabsTrigger>
-          <TabsTrigger value="brand" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">Brands</TabsTrigger>
-          <TabsTrigger value="merchant" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">Merchants</TabsTrigger>
-          <TabsTrigger value="host" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">Hosts</TabsTrigger>
+          <TabsTrigger value="all" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.all")}</TabsTrigger>
+          <TabsTrigger value="moment" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.moments")}</TabsTrigger>
+          <TabsTrigger value="brand" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.brands")}</TabsTrigger>
+          <TabsTrigger value="merchant" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.merchants")}</TabsTrigger>
+          <TabsTrigger value="host" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.hosts")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-0">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="w-10 h-10 text-[#ff5500] animate-spin mb-4" />
-              <p className="text-white/60 text-sm font-medium">Searching Promorang signal graph...</p>
+              <p className="text-white/60 text-sm font-medium">{t("search.searching")}</p>
             </div>
           ) : query.length < 2 ? (
             <div className="space-y-10">
               <div className="rounded-[2.5rem] border border-dashed border-[#ff5500]/30 bg-[#ff5500]/5 px-6 py-12 text-center">
                 <Sparkles className="w-12 h-12 text-[#ff5500] mx-auto mb-4 opacity-90" />
-                <h3 className="text-xl font-bold tracking-tight text-white">Start with intent</h3>
+                <h3 className="text-xl font-bold tracking-tight text-white">{t("search.start")}</h3>
                 <p className="mx-auto mt-2 max-w-md text-sm text-white/60">
-                  Search a Moment, venue, creator, reward, or proof path. Discovery gets you to real-world value fast.
+                  {t("search.startCopy")}
                 </p>
               </div>
 
@@ -201,7 +203,7 @@ const SearchPage = () => {
               {trendingMoments && trendingMoments.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white/70">
-                    <Flame className="h-4 w-4 text-[#ff5500]" /> Trending Moments Near You
+                    <Flame className="h-4 w-4 text-[#ff5500]" /> {t("search.trending")}
                   </div>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {trendingMoments.map((item: any) => (

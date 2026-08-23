@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Film, Search, Sparkles } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface ExploreContentRow extends PublicContentItem {
   posted_at?: string | null;
@@ -20,6 +21,7 @@ interface ExploreContentRow extends PublicContentItem {
 }
 
 const ExploreContent = () => {
+  const { t, formatNumber } = useI18n();
   const [searchQuery, setSearchQuery] = useState("");
 
   const contentQuery = useQuery({
@@ -61,14 +63,14 @@ const ExploreContent = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Explore Content"
-        description="Browse creator stories that can stand alone, launch moments, support places, or become missions on Promorang."
+        title={t("contentExplore.seoTitle")}
+        description={t("contentExplore.seoDescription")}
         url={getSiteUrl("/explore/content")}
         schema={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "Explore Content",
-          description: "Browse creator stories that can stand alone, launch moments, support places, or become missions on Promorang.",
+          name: t("contentExplore.seoTitle"),
+          description: t("contentExplore.seoDescription"),
         }}
       />
 
@@ -76,23 +78,23 @@ const ExploreContent = () => {
         <div className="mx-auto max-w-7xl">
           <div className="rounded-[2rem] border border-primary/10 bg-gradient-to-br from-primary/5 via-background to-accent/10 p-6 shadow-soft sm:p-8">
             <Badge variant="secondary" className="mb-4 rounded-full px-3 py-1">
-              Content Discovery
+              {t("contentExplore.badge")}
             </Badge>
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
                 <h1 className="font-serif text-4xl font-bold tracking-tight sm:text-5xl">
-                  Explore connected creator stories.
+                  {t("contentExplore.title")}
                 </h1>
                 <p className="mt-4 text-sm text-muted-foreground sm:text-base">
-                  Stories are a starting point, not just proof after the fact. A piece of content can stand alone, launch a moment, support a venue or brand, or become the mission that sends people somewhere real.
+                  {t("contentExplore.copy")}
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
                 <Button asChild variant="outline">
-                  <Link to="/for-you">Open For You</Link>
+                  <Link to="/for-you">{t("contentExplore.forYou")}</Link>
                 </Button>
                 <Button asChild>
-                  <Link to="/explore/moments">Browse moments</Link>
+                  <Link to="/explore/moments">{t("contentExplore.browseMoments")}</Link>
                 </Button>
               </div>
             </div>
@@ -101,18 +103,18 @@ const ExploreContent = () => {
           <div className="mt-6 grid gap-4 md:grid-cols-3">
             <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
               <Film className="mb-3 h-5 w-5 text-primary" />
-              <p className="font-semibold text-foreground">Creator media</p>
-              <p className="mt-2 text-sm text-muted-foreground">Browse public stories that can live independently or become the beginning of a moment, mission, or offer.</p>
+              <p className="font-semibold text-foreground">{t("contentExplore.media")}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{t("contentExplore.mediaCopy")}</p>
             </div>
             <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
               <Sparkles className="mb-3 h-5 w-5 text-primary" />
-              <p className="font-semibold text-foreground">Linked discovery</p>
-              <p className="mt-2 text-sm text-muted-foreground">Cards can route into linked moments when they exist, but content does not need a moment before it has value.</p>
+              <p className="font-semibold text-foreground">{t("contentExplore.linked")}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{t("contentExplore.linkedCopy")}</p>
             </div>
             <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
               <Search className="mb-3 h-5 w-5 text-primary" />
-              <p className="font-semibold text-foreground">Searchable browse</p>
-              <p className="mt-2 text-sm text-muted-foreground">This page is for explicit browsing. The feed stays responsible for personalized ranking and surprise.</p>
+              <p className="font-semibold text-foreground">{t("contentExplore.searchable")}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{t("contentExplore.searchableCopy")}</p>
             </div>
           </div>
 
@@ -122,7 +124,7 @@ const ExploreContent = () => {
               <Input
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search content by title, platform, place, brand, or category..."
+                placeholder={t("contentExplore.search")}
                 className="h-12 pl-11"
               />
             </div>
@@ -130,12 +132,12 @@ const ExploreContent = () => {
 
           <div className="mt-6 flex items-center justify-between">
             <div>
-              <h2 className="font-serif text-2xl font-bold">Browseable content</h2>
-              <p className="text-sm text-muted-foreground">Public stories connected to moments, venues, brands, and offers.</p>
+              <h2 className="font-serif text-2xl font-bold">{t("contentExplore.browseTitle")}</h2>
+              <p className="text-sm text-muted-foreground">{t("contentExplore.browseCopy")}</p>
             </div>
             {!contentQuery.isLoading ? (
               <Badge variant="outline" className="rounded-full">
-                {filteredContent.length} items
+                {t("contentExplore.count", { count: formatNumber(filteredContent.length) })}
               </Badge>
             ) : null}
           </div>
@@ -154,16 +156,16 @@ const ExploreContent = () => {
             </div>
           ) : (
             <div className="mt-6 rounded-3xl border border-dashed border-border bg-muted/20 px-6 py-12 text-center">
-              <h3 className="font-serif text-2xl font-bold">No content matched</h3>
+              <h3 className="font-serif text-2xl font-bold">{t("contentExplore.empty")}</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Try a broader search term or move into the personalized feed for a mixed recommendation stream.
+                {t("contentExplore.emptyCopy")}
               </p>
               <div className="mt-5 flex justify-center gap-3">
                 <Button asChild variant="outline">
-                  <Link to="/for-you">Open For You</Link>
+                  <Link to="/for-you">{t("contentExplore.forYou")}</Link>
                 </Button>
                 <Button asChild>
-                  <Link to="/explore/moments">Browse moments</Link>
+                  <Link to="/explore/moments">{t("contentExplore.browseMoments")}</Link>
                 </Button>
               </div>
             </div>

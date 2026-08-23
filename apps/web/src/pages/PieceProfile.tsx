@@ -12,6 +12,7 @@ import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { useToast } from '@/components/ui/use-toast';
 import { PieceOrderBook } from '@/components/trading/PieceOrderBook';
 import { TiltCard3D } from '@/components/ui/TiltCard3D';
+import { useI18n } from '@/i18n/I18nContext';
 
 type PieceType = 'content' | 'moment' | 'host' | 'venue';
 
@@ -55,6 +56,7 @@ interface PieceProfileData {
 }
 
 export function PieceProfile() {
+  const { t } = useI18n();
   const { pieceType, assetId } = useParams<{ pieceType: PieceType; assetId: string }>();
   const { session } = useAuth();
   const { toast } = useToast();
@@ -162,15 +164,15 @@ export function PieceProfile() {
               <Card className="overflow-hidden border-white/20 bg-gradient-to-br from-neutral-900/90 via-black to-neutral-950/90 shadow-2xl backdrop-blur-xl">
                 <CardHeader className="border-b border-white/10 pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-base text-white">Piece Snapshot</CardTitle>
+                    <CardTitle className="text-base text-white">{t("pieceProfile.snapshot")}</CardTitle>
                     <Sparkles className="h-4 w-4 text-primary animate-pulse" />
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-4 text-white">
-                  <div className="flex justify-between items-baseline"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">Price</span><span className="text-xl font-black text-primary">{currentPrice.toFixed(2)} Gems</span></div>
-                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">24h Volume</span><span className="font-semibold text-white/90">{Number(profile.pool?.volume_24h || profile.stats?.volume_24h || 0).toFixed(0)} Gems</span></div>
-                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">Holders</span><span className="font-semibold text-white/90">{Number(profile.stats?.holder_count || 0)}</span></div>
-                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">Market Cap</span><span className="font-semibold text-white/90">{Number(profile.stats?.market_cap || 0).toFixed(2)} Gems</span></div>
+                  <div className="flex justify-between items-baseline"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t("pieceProfile.price")}</span><span className="text-xl font-black text-primary">{currentPrice.toFixed(2)} Gems</span></div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t("pieceProfile.volume24h")}</span><span className="font-semibold text-white/90">{Number(profile.pool?.volume_24h || profile.stats?.volume_24h || 0).toFixed(0)} Gems</span></div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t("pieceProfile.holders")}</span><span className="font-semibold text-white/90">{Number(profile.stats?.holder_count || 0)}</span></div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t("pieceProfile.marketCap")}</span><span className="font-semibold text-white/90">{Number(profile.stats?.market_cap || 0).toFixed(2)} Gems</span></div>
                 </CardContent>
               </Card>
             </TiltCard3D>
@@ -183,26 +185,26 @@ export function PieceProfile() {
           <div className="space-y-6">
             <GuidanceDisclosure
               id={`piece-profile:${profile.piece_type}`}
-              title="Understand this Piece before acting"
-              summary="Pieces stay attached to their source asset, benefit disclosure, and current liquidity conditions."
+              title={t("pieceProfile.understandTitle")}
+              summary={t("pieceProfile.understandSummary")}
               className="mt-0"
             >
               <div className="grid gap-3 md:grid-cols-3">
                 <div className="rounded-xl border bg-muted/20 p-4">
                   <Gem className="h-5 w-5 text-primary" />
-                  <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">Connected asset</p>
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{t("pieceProfile.connectedAsset")}</p>
                   <p className="mt-2 text-sm font-semibold capitalize">{profile.piece_type}: {title}</p>
                   <p className="mt-2 text-xs leading-5 text-muted-foreground">A Piece stays attached to this source; it is not a general Promorang share.</p>
                 </div>
                 <div className="rounded-xl border bg-muted/20 p-4">
                   <BadgeCheck className="h-5 w-5 text-primary" />
-                  <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">Disclosed source</p>
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{t("pieceProfile.disclosedSource")}</p>
                   <p className="mt-2 text-sm font-semibold">{profile.journey?.summary || "No benefit source has been disclosed."}</p>
                   <p className="mt-2 text-xs leading-5 text-muted-foreground">Holding alone does not promise a financial return.</p>
                 </div>
                 <div className="rounded-xl border bg-muted/20 p-4">
                   <Users className="h-5 w-5 text-primary" />
-                  <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">Liquidity now</p>
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{t("pieceProfile.liquidityNow")}</p>
                   <p className="mt-2 text-sm font-semibold">{profile.pool ? `${Number(profile.stats?.holder_count || 0)} holders · active pool` : "No active pool"}</p>
                   <p className="mt-2 text-xs leading-5 text-muted-foreground">A pool enables exchange; it does not guarantee a buyer, stable price or easy exit.</p>
                 </div>
@@ -217,7 +219,7 @@ export function PieceProfile() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Journey From Platform Activity To Portfolio</CardTitle>
+                <CardTitle>{t("pieceProfile.journeyTitle")}</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-3 md:grid-cols-2">
                 {(profile.journey?.steps || []).map((step, index) => (
@@ -234,7 +236,7 @@ export function PieceProfile() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />Forecast Lab</CardTitle>
+                <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />{t("pieceProfile.forecastLab")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-muted-foreground">{profile.forecast_lab?.description}</p>
@@ -251,18 +253,18 @@ export function PieceProfile() {
           </div>
 
           <aside className="space-y-6">
-            <Card><CardHeader><CardTitle>Available now</CardTitle></CardHeader><CardContent><PieceOrderBook pieceType={profile.piece_type} assetId={profile.asset_id}/></CardContent></Card>
+            <Card><CardHeader><CardTitle>{t("pieceProfile.availableNow")}</CardTitle></CardHeader><CardContent><PieceOrderBook pieceType={profile.piece_type} assetId={profile.asset_id}/></CardContent></Card>
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><TrendingUp className="h-5 w-5" />Pool</CardTitle>
+                <CardTitle className="flex items-center gap-2"><TrendingUp className="h-5 w-5" />{t("pieceProfile.pool")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {profile.pool ? (
                   <>
-                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">Pieces reserve</span><span>{Number(profile.pool.pieces_reserve || 0).toFixed(0)}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">Gems reserve</span><span>{Number(profile.pool.currency_reserve || 0).toFixed(0)}</span></div>
-                    <Button asChild className="w-full"><Link to="/marketplace">Trade This Market</Link></Button>
-                    <Button asChild variant="outline" className="w-full"><Link to="/liquidity">Provide Liquidity</Link></Button>
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t("pieceProfile.piecesReserve")}</span><span>{Number(profile.pool.pieces_reserve || 0).toFixed(0)}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t("pieceProfile.gemsReserve")}</span><span>{Number(profile.pool.currency_reserve || 0).toFixed(0)}</span></div>
+                    <Button asChild className="w-full"><Link to="/marketplace">{t("pieceProfile.tradeMarket")}</Link></Button>
+                    <Button asChild variant="outline" className="w-full"><Link to="/liquidity">{t("pieceProfile.provideLiquidity")}</Link></Button>
                   </>
                 ) : (
                   <div className="space-y-4">
@@ -277,7 +279,7 @@ export function PieceProfile() {
                     </div>
                     <Button onClick={createPool} disabled={creatingPool || !session?.access_token} className="w-full">
                       {creatingPool ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
-                      Create Pool
+                      {t("pieceProfile.createPool")}
                     </Button>
                   </div>
                 )}
@@ -286,7 +288,7 @@ export function PieceProfile() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5" />Connected Surfaces</CardTitle>
+                <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5" />{t("pieceProfile.connectedSurfaces")}</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-2">
                 <Button asChild variant="outline"><Link to="/portfolio">Portfolio</Link></Button>

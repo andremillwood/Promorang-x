@@ -7,6 +7,7 @@ import { ArrowRight, CalendarDays, Camera, CheckCircle2, CircleDollarSign, Heart
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/i18n/I18nContext";
 
 type ActivationMetadata = {
   desired_outcome?: string;
@@ -46,14 +47,9 @@ type ActivationOutcome = {
 };
 
 const filters = ["all", "draft", "sent", "accepted", "repeat", "improve", "invite", "fund", "close"] as const;
-const statusCopy = {
-  draft: ["Still shaping", "Choose the missing people, value, and funding before sharing."],
-  sent: ["Ready for partners", "The plan is available for collaborators and funders to consider."],
-  accepted: ["Ready to bring alive", "Move from alignment into the Moment, content, and participant experience."],
-  declined: ["Needs a new fit", "Keep the cultural idea and find a better partner or contribution."],
-} as const;
 
 export default function ProposalWorkspace() {
+  const { t } = useI18n();
   const { user, activeOrgId } = useAuth();
   const navigate = useNavigate();
   const [filter, setFilter] = useState<(typeof filters)[number]>("all");
@@ -96,30 +92,42 @@ export default function ProposalWorkspace() {
   const openFunding = data.reduce((total, item) => total + (item.status !== "declined" ? Number(item.budget || 0) : 0), 0);
   const decisionCounts = ACTIVATION_REVIEW_NEXT_DECISIONS.reduce((accumulator, decision) => ({ ...accumulator, [decision.id]: data.filter((item) => item.latestOutcome?.next_decision === decision.id).length }), {} as Record<string, number>);
 
+  const filterLabels: Record<(typeof filters)[number], string> = {
+    all: t("proposalWorkspace.filterAll"),
+    draft: t("proposalWorkspace.filterDraft"),
+    sent: t("proposalWorkspace.filterSent"),
+    accepted: t("proposalWorkspace.filterAccepted"),
+    repeat: "repeat",
+    improve: "improve",
+    invite: "invite",
+    fund: "fund",
+    close: "close",
+  };
+
   return (
     <main className="min-h-screen bg-[#080808] px-4 pb-20 pt-10 text-white sm:px-6">
       <div className="mx-auto max-w-6xl">
         <header className="grid gap-8 border-b border-white/10 pb-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Activation studio</p>
-            <h1 className="mt-3 max-w-3xl font-serif text-4xl font-bold leading-none sm:text-6xl">Turn a shared intention into a living Scene.</h1>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-white/55">Shape the Moment, invite the right people, direct the content, fund the experience, and see what it opens for everyone.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("proposalWorkspace.heroEyebrow")}</p>
+            <h1 className="mt-3 max-w-3xl font-serif text-4xl font-bold leading-none sm:text-6xl">{t("proposalWorkspace.heroTitle")}</h1>
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-white/55">{t("proposalWorkspace.heroSubtitle")}</p>
           </div>
-          <Button onClick={() => navigate("/propose/new")} className="h-12 bg-primary px-6 font-black text-black hover:bg-primary/90"><Plus className="mr-2 h-4 w-4" />Start an activation</Button>
+          <Button onClick={() => navigate("/propose/new")} className="h-12 bg-primary px-6 font-black text-black hover:bg-primary/90"><Plus className="mr-2 h-4 w-4" />{t("proposalWorkspace.startActivation")}</Button>
         </header>
 
         <section className="mt-6 grid gap-3 sm:grid-cols-3">
-          <Metric icon={Sparkles} label="Plans in motion" value={String(data.length)} detail="Ideas being shaped or shared" />
-          <Metric icon={CalendarDays} label="Ready to bring alive" value={String(liveCount)} detail="Aligned activations" />
-          <Metric icon={CircleDollarSign} label="Value being assembled" value={openFunding ? `J$${openFunding.toLocaleString()}` : "Open"} detail="Funding requests across plans" />
+          <Metric icon={Sparkles} label={t("proposalWorkspace.metricPlans")} value={String(data.length)} detail={t("proposalWorkspace.metricPlansDetail")} />
+          <Metric icon={CalendarDays} label={t("proposalWorkspace.metricLive")} value={String(liveCount)} detail={t("proposalWorkspace.metricLiveDetail")} />
+          <Metric icon={CircleDollarSign} label={t("proposalWorkspace.metricFunding")} value={openFunding ? `J$${openFunding.toLocaleString()}` : t("proposalWorkspace.metricOpen")} detail={t("proposalWorkspace.metricFundingDetail")} />
         </section>
 
         <section className="mt-5 rounded-[2rem] border border-primary/20 bg-primary/[0.06] p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary">Review decisions</p>
-              <h2 className="mt-2 font-serif text-2xl font-bold">What should happen next?</h2>
-              <p className="mt-2 max-w-2xl text-xs leading-5 text-white/45">Use reviewed activations as an operating board: repeat what worked, improve what has signal, invite what is missing, fund what deserves backing, and close what should not be forced.</p>
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary">{t("proposalWorkspace.reviewDecisions")}</p>
+              <h2 className="mt-2 font-serif text-2xl font-bold">{t("proposalWorkspace.whatNext")}</h2>
+              <p className="mt-2 max-w-2xl text-xs leading-5 text-white/45">{t("proposalWorkspace.reviewCopy")}</p>
             </div>
           </div>
           <div className="mt-4 grid gap-2 sm:grid-cols-5">
@@ -128,12 +136,12 @@ export default function ProposalWorkspace() {
         </section>
 
         <div className="mt-8 flex gap-2 overflow-x-auto pb-2" aria-label="Filter activation plans">
-          {filters.map((item) => <button key={item} onClick={() => setFilter(item)} className={`rounded-full border px-4 py-2 text-xs font-bold capitalize transition ${filter === item ? "border-primary bg-primary text-black" : "border-white/10 bg-white/[0.04] text-white/55 hover:border-white/25"}`}>{item === "sent" ? "With partners" : item}</button>)}
+          {filters.map((item) => <button key={item} onClick={() => setFilter(item)} className={`rounded-full border px-4 py-2 text-xs font-bold capitalize transition ${filter === item ? "border-primary bg-primary text-black" : "border-white/10 bg-white/[0.04] text-white/55 hover:border-white/25"}`}>{filterLabels[item] || item}</button>)}
         </div>
 
         <section className="mt-4 space-y-4">
           {isLoading ? Array.from({ length: 2 }).map((_, index) => <div key={index} className="h-64 animate-pulse rounded-[2rem] border border-white/10 bg-white/[0.04]" />) : activations.length === 0 ? (
-            <div className="rounded-[2rem] border border-dashed border-white/15 bg-white/[0.025] px-6 py-20 text-center"><HeartHandshake className="mx-auto h-10 w-10 text-primary" /><h2 className="mt-5 font-serif text-3xl font-bold">Start with the change you want people to feel.</h2><p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-white/45">Your first activation can begin with a Scene, a gathering, a story, a place, or an opportunity you want to open.</p><Button onClick={() => navigate("/propose/new")} className="mt-6 bg-primary font-black text-black">Shape the first plan</Button></div>
+            <div className="rounded-[2rem] border border-dashed border-white/15 bg-white/[0.025] px-6 py-20 text-center"><HeartHandshake className="mx-auto h-10 w-10 text-primary" /><h2 className="mt-5 font-serif text-3xl font-bold">{t("proposalWorkspace.emptyTitle")}</h2><p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-white/45">{t("proposalWorkspace.emptyCopy")}</p><Button onClick={() => navigate("/propose/new")} className="mt-6 bg-primary font-black text-black">{t("proposalWorkspace.shapeFirstPlan")}</Button></div>
           ) : activations.map((activation) => <ActivationCard key={activation.id} activation={activation} onOpen={() => navigate(`/dashboard/proposals/${activation.id}`)} />)}
         </section>
       </div>
@@ -150,8 +158,15 @@ function DecisionMetric({ label, value, detail, active, onClick }: { label: stri
 }
 
 function ActivationCard({ activation, onOpen }: { activation: Activation; onOpen: () => void }) {
+  const { t } = useI18n();
   const metadata = activation.metadata || {};
-  const [statusTitle, statusDetail] = statusCopy[activation.status] || statusCopy.draft;
+  const statusMap: Record<Activation["status"], [string, string]> = {
+    draft: [t("proposalWorkspace.statusDraftTitle"), t("proposalWorkspace.statusDraftDetail")],
+    sent: [t("proposalWorkspace.statusSentTitle"), t("proposalWorkspace.statusSentDetail")],
+    accepted: [t("proposalWorkspace.statusAcceptedTitle"), t("proposalWorkspace.statusAcceptedDetail")],
+    declined: [t("proposalWorkspace.statusDeclinedTitle"), t("proposalWorkspace.statusDeclinedDetail")],
+  };
+  const [statusTitle, statusDetail] = statusMap[activation.status] || statusMap.draft;
   const contentCount = metadata.content_needed?.length || 0;
   const peopleCount = metadata.collaborators?.length || 0;
   const decision = activation.latestOutcome?.next_decision ? ACTIVATION_REVIEW_DECISION_ACTIONS[activation.latestOutcome.next_decision as keyof typeof ACTIVATION_REVIEW_DECISION_ACTIONS] : null;
@@ -162,19 +177,19 @@ function ActivationCard({ activation, onOpen }: { activation: Activation; onOpen
         <h2 className="mt-5 font-serif text-3xl font-bold sm:text-4xl">{activation.title}</h2>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">{metadata.outcome_detail || activation.description || "A shared experience waiting to be shaped."}</p>
         <div className="mt-7 grid gap-3 sm:grid-cols-3">
-          <StoryBeat icon={CalendarDays} label="The Moment" value={activation.description || "Define the experience"} />
-          <StoryBeat icon={Camera} label="The story" value={contentCount ? `${contentCount} content roles across before, live, and after` : "Choose how it travels"} />
-          <StoryBeat icon={Users} label="The people" value={peopleCount ? `${peopleCount} collaborator roles needed` : "Invite the right contributors"} />
+          <StoryBeat icon={CalendarDays} label={t("proposalWorkspace.theMoment")} value={activation.description || t("proposalWorkspace.defineExperience")} />
+          <StoryBeat icon={Camera} label={t("proposalWorkspace.theStory")} value={contentCount ? t("proposalWorkspace.storyRolesCount", { count: contentCount.toString() }) : t("proposalWorkspace.chooseHowItTravels")} />
+          <StoryBeat icon={Users} label={t("proposalWorkspace.thePeople")} value={peopleCount ? t("proposalWorkspace.peopleRolesCount", { count: peopleCount.toString() }) : t("proposalWorkspace.inviteRightContributors")} />
         </div>
         <div className="mt-7 grid gap-4 border-t border-white/10 pt-6 sm:grid-cols-2">
-          <ReturnBlock label="What people gain" value={metadata.social_return || metadata.participant_value?.join(" · ") || "Belonging, recognition, access, and a reason to return."} />
-          <ReturnBlock label="What partners gain" value={metadata.commercial_return || "Visits, stories, cultural relevance, and return behavior tied to the experience."} />
+          <ReturnBlock label={t("proposalWorkspace.peopleGain")} value={metadata.social_return || metadata.participant_value?.join(" · ") || t("proposalWorkspace.peopleGainDefault")} />
+          <ReturnBlock label={t("proposalWorkspace.partnersGain")} value={metadata.commercial_return || t("proposalWorkspace.partnersGainDefault")} />
         </div>
-        {activation.latestOutcome && <div className="mt-5 rounded-2xl border border-white/10 bg-black/25 p-4"><p className="text-[9px] font-black uppercase tracking-[0.16em] text-primary">Latest review</p><p className="mt-2 text-sm leading-6 text-white/60">{activation.latestOutcome.human_return_summary || activation.latestOutcome.commercial_return_summary || "Review recorded."}</p>{activation.latestOutcome.scene_learning_summary && <p className="mt-2 text-xs leading-5 text-white/40">Scene learning: {activation.latestOutcome.scene_learning_summary}</p>}</div>}
+        {activation.latestOutcome && <div className="mt-5 rounded-2xl border border-white/10 bg-black/25 p-4"><p className="text-[9px] font-black uppercase tracking-[0.16em] text-primary">{t("proposalWorkspace.latestReview")}</p><p className="mt-2 text-sm leading-6 text-white/60">{activation.latestOutcome.human_return_summary || activation.latestOutcome.commercial_return_summary || t("proposalWorkspace.reviewRecorded")}</p>{activation.latestOutcome.scene_learning_summary && <p className="mt-2 text-xs leading-5 text-white/40">{t("proposalWorkspace.sceneLearning", { learning: activation.latestOutcome.scene_learning_summary })}</p>}</div>}
       </div>
       <aside className="flex flex-col justify-between border-t border-white/10 bg-black/30 p-6 lg:border-l lg:border-t-0">
-        <div><p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/35">Your next move</p><h3 className="mt-3 font-serif text-2xl font-bold">{decision?.title || statusTitle}</h3><p className="mt-2 text-xs leading-5 text-white/45">{activation.latestOutcome?.next_decision_note || decision?.detail || statusDetail}</p>{activation.budget ? <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-[8px] font-black uppercase tracking-[0.16em] text-white/30">Funding requested</p><p className="mt-1 text-xl font-bold">J${Number(activation.budget).toLocaleString()}</p></div> : null}</div>
-        <Button onClick={onOpen} variant="outline" className="mt-7 w-full justify-between border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white">Open activation <ArrowRight className="h-4 w-4" /></Button>
+        <div><p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/35">{t("proposalWorkspace.nextMove")}</p><h3 className="mt-3 font-serif text-2xl font-bold">{decision?.title || statusTitle}</h3><p className="mt-2 text-xs leading-5 text-white/45">{activation.latestOutcome?.next_decision_note || decision?.detail || statusDetail}</p>{activation.budget ? <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-[8px] font-black uppercase tracking-[0.16em] text-white/30">{t("proposalWorkspace.fundingRequested")}</p><p className="mt-1 text-xl font-bold">J${Number(activation.budget).toLocaleString()}</p></div> : null}</div>
+        <Button onClick={onOpen} variant="outline" className="mt-7 w-full justify-between border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white">{t("proposalWorkspace.openActivation")} <ArrowRight className="h-4 w-4" /></Button>
       </aside>
     </div>
   </article>;

@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { resolveCommerceReceiptPresentation } from "@promorang/shared";
+import { useI18n } from "@/i18n/I18nContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -57,10 +58,10 @@ const receiptIcon = {
   refund: Receipt,
 } as const;
 
-function money(receipt?: CommerceReceipt | null) {
+function money(receipt: CommerceReceipt | null | undefined, locale: string, noCashValue: string) {
   const amount = Number(receipt?.amount || 0);
-  if (!amount) return "No cash value";
-  return new Intl.NumberFormat(undefined, { style: "currency", currency: receipt?.currency || "USD" }).format(amount);
+  if (!amount) return noCashValue;
+  return new Intl.NumberFormat(locale, { style: "currency", currency: receipt?.currency || "USD" }).format(amount);
 }
 
 function titleFor(receipt?: CommerceReceipt | null) {
@@ -78,12 +79,13 @@ function statusTone(status?: string) {
   return "border-border bg-muted text-muted-foreground";
 }
 
-function formatDate(value?: string | null) {
-  if (!value) return "Not recorded";
-  return new Date(value).toLocaleString();
+function formatDate(value: string | null | undefined, locale: string, notRecorded: string) {
+  if (!value) return notRecorded;
+  return new Date(value).toLocaleString(locale);
 }
 
 export default function CommerceReceiptDetail() {
+  const { t, locale } = useI18n();
   const { id } = useParams();
   const { session } = useAuth();
   const { toast } = useToast();
@@ -108,7 +110,7 @@ export default function CommerceReceiptDetail() {
 
   const copyValue = async (value: string, label: string) => {
     await navigator.clipboard.writeText(value);
-    toast({ title: `${label} copied`, description: "Saved to your clipboard." });
+    toast({ title: t("receipt.copied", { label }), description: t("receipt.clipboard") });
   };
 
   if (!session) {
@@ -117,9 +119,9 @@ export default function CommerceReceiptDetail() {
         <Card className="rounded-3xl border-dashed">
           <CardContent className="p-8 text-center">
             <ShieldCheck className="mx-auto h-10 w-10 text-primary" />
-            <h1 className="mt-4 text-3xl font-black tracking-[-0.05em]">Sign in to view this receipt</h1>
-            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Commerce receipts are private proof records connected to customers, merchants, and admins.</p>
-            <Button asChild className="mt-5" variant="hero"><Link to="/auth">Sign in</Link></Button>
+            <h1 className="mt-4 text-3xl font-black tracking-[-0.05em]">{t("receipt.signInTitle")}</h1>
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">{t("receipt.signInCopy")}</p>
+            <Button asChild className="mt-5" variant="hero"><Link to="/auth">{t("wallet.signIn")}</Link></Button>
           </CardContent>
         </Card>
       </main>
@@ -129,7 +131,7 @@ export default function CommerceReceiptDetail() {
   return (
     <main className="mx-auto max-w-6xl space-y-6">
       <Button asChild variant="ghost" className="gap-2">
-        <Link to="/vault"><ArrowLeft className="h-4 w-4" /> Back to Vault</Link>
+        <Link to="/vault"><ArrowLeft className="h-4 w-4" /> {t("receipt.back")}</Link>
       </Button>
 
       {query.isLoading ? (
@@ -140,7 +142,7 @@ export default function CommerceReceiptDetail() {
       ) : query.error ? (
         <Card className="rounded-3xl border-destructive/20 bg-destructive/5">
           <CardContent className="p-8">
-            <h1 className="text-3xl font-black tracking-[-0.05em]">Receipt unavailable</h1>
+            <h1 className="text-3xl font-black tracking-[-0.05em]">{t("receipt.unavailable")}</h1>
             <p className="mt-2 text-sm text-muted-foreground">{(query.error as Error).message}</p>
           </CardContent>
         </Card>
@@ -167,20 +169,20 @@ export default function CommerceReceiptDetail() {
                 <p className="mt-2 text-lg font-black capitalize">{presentation?.title || titleFor(receipt)}</p>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-black/55">{presentation?.explanation}</p>
                 <div className="mt-6 grid gap-2 sm:grid-cols-2">{presentation?.outcomes.map((outcome) => <div key={outcome.id} className="flex items-center justify-between gap-5 border-b border-black/10 py-2 text-xs"><span className="text-black/50">{outcome.label}</span><span className="font-black capitalize">{outcome.value}</span></div>)}</div>
-                <div className="mt-5 flex items-center gap-2 border-t border-dashed border-black/20 pt-4 text-[10px] font-black uppercase tracking-[.2em]"><BadgeCheck className="h-4 w-4 text-primary" />Saved to Vault</div>
+                <div className="mt-5 flex items-center gap-2 border-t border-dashed border-black/20 pt-4 text-[10px] font-black uppercase tracking-[.2em]"><BadgeCheck className="h-4 w-4 text-primary" />{t("receipt.saved")}</div>
               </div>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
-                  <p className="text-[10px] uppercase tracking-widest text-white/45">Value</p>
-                  <p className="mt-1 text-2xl font-black">{money(receipt)}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-white/45">{t("receipt.value")}</p>
+                  <p className="mt-1 text-2xl font-black">{money(receipt, locale, t("receipt.noCash"))}</p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
-                  <p className="text-[10px] uppercase tracking-widest text-white/45">Issued</p>
-                  <p className="mt-1 text-sm font-bold">{formatDate(receipt.occurred_at)}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-white/45">{t("receipt.issued")}</p>
+                  <p className="mt-1 text-sm font-bold">{formatDate(receipt.occurred_at, locale, t("receipt.notRecorded"))}</p>
                 </div>
                 <div className="rounded-2xl border border-dashed border-primary/40 bg-primary/10 p-4">
-                  <p className="text-[10px] uppercase tracking-widest text-primary-light">Code / ID</p>
+                  <p className="text-[10px] uppercase tracking-widest text-primary-light">{t("receipt.code")}</p>
                   <button className="mt-1 break-all text-left font-mono text-sm font-black text-white" onClick={() => safeCode && copyValue(String(safeCode), "Code")}>
                     {safeCode}
                   </button>
@@ -194,7 +196,7 @@ export default function CommerceReceiptDetail() {
               <CardContent className="p-5">
                 <div className="flex items-center gap-2">
                   <CalendarClock className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-black tracking-[-0.04em]">Receipt timeline</h2>
+                  <h2 className="text-xl font-black tracking-[-0.04em]">{t("receipt.timeline")}</h2>
                 </div>
                 <div className="mt-5 space-y-3">
                   {(query.data?.timeline || []).map((item, index) => (
@@ -203,7 +205,7 @@ export default function CommerceReceiptDetail() {
                         <span className={`mt-1 h-2.5 w-2.5 rounded-full ${item.tone === "stopped" ? "bg-destructive" : item.tone === "pending" ? "bg-amber-500" : "bg-emerald-500"}`} />
                         <div>
                           <p className="font-bold">{item.label}</p>
-                          <p className="mt-1 text-xs text-muted-foreground">{formatDate(item.at)}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">{formatDate(item.at, locale, t("receipt.notRecorded"))}</p>
                           {item.detail ? <p className="mt-2 break-all text-xs text-muted-foreground">{item.detail}</p> : null}
                         </div>
                       </div>
@@ -217,12 +219,12 @@ export default function CommerceReceiptDetail() {
               <CardContent className="p-5">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-black tracking-[-0.04em]">Connected commerce</h2>
+                  <h2 className="text-xl font-black tracking-[-0.04em]">{t("receipt.connected")}</h2>
                 </div>
                 <div className="mt-4 space-y-3 text-sm">
-                  <p className="text-muted-foreground">Product: <span className="font-semibold text-foreground">{receipt.merchant_products?.name || "Not attached"}</span></p>
-                  <p className="text-muted-foreground">Fulfillment: <span className="font-semibold text-foreground">{receipt.merchant_products?.fulfillment_mode || receipt.attribution?.fulfillment_mode || "Not specified"}</span></p>
-                  <p className="text-muted-foreground">Source: <span className="font-semibold text-foreground">{receipt.attribution?.source || "Promorang commerce"}</span></p>
+                  <p className="text-muted-foreground">{t("receipt.product")}: <span className="font-semibold text-foreground">{receipt.merchant_products?.name || t("receipt.notAttached")}</span></p>
+                  <p className="text-muted-foreground">{t("receipt.fulfillment")}: <span className="font-semibold text-foreground">{receipt.merchant_products?.fulfillment_mode || receipt.attribution?.fulfillment_mode || t("receipt.notSpecified")}</span></p>
+                  <p className="text-muted-foreground">{t("receipt.source")}: <span className="font-semibold text-foreground">{receipt.attribution?.source || "Promorang commerce"}</span></p>
                   {receipt.attribution?.stripe_payment_intent_id ? (
                     <p className="break-all text-muted-foreground">Stripe intent: <span className="font-mono text-xs text-foreground">{receipt.attribution.stripe_payment_intent_id}</span></p>
                   ) : null}
@@ -232,14 +234,14 @@ export default function CommerceReceiptDetail() {
                 </div>
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Button variant="outline" size="sm" onClick={() => copyValue(receipt.id, "Receipt ID")}>
-                    <Copy className="mr-2 h-4 w-4" /> Copy receipt ID
+                    <Copy className="mr-2 h-4 w-4" /> {t("receipt.copyId")}
                   </Button>
                   {receipt.merchant_products?.id ? (
                     <Button asChild size="sm" variant="secondary">
-                      <Link to={`/shop/${receipt.merchant_products.id}`}>View product</Link>
+                      <Link to={`/shop/${receipt.merchant_products.id}`}>{t("receipt.viewProduct")}</Link>
                     </Button>
                   ) : null}
-                  {query.data?.permissions?.is_customer && !["cancelled", "refunded"].includes(receipt.status) ? <Button asChild size="sm" variant="ghost" className="text-destructive"><Link to={`/support/tickets?receipt=${encodeURIComponent(receipt.id)}&product=${encodeURIComponent(titleFor(receipt))}`}><AlertTriangle className="mr-2 h-4 w-4" />Report a problem</Link></Button> : null}
+                  {query.data?.permissions?.is_customer && !["cancelled", "refunded"].includes(receipt.status) ? <Button asChild size="sm" variant="ghost" className="text-destructive"><Link to={`/support/tickets?receipt=${encodeURIComponent(receipt.id)}&product=${encodeURIComponent(titleFor(receipt))}`}><AlertTriangle className="mr-2 h-4 w-4" />{t("receipt.report")}</Link></Button> : null}
                 </div>
               </CardContent>
             </Card>

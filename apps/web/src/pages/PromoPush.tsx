@@ -7,14 +7,12 @@ import {
   Copy,
   Crosshair,
   Download,
-  Link2,
   MapPin,
   Megaphone,
   MousePointerClick,
   Plus,
   QrCode,
   ShieldCheck,
-  Sparkles,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +30,8 @@ import {
   usePromoPushMoments,
 } from "@/hooks/usePromoPush";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/I18nContext";
+import { TranslationKey } from "@/i18n/translations";
 
 const defaultForm = {
   title: "",
@@ -69,13 +69,14 @@ function downloadQr(channelLabel: string, code: string) {
 }
 
 const metricCards = [
-  { label: "Clicks / Scans", key: "clicks", icon: MousePointerClick },
-  { label: "Moment Joins", key: "joins", icon: Users },
-  { label: "Moves Completed", key: "moves_completed", icon: CheckCircle2 },
-  { label: "Contributions Counted", key: "proof_verified", icon: ShieldCheck },
+  { labelKey: "promoPush.metricClicks" as TranslationKey, key: "clicks", icon: MousePointerClick },
+  { labelKey: "promoPush.metricJoins" as TranslationKey, key: "joins", icon: Users },
+  { labelKey: "promoPush.metricMoves" as TranslationKey, key: "moves_completed", icon: CheckCircle2 },
+  { labelKey: "promoPush.metricCounted" as TranslationKey, key: "proof_verified", icon: ShieldCheck },
 ] as const;
 
 export default function PromoPush() {
+  const { t } = useI18n();
   const campaignsQuery = usePromoPushCampaigns();
   const momentsQuery = usePromoPushMoments();
   const createCampaign = useCreatePromoPushCampaign();
@@ -125,17 +126,17 @@ export default function PromoPush() {
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#FF6A00]/40 bg-[#FF6A00]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-[#FFC300]">
               <Megaphone className="h-3.5 w-3.5" />
-              PromoPush
+              {t("promoPush.heroEyebrow")}
             </div>
-            <h1 className="text-3xl font-black tracking-tight sm:text-5xl">Geo-distribution into real action</h1>
+            <h1 className="text-3xl font-black tracking-tight sm:text-5xl">{t("promoPush.heroTitle")}</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-white/65 sm:text-base">
-              QR, Meta, creator, direct, and street traffic all route to one Moment loop: join, complete the Move, let the contribution count, then release the value.
+              {t("promoPush.heroSubtitle")}
             </p>
           </div>
           <Button asChild className="bg-[#FF6A00] text-white hover:bg-[#e65f00]">
             <Link to="/promopush/promoter">
               <QrCode className="mr-2 h-4 w-4" />
-              Promoter Portal
+              {t("promoPush.promoterPortal")}
             </Link>
           </Button>
         </div>
@@ -146,7 +147,7 @@ export default function PromoPush() {
               <CardContent className="p-4">
                 <metric.icon className="mb-3 h-5 w-5 text-[#FF6A00]" />
                 <p className="text-2xl font-black">{totals[metric.key].toLocaleString()}</p>
-                <p className="text-xs font-medium text-white/55">{metric.label}</p>
+                <p className="text-xs font-medium text-white/55">{t(metric.labelKey)}</p>
               </CardContent>
             </Card>
           ))}
@@ -154,15 +155,15 @@ export default function PromoPush() {
             <CardContent className="p-4">
               <BadgeDollarSign className="mb-3 h-5 w-5 text-[#FFC300]" />
               <p className="text-2xl font-black">{totals.rewards_issued.toLocaleString()}</p>
-              <p className="text-xs font-medium text-[#FFC300]/80">Rewards Issued</p>
+              <p className="text-xs font-medium text-[#FFC300]/80">{t("promoPush.metricRewardsIssued")}</p>
             </CardContent>
           </Card>
         </div>
 
         <Tabs defaultValue="create" className="mt-8">
           <TabsList className="grid w-full grid-cols-2 bg-white/10 sm:w-[420px]">
-            <TabsTrigger value="create">Create Activation</TabsTrigger>
-            <TabsTrigger value="track">Track Channels</TabsTrigger>
+            <TabsTrigger value="create">{t("promoPush.tabCreate")}</TabsTrigger>
+            <TabsTrigger value="track">{t("promoPush.tabTrack")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="create" className="mt-6">
@@ -171,19 +172,19 @@ export default function PromoPush() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Plus className="h-5 w-5 text-[#FF6A00]" />
-                    Activation Builder
+                    {t("promoPush.builderTitle")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
-                    <Label htmlFor="title">Activation title</Label>
+                    <Label htmlFor="title">{t("promoPush.titleLabel")}</Label>
                     <Input id="title" required value={form.title} onChange={(e) => updateForm("title", e.target.value)} className="mt-2 bg-black/40" />
                   </div>
                   <div className="sm:col-span-2">
-                    <Label>Linked Moment</Label>
+                    <Label>{t("promoPush.linkedMomentLabel")}</Label>
                     <Select required value={form.linked_moment_id} onValueChange={(value) => updateForm("linked_moment_id", value)}>
                       <SelectTrigger className="mt-2 bg-black/40">
-                        <SelectValue placeholder="Select the Moment all traffic enters" />
+                        <SelectValue placeholder={t("promoPush.linkedMomentPlaceholder")} />
                       </SelectTrigger>
                       <SelectContent>
                         {(momentsQuery.data || []).map((moment) => (
@@ -193,47 +194,47 @@ export default function PromoPush() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="geo_label">Location label</Label>
-                    <Input id="geo_label" required value={form.geo_label} onChange={(e) => updateForm("geo_label", e.target.value)} className="mt-2 bg-black/40" placeholder="Half Way Tree, Kingston" />
+                    <Label htmlFor="geo_label">{t("promoPush.locationLabel")}</Label>
+                    <Input id="geo_label" required value={form.geo_label} onChange={(e) => updateForm("geo_label", e.target.value)} className="mt-2 bg-black/40" placeholder={t("promoPush.locationPlaceholder")} />
                   </div>
                   <div>
-                    <Label htmlFor="radius">Radius meters</Label>
+                    <Label htmlFor="radius">{t("promoPush.radiusLabel")}</Label>
                     <Input id="radius" type="number" min="1" required value={form.geo_radius_meters} onChange={(e) => updateForm("geo_radius_meters", e.target.value)} className="mt-2 bg-black/40" />
                   </div>
                   <div>
-                    <Label htmlFor="lat">Latitude</Label>
+                    <Label htmlFor="lat">{t("promoPush.latLabel")}</Label>
                     <Input id="lat" type="number" step="0.0000001" required value={form.geo_center_lat} onChange={(e) => updateForm("geo_center_lat", e.target.value)} className="mt-2 bg-black/40" />
                   </div>
                   <div>
-                    <Label htmlFor="lng">Longitude</Label>
+                    <Label htmlFor="lng">{t("promoPush.lngLabel")}</Label>
                     <Input id="lng" type="number" step="0.0000001" required value={form.geo_center_lng} onChange={(e) => updateForm("geo_center_lng", e.target.value)} className="mt-2 bg-black/40" />
                   </div>
                   <div>
-                    <Label htmlFor="start">Start time</Label>
+                    <Label htmlFor="start">{t("promoPush.startLabel")}</Label>
                     <Input id="start" type="datetime-local" required value={form.start_time} onChange={(e) => updateForm("start_time", e.target.value)} className="mt-2 bg-black/40" />
                   </div>
                   <div>
-                    <Label htmlFor="end">End time</Label>
+                    <Label htmlFor="end">{t("promoPush.endLabel")}</Label>
                     <Input id="end" type="datetime-local" required value={form.end_time} onChange={(e) => updateForm("end_time", e.target.value)} className="mt-2 bg-black/40" />
                   </div>
                   <div>
-                    <Label htmlFor="budget">Ad budget optional</Label>
+                    <Label htmlFor="budget">{t("promoPush.budgetLabel")}</Label>
                     <Input id="budget" type="number" min="0" value={form.budget} onChange={(e) => updateForm("budget", e.target.value)} className="mt-2 bg-black/40" placeholder="JMD" />
                   </div>
                   <div>
-                    <Label htmlFor="creator_reward">Creator counted-action payout</Label>
+                    <Label htmlFor="creator_reward">{t("promoPush.creatorRewardLabel")}</Label>
                     <Input id="creator_reward" type="number" min="0" value={form.creator_verified_action_jmd} onChange={(e) => updateForm("creator_verified_action_jmd", e.target.value)} className="mt-2 bg-black/40" />
                   </div>
                   <div className="sm:col-span-2">
-                    <Label htmlFor="rules">Reward rule</Label>
+                    <Label htmlFor="rules">{t("promoPush.rulesLabel")}</Label>
                     <Textarea id="rules" value={form.proof_verified_reward} onChange={(e) => updateForm("proof_verified_reward", e.target.value)} className="mt-2 bg-black/40" />
                   </div>
                   <div className="flex items-center gap-3 sm:col-span-2">
                     <Checkbox id="creative" checked={form.request_creative_support} onCheckedChange={(value) => updateForm("request_creative_support", value === true)} />
-                    <Label htmlFor="creative" className="text-sm text-white/80">Request creative support for flyer design, QR layout, and ad creatives</Label>
+                    <Label htmlFor="creative" className="text-sm text-white/80">{t("promoPush.creativeSupportLabel")}</Label>
                   </div>
                   <Button disabled={createCampaign.isPending} className="sm:col-span-2 bg-[#FF6A00] text-white hover:bg-[#e65f00]">
-                    {createCampaign.isPending ? "Creating..." : "Generate tracked channels"}
+                    {createCampaign.isPending ? t("promoPush.generatingButton") : t("promoPush.generateButton")}
                   </Button>
                 </CardContent>
               </Card>
@@ -242,16 +243,16 @@ export default function PromoPush() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Crosshair className="h-5 w-5 text-[#FFC300]" />
-                    V1 Guardrails
+                    {t("promoPush.guardrailsTitle")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm text-white/70">
                   {[
-                    "No activation launches without a linked Moment.",
-                    "Every channel receives a unique tracking link.",
-                    "All links resolve to the Moment entry endpoint.",
-                    "Geo validation logs soft distance and radius status.",
-                    "Rewards are tied to contributions that count.",
+                    t("promoPush.guardrail1"),
+                    t("promoPush.guardrail2"),
+                    t("promoPush.guardrail3"),
+                    t("promoPush.guardrail4"),
+                    t("promoPush.guardrail5"),
                   ].map((item) => (
                     <div key={item} className="flex gap-3">
                       <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#FFC300]" />
@@ -259,8 +260,8 @@ export default function PromoPush() {
                     </div>
                   ))}
                   <div className="rounded-lg border border-[#FF6A00]/30 bg-[#FF6A00]/10 p-4">
-                    <p className="font-bold text-white">Selected Moment</p>
-                    <p className="mt-1 text-white/65">{selectedMoment?.title || "Choose a Moment to unlock distribution."}</p>
+                    <p className="font-bold text-white">{t("promoPush.selectedMoment")}</p>
+                    <p className="mt-1 text-white/65">{selectedMoment?.title || t("promoPush.noMomentSelected")}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -269,10 +270,10 @@ export default function PromoPush() {
 
           <TabsContent value="track" className="mt-6 space-y-5">
             {campaignsQuery.isLoading ? (
-              <p className="text-white/60">Loading PromoPush activations...</p>
+              <p className="text-white/60">{t("promoPush.loading")}</p>
             ) : campaigns.length === 0 ? (
               <Card className="border-dashed border-white/20 bg-white/[0.03] text-white">
-                <CardContent className="p-8 text-center text-white/65">Create an activation to generate QR, Meta, creator, direct, and street links.</CardContent>
+                <CardContent className="p-8 text-center text-white/65">{t("promoPush.emptyTrack")}</CardContent>
               </Card>
             ) : (
               campaigns.map((campaign) => (
@@ -283,7 +284,7 @@ export default function PromoPush() {
                         <CardTitle>{campaign.title}</CardTitle>
                         <p className="mt-1 flex items-center gap-2 text-sm text-white/55">
                           <MapPin className="h-4 w-4 text-[#FF6A00]" />
-                          {campaign.geo_label || "Geo zone"} · {campaign.geo_radius_meters}m radius
+                          {campaign.geo_label || t("promoPush.geoZone")} · {t("promoPush.radiusMeters", { radius: String(campaign.geo_radius_meters) })}
                         </p>
                       </div>
                       <span className={cn("rounded-full px-3 py-1 text-xs font-bold uppercase", campaign.status === "active" ? "bg-[#FF6A00] text-white" : "bg-white/10 text-white/70")}>
@@ -305,14 +306,14 @@ export default function PromoPush() {
                             <QRCodeSVG id={`qr-${channel.tracking_code}`} value={channel.tracking_link} className="h-full w-full" />
                           </div>
                           <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-white/65">
-                            <span>Clicks {channel.metrics?.clicks || 0}</span>
-                            <span>Joins {channel.metrics?.joins || 0}</span>
-                            <span>Moves {channel.metrics?.moves_completed || 0}</span>
-                            <span>Counted {channel.metrics?.proof_verified || 0}</span>
+                            <span>{t("promoPush.statClicks", { count: String(channel.metrics?.clicks || 0) })}</span>
+                            <span>{t("promoPush.statJoins", { count: String(channel.metrics?.joins || 0) })}</span>
+                            <span>{t("promoPush.statMoves", { count: String(channel.metrics?.moves_completed || 0) })}</span>
+                            <span>{t("promoPush.statCounted", { count: String(channel.metrics?.proof_verified || 0) })}</span>
                           </div>
                           <Button size="sm" variant="outline" className="mt-3 w-full border-white/15 bg-transparent text-white hover:bg-white/10" onClick={() => downloadQr(channel.label, channel.tracking_code)}>
                             <Download className="mr-2 h-4 w-4" />
-                            QR SVG
+                            {t("promoPush.downloadSvg")}
                           </Button>
                         </div>
                       ))}
@@ -327,3 +328,4 @@ export default function PromoPush() {
     </div>
   );
 }
+

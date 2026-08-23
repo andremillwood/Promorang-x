@@ -21,6 +21,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useActivationOperations } from "@/hooks/useActivationOperations";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/I18nContext";
+import { TranslationKey } from "@/i18n/translations";
 
 type Metadata = Record<string, unknown> & { scene?: string; location?: string; outcome_detail?: string; content_needed?: string[]; collaborators?: string[]; participant_value?: string[]; participant_value_summary?: string; value_model?: string; social_return?: string; commercial_return?: string; what_counts?: string; funder_contribution?: string };
 type MomentOption = { id: string; title: string; location: string; starts_at: string; image_url: string | null };
@@ -28,11 +30,11 @@ type DiscoverableMoment = MomentOption & { host_id: string; venue_name?: string 
 type OperationalActivation = { id: string; title: string; description: string | null; budget: number | null; funding_goal_gems?: number | null; status: string | null; target_moment_id: string | null; metadata: unknown; scene_id?: string | null; lifecycle_state?: string };
 
 const stages = ACTIVATION_READINESS_STAGES.slice(0, 5);
-const workspaceFocuses = [
-  { id: "shape", label: "Shape", detail: "Scene, Moment + story", icon: CalendarDays },
-  { id: "team", label: "Gather", detail: "People + contributions", icon: Users },
-  { id: "value", label: "Fund + open", detail: "Access, Gems + promises", icon: CircleDollarSign },
-  { id: "review", label: "Learn", detail: "Return + next decision", icon: Sparkles },
+const workspaceFocusDefinitions = [
+  { id: "shape", labelKey: "activationDetail.focusShape" as TranslationKey, detailKey: "activationDetail.focusShapeDetail" as TranslationKey, icon: CalendarDays },
+  { id: "team", labelKey: "activationDetail.focusTeam" as TranslationKey, detailKey: "activationDetail.focusTeamDetail" as TranslationKey, icon: Users },
+  { id: "value", labelKey: "activationDetail.focusValue" as TranslationKey, detailKey: "activationDetail.focusValueDetail" as TranslationKey, icon: CircleDollarSign },
+  { id: "review", labelKey: "activationDetail.focusReview" as TranslationKey, detailKey: "activationDetail.focusReviewDetail" as TranslationKey, icon: Sparkles },
 ] as const;
 const valueModels = [
   { id: "attendance_only", label: "Attendance only", detail: "The Moment and what happens in the room are the value." },
@@ -42,9 +44,10 @@ const valueModels = [
   { id: "gem_funded", label: "Gem funded", detail: "Gems secure access, participant rewards, or contributor compensation." },
   { id: "hybrid", label: "Hybrid", detail: "Combine partner commitments, IRL value, coupons, and optional Gems." },
 ] as const;
-type WorkspaceFocus = (typeof workspaceFocuses)[number]["id"];
+type WorkspaceFocus = (typeof workspaceFocusDefinitions)[number]["id"];
 
 export default function ActivationDetail() {
+  const { t } = useI18n();
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -183,14 +186,14 @@ export default function ActivationDetail() {
   if (!activation) return <main className="min-h-screen bg-[#080808] p-8 text-white"><p>Activation not found.</p></main>;
 
   return <main className="min-h-screen bg-[#080808] px-4 pb-24 pt-8 text-white sm:px-6"><div className="mx-auto max-w-6xl">
-    <button onClick={() => navigate("/dashboard/proposals")} className="flex items-center gap-2 text-xs font-bold text-white/45 hover:text-white"><ArrowLeft className="h-4 w-4" />Activation Studio</button>
+    <button onClick={() => navigate("/dashboard/proposals")} className="flex items-center gap-2 text-xs font-bold text-white/45 hover:text-white"><ArrowLeft className="h-4 w-4" />{t("activationDetail.backToWorkspace")}</button>
     <header className="mt-7 grid gap-7 border-b border-white/10 pb-8 lg:grid-cols-[1fr_310px] lg:items-end"><div><div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-primary/12 px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-primary">{metadata.scene || "Scene to be chosen"}</span>{metadata.location && <span className="flex items-center gap-1 text-xs text-white/40"><MapPin className="h-3 w-3" />{metadata.location}</span>}</div><h1 className="mt-4 font-serif text-4xl font-bold leading-none sm:text-6xl">{activation.title}</h1><GuidanceDisclosure id="activation-detail:outcome-context" eyebrow="Activation guide" title="What this activation is meant to make happen" summary="The outcome detail explains why this Moment should exist and what participants or partners should understand." className="mt-4 max-w-3xl"><p className="text-sm leading-6 text-white/55">{metadata.outcome_detail || activation.description}</p></GuidanceDisclosure></div><button type="button" onClick={() => setWorkspaceFocus(recommendedFocus)} className="rounded-2xl border border-primary/25 bg-primary/10 p-5 text-left transition hover:border-primary/50 hover:bg-primary/15"><p className="text-[9px] font-black uppercase tracking-[0.18em] text-primary">Next move</p><p className="mt-2 font-serif text-2xl font-bold">{nextStage < 0 ? ACTIVATION_RETURN_REVIEW.reviewedCta : stages[nextStage].label}</p><p className="mt-2 text-xs leading-5 text-white/50">{nextStage < 0 ? ACTIVATION_RETURN_REVIEW.emptyBody : stages[nextStage].detail}</p><span className="mt-4 flex items-center gap-2 text-[9px] font-black uppercase tracking-[.15em] text-primary">Open this work <ArrowRight className="h-3.5 w-3.5" /></span></button></header>
 
     <section className="mt-6 grid gap-2 sm:grid-cols-5">{stages.map((stage, index) => <button type="button" onClick={() => setWorkspaceFocus(stageFocus[index])} key={stage.id} className={`rounded-xl border p-3 text-left transition hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${readiness[index] ? "border-primary/25 bg-primary/10" : index === nextStage ? "border-white/25 bg-white/[0.06]" : "border-white/8 bg-white/[0.025]"}`}><div className={`flex h-6 w-6 items-center justify-center rounded-full ${readiness[index] ? "bg-primary text-black" : "bg-white/8 text-white/35"}`}>{readiness[index] ? <Check className="h-3.5 w-3.5" /> : <span className="text-[9px] font-bold">{index + 1}</span>}</div><p className="mt-3 text-[9px] font-black uppercase tracking-[0.12em] text-white/65">{stage.label}</p><p className="mt-2 text-[10px] leading-4 text-white/35">{readinessGuidance[index]}</p></button>)}</section>
     {myInvitation && <section className="mt-5 rounded-[2rem] border border-primary/30 bg-primary/10 p-6"><p className="text-[9px] font-black uppercase tracking-[0.18em] text-primary">You have been invited as {myInvitation.role.replaceAll("_", " ")}</p><h2 className="mt-2 font-serif text-2xl font-bold">{myInvitation.responsibility || "Help bring this activation alive."}</h2><div className="mt-5 flex flex-wrap gap-2"><Button onClick={() => operations.respond.mutate({ collaboratorId: myInvitation.id, response: "accepted" })} className="bg-primary font-black text-black">I’m in</Button><Button onClick={() => operations.respond.mutate({ collaboratorId: myInvitation.id, response: "changes_requested", message: "I would like to align on the responsibility before accepting." })} variant="outline" className="border-white/15 bg-transparent text-white">Let’s align first</Button><Button onClick={() => operations.respond.mutate({ collaboratorId: myInvitation.id, response: "declined" })} variant="ghost" className="text-white/50">Not this time</Button></div></section>}
 
     <nav className="mt-6 grid gap-2 rounded-[2rem] border border-white/10 bg-[#10100f] p-2 sm:grid-cols-4" aria-label="Activation workspace focus">
-      {workspaceFocuses.map(({ id: focusId, label, detail, icon: Icon }) => <button key={focusId} type="button" aria-current={workspaceFocus === focusId ? "step" : undefined} onClick={() => setWorkspaceFocus(focusId)} className={`group flex items-center gap-3 rounded-[1.35rem] border p-4 text-left transition ${workspaceFocus === focusId ? "border-primary/30 bg-primary text-black" : "border-transparent bg-transparent text-white hover:border-white/10 hover:bg-white/[.04]"}`}><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${workspaceFocus === focusId ? "bg-black/10" : "bg-primary/10 text-primary"}`}><Icon className="h-4 w-4" /></span><span><strong className="block text-xs">{label}</strong><small className={`mt-1 block text-[9px] ${workspaceFocus === focusId ? "text-black/60" : "text-white/35"}`}>{detail}</small></span></button>)}
+      {workspaceFocusDefinitions.map(({ id: focusId, labelKey, detailKey, icon: Icon }) => <button key={focusId} type="button" aria-current={workspaceFocus === focusId ? "step" : undefined} onClick={() => setWorkspaceFocus(focusId)} className={`group flex items-center gap-3 rounded-[1.35rem] border p-4 text-left transition ${workspaceFocus === focusId ? "border-primary/30 bg-primary text-black" : "border-transparent bg-transparent text-white hover:border-white/10 hover:bg-white/[.04]"}`}><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${workspaceFocus === focusId ? "bg-black/10" : "bg-primary/10 text-primary"}`}><Icon className="h-4 w-4" /></span><span><strong className="block text-xs">{t(labelKey)}</strong><small className={`mt-1 block text-[9px] ${workspaceFocus === focusId ? "text-black/60" : "text-white/35"}`}>{t(detailKey)}</small></span></button>)}
     </nav>
 
     <section className="mt-6 grid gap-5 lg:grid-cols-[1fr_340px]">

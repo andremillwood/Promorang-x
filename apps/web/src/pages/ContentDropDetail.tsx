@@ -40,6 +40,7 @@ import { OpportunityTerms } from "@/components/economy/OpportunityTerms";
 import { ProofReceipt, type RewardItem } from "@/components/value/ValueJourney";
 import { useState } from "react";
 import { recordJourneyEvent } from "@/lib/value-journey";
+import { useI18n } from "@/i18n/I18nContext";
 
 const actionButtons = [
   { action_type: "click", label: "Open", icon: ExternalLink },
@@ -49,6 +50,7 @@ const actionButtons = [
 ];
 
 export default function ContentDropDetail() {
+  const { t, formatNumber } = useI18n();
   const { id } = useParams();
   const { session } = useAuth();
   const dropQuery = useContentDrop(id);
@@ -107,17 +109,17 @@ export default function ContentDropDetail() {
   };
 
   if (dropQuery.isLoading && !seededDrop) {
-    return <div className="p-8 text-muted-foreground">Loading content drop...</div>;
+    return <div className="p-8 text-muted-foreground">{t("dropDetail.loading")}</div>;
   }
 
   if (!drop) {
     return (
       <div className="mx-auto max-w-3xl p-8">
         <Button asChild variant="ghost" className="mb-4">
-          <Link to="/content-drops"><ArrowLeft className="mr-2 h-4 w-4" />Back</Link>
+          <Link to="/content-drops"><ArrowLeft className="mr-2 h-4 w-4" />{t("dropDetail.back")}</Link>
         </Button>
         <Card>
-          <CardContent className="p-8 text-center text-muted-foreground">Content drop not found.</CardContent>
+          <CardContent className="p-8 text-center text-muted-foreground">{t("dropDetail.notFound")}</CardContent>
         </Card>
       </div>
     );
@@ -129,18 +131,18 @@ export default function ContentDropDetail() {
         {receipt ? (
           <div className="mb-6">
             <ProofReceipt
-              title="You helped this signal move."
-              description={`Your ${receipt.action} is attached to this creator drop. Attribution, reward eligibility, and visible contribution now stay with your record.`}
+              title={t("dropDetail.receiptTitle")}
+              description={t("dropDetail.receiptCopy", { action: receipt.action })}
               items={receipt.items}
               nextHref="/content-drops"
-              nextLabel="Find another signal"
+              nextLabel={t("dropDetail.another")}
               secondaryHref="/wallet"
-              secondaryLabel="See what you kept"
+              secondaryLabel={t("dropDetail.kept")}
             />
           </div>
         ) : null}
         <Button asChild variant="ghost" className="mb-5 text-white/65 hover:bg-white/10 hover:text-white">
-          <Link to="/content-drops"><ArrowLeft className="mr-2 h-4 w-4" />Content Drops</Link>
+          <Link to="/content-drops"><ArrowLeft className="mr-2 h-4 w-4" />{t("drops.browse")}</Link>
         </Button>
 
         <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
@@ -162,44 +164,44 @@ export default function ContentDropDetail() {
                 </div>
                 <div>
                   <span className="mb-5 grid h-14 w-14 place-items-center rounded-full border border-white/35 bg-black/45"><Play className="h-5 w-5 fill-white" /></span>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Creator signal</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{t("drops.signal")}</p>
                   <h1 className="mt-3 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.065em] sm:text-7xl">{drop.title}</h1>
-                  <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">{drop.description || "Back this content early, redistribute it with attribution, and turn useful movement into visible contribution, Gems, access, and creator upside."}</p>
+                  <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">{drop.description || t("dropDetail.defaultCopy")}</p>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                { label: "Clicks", value: totals.clicks, icon: MousePointerClick },
-                { label: "Shares", value: totals.shares, icon: Share2 },
-                { label: "Possible rewards", value: totals.entries, icon: Ticket },
-                { label: "Distribution score", value: totals.score, icon: Trophy },
+                { label: t("dropDetail.clicks"), value: totals.clicks, icon: MousePointerClick },
+                { label: t("dropDetail.shares"), value: totals.shares, icon: Share2 },
+                { label: t("dropDetail.rewards"), value: totals.entries, icon: Ticket },
+                { label: t("dropDetail.score"), value: totals.score, icon: Trophy },
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-                  <item.icon className="h-4 w-4 text-primary" /><p className="mt-4 text-2xl font-black">{item.value}</p><p className="mt-1 text-xs text-white/40">{item.label}</p>
+                  <item.icon className="h-4 w-4 text-primary" /><p className="mt-4 text-2xl font-black">{formatNumber(item.value)}</p><p className="mt-1 text-xs text-white/40">{item.label}</p>
                 </div>
               ))}
             </div>
 
             <section className="overflow-hidden rounded-3xl border border-white/10 bg-white/[.045]">
-              <div className="border-b border-white/10 p-5 sm:p-6"><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Connected context</p><h2 className="mt-2 font-serif text-3xl font-semibold">Where this content lives.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">The original source, Moment, stakeholders, commerce and Piece stay attached so this is more than an isolated post.</p></div>
+              <div className="border-b border-white/10 p-5 sm:p-6"><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">{t("dropDetail.context")}</p><h2 className="mt-2 font-serif text-3xl font-semibold">{t("dropDetail.contextTitle")}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">{t("dropDetail.contextCopy")}</p></div>
               <div className="grid gap-px bg-white/10 sm:grid-cols-2">
                 <div className="bg-[#0d0d0d] p-5">
-                  <div className="flex items-center gap-2 text-primary"><MapPin className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">Associated Moment</span></div>
-                  {context?.moment ? <Link to={`/moments/${context.moment.id}`} className="group mt-4 block"><h3 className="text-xl font-black">{context.moment.title}</h3><p className="mt-1 text-sm text-white/45">{context.moment.location || "Open the Moment"}</p><p className="mt-4 text-xs font-black text-primary">See the full Moment →</p></Link> : <p className="mt-4 text-sm text-white/40">No Moment has been connected yet.</p>}
+                  <div className="flex items-center gap-2 text-primary"><MapPin className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">{t("dropDetail.associatedMoment")}</span></div>
+                  {context?.moment ? <Link to={`/moments/${context.moment.id}`} className="group mt-4 block"><h3 className="text-xl font-black">{context.moment.title}</h3><p className="mt-1 text-sm text-white/45">{context.moment.location || t("dropDetail.openMoment")}</p><p className="mt-4 text-xs font-black text-primary">{t("dropDetail.fullMoment")}</p></Link> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noMoment")}</p>}
                 </div>
                 <div className="bg-[#0d0d0d] p-5">
-                  <div className="flex items-center gap-2 text-primary"><Users className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">Stakeholders</span></div>
-                  {context?.stakeholders.length ? <div className="mt-4 space-y-3">{context.stakeholders.map(person=><div key={`${person.role}-${person.id}`} className="flex items-center justify-between gap-3"><span className="font-bold">{person.name}</span><span className="rounded-full border border-white/10 px-2 py-1 text-[9px] font-black uppercase text-white/45">{person.role}</span></div>)}</div> : <p className="mt-4 text-sm text-white/40">Creator and partner attribution will appear here.</p>}
+                  <div className="flex items-center gap-2 text-primary"><Users className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">{t("dropDetail.stakeholders")}</span></div>
+                  {context?.stakeholders.length ? <div className="mt-4 space-y-3">{context.stakeholders.map(person=><div key={`${person.role}-${person.id}`} className="flex items-center justify-between gap-3"><span className="font-bold">{person.name}</span><span className="rounded-full border border-white/10 px-2 py-1 text-[9px] font-black uppercase text-white/45">{person.role}</span></div>)}</div> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noStakeholders")}</p>}
                 </div>
                 <div className="bg-[#0d0d0d] p-5">
-                  <div className="flex items-center gap-2 text-primary"><ShoppingBag className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">Connected commerce</span></div>
-                  {context?.commerce.length ? <div className="mt-4 space-y-3">{context.commerce.slice(0,3).map(item=><Link key={item.id} to={`/shop/${item.id}`} className="flex items-center justify-between gap-3 border-b border-white/10 pb-3"><span className="font-bold">{item.name}</span><span className="text-xs font-black text-primary">{item.price == null ? "Open" : `${item.currency || "USD"} ${item.price}`}</span></Link>)}</div> : <p className="mt-4 text-sm text-white/40">Products and offers attributed to this story will appear here.</p>}
+                  <div className="flex items-center gap-2 text-primary"><ShoppingBag className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">{t("dropDetail.commerce")}</span></div>
+                  {context?.commerce.length ? <div className="mt-4 space-y-3">{context.commerce.slice(0,3).map(item=><Link key={item.id} to={`/shop/${item.id}`} className="flex items-center justify-between gap-3 border-b border-white/10 pb-3"><span className="font-bold">{item.name}</span><span className="text-xs font-black text-primary">{item.price == null ? t("rewards.open") : `${item.currency || "USD"} ${item.price}`}</span></Link>)}</div> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noCommerce")}</p>}
                 </div>
                 <div className="bg-[#0d0d0d] p-5">
-                  <div className="flex items-center gap-2 text-primary"><TrendingUp className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">Content Piece</span></div>
-                  {context?.piece && context.content_id ? <Link to={`/pieces/content/${context.content_id}`} className="mt-4 flex items-end justify-between gap-4"><div><p className="text-2xl font-black">{context.piece.user_quantity || 0} owned</p><p className="mt-1 text-xs text-white/40">View ownership and price movement</p></div><div className="text-right"><p className="text-lg font-black text-primary">{context.piece.current_price == null ? "Open" : `$${Number(context.piece.current_price).toFixed(2)}`}</p>{context.piece.change_24h != null ? <p className="text-xs text-white/45">{Number(context.piece.change_24h) >= 0 ? "+" : ""}{Number(context.piece.change_24h).toFixed(1)}%</p> : null}</div></Link> : <p className="mt-4 text-sm text-white/40">Piece ownership and movement begin when this content becomes collectible.</p>}
+                  <div className="flex items-center gap-2 text-primary"><TrendingUp className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">{t("dropDetail.piece")}</span></div>
+                  {context?.piece && context.content_id ? <Link to={`/pieces/content/${context.content_id}`} className="mt-4 flex items-end justify-between gap-4"><div><p className="text-2xl font-black">{t("dropDetail.owned", { count: formatNumber(context.piece.user_quantity || 0) })}</p><p className="mt-1 text-xs text-white/40">{t("dropDetail.ownership")}</p></div><div className="text-right"><p className="text-lg font-black text-primary">{context.piece.current_price == null ? t("rewards.open") : `$${Number(context.piece.current_price).toFixed(2)}`}</p>{context.piece.change_24h != null ? <p className="text-xs text-white/45">{Number(context.piece.change_24h) >= 0 ? "+" : ""}{Number(context.piece.change_24h).toFixed(1)}%</p> : null}</div></Link> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noPiece")}</p>}
                 </div>
               </div>
             </section>
@@ -210,7 +212,7 @@ export default function ContentDropDetail() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
-                  Move this drop
+                  {t("dropDetail.move")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="grid gap-3">
@@ -239,7 +241,7 @@ export default function ContentDropDetail() {
                 {primary?.target_url && (
                   <Button asChild className="justify-between">
                     <a href={primary.target_url} target="_blank" rel="noreferrer" onClick={() => session?.access_token && record("click")}>
-                      Open original
+                      {t("dropDetail.openOriginal")}
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   </Button>
@@ -251,7 +253,7 @@ export default function ContentDropDetail() {
                   </Button>
                 )) : (
                   <p className="rounded-xl border border-white/10 bg-black/25 p-4 text-sm text-white/50">
-                    Sign in to record distribution actions and build contribution value, possible rewards, and visible creator movement.
+                    {t("dropDetail.signIn")}
                   </p>
                 )}
               </CardContent>
@@ -259,7 +261,7 @@ export default function ContentDropDetail() {
 
             {leaderboard.length ? (
               <ContributionReceipt
-                title="Distribution leaderboard"
+                title={t("dropDetail.leaderboard")}
                 items={leaderboard.map((row) => ({
                   label: `#${row.rank_position} ${row.user?.display_name || row.user?.username || "Contributor"}`,
                   detail: `${row.shares_count} shares · ${row.points_earned} contribution value`,
@@ -269,7 +271,7 @@ export default function ContentDropDetail() {
             ) : (
               <Card className="border-white/10 bg-white/[0.045] text-white">
                 <CardContent className="p-4 text-sm text-white/50">
-                  No recorded contributors yet. Early movers can shape the first movement and own the first contribution receipts.
+                  {t("dropDetail.noContributors")}
                 </CardContent>
               </Card>
             )}

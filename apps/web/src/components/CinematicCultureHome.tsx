@@ -62,6 +62,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
+import { useI18n } from "@/i18n/I18nContext";
 
 type PublicMoment = Tables<"moments"> & { participant_count?: number | null };
 type PublicCommerceListing = Tables<"view_public_commerce_directory">;
@@ -303,6 +304,7 @@ function SampleOptIn({ onShow, noun, loading = false }: { onShow: () => void; no
 }
 
 export default function CinematicCultureHome() {
+  const { t } = useI18n();
   const [showSamples, setShowSamples] = useState(false);
   const [heroItemIndex, setHeroItemIndex] = useState(0);
   const [heroRotationPaused, setHeroRotationPaused] = useState(false);
@@ -486,39 +488,40 @@ export default function CinematicCultureHome() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
               </span>
-              <span>Live Kingston Pulse: 112 Votes in Friday Jerk Debate • 15 Tasting Keys Drop Wednesday 🔥</span>
+              <span>{t("home.pulse")}</span>
             </div>
 
             <h1 className="max-w-4xl font-sans text-[clamp(2.8rem,9vw,7.5rem)] font-black uppercase leading-[0.82] tracking-[-0.075em] text-white">
-              <span className="block">Where your city</span>
-              <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">decides what happens</span>
-              <span className="block">this weekend.</span>
+              <span className="block">{t("home.heroLine1")}</span>
+              <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">{t("home.heroLine2")}</span>
+              <span className="block">{t("home.heroLine3")}</span>
             </h1>
             <p className="mt-5 max-w-[calc(100vw-3rem)] text-base leading-7 text-white/80 md:max-w-xl md:text-lg">
-              Promorang turns weekly local debates into funded real-world experiences. Vote on Discoveries, influence which spots get funded, and unlock 15 limited VIP tasting keys every Friday.
+              {t("home.heroCopy")}
             </p>
             <p className="mt-3 max-w-xl text-xs font-black uppercase tracking-[0.16em] text-primary">
-              Mon Debate → Wed Keys Drop → Fri Go Out → Sun Proof
+              {t("home.heroRhythm")}
             </p>
             <div className="mt-7 flex w-full max-w-[calc(100vw-3rem)] flex-col gap-3 sm:max-w-xl sm:flex-row">
               <Link
-                to="/radar?tab=discover"
-                onClick={() => rememberMarketingIntent("hero_vote_discover", "/radar?tab=discover", "participant")}
-                className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl bg-primary px-6 py-4 text-xs font-black uppercase tracking-[-0.01em] text-white shadow-[0_20px_60px_rgba(255,85,0,0.35)] transition hover:bg-primary/90 sm:text-sm"
+                to="/discover"
+                onClick={() => rememberMarketingIntent("hero_explore_discover", "/discover", "participant")}
+                className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl bg-primary px-7 py-4 text-sm font-black uppercase tracking-wider text-white shadow-[0_20px_60px_rgba(255,85,0,0.35)] transition-all hover:bg-orange-600 active:scale-[0.98]"
               >
-                Vote on Live Debates
-                <ArrowRight className="h-5 w-5" />
+                <Compass className="h-5 w-5" />
+                <span>Explore Moments</span>
+                <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                to="/radar"
-                onClick={() => rememberMarketingIntent("hero_explore_radar", "/radar")}
-                className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl border border-white/25 bg-black/40 px-6 py-4 text-xs font-black uppercase tracking-[-0.01em] text-white transition hover:border-primary hover:text-primary sm:text-sm"
+                to="/hosting"
+                onClick={() => rememberMarketingIntent("hero_host_moment", "/hosting", "host")}
+                className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/[0.06] backdrop-blur-md px-7 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98]"
               >
-                Explore City Radar
-                <ArrowRight className="h-5 w-5" />
+                <Store className="h-5 w-5 text-amber-400" />
+                <span>Host or Offer a Deal</span>
               </Link>
             </div>
-            <p className="mt-3 text-xs text-white/50">Zero login to vote • +25 PromoPoints reward • Live on WhatsApp.</p>
+            <p className="mt-3 text-xs text-white/50">{t("home.heroNote")}</p>
           </motion.div>
 
           {activeHeroItem ? (
@@ -544,7 +547,7 @@ export default function CinematicCultureHome() {
                   )}
                   <div className="p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">What’s live</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("home.live")}</p>
                       <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-300">{activeHeroItem.kind}</span>
                     </div>
                     <Link to={activeHeroItem.href} className="group block">
@@ -559,9 +562,9 @@ export default function CinematicCultureHome() {
                       <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
                         <span className="text-[10px] font-bold text-white/35">{heroItemIndex % heroItems.length + 1} / {heroItems.length}</span>
                         <div className="flex gap-2">
-                          <button type="button" aria-label="Previous live item" onClick={() => setHeroItemIndex((index) => (index - 1 + heroItems.length) % heroItems.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronLeft className="h-4 w-4" /></button>
-                          <button type="button" aria-label={heroRotationPaused ? "Resume live items" : "Pause live items"} aria-pressed={heroRotationPaused} onClick={() => setHeroRotationPaused((paused) => !paused)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary">{heroRotationPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}</button>
-                          <button type="button" aria-label="Next live item" onClick={() => setHeroItemIndex((index) => (index + 1) % heroItems.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronRight className="h-4 w-4" /></button>
+                          <button type="button" aria-label={t("home.previous")} onClick={() => setHeroItemIndex((index) => (index - 1 + heroItems.length) % heroItems.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronLeft className="h-4 w-4" /></button>
+                          <button type="button" aria-label={heroRotationPaused ? t("home.resume") : t("home.pause")} aria-pressed={heroRotationPaused} onClick={() => setHeroRotationPaused((paused) => !paused)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary">{heroRotationPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}</button>
+                          <button type="button" aria-label={t("home.next")} onClick={() => setHeroItemIndex((index) => (index + 1) % heroItems.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronRight className="h-4 w-4" /></button>
                         </div>
                       </div>
                     ) : null}
@@ -580,12 +583,12 @@ export default function CinematicCultureHome() {
         <div className="container relative px-6 py-14 md:py-20">
           <div className="flex flex-col gap-5 border-b border-white/10 pb-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Explore Promorang now</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.exploreNow")}</p>
               <h2 className="mt-3 max-w-3xl text-4xl font-black uppercase leading-[0.88] tracking-[-0.06em] md:text-6xl">
-                Moments to join. <span className="text-primary">Value to unlock.</span>
+                {t("home.gatewayTitle")} <span className="text-primary">{t("home.gatewayAccent")}</span>
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55 md:text-base">
-                See what is happening, what local merchants are offering, and which products, services, coupons, and deals can make your next move more valuable.
+                {t("home.gatewayCopy")}
               </p>
             </div>
             <nav aria-label="Homepage discovery shortcuts" className="flex flex-wrap gap-2">
@@ -593,7 +596,7 @@ export default function CinematicCultureHome() {
                 [CalendarDays, "Moments", "/discover/moments"],
                 [Flame, "Demand Polls", "/discover"],
                 [Compass, "Scout Spots", "/discover"],
-                [Tag, "Coupons & deals", "/discover/rewards"],
+                [Tag, "Perks & Rewards", "/rewards"],
                 [Store, "Merchants", "/merchants"],
                 [ShoppingBag, "Products", "/shop"],
               ].map(([Icon, label, href]) => {
@@ -658,8 +661,8 @@ export default function CinematicCultureHome() {
                 <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Store className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">Meet local merchants</strong><span className="text-xs text-white/45">Browse shops, venues, and service providers</span></span></span>
                 <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
               </Link>
-              <Link to="/discover/rewards" className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-primary/45">
-                <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Gift className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">Find coupons and rewards</strong><span className="text-xs text-white/45">See discounts, unlocks, and claimable perks</span></span></span>
+              <Link to="/rewards" className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-primary/45">
+                <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Gift className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">Claim Member Perks & Deals</strong><span className="text-xs text-white/45">Unlock exclusive discounts, member passes, and VIP perks</span></span></span>
                 <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
               </Link>
             </div>

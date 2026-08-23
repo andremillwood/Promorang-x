@@ -3,18 +3,18 @@ import { StyleSheet, View, Text, Pressable, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface SpatialCanvasLayoutProps {
-  children: React.ReactNode;
+  children?: any;
   onOpenMap?: () => void;
   onOpenScanner?: () => void;
   onOpenStories?: () => void;
 }
 
-export const SpatialCanvasLayout: React.FC<SpatialCanvasLayoutProps> = ({
+export function SpatialCanvasLayout({
   children,
   onOpenMap,
   onOpenScanner,
   onOpenStories,
-}) => {
+}: SpatialCanvasLayoutProps) {
   return (
     <View style={styles.container}>
       {/* Content Surface */}

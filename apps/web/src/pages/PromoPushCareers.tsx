@@ -7,35 +7,38 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useSubmitPromoPushApplication } from "@/hooks/usePromoPush";
-
-const roleCopy = {
-  promoters: {
-    applicant_role: "promoter",
-    title: "Street Activation Promoter",
-    description: "Distribute QR flyers, activate local foot traffic, and track scans, joins, and verified actions from your assigned area.",
-    earnings: "Performance-based: scan/signup payouts plus verified action bonuses by campaign.",
-    icon: Megaphone,
-  },
-  creators: {
-    applicant_role: "creator",
-    title: "Creator / Clipper",
-    description: "Share referral links, publish clips around Moments, and earn when your traffic produces verified action.",
-    earnings: "Performance-based: creator links pay per verified action.",
-    icon: Share2,
-  },
-  marketing: {
-    applicant_role: "marketing",
-    title: "PromoPush Marketing Support",
-    description: "Support flyer design, QR layout, ad creative, and campaign setup requests for active Moment distribution.",
-    earnings: "Project and performance-based assignments by campaign scope.",
-    icon: BadgeDollarSign,
-  },
-} as const;
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function PromoPushCareers() {
-  const { role = "promoters" } = useParams<{ role: keyof typeof roleCopy }>();
+  const { t } = useI18n();
+  const { role = "promoters" } = useParams<{ role: "promoters" | "creators" | "marketing" }>();
   const application = useSubmitPromoPushApplication();
-  const current = roleCopy[role as keyof typeof roleCopy] || roleCopy.promoters;
+
+  const roleCopy = {
+    promoters: {
+      applicant_role: "promoter" as const,
+      title: t("promoPushCareersPage.promoterTitle"),
+      description: t("promoPushCareersPage.promoterDesc"),
+      earnings: t("promoPushCareersPage.promoterEarnings"),
+      icon: Megaphone,
+    },
+    creators: {
+      applicant_role: "creator" as const,
+      title: t("promoPushCareersPage.creatorTitle"),
+      description: t("promoPushCareersPage.creatorDesc"),
+      earnings: t("promoPushCareersPage.creatorEarnings"),
+      icon: Share2,
+    },
+    marketing: {
+      applicant_role: "marketing" as const,
+      title: t("promoPushCareersPage.marketingTitle"),
+      description: t("promoPushCareersPage.marketingDesc"),
+      earnings: t("promoPushCareersPage.marketingEarnings"),
+      icon: BadgeDollarSign,
+    },
+  };
+
+  const current = roleCopy[role] || roleCopy.promoters;
   const Icon = current.icon;
   const [form, setForm] = useState({
     name: "",
@@ -67,7 +70,7 @@ export default function PromoPushCareers() {
         <section>
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#FF6A00]/40 bg-[#FF6A00]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-[#FFC300]">
             <Icon className="h-3.5 w-3.5" />
-            Careers
+            {t("promoPushCareersPage.badge")}
           </div>
           <h1 className="text-4xl font-black tracking-tight sm:text-5xl">{current.title}</h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-white/65">{current.description}</p>
@@ -76,7 +79,7 @@ export default function PromoPushCareers() {
               <CardContent className="flex gap-3 p-4">
                 <BadgeDollarSign className="mt-0.5 h-5 w-5 text-[#FFC300]" />
                 <div>
-                  <p className="font-bold">Earnings model</p>
+                  <p className="font-bold">{t("promoPushCareersPage.earningsModel")}</p>
                   <p className="mt-1 text-sm text-white/60">{current.earnings}</p>
                 </div>
               </CardContent>
@@ -85,8 +88,8 @@ export default function PromoPushCareers() {
               <CardContent className="flex gap-3 p-4">
                 <MapPin className="mt-0.5 h-5 w-5 text-[#FF6A00]" />
                 <div>
-                  <p className="font-bold">Campaign assignment</p>
-                  <p className="mt-1 text-sm text-white/60">Assignments include QR access, printable flyer files, and a personal performance dashboard.</p>
+                  <p className="font-bold">{t("promoPushCareersPage.campaignAssignment")}</p>
+                  <p className="mt-1 text-sm text-white/60">{t("promoPushCareersPage.campaignAssignmentDesc")}</p>
                 </div>
               </CardContent>
             </Card>
@@ -94,50 +97,51 @@ export default function PromoPushCareers() {
         </section>
 
         <form onSubmit={submit} className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
-          <h2 className="text-2xl font-black">Signup form</h2>
-          <p className="mt-2 text-sm text-white/60">Name, location, phone, availability, and coverage area are required for workforce assignment.</p>
+          <h2 className="text-2xl font-black">{t("promoPushCareersPage.signupForm")}</h2>
+          <p className="mt-2 text-sm text-white/60">{t("promoPushCareersPage.formRequirements")}</p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <div>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t("promoPushCareersPage.labelName")}</Label>
               <Input id="name" required value={form.name} onChange={(e) => update("name", e.target.value)} className="mt-2 bg-black/40" />
             </div>
             <div>
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">{t("promoPushCareersPage.labelLocation")}</Label>
               <Input id="location" required value={form.location} onChange={(e) => update("location", e.target.value)} className="mt-2 bg-black/40" />
             </div>
             <div>
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{t("promoPushCareersPage.labelPhone")}</Label>
               <Input id="phone" required value={form.phone} onChange={(e) => update("phone", e.target.value)} className="mt-2 bg-black/40" />
             </div>
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("promoPushCareersPage.labelEmail")}</Label>
               <Input id="email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} className="mt-2 bg-black/40" />
             </div>
             <div className="sm:col-span-2">
-              <Label htmlFor="availability">Availability</Label>
-              <Textarea id="availability" value={form.availability} onChange={(e) => update("availability", e.target.value)} className="mt-2 bg-black/40" placeholder="Weekdays after 4pm, Saturdays, event nights..." />
+              <Label htmlFor="availability">{t("promoPushCareersPage.labelAvailability")}</Label>
+              <Textarea id="availability" value={form.availability} onChange={(e) => update("availability", e.target.value)} className="mt-2 bg-black/40" placeholder={t("promoPushCareersPage.availabilityPlaceholder")} />
             </div>
             <div className="sm:col-span-2">
-              <Label htmlFor="coverage">Area coverage</Label>
-              <Textarea id="coverage" value={form.area_coverage} onChange={(e) => update("area_coverage", e.target.value)} className="mt-2 bg-black/40" placeholder="New Kingston, Half Way Tree, UWI, Portmore..." />
+              <Label htmlFor="coverage">{t("promoPushCareersPage.labelCoverage")}</Label>
+              <Textarea id="coverage" value={form.area_coverage} onChange={(e) => update("area_coverage", e.target.value)} className="mt-2 bg-black/40" placeholder={t("promoPushCareersPage.coveragePlaceholder")} />
             </div>
           </div>
           <Button disabled={application.isPending} className="mt-5 w-full bg-[#FF6A00] text-white hover:bg-[#e65f00]">
             {application.isPending ? (
               <>
                 <Clock className="mr-2 h-4 w-4" />
-                Submitting
+                {t("promoPushCareersPage.submitting")}
               </>
             ) : (
               <>
                 <Send className="mr-2 h-4 w-4" />
-                Submit Application
+                {t("promoPushCareersPage.submitApplication")}
               </>
             )}
           </Button>
-          {submitted && <p className="mt-3 text-sm font-medium text-[#FFC300]">Application submitted.</p>}
+          {submitted && <p className="mt-3 text-sm font-medium text-[#FFC300]">{t("promoPushCareersPage.submittedSuccess")}</p>}
         </form>
       </div>
     </div>
   );
 }
+

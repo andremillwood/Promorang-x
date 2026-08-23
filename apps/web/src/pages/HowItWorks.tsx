@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import SEO from "@/components/SEO";
 import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
+import { useI18n } from "@/i18n/I18nContext";
 
 type RoleId = "member" | "creator" | "merchant" | "brand" | "promoter";
 
@@ -130,14 +131,39 @@ const liquidityTypes = [
 ];
 
 export default function HowItWorks() {
+  const { t } = useI18n();
   const [activeRole, setActiveRole] = useState<RoleId>("member");
-  const selectedRole = roles.find((role) => role.id === activeRole) || roles[0];
+  const localizedValueTypes = valueTypes.map((item) => {
+    const [label, detail] = t(`how.${item.label.toLowerCase()}`).split("|");
+    return { ...item, label, detail };
+  });
+  const localizedRoles = roles.map((role) => {
+    const [label, promise] = t(`how.${role.id}`).split("|");
+    const steps = role.steps.map((step, index) => {
+      const [title, detail, cta] = t(`how.${role.id}Step${index + 1}`).split("|");
+      return { ...step, title, detail, cta };
+    });
+    return { ...role, label, promise, steps };
+  });
+  const localizedCommerceLoop = commerceLoop.map((item, index) => {
+    const [title, detail] = t(`how.commerce${index + 1}`).split("|");
+    return { ...item, title, detail };
+  });
+  const localizedLiquidityTypes = liquidityTypes.map((item, index) => {
+    const [title, detail] = t(`how.liquidity${index + 1}`).split("|");
+    return { ...item, title, detail };
+  });
+  const localizedSystemLayers = systemLayers.map((layer, index) => {
+    const [title, question, detail] = t(`how.layer${index + 1}`).split("|");
+    return { ...layer, title, question, detail };
+  });
+  const selectedRole = localizedRoles.find((role) => role.id === activeRole) || localizedRoles[0];
 
   return (
     <main className="min-h-screen bg-[#070707] text-white">
       <SEO
-        title="How Promorang Works — Participation, Commerce, Pieces and Growth"
-        description="See how Promorang connects Moments, venues, merchants, products, rewards, reputation, Pieces, referrals and verified growth in one participation economy."
+        title={t("how.seoTitle")}
+        description={t("how.seoCopy")}
       />
 
       <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 md:pt-36">
@@ -145,57 +171,57 @@ export default function HowItWorks() {
         <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.055)_1px,transparent_1px)] [background-size:44px_44px]" />
         <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_420px] lg:items-end">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">The 7-Day Economic Operating Rhythm</p>
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">{t("how.eyebrow")}</p>
             <h1 className="mt-5 max-w-5xl text-5xl font-black uppercase leading-[0.84] tracking-[-0.075em] sm:text-6xl lg:text-[6.6rem]">
-              Vote Monday.<br /><span className="text-primary">Unlock Wednesday.</span><br />Move Friday.
+              {t("how.hero1")}<br /><span className="text-primary">{t("how.hero2")}</span><br />{t("how.hero3")}
             </h1>
             <p className="mt-7 max-w-3xl text-base leading-8 text-white/66 md:text-lg">
-              Promorang turns weekly city debates into verified real-world movement. Locals vote on Discoveries, venues fulfill pre-committed demand, creators earn on-site foot-traffic bounties, and corporate brands sponsor the VIP tasting keys.
+              {t("how.heroCopy")}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/radar?tab=discover" className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground transition hover:-translate-y-0.5">Vote on Discoveries <ArrowRight className="h-4 w-4" /></Link>
-              <Link to="/radar" className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] px-5 py-3 text-sm font-black transition hover:border-primary/60">Explore City Rhythm <Rocket className="h-4 w-4 text-primary" /></Link>
+              <Link to="/radar?tab=discover" className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground transition hover:-translate-y-0.5">{t("how.vote")} <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/radar" className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] px-5 py-3 text-sm font-black transition hover:border-primary/60">{t("how.explore")} <Rocket className="h-4 w-4 text-primary" /></Link>
             </div>
           </div>
           <aside className="rounded-[2rem] border border-orange-500/30 bg-black/75 p-6 shadow-2xl backdrop-blur-xl">
             <div className="flex items-center space-x-2 mb-4">
               <span className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-orange-400">The 7-Day Cycle</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-orange-400">{t("how.cycle")}</h3>
             </div>
             <div className="space-y-3 text-xs">
               <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-orange-500 text-black font-black text-xs">01</span>
                 <div>
-                  <div className="font-bold text-white">Mon–Tue: The Debate</div>
-                  <div className="text-white/60 text-[11px]">Community votes on spicy food, drink & culture questions.</div>
+                  <div className="font-bold text-white">{t("how.day1").split("|")[0]}</div>
+                  <div className="text-white/60 text-[11px]">{t("how.day1").split("|")[1]}</div>
                 </div>
               </div>
               <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white font-black text-xs">02</span>
                 <div>
-                  <div className="font-bold text-white">Tue: Venue Notification</div>
-                  <div className="text-white/60 text-[11px]">Winning venues see pre-committed demand and confirm tasting slots.</div>
+                  <div className="font-bold text-white">{t("how.day2").split("|")[0]}</div>
+                  <div className="text-white/60 text-[11px]">{t("how.day2").split("|")[1]}</div>
                 </div>
               </div>
               <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white font-black text-xs">03</span>
                 <div>
-                  <div className="font-bold text-white">Wed: PromoKey Drop</div>
-                  <div className="text-white/60 text-[11px]">15 limited VIP passes drop at 6:00 PM for active voters.</div>
+                  <div className="font-bold text-white">{t("how.day3").split("|")[0]}</div>
+                  <div className="text-white/60 text-[11px]">{t("how.day3").split("|")[1]}</div>
                 </div>
               </div>
               <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white font-black text-xs">04</span>
                 <div>
-                  <div className="font-bold text-white">Fri–Sat: Live Movement</div>
-                  <div className="text-white/60 text-[11px]">Patrons arrive, venues scan countertop QR, creators earn gems.</div>
+                  <div className="font-bold text-white">{t("how.day4").split("|")[0]}</div>
+                  <div className="text-white/60 text-[11px]">{t("how.day4").split("|")[1]}</div>
                 </div>
               </div>
               <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white font-black text-xs">05</span>
                 <div>
-                  <div className="font-bold text-white">Sun: Proof & Renewal</div>
-                  <div className="text-white/60 text-[11px]">Weekly rankings lock; points reset for next Monday debate.</div>
+                  <div className="font-bold text-white">{t("how.day5").split("|")[0]}</div>
+                  <div className="text-white/60 text-[11px]">{t("how.day5").split("|")[1]}</div>
                 </div>
               </div>
             </div>
@@ -206,11 +232,11 @@ export default function HowItWorks() {
       <section className="border-b border-white/10 px-5 py-12">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-3xl">
-            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Five reasons to participate</p>
-            <h2 className="mt-2 text-3xl font-black tracking-[-0.04em] md:text-5xl">Not every useful action pays cash. Every action should still explain its return.</h2>
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">{t("how.reasons")}</p>
+            <h2 className="mt-2 text-3xl font-black tracking-[-0.04em] md:text-5xl">{t("how.returnTitle")}</h2>
           </div>
           <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            {valueTypes.map((item) => (
+            {localizedValueTypes.map((item) => (
               <article key={item.label} className={`rounded-2xl border p-5 ${item.tone}`}>
                 <item.icon className="h-6 w-6" />
                 <h3 className="mt-8 text-xl font-black text-white">{item.label}</h3>
@@ -224,9 +250,9 @@ export default function HowItWorks() {
       <section className="px-5 py-14">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div><p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Choose your role</p><h2 className="mt-2 text-4xl font-black tracking-[-0.05em]">See your complete journey.</h2></div>
-            <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Promorang roles">
-              {roles.map((role) => (
+            <div><p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">{t("how.chooseRole")}</p><h2 className="mt-2 text-4xl font-black tracking-[-0.05em]">{t("how.journey")}</h2></div>
+            <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={t("how.rolesLabel")}>
+              {localizedRoles.map((role) => (
                 <button key={role.id} type="button" role="tab" aria-selected={activeRole === role.id} onClick={() => setActiveRole(role.id)} className={`inline-flex min-h-11 whitespace-nowrap items-center gap-2 rounded-xl border px-4 py-2 text-sm font-black transition ${activeRole === role.id ? "border-primary bg-primary text-primary-foreground" : "border-white/10 bg-white/[0.04] text-white/58 hover:border-white/25 hover:text-white"}`}>
                   <role.icon className="h-4 w-4" />{role.label}
                 </button>
@@ -253,10 +279,10 @@ export default function HowItWorks() {
 
       <section className="border-y border-white/10 bg-[#0c0c0c] px-5 py-14">
         <div className="mx-auto max-w-7xl">
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">One system, five layers</p>
-          <h2 className="mt-2 max-w-4xl text-4xl font-black tracking-[-0.05em]">The feature map—and the question each part answers.</h2>
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">{t("how.layersEyebrow")}</p>
+          <h2 className="mt-2 max-w-4xl text-4xl font-black tracking-[-0.05em]">{t("how.layersTitle")}</h2>
           <div className="mt-8 space-y-3">
-            {systemLayers.map((layer) => (
+            {localizedSystemLayers.map((layer) => (
               <article key={layer.number} className="grid gap-5 rounded-2xl border border-white/10 bg-black/35 p-5 md:grid-cols-[70px_220px_1fr_auto] md:items-center">
                 <div className="flex items-center gap-3 md:block"><span className="text-xs font-black text-white/28">{layer.number}</span><layer.icon className="mt-0 h-6 w-6 text-primary md:mt-4" /></div>
                 <div><h3 className="text-2xl font-black">{layer.title}</h3><p className="mt-1 text-xs font-bold text-primary">{layer.question}</p></div>
@@ -273,12 +299,12 @@ export default function HowItWorks() {
       <section className="px-5 py-14">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
-            <div><p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Experience commerce</p><h2 className="mt-2 text-4xl font-black tracking-[-0.05em]">Places, products and offers are part of participation—not a side shop.</h2><p className="mt-5 text-sm leading-7 text-white/58">A venue can host a Moment, sell a product, issue a coupon, reward proof, build customer reputation and create a Piece-linked community. Every step should remain attributable.</p><div className="mt-6 flex flex-wrap gap-3"><Link to="/discover/venues" className="rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground">Explore places</Link><Link to="/marketplace" className="rounded-xl border border-white/15 px-5 py-3 text-sm font-black">Browse marketplace</Link></div></div>
+            <div><p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">{t("how.commerceEyebrow")}</p><h2 className="mt-2 text-4xl font-black tracking-[-0.05em]">{t("how.commerceTitle")}</h2><p className="mt-5 text-sm leading-7 text-white/58">{t("how.commerceCopy")}</p><div className="mt-6 flex flex-wrap gap-3"><Link to="/discover/venues" className="rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground">{t("how.explorePlaces")}</Link><Link to="/marketplace" className="rounded-xl border border-white/15 px-5 py-3 text-sm font-black">{t("how.marketplace")}</Link></div></div>
             <div className="grid gap-3 sm:grid-cols-5">
-              {commerceLoop.map((item, index) => (
+              {localizedCommerceLoop.map((item, index) => (
                 <article key={item.title} className="relative rounded-2xl border border-white/10 bg-white/[0.035] p-4">
                   <item.icon className="h-5 w-5 text-primary" /><p className="mt-8 text-lg font-black">{item.title}</p><p className="mt-2 text-xs leading-5 text-white/48">{item.detail}</p>
-                  {index < commerceLoop.length - 1 ? <ArrowRight className="absolute -right-2.5 top-5 z-10 hidden h-5 w-5 rounded-full bg-[#070707] text-primary sm:block" /> : null}
+                  {index < localizedCommerceLoop.length - 1 ? <ArrowRight className="absolute -right-2.5 top-5 z-10 hidden h-5 w-5 rounded-full bg-[#070707] text-primary sm:block" /> : null}
                 </article>
               ))}
             </div>
@@ -288,21 +314,21 @@ export default function HowItWorks() {
 
       <section className="border-y border-white/10 bg-[#0c0c0c] px-5 py-14">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl"><p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Liquidity, in plain language</p><h2 className="mt-2 text-4xl font-black tracking-[-0.05em]">More users is not the same as more liquidity.</h2><p className="mt-4 text-sm leading-7 text-white/58">Promorang has several kinds of liquidity. Each requires its own supply, demand, funding and health indicators.</p></div>
+          <div className="max-w-3xl"><p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">{t("how.liquidityEyebrow")}</p><h2 className="mt-2 text-4xl font-black tracking-[-0.05em]">{t("how.liquidityTitle")}</h2><p className="mt-4 text-sm leading-7 text-white/58">{t("how.liquidityCopy")}</p></div>
           <div className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-            {liquidityTypes.map((item) => <article key={item.title} className="rounded-2xl border border-white/10 bg-black/35 p-5"><item.icon className="h-6 w-6 text-primary" /><h3 className="mt-8 text-lg font-black">{item.title}</h3><p className="mt-3 text-sm leading-6 text-white/50">{item.detail}</p></article>)}
+            {localizedLiquidityTypes.map((item) => <article key={item.title} className="rounded-2xl border border-white/10 bg-black/35 p-5"><item.icon className="h-6 w-6 text-primary" /><h3 className="mt-8 text-lg font-black">{item.title}</h3><p className="mt-3 text-sm leading-6 text-white/50">{item.detail}</p></article>)}
           </div>
-          <Link to="/liquidity" className="mt-6 inline-flex items-center gap-2 text-sm font-black text-primary">Open liquidity dashboard <ArrowRight className="h-4 w-4" /></Link>
+          <Link to="/liquidity" className="mt-6 inline-flex items-center gap-2 text-sm font-black text-primary">{t("how.liquidityCta")} <ArrowRight className="h-4 w-4" /></Link>
         </div>
       </section>
 
       <section className="px-5 py-16">
         <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2">
           <article className="rounded-[2rem] border border-primary/25 bg-primary/[0.07] p-7">
-            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Ready to participate</p><h2 className="mt-3 text-4xl font-black tracking-[-0.05em]">Start with the outcome you want.</h2><p className="mt-4 text-sm leading-7 text-white/58">Browse money, rewards, access, reputation and ownership opportunities without needing to understand every Promorang mechanism first.</p><Link to="/discover" className="mt-7 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground">Open Discover <ArrowRight className="h-4 w-4" /></Link>
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">{t("how.participateEyebrow")}</p><h2 className="mt-3 text-4xl font-black tracking-[-0.05em]">{t("how.participateTitle")}</h2><p className="mt-4 text-sm leading-7 text-white/58">{t("how.participateCopy")}</p><Link to="/discover" className="mt-7 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground">{t("how.openDiscover")} <ArrowRight className="h-4 w-4" /></Link>
           </article>
           <article className="rounded-[2rem] border border-white/10 bg-white/[0.035] p-7">
-            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Ready to create value</p><h2 className="mt-3 text-4xl font-black tracking-[-0.05em]">Launch something people can act on.</h2><p className="mt-4 text-sm leading-7 text-white/58">Create a Moment, campaign, product, offer or distribution path with a clear action, return, proof rule and next unlock.</p><Link to="/growth" className="mt-7 inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-3 text-sm font-black">Open Growth Hub <ArrowRight className="h-4 w-4" /></Link>
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">{t("how.createEyebrow")}</p><h2 className="mt-3 text-4xl font-black tracking-[-0.05em]">{t("how.createTitle")}</h2><p className="mt-4 text-sm leading-7 text-white/58">{t("how.createCopy")}</p><Link to="/growth" className="mt-7 inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-3 text-sm font-black">{t("how.growthCta")} <ArrowRight className="h-4 w-4" /></Link>
           </article>
         </div>
       </section>

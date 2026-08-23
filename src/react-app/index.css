@@ -9,6 +9,32 @@
   --bg-obsidian: #0D0D0E;
   --glass-border: rgba(255, 255, 255, 0.12);
   --glass-bg: rgba(255, 255, 255, 0.04);
+  /* DESIGN.md Token Architecture */
+  --pr-surface-background: #0D0D0E;
+  --pr-surface-card: #141414;
+  --pr-surface-elevated: #1C1C1C;
+  --pr-text-primary: #FFFFFF;
+  --pr-text-secondary: #D1D5DB;
+  --pr-text-tertiary: #9CA3AF;
+  --pr-border: #2A2A2A;
+  --space-section: 2rem;
+  --space-card-gap: 1rem;
+  --space-card-pad: 1.5rem;
+  --space-inline: 0.5rem;
+}
+
+*:focus-visible {
+  outline: 2px solid #FF5500;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 body {

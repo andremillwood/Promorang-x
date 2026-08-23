@@ -34,13 +34,13 @@ interface DealStoryPlayerProps {
 
 const STORY_DURATION_MS = 5000;
 
-export const DealStoryPlayer: React.FC<DealStoryPlayerProps> = ({
+export function DealStoryPlayer({
   visible,
   stories,
   initialIndex = 0,
   onClose,
   onClaimDeal,
-}) => {
+}: DealStoryPlayerProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const progressAnim = useRef(new Animated.Value(0)).current;
 

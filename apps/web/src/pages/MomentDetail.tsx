@@ -23,6 +23,7 @@ import { useMomentMedia, useMomentReviews } from '@/hooks/useUGC';
 import { useMomentConversation } from "@/hooks/useMomentConversation";
 import { MomentReviewsList } from '@/components/sentiment/MomentReviewsList';
 import { CalendarButton } from "@/components/CalendarButton";
+import { useI18n } from "@/i18n/I18nContext";
 import { demoMoments } from "@/data/demo-moments";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getSubMomentsForMoment } from "@/components/radar/MomentDetailModal";
@@ -36,6 +37,8 @@ import { generateEventSchema } from "@/lib/seo-schemas";
 import { SocialShareOGCard } from "@/components/SocialShareOGCard";
 import { PoweredParticipation } from "@/components/moments/PoweredParticipation";
 import { MomentAccess } from "@/components/moments/MomentAccess";
+import { MomentLineupShowcase } from "@/components/moments/MomentLineupShowcase";
+import { Collaborator } from "@/components/moments/MomentLineupBuilder";
 import {
   ArrowLeft,
   ArrowRight,
@@ -137,43 +140,38 @@ type PaymentIntentLike = {
 type MomentTab = "overview" | "perks" | "community" | "host";
 
 const MomentDetail = () => {
+  const { t, formatDate: i18nFormatDate, formatTime: i18nFormatTime } = useI18n();
   const { id } = useParams<{ id: string }>();
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, roles } = useAuth();
   const { toast } = useToast();
 
   const [moment, setMoment] = useState<Moment | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const isDemo = Boolean(
-    id?.startsWith('demo-') ||
-    id?.startsWith('fallback-')
-  );
-  const [participantCount, setParticipantCount] = useState(0);
   const [isJoined, setIsJoined] = useState(false);
-  const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+  const [participantCount, setParticipantCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [activeMomentTab, setActiveMomentTab] = useState<MomentTab>("overview");
   const [accessQuote, setAccessQuote] = useState<AccessQuote | null>(null);
-  const [proofRequirements, setProofRequirements] = useState<ProofRequirement[]>([]);
   const [economy, setEconomy] = useState<MomentEconomy | null>(null);
   const [showEntryPayment, setShowEntryPayment] = useState(false);
-  const [activeMomentTab, setActiveMomentTab] = useState<MomentTab>("overview");
   const [scene, setScene] = useState<Scene | null>(null);
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [hostProfile, setHostProfile] = useState<{
-    display_name: string | null;
+    display_name?: string | null;
     avatar_url?: string | null;
-    created_at?: string;
+    created_at?: string | null;
   } | null>(null);
 
   const isHost = user && moment?.host_id === user.id;
   const canManageMoment = Boolean(isHost || roles.includes("admin"));
 
   const momentTabs: Array<{ id: MomentTab; label: string; Icon: typeof Sparkles }> = [
-    { id: "overview", label: "Details", Icon: Compass },
-    { id: "perks", label: "Missions & Perks", Icon: Trophy },
-    { id: "community", label: "Community & Discussion", Icon: MessageSquare },
-    ...(canManageMoment ? [{ id: "host" as const, label: "Host Tools", Icon: ShieldCheck }] : []),
+    { id: "overview", label: t("momentDetail.tabOverview"), Icon: Compass },
+    { id: "perks", label: t("momentDetail.tabPerks"), Icon: Trophy },
+    { id: "community", label: t("momentDetail.tabCommunity"), Icon: MessageSquare },
+    ...(canManageMoment ? [{ id: "host" as const, label: t("momentDetail.tabHost"), Icon: ShieldCheck }] : []),
   ];
 
   const resolvedMomentId = (moment?.id && UUID_PATTERN.test(moment.id)) ? moment.id : null;
@@ -374,6 +372,32 @@ const MomentDetail = () => {
             // Ignore auth participation check error
           }
         }
+
+        // Fetch Moment Lineup & Collaborators
+        try {
+          const { data: collabData } = await (supabase as any)
+            .from("moment_collaborators")
+            .select("*")
+            .eq("moment_id", momentData.id);
+
+          if (collabData && collabData.length > 0) {
+            setCollaborators(
+              collabData.map((c: any) => ({
+                id: c.id,
+                userId: c.user_id,
+                name: c.name,
+                stageName: c.stage_name,
+                roleType: c.role_type,
+                avatarUrl: c.avatar_url,
+                splitPercentage: Number(c.split_percentage) || 0,
+                bountyFeeAmount: Number(c.bounty_fee_amount) || 0,
+                customPromoCode: c.custom_promo_code,
+              }))
+            );
+          }
+        } catch {
+          // Ignore collaborator query error if table offline
+        }
       }
 
       if (momentData.host_id && UUID_PATTERN.test(momentData.host_id)) {
@@ -504,8 +528,8 @@ const MomentDetail = () => {
     setAccessQuote(payload?.access?.quote || payload?.access_quote || accessQuote);
     setParticipantCount((prev) => prev + 1);
     toast({
-      title: "RSVP Confirmed! 🎉",
-      description: moment.reward ? `Your spot is reserved. Claim your ${moment.reward} on arrival!` : "Your spot is reserved.",
+      title: t("momentDetail.toastSpotReserved"),
+      description: moment.reward ? t("momentDetail.toastSpotReservedDesc") : t("momentDetail.toastSpotReservedDesc"),
     });
   };
 
@@ -533,8 +557,8 @@ const MomentDetail = () => {
         setIsJoined(false);
         setParticipantCount((prev) => Math.max(0, prev - 1));
         toast({
-          title: "RSVP Cancelled",
-          description: "You have removed your reservation.",
+          title: t("momentDetail.toastReservationCancelled"),
+          description: t("momentDetail.toastReservationCancelledDesc"),
         });
       } else {
         const entryFee = Number(economy?.economics?.entry_fee_jmd || 0);
@@ -546,9 +570,9 @@ const MomentDetail = () => {
         await joinMoment(null);
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to update event reservation";
+      const message = error instanceof Error ? error.message : t("momentDetail.toastJoinError");
       toast({
-        title: "Action Failed",
+        title: t("momentDetail.toastJoinError"),
         description: message,
         variant: "destructive",
       });
@@ -578,8 +602,7 @@ const MomentDetail = () => {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
+    return i18nFormatDate(dateString, {
       weekday: "long",
       month: "short",
       day: "numeric",
@@ -588,8 +611,7 @@ const MomentDetail = () => {
   };
 
   const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString("en-US", {
+    return i18nFormatTime(dateString, {
       hour: "numeric",
       minute: "2-digit",
     });
@@ -781,7 +803,7 @@ const MomentDetail = () => {
                 </div>
                 <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5 backdrop-blur-md">
                   <Users className="h-4 w-4 text-[#ff5500]" />
-                  <span>{participantCount} Going</span>
+                  <span>{t("momentDetail.goingCount", { count: participantCount.toString() })}</span>
                 </div>
               </div>
             </div>
@@ -790,15 +812,15 @@ const MomentDetail = () => {
             <div className="rounded-3xl border border-white/15 bg-[#141417]/90 p-6 backdrop-blur-xl shadow-2xl space-y-5">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">Admission</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">{t("momentDetail.admission")}</span>
                   <p className="text-2xl font-black text-white mt-0.5">
-                    {entryFeeJmd > 0 ? `$${entryFeeJmd.toLocaleString()} JMD` : "FREE"}
+                    {entryFeeJmd > 0 ? `$${entryFeeJmd.toLocaleString()} JMD` : t("momentDetail.free")}
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">Capacity</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">{t("momentDetail.capacity")}</span>
                   <p className="text-sm font-semibold text-white/90 mt-0.5">
-                    {moment.max_participants ? `${participantCount}/${moment.max_participants}` : "Unlimited"}
+                    {moment.max_participants ? `${participantCount}/${moment.max_participants}` : t("momentDetail.unlimited")}
                   </p>
                 </div>
               </div>
@@ -807,7 +829,7 @@ const MomentDetail = () => {
               {moment.max_participants && (
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-xs text-white/60">
-                    <span>Spots Claimed</span>
+                    <span>{t("momentDetail.spotsClaimed")}</span>
                     <span>{Math.round((participantCount / moment.max_participants) * 100)}%</span>
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
@@ -823,17 +845,17 @@ const MomentDetail = () => {
               <div className="space-y-2.5">
                 {isPast && (
                   <Button asChild className="w-full rounded-2xl bg-white/10 text-white hover:bg-white/20 font-bold py-5">
-                    <Link to={`/moments/${moment.id}/record`}>View Event Record</Link>
+                    <Link to={`/moments/${moment.id}/record`}>{t("momentDetail.viewEventRecord")}</Link>
                   </Button>
                 )}
                 {!isPast && !user && (
                   <Button asChild className="w-full rounded-2xl bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold text-base py-5 shadow-lg shadow-[#ff5500]/25 transition-all hover:scale-[1.01]">
-                    <Link to="/auth"><LogIn className="mr-2 h-5 w-5" />Sign In to Reserve Spot</Link>
+                    <Link to="/auth"><LogIn className="mr-2 h-5 w-5" />{t("momentDetail.signInToReserve")}</Link>
                   </Button>
                 )}
                 {!isPast && !!user && isHost && (
                   <Button asChild className="w-full rounded-2xl bg-white text-black hover:bg-white/90 font-bold py-5">
-                    <Link to={`/moments/${moment.id}/edit`}><Edit className="mr-2 h-4 w-4" />Edit Event Details</Link>
+                    <Link to={`/moments/${moment.id}/edit`}><Edit className="mr-2 h-4 w-4" />{t("momentDetail.editEventDetails")}</Link>
                   </Button>
                 )}
                 {!isPast && !!user && !isHost && isJoined && (
@@ -843,7 +865,7 @@ const MomentDetail = () => {
                     variant="outline"
                     className="w-full rounded-2xl border-emerald-500/50 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 font-bold py-5"
                   >
-                    <CheckCircle2 className="mr-2 h-5 w-5" /> Spot Reserved (Click to Cancel)
+                    <CheckCircle2 className="mr-2 h-5 w-5" /> {t("momentDetail.spotReserved")}
                   </Button>
                 )}
                 {!isPast && !!user && !isHost && !isJoined && (
@@ -852,7 +874,7 @@ const MomentDetail = () => {
                     disabled={isJoining || isFull}
                     className="w-full rounded-2xl bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold text-base py-5 shadow-lg shadow-[#ff5500]/25 transition-all hover:scale-[1.01]"
                   >
-                    {isJoining ? "Reserving..." : isFull ? "Event Full" : "RSVP Now — Free"}
+                    {isJoining ? t("momentDetail.reserving") : isFull ? t("momentDetail.eventFull") : t("momentDetail.rsvpNowFree")}
                   </Button>
                 )}
 
@@ -862,7 +884,7 @@ const MomentDetail = () => {
                   variant="outline"
                   className="w-full rounded-2xl border-white/15 text-white/90 hover:bg-white/10 font-medium py-4 text-xs"
                 >
-                  <Share2 className="mr-2 h-3.5 w-3.5 text-[#ff5500]" /> Invite Friends
+                  <Share2 className="mr-2 h-3.5 w-3.5 text-[#ff5500]" /> {t("momentDetail.inviteFriends")}
                 </Button>
 
                 <button
@@ -872,14 +894,14 @@ const MomentDetail = () => {
                 >
                   <span className="flex items-center justify-between gap-3">
                     <span>
-                      <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">More inside this Moment</span>
+                      <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">{t("momentDetail.moreInsideMoment")}</span>
                       <span className="mt-1 block text-sm font-extrabold text-white">
-                        {momentMissions.length} Missions · 1 Attendee Perk · +{missionPointTotal} Points
+                        {t("momentDetail.missionsPerksSummary", { missions: momentMissions.length.toString(), points: missionPointTotal.toString() })}
                       </span>
                     </span>
                     <ArrowRight className="h-5 w-5 shrink-0 text-amber-300 transition-transform group-hover:translate-x-1" />
                   </span>
-                  <span className="mt-2 block text-xs text-white/55">See what you can do and earn before you arrive.</span>
+                  <span className="mt-2 block text-xs text-white/55">{t("momentDetail.seeWhatEarn")}</span>
                 </button>
               </div>
             </div>
@@ -923,9 +945,9 @@ const MomentDetail = () => {
                 {/* Event Description */}
                 <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
                   <div className="flex items-center gap-2 text-[#ff5500] font-bold text-xs uppercase tracking-wider">
-                    <Sparkles className="h-4 w-4" /> About this Event
+                    <Sparkles className="h-4 w-4" /> {t("momentDetail.aboutEvent")}
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-white">The Experience</h2>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-white">{t("momentDetail.theExperience")}</h2>
                   <p className="text-white/80 leading-relaxed text-base font-normal whitespace-pre-line">
                     {moment.description || "Join us for an incredible experience with great music, community, and exclusive perks."}
                   </p>
@@ -1038,14 +1060,25 @@ const MomentDetail = () => {
                           <Users className="h-5 w-5" />
                         </div>
                         <div>
-                          <p className="text-xs font-bold uppercase text-[#ff5500]">Part of {scene.title}</p>
-                          <p className="text-sm font-medium text-white/90">{scene.metadata?.tagline || "Discover this scene"}</p>
+                          <p className="text-xs font-bold uppercase text-[#ff5500]">{t("momentDetail.partOfScene", { title: scene.title })}</p>
+                          <p className="text-sm font-medium text-white/90">{scene.metadata?.tagline || t("momentDetail.discoverThisScene")}</p>
                         </div>
                       </div>
                       <ArrowRight className="h-5 w-5 text-white/40 transition-transform group-hover:translate-x-1 group-hover:text-white" />
                     </Link>
                   )}
                 </section>
+
+                {/* Lineup & Experience Squad Showcase */}
+                <MomentLineupShowcase
+                  collaborators={collaborators}
+                  onApplyPromoCode={(code) =>
+                    toast({
+                      title: t("momentDetail.toastFanPassTitle"),
+                      description: t("momentDetail.toastFanPassDesc", { code }),
+                    })
+                  }
+                />
 
                 {/* Venue & Map Card */}
                 <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-5 shadow-xl">
@@ -1055,8 +1088,8 @@ const MomentDetail = () => {
                         <MapPin className="h-5 w-5" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-white text-base">Location & Venue</h4>
-                        <p className="text-xs text-white/50">{moment.venue_name || "Venue Location"}</p>
+                        <h4 className="font-bold text-white text-base">{t("momentDetail.locationVenue")}</h4>
+                        <p className="text-xs text-white/50">{moment.venue_name || t("momentDetail.venueLocation")}</p>
                       </div>
                     </div>
                     <a
@@ -1065,7 +1098,7 @@ const MomentDetail = () => {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-[#ff5500] hover:underline bg-[#ff5500]/10 px-3 py-1.5 rounded-full border border-[#ff5500]/20"
                     >
-                      Open Directions <ExternalLink className="h-3.5 w-3.5" />
+                      {t("momentDetail.openDirections")} <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   </div>
 
@@ -1112,9 +1145,9 @@ const MomentDetail = () => {
                 {/* Perk Highlight Box */}
                 <section className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#121215] to-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
                   <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-                    <Trophy className="h-4 w-4" /> Attendee Perk & Points
+                    <Trophy className="h-4 w-4" /> {t("momentDetail.attendeePerkPoints")}
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-white">What You Receive</h2>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-white">{t("momentDetail.whatYouReceive")}</h2>
 
                   <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-5 flex items-start gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400">
@@ -1123,7 +1156,7 @@ const MomentDetail = () => {
                     <div>
                       <h4 className="font-bold text-white text-lg">{rewardLabel}</h4>
                       <p className="text-sm text-white/70 mt-1">
-                        Check in at the venue entrance to claim this reward and receive your verified digital memory badge.
+                        {t("momentDetail.seeWhatEarn")}
                       </p>
                     </div>
                   </div>
@@ -1138,12 +1171,12 @@ const MomentDetail = () => {
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2 text-[#ff5500] font-bold text-xs uppercase tracking-wider">
-                            <Sparkles className="h-4 w-4" /> Interactive Micro-Actions
+                            <Sparkles className="h-4 w-4" /> {t("momentDetail.interactiveMicroActions")}
                           </div>
-                          <h3 className="text-xl font-extrabold text-white">Missions inside this Moment ({momentMissions.length})</h3>
+                          <h3 className="text-xl font-extrabold text-white">{t("momentDetail.missionsInsideMoment", { count: momentMissions.length.toString() })}</h3>
                         </div>
                         <Badge className="bg-[#ff5500]/20 text-[#ff5500] border-none font-bold text-xs px-3 py-1">
-                          +{missionPointTotal} Total Points
+                          {t("momentDetail.totalPointsBonus", { points: missionPointTotal.toString() })}
                         </Badge>
                       </div>
 
@@ -1181,7 +1214,7 @@ const MomentDetail = () => {
                                   }
                                 }}
                               >
-                                {isJoined ? "Complete Mission" : "Unlock Mission"}
+                                {isJoined ? t("momentDetail.completeMission") : t("momentDetail.unlockMission")}
                               </Button>
                             </div>
                           </div>
@@ -1193,28 +1226,28 @@ const MomentDetail = () => {
 
                 {/* Check-In Instructions */}
                 <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#ff5500]">Check-In Instructions</h3>
-                  <h2 className="text-lg sm:text-xl font-bold text-white">How to Verify Attendance</h2>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#ff5500]">{t("momentDetail.checkInInstructions")}</h3>
+                  <h2 className="text-lg sm:text-xl font-bold text-white">{t("momentDetail.howToVerify")}</h2>
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
                       <div className="flex items-center gap-2 font-bold text-white text-sm">
-                        <Check className="h-4 w-4 text-[#ff5500]" /> 1. Arrive at Venue
+                        <Check className="h-4 w-4 text-[#ff5500]" /> {t("momentDetail.step1Arrive")}
                       </div>
-                      <p className="text-xs text-white/60 leading-relaxed">Head to {moment.venue_name || moment.location} during door hours.</p>
+                      <p className="text-xs text-white/60 leading-relaxed">{t("momentDetail.step1ArriveCopy", { venue: moment.venue_name || moment.location || "" })}</p>
                     </div>
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
                       <div className="flex items-center gap-2 font-bold text-white text-sm">
-                        <Check className="h-4 w-4 text-[#ff5500]" /> 2. Scan or Enter Code
+                        <Check className="h-4 w-4 text-[#ff5500]" /> {t("momentDetail.step2Scan")}
                       </div>
-                      <p className="text-xs text-white/60 leading-relaxed">Scan the check-in QR code at the desk or enter the host's code on your device.</p>
+                      <p className="text-xs text-white/60 leading-relaxed">{t("momentDetail.step2ScanCopy")}</p>
                     </div>
                   </div>
 
                   {isJoined && !isPast && (
                     <div className="pt-2">
                       <Button asChild className="rounded-full bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold px-6">
-                        <Link to={`/moments/${moment.id}/checkin`}>Open Check-In Interface</Link>
+                        <Link to={`/moments/${moment.id}/checkin`}>{t("momentDetail.openCheckInInterface")}</Link>
                       </Button>
                     </div>
                   )}
@@ -1228,8 +1261,8 @@ const MomentDetail = () => {
                 {/* Photo Gallery Carousel */}
                 {galleryImages.length > 0 && (
                   <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#ff5500]">Photos</h3>
-                    <h2 className="text-xl sm:text-2xl font-bold text-white">Event Gallery</h2>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#ff5500]">{t("momentDetail.photos")}</h3>
+                    <h2 className="text-xl sm:text-2xl font-bold text-white">{t("momentDetail.eventGallery")}</h2>
                     <Carousel opts={{ align: "start", loop: galleryImages.length > 3 }}>
                       <CarouselContent>
                         {galleryImages.map((img, idx) => (
@@ -1261,7 +1294,7 @@ const MomentDetail = () => {
                 {/* Discussion Wall */}
                 <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
                   <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-[#ff5500]" /> Discussion & Questions
+                    <MessageSquare className="h-5 w-5 text-[#ff5500]" /> {t("momentDetail.discussionQuestions")}
                   </h3>
                   <CommentSection
                     momentId={moment.id}
@@ -1282,14 +1315,14 @@ const MomentDetail = () => {
               <div className="space-y-8 animate-in fade-in duration-300">
                 <section className="rounded-3xl border border-[#ff5500]/30 bg-[#ff5500]/10 p-6 sm:p-8 space-y-4 shadow-xl">
                   <div className="flex items-center gap-2 text-[#ff5500] font-bold text-xs uppercase tracking-wider">
-                    <ShieldCheck className="h-4 w-4" /> Host Management
+                    <ShieldCheck className="h-4 w-4" /> {t("momentDetail.hostManagement")}
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-white">Event Controls</h2>
-                  <p className="text-white/70 text-sm">Manage door check-ins, event details, and attendee lists.</p>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-white">{t("momentDetail.eventControls")}</h2>
+                  <p className="text-white/70 text-sm">{t("momentDetail.eventControlsCopy")}</p>
 
                   <div className="grid gap-4 sm:grid-cols-2 pt-2">
                     <Button asChild className="rounded-2xl bg-white text-black hover:bg-white/90 font-bold py-5">
-                      <Link to={`/moments/${moment.id}/edit`}><Edit className="mr-2 h-4 w-4" /> Edit Event Details</Link>
+                      <Link to={`/moments/${moment.id}/edit`}><Edit className="mr-2 h-4 w-4" /> {t("momentDetail.editEventDetails")}</Link>
                     </Button>
 
                     {moment.check_in_code && (

@@ -4,28 +4,29 @@ import SEO from "@/components/SEO";
 import { ExperienceCard, MobileBottomNav } from "@/components/culture/CultureCards";
 import { cultureCreators, cultureEvents } from "@/data/culture-demo";
 import { ContentProvenanceBadge, SampleContentNotice } from "@/components/content/ContentProvenance";
-
-const tabs = [
-  { label: "Overview", icon: Users },
-  { label: "Events", icon: CalendarDays },
-  { label: "Content", icon: Play },
-  { label: "Bookings", icon: Mail },
-  { label: "About", icon: MessageCircle },
-];
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function CreatorDetail() {
+  const { t } = useI18n();
   const { handle } = useParams();
   const creator = cultureCreators.find((item) => item.handle === handle) || cultureCreators[0];
+  const tabs = [
+    { label: t("creatorProfile.overview"), icon: Users },
+    { label: t("creatorProfile.events"), icon: CalendarDays },
+    { label: t("creatorProfile.content"), icon: Play },
+    { label: t("creatorProfile.bookings"), icon: Mail },
+    { label: t("creatorProfile.about"), icon: MessageCircle },
+  ];
   const creatorRail = [
-    { label: "Follow", body: "Keep the creator in your live culture graph.", icon: Users },
-    { label: "Move content", body: "Watch, share, attend, or distribute when drops need momentum.", icon: Play },
-    { label: "Unlock status", body: "Useful action can become proof, PromoShare weight, rewards, and Vault memory.", icon: Award },
+    { label: t("creatorProfile.follow"), body: t("creatorProfile.followBody"), icon: Users },
+    { label: t("creatorProfile.moveContent"), body: t("creatorProfile.moveContentBody"), icon: Play },
+    { label: t("creatorProfile.unlockStatus"), body: t("creatorProfile.unlockStatusBody"), icon: Award },
   ];
 
   return (
     <main className="min-h-screen bg-black pb-24 text-white">
       <SEO
-        title={`${creator.name} - Promorang Creator`}
+        title={`${creator.name} — ${t("creatorProfile.seoSuffix")}`}
         description={creator.bio}
       />
 
@@ -45,16 +46,16 @@ export default function CreatorDetail() {
             <p className="mt-2 text-white/70">@{creator.handle}</p>
             <p className="mt-2 text-lg text-white/80">{creator.role}</p>
             <p className="mt-4 max-w-xl text-sm leading-6 text-white/65">{creator.bio}</p>
-            <p className="mt-2 text-sm font-bold text-primary">Bookings: {creator.booking}</p>
+            <p className="mt-2 text-sm font-bold text-primary">{t("creatorProfile.bookings")}: {creator.booking}</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/35 p-4 backdrop-blur">
-            <p className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-primary">Creator status</p>
+            <p className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-primary">{t("creatorProfile.status")}</p>
             <div className="grid grid-cols-4 gap-2 text-center">
               {[
-                ["Followers", creator.followers],
-                ["Following", creator.following],
-                ["Events", creator.events],
-                ["Check-ins", creator.checkIns],
+                [t("creatorProfile.followers"), creator.followers],
+                [t("creatorProfile.following"), creator.following],
+                [t("creatorProfile.events"), creator.events],
+                [t("creatorProfile.checkins"), creator.checkIns],
               ].map(([label, value]) => (
                 <div key={label}>
                   <p className="font-black">{value}</p>
@@ -64,10 +65,10 @@ export default function CreatorDetail() {
             </div>
             <div className="mt-5 grid grid-cols-[1fr_1fr_auto] gap-2">
               <Link to="/auth" className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-black text-white">
-                Follow
+                {t("creatorProfile.follow")}
               </Link>
               <Link to="/profile" className="inline-flex items-center justify-center rounded-xl border border-white/15 px-4 py-3 text-sm font-black text-white">
-                Message
+                {t("creatorProfile.message")}
               </Link>
               <button type="button" className="rounded-xl border border-white/15 p-3">
                 <Share2 className="h-5 w-5" />
@@ -79,9 +80,9 @@ export default function CreatorDetail() {
               ))}
             </div>
             <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.06] p-3">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/42">What following unlocks</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/42">{t("creatorProfile.unlocks")}</p>
               <p className="mt-2 text-sm leading-6 text-white/66">
-                Drops, appearances, proof-ready recaps, booking signals, and reward cycles tied to the creator's movement.
+                {t("creatorProfile.unlocksCopy")}
               </p>
             </div>
           </div>
@@ -114,9 +115,9 @@ export default function CreatorDetail() {
           </div>
 
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-2xl font-black uppercase tracking-[-0.03em]">Upcoming appearances</h2>
+            <h2 className="text-2xl font-black uppercase tracking-[-0.03em]">{t("creatorProfile.upcoming")}</h2>
             <Link to="/discover" className="inline-flex items-center gap-2 text-sm font-bold text-primary">
-              View all
+              {t("creatorProfile.viewAll")}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -127,7 +128,7 @@ export default function CreatorDetail() {
           </div>
 
           <div className="mt-10">
-            <h2 className="mb-5 text-2xl font-black uppercase tracking-[-0.03em]">Recent content</h2>
+            <h2 className="mb-5 text-2xl font-black uppercase tracking-[-0.03em]">{t("creatorProfile.recent")}</h2>
             <div className="grid grid-flow-col auto-cols-[68%] gap-4 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[30%]">
               {cultureEvents.map((event) => (
                 <Link key={event.slug} to="/discover/content" className="group">
@@ -137,7 +138,7 @@ export default function CreatorDetail() {
                     <div className="relative z-10 flex h-full flex-col justify-end p-4">
                       <Play className="mb-auto h-8 w-8 rounded-full bg-black/50 p-2 text-white" />
                       <p className="font-bold">{event.shortTitle} was a movie!</p>
-                      <p className="text-xs text-white/50">Proof-ready recap</p>
+                      <p className="text-xs text-white/50">{t("creatorProfile.recap")}</p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <span className="rounded-full bg-primary/20 px-2 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-primary">share signal</span>
                         <span className="rounded-full bg-white/[0.10] px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-white/58">PromoShare</span>
@@ -152,17 +153,17 @@ export default function CreatorDetail() {
 
         <aside className="space-y-4">
           <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">Growth layer</p>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">{t("creatorProfile.growth")}</p>
             <p className="mt-3 text-sm leading-6 text-white/65">
-              Creator profiles surface PromoShare, referrals, content drops, bookings, Pieces, and earnings contextually as the creator activates them.
+              {t("creatorProfile.growthCopy")}
             </p>
             <Link to="/growth" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-primary">
-              Open Growth Hub
+              {t("creatorProfile.openGrowth")}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">Signal stack</p>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">{t("creatorProfile.signals")}</p>
             <div className="mt-4 space-y-2">
               {[
                 ["Live pull", Radio],

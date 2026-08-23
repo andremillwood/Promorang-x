@@ -3,19 +3,21 @@ import { ArrowRight, BarChart3, Coins, Gem, HandHeart, Megaphone, Radio, Rocket,
 import SEO from "@/components/SEO";
 import { cultureCreators, cultureEvents } from "@/data/culture-demo";
 import { PersonalValueNav } from "@/components/value/PersonalValueNav";
+import { useI18n } from "@/i18n/I18nContext";
+import { TranslationKey } from "@/i18n/translations";
 
 const growthTiles = [
-  { title: "Content", text: "Publish drops, recap moments, and turn attention into movement.", href: "/growth/content", icon: Radio },
-  { title: "Promoshare", text: "Activate value where content, moments, and referrals create outcomes.", href: "/growth/promoshare", icon: Sparkles },
-  { title: "Campaigns", text: "Compile creator, brand, and scene campaigns without losing proof.", href: "/growth/campaigns", icon: Megaphone },
-  { title: "Referrals", text: "Track links, ambassadors, and promoter attribution.", href: "/growth/referrals", icon: Share2 },
-  { title: "Pioneer Contribution", text: "See the founding record you build as a member, creator, host, venue, or connector.", href: "/growth/pioneer", icon: Trophy },
-  { title: "Pieces", text: "Keep value objects contextual around culture and ownership.", href: "/growth/pieces", icon: Trophy },
-  { title: "Analytics", text: "See reach, check-ins, proof quality, and conversion signals.", href: "/growth/analytics", icon: BarChart3 },
-  { title: "Earnings", text: "Track payouts, value pools, withdrawals, and reward outcomes.", href: "/growth/earnings", icon: Coins },
-  { title: "Membership", text: "See disclosed Gem allowances and pool-backed membership benefits.", href: "/wallet", icon: Gem },
-  { title: "Resilience", text: "Request reviewed creator assistance from a funded reserve—not an insurance promise.", href: "/support", icon: HandHeart },
-  { title: "Kickstart", text: "Back milestone-based projects through escrow, proof, release, and refund rules.", href: "/growth/kickstart", icon: Rocket },
+  { titleKey: "growthHub.tileContentTitle" as TranslationKey, textKey: "growthHub.tileContentText" as TranslationKey, href: "/growth/content", icon: Radio },
+  { titleKey: "growthHub.tilePromoshareTitle" as TranslationKey, textKey: "growthHub.tilePromoshareText" as TranslationKey, href: "/growth/promoshare", icon: Sparkles },
+  { titleKey: "growthHub.tileCampaignsTitle" as TranslationKey, textKey: "growthHub.tileCampaignsText" as TranslationKey, href: "/growth/campaigns", icon: Megaphone },
+  { titleKey: "growthHub.tileReferralsTitle" as TranslationKey, textKey: "growthHub.tileReferralsText" as TranslationKey, href: "/growth/referrals", icon: Share2 },
+  { titleKey: "growthHub.tilePioneerTitle" as TranslationKey, textKey: "growthHub.tilePioneerText" as TranslationKey, href: "/growth/pioneer", icon: Trophy },
+  { titleKey: "growthHub.tilePiecesTitle" as TranslationKey, textKey: "growthHub.tilePiecesText" as TranslationKey, href: "/growth/pieces", icon: Trophy },
+  { titleKey: "growthHub.tileAnalyticsTitle" as TranslationKey, textKey: "growthHub.tileAnalyticsText" as TranslationKey, href: "/growth/analytics", icon: BarChart3 },
+  { titleKey: "growthHub.tileEarningsTitle" as TranslationKey, textKey: "growthHub.tileEarningsText" as TranslationKey, href: "/growth/earnings", icon: Coins },
+  { titleKey: "growthHub.tileMembershipTitle" as TranslationKey, textKey: "growthHub.tileMembershipText" as TranslationKey, href: "/wallet", icon: Gem },
+  { titleKey: "growthHub.tileResilienceTitle" as TranslationKey, textKey: "growthHub.tileResilienceText" as TranslationKey, href: "/support", icon: HandHeart },
+  { titleKey: "growthHub.tileKickstartTitle" as TranslationKey, textKey: "growthHub.tileKickstartText" as TranslationKey, href: "/growth/kickstart", icon: Rocket },
 ];
 
 const routeFallbacks: Record<string, string> = {
@@ -31,11 +33,13 @@ const routeFallbacks: Record<string, string> = {
 };
 
 export default function GrowthHub() {
+  const { t } = useI18n();
+
   return (
     <main className="min-h-screen bg-black pb-16 text-white">
       <SEO
-        title="Growth Hub - Promorang"
-        description="Creator, promoter, and ambassador workspace for content, Promoshare, referrals, Pieces, analytics, and earnings."
+        title={t("growthHub.seoTitle")}
+        description={t("growthHub.seoDescription")}
       />
       <section className="relative min-h-[560px] overflow-hidden border-b border-white/10 pt-24">
         <img src={cultureEvents[0].image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-50" />
@@ -43,25 +47,25 @@ export default function GrowthHub() {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
         <div className="container relative grid min-h-[464px] gap-8 px-6 pb-12 lg:grid-cols-[1fr_360px] lg:items-end">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">Growth layer</p>
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">{t("growthHub.heroEyebrow")}</p>
             <h1 className="mt-4 max-w-5xl font-sans text-5xl font-black uppercase leading-[0.84] tracking-[-0.075em] md:text-8xl">
-              Turn attention<br /><span className="text-primary">into movement.</span>
+              {t("growthHub.heroTitle1")}<br /><span className="text-primary">{t("growthHub.heroTitle2")}</span>
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/65">
-              Publish the signal, move it through the right people, count what happened, and keep the audience, status, and earnings your work creates.
+              {t("growthHub.heroSubtitle")}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/content-drops" className="inline-flex items-center rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground">Launch content <ArrowRight className="ml-2 h-4 w-4" /></Link>
-              <Link to="/promoshare" className="inline-flex items-center rounded-xl border border-white/20 bg-black/30 px-5 py-3 text-sm font-black">Open PromoShare</Link>
+              <Link to="/content-drops" className="inline-flex items-center rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground">{t("growthHub.launchContent")} <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              <Link to="/promoshare" className="inline-flex items-center rounded-xl border border-white/20 bg-black/30 px-5 py-3 text-sm font-black">{t("growthHub.openPromoShare")}</Link>
             </div>
           </div>
           <div className="rounded-2xl border border-white/15 bg-black/55 p-5 backdrop-blur-xl">
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Built for cultural operators</p>
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{t("growthHub.operatorBadge")}</p>
             <div className="mt-4 flex items-center gap-4">
               <img src={cultureCreators[0].avatar} alt="" className="h-16 w-16 rounded-full object-cover" />
               <div>
-                <p className="text-xl font-black">Your signal. Carried further.</p>
-                <p className="text-sm text-white/55">For creators, promoters, and ambassadors</p>
+                <p className="text-xl font-black">{t("growthHub.operatorTitle")}</p>
+                <p className="text-sm text-white/55">{t("growthHub.operatorSubtitle")}</p>
               </div>
             </div>
             <div className="mt-5 grid grid-cols-3 gap-2">
@@ -77,14 +81,14 @@ export default function GrowthHub() {
 
       <section className="container px-6 py-10">
         <div className="mb-5 flex items-end justify-between gap-4">
-          <div><p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Priority queue</p><h2 className="mt-1 text-3xl font-black">What needs movement</h2></div>
-          <Link to="/dashboard/analytics" className="text-sm font-bold text-primary">View analytics</Link>
+          <div><p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{t("growthHub.queueEyebrow")}</p><h2 className="mt-1 text-3xl font-black">{t("growthHub.queueHeading")}</h2></div>
+          <Link to="/dashboard/analytics" className="text-sm font-bold text-primary">{t("growthHub.viewAnalytics")}</Link>
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
           {[
-            { title: "Publish your next signal", text: "Start with a creator drop, recap, or campaign asset people can actually move.", href: "/content-drops", icon: Radio, cta: "Open Content Drops" },
-            { title: "Activate attributed sharing", text: "Give promoters and supporters a trackable path into the outcome.", href: "/promoshare", icon: Share2, cta: "Open PromoShare" },
-            { title: "Complete the proof loop", text: "Connect attention to a moment, check-in, referral, sale, or verified action.", href: "/missions", icon: Target, cta: "Browse Missions" },
+            { title: t("growthHub.queueCard1Title"), text: t("growthHub.queueCard1Text"), href: "/content-drops", icon: Radio, cta: t("growthHub.queueCard1Cta") },
+            { title: t("growthHub.queueCard2Title"), text: t("growthHub.queueCard2Text"), href: "/promoshare", icon: Share2, cta: t("growthHub.queueCard2Cta") },
+            { title: t("growthHub.queueCard3Title"), text: t("growthHub.queueCard3Text"), href: "/missions", icon: Target, cta: t("growthHub.queueCard3Cta") },
           ].map((item) => (
             <Link key={item.title} to={item.href} className="group rounded-2xl border border-white/10 bg-white/[0.045] p-5 transition hover:border-primary/50">
               <item.icon className="h-6 w-6 text-primary" /><h3 className="mt-8 text-2xl font-black">{item.title}</h3><p className="mt-3 text-sm leading-6 text-white/52">{item.text}</p><span className="mt-5 inline-flex items-center gap-2 text-sm font-black text-primary">{item.cta}<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
@@ -95,16 +99,16 @@ export default function GrowthHub() {
 
       <section className="container px-6 pb-10">
         <div className="mb-5 flex items-end justify-between gap-4">
-          <div><p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Growth engines</p><h2 className="mt-1 text-3xl font-black">Build the loop</h2></div>
+          <div><p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{t("growthHub.enginesEyebrow")}</p><h2 className="mt-1 text-3xl font-black">{t("growthHub.enginesHeading")}</h2></div>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {growthTiles.map((tile) => (
-            <Link key={tile.title} to={routeFallbacks[tile.href] || tile.href} className="group rounded-2xl border border-white/10 bg-white/[0.045] p-5 transition hover:border-primary/50">
+            <Link key={tile.href} to={routeFallbacks[tile.href] || tile.href} className="group rounded-2xl border border-white/10 bg-white/[0.045] p-5 transition hover:border-primary/50">
               <tile.icon className="mb-5 h-7 w-7 text-primary" />
-              <h2 className="text-2xl font-black">{tile.title}</h2>
-              <p className="mt-3 min-h-16 text-sm leading-6 text-white/58">{tile.text}</p>
+              <h2 className="text-2xl font-black">{t(tile.titleKey)}</h2>
+              <p className="mt-3 min-h-16 text-sm leading-6 text-white/58">{t(tile.textKey)}</p>
               <span className="mt-6 inline-flex items-center gap-2 text-sm font-black text-primary">
-                Open
+                {t("growthHub.tileOpen")}
                 <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
               </span>
             </Link>
@@ -114,16 +118,16 @@ export default function GrowthHub() {
 
       <section className="container px-6 pb-10">
         <div className="mb-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">How Growth Hub value works</p>
-          <h2 className="mt-1 text-3xl font-black">Funded, disclosed, and earned.</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/58">Promorang separates membership benefits, variable rewards, assistance, and project backing so no one has to guess what is guaranteed.</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{t("growthHub.valueEyebrow")}</p>
+          <h2 className="mt-1 text-3xl font-black">{t("growthHub.valueHeading")}</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/58">{t("growthHub.valueSubtitle")}</p>
         </div>
         <div className="grid gap-4 lg:grid-cols-4">
           {[
-            { icon: Gem, title: "Membership allowance", label: "Defined benefit", text: "Plus, Pro, and Elite payments may issue 5, 15, or 30 Gems per paid period. This is a membership benefit, not investment yield." },
-            { icon: Trophy, title: "Funded reward programs", label: "Reserve-backed", text: "Any commitment reward must disclose its reserve, rate, lock period, maximum commitment, and available capacity before entry." },
-            { icon: HandHeart, title: "Creator Resilience", label: "Reviewed assistance", text: "Creators submit evidence to a funded assistance reserve. Approval is discretionary and capped; this is not insurance coverage." },
-            { icon: Rocket, title: "Kickstart escrow", label: "Milestone release", text: "Pledges stay in escrow. Project owners receive funds only after milestone proof is approved; cancellation opens a refund path." },
+            { icon: Gem, title: t("growthHub.benefitCard1Title"), label: t("growthHub.benefitCard1Label"), text: t("growthHub.benefitCard1Text") },
+            { icon: Trophy, title: t("growthHub.benefitCard2Title"), label: t("growthHub.benefitCard2Label"), text: t("growthHub.benefitCard2Text") },
+            { icon: HandHeart, title: t("growthHub.benefitCard3Title"), label: t("growthHub.benefitCard3Label"), text: t("growthHub.benefitCard3Text") },
+            { icon: Rocket, title: t("growthHub.benefitCard4Title"), label: t("growthHub.benefitCard4Label"), text: t("growthHub.benefitCard4Text") },
           ].map((item) => (
             <article key={item.title} className="rounded-2xl border border-white/10 bg-white/[0.045] p-5">
               <div className="flex items-center justify-between gap-3"><item.icon className="h-6 w-6 text-primary" /><span className="rounded-full bg-primary/10 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-primary">{item.label}</span></div>
@@ -133,15 +137,15 @@ export default function GrowthHub() {
           ))}
         </div>
         <div className="mt-4 rounded-2xl border border-amber-400/20 bg-amber-400/[0.06] p-4 text-sm leading-6 text-amber-100/75">
-          Holding Gems alone does not earn a return. PromoShare prizes are variable. Piece revenue and funded commitment programs only distribute value when their disclosed source has actually been funded.
+          {t("growthHub.disclaimerNotice")}
         </div>
       </section>
 
       <section className="container px-6 pb-12">
         <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-5">
-          <div className="flex items-center gap-2"><TrendingUp className="h-5 w-5 text-primary" /><p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Opportunities in motion</p></div>
-          <h2 className="mt-2 text-3xl font-black tracking-[-0.04em]">Attach growth to something real.</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/60">Start from a moment people can attend, content they can move, or a scene they already care about. Growth tools become useful when the outcome is visible.</p>
+          <div className="flex items-center gap-2"><TrendingUp className="h-5 w-5 text-primary" /><p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{t("growthHub.opportunitiesEyebrow")}</p></div>
+          <h2 className="mt-2 text-3xl font-black tracking-[-0.04em]">{t("growthHub.opportunitiesHeading")}</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/60">{t("growthHub.opportunitiesSubtitle")}</p>
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             {cultureEvents.slice(0, 3).map((event) => (
               <Link key={event.slug} to={`/events/${event.slug}`} className="rounded-2xl border border-white/10 bg-black/35 p-3">
@@ -156,3 +160,4 @@ export default function GrowthHub() {
     </main>
   );
 }
+

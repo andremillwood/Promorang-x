@@ -7,24 +7,27 @@ import { FeedStream } from "@/components/feed/FeedStream";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/I18nContext";
+import { TranslationKey } from "@/i18n/translations";
 
 const lenses: Array<{
   value: FeedIntent | null;
-  label: string;
+  labelKey: TranslationKey;
   icon: typeof Compass;
-  description: string;
+  descKey: TranslationKey;
 }> = [
-  { value: null, label: "For You", icon: Compass, description: "Your strongest mix" },
-  { value: "nearby", label: "Near You", icon: MapPin, description: "Within reach" },
-  { value: "tonight", label: "Tonight", icon: MoonStar, description: "Live and starting soon" },
-  { value: "earn", label: "Earn", icon: Coins, description: "Value you can unlock" },
+  { value: null, labelKey: "forYou.lensForYou", icon: Compass, descKey: "forYou.lensForYouDesc" },
+  { value: "nearby", labelKey: "forYou.lensNearYou", icon: MapPin, descKey: "forYou.lensNearYouDesc" },
+  { value: "tonight", labelKey: "forYou.lensTonight", icon: MoonStar, descKey: "forYou.lensTonightDesc" },
+  { value: "earn", labelKey: "forYou.lensEarn", icon: Coins, descKey: "forYou.lensEarnDesc" },
 ];
 
 const ForYou = () => {
+  const { t } = useI18n();
   const { user } = useAuth();
   const [activeIntent, setActiveIntent] = useState<FeedIntent | null>(null);
   const feedQuery = useForYouFeed(activeIntent);
-  const firstName = user?.user_metadata?.full_name?.split(" ")[0] || "Explorer";
+  const firstName = user?.user_metadata?.full_name?.split(" ")[0] || t("forYou.explorer");
   const rankedItems = useMemo(
     () => feedQuery.data?.feed || [],
     [feedQuery.data],
@@ -39,14 +42,16 @@ const ForYou = () => {
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
           <div>
             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.26em] text-primary">
-              <Sparkles className="h-3.5 w-3.5" /> Curated for {firstName}
+              <Sparkles className="h-3.5 w-3.5" /> {t("forYou.curatedFor", { name: firstName })}
             </div>
-            <h1 className="mt-4 max-w-4xl font-sans text-[clamp(3rem,6vw,5.8rem)] font-semibold leading-[0.94] tracking-[-0.065em]">Everything moving<br className="hidden sm:block" /> toward you.</h1>
-            <p className="mt-5 max-w-2xl text-[15px] leading-7 text-white/52">A considered mix of Moments, stories, rewards, and things worth keeping—ranked around what you can do next.</p>
+            <h1 className="mt-4 max-w-4xl font-sans text-[clamp(3rem,6vw,5.8rem)] font-semibold leading-[0.94] tracking-[-0.065em]">
+              {t("forYou.heroTitle1")}<br className="hidden sm:block" /> {t("forYou.heroTitle2")}
+            </h1>
+            <p className="mt-5 max-w-2xl text-[15px] leading-7 text-white/52">{t("forYou.heroCopy")}</p>
           </div>
           <div className="max-w-xs rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-xs font-semibold text-white/72"><SlidersHorizontal className="h-4 w-4 text-primary" /> Your ranking is personal</div>
-            <p className="mt-1.5 text-[11px] leading-5 text-white/35">It adapts to what you view, save, join, and pass.</p>
+            <div className="flex items-center gap-2 text-xs font-semibold text-white/72"><SlidersHorizontal className="h-4 w-4 text-primary" /> {t("forYou.rankingPersonal")}</div>
+            <p className="mt-1.5 text-[11px] leading-5 text-white/35">{t("forYou.rankingAdapts")}</p>
           </div>
         </div>
       </header>
@@ -59,7 +64,7 @@ const ForYou = () => {
             const isActive = activeIntent === lens.value;
             return (
               <button
-                key={lens.label}
+                key={lens.labelKey}
                 type="button"
                 aria-pressed={isActive}
                 onClick={() => setActiveIntent(lens.value)}
@@ -69,7 +74,7 @@ const ForYou = () => {
                 )}
               >
                 <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-full", isActive ? "bg-primary text-black" : "bg-white/[0.06] text-white/55")}><lens.icon className="h-3.5 w-3.5" /></span>
-                <span><span className="block text-xs font-black">{lens.label}</span><span className={cn("mt-0.5 block text-[10px]", isActive ? "text-black/55" : "text-white/35")}>{lens.description}</span></span>
+                <span><span className="block text-xs font-black">{t(lens.labelKey)}</span><span className={cn("mt-0.5 block text-[10px]", isActive ? "text-black/55" : "text-white/35")}>{t(lens.descKey)}</span></span>
               </button>
             );
           })}

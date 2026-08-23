@@ -1,0 +1,5433 @@
+{
+  "schema_version": 1,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Kingston, Jamaica",
+    "parish": "Kingston",
+    "iso_code": "JM-01",
+    "collected_at": "2026-08-22T01:46:56.094Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "stats": {
+    "source_elements": 149,
+    "candidates": 133,
+    "pending_review": 7,
+    "needs_research": 126
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2393434991",
+      "source_url": "https://www.openstreetmap.org/node/2393434991",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2393434991,
+        "lat": 17.9402639,
+        "lon": -76.8392679,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Morgan's Harbour"
+        }
+      },
+      "normalized_data": {
+        "name": "Morgan's Harbour",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9402639,
+        "longitude": -76.8392679,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6e6e32fc26066650921ec40a5a648f659b4a681b879c08426aa0464fc86d98ca",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3221943861",
+      "source_url": "https://www.openstreetmap.org/node/3221943861",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3221943861,
+        "lat": 17.938964,
+        "lon": -76.8424699,
+        "tags": {
+          "addr:housenumber": "1",
+          "addr:street": "High Street",
+          "amenity": "restaurant",
+          "cuisine": "seafood",
+          "name": "Gloria's",
+          "phone": "+1 876 967 8066"
+        }
+      },
+      "normalized_data": {
+        "name": "Gloria's",
+        "address": "1 High Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.938964,
+        "longitude": -76.8424699,
+        "category": "restaurant",
+        "phone": "+1 876 967 8066",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "seafood"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "77c78547a6c538e25d6e36078d8700fe9ec1f6696dfade37b54bd6ec7b8fb9ef",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3784814621",
+      "source_url": "https://www.openstreetmap.org/node/3784814621",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3784814621,
+        "lat": 17.9733898,
+        "lon": -76.7603393,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Genesis Restaurant",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Genesis Restaurant",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9733898,
+        "longitude": -76.7603393,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b15315affd5d40b8efa88904b64dbb46848229e92286178c5388935553244ea1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3786774668",
+      "source_url": "https://www.openstreetmap.org/node/3786774668",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3786774668,
+        "lat": 17.9382056,
+        "lon": -76.7790988,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Island Grill",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Island Grill",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9382056,
+        "longitude": -76.7790988,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "deca90b688d373722be6d70b6921c537d1fc4d5815e9ee204a37dc7ee542de5f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3793523466",
+      "source_url": "https://www.openstreetmap.org/node/3793523466",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3793523466,
+        "lat": 17.9660515,
+        "lon": -76.7930371,
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "116",
+          "addr:street": "Harbour Street",
+          "amenity": "fast_food",
+          "cuisine": "burger",
+          "drive_through": "no",
+          "name": "Juici Patties",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "116 Harbour Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9660515,
+        "longitude": -76.7930371,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3c62d97f8d62fc92f0a4b9e2455bc63f02f174ed30390d7bff3d3a5fde103aec",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3814096406",
+      "source_url": "https://www.openstreetmap.org/node/3814096406",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3814096406,
+        "lat": 17.939885,
+        "lon": -76.8395431,
+        "tags": {
+          "name": "The Grand Port Royal Hotel Marina",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "The Grand Port Royal Hotel Marina",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.939885,
+        "longitude": -76.8395431,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "970f761d5dd737a54f29568403d45e904e5d242cf74c99120ec4a931728de3bd",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4339034793",
+      "source_url": "https://www.openstreetmap.org/node/4339034793",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4339034793,
+        "lat": 17.9649482,
+        "lon": -76.7761585,
+        "tags": {
+          "amenity": "bar",
+          "name": "Rosie Bless"
+        }
+      },
+      "normalized_data": {
+        "name": "Rosie Bless",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9649482,
+        "longitude": -76.7761585,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "568976820d23ade67bbab3b306672326e70aced55a299f7771ae66415ca82f27",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4702009690",
+      "source_url": "https://www.openstreetmap.org/node/4702009690",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4702009690,
+        "lat": 17.9643177,
+        "lon": -76.7957036,
+        "tags": {
+          "addr:housenumber": "14",
+          "addr:street": "Ocean Boulevard",
+          "amenity": "fast_food",
+          "name": "Island Grill",
+          "name:en": "Island Grill",
+          "opening_hours": "Mo-Sa 07:00-19:00"
+        }
+      },
+      "normalized_data": {
+        "name": "Island Grill",
+        "address": "14 Ocean Boulevard, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9643177,
+        "longitude": -76.7957036,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Sa 07:00-19:00",
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "491a9a9327e02b3a3a995af14c4e85cb24dcfac7e5bf00f67b9b2500ab854b42",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4893801737",
+      "source_url": "https://www.openstreetmap.org/node/4893801737",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4893801737,
+        "lat": 17.9645648,
+        "lon": -76.7957873,
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "14",
+          "addr:street": "Ocean Boulevard",
+          "email": "digicel@expressfitnessja.com",
+          "leisure": "fitness_centre",
+          "name": "Express Fitness",
+          "opening_hours": "24/7",
+          "phone": "620-5087",
+          "website": "https://expressfitnessja.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Express Fitness",
+        "address": "14 Ocean Boulevard, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9645648,
+        "longitude": -76.7957873,
+        "category": "fitness_wellness",
+        "phone": "620-5087",
+        "website": "https://expressfitnessja.com/",
+        "opening_hours": "24/7",
+        "social_profiles": {},
+        "tags": [
+          "fitness_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3605938ccaafeb8050a24fd5c472aeab46c4610cf94609bf9780fb2692001849",
+      "confidence": 0.95,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4956331011",
+      "source_url": "https://www.openstreetmap.org/node/4956331011",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4956331011,
+        "lat": 17.9647847,
+        "lon": -76.7946857,
+        "tags": {
+          "name": "National Gallery of Jamaica",
+          "tourism": "museum",
+          "wikidata": "Q2498011"
+        }
+      },
+      "normalized_data": {
+        "name": "National Gallery of Jamaica",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9647847,
+        "longitude": -76.7946857,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b9c84d8504ceb400edc486600de30394b32e681cb68343fa0d08d7aef4a20bb9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4976218735",
+      "source_url": "https://www.openstreetmap.org/node/4976218735",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4976218735,
+        "lat": 17.9643483,
+        "lon": -76.795615,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Wholesome Café",
+          "opening_hours": "Mo-Fr 07:30-17:00",
+          "phone": "+18762951431"
+        }
+      },
+      "normalized_data": {
+        "name": "Wholesome Café",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9643483,
+        "longitude": -76.795615,
+        "category": "restaurant",
+        "phone": "+18762951431",
+        "website": null,
+        "opening_hours": "Mo-Fr 07:30-17:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b5d4c5d211726ddb836e6231e78d73e93e0d58672c6aa92a4ed08dc2e7e389a6",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4980486131",
+      "source_url": "https://www.openstreetmap.org/node/4980486131",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4980486131,
+        "lat": 17.977599,
+        "lon": -76.7764584,
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "53",
+          "addr:street": "Franklyn Avenue",
+          "amenity": "restaurant",
+          "name": "Sun Light Bakery and Restaurant"
+        }
+      },
+      "normalized_data": {
+        "name": "Sun Light Bakery and Restaurant",
+        "address": "53 Franklyn Avenue, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.977599,
+        "longitude": -76.7764584,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cd96787a69424b890a6408fe05c609102f80ebbdc89206e79b743e42fc6c5499",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5010397871",
+      "source_url": "https://www.openstreetmap.org/node/5010397871",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5010397871,
+        "lat": 17.9695217,
+        "lon": -76.7928739,
+        "tags": {
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "branch": "Downtown",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "cuisine": "chicken",
+          "name": "KFC",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9695217,
+        "longitude": -76.7928739,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "072c77c50625fb7289615ecf0742203558f1c2218587fa04aea50c74fae9439a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5458217259",
+      "source_url": "https://www.openstreetmap.org/node/5458217259",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5458217259,
+        "lat": 17.9669852,
+        "lon": -76.793196,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Domino's",
+          "brand:wikidata": "Q839466",
+          "brand:wikipedia": "en:Domino's Pizza",
+          "cuisine": "pizza",
+          "description": "Pizza house",
+          "name": "Domino's",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Domino's",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9669852,
+        "longitude": -76.793196,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a9818b6a6fdbfc02e0059a3d91dc9655e3ca0b06e1ba626e902a82cab03fa447",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5458277953",
+      "source_url": "https://www.openstreetmap.org/node/5458277953",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5458277953,
+        "lat": 17.9666087,
+        "lon": -76.7930309,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Burger King",
+          "brand:wikidata": "Q177054",
+          "brand:wikipedia": "en:Burger King",
+          "cuisine": "burger",
+          "name": "Burger King",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Burger King",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9666087,
+        "longitude": -76.7930309,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ddbac942331eff794c73d03a5ac1c579cd596089adadb6dc367ab7289191036f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6981366035",
+      "source_url": "https://www.openstreetmap.org/node/6981366035",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6981366035,
+        "lat": 17.9339868,
+        "lon": -76.8422429,
+        "tags": {
+          "name": "The Victoria Battery",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "The Victoria Battery",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9339868,
+        "longitude": -76.8422429,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9f434f5f7c34b0805f1426af8f202a6df761765fcb7db89e8675f19e99c4ae89",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6981876030",
+      "source_url": "https://www.openstreetmap.org/node/6981876030",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6981876030,
+        "lat": 17.9661486,
+        "lon": -76.7592349,
+        "tags": {
+          "name": "Bournemouth",
+          "natural": "bay",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Bournemouth",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9661486,
+        "longitude": -76.7592349,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "35b1bdeced733f5ee3d36b52cdebea40555a479821b84bef09b94a627d54cef7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7047484292",
+      "source_url": "https://www.openstreetmap.org/node/7047484292",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7047484292,
+        "lat": 17.9645017,
+        "lon": -76.7908448,
+        "tags": {
+          "name": "Money Museum",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Money Museum",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9645017,
+        "longitude": -76.7908448,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6580b864fd08910e5a5dd65e00268b7ad0ce0ec4a569ce0675e375dd59ffdefa",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7813555086",
+      "source_url": "https://www.openstreetmap.org/node/7813555086",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7813555086,
+        "lat": 17.9659273,
+        "lon": -76.7943628,
+        "tags": {
+          "addr:street": "Orange Street",
+          "amenity": "restaurant",
+          "description": "Restaurant",
+          "name": "Moby Dick",
+          "operator": "jamaica"
+        }
+      },
+      "normalized_data": {
+        "name": "Moby Dick",
+        "address": "Orange Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9659273,
+        "longitude": -76.7943628,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6fcb19c7c5cbf47571c5f59b85bd7115cf49e076abbe534903ee145a8a1b986f",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9221257304",
+      "source_url": "https://www.openstreetmap.org/node/9221257304",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9221257304,
+        "lat": 17.9406565,
+        "lon": -76.8385531,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "U-Knot Bar Grill",
+          "opening_hours": "We-Su 10:00-18:00;Fr--Sa 11:00-22:00",
+          "phone": "18765680689"
+        }
+      },
+      "normalized_data": {
+        "name": "U-Knot Bar Grill",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9406565,
+        "longitude": -76.8385531,
+        "category": "restaurant",
+        "phone": "18765680689",
+        "website": null,
+        "opening_hours": "We-Su 10:00-18:00;Fr--Sa 11:00-22:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "863e0f71121b66eaee965f785793dbc66f8779df17c4f44e09428bc9bc607c38",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9741946975",
+      "source_url": "https://www.openstreetmap.org/node/9741946975",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9741946975,
+        "lat": 17.9374076,
+        "lon": -76.7777134,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Burger King",
+          "brand:wikidata": "Q177054",
+          "cuisine": "burger",
+          "name": "Burger King",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Burger King",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9374076,
+        "longitude": -76.7777134,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b3bb629b26ecfe24f85c0a550badc2e0a1052d9cc2f56c3cd5281f7d0ba1a93b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9812740892",
+      "source_url": "https://www.openstreetmap.org/node/9812740892",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9812740892,
+        "lat": 17.9647715,
+        "lon": -76.7946731,
+        "tags": {
+          "addr:street": "Orange Street",
+          "description": "Art Gallery",
+          "name": "National Galery of Jamaica",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "National Galery of Jamaica",
+        "address": "Orange Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9647715,
+        "longitude": -76.7946731,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f7d70f990b9b8086337e3ae8a73a6e00e325941d996c682012a08642db79087d",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9812740894",
+      "source_url": "https://www.openstreetmap.org/node/9812740894",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9812740894,
+        "lat": 17.9635054,
+        "lon": -76.7929842,
+        "tags": {
+          "addr:street": "Ocean Boulevard",
+          "amenity": "restaurant",
+          "cuisine": "seafood",
+          "description": "Seafood Restaurant",
+          "name": "Gloria's Seafood City"
+        }
+      },
+      "normalized_data": {
+        "name": "Gloria's Seafood City",
+        "address": "Ocean Boulevard, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9635054,
+        "longitude": -76.7929842,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "seafood"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5e2fdf27f979524600eb73bd80ad1be6cf368a3bca206649b623fcd46d620bc1",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11049752709",
+      "source_url": "https://www.openstreetmap.org/node/11049752709",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11049752709,
+        "lat": 17.97963,
+        "lon": -76.7851,
+        "tags": {
+          "amenity": "bar",
+          "name": "Exquisite chill shop and bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Exquisite chill shop and bar",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.97963,
+        "longitude": -76.7851,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ef2035fcc79e48a66f8a07d7fdcc12c27487714f0982647fe7898f84de35ee20",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11049752728",
+      "source_url": "https://www.openstreetmap.org/node/11049752728",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11049752728,
+        "lat": 17.98357,
+        "lon": -76.7854,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Groceries pastries and snacks"
+        }
+      },
+      "normalized_data": {
+        "name": "Groceries pastries and snacks",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.98357,
+        "longitude": -76.7854,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "552d1074b4b745d52a1b0288513cbdff50c94ce8194416b9117e625ee223e9be",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11049752741",
+      "source_url": "https://www.openstreetmap.org/node/11049752741",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11049752741,
+        "lat": 17.98036,
+        "lon": -76.783,
+        "tags": {
+          "amenity": "bar",
+          "name": "George's Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "George's Bar",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.98036,
+        "longitude": -76.783,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e28cbaf5c8b08f5687dab4a765c0b8d080127ce64d5cc81ac679902bbbffcd0a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11049752745",
+      "source_url": "https://www.openstreetmap.org/node/11049752745",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11049752745,
+        "lat": 17.98204,
+        "lon": -76.7818,
+        "tags": {
+          "amenity": "bar",
+          "name": "Pat's Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Pat's Bar",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.98204,
+        "longitude": -76.7818,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "31ecabaa3f59d648f21c00a05a99e63fbf98ba33a948d8f388f835c9789ccb88",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11049752751",
+      "source_url": "https://www.openstreetmap.org/node/11049752751",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11049752751,
+        "lat": 17.98217,
+        "lon": -76.7831,
+        "tags": {
+          "amenity": "bar",
+          "name": "D'Endz Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "D'Endz Bar",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.98217,
+        "longitude": -76.7831,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fc2226a962455c18e0fdd979b5b5469c6b34f0bbabd31415f8174c9af0a16197",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11049752752",
+      "source_url": "https://www.openstreetmap.org/node/11049752752",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11049752752,
+        "lat": 17.98258,
+        "lon": -76.7821,
+        "tags": {
+          "amenity": "bar",
+          "name": "Total Love Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Total Love Bar",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.98258,
+        "longitude": -76.7821,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "13207e9bdb30c09cc9101071503878c0efb6528a9262a61de21f67a71f69b9fb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11049752753",
+      "source_url": "https://www.openstreetmap.org/node/11049752753",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11049752753,
+        "lat": 17.9809,
+        "lon": -76.7867,
+        "tags": {
+          "amenity": "bar",
+          "name": "Lawless HQ (Bar)"
+        }
+      },
+      "normalized_data": {
+        "name": "Lawless HQ (Bar)",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9809,
+        "longitude": -76.7867,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1f796f23b0e1fe0950950b74022fd41486009876dcb7a1941dd83d5febb77e39",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11049752757",
+      "source_url": "https://www.openstreetmap.org/node/11049752757",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11049752757,
+        "lat": 17.9812479,
+        "lon": -76.7847569,
+        "tags": {
+          "amenity": "bar",
+          "name": "Millie’s Pub"
+        }
+      },
+      "normalized_data": {
+        "name": "Millie’s Pub",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9812479,
+        "longitude": -76.7847569,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0b0528483153a827ff100332263143f9f8417252bacfa0eb7fc0fe306c59e743",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11049752762",
+      "source_url": "https://www.openstreetmap.org/node/11049752762",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11049752762,
+        "lat": 17.9813257,
+        "lon": -76.7858251,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Yellow Bench Pub"
+        }
+      },
+      "normalized_data": {
+        "name": "Yellow Bench Pub",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9813257,
+        "longitude": -76.7858251,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c08d67a7158d65615c4e508db7a8c8db948437026bf361049356c6dbb33b9858",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11049752766",
+      "source_url": "https://www.openstreetmap.org/node/11049752766",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11049752766,
+        "lat": 17.9818428,
+        "lon": -76.7861857,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Fire City Sports Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Fire City Sports Bar",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9818428,
+        "longitude": -76.7861857,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0cb4974e1ff0b9095123cf4d7a846c29f8b9ccf2b239c89dd249aacb99fa70aa",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11049752775",
+      "source_url": "https://www.openstreetmap.org/node/11049752775",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11049752775,
+        "lat": 17.9780834,
+        "lon": -76.7874013,
+        "tags": {
+          "amenity": "bar",
+          "name": "Grocery Shop"
+        }
+      },
+      "normalized_data": {
+        "name": "Grocery Shop",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9780834,
+        "longitude": -76.7874013,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d5be13143936a0f08b583b93dbb40ace87e55b9b082f00c3c963695ebae74371",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11049752777",
+      "source_url": "https://www.openstreetmap.org/node/11049752777",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11049752777,
+        "lat": 17.9787339,
+        "lon": -76.7884922,
+        "tags": {
+          "amenity": "bar",
+          "name": "C&S Pub"
+        }
+      },
+      "normalized_data": {
+        "name": "C&S Pub",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9787339,
+        "longitude": -76.7884922,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fb1160797161a8e6dd09d727754b1610e2294e13eacd658aa785f7525df18673",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11919055459",
+      "source_url": "https://www.openstreetmap.org/node/11919055459",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11919055459,
+        "lat": 17.9698113,
+        "lon": -76.7927612,
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "74",
+          "addr:street": "74 King Street",
+          "name": "Kingston Bookshop",
+          "phone": "+1-876-922-7016",
+          "shop": "books"
+        }
+      },
+      "normalized_data": {
+        "name": "Kingston Bookshop",
+        "address": "74 74 King Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9698113,
+        "longitude": -76.7927612,
+        "category": "other",
+        "phone": "+1-876-922-7016",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "32c10a3c778840cbc4f030b3a27b8b1c221de4fd0ee4eeed9340a787bd8823d2",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11919055460",
+      "source_url": "https://www.openstreetmap.org/node/11919055460",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11919055460,
+        "lat": 17.9697029,
+        "lon": -76.7927684,
+        "tags": {
+          "addr:housenumber": "68",
+          "addr:street": "King St, Kingston",
+          "name": "Ammar's",
+          "phone": "+18769264667",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Ammar's",
+        "address": "68 King St, Kingston, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9697029,
+        "longitude": -76.7927684,
+        "category": "shopping",
+        "phone": "+18769264667",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8ba7dd03c1a6ade14c38892d9174de302f527c7829183c84b2d5770662e26ae8",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11919055463",
+      "source_url": "https://www.openstreetmap.org/node/11919055463",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11919055463,
+        "lat": 17.9691453,
+        "lon": -76.7928148,
+        "tags": {
+          "name": "Twin City",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Twin City",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9691453,
+        "longitude": -76.7928148,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "445f749b752ee12b221cba6de68be154e027d3e4292907ecdef5cbfee14ffdfb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11919055465",
+      "source_url": "https://www.openstreetmap.org/node/11919055465",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11919055465,
+        "lat": 17.9689944,
+        "lon": -76.7928447,
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "60",
+          "addr:street": "King Street",
+          "name": "Carousel",
+          "phone": "+18769223307",
+          "shop": "jewelry"
+        }
+      },
+      "normalized_data": {
+        "name": "Carousel",
+        "address": "60 King Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9689944,
+        "longitude": -76.7928447,
+        "category": "other",
+        "phone": "+18769223307",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "24bed6e9ed6a758841c7379cdf1bc6ec834f00caa65a10f9fe1e1fe0d5d16019",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11919055466",
+      "source_url": "https://www.openstreetmap.org/node/11919055466",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11919055466,
+        "lat": 17.9688459,
+        "lon": -76.7928655,
+        "tags": {
+          "name": "Little Shalimar",
+          "shop": "jewelry"
+        }
+      },
+      "normalized_data": {
+        "name": "Little Shalimar",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9688459,
+        "longitude": -76.7928655,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f79d608ab9d661530de5bc8efbca1ce79b42c6e3568970aa50437e697fd413c4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11929799675",
+      "source_url": "https://www.openstreetmap.org/node/11929799675",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11929799675,
+        "lat": 17.9692986,
+        "lon": -76.792791,
+        "tags": {
+          "name": "Sammy's",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Sammy's",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9692986,
+        "longitude": -76.792791,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "97cd7db5656e7ef29b29d26ccc95071ac1e262911128de99b402c8fd0148c4eb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11929799677",
+      "source_url": "https://www.openstreetmap.org/node/11929799677",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11929799677,
+        "lat": 17.9695136,
+        "lon": -76.7930371,
+        "tags": {
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "cuisine": "chicken",
+          "drive_through": "no",
+          "name": "KFC",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9695136,
+        "longitude": -76.7930371,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "072c77c50625fb7289615ecf0742203558f1c2218587fa04aea50c74fae9439a",
+      "confidence": 0.6,
+      "review_status": "needs_research",
+      "duplicate_source_record_id": "node/5010397871"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11929799680",
+      "source_url": "https://www.openstreetmap.org/node/11929799680",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11929799680,
+        "lat": 17.9698716,
+        "lon": -76.7930081,
+        "tags": {
+          "name": "Joseph's",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Joseph's",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9698716,
+        "longitude": -76.7930081,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "da46c7cf8abcd9f7d5266706d0c5c6a734180dd51d4343e63ba3ae2ad17c5123",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11929799681",
+      "source_url": "https://www.openstreetmap.org/node/11929799681",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11929799681,
+        "lat": 17.9701559,
+        "lon": -76.7929969,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Wendy's",
+          "brand:wikidata": "Q550258",
+          "cuisine": "burger",
+          "name": "Wendy's",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Wendy's",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9701559,
+        "longitude": -76.7929969,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ec58f24f80ba0993cd852d0137ca0b63dcd26870db9399029f2c32d2c4fdca5a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11929799683",
+      "source_url": "https://www.openstreetmap.org/node/11929799683",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11929799683,
+        "lat": 17.9699761,
+        "lon": -76.7929894,
+        "tags": {
+          "name": "Sangster's Bookstore",
+          "shop": "books"
+        }
+      },
+      "normalized_data": {
+        "name": "Sangster's Bookstore",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9699761,
+        "longitude": -76.7929894,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "948c21e7d75f3e704cece8b4fd86678cc298a5c2af672cc110b85e2c8c720b4c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11929799684",
+      "source_url": "https://www.openstreetmap.org/node/11929799684",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11929799684,
+        "lat": 17.9698178,
+        "lon": -76.7930083,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Island Grill"
+        }
+      },
+      "normalized_data": {
+        "name": "Island Grill",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9698178,
+        "longitude": -76.7930083,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8bee732485938631ae8b3513a7718eed23af7520f87cbe2b49c7c84f0bd33918",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11929799686",
+      "source_url": "https://www.openstreetmap.org/node/11929799686",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11929799686,
+        "lat": 17.9689258,
+        "lon": -76.7928393,
+        "tags": {
+          "name": "Twin City",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Twin City",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9689258,
+        "longitude": -76.7928393,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "445f749b752ee12b221cba6de68be154e027d3e4292907ecdef5cbfee14ffdfb",
+      "confidence": 0.6,
+      "review_status": "needs_research",
+      "duplicate_source_record_id": "node/11919055463"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11929820382",
+      "source_url": "https://www.openstreetmap.org/node/11929820382",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11929820382,
+        "lat": 17.9663495,
+        "lon": -76.7943383,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Island Squeeze Diner"
+        }
+      },
+      "normalized_data": {
+        "name": "Island Squeeze Diner",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9663495,
+        "longitude": -76.7943383,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a525c8c7bfaa9611ecca9e2484816d29997010aef739ff18b9a5c81a1f8f2fe4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11929820388",
+      "source_url": "https://www.openstreetmap.org/node/11929820388",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11929820388,
+        "lat": 17.9664701,
+        "lon": -76.7941459,
+        "tags": {
+          "name": "Cindorella Fasjion & More",
+          "shop": "jewelry"
+        }
+      },
+      "normalized_data": {
+        "name": "Cindorella Fasjion & More",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9664701,
+        "longitude": -76.7941459,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "45dc3caff27d095fbd8ca66993a626d8859c504f1be7542d4bbbad9a950eb6e4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11929820391",
+      "source_url": "https://www.openstreetmap.org/node/11929820391",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11929820391,
+        "lat": 17.9670085,
+        "lon": -76.7942978,
+        "tags": {
+          "name": "Ping's Fabrics",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Ping's Fabrics",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9670085,
+        "longitude": -76.7942978,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "63e59c54ac5ead889d9bebf50127bca93a6e42fd78705b23214d2d8041c37b9b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11952557973",
+      "source_url": "https://www.openstreetmap.org/node/11952557973",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11952557973,
+        "lat": 17.967256,
+        "lon": -76.7940894,
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "32",
+          "addr:street": "Orange Street",
+          "clothes": "men;children",
+          "name": "Webbsklozet Di Ultimate Fashion Store",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Webbsklozet Di Ultimate Fashion Store",
+        "address": "32 Orange Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.967256,
+        "longitude": -76.7940894,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1d780bb3e7358d2553d3458ba8f24d9aef082965f298dbe917fa45f864c873a8",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11952557974",
+      "source_url": "https://www.openstreetmap.org/node/11952557974",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11952557974,
+        "lat": 17.9674488,
+        "lon": -76.7940655,
+        "tags": {
+          "name": "Sabritru",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Sabritru",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9674488,
+        "longitude": -76.7940655,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c922df2494b5517f41d46467c89b6c3cd4cf4ab2fcb48ac44e9f11be70ae14ee",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11963967577",
+      "source_url": "https://www.openstreetmap.org/node/11963967577",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11963967577,
+        "lat": 17.9681839,
+        "lon": -76.7940473,
+        "tags": {
+          "name": "Black Man Trendy Fashion Co LTD",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Black Man Trendy Fashion Co LTD",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9681839,
+        "longitude": -76.7940473,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0baad41235d3a531ff00a967f3c089fbc2effb9a8f3f7472155f983f308486f5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12008943627",
+      "source_url": "https://www.openstreetmap.org/node/12008943627",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12008943627,
+        "lat": 17.9696581,
+        "lon": -76.794098,
+        "tags": {
+          "amenity": "food_court",
+          "name": "Tastee Patty"
+        }
+      },
+      "normalized_data": {
+        "name": "Tastee Patty",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9696581,
+        "longitude": -76.794098,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "food_court"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "326a790e29f85bc05ff3e12a378e2ce04f4e3ccf200a0564ee612529b7171050",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12008943628",
+      "source_url": "https://www.openstreetmap.org/node/12008943628",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12008943628,
+        "lat": 17.969223,
+        "lon": -76.793971,
+        "tags": {
+          "name": "Pure Qin Enterprise Clothing Store",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Pure Qin Enterprise Clothing Store",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.969223,
+        "longitude": -76.793971,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "81402b3e1a5d281cda82928cca6ed298fdc0413f692f0de42a35a009ef32779f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12011660469",
+      "source_url": "https://www.openstreetmap.org/node/12011660469",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12011660469,
+        "lat": 17.9692163,
+        "lon": -76.7941448,
+        "tags": {
+          "name": "Sophia Clothing Store",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Sophia Clothing Store",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9692163,
+        "longitude": -76.7941448,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6057255dc6a2b76f9f10f1a1028e93ccd598db6de24b518f097be2452631f1cf",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12011660470",
+      "source_url": "https://www.openstreetmap.org/node/12011660470",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12011660470,
+        "lat": 17.9691638,
+        "lon": -76.7941494,
+        "tags": {
+          "name": "Baby and More Clothing Store",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Baby and More Clothing Store",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9691638,
+        "longitude": -76.7941494,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0b75c7482792c95bcb822687f2ab617f8edcab6c0b9272dec12ab832f59abf6b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12011660471",
+      "source_url": "https://www.openstreetmap.org/node/12011660471",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12011660471,
+        "lat": 17.9691136,
+        "lon": -76.7941563,
+        "tags": {
+          "name": "Kareen Blessing Fashion",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Kareen Blessing Fashion",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9691136,
+        "longitude": -76.7941563,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1f73c25fcc5517b6aaacbc7e4b56c64ae87908f401945f3a50a06455c88bcdf3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12013805782",
+      "source_url": "https://www.openstreetmap.org/node/12013805782",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12013805782,
+        "lat": 17.9700434,
+        "lon": -76.7940832,
+        "tags": {
+          "clothes": "women;men;children",
+          "name": "Pablo's Fabric",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Pablo's Fabric",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9700434,
+        "longitude": -76.7940832,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "99762e1c3d5e23fbf20de5786f11cf0ec6115f3aea11d6b675e862366fab9c0a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12013805783",
+      "source_url": "https://www.openstreetmap.org/node/12013805783",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12013805783,
+        "lat": 17.969648,
+        "lon": -76.7939196,
+        "tags": {
+          "clothes": "women;men",
+          "name": "Pure Qin Enterprise Clothing Store",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Pure Qin Enterprise Clothing Store",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.969648,
+        "longitude": -76.7939196,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c69810479f8a4e2e0f173a14c72c98b30089fb552a8ae7e8ed391a69d8f60d93",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12016058316",
+      "source_url": "https://www.openstreetmap.org/node/12016058316",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12016058316,
+        "lat": 17.9696142,
+        "lon": -76.7949975,
+        "tags": {
+          "clothes": "women;men",
+          "name": "GaGa Fashion",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "GaGa Fashion",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9696142,
+        "longitude": -76.7949975,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4b75e2b4745f5dbf8422399b25be15c90422371aead20fece585bd160ccda994",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12016411281",
+      "source_url": "https://www.openstreetmap.org/node/12016411281",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12016411281,
+        "lat": 17.9700576,
+        "lon": -76.791749,
+        "tags": {
+          "clothes": "hats;women;men;bags",
+          "name": "Mama bloss fashion limited",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Mama bloss fashion limited",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9700576,
+        "longitude": -76.791749,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4eed31c0128b9129bd3c37ba000b871b3eb7b8de6ff2aa32e420b4a43eb58f15",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12016411285",
+      "source_url": "https://www.openstreetmap.org/node/12016411285",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12016411285,
+        "lat": 17.9661277,
+        "lon": -76.7919311,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Burger King",
+          "brand:wikidata": "Q177054",
+          "cuisine": "burger",
+          "name": "Burger King",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Burger King",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9661277,
+        "longitude": -76.7919311,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "115a519cb77df3bbf7e709ee8f7469b9dbdd1ccef71864cc846ecf59ab883900",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12016411299",
+      "source_url": "https://www.openstreetmap.org/node/12016411299",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12016411299,
+        "lat": 17.970029,
+        "lon": -76.7917501,
+        "tags": {
+          "name": "Two Nine Fashion",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Two Nine Fashion",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.970029,
+        "longitude": -76.7917501,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4d8f09e0e3fb51675969372b0fb30e4b2a454f080b37966a6e1e2f65f63dcc78",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12016411300",
+      "source_url": "https://www.openstreetmap.org/node/12016411300",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12016411300,
+        "lat": 17.9697675,
+        "lon": -76.7917421,
+        "tags": {
+          "name": "D - Bless Fashion Empire Entrance",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "D - Bless Fashion Empire Entrance",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9697675,
+        "longitude": -76.7917421,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e7f0cff25d4144a038b86c64031b6d9c0336d0d56899e1951b94d82b61a628d4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12016411303",
+      "source_url": "https://www.openstreetmap.org/node/12016411303",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12016411303,
+        "lat": 17.9666892,
+        "lon": -76.7921136,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Annali's Restaurant"
+        }
+      },
+      "normalized_data": {
+        "name": "Annali's Restaurant",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9666892,
+        "longitude": -76.7921136,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f5f95c06c2f21bf46167f076d1e8ca68f8b68ed7cec53822502180ca5846711f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/316150814",
+      "source_url": "https://www.openstreetmap.org/way/316150814",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 316150814,
+        "center": {
+          "lat": 17.9340623,
+          "lon": -76.842466
+        },
+        "tags": {
+          "building": "yes",
+          "name": "The Royal Artillery Store “Giddy House” 1888",
+          "source": "KG Ground Survey 2015",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "The Royal Artillery Store “Giddy House” 1888",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9340623,
+        "longitude": -76.842466,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "43d9901deb70e029913eafea8ee5530dd900a6800a743602fb8df1e6e285d4b6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/328990200",
+      "source_url": "https://www.openstreetmap.org/way/328990200",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 328990200,
+        "center": {
+          "lat": 17.9664051,
+          "lon": -76.7355296
+        },
+        "tags": {
+          "description": "Public baths with mineral-rich water, probably first constructed 1694. Also an hisoric fort.",
+          "historic": "baths",
+          "landuse": "commercial",
+          "name": "Rockfort Mineral Bath Complex",
+          "opening_hours": "Tu-Fr 08:00-16:00; Sa-Su 07:00-18:00",
+          "operator": "Carib Cement Company",
+          "source": "Bing",
+          "tourism": "attraction",
+          "website": "https://www.caribcement.com/community/community/2014/05/21/ROCKFORT-MINERAL-BATH-COMPLEX-(RMBC)"
+        }
+      },
+      "normalized_data": {
+        "name": "Rockfort Mineral Bath Complex",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9664051,
+        "longitude": -76.7355296,
+        "category": "attraction",
+        "phone": null,
+        "website": "https://www.caribcement.com/community/community/2014/05/21/ROCKFORT-MINERAL-BATH-COMPLEX-(RMBC)",
+        "opening_hours": "Tu-Fr 08:00-16:00; Sa-Su 07:00-18:00",
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "833725ee067cf5e6d4ca048357fe11f5086b90c85394225845473fe4071381f1",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/354693963",
+      "source_url": "https://www.openstreetmap.org/way/354693963",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 354693963,
+        "center": {
+          "lat": 17.972655,
+          "lon": -76.7983985
+        },
+        "tags": {
+          "amenity": "marketplace",
+          "building": "yes",
+          "name": "Coronation Market"
+        }
+      },
+      "normalized_data": {
+        "name": "Coronation Market",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.972655,
+        "longitude": -76.7983985,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marketplace"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "462d7da2747d0cf553e8a9b2875105ceb1dd7b0344a929dc6fe270abe5fe1d41",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373908546",
+      "source_url": "https://www.openstreetmap.org/way/373908546",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373908546,
+        "center": {
+          "lat": 17.9756954,
+          "lon": -76.8007918
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:street": "Spanish Town Road",
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Queen's Hot Spot",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Queen's Hot Spot",
+        "address": "Spanish Town Road, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9756954,
+        "longitude": -76.8007918,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "29dad0cfd8cf534f0158dd61dec99fedefce82e18f8a48c03dbc1f72a101a6c4",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373909346",
+      "source_url": "https://www.openstreetmap.org/way/373909346",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373909346,
+        "center": {
+          "lat": 17.9766146,
+          "lon": -76.8014133
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:street": "Spanish Town Road",
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Charley Dread North Side Tavern",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Charley Dread North Side Tavern",
+        "address": "Spanish Town Road, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9766146,
+        "longitude": -76.8014133,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "959cd2a1e997f208eaf9994d7e2b68bcf81656084eb6a5cf2439ff8d6446ee01",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375011805",
+      "source_url": "https://www.openstreetmap.org/way/375011805",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375011805,
+        "center": {
+          "lat": 17.9849284,
+          "lon": -76.7909758
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "194",
+          "addr:street": "Orange Street",
+          "building": "yes",
+          "name": "Goldies Back to School Uniforms",
+          "shop": "clothes",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Goldies Back to School Uniforms",
+        "address": "194 Orange Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9849284,
+        "longitude": -76.7909758,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6849d7593ea28871d147607656ec0be58cd9f2f30413229eea891fad2a7d8381",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375012806",
+      "source_url": "https://www.openstreetmap.org/way/375012806",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375012806,
+        "center": {
+          "lat": 17.9848259,
+          "lon": -76.7910193
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "192 1/2",
+          "addr:street": "Orange Street",
+          "building": "yes",
+          "name": "Kid's Plaza",
+          "shop": "mall",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Kid's Plaza",
+        "address": "192 1/2 Orange Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9848259,
+        "longitude": -76.7910193,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "807c79595bf639408d1775480e1fdad0c1f0cd6c45132ad3de591fe064dec6bc",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375014438",
+      "source_url": "https://www.openstreetmap.org/way/375014438",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375014438,
+        "center": {
+          "lat": 17.9777154,
+          "lon": -76.7923288
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Webster's",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Webster's",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9777154,
+        "longitude": -76.7923288,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "162fc9ea3cda9c7c5f953b25c480ee6b5e835e38b2696f153b631f485f7a07cb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375015318",
+      "source_url": "https://www.openstreetmap.org/way/375015318",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375015318,
+        "center": {
+          "lat": 17.973652,
+          "lon": -76.7928308
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "119",
+          "addr:street": "Upper King St",
+          "building": "yes",
+          "name": "T-shirt Depot & T-shirt Express",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "T-shirt Depot & T-shirt Express",
+        "address": "119 Upper King St, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.973652,
+        "longitude": -76.7928308,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f4d91018e6a2717b1fce2d8f8ae916e92bd6c2c1dfe96989dc553e63194ea722",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375015352",
+      "source_url": "https://www.openstreetmap.org/way/375015352",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375015352,
+        "center": {
+          "lat": 17.9732877,
+          "lon": -76.7928742
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "107",
+          "addr:street": "Upper King St",
+          "amenity": "pub",
+          "building": "yes",
+          "name": "Panda Rosa Highway Pub"
+        }
+      },
+      "normalized_data": {
+        "name": "Panda Rosa Highway Pub",
+        "address": "107 Upper King St, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9732877,
+        "longitude": -76.7928742,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "635a408a02b0acf22b56898204f2261b7d12fef48f5d313410483b0ad9a062fb",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375019439",
+      "source_url": "https://www.openstreetmap.org/way/375019439",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375019439,
+        "center": {
+          "lat": 17.9724776,
+          "lon": -76.7928615
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Mother's",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Mother's",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9724776,
+        "longitude": -76.7928615,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7e4818d6ebe1804e6db4a7ec6314305d30b1a4ecac9a6d645953898262c863b7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375019448",
+      "source_url": "https://www.openstreetmap.org/way/375019448",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375019448,
+        "center": {
+          "lat": 17.9723483,
+          "lon": -76.7925805
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "72",
+          "addr:street": "Upper King St",
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Wray's Tavern",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Wray's Tavern",
+        "address": "72 Upper King St, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9723483,
+        "longitude": -76.7925805,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "52fa78247107cf59d36dba761cc32eb4b212fea16278e59beb8523d161d2e572",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375025838",
+      "source_url": "https://www.openstreetmap.org/way/375025838",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375025838,
+        "center": {
+          "lat": 17.9724765,
+          "lon": -76.7923371
+        },
+        "tags": {
+          "amenity": "theatre",
+          "building": "yes",
+          "historic": "building",
+          "name": "The Ward Theatre (1912)"
+        }
+      },
+      "normalized_data": {
+        "name": "The Ward Theatre (1912)",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9724765,
+        "longitude": -76.7923371,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "theatre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b80326542559df25f70a410816354472c94b4c6e0cf2187d0311ec637dc4436c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375028113",
+      "source_url": "https://www.openstreetmap.org/way/375028113",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375028113,
+        "center": {
+          "lat": 17.9706251,
+          "lon": -76.7940907
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "33",
+          "addr:street": "Orange St",
+          "amenity": "fast_food",
+          "brand": "Burger King",
+          "brand:wikidata": "Q177054",
+          "brand:wikipedia": "en:Burger King",
+          "building": "yes",
+          "cuisine": "burger",
+          "drive_through": "no",
+          "name": "Burger King",
+          "source": "KG Ground Survey 2015",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Burger King",
+        "address": "33 Orange St, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9706251,
+        "longitude": -76.7940907,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "59fe08c95670425f9c307f6efc2f909ab05d688e2f8b51f5117fa474a22842cd",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375028116",
+      "source_url": "https://www.openstreetmap.org/way/375028116",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375028116,
+        "center": {
+          "lat": 17.9707808,
+          "lon": -76.7941872
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "32a",
+          "addr:street": "West Parade",
+          "building": "yes",
+          "name": "M & Eve Department Store",
+          "shop": "department_store",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "M & Eve Department Store",
+        "address": "32a West Parade, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9707808,
+        "longitude": -76.7941872,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3a60bd94654b5a50a341210eab62241509ac4558d8e3bd24471ef46c5f3a247d",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375028118",
+      "source_url": "https://www.openstreetmap.org/way/375028118",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375028118,
+        "center": {
+          "lat": 17.9708478,
+          "lon": -76.7941827
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "31",
+          "addr:street": "West Parade",
+          "building": "yes",
+          "name": "Fashion Over Style",
+          "shop": "clothes",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Fashion Over Style",
+        "address": "31 West Parade, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9708478,
+        "longitude": -76.7941827,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7bfa54776ae37c8e0952c4eb05d754226ed2c7f9b08ddb9940d49905ebe1e2b2",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375028127",
+      "source_url": "https://www.openstreetmap.org/way/375028127",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375028127,
+        "center": {
+          "lat": 17.9712287,
+          "lon": -76.7940017
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "29",
+          "addr:street": "West Parade",
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Mother's",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Mother's",
+        "address": "29 West Parade, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9712287,
+        "longitude": -76.7940017,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "52559e90042396b3ab1f728cf2d5ee7fd3a3d30d9c374ca5ac79667dc4393083",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375028886",
+      "source_url": "https://www.openstreetmap.org/way/375028886",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375028886,
+        "center": {
+          "lat": 17.9715825,
+          "lon": -76.7941553
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "22",
+          "addr:street": "West Parade",
+          "building": "yes",
+          "name": "Fashion House",
+          "shop": "clothes",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Fashion House",
+        "address": "22 West Parade, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9715825,
+        "longitude": -76.7941553,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "069b116a05cbda7daaa6e9bbe61fbd98c7d19d2660b9e5cb3b9df38a7784b5b7",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375028889",
+      "source_url": "https://www.openstreetmap.org/way/375028889",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375028889,
+        "center": {
+          "lat": 17.9718228,
+          "lon": -76.7940157
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "25",
+          "addr:street": "Orange Street",
+          "amenity": "fast_food",
+          "building": "yes",
+          "cuisine": "burger",
+          "name": "Tastee",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Tastee",
+        "address": "25 Orange Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9718228,
+        "longitude": -76.7940157,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a7ea27f6c3052c8f9c802da09e1c5c1fc2f71ef214484e5541a431f3b88ae0e8",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375029891",
+      "source_url": "https://www.openstreetmap.org/way/375029891",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375029891,
+        "center": {
+          "lat": 17.9709853,
+          "lon": -76.7912495
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Mother's",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Mother's",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9709853,
+        "longitude": -76.7912495,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "67ab06c73902d770d50a8da046433a2a49963b73b4dde4dc41bd6f092874d4b2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375030436",
+      "source_url": "https://www.openstreetmap.org/way/375030436",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375030436,
+        "center": {
+          "lat": 17.9793484,
+          "lon": -76.7647573
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "68",
+          "addr:street": "Waterloo Road",
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Savage Garden Sports Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Savage Garden Sports Bar",
+        "address": "68 Waterloo Road, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9793484,
+        "longitude": -76.7647573,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3843ff6d941a941a1918cc056d796986ebf31a8c7a47c5272dc81c0a047f54ad",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375030442",
+      "source_url": "https://www.openstreetmap.org/way/375030442",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375030442,
+        "center": {
+          "lat": 17.9778493,
+          "lon": -76.7666355
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Beauty Hut Plus+",
+          "shop": "beauty",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Beauty Hut Plus+",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9778493,
+        "longitude": -76.7666355,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6b82949e3da92d1b771baf1ec537d83c04484d8c47e6f5a7e26ffcdf75a822b8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375074053",
+      "source_url": "https://www.openstreetmap.org/way/375074053",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375074053,
+        "center": {
+          "lat": 17.9708621,
+          "lon": -76.7903481
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "60",
+          "addr:street": "East Queen Street",
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Hoo Campbell Restaurant & Pastry",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Hoo Campbell Restaurant & Pastry",
+        "address": "60 East Queen Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9708621,
+        "longitude": -76.7903481,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "905cb196b1635439ddcca73d9f6e4304b70855c3c8358b7fe7db62168a93884e",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375074059",
+      "source_url": "https://www.openstreetmap.org/way/375074059",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375074059,
+        "center": {
+          "lat": 17.971181,
+          "lon": -76.7900192
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Jewellry & Things",
+          "shop": "jewelry",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Jewellry & Things",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.971181,
+        "longitude": -76.7900192,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ecbb6451367e27122220b792b432e41b183b775d3bcfc9349d6ad5236fe80775",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375074060",
+      "source_url": "https://www.openstreetmap.org/way/375074060",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375074060,
+        "center": {
+          "lat": 17.9711772,
+          "lon": -76.7898089
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Cocky's Fashion",
+          "shop": "clothes",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Cocky's Fashion",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9711772,
+        "longitude": -76.7898089,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ce9b7293947d745c706185baf1f7247ced52548cac959b56be293b54df1d2628",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375075386",
+      "source_url": "https://www.openstreetmap.org/way/375075386",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375075386,
+        "center": {
+          "lat": 17.9706665,
+          "lon": -76.7865924
+        },
+        "tags": {
+          "amenity": "pub",
+          "building": "yes",
+          "name": "Blue Flame Vibes Pub",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Blue Flame Vibes Pub",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9706665,
+        "longitude": -76.7865924,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c3db10d2b3d9fc70d0e654650ef38906405d397af3d90d214a2c0d1e619a7f7f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375090772",
+      "source_url": "https://www.openstreetmap.org/way/375090772",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375090772,
+        "center": {
+          "lat": 17.9708234,
+          "lon": -76.7852096
+        },
+        "tags": {
+          "amenity": "nightclub",
+          "building": "yes",
+          "name": "Bronco Club",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Bronco Club",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9708234,
+        "longitude": -76.7852096,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "nightclub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "856d993831a6855292f72423b04331ffd275fc1cda077a3cf211c2946a3df485",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375094892",
+      "source_url": "https://www.openstreetmap.org/way/375094892",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375094892,
+        "center": {
+          "lat": 17.9728576,
+          "lon": -76.7544848
+        },
+        "tags": {
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "building": "yes",
+          "cuisine": "chicken",
+          "name": "KFC",
+          "source": "KG Ground Survey 2015",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9728576,
+        "longitude": -76.7544848,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "59d4865091a5e1f5fcf4098255697c90f07e674518bbf5a8cb917e0affe28e5b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375096094",
+      "source_url": "https://www.openstreetmap.org/way/375096094",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375096094,
+        "center": {
+          "lat": 17.974294,
+          "lon": -76.756671
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Maddem Sports Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Maddem Sports Bar",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.974294,
+        "longitude": -76.756671,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "da017801066b43d795d6b3e1c807638d4905613d74106a54dac367ab771e2b16",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375096095",
+      "source_url": "https://www.openstreetmap.org/way/375096095",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375096095,
+        "center": {
+          "lat": 17.9743929,
+          "lon": -76.7566961
+        },
+        "tags": {
+          "amenity": "pub",
+          "building": "yes",
+          "name": "Step Up Pub",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Step Up Pub",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9743929,
+        "longitude": -76.7566961,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1cc4693371c88a87b2256ab04d0e8553d695e6d0878c1635edbc7503e9919b75",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375098023",
+      "source_url": "https://www.openstreetmap.org/way/375098023",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375098023,
+        "center": {
+          "lat": 17.9655866,
+          "lon": -76.7933188
+        },
+        "tags": {
+          "addr:housenumber": "13",
+          "addr:street": "King Street",
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "brand:wikipedia": "en:KFC",
+          "building": "commercial",
+          "cuisine": "chicken",
+          "name": "KFC",
+          "source": "KG Ground Survey 2015",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "13 King Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9655866,
+        "longitude": -76.7933188,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "54b8453203ec77544fd074a569215d2344212db4c258b60c858557f09af306b6",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375098025",
+      "source_url": "https://www.openstreetmap.org/way/375098025",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375098025,
+        "center": {
+          "lat": 17.9647745,
+          "lon": -76.7946212
+        },
+        "tags": {
+          "amenity": "cafe",
+          "building": "yes",
+          "building:levels": "2",
+          "name": "National Gallery of Jamaica",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "National Gallery of Jamaica",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9647745,
+        "longitude": -76.7946212,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b9c84d8504ceb400edc486600de30394b32e681cb68343fa0d08d7aef4a20bb9",
+      "confidence": 0.6,
+      "review_status": "needs_research",
+      "duplicate_source_record_id": "node/4956331011"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375101736",
+      "source_url": "https://www.openstreetmap.org/way/375101736",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375101736,
+        "center": {
+          "lat": 17.9700787,
+          "lon": -76.7970171
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "K&K God Bless",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "K&K God Bless",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9700787,
+        "longitude": -76.7970171,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e7b8178f852f0b6d9936f728cfd7e79d46ae2ef8955a23aa305dfeae7c3e1b83",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375102956",
+      "source_url": "https://www.openstreetmap.org/way/375102956",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375102956,
+        "center": {
+          "lat": 17.9718715,
+          "lon": -76.7973916
+        },
+        "tags": {
+          "amenity": "marketplace",
+          "name": "Oxford Mall",
+          "source": "KG Ground Survey 2015;local knowledge"
+        }
+      },
+      "normalized_data": {
+        "name": "Oxford Mall",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9718715,
+        "longitude": -76.7973916,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marketplace"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ed0a80d6d1d4a0593cf92f2f2a2b5081b3adbfcbe2f7878338542f8dcce04c4b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375102958",
+      "source_url": "https://www.openstreetmap.org/way/375102958",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375102958,
+        "center": {
+          "lat": 17.972802,
+          "lon": -76.7966263
+        },
+        "tags": {
+          "amenity": "marketplace",
+          "building": "yes",
+          "name": "Red Rose Market",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Red Rose Market",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.972802,
+        "longitude": -76.7966263,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marketplace"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9fd09babfaabcf1139e3c37c8b9bd74c63d43702096bd84067adf6a924b0716c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375102964",
+      "source_url": "https://www.openstreetmap.org/way/375102964",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375102964,
+        "center": {
+          "lat": 17.9728348,
+          "lon": -76.795842
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "94",
+          "addr:street": "West Street",
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "regional",
+          "name": "R&W",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "R&W",
+        "address": "94 West Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9728348,
+        "longitude": -76.795842,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7926b530f8200b9635b7a0ede0d921f48a295c050c669bcb9f51c910a61e1a41",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375106555",
+      "source_url": "https://www.openstreetmap.org/way/375106555",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375106555,
+        "center": {
+          "lat": 17.9722935,
+          "lon": -76.775763
+        },
+        "tags": {
+          "addr:housenumber": "28",
+          "building": "yes",
+          "name": "Poochie's Hair & Nail Tech",
+          "shop": "beauty",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Poochie's Hair & Nail Tech",
+        "address": "28, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9722935,
+        "longitude": -76.775763,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8a1af5d8af5c97811ad368d0896afc43d785f0e5111a3a6ed8463e65e38b1856",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375106832",
+      "source_url": "https://www.openstreetmap.org/way/375106832",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375106832,
+        "center": {
+          "lat": 17.9789589,
+          "lon": -76.7943479
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "25",
+          "addr:street": "Slipe Pen Rd",
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "regional",
+          "name": "Frances Jerk Centre",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Frances Jerk Centre",
+        "address": "25 Slipe Pen Rd, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9789589,
+        "longitude": -76.7943479,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "665e32c84376d8429ac56c6b651672d244806d2d6289759d44e43f57ef06c35e",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375108971",
+      "source_url": "https://www.openstreetmap.org/way/375108971",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375108971,
+        "center": {
+          "lat": 17.9846524,
+          "lon": -76.7924948
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Lisa's Fast Food",
+          "opening_hours": "Mo-Fr 07:30-17:00",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Lisa's Fast Food",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9846524,
+        "longitude": -76.7924948,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Fr 07:30-17:00",
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d980df9c4c615903081c7259e862a861446614959de7ad74359bfb6f84053702",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375109402",
+      "source_url": "https://www.openstreetmap.org/way/375109402",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375109402,
+        "center": {
+          "lat": 17.9706699,
+          "lon": -76.7813378
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Homestyle Restaurant",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Homestyle Restaurant",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9706699,
+        "longitude": -76.7813378,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e49f08251bd05d84fd488f6f874c0f44e3e421ad69cfe2455765d3fe3aa04e74",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375117445",
+      "source_url": "https://www.openstreetmap.org/way/375117445",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375117445,
+        "center": {
+          "lat": 17.9821953,
+          "lon": -76.7832427
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Red Pepper Restaurant",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Red Pepper Restaurant",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9821953,
+        "longitude": -76.7832427,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8ef0498f2bf73fa47916ccb9f1dd2633e85628e06f9f8c01caf665214b6dcdda",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375125738",
+      "source_url": "https://www.openstreetmap.org/way/375125738",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375125738,
+        "center": {
+          "lat": 17.97281,
+          "lon": -76.7650239
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Juici Patties",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.97281,
+        "longitude": -76.7650239,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "41c97c8c955c5e11f901a06e5ee75d2d2ead252dc13b482ee126e17655082b19",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375126170",
+      "source_url": "https://www.openstreetmap.org/way/375126170",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375126170,
+        "center": {
+          "lat": 17.9726757,
+          "lon": -76.7664333
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Brewood Book Shop",
+          "shop": "books",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Brewood Book Shop",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9726757,
+        "longitude": -76.7664333,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8f629050e5fa538a33754ef439dcb4fd606464c61971ce209f0b82c000db430d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375141821",
+      "source_url": "https://www.openstreetmap.org/way/375141821",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375141821,
+        "center": {
+          "lat": 17.9706706,
+          "lon": -76.7905112
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Blackstone Book Centre",
+          "shop": "books",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Blackstone Book Centre",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9706706,
+        "longitude": -76.7905112,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fb7ca76ed8a60acc749f5f42972337d31f5ae8f9cec19afbaed830ea904fbb6b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375253489",
+      "source_url": "https://www.openstreetmap.org/way/375253489",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375253489,
+        "center": {
+          "lat": 17.9671736,
+          "lon": -76.7895631
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:country": "JM",
+          "addr:housenumber": "10-16",
+          "addr:street": "East Street",
+          "building": "yes",
+          "name": "Natural History Museum of Jamaica",
+          "source": "KG Ground Survey 2015",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Natural History Museum of Jamaica",
+        "address": "10-16 East Street, Kingston, JM",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9671736,
+        "longitude": -76.7895631,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3b9b739b156fbc8b05dfd96ae1913e8c2b17714e1f3a678c145eac941df2c5b1",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375256351",
+      "source_url": "https://www.openstreetmap.org/way/375256351",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375256351,
+        "center": {
+          "lat": 17.9713874,
+          "lon": -76.7908098
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Act II Restaurant",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Act II Restaurant",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9713874,
+        "longitude": -76.7908098,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e07ebb631e32e856caccd1aec2a91fb4c6733da19a6e80c6d0c2ea8122db2fff",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375459494",
+      "source_url": "https://www.openstreetmap.org/way/375459494",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375459494,
+        "center": {
+          "lat": 17.9538818,
+          "lon": -76.7253547
+        },
+        "tags": {
+          "leisure": "marina",
+          "name": "Danny's Marina",
+          "seamark:harbour:category": "marina",
+          "seamark:type": "harbour",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Danny's Marina",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9538818,
+        "longitude": -76.7253547,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marina"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7fd42fbcb16c794d3c876f6a2b37b0461c7e70cb11252624619ec9aa4104c587",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375460205",
+      "source_url": "https://www.openstreetmap.org/way/375460205",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375460205,
+        "center": {
+          "lat": 17.9400659,
+          "lon": -76.839523
+        },
+        "tags": {
+          "name": "Grand Port Royal Hotel Marina & Spa",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Grand Port Royal Hotel Marina & Spa",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9400659,
+        "longitude": -76.839523,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f09cd8e94dc19b539278bb589dd742fe0c235c1a863b8f8efd740c99988ba973",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375748185",
+      "source_url": "https://www.openstreetmap.org/way/375748185",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375748185,
+        "center": {
+          "lat": 17.9351112,
+          "lon": -76.842502
+        },
+        "tags": {
+          "building": "yes",
+          "historic": "ruins",
+          "name": "Fort Charles Main Building, 1655",
+          "opening_hours": "Mo-Sa 09:00-16:45",
+          "start_date": "1650",
+          "tourism": "attraction",
+          "website": "http://www.jnht.com/site_fort_charles.php"
+        }
+      },
+      "normalized_data": {
+        "name": "Fort Charles Main Building, 1655",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9351112,
+        "longitude": -76.842502,
+        "category": "attraction",
+        "phone": null,
+        "website": "http://www.jnht.com/site_fort_charles.php",
+        "opening_hours": "Mo-Sa 09:00-16:45",
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6e89b80730c8529d81ee79e492f91b0b37b7afd71d7e54a905c69eabafd408ff",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/376008731",
+      "source_url": "https://www.openstreetmap.org/way/376008731",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 376008731,
+        "center": {
+          "lat": 17.9761944,
+          "lon": -76.8008748
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "59",
+          "addr:street": "Spanish Town Road",
+          "building": "yes",
+          "name": "Ja-merica's Fashion",
+          "shop": "clothes",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Ja-merica's Fashion",
+        "address": "59 Spanish Town Road, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9761944,
+        "longitude": -76.8008748,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d57789c12b6bf9dcadead9498e11e01f7e983093ce49937516b333fd697234ed",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/376008739",
+      "source_url": "https://www.openstreetmap.org/way/376008739",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 376008739,
+        "center": {
+          "lat": 17.9741892,
+          "lon": -76.7991447
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:street": "Spanish Town Road",
+          "building": "yes",
+          "name": "Good Look",
+          "shop": "clothes",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Good Look",
+        "address": "Spanish Town Road, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9741892,
+        "longitude": -76.7991447,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0096b93434234d46ae8ef9d45de713dc83ef3a658154096898035d7c599c952c",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/376011333",
+      "source_url": "https://www.openstreetmap.org/way/376011333",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 376011333,
+        "center": {
+          "lat": 17.9662615,
+          "lon": -76.7914531
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "97",
+          "addr:street": "Harbour Street",
+          "building": "yes",
+          "fax": "922-3832",
+          "name": "Sangster's Book Stores",
+          "opening_hours": "Mo-Fr 08:30-17:00",
+          "phone": "1876 967-3773",
+          "shop": "books",
+          "source": "KG Ground Survey 2015",
+          "website": "https://www.sangstersbooks.com/locations"
+        }
+      },
+      "normalized_data": {
+        "name": "Sangster's Book Stores",
+        "address": "97 Harbour Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9662615,
+        "longitude": -76.7914531,
+        "category": "other",
+        "phone": "1876 967-3773",
+        "website": "https://www.sangstersbooks.com/locations",
+        "opening_hours": "Mo-Fr 08:30-17:00",
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9e7ed741b073dd3f58f614985a54c24b09ea4a0a998fe45937146b3b7ae57bd1",
+      "confidence": 0.95,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/539059207",
+      "source_url": "https://www.openstreetmap.org/way/539059207",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 539059207,
+        "center": {
+          "lat": 17.9711219,
+          "lon": -76.795758
+        },
+        "tags": {
+          "amenity": "marketplace",
+          "building": "yes",
+          "name": "Redemption Ground Arcade"
+        }
+      },
+      "normalized_data": {
+        "name": "Redemption Ground Arcade",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9711219,
+        "longitude": -76.795758,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marketplace"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "789fbbf71d8e83043544a53ecfb63e480642d2b428c0d4e8ba85a00fccdf51f4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/539652316",
+      "source_url": "https://www.openstreetmap.org/way/539652316",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 539652316,
+        "center": {
+          "lat": 17.9714894,
+          "lon": -76.7941738
+        },
+        "tags": {
+          "amenity": "marketplace",
+          "building": "yes",
+          "name": "Jubilee Market"
+        }
+      },
+      "normalized_data": {
+        "name": "Jubilee Market",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9714894,
+        "longitude": -76.7941738,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marketplace"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7c228a88c481afa5364cbd29d21571a7d22892a60b613d7c07682088ab8cc456",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/705778327",
+      "source_url": "https://www.openstreetmap.org/way/705778327",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 705778327,
+        "center": {
+          "lat": 17.9390075,
+          "lon": -76.8424788
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "building:levels": "2",
+          "cuisine": "seafood",
+          "name": "Gloria's Seafood"
+        }
+      },
+      "normalized_data": {
+        "name": "Gloria's Seafood",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9390075,
+        "longitude": -76.8424788,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "seafood"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "61b3025bc42413f0d16aa2c8534f3b69af5c34cb07f269d6c175c36cf265ea21",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/706443628",
+      "source_url": "https://www.openstreetmap.org/way/706443628",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 706443628,
+        "center": {
+          "lat": 17.9380276,
+          "lon": -76.8388974
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "building:levels": "2",
+          "cuisine": "seafood",
+          "name": "Gloria's"
+        }
+      },
+      "normalized_data": {
+        "name": "Gloria's",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9380276,
+        "longitude": -76.8388974,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "seafood"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ef775588f1eddcc4b8dc13a5fcd51acf42b2daa9808b3dbff94a85c94073593c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/707034809",
+      "source_url": "https://www.openstreetmap.org/way/707034809",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 707034809,
+        "center": {
+          "lat": 17.937134,
+          "lon": -76.8175039
+        },
+        "tags": {
+          "building": "yes",
+          "historic": "fort",
+          "name": "Fort Rocky",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Fort Rocky",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.937134,
+        "longitude": -76.8175039,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "30e27234c080968bfa41565d1442ec29246342d8688c1aae9c6c87ac03ed53f7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/745349413",
+      "source_url": "https://www.openstreetmap.org/way/745349413",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 745349413,
+        "center": {
+          "lat": 17.9348935,
+          "lon": -76.8434315
+        },
+        "tags": {
+          "archaeological_site": "fortification",
+          "historic": "archaeological_site",
+          "name": "Fort Charles Archeological Site, 1655",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Fort Charles Archeological Site, 1655",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9348935,
+        "longitude": -76.8434315,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "33d0ab2ed0e6788c0f1f5e975656f2aa21967d2790b9668b88d29b30d32a08c0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/745973214",
+      "source_url": "https://www.openstreetmap.org/way/745973214",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 745973214,
+        "center": {
+          "lat": 17.9348915,
+          "lon": -76.8424641
+        },
+        "tags": {
+          "name": "Nelson’s Quarter Deck",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Nelson’s Quarter Deck",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9348915,
+        "longitude": -76.8424641,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7fe30456e535ff4ac122de78ce41686bfe441d7ec759f55fa9663d8bf22c9e16",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/746517108",
+      "source_url": "https://www.openstreetmap.org/way/746517108",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 746517108,
+        "center": {
+          "lat": 17.966539,
+          "lon": -76.7353874
+        },
+        "tags": {
+          "historic": "ruins",
+          "name": "Rock Fort",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Rock Fort",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.966539,
+        "longitude": -76.7353874,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2ecb340884df8dfd63eee6390610fd575231ef6059bc4ae31597dd0b7b5b20a2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/754357969",
+      "source_url": "https://www.openstreetmap.org/way/754357969",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 754357969,
+        "center": {
+          "lat": 17.9360922,
+          "lon": -76.8420763
+        },
+        "tags": {
+          "historic": "ruins",
+          "name": "The Old Goal (pre 1692)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "The Old Goal (pre 1692)",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9360922,
+        "longitude": -76.8420763,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6309b5f64814f4d1172f952324f52df972ecf933b4424fd885ff70abd96c490b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/754357986",
+      "source_url": "https://www.openstreetmap.org/way/754357986",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 754357986,
+        "center": {
+          "lat": 17.973234,
+          "lon": -76.7922025
+        },
+        "tags": {
+          "name": "Liberty Hall, Marcus Garvey Museum",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Liberty Hall, Marcus Garvey Museum",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.973234,
+        "longitude": -76.7922025,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d78b0439469febf2ad73e383c289471d6e2a7b20cb11b50b141bc607c0786363",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/758549102",
+      "source_url": "https://www.openstreetmap.org/way/758549102",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 758549102,
+        "center": {
+          "lat": 17.9807298,
+          "lon": -76.8124979
+        },
+        "tags": {
+          "historic": "memorial",
+          "memorial": "stone",
+          "name": "1907 Earthquake Monument",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "1907 Earthquake Monument",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9807298,
+        "longitude": -76.8124979,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "783f337c41e3cbd5bb15065cc9080c21addf7d3ec4dd8a304df3d9b40117267a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/837201130",
+      "source_url": "https://www.openstreetmap.org/way/837201130",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 837201130,
+        "center": {
+          "lat": 17.9643417,
+          "lon": -76.7926384
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "2-4",
+          "addr:street": "King Street",
+          "air_conditioning": "yes",
+          "building": "yes",
+          "email": "KINOC_GM@hilton.com",
+          "internet_access": "wlan",
+          "internet_access:fee": "no",
+          "name": "ROK Hotel Kingston, Tapestry Collection by Hilton",
+          "phone": "+1 876 619 7651",
+          "tourism": "hotel",
+          "website": "https://www.hilton.com/en/hotels/kinocup-rok-hotel-kingston/"
+        }
+      },
+      "normalized_data": {
+        "name": "ROK Hotel Kingston, Tapestry Collection by Hilton",
+        "address": "2-4 King Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9643417,
+        "longitude": -76.7926384,
+        "category": "accommodation",
+        "phone": "+1 876 619 7651",
+        "website": "https://www.hilton.com/en/hotels/kinocup-rok-hotel-kingston/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4092828019f5a472c7abe3c06720b9402ec57c638fdfe5f98ba67041c74f9a83",
+      "confidence": 0.9,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/905891266",
+      "source_url": "https://www.openstreetmap.org/way/905891266",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 905891266,
+        "center": {
+          "lat": 17.9731653,
+          "lon": -76.7659747
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Restaurant & Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Restaurant & Bar",
+        "address": "Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9731653,
+        "longitude": -76.7659747,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6cad8befb607dc3950c08e70425b510f4061b9a938c48880053193bed37bd4de",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/978008056",
+      "source_url": "https://www.openstreetmap.org/way/978008056",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 978008056,
+        "center": {
+          "lat": 17.9849642,
+          "lon": -76.7908372
+        },
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:postcode": "Kingston",
+          "addr:street": "Orange Street",
+          "amenity": "bar",
+          "amenity_1": "restaurant",
+          "building": "yes",
+          "min_age": "18",
+          "name": "Chances Lounge and Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Chances Lounge and Bar",
+        "address": "Orange Street, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9849642,
+        "longitude": -76.7908372,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "911aa597c92ad512b6c647c68d433f109dd82a22047f9606ab85dcaa303f35c0",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1213844632",
+      "source_url": "https://www.openstreetmap.org/way/1213844632",
+      "source_last_checked_at": "2026-08-22T01:46:56.094Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1213844632,
+        "center": {
+          "lat": 17.9800666,
+          "lon": -76.789929
+        },
+        "tags": {
+          "addr:street": "Heroes Circle",
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "crab;corn;soup",
+          "diet:meat": "yes",
+          "name": "Crab Circle"
+        }
+      },
+      "normalized_data": {
+        "name": "Crab Circle",
+        "address": "Heroes Circle, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Kingston",
+        "country": "Jamaica",
+        "latitude": 17.9800666,
+        "longitude": -76.789929,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "crab;corn;soup"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f80b919f393f0fdb5c5e9f8405c49316cebca9580e65cf5e6084775a6be7de8f",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    }
+  ]
+}

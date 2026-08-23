@@ -2,6 +2,7 @@ import React from 'react';
 import { Sparkles, Zap, Ticket, ArrowRight, Trophy, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PromoShareTicketDrawModal } from '@/components/promoshare/PromoShareTicketDrawModal';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface PromoShareHeroProps {
   totalTickets?: number;
@@ -14,6 +15,8 @@ export const PromoShareHero: React.FC<PromoShareHeroProps> = ({
   multiplier = 3.5,
   onOpenSlash,
 }) => {
+  const { t } = useI18n();
+
   return (
     <div className="relative overflow-hidden rounded-3xl border border-orange-500/30 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-6 sm:p-10 shadow-2xl mb-8">
       {/* Background Glow Highlights */}
@@ -25,15 +28,15 @@ export const PromoShareHero: React.FC<PromoShareHeroProps> = ({
         <div className="space-y-4 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-500/10 border border-orange-500/30 rounded-full text-xs font-bold text-orange-400">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>VERIFIED DISTRIBUTION & YIELD ENGINE</span>
+            <span>{t("promoshare.heroEyebrow")}</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white leading-none">
-            Turn Action Into <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-400 to-orange-400">Real Rewards.</span>
+            {t("promoshare.heroTitle")}
           </h1>
 
           <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
-            Verified visits, content shares, and referrals earn Tickets for matching Funded & Community Draws.
+            {t("promoshare.heroSubtitle")}
           </p>
 
           {/* Action CTAs */}
@@ -46,7 +49,7 @@ export const PromoShareHero: React.FC<PromoShareHeroProps> = ({
               className="rounded-2xl border-orange-500/40 bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 font-bold px-6 py-6"
             >
               <Users className="w-4 h-4 mr-2" />
-              <span>Squad Slash Pool</span>
+              <span>{t("promoshare.squadSlash")}</span>
             </Button>
           </div>
         </div>
@@ -54,9 +57,9 @@ export const PromoShareHero: React.FC<PromoShareHeroProps> = ({
         {/* Right Stats Hub Card */}
         <div className="w-full lg:w-80 bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 backdrop-blur-xl shadow-xl space-y-4">
           <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-            <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Your Standing</span>
+            <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t("promoshare.yourStanding")}</span>
             <div className="flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-[10px] font-bold text-emerald-400">
-              <Zap className="w-3 h-3" /> QUALIFIED
+              <Zap className="w-3 h-3" /> {t("promoshare.qualified")}
             </div>
           </div>
 

@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    justify: 'space-between',
+    justifyContent: 'space-between',
     padding: 20,
   },
   headerBadges: {
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)',
     borderWidth: 1,
     borderColor: '#3F3F46',
-    justify: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   bottomInfo: {
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 16,
     flexDirection: 'row',
-    justify: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
   },

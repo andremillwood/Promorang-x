@@ -10,6 +10,7 @@ import { MomentCard } from "@/components/MomentCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin } from "lucide-react";
 import { buildLocationPath, deslugifySegment, getSiteUrl, slugifySegment } from "@/lib/discovery";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface PublicMomentDirectoryRow {
   id: string;
@@ -34,6 +35,7 @@ interface PublicMomentDirectoryRow {
 }
 
 export default function CategoryArchive() {
+  const { t } = useI18n();
   const { categorySlug = "" } = useParams<{ categorySlug: string }>();
   const categoryLabel = deslugifySegment(categorySlug);
 
@@ -90,14 +92,14 @@ export default function CategoryArchive() {
 
       <div className="mb-10 flex flex-col gap-5 rounded-[2rem] border border-border bg-card px-6 py-8 shadow-soft">
         <Badge variant="outline" className="w-fit text-[11px] font-black uppercase tracking-[0.24em]">
-          Category archive
+          {t("categoryArchivePage.badge")}
         </Badge>
         <div className="space-y-3">
           <h1 className="font-serif text-4xl font-black text-foreground sm:text-5xl">
-            {categoryLabel} moments
+            {t("categoryArchivePage.heading", { category: categoryLabel })}
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground">
-            A public archive for browsing {categoryLabel.toLowerCase()} experiences, locations, and related venue activity.
+            {t("categoryArchivePage.description", { category: categoryLabel.toLowerCase() })}
           </p>
         </div>
 
@@ -142,13 +144,13 @@ export default function CategoryArchive() {
         </MasonryGrid>
       ) : (
         <div className="rounded-3xl border border-dashed border-border bg-muted/20 px-6 py-14 text-center">
-          <h2 className="font-serif text-2xl font-bold text-foreground">No moments here yet</h2>
+          <h2 className="font-serif text-2xl font-bold text-foreground">{t("categoryArchivePage.noMomentsTitle")}</h2>
           <p className="mt-2 text-muted-foreground">
-            This category page is live, but it does not have active moments yet.
+            {t("categoryArchivePage.noMomentsDesc")}
           </p>
           <Button asChild variant="hero" className="mt-6">
             <Link to="/explore/moments">
-              Browse all moments
+              {t("categoryArchivePage.browseAllMoments")}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
@@ -157,3 +159,4 @@ export default function CategoryArchive() {
     </main>
   );
 }
+

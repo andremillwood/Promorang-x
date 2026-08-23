@@ -10,20 +10,22 @@ import { cn } from "@/lib/utils";
 import { useTour } from "@/contexts/TourContext";
 import ProductTour from "@/components/tours/ProductTour";
 import { useEffect } from "react";
-
-const HOST_CATEGORIES = [
-    { value: "creator", label: "Creators" },
-    { value: "operator", label: "Operators" },
-    { value: "curator", label: "Curators" },
-    { value: "community_leader", label: "Community Leaders" },
-];
+import { useI18n } from "@/i18n/I18nContext";
 
 const HostsDirectory = () => {
+    const { t } = useI18n();
     const { roles, user } = useAuth();
     const { startTour, isTourCompleted } = useTour();
     const primaryRole = roles[0] || "participant";
     const [searchTerm, setSearchTerm] = useState("");
     const [category, setCategory] = useState("all");
+
+    const hostCategories = [
+        { value: "creator", label: t("hosts.catCreators") },
+        { value: "operator", label: t("hosts.catOperators") },
+        { value: "curator", label: t("hosts.catCurators") },
+        { value: "community_leader", label: t("hosts.catCommunityLeaders") },
+    ];
 
     // Auto-start host directory tour for new users
     useEffect(() => {
@@ -62,14 +64,14 @@ const HostsDirectory = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
             <DirectoryHeader
-                title="Host Directory"
-                description="Find community leaders and organizers creating unique experiences and moments."
+                title={t("hosts.title")}
+                description={t("hosts.copy")}
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 category={category}
                 setCategory={setCategory}
-                categories={HOST_CATEGORIES}
-                placeholder="Search by name or username..."
+                categories={hostCategories}
+                placeholder={t("hosts.search")}
                 onClearFilters={clearFilters}
                 searchCategory="host"
             />
@@ -77,7 +79,7 @@ const HostsDirectory = () => {
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-20">
                     <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
-                    <p className="text-muted-foreground">Loading host directory...</p>
+                    <p className="text-muted-foreground">{t("hosts.loading")}</p>
                 </div>
             ) : hosts && hosts.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -92,12 +94,12 @@ const HostsDirectory = () => {
                             verified={host.reliability_score >= 95}
                             stats={[
                                 {
-                                    label: "Moments",
+                                    label: t("hosts.moments"),
                                     value: host.hosted_moments_count || 0,
                                     icon: <Calendar className="w-3 h-3" />
                                 },
                                 {
-                                    label: "Reputation",
+                                    label: t("hosts.reputation"),
                                     value: `${host.reliability_score}%`,
                                     icon: <Star className="w-3 h-3" />
                                 }
@@ -108,15 +110,15 @@ const HostsDirectory = () => {
             ) : (
                 <div className="text-center py-20 bg-muted/20 rounded-2xl border-2 border-dashed">
                     <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium">No hosts found</h3>
+                    <h3 className="text-lg font-medium">{t("hosts.empty")}</h3>
                     <p className="text-muted-foreground max-w-sm mx-auto mt-1">
-                        Connect with community leaders by searching for their name or expertise.
+                        {t("hosts.emptyCopy")}
                     </p>
                     <button
                         onClick={clearFilters}
                         className="mt-4 text-sm font-medium text-primary hover:underline"
                     >
-                        Clear all filters
+                        {t("directory.clear")}
                     </button>
                 </div>
             )}

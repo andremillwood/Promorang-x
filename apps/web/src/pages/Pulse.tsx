@@ -16,6 +16,7 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
 
 type PulseMoment = {
   id: string;
@@ -40,23 +41,8 @@ const pulseTone = {
   cooling: "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400",
 } as const;
 
-const pulseSectionCopy = {
-  live: {
-    title: "Live now",
-    description: "Threshold crossed. These are the moments where momentum is already visible.",
-  },
-  forming: {
-    title: "Forming now",
-    description: "These moments are close enough to matter. Join early and help tip the room.",
-  },
-  cooling: {
-    title: "Cooling down",
-    description: "The spike has passed, but the story and memory layer may still be worth catching.",
-  },
-} as const;
-
-const formatStartTime = (value?: string | null) => {
-  if (!value) return "Time not posted";
+const formatStartTime = (value?: string | null, notPostedText = "Time not posted") => {
+  if (!value) return notPostedText;
 
   try {
     return new Intl.DateTimeFormat("en-US", {
@@ -66,7 +52,7 @@ const formatStartTime = (value?: string | null) => {
       minute: "2-digit",
     }).format(new Date(value));
   } catch {
-    return "Time not posted";
+    return notPostedText;
   }
 };
 
@@ -77,6 +63,7 @@ const getProgressPercent = (moment: PulseMoment) => {
 };
 
 const PulseCard = ({ moment, featured = false }: { moment: PulseMoment; featured?: boolean }) => {
+  const { t, formatNumber } = useI18n();
   const pulseState = (moment.pulse_state || "dormant") as keyof typeof pulseTone;
   const stateClasses = pulseTone[pulseState] || pulseTone.dormant;
   const progressPercent = getProgressPercent(moment);
@@ -97,17 +84,17 @@ const PulseCard = ({ moment, featured = false }: { moment: PulseMoment; featured
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
           <div className="absolute left-4 top-4 flex items-center gap-2">
             <Badge className={stateClasses}>{moment.pulse_state || "dormant"}</Badge>
-            {moment.isSample ? <Badge variant="outline" className="border-white/25 bg-black/55 text-white">Preview</Badge> : null}
+            {moment.isSample ? <Badge variant="outline" className="border-white/25 bg-black/55 text-white">{t("pulsePage.previewBadge")}</Badge> : null}
           </div>
-          {isLive ? <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-red-600 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em]"><Radio className="h-3 w-3" /> Live now</span> : null}
+          {isLive ? <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-red-600 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em]"><Radio className="h-3 w-3" /> {t("pulsePage.liveBadge")}</span> : null}
         </div>
       <div className="relative overflow-hidden p-5 sm:p-6">
         <div className="relative">
           <div className="flex items-start justify-between gap-3">
             <span className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">
-              {isLive ? "Happening" : "Building"}
+              {isLive ? t("pulsePage.happening") : t("pulsePage.building")}
             </span>
-            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-primary">{isLive ? "Check-in eligible" : "Join early"}</span>
+            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-primary">{isLive ? t("pulsePage.checkInEligible") : t("pulsePage.joinEarly")}</span>
           </div>
 
           <h2 className="mt-4 max-w-xl text-2xl font-black text-white transition-colors group-hover:text-primary sm:text-[2rem]">
@@ -123,7 +110,7 @@ const PulseCard = ({ moment, featured = false }: { moment: PulseMoment; featured
             ) : null}
             <span className="flex items-center gap-1.5">
               <Clock3 className="h-4 w-4 text-primary" />
-              {formatStartTime(moment.starts_at)}
+              {formatStartTime(moment.starts_at, t("pulsePage.timeNotPosted"))}
             </span>
             {moment.city ? (
               <span className="text-muted-foreground/80">{moment.city}</span>
@@ -132,9 +119,9 @@ const PulseCard = ({ moment, featured = false }: { moment: PulseMoment; featured
 
           <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.055] p-4">
             <div className="flex items-center justify-between gap-3 text-[11px] font-black uppercase tracking-[0.2em] text-white/45">
-              <span>Room signal</span>
+              <span>{t("pulsePage.roomSignal")}</span>
               <span className={isLive ? "text-emerald-600 dark:text-emerald-400" : "text-primary"}>
-                {isLive ? "Threshold Crossed" : `${Math.round(progressPercent)}% to live`}
+                {isLive ? t("pulsePage.thresholdCrossed") : t("pulsePage.percentToLive", { percent: Math.round(progressPercent).toString() })}
               </span>
             </div>
 
@@ -148,8 +135,8 @@ const PulseCard = ({ moment, featured = false }: { moment: PulseMoment; featured
             </div>
 
             <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-              <span className="text-white/55">{joined.toLocaleString()} joined</span>
-              <span className="font-semibold text-white">{target.toLocaleString()} target</span>
+              <span className="text-white/55">{t("pulsePage.joinedCount", { count: formatNumber(joined) })}</span>
+              <span className="font-semibold text-white">{t("pulsePage.targetCount", { count: formatNumber(target) })}</span>
             </div>
           </div>
 
@@ -160,11 +147,11 @@ const PulseCard = ({ moment, featured = false }: { moment: PulseMoment; featured
               }`}
             >
               <Flame className="h-4 w-4" />
-              {isLive ? "Move while the room is alive" : "Join before it tips"}
+              {isLive ? t("pulsePage.moveAlive") : t("pulsePage.joinBeforeTips")}
             </span>
 
             <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-              Open moment
+              {t("pulsePage.openMoment")}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </span>
           </div>
@@ -184,6 +171,7 @@ const PulseSection = ({
   description: string;
   moments: PulseMoment[];
 }) => {
+  const { t } = useI18n();
   if (moments.length === 0) return null;
 
   return (
@@ -194,7 +182,7 @@ const PulseSection = ({
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{description}</p>
         </div>
         <span className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">
-          {moments.length} {moments.length === 1 ? "moment" : "moments"}
+          {moments.length === 1 ? t("pulsePage.countSingular") : t("pulsePage.countPlural", { count: moments.length.toString() })}
         </span>
       </div>
 
@@ -208,6 +196,7 @@ const PulseSection = ({
 };
 
 const Pulse = () => {
+  const { t, formatNumber } = useI18n();
   const { user } = useAuth();
 
   const { data, isLoading, error } = useQuery<PulseMoment[]>({
@@ -283,33 +272,33 @@ const Pulse = () => {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
               </span>
-              {user ? "Live movement" : "Public pulse preview"}
+              {user ? t("pulsePage.liveMovement") : t("pulsePage.publicPulsePreview")}
             </div>
-            <h1 className="mt-6 max-w-3xl font-sans text-6xl font-black uppercase leading-[0.82] tracking-[-0.075em] sm:text-8xl lg:text-9xl">Feel the room<br /><span className="text-primary">before</span> you arrive.</h1>
+            <h1 className="mt-6 max-w-3xl font-sans text-6xl font-black uppercase leading-[0.82] tracking-[-0.075em] sm:text-8xl lg:text-9xl">{t("pulsePage.heroTitle")}</h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-white/65 sm:text-lg">
-              See where people are gathering, which moments are about to tip, and where showing up matters right now.
+              {t("pulsePage.heroSubtitle")}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild size="lg">
                 <Link to={user ? "/discover/moments" : "/auth"}>
-                  {user ? "Find a moment" : "Sign in to join"}
+                  {user ? t("pulsePage.findMoment") : t("pulsePage.signInToJoin")}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-white/20 bg-black/35 text-white hover:bg-white/10 hover:text-white">
-                <Link to={user ? "/create/moment" : "/discover/moments"}>{user ? "Start a moment" : "Explore all moments"}</Link>
+                <Link to={user ? "/create/moment" : "/discover/moments"}>{user ? t("pulsePage.startMoment") : t("pulsePage.exploreAllMoments")}</Link>
               </Button>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl backdrop-blur-xl">
             {[
-              { label: "Live now", value: liveMoments.length, icon: Zap },
-              { label: "Forming", value: formingMoments.length, icon: Flame },
-              { label: "Joined", value: joinedCount, icon: Activity },
+              { label: t("pulsePage.statLiveNow"), value: liveMoments.length, icon: Zap },
+              { label: t("pulsePage.statForming"), value: formingMoments.length, icon: Flame },
+              { label: t("pulsePage.statJoined"), value: joinedCount, icon: Activity },
             ].map((item) => (
               <div key={item.label} className="bg-black/70 p-4 sm:p-5">
                 <item.icon className="h-4 w-4 text-primary" />
-                <p className="mt-8 text-3xl font-black">{user && isLoading ? "..." : item.value.toLocaleString()}</p>
+                <p className="mt-8 text-3xl font-black">{user && isLoading ? "..." : formatNumber(item.value)}</p>
                 <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-white/40">{item.label}</p>
               </div>
             ))}
@@ -320,24 +309,24 @@ const Pulse = () => {
       {!user ? (
         <div className="flex flex-col gap-4 border-y border-white/10 py-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">A window into the network</p>
-            <p className="mt-1 max-w-2xl text-sm text-white/55">Preview activity without an account. Sign in when you want to join, check in, or leave proof.</p>
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{t("pulsePage.windowTitle")}</p>
+            <p className="mt-1 max-w-2xl text-sm text-white/55">{t("pulsePage.windowDesc")}</p>
           </div>
           <Link to="/auth" className="inline-flex shrink-0 items-center gap-2 text-sm font-bold text-white transition hover:text-primary">
-            Unlock participation <ArrowRight className="h-4 w-4" />
+            {t("pulsePage.unlockParticipation")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       ) : null}
 
       <div className="flex gap-3 overflow-x-auto pb-1">
         {[
-          { label: "Live now", value: liveMoments.length, href: "#live" },
-          { label: "Forming", value: formingMoments.length, href: "#forming" },
-          { label: "People joined", value: joinedCount, href: "#live" },
-          { label: "Combined target", value: thresholdCount, href: "#forming" },
+          { label: t("pulsePage.statLiveNow"), value: liveMoments.length, href: "#live" },
+          { label: t("pulsePage.statForming"), value: formingMoments.length, href: "#forming" },
+          { label: t("pulsePage.peopleJoined"), value: joinedCount, href: "#live" },
+          { label: t("pulsePage.combinedTarget"), value: thresholdCount, href: "#forming" },
         ].map((item) => (
           <a key={item.label} href={item.href} className="min-w-44 rounded-xl border border-white/10 bg-white/[0.045] p-4 transition hover:border-primary/50">
-            <p className="text-2xl font-black">{user && isLoading ? "..." : item.value.toLocaleString()}</p>
+            <p className="text-2xl font-black">{user && isLoading ? "..." : formatNumber(item.value)}</p>
             <p className="mt-1 text-xs text-white/45">{item.label}</p>
           </a>
         ))}
@@ -361,34 +350,34 @@ const Pulse = () => {
       ) : pulseMoments.length === 0 ? (
         <div className="rounded-[2rem] border border-dashed border-border bg-card/50 p-10 text-center">
           <Sparkles className="mx-auto h-10 w-10 text-primary" />
-          <h2 className="mt-4 font-serif text-3xl font-bold text-foreground">No active pulse right now</h2>
+          <h2 className="mt-4 font-serif text-3xl font-bold text-foreground">{t("pulsePage.noActivePulseTitle")}</h2>
           <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-            Nothing is currently forming or live. Start the next moment or move into discovery to find what is scheduled next.
+            {t("pulsePage.noActivePulseDesc")}
           </p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild variant="hero" size="lg">
-              <Link to="/create/moment">Start a Moment</Link>
+              <Link to="/create/moment">{t("pulsePage.startMoment")}</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link to="/discover/moments">Browse Discovery</Link>
+              <Link to="/discover/moments">{t("pulsePage.browseDiscovery")}</Link>
             </Button>
           </div>
         </div>
       ) : (
         <div className="space-y-8">
           <PulseSection
-            title={pulseSectionCopy.live.title}
-            description={pulseSectionCopy.live.description}
+            title={t("pulsePage.secLiveTitle")}
+            description={t("pulsePage.secLiveDesc")}
             moments={liveMoments}
           />
           <PulseSection
-            title={pulseSectionCopy.forming.title}
-            description={pulseSectionCopy.forming.description}
+            title={t("pulsePage.secFormingTitle")}
+            description={t("pulsePage.secFormingDesc")}
             moments={formingMoments}
           />
           <PulseSection
-            title={pulseSectionCopy.cooling.title}
-            description={pulseSectionCopy.cooling.description}
+            title={t("pulsePage.secCoolingTitle")}
+            description={t("pulsePage.secCoolingDesc")}
             moments={coolingMoments}
           />
         </div>

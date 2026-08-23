@@ -11,6 +11,7 @@ import { z } from "zod";
 import { DEMO_EMAIL_STORAGE_KEY, DemoRole } from "@/lib/demo-session";
 import { captureGrowthAttribution, markPendingSignup, trackGrowthEvent } from "@/lib/marketing-attribution";
 import { trackMetaEvent } from "@/components/MetaPixel";
+import { useI18n } from "@/i18n/I18nContext";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
 
@@ -49,6 +50,7 @@ const roleInfo: Record<UserRole, { icon: typeof Users; title: string; descriptio
 };
 
 const AuthPage = () => {
+  const { t } = useI18n();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [selectedRole, setSelectedRole] = useState<UserRole>("participant");
   const [email, setEmail] = useState("");
@@ -66,6 +68,13 @@ const AuthPage = () => {
   const commercialIntent = searchParams.get("intent");
   const selectedPlan = searchParams.get("plan");
   const selectedSku = searchParams.get("sku");
+  const localizedRoleInfo: Record<UserRole, { title: string; description: string }> = {
+    participant: { title: t("auth.participant"), description: t("persona.explorerDesc") },
+    creator: { title: t("auth.creator"), description: t("persona.creatorDesc") },
+    host: { title: t("auth.host"), description: t("persona.mayorDesc") },
+    brand: { title: t("auth.brand"), description: t("persona.brandDesc") },
+    merchant: { title: t("auth.merchant"), description: t("persona.merchantDesc") },
+  };
 
   useEffect(() => {
     captureGrowthAttribution();
@@ -104,7 +113,12 @@ const AuthPage = () => {
         const newErrors: Record<string, string> = {};
         error.errors.forEach((err) => {
           if (err.path[0]) {
-            newErrors[err.path[0] as string] = err.message;
+            const field = err.path[0] as string;
+            newErrors[field] = field === "email"
+              ? t("auth.errorEmail")
+              : field === "password"
+                ? t("auth.errorPassword")
+                : t("auth.errorName");
           }
         });
         setErrors(newErrors);
@@ -125,9 +139,9 @@ const AuthPage = () => {
         const { error } = await signIn(email, password);
         if (error) {
           toast({
-            title: "Error signing in",
+            title: t("auth.signInError"),
             description: error.message === "Invalid login credentials"
-              ? "Invalid email or password. Please try again."
+              ? t("auth.invalidCredentials")
               : error.message,
             variant: "destructive",
           });
@@ -140,9 +154,9 @@ const AuthPage = () => {
         const { error } = await signUp(email, password, fullName, selectedRole);
         if (error) {
           toast({
-            title: "Error signing up",
+            title: t("auth.signUpError"),
             description: error.message.includes("already registered")
-              ? "This email is already registered. Please sign in instead."
+              ? t("auth.alreadyRegistered")
               : error.message,
             variant: "destructive",
           });
@@ -154,8 +168,8 @@ const AuthPage = () => {
             user_role: selectedRole,
           });
           toast({
-            title: "Welcome to Promorang!",
-            description: "Your account has been created successfully.",
+            title: t("auth.welcome"),
+            description: t("auth.accountCreated"),
           });
           // New users always go through onboarding first
           navigate("/post-login", { replace: true });
@@ -172,7 +186,7 @@ const AuthPage = () => {
       const { error } = await signInWithGoogle();
       if (error) {
         toast({
-          title: "Error signing in with Google",
+          title: t("auth.googleError"),
           description: error.message,
           variant: "destructive",
         });
@@ -193,8 +207,8 @@ const AuthPage = () => {
       ).trim().toLowerCase();
       if (!parsedDemoEmail) {
         toast({
-          title: "Email required for demo",
-          description: "Enter your email in either email field so demo emails have somewhere to go.",
+          title: t("auth.demoEmailRequired"),
+          description: t("auth.demoEmailRequiredCopy"),
           variant: "destructive",
         });
         return;
@@ -203,8 +217,8 @@ const AuthPage = () => {
       const emailResult = z.string().email().safeParse(parsedDemoEmail);
       if (!emailResult.success) {
         toast({
-          title: "Invalid email",
-          description: "Enter a valid email address for demo notifications.",
+          title: t("auth.invalidEmail"),
+          description: t("auth.invalidDemoEmail"),
           variant: "destructive",
         });
         return;
@@ -214,7 +228,7 @@ const AuthPage = () => {
       const { error } = await demoSignIn(role, parsedDemoEmail);
       if (error) {
         toast({
-          title: "Demo login failed",
+          title: t("auth.demoFailed"),
           description: error.message,
           variant: "destructive",
         });
@@ -237,7 +251,7 @@ const AuthPage = () => {
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to home
+            {t("auth.back")}
           </Link>
 
           {/* Logo */}
@@ -245,16 +259,16 @@ const AuthPage = () => {
 
           {/* Header */}
           <h1 className="font-serif text-3xl font-bold text-foreground mb-2">
-            {mode === "login" ? "Welcome back" : "Join Promorang"}
+            {mode === "login" ? t("auth.welcomeBack") : t("auth.join")}
           </h1>
           <p className="text-muted-foreground mb-8">
             {mode === "login"
-              ? "Sign in to your real account or enter a guided demo workspace."
-              : "Create your account to start discovering moments"}
+              ? t("auth.loginCopy")
+              : t("auth.signupCopy")}
           </p>
           {commercialIntent && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Your selection is saved</p>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t("auth.saved")}</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in or create an account to continue {selectedPlan ? `with the ${selectedPlan} plan` : selectedSku ? `with Moment package ${selectedSku}` : "with your selected Promorang route"}. You will not need to start over.</p>
             </div>
           )}
@@ -262,7 +276,7 @@ const AuthPage = () => {
           {/* Role Selection (Signup only) */}
           {mode === "signup" && (
             <div className="mb-6">
-              <Label className="text-sm font-medium mb-3 block">I want to...</Label>
+              <Label className="text-sm font-medium mb-3 block">{t("auth.chooseRole")}</Label>
               <div className="grid grid-cols-2 gap-3">
                 {(Object.entries(roleInfo) as [UserRole, typeof roleInfo[UserRole]][]).map(
                   ([role, info]) => (
@@ -277,8 +291,8 @@ const AuthPage = () => {
                     >
                       <info.icon className={`w-5 h-5 mb-2 ${selectedRole === role ? "text-primary" : "text-muted-foreground"
                         }`} />
-                      <p className="font-medium text-sm">{info.title}</p>
-                      <p className="text-xs text-muted-foreground">{info.description}</p>
+                      <p className="font-medium text-sm">{localizedRoleInfo[role].title}</p>
+                      <p className="text-xs text-muted-foreground">{localizedRoleInfo[role].description}</p>
                     </button>
                   )
                 )}
@@ -290,13 +304,13 @@ const AuthPage = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === "signup" && (
               <div>
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="fullName">{t("auth.name")}</Label>
                 <Input
                   id="fullName"
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Your name"
+                  placeholder={t("auth.name")}
                   className={errors.fullName ? "border-destructive" : ""}
                 />
                 {errors.fullName && (
@@ -306,7 +320,7 @@ const AuthPage = () => {
             )}
 
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("auth.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -321,7 +335,7 @@ const AuthPage = () => {
             </div>
 
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -333,7 +347,7 @@ const AuthPage = () => {
                 />
                 <button
                   type="button"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                   aria-pressed={showPassword}
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
@@ -347,7 +361,7 @@ const AuthPage = () => {
             </div>
 
             <Button type="submit" className="w-full" variant="hero" size="lg" disabled={isLoading}>
-              {isLoading ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
+              {isLoading ? t("auth.wait") : mode === "login" ? t("auth.signIn") : t("auth.create")}
             </Button>
           </form>
 
@@ -358,7 +372,7 @@ const AuthPage = () => {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
+                {t("auth.continueWith")}
               </span>
             </div>
           </div>
@@ -378,26 +392,26 @@ const AuthPage = () => {
 
           {/* Toggle Mode */}
           <p className="text-center text-muted-foreground mt-6">
-            {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
+            {mode === "login" ? t("auth.noAccount") : t("auth.hasAccount")}{" "}
             <button
               type="button"
               onClick={() => setMode(mode === "login" ? "signup" : "login")}
               className="text-primary font-medium hover:underline"
             >
-              {mode === "login" ? "Sign up" : "Sign in"}
+              {mode === "login" ? t("auth.signUp") : t("auth.signIn")}
             </button>
           </p>
 
           {/* Demo Accounts */}
           <div className="mt-8 pt-8 border-t border-border">
             <div className="mb-4 text-center">
-              <p className="text-sm font-medium text-foreground">Explore a guided demo</p>
+              <p className="text-sm font-medium text-foreground">{t("auth.demoTitle")}</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Use your own inbox, even if it is already registered. We will route demo emails there and open a preset workspace for the role you choose.
+                {t("auth.demoCopy")}
               </p>
             </div>
             <div className="mb-4">
-              <Label htmlFor="demo-email">Where should demo emails go?</Label>
+              <Label htmlFor="demo-email">{t("auth.demoEmail")}</Label>
               <div className="relative mt-2">
                 <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -410,7 +424,7 @@ const AuthPage = () => {
                 />
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
-                We keep your real account separate. This inbox only receives simulated demo messages and follow-up context.
+                {t("auth.demoPrivacy")}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
@@ -422,7 +436,7 @@ const AuthPage = () => {
                 className="flex flex-col items-center gap-1 h-auto py-3"
               >
                 <Users className="w-5 h-5 text-primary" />
-                <span className="font-medium">Participant</span>
+                <span className="font-medium">{t("auth.participant")}</span>
                 <span className="text-xs text-muted-foreground">Join moments</span>
               </Button>
               <Button
@@ -433,7 +447,7 @@ const AuthPage = () => {
                 className="flex flex-col items-center gap-1 h-auto py-3"
               >
                 <PlayCircle className="w-5 h-5 text-primary" />
-                <span className="font-medium">Creator</span>
+                <span className="font-medium">{t("auth.creator")}</span>
                 <span className="text-xs text-muted-foreground">Publish missions</span>
               </Button>
               <Button
@@ -444,7 +458,7 @@ const AuthPage = () => {
                 className="flex flex-col items-center gap-1 h-auto py-3"
               >
                 <Sparkles className="w-5 h-5 text-primary" />
-                <span className="font-medium">Host</span>
+                <span className="font-medium">{t("auth.host")}</span>
                 <span className="text-xs text-muted-foreground">Create moments</span>
               </Button>
               <Button
@@ -455,7 +469,7 @@ const AuthPage = () => {
                 className="flex flex-col items-center gap-1 h-auto py-3"
               >
                 <Building2 className="w-5 h-5 text-primary" />
-                <span className="font-medium">Brand</span>
+                <span className="font-medium">{t("auth.brand")}</span>
                 <span className="text-xs text-muted-foreground">Run campaigns</span>
               </Button>
               <Button
@@ -466,7 +480,7 @@ const AuthPage = () => {
                 className="flex flex-col items-center gap-1 h-auto py-3"
               >
                 <Briefcase className="w-5 h-5 text-primary" />
-                <span className="font-medium">Agency</span>
+                <span className="font-medium">{t("auth.agency")}</span>
                 <span className="text-xs text-muted-foreground">Manage clients</span>
               </Button>
               <Button
@@ -477,7 +491,7 @@ const AuthPage = () => {
                 className="flex flex-col items-center gap-1 h-auto py-3"
               >
                 <Store className="w-5 h-5 text-primary" />
-                <span className="font-medium">Merchant</span>
+                <span className="font-medium">{t("auth.merchant")}</span>
                 <span className="text-xs text-muted-foreground">Manage venues</span>
               </Button>
             </div>
@@ -494,10 +508,10 @@ const AuthPage = () => {
 
         <div className="relative z-10 text-center text-primary-foreground max-w-md">
           <h2 className="font-serif text-4xl font-bold mb-4">
-            Where moments happen, together
+            {t("auth.visualTitle")}
           </h2>
           <p className="text-primary-foreground/80 text-lg">
-            Join thousands discovering experiences that matter. Create memories that last.
+            {t("auth.visualCopy")}
           </p>
         </div>
       </div>

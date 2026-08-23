@@ -1,0 +1,2322 @@
+{
+  "schema_version": 2,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Port of Spain, Trinidad & Tobago",
+    "country_code": "TT",
+    "country_slug": "trinidad-and-tobago",
+    "city_slug": "port-of-spain",
+    "collected_at": "2026-08-22T04:04:20.608Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "rules": {
+    "auto_publish": false,
+    "minimum_venue_confidence": 0.8,
+    "moment_expiry_hours": 24,
+    "targets": {
+      "venues": 30,
+      "discoveries": 20,
+      "moments": 10,
+      "polls": 4,
+      "scenes": 3
+    }
+  },
+  "city": {
+    "country_code": "TT",
+    "country_slug": "trinidad-and-tobago",
+    "country": "Trinidad & Tobago",
+    "city_slug": "port-of-spain",
+    "city": "Port of Spain",
+    "region": "Port of Spain",
+    "currency": "TTD",
+    "timezone": "America/Port_of_Spain",
+    "bbox": "10.6200,-61.5600,10.7000,-61.4500",
+    "launch_stage": "pilot",
+    "poll_templates": [
+      "Who serves the doubles Port of Spain locals stand behind?",
+      "Which live-music venue should host a Promorang Moment?",
+      "Which local creative space deserves a wider signal?",
+      "What should Port of Spain activate next?"
+    ]
+  },
+  "poll_templates": [
+    {
+      "key": "tt-port-of-spain-1",
+      "question": "Who serves the doubles Port of Spain locals stand behind?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "tt-port-of-spain-2",
+      "question": "Which live-music venue should host a Promorang Moment?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "tt-port-of-spain-3",
+      "question": "Which local creative space deserves a wider signal?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "tt-port-of-spain-4",
+      "question": "What should Port of Spain activate next?",
+      "status": "draft",
+      "category": "City Direction",
+      "threshold_for_moment": 25
+    }
+  ],
+  "stats": {
+    "source_elements": 628,
+    "candidates": 50,
+    "pending_review": 9,
+    "needs_research": 41
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/443290699",
+      "source_url": "https://www.openstreetmap.org/node/443290699",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 443290699,
+        "lat": 10.6653765,
+        "lon": -61.5241891,
+        "tags": {
+          "addr:city": "Port of Spain",
+          "addr:housenumber": "63",
+          "addr:street": "Rosalino Street",
+          "air_conditioning": "yes",
+          "amenity": "cafe",
+          "check_date": "2023-10-04",
+          "cuisine": "coffee_shop;pizza;italian;juice;cake;salad;breakfast",
+          "delivery": "no",
+          "drive_through": "no",
+          "email": "districtcocktailcafe@gmail.com",
+          "highchair": "no",
+          "internet_access": "yes",
+          "internet_access:fee": "customers",
+          "name": "District Cafe & Cocktail Bar",
+          "opening_hours": "Mo-Sa 07:00-18:00",
+          "outdoor_seating": "yes",
+          "payment:mastercard": "yes",
+          "payment:visa": "yes",
+          "phone": "+1 8683295307",
+          "reservation": "yes",
+          "smoking": "outside",
+          "takeaway": "yes",
+          "toilets": "yes",
+          "toilets:wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "District Cafe & Cocktail Bar",
+        "address": "63 Rosalino Street, Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6653765,
+        "longitude": -61.5241891,
+        "category": "cafe",
+        "phone": "+1 8683295307",
+        "website": null,
+        "opening_hours": "Mo-Sa 07:00-18:00",
+        "social_profiles": {},
+        "tags": [
+          "cafe",
+          "coffee_shop;pizza;italian;juice;cake;salad;breakfast"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fb8513da8c1e6d7576da94c1521854008ccfb08f9795d872321ed8c7ef7aa64f",
+      "confidence": 0.85,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/443932251",
+      "source_url": "https://www.openstreetmap.org/node/443932251",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 443932251,
+        "lat": 10.6563787,
+        "lon": -61.5118294,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "chicken",
+          "name": "Royal Castle",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Royal Castle",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6563787,
+        "longitude": -61.5118294,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f80057a5ac316b080018bf6e642277260812497e9e17496fba31c64b962e311a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1048933607",
+      "source_url": "https://www.openstreetmap.org/node/1048933607",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1048933607,
+        "lat": 10.6881821,
+        "lon": -61.5421855,
+        "tags": {
+          "direction": "180",
+          "name": "Fort George",
+          "tourism": "viewpoint"
+        }
+      },
+      "normalized_data": {
+        "name": "Fort George",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6881821,
+        "longitude": -61.5421855,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "viewpoint"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a4cfa05ec2deccf68344415d5c2a429e74bbb8bb41c1d5513314a3e10a8a0eae",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1317951919",
+      "source_url": "https://www.openstreetmap.org/node/1317951919",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1317951919,
+        "lat": 10.6503544,
+        "lon": -61.4578894,
+        "tags": {
+          "addr:city": "Barataria",
+          "addr:country": "TT",
+          "addr:housenumber": "65",
+          "addr:street": "Eastern Main Road",
+          "amenity": "fast_food",
+          "cuisine": "burger",
+          "name": "Bos Burger"
+        }
+      },
+      "normalized_data": {
+        "name": "Bos Burger",
+        "address": "65 Eastern Main Road, Barataria, TT",
+        "city": "Barataria",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6503544,
+        "longitude": -61.4578894,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b29fee3dbd7abaf8df79d3b79b3a19eb75544c23b9c11de9072447f2e554fd6f",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1318087813",
+      "source_url": "https://www.openstreetmap.org/node/1318087813",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1318087813,
+        "lat": 10.6666643,
+        "lon": -61.524836,
+        "tags": {
+          "addr:city": "Woodbrook, Port of Spain",
+          "addr:country": "TT",
+          "addr:housenumber": "159",
+          "addr:street": "Tragarete Road",
+          "amenity": "fast_food",
+          "cuisine": "international;sandwich;italian;burger;asian;chicken;ice_cream",
+          "drive_through": "no",
+          "internet_access": "wlan",
+          "name": "Big Rolph Food Truck",
+          "opening_hours": "Mo-Th 11:00-22:00, Fr 11:00-23:00, Sa 11:00-22:00, Su 16:00-21:00",
+          "phone": "1 868 497 6574"
+        }
+      },
+      "normalized_data": {
+        "name": "Big Rolph Food Truck",
+        "address": "159 Tragarete Road, Woodbrook, Port of Spain, TT",
+        "city": "Woodbrook, Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6666643,
+        "longitude": -61.524836,
+        "category": "restaurant",
+        "phone": "1 868 497 6574",
+        "website": null,
+        "opening_hours": "Mo-Th 11:00-22:00, Fr 11:00-23:00, Sa 11:00-22:00, Su 16:00-21:00",
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "international;sandwich;italian;burger;asian;chicken;ice_cream"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c52671891918e893bb08d4071d64f40e625f94266a0f71322c13f8052bf4f010",
+      "confidence": 0.85,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1318105943",
+      "source_url": "https://www.openstreetmap.org/node/1318105943",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1318105943,
+        "lat": 10.6586692,
+        "lon": -61.5212063,
+        "tags": {
+          "addr:city": "PORT OF SPAIN",
+          "addr:country": "TT",
+          "addr:housenumber": "7",
+          "addr:street": "French Street",
+          "name": "Melbourne Inn",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Melbourne Inn",
+        "address": "7 French Street, PORT OF SPAIN, TT",
+        "city": "PORT OF SPAIN",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6586692,
+        "longitude": -61.5212063,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1e55cf9afc7125e63451eb4bff5373273ff96c311a71dde68ec7235b64835ed8",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1318119366",
+      "source_url": "https://www.openstreetmap.org/node/1318119366",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1318119366,
+        "lat": 10.648485,
+        "lon": -61.4652117,
+        "tags": {
+          "addr:city": "Port of Spain",
+          "addr:country": "TT",
+          "addr:housenumber": "71",
+          "addr:street": "5th Street",
+          "amenity": "fast_food",
+          "diet:vegetarian": "yes",
+          "name": "Ali's Doubles Barataria",
+          "phone": "+1 868-620-8292"
+        }
+      },
+      "normalized_data": {
+        "name": "Ali's Doubles Barataria",
+        "address": "71 5th Street, Port of Spain, TT",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.648485,
+        "longitude": -61.4652117,
+        "category": "restaurant",
+        "phone": "+1 868-620-8292",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e2625df0dc5882f1c23c458740c130b0a542f49e59b5096b201d21a1f6ee05b2",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1318126576",
+      "source_url": "https://www.openstreetmap.org/node/1318126576",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1318126576,
+        "lat": 10.6524699,
+        "lon": -61.4712412,
+        "tags": {
+          "addr:city": "Morvant",
+          "addr:country": "TT",
+          "addr:housenumber": "42",
+          "addr:street": "Lady Young Road",
+          "amenity": "restaurant",
+          "name": "Cozy Nook Restaurant and Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Cozy Nook Restaurant and Bar",
+        "address": "42 Lady Young Road, Morvant, TT",
+        "city": "Morvant",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6524699,
+        "longitude": -61.4712412,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "761dcfe65f7d50b3f972e0519d659de2afbad365551d3299160ffee8e400da2d",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1318142247",
+      "source_url": "https://www.openstreetmap.org/node/1318142247",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1318142247,
+        "lat": 10.6632805,
+        "lon": -61.5232928,
+        "tags": {
+          "addr:city": "PORT OF SPAIN",
+          "addr:country": "TT",
+          "addr:housenumber": "54",
+          "addr:street": "Alfredo Street",
+          "amenity": "restaurant",
+          "cuisine": "sandwich;soup;coffee;savory_pancakes",
+          "name": "Broodje Sandwich Studio & Doggie Deck",
+          "opening_hours": "Tu-Su 08:00-14:00",
+          "phone": "+1 868 219 0574"
+        }
+      },
+      "normalized_data": {
+        "name": "Broodje Sandwich Studio & Doggie Deck",
+        "address": "54 Alfredo Street, PORT OF SPAIN, TT",
+        "city": "PORT OF SPAIN",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6632805,
+        "longitude": -61.5232928,
+        "category": "restaurant",
+        "phone": "+1 868 219 0574",
+        "website": null,
+        "opening_hours": "Tu-Su 08:00-14:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "sandwich;soup;coffee;savory_pancakes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0186fd088970f3a370d62378ee9e371ce4261436981a7ff5706806e17fe6ae81",
+      "confidence": 0.85,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1318164209",
+      "source_url": "https://www.openstreetmap.org/node/1318164209",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1318164209,
+        "lat": 10.6614988,
+        "lon": -61.5133633,
+        "tags": {
+          "addr:city": "PORT OF SPAIN",
+          "addr:country": "TT",
+          "addr:housenumber": "54",
+          "addr:street": "GORDON ST",
+          "amenity": "cafe",
+          "name": "Dundonald Cafe",
+          "opening_hours": "06:30-15:00"
+        }
+      },
+      "normalized_data": {
+        "name": "Dundonald Cafe",
+        "address": "54 GORDON ST, PORT OF SPAIN, TT",
+        "city": "PORT OF SPAIN",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6614988,
+        "longitude": -61.5133633,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": "06:30-15:00",
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "33a757aee36ed48d33bb50b82670b42e1b29496f4e54da9b04fc31f4884d3781",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1327528773",
+      "source_url": "https://www.openstreetmap.org/node/1327528773",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1327528773,
+        "lat": 10.6667734,
+        "lon": -61.5249938,
+        "tags": {
+          "addr:city": "PORT OF SPAIN",
+          "addr:country": "TT",
+          "addr:housenumber": "161",
+          "addr:street": "Tragarete Road",
+          "amenity": "fast_food",
+          "cuisine": "indian",
+          "name": "Patraj Roti"
+        }
+      },
+      "normalized_data": {
+        "name": "Patraj Roti",
+        "address": "161 Tragarete Road, PORT OF SPAIN, TT",
+        "city": "PORT OF SPAIN",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6667734,
+        "longitude": -61.5249938,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "indian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c02cbd08f8ed4b26e680e954ae7aaac62b20080c4c7ebe22cc2bf8397f750770",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1327721428",
+      "source_url": "https://www.openstreetmap.org/node/1327721428",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1327721428,
+        "lat": 10.653568,
+        "lon": -61.4517,
+        "tags": {
+          "addr:city": "San Juan",
+          "addr:country": "TT",
+          "addr:housenumber": "59",
+          "addr:street": "Mission Rd",
+          "amenity": "bar",
+          "cuisine": "indian",
+          "name": "Patrick's Bar & Channa Bar",
+          "opening_hours": "Mo-Sa 10:00-21:00"
+        }
+      },
+      "normalized_data": {
+        "name": "Patrick's Bar & Channa Bar",
+        "address": "59 Mission Rd, San Juan, TT",
+        "city": "San Juan",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.653568,
+        "longitude": -61.4517,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Sa 10:00-21:00",
+        "social_profiles": {},
+        "tags": [
+          "bar",
+          "indian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "21ca950bac43f1181cd4374af96aeed3b5c852a264587dd503588724d25c83b0",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1369828911",
+      "source_url": "https://www.openstreetmap.org/node/1369828911",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1369828911,
+        "lat": 10.6322568,
+        "lon": -61.4531912,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "coffee_shop",
+          "name": "Rituals Coffee"
+        }
+      },
+      "normalized_data": {
+        "name": "Rituals Coffee",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6322568,
+        "longitude": -61.4531912,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "coffee_shop"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "249a81ebdd831688da645afcb0cc03a858d6261f76b96c03cb7b7bac65415772",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1371284124",
+      "source_url": "https://www.openstreetmap.org/node/1371284124",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1371284124,
+        "lat": 10.6800965,
+        "lon": -61.5218204,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "french",
+          "name": "Vie de France"
+        }
+      },
+      "normalized_data": {
+        "name": "Vie de France",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6800965,
+        "longitude": -61.5218204,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "french"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "85dbdfca1b92d79f6d7fd043cac8c7e10b53ce9e4e21449a9335d48b00951937",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1377451856",
+      "source_url": "https://www.openstreetmap.org/node/1377451856",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1377451856,
+        "lat": 10.6504358,
+        "lon": -61.4612391,
+        "tags": {
+          "addr:city": "Barataria",
+          "addr:street": "Eastern Main Road",
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "cuisine": "chicken",
+          "name": "KFC",
+          "smoking": "no",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "Eastern Main Road, Barataria, Trinidad & Tobago",
+        "city": "Barataria",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6504358,
+        "longitude": -61.4612391,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6b4fa8585f7c4d00165305dc6a11076db7fe3fc65f8ef6337ce558b0fe7d2664",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1377451872",
+      "source_url": "https://www.openstreetmap.org/node/1377451872",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1377451872,
+        "lat": 10.6503686,
+        "lon": -61.4609082,
+        "tags": {
+          "addr:city": "Barataria",
+          "addr:street": "Eastern Main Road",
+          "amenity": "fast_food",
+          "brand": "Subway",
+          "brand:wikidata": "Q244457",
+          "brand:wikipedia": "en:Subway (restaurant)",
+          "cuisine": "sandwich",
+          "name": "Subway",
+          "smoking": "no",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Subway",
+        "address": "Eastern Main Road, Barataria, Trinidad & Tobago",
+        "city": "Barataria",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6503686,
+        "longitude": -61.4609082,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "sandwich"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5e300b058654de2c1d9c68b7e1877f47439251baf024c57968f111a90e36fee6",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1430881866",
+      "source_url": "https://www.openstreetmap.org/node/1430881866",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1430881866,
+        "lat": 10.6500422,
+        "lon": -61.5107497,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Subway",
+          "brand:wikidata": "Q244457",
+          "brand:wikipedia": "en:Subway (restaurant)",
+          "cuisine": "sandwich",
+          "name": "Subway",
+          "operator": "Subway",
+          "takeaway": "yes",
+          "website": "Independence Square"
+        }
+      },
+      "normalized_data": {
+        "name": "Subway",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6500422,
+        "longitude": -61.5107497,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "sandwich"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a88c2e6c8994f346cf28c07d5c364125e67e6e6f2f7e409d01f52d4449d9ea0b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1486309140",
+      "source_url": "https://www.openstreetmap.org/node/1486309140",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1486309140,
+        "lat": 10.6636983,
+        "lon": -61.5212255,
+        "tags": {
+          "addr:city": "Saint James",
+          "addr:country": "TT",
+          "addr:street": "Tragarete Road",
+          "name": "Indulge",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Indulge",
+        "address": "Tragarete Road, Saint James, TT",
+        "city": "Saint James",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6636983,
+        "longitude": -61.5212255,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9946546cfad4a8ebec507ce997392118a8f7a13aca710eb9ed763abcb1f9e35b",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1486309157",
+      "source_url": "https://www.openstreetmap.org/node/1486309157",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1486309157,
+        "lat": 10.6614274,
+        "lon": -61.5180048,
+        "tags": {
+          "addr:city": "Port of Spain",
+          "addr:street": "Tragarete Road",
+          "amenity": "bar",
+          "name": "Monix Lounge and Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Monix Lounge and Bar",
+        "address": "Tragarete Road, Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6614274,
+        "longitude": -61.5180048,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f4f25c80a9900d0f58c75d423e0cf8e1b462529f06437eedc5c82c4bdb0cc1b3",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1486309270",
+      "source_url": "https://www.openstreetmap.org/node/1486309270",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1486309270,
+        "lat": 10.6706882,
+        "lon": -61.5300103,
+        "tags": {
+          "addr:city": "Saint James",
+          "addr:country": "TT",
+          "addr:street": "Western Main Road",
+          "amenity": "fast_food",
+          "cuisine": "grilled",
+          "name": "Street Meats"
+        }
+      },
+      "normalized_data": {
+        "name": "Street Meats",
+        "address": "Western Main Road, Saint James, TT",
+        "city": "Saint James",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6706882,
+        "longitude": -61.5300103,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "grilled"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "217992b629de6e109f45e54aaa75fd0b44f9edaa48e25147fa69168c1f374eb9",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1518938815",
+      "source_url": "https://www.openstreetmap.org/node/1518938815",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1518938815,
+        "lat": 10.6818975,
+        "lon": -61.5237082,
+        "tags": {
+          "bicycle": "no",
+          "foot": "yes",
+          "name": "Beach Break",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Beach Break",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6818975,
+        "longitude": -61.5237082,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c3c30e6f9665ed04599445efbbde1d4e37b12f6c96e4bd671ee1b80303addb96",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1518938818",
+      "source_url": "https://www.openstreetmap.org/node/1518938818",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1518938818,
+        "lat": 10.6819283,
+        "lon": -61.5237839,
+        "tags": {
+          "bicycle": "no",
+          "foot": "yes",
+          "name": "Carnaby's",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Carnaby's",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6819283,
+        "longitude": -61.5237839,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f63717ec9e103863301355ea21fe1b3b004b1d0ce27940e5517cd441fa97626c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1518938828",
+      "source_url": "https://www.openstreetmap.org/node/1518938828",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1518938828,
+        "lat": 10.6818862,
+        "lon": -61.5239667,
+        "tags": {
+          "bicycle": "no",
+          "fixme": "check name",
+          "foot": "yes",
+          "name": "Green Eyes",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Green Eyes",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6818862,
+        "longitude": -61.5239667,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "51f288453483153d60a47d2f68a83036b8bd6725e9ac2ae159080ac5b318f891",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1518938829",
+      "source_url": "https://www.openstreetmap.org/node/1518938829",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1518938829,
+        "lat": 10.681849,
+        "lon": -61.5235452,
+        "tags": {
+          "amenity": "restaurant",
+          "bicycle": "no",
+          "cuisine": "chinese",
+          "foot": "yes",
+          "name": "Hawaiian Eye"
+        }
+      },
+      "normalized_data": {
+        "name": "Hawaiian Eye",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.681849,
+        "longitude": -61.5235452,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "547138397f27329ee68c85d1a097bdd9fe7cd5183305d7c76e6119934728cb00",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1518938840",
+      "source_url": "https://www.openstreetmap.org/node/1518938840",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1518938840,
+        "lat": 10.6818717,
+        "lon": -61.523611,
+        "tags": {
+          "amenity": "fast_food",
+          "bicycle": "no",
+          "cuisine": "kebab",
+          "foot": "yes",
+          "name": "Lawrence of Arabia"
+        }
+      },
+      "normalized_data": {
+        "name": "Lawrence of Arabia",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6818717,
+        "longitude": -61.523611,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "kebab"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "df0e0d49ea065f9b9dfeb4d23ceb8d5750034c75f6b96b262c04cf31e00882e7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1518938858",
+      "source_url": "https://www.openstreetmap.org/node/1518938858",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1518938858,
+        "lat": 10.6818441,
+        "lon": -61.5234612,
+        "tags": {
+          "amenity": "fast_food",
+          "bicycle": "no",
+          "brand": "Subway",
+          "brand:wikidata": "Q244457",
+          "brand:wikipedia": "en:Subway (restaurant)",
+          "cuisine": "sandwich",
+          "foot": "yes",
+          "name": "Subway",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Subway",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6818441,
+        "longitude": -61.5234612,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "sandwich"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "056f19d48b8cba26e085a1c9f7eb6fdda8add9b5eae4fb8c5e7b1042d4b63ca2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1518938866",
+      "source_url": "https://www.openstreetmap.org/node/1518938866",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1518938866,
+        "lat": 10.6819671,
+        "lon": -61.5239025,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "indian",
+          "name": "Tandoori Hut"
+        }
+      },
+      "normalized_data": {
+        "name": "Tandoori Hut",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6819671,
+        "longitude": -61.5239025,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "indian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5cfe50702f9fd944377ffc754c08f2429809abe0ad5dba5a2c537b0e55413ea9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1526206579",
+      "source_url": "https://www.openstreetmap.org/node/1526206579",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1526206579,
+        "lat": 10.6447673,
+        "lon": -61.4623065,
+        "tags": {
+          "amenity": "bar",
+          "fixme": "Check name",
+          "internet_access": "wlan",
+          "name": "Nari's Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Nari's Bar",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6447673,
+        "longitude": -61.4623065,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a557f17531ec9c2ac37d480c30f967ead199103844d794b0cd7065e3a7154958",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1530444935",
+      "source_url": "https://www.openstreetmap.org/node/1530444935",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1530444935,
+        "lat": 10.6677842,
+        "lon": -61.5093716,
+        "tags": {
+          "addr:city": "Port of Spain",
+          "addr:country": "TT",
+          "addr:housenumber": "13",
+          "addr:street": "Queen's Park East",
+          "amenity": "restaurant",
+          "cuisine": "indian",
+          "name": "Apsara",
+          "operator": "Apsara Restaurant Company Limited",
+          "phone": "868-623-7659"
+        }
+      },
+      "normalized_data": {
+        "name": "Apsara",
+        "address": "13 Queen's Park East, Port of Spain, TT",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6677842,
+        "longitude": -61.5093716,
+        "category": "restaurant",
+        "phone": "868-623-7659",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "indian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "391bc55787bb83ca67ff56020bf15e7070186c2bbbd32a70efa2c61d75541784",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1530444941",
+      "source_url": "https://www.openstreetmap.org/node/1530444941",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1530444941,
+        "lat": 10.6678149,
+        "lon": -61.5093001,
+        "tags": {
+          "addr:city": "Port of Spain",
+          "addr:country": "TT",
+          "addr:housenumber": "13",
+          "addr:street": "Queen's Park East",
+          "amenity": "restaurant",
+          "cuisine": "thai",
+          "name": "Tamnak Thai Restaurant",
+          "operator": "Apsara Restaurant Company Limited",
+          "phone": "868-625-0647"
+        }
+      },
+      "normalized_data": {
+        "name": "Tamnak Thai Restaurant",
+        "address": "13 Queen's Park East, Port of Spain, TT",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6678149,
+        "longitude": -61.5093001,
+        "category": "restaurant",
+        "phone": "868-625-0647",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "thai"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0b36d0a1dce02d60f956d23f6c5cd4e7786592c54a56a0fdda87e61e4c8cd3d6",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1536042218",
+      "source_url": "https://www.openstreetmap.org/node/1536042218",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1536042218,
+        "lat": 10.6845614,
+        "lon": -61.5225176,
+        "tags": {
+          "addr:city": "Maraval",
+          "addr:country": "TT",
+          "addr:housenumber": "15A",
+          "addr:street": "Saddle Road",
+          "amenity": "restaurant",
+          "name": "Adam's Bagels",
+          "phone": "868-622-2435",
+          "shop": "bakery"
+        }
+      },
+      "normalized_data": {
+        "name": "Adam's Bagels",
+        "address": "15A Saddle Road, Maraval, TT",
+        "city": "Maraval",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6845614,
+        "longitude": -61.5225176,
+        "category": "restaurant",
+        "phone": "868-622-2435",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "bakery"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b6f6f5a3dbb16581af369092e6950685054e51fddb8f7d19ae2db88f73fe5087",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1663444130",
+      "source_url": "https://www.openstreetmap.org/node/1663444130",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1663444130,
+        "lat": 10.6652176,
+        "lon": -61.5175412,
+        "tags": {
+          "addr:city": "Port of Spain",
+          "addr:country": "TT",
+          "addr:district": "Newtown",
+          "addr:housename": "Martin's Piano Bar",
+          "addr:housenumber": "85",
+          "addr:street": "Woodford Street",
+          "amenity": "restaurant",
+          "cuisine": "caribbean;regional;breakfast;local",
+          "name": "Faloma's Kitchen",
+          "opening_hours": "Jan-Dec: Mo-Sa 11:00-23:00",
+          "operator": "Denise Mark",
+          "phone": "+8686226405",
+          "smoking": "outside",
+          "website": "https://www.facebook.com/KaisoBluesCafe/"
+        }
+      },
+      "normalized_data": {
+        "name": "Faloma's Kitchen",
+        "address": "85 Woodford Street, Port of Spain, TT",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6652176,
+        "longitude": -61.5175412,
+        "category": "restaurant",
+        "phone": "+8686226405",
+        "website": "https://www.facebook.com/KaisoBluesCafe/",
+        "opening_hours": "Jan-Dec: Mo-Sa 11:00-23:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "caribbean;regional;breakfast;local"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5e244c45071be48dcb386c41c904a58b1b39cac3970d25daae3b86206b50c1d1",
+      "confidence": 0.95,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1763089873",
+      "source_url": "https://www.openstreetmap.org/node/1763089873",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1763089873,
+        "lat": 10.6587973,
+        "lon": -61.5316157,
+        "tags": {
+          "addr:city": "Port of Spain",
+          "addr:full": "MovieTowne Complex",
+          "amenity": "fast_food",
+          "brand": "Burger King",
+          "brand:wikidata": "Q177054",
+          "brand:wikipedia": "en:Burger King",
+          "cuisine": "burger",
+          "name": "Burger King",
+          "source": "KG Ground Survey 2015",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Burger King",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6587973,
+        "longitude": -61.5316157,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "61ccdab4de36e000300cebcb19032dd43f66eb1a6a4a1b779f34dd25486f673b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1763089876",
+      "source_url": "https://www.openstreetmap.org/node/1763089876",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1763089876,
+        "lat": 10.658804,
+        "lon": -61.5317364,
+        "tags": {
+          "addr:city": "Port of Spain",
+          "addr:full": "MovieTowne Complex",
+          "amenity": "fast_food",
+          "brand": "Popeyes",
+          "brand:wikidata": "Q1330910",
+          "brand:wikipedia": "en:Popeyes",
+          "cuisine": "chicken",
+          "name": "Popeyes",
+          "official_name": "Popeyes Louisiana Kitchen",
+          "source": "KG Ground Survey 2015",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Popeyes",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.658804,
+        "longitude": -61.5317364,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f3373b48be2dcf0ca2283c5bd1e307c6ae3940b32d4a03cd735b50505048a498",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1763089879",
+      "source_url": "https://www.openstreetmap.org/node/1763089879",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1763089879,
+        "lat": 10.6588691,
+        "lon": -61.5320328,
+        "tags": {
+          "addr:city": "Port of Spain",
+          "addr:full": "MovieTowne Complex",
+          "amenity": "fast_food",
+          "brand": "Subway",
+          "brand:wikidata": "Q244457",
+          "brand:wikipedia": "en:Subway (restaurant)",
+          "cuisine": "sandwich",
+          "name": "Subway",
+          "source": "KG Ground Survey 2015",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Subway",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6588691,
+        "longitude": -61.5320328,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "sandwich"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "11aff9f8d8eaa24acb9c1d671ebfad21d7b84f086c8b04db40904f2bf3aa0301",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1772029398",
+      "source_url": "https://www.openstreetmap.org/node/1772029398",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1772029398,
+        "lat": 10.6777744,
+        "lon": -61.5530427,
+        "tags": {
+          "addr:city": "Westmoorings",
+          "addr:street": "The Falls at West Mall",
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "brand:wikipedia": "en:KFC",
+          "cuisine": "chicken",
+          "delivery": "no",
+          "drive_through": "no",
+          "level": "2",
+          "name": "KFC",
+          "operator": "KFC",
+          "outdoor_seating": "yes",
+          "smoking": "no",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "The Falls at West Mall, Westmoorings, Trinidad & Tobago",
+        "city": "Westmoorings",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6777744,
+        "longitude": -61.5530427,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9f2bcbd6a52f12996c4d823389870dbdd4038d0b96832a5f9aaf9f233b044981",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1778290486",
+      "source_url": "https://www.openstreetmap.org/node/1778290486",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1778290486,
+        "lat": 10.6782814,
+        "lon": -61.5528297,
+        "tags": {
+          "addr:housename": "the Falls at West Mall",
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "level": "2",
+          "name": "Creole Kitchen",
+          "phone": "(868) 633-5251"
+        }
+      },
+      "normalized_data": {
+        "name": "Creole Kitchen",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6782814,
+        "longitude": -61.5528297,
+        "category": "restaurant",
+        "phone": "(868) 633-5251",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c64916d94420919ab3f40248056558de005e2b66bb073544186afe6572a60398",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1778290487",
+      "source_url": "https://www.openstreetmap.org/node/1778290487",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1778290487,
+        "lat": 10.6778805,
+        "lon": -61.5528717,
+        "tags": {
+          "addr:city": "Westmoorings",
+          "addr:housename": "The Falls at West Mall",
+          "addr:street": "The Falls at West Mall",
+          "amenity": "fast_food",
+          "brand": "Burger King",
+          "brand:wikidata": "Q177054",
+          "brand:wikipedia": "en:Burger King",
+          "cuisine": "burger",
+          "delivery": "no",
+          "drive_through": "no",
+          "level": "2",
+          "name": "Burger King",
+          "outdoor_seating": "yes",
+          "smoking": "no",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Burger King",
+        "address": "The Falls at West Mall, Westmoorings, Trinidad & Tobago",
+        "city": "Westmoorings",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6778805,
+        "longitude": -61.5528717,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6680a7106ab5fd7dc7435a927a5aef53815f375c60a1f63d14f67728713d2794",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1784640379",
+      "source_url": "https://www.openstreetmap.org/node/1784640379",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1784640379,
+        "lat": 10.6501729,
+        "lon": -61.5070338,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "burger",
+          "name": "Bos Burger"
+        }
+      },
+      "normalized_data": {
+        "name": "Bos Burger",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6501729,
+        "longitude": -61.5070338,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dc82f7f83dd9422921ada8517a2ea5508adf246d6e0ae1121d06839b5afb4c92",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1784640381",
+      "source_url": "https://www.openstreetmap.org/node/1784640381",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1784640381,
+        "lat": 10.6501406,
+        "lon": -61.5087087,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Church's Chicken",
+          "brand:wikidata": "Q1089932",
+          "cuisine": "chicken",
+          "name": "Church's Chicken",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Church's Chicken",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6501406,
+        "longitude": -61.5087087,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7a21af6f3b75cc5f288c9efc1bddc009d1f9a92d976f4437d6c7c10b869655f0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1784640383",
+      "source_url": "https://www.openstreetmap.org/node/1784640383",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1784640383,
+        "lat": 10.6501827,
+        "lon": -61.506798,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "burger",
+          "name": "Eat Something"
+        }
+      },
+      "normalized_data": {
+        "name": "Eat Something",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6501827,
+        "longitude": -61.506798,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "eb38d55aabf4b68e78decfb7295263f3c47433d0edbe8c93508b3c08b7677f95",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1784640385",
+      "source_url": "https://www.openstreetmap.org/node/1784640385",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1784640385,
+        "lat": 10.6501448,
+        "lon": -61.5085544,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "chicken",
+          "name": "Royal Castle"
+        }
+      },
+      "normalized_data": {
+        "name": "Royal Castle",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6501448,
+        "longitude": -61.5085544,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9aa83386ce4458cf634834a56f050db2087fa5e75824ee598d6bbef55dadea21",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1841123182",
+      "source_url": "https://www.openstreetmap.org/node/1841123182",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1841123182,
+        "lat": 10.6454109,
+        "lon": -61.4505921,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "Lee's"
+        }
+      },
+      "normalized_data": {
+        "name": "Lee's",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6454109,
+        "longitude": -61.4505921,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fe3ab6e556f541e64cf3be2bcc50b51fc28ce78dcf3fcd4a962b0a253a776fb1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1862255693",
+      "source_url": "https://www.openstreetmap.org/node/1862255693",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1862255693,
+        "lat": 10.6765649,
+        "lon": -61.510899,
+        "tags": {
+          "addr:city": "Saint Ann's",
+          "addr:country": "TT",
+          "addr:housenumber": "10",
+          "addr:street": "NookAvenue",
+          "name": "Normandie Hotel",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Normandie Hotel",
+        "address": "10 NookAvenue, Saint Ann's, TT",
+        "city": "Saint Ann's",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6765649,
+        "longitude": -61.510899,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8c45f32c39ca872b7360261b0a30bf67e38ea56a4e3f50d9938619bce5d1830d",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1862257301",
+      "source_url": "https://www.openstreetmap.org/node/1862257301",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1862257301,
+        "lat": 10.6659571,
+        "lon": -61.5240014,
+        "tags": {
+          "addr:street": "Tragarete Road",
+          "amenity": "pub",
+          "name": "Studio Club",
+          "smoking": "outside"
+        }
+      },
+      "normalized_data": {
+        "name": "Studio Club",
+        "address": "Tragarete Road, Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6659571,
+        "longitude": -61.5240014,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "69d599a3af909c5058fc649d98465ffb0c75214ac26f7bf4d3ddaf928f10a4ff",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1862257946",
+      "source_url": "https://www.openstreetmap.org/node/1862257946",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1862257946,
+        "lat": 10.6609604,
+        "lon": -61.5217142,
+        "tags": {
+          "addr:street": "Fitt Street",
+          "amenity": "pub",
+          "name": "Roscos"
+        }
+      },
+      "normalized_data": {
+        "name": "Roscos",
+        "address": "Fitt Street, Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6609604,
+        "longitude": -61.5217142,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "78ed882fcc239f650db615e9f47655d709f32445f055c405e92be92ce464b9d3",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1888841470",
+      "source_url": "https://www.openstreetmap.org/node/1888841470",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1888841470,
+        "lat": 10.6567378,
+        "lon": -61.5159091,
+        "tags": {
+          "amenity": "bar",
+          "name": "The Outside Woman Ultra Restaurant & Lounge"
+        }
+      },
+      "normalized_data": {
+        "name": "The Outside Woman Ultra Restaurant & Lounge",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6567378,
+        "longitude": -61.5159091,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c303cb6fbccc9759b1709f85392e98dd569d9515f912ba7c01a6cc63fdea49eb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1943585967",
+      "source_url": "https://www.openstreetmap.org/node/1943585967",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1943585967,
+        "lat": 10.6671126,
+        "lon": -61.5289247,
+        "tags": {
+          "addr:housename": "One Woodbrook Place",
+          "addr:housenumber": "Unit #6",
+          "addr:street": "Damian Street",
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "Annie's Chinese Restaurant & Take-Away",
+          "phone": "+8686283021"
+        }
+      },
+      "normalized_data": {
+        "name": "Annie's Chinese Restaurant & Take-Away",
+        "address": "Unit #6 Damian Street, Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6671126,
+        "longitude": -61.5289247,
+        "category": "restaurant",
+        "phone": "+8686283021",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "22c3b5e5b1923c34c837ab41af6aa511ae06848b73adb69b342b8bbdb07a33ee",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1943605344",
+      "source_url": "https://www.openstreetmap.org/node/1943605344",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1943605344,
+        "lat": 10.6671909,
+        "lon": -61.5279305,
+        "tags": {
+          "addr:street": "Damien Street",
+          "amenity": "restaurant",
+          "branch": "Doubles",
+          "brand": "Shakey's",
+          "brand:wikidata": "Q6134929",
+          "check_date": "2026-04-08",
+          "cuisine": "caribbean;indian;local",
+          "diet:vegetarian": "yes",
+          "name": "Shakey's Doubles",
+          "opening_hours": "Mo-Fr 07:00-10:00",
+          "self_service": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Shakey's Doubles",
+        "address": "Damien Street, Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6671909,
+        "longitude": -61.5279305,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Fr 07:00-10:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "caribbean;indian;local"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3275a3c459b91a53013286110d8abaa52706a7a98a86b4f73b6e7c5252992353",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1953842158",
+      "source_url": "https://www.openstreetmap.org/node/1953842158",
+      "source_last_checked_at": "2026-08-22T04:04:20.608Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1953842158,
+        "lat": 10.6577296,
+        "lon": -61.5328352,
+        "tags": {
+          "addr:housename": "Movietowne",
+          "amenity": "restaurant",
+          "name": "Zanzibar"
+        }
+      },
+      "normalized_data": {
+        "name": "Zanzibar",
+        "address": "Port of Spain, Trinidad & Tobago",
+        "city": "Port of Spain",
+        "region": "Port of Spain",
+        "parish": "Port of Spain",
+        "country": "Trinidad & Tobago",
+        "country_code": "TT",
+        "latitude": 10.6577296,
+        "longitude": -61.5328352,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "467602b7869da6a98b891a50de243b75399addfcf17b758f81158dd393196419",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    }
+  ]
+}

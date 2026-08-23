@@ -7,24 +7,26 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { cultureImages } from "@/data/culture-demo";
+import { useI18n } from "@/i18n/I18nContext";
 
 const Activity = () => {
+    const { t, formatNumber } = useI18n();
     const { user, roles } = useAuth();
     const primaryRole = roles[0] || "participant";
     const [filter, setFilter] = useState("all");
     const isOperator = ["brand", "merchant", "host", "agency", "admin"].includes(primaryRole);
     const filterOptions = isOperator
         ? [
-            { value: "all", label: "Everything" },
-            { value: "social", label: "People & proof" },
-            { value: "payout", label: "Payouts" },
-            { value: "inventory", label: "Inventory" },
-            { value: "system", label: "Operational" },
+            { value: "all", label: t("activity.everything") },
+            { value: "social", label: t("activity.peopleProof") },
+            { value: "payout", label: t("activity.payouts") },
+            { value: "inventory", label: t("activity.inventory") },
+            { value: "system", label: t("activity.operational") },
         ]
         : [
-            { value: "all", label: "Everything" },
-            { value: "social", label: "Your scene" },
-            { value: "proof", label: "Proof & rewards" },
+            { value: "all", label: t("activity.everything") },
+            { value: "social", label: t("activity.scene") },
+            { value: "proof", label: t("activity.proofRewards") },
             { value: "system", label: "Promorang" },
         ];
 
@@ -104,18 +106,18 @@ const Activity = () => {
                 <div className="relative mx-auto flex min-h-[330px] max-w-6xl items-end px-5 pb-10 pt-20 sm:px-8">
                     <div className="max-w-2xl">
                         <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400 backdrop-blur">
-                            <Radio className="h-3.5 w-3.5" /> Your signal
+                            <Radio className="h-3.5 w-3.5" /> {t("activity.eyebrow")}
                         </div>
                         <h1 className="text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">
-                            See what moved because you showed up.
+                            {t("activity.title")}
                         </h1>
                         <p className="mt-5 max-w-xl text-base leading-7 text-white/60">
-                            Proof confirmed, rewards earned, people responding, and moments drawing closer.
+                            {t("activity.copy")}
                         </p>
                     </div>
                     <div className="ml-auto hidden gap-8 pb-2 lg:flex">
-                        <div><p className="text-3xl font-black">{events?.length || 0}</p><p className="text-xs text-white/45">Recent signals</p></div>
-                        <div><p className="text-3xl font-black text-orange-400">{filteredEvents.length}</p><p className="text-xs text-white/45">In this view</p></div>
+                        <div><p className="text-3xl font-black">{formatNumber(events?.length || 0)}</p><p className="text-xs text-white/45">{t("activity.recent")}</p></div>
+                        <div><p className="text-3xl font-black text-orange-400">{formatNumber(filteredEvents.length)}</p><p className="text-xs text-white/45">{t("activity.view")}</p></div>
                     </div>
                 </div>
             </section>
@@ -140,31 +142,31 @@ const Activity = () => {
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center gap-4 py-24 text-white/50">
                         <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
-                        <p>Listening for your latest signals...</p>
+                        <p>{t("activity.listening")}</p>
                     </div>
                 ) : filteredEvents.length === 0 ? (
                     <div className="grid min-h-[380px] md:grid-cols-[1.25fr_.75fr]">
                         <div className="flex flex-col justify-end border-b border-white/10 p-7 md:border-b-0 md:border-r md:p-10">
                             <Sparkles className="mb-8 h-8 w-8 text-orange-400" />
-                            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">Nothing new in this view</p>
-                            <h2 className="max-w-lg text-3xl font-black leading-tight">Your next signal begins with one worthwhile action.</h2>
+                            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">{t("activity.nothing")}</p>
+                            <h2 className="max-w-lg text-3xl font-black leading-tight">{t("activity.emptyTitle")}</h2>
                             <p className="mt-4 max-w-lg text-sm leading-6 text-white/50">
-                                Join a moment, verify attendance, or follow a creator. The useful changes will collect here.
+                                {t("activity.emptyCopy")}
                             </p>
                             <div className="mt-7 flex flex-wrap gap-3">
                                 <Button asChild className="bg-orange-500 font-bold text-black hover:bg-orange-400">
-                                    <Link to="/discover">Find a moment <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                                    <Link to="/discover">{t("activity.find")} <ArrowRight className="ml-2 h-4 w-4" /></Link>
                                 </Button>
                                 <Button asChild variant="outline" className="border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white">
-                                    <Link to="/creators">Follow creators</Link>
+                                    <Link to="/creators">{t("activity.follow")}</Link>
                                 </Button>
                             </div>
                         </div>
                         <div className="space-y-5 p-7 md:p-10">
                             {[
-                                ["Choose", "Save or join something worth your time."],
-                                ["Prove", "Check in or complete the requested action."],
-                                ["Unlock", "See status, rewards, and new access arrive here."],
+                                [t("activity.choose"), t("activity.chooseCopy")],
+                                [t("activity.prove"), t("activity.proveCopy")],
+                                [t("activity.unlock"), t("activity.unlockCopy")],
                             ].map(([title, copy], index) => (
                                 <div key={title} className="flex gap-4">
                                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-orange-500/35 text-xs font-bold text-orange-400">{index + 1}</div>
@@ -172,7 +174,7 @@ const Activity = () => {
                                 </div>
                             ))}
                             <div className="flex items-center gap-2 border-t border-white/10 pt-5 text-xs text-white/40">
-                                <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Proof-bearing updates stay easy to spot.
+                                <CheckCircle2 className="h-4 w-4 text-emerald-400" /> {t("activity.proofNotice")}
                             </div>
                         </div>
                     </div>

@@ -10,6 +10,9 @@ import { useAuth } from '@/context/AuthContext';
 import { ResponsivePressable as Pressable } from '@/components/ResponsivePressable';
 import { apiRequest } from '@/lib/api';
 
+const MapViewComponent = MapView as any;
+const MarkerComponent = Marker as any;
+
 const types = [
   ['community', 'Community', 'people'],
   ['activation', 'Activation', 'flash'],
@@ -52,7 +55,6 @@ export default function CreateMomentScreen() {
         parent_moment_id: parentMomentId || null,
         creative_owner_id: user.id,
         money_source: 'host',
-        reward_pool_jmd: 0,
         moves: [{ title: parentMomentId ? 'Complete the sub-moment activity' : 'Take part in the Moment', proof_type: 'code', reward_amount_jmd: 0 }],
         payout_rules: [{ rule_type: 'per_action', amount_jmd: 0 }],
         max_capacity: capacity ? parseInt(capacity, 10) : null,
@@ -102,21 +104,21 @@ export default function CreateMomentScreen() {
         </View>
 
         <View style={styles.mapContainer}>
-          <MapView
+          <MapViewComponent
             style={styles.map}
             initialRegion={mapRegion}
             onRegionChangeComplete={setMapRegion}
           >
-            <Marker
+            <MarkerComponent
               coordinate={markerCoord}
               draggable
-              onDragEnd={(e) => {
+              onDragEnd={(e: any) => {
                 const { latitude, longitude } = e.nativeEvent.coordinate;
                 setMarkerCoord({ latitude, longitude });
                 setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
               }}
             />
-          </MapView>
+          </MapViewComponent>
           <Text style={styles.mapHint}>Drag the pin to set your exact venue location</Text>
         </View>
 

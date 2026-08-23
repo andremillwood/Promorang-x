@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Sparkles, Trophy, Users, DollarSign, Award, ArrowUpRight, ShieldCheck, Flame, Layers } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function SeasonShowdownPage() {
+  const { t, formatNumber } = useI18n();
   const [seasons] = useState([
     {
       id: "hub-001",
@@ -52,27 +54,27 @@ export default function SeasonShowdownPage() {
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-purple-400/40 bg-purple-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-purple-300">
               <Trophy className="h-4 w-4 text-purple-400" />
-              Digital Franchise Director Engine
+              {t("seasonShowdownPage.badge")}
             </div>
 
             <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-tight sm:text-6xl text-white">
-              Run Your Own Branded Season. <br />
+              {t("seasonShowdownPage.heroTitle1")} <br />
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
-                We Finance Rewards. You Keep 80%.
+                {t("seasonShowdownPage.heroTitle2")}
               </span>
             </h1>
 
             <p className="mt-4 max-w-2xl text-base text-white/70">
-              Transform your audience reach into an exclusive Digital Franchise. Curate brand drops, split advertiser budgets 80/20, and issue 1:1 cash-backed withdrawable Gems ($1 Gem = $1.00 USD).
+              {t("seasonShowdownPage.heroSubtitle")}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
               <button className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95">
-                Apply for Franchise Director Status
+                {t("seasonShowdownPage.applyStatus")}
                 <ArrowUpRight className="h-4 w-4" />
               </button>
               <div className="flex items-center gap-2 text-xs text-white/60 px-4 py-3 border border-white/10 rounded-xl bg-white/5">
-                <ShieldCheck className="h-4 w-4 text-emerald-400" /> 100% Cash Solvency Escrow Guaranteed
+                <ShieldCheck className="h-4 w-4 text-emerald-400" /> {t("seasonShowdownPage.escrowGuaranteed")}
               </div>
             </div>
           </div>
@@ -83,28 +85,28 @@ export default function SeasonShowdownPage() {
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <div className="flex items-center gap-3 text-purple-400">
               <DollarSign className="h-6 w-6" />
-              <span className="text-xs font-bold uppercase tracking-wider text-white/50">Revenue Split</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-white/50">{t("seasonShowdownPage.revenueSplit")}</span>
             </div>
-            <h3 className="mt-3 text-2xl font-black text-white">80% Director / 20% Platform</h3>
-            <p className="mt-1 text-xs text-white/60">You keep $80 out of every $100 brand ad budget allocated to your Hub.</p>
+            <h3 className="mt-3 text-2xl font-black text-white">{t("seasonShowdownPage.revenueSplitRatio")}</h3>
+            <p className="mt-1 text-xs text-white/60">{t("seasonShowdownPage.revenueSplitDesc")}</p>
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <div className="flex items-center gap-3 text-pink-400">
               <Layers className="h-6 w-6" />
-              <span className="text-xs font-bold uppercase tracking-wider text-white/50">Turnkey Templates</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-white/50">{t("seasonShowdownPage.turnkeyTemplates")}</span>
             </div>
-            <h3 className="mt-3 text-2xl font-black text-white">20 Pre-Built Drops</h3>
-            <p className="mt-1 text-xs text-white/60">Ready-to-launch drop templates for TikTok, Instagram, and surveys.</p>
+            <h3 className="mt-3 text-2xl font-black text-white">{t("seasonShowdownPage.turnkeyDrops")}</h3>
+            <p className="mt-1 text-xs text-white/60">{t("seasonShowdownPage.turnkeyDesc")}</p>
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <div className="flex items-center gap-3 text-emerald-400">
               <Flame className="h-6 w-6" />
-              <span className="text-xs font-bold uppercase tracking-wider text-white/50">Downside Guarantee</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-white/50">{t("seasonShowdownPage.downsideGuarantee")}</span>
             </div>
-            <h3 className="mt-3 text-2xl font-black text-white">Zero Capital Risk</h3>
-            <p className="mt-1 text-xs text-white/60">Free 50k user notification blast if you don't hit 500 completers.</p>
+            <h3 className="mt-3 text-2xl font-black text-white">{t("seasonShowdownPage.zeroCapitalRisk")}</h3>
+            <p className="mt-1 text-xs text-white/60">{t("seasonShowdownPage.downsideDesc")}</p>
           </div>
         </div>
 
@@ -112,10 +114,10 @@ export default function SeasonShowdownPage() {
         <section className="mt-12">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-purple-400">Active Operator Hubs</p>
-              <h2 className="text-2xl font-black text-white">Season Showdown Leaderboard</h2>
+              <p className="text-xs font-bold uppercase tracking-widest text-purple-400">{t("seasonShowdownPage.activeOperatorHubs")}</p>
+              <h2 className="text-2xl font-black text-white">{t("seasonShowdownPage.leaderboardTitle")}</h2>
             </div>
-            <span className="text-xs text-white/50">3 Active Directors This Season</span>
+            <span className="text-xs text-white/50">{t("seasonShowdownPage.activeDirectorsCount", { count: formatNumber(3) })}</span>
           </div>
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -125,7 +127,7 @@ export default function SeasonShowdownPage() {
                   <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white backdrop-blur-md">
                     {s.category}
                   </span>
-                  <span className="text-xs font-mono font-bold text-white/90">{s.dropsCount} Active Drops</span>
+                  <span className="text-xs font-mono font-bold text-white/90">{t("seasonShowdownPage.activeDropsCount", { count: formatNumber(s.dropsCount) })}</span>
                 </div>
 
                 <div className="p-6">
@@ -139,21 +141,21 @@ export default function SeasonShowdownPage() {
 
                   <div className="mt-6 space-y-3 border-t border-white/10 pt-4 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-white/60">Total Brand Budget</span>
+                      <span className="text-white/60">{t("seasonShowdownPage.totalBrandBudget")}</span>
                       <span className="font-mono font-bold text-white">{s.totalBudget}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/60">Director Net Earnings (80%)</span>
+                      <span className="text-white/60">{t("seasonShowdownPage.directorNetEarnings")}</span>
                       <span className="font-mono font-bold text-emerald-400">{s.directorShare}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/60">Total Completers</span>
-                      <span className="font-bold text-purple-300">{s.completers.toLocaleString()} Users</span>
+                      <span className="text-white/60">{t("seasonShowdownPage.totalCompleters")}</span>
+                      <span className="font-bold text-purple-300">{t("seasonShowdownPage.completersUsers", { count: formatNumber(s.completers) })}</span>
                     </div>
                   </div>
 
                   <button className="mt-6 w-full rounded-xl border border-purple-500/30 bg-purple-500/10 py-2.5 text-xs font-bold text-purple-300 transition hover:bg-purple-500/20">
-                    Explore Hub Drops
+                    {t("seasonShowdownPage.exploreHubDrops")}
                   </button>
                 </div>
               </div>
@@ -165,3 +167,4 @@ export default function SeasonShowdownPage() {
     </main>
   );
 }
+

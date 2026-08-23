@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, BookOpen, Clock, Compass, MapPin, Repeat2, Search, Sparkles, TrendingUp } from "lucide-react";
 import { getSiteUrl, slugifySegment } from "@/lib/discovery";
+import { useI18n } from "@/i18n/I18nContext";
 
 type PublicMoment = Tables<"view_public_moment_directory">;
 
@@ -36,6 +37,7 @@ const exampleMoments = demoMoments.slice(0, 3).map((moment) => ({
 }));
 
 const ExploreMoments = () => {
+  const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const requestedCategory = searchParams.get("category");
@@ -165,17 +167,17 @@ const ExploreMoments = () => {
             <div className="relative flex min-h-[430px] flex-col justify-end p-6 sm:p-9 lg:p-12">
               <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-black/45 px-3 py-1.5 backdrop-blur">
                 <Compass className="h-4 w-4 text-primary" />
-                <span className="text-xs font-black uppercase tracking-[0.18em] text-zinc-200">Moment discovery</span>
+                <span className="text-xs font-black uppercase tracking-[0.18em] text-zinc-200">{t("exploreMoments.badge")}</span>
               </div>
               <h1 className="max-w-3xl text-5xl font-black uppercase leading-[0.84] tracking-[-0.065em] text-white sm:text-7xl">
-                Go where the<br /><span className="text-primary">energy is.</span>
+                {t("exploreMoments.heroTitle")}
               </h1>
               <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                 <p className="max-w-xl text-base leading-7 text-white/65">
-                  Find live rooms, recurring rituals, and cultural experiences worth leaving the feed for.
+                  {t("exploreMoments.heroSubtitle")}
                 </p>
                 <div className="flex gap-6 border-l border-primary/50 pl-5">
-                  {[["Live", liveCount], ["Recurring", recurringCount], ["Previews", exampleMoments.length]].map(([label, value]) => (
+                  {[[t("exploreMoments.live"), liveCount], [t("exploreMoments.recurring"), recurringCount], [t("exploreMoments.previews"), exampleMoments.length]].map(([label, value]) => (
                     <div key={label}>
                       <p className="text-2xl font-black">{value}</p>
                       <p className="text-[10px] font-black uppercase tracking-[0.15em] text-white/40">{label}</p>
@@ -193,7 +195,7 @@ const ExploreMoments = () => {
                 <Input
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Search title, place, host, brand..."
+                  placeholder={t("exploreMoments.searchPlaceholder")}
                   className="h-12 rounded-2xl pl-11"
                 />
               </div>

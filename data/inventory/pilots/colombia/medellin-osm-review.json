@@ -1,0 +1,2163 @@
+{
+  "schema_version": 2,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Medellín, Colombia",
+    "country_code": "CO",
+    "country_slug": "colombia",
+    "city_slug": "medellin",
+    "collected_at": "2026-08-22T04:04:40.222Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "rules": {
+    "auto_publish": false,
+    "minimum_venue_confidence": 0.8,
+    "moment_expiry_hours": 24,
+    "targets": {
+      "venues": 30,
+      "discoveries": 20,
+      "moments": 10,
+      "polls": 4,
+      "scenes": 3
+    }
+  },
+  "city": {
+    "country_code": "CO",
+    "country_slug": "colombia",
+    "country": "Colombia",
+    "city_slug": "medellin",
+    "city": "Medellín",
+    "region": "Antioquia",
+    "currency": "COP",
+    "timezone": "America/Bogota",
+    "bbox": "6.1500,-75.6500,6.3600,-75.4800",
+    "launch_stage": "pilot",
+    "poll_templates": [
+      "¿Qué barrio de Medellín tiene la escena de fin de semana más fuerte?",
+      "¿Qué espacio creativo merece una señal más amplia?",
+      "¿Qué lugar independiente debería organizar un Momento?",
+      "¿Qué debería activar Promorang en Medellín?"
+    ]
+  },
+  "poll_templates": [
+    {
+      "key": "co-medellin-1",
+      "question": "¿Qué barrio de Medellín tiene la escena de fin de semana más fuerte?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "co-medellin-2",
+      "question": "¿Qué espacio creativo merece una señal más amplia?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "co-medellin-3",
+      "question": "¿Qué lugar independiente debería organizar un Momento?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "co-medellin-4",
+      "question": "¿Qué debería activar Promorang en Medellín?",
+      "status": "draft",
+      "category": "City Direction",
+      "threshold_for_moment": 25
+    }
+  ],
+  "stats": {
+    "source_elements": 3228,
+    "candidates": 50,
+    "pending_review": 3,
+    "needs_research": 47
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/335679006",
+      "source_url": "https://www.openstreetmap.org/node/335679006",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 335679006,
+        "lat": 6.206573,
+        "lon": -75.5661537,
+        "tags": {
+          "addr:housenumber": "7-10",
+          "addr:street": "Carrera 36",
+          "internet_access": "wlan",
+          "name": "Casa Kiwi",
+          "phone": "+57-4268-2668",
+          "tourism": "hostel",
+          "website": "https://www.casakiwi.net/"
+        }
+      },
+      "normalized_data": {
+        "name": "Casa Kiwi",
+        "address": "7-10 Carrera 36, Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.206573,
+        "longitude": -75.5661537,
+        "category": "accommodation",
+        "phone": "+57-4268-2668",
+        "website": "https://www.casakiwi.net/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hostel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "71acb4b8111c58850f002cbe0bc4a40b84a60d239964aae96e5f3e144ee1ec16",
+      "confidence": 0.9,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/338172289",
+      "source_url": "https://www.openstreetmap.org/node/338172289",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 338172289,
+        "lat": 6.1840233,
+        "lon": -75.5786901,
+        "tags": {
+          "addr:city": "Medellin",
+          "addr:country": "CO",
+          "amenity": "fast_food",
+          "brand": "Presto",
+          "brand:wikidata": "Q116935976",
+          "cuisine": "american",
+          "name": "Presto",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Presto",
+        "address": "Medellin, CO",
+        "city": "Medellin",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1840233,
+        "longitude": -75.5786901,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "american"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1bf038dd6cd28e3d08e9316cd7155751d85ae377a27dc69cae20f6e886afac9e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/358110291",
+      "source_url": "https://www.openstreetmap.org/node/358110291",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 358110291,
+        "lat": 6.2523954,
+        "lon": -75.5672716,
+        "tags": {
+          "addr:street": "Calle 53",
+          "name": "Hotel Nutibara",
+          "operator": "Hotel Nutibara",
+          "source": "Kaart Ground Survey 2018",
+          "tourism": "hotel",
+          "wikidata": "Q5903410",
+          "wikimedia_commons": "Category:Hotel Nutibara",
+          "wikipedia": "es:Hotel Nutibara"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Nutibara",
+        "address": "Calle 53, Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2523954,
+        "longitude": -75.5672716,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "80a812ee547a7aff1f09946218eaaa029fc490248080e5be6d5d98f848aefe52",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/359951618",
+      "source_url": "https://www.openstreetmap.org/node/359951618",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 359951618,
+        "lat": 6.2407805,
+        "lon": -75.5863053,
+        "tags": {
+          "amenity": "cinema",
+          "name": "Cinecolombia Unicentro",
+          "wheelchair": "limited"
+        }
+      },
+      "normalized_data": {
+        "name": "Cinecolombia Unicentro",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2407805,
+        "longitude": -75.5863053,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cinema"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5bf69873a4622f0032397aa0f2bd1e1ff096e84aedf12d0070c5bf067ff2ca81",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/414901440",
+      "source_url": "https://www.openstreetmap.org/node/414901440",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 414901440,
+        "lat": 6.2323626,
+        "lon": -75.6039942,
+        "tags": {
+          "amenity": "cinema",
+          "name": "Cinecolombia Los Molinos",
+          "operator": "Cinecolombia"
+        }
+      },
+      "normalized_data": {
+        "name": "Cinecolombia Los Molinos",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2323626,
+        "longitude": -75.6039942,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cinema"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "622791428fbafa5be04ab312c9274dc36cd9e8cf54481974cca39d862c356123",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/416641976",
+      "source_url": "https://www.openstreetmap.org/node/416641976",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 416641976,
+        "lat": 6.2087387,
+        "lon": -75.5594486,
+        "tags": {
+          "addr:city": "Medellín",
+          "addr:full": "Cr 30 9A-47",
+          "internet_access": "yes",
+          "internet_access:fee": "no",
+          "name": "Hotel Best Western Sky Medellín",
+          "name:es": "Best Western Sky Hotel Medellin",
+          "operator": "Sky Plus Medellín S.A.S",
+          "phone": "+57 4 4445546",
+          "rooms": "34",
+          "smoking": "separated",
+          "stars": "4",
+          "tourism": "hotel",
+          "website": "https://www.skymedellin.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Best Western Sky Medellín",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2087387,
+        "longitude": -75.5594486,
+        "category": "accommodation",
+        "phone": "+57 4 4445546",
+        "website": "https://www.skymedellin.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5a00c3293fcf3ce6556a7044f82d8bca14641d6b81c09f7703225ac9302bea08",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/416780700",
+      "source_url": "https://www.openstreetmap.org/node/416780700",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 416780700,
+        "lat": 6.1981217,
+        "lon": -75.5588491,
+        "tags": {
+          "amenity": "cinema",
+          "name": "Cinemark El Tesoro",
+          "operator": "Cinemark",
+          "website": "https://www.cinemark.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Cinemark El Tesoro",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1981217,
+        "longitude": -75.5588491,
+        "category": "other",
+        "phone": null,
+        "website": "https://www.cinemark.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cinema"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bfc72782e9b4d26d7ac16b4ef72a729452a192da46dc8d44019ee876aa8992b5",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/440816384",
+      "source_url": "https://www.openstreetmap.org/node/440816384",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 440816384,
+        "lat": 6.2450033,
+        "lon": -75.5954125,
+        "tags": {
+          "addr:city": "Medellín",
+          "addr:housenumber": "74-09",
+          "addr:street": "Avenida Nutibara",
+          "amenity": "fast_food",
+          "check_date": "2025-09-01",
+          "cuisine": "burger",
+          "name": "El Corral"
+        }
+      },
+      "normalized_data": {
+        "name": "El Corral",
+        "address": "74-09 Avenida Nutibara, Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2450033,
+        "longitude": -75.5954125,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b91e293805be1d08ea32434fb033ee9f144856d01879c1cb97e9fa30002d8e02",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/465162168",
+      "source_url": "https://www.openstreetmap.org/node/465162168",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 465162168,
+        "lat": 6.2089438,
+        "lon": -75.5673795,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "J&C Delicias"
+        }
+      },
+      "normalized_data": {
+        "name": "J&C Delicias",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2089438,
+        "longitude": -75.5673795,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6c89f671b0b6fd13826be911fb2ca28afcf32c520a4e6dee5f351be6740b1f4c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/465162169",
+      "source_url": "https://www.openstreetmap.org/node/465162169",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 465162169,
+        "lat": 6.2075615,
+        "lon": -75.5679974,
+        "tags": {
+          "amenity": "bar",
+          "name": "Triada"
+        }
+      },
+      "normalized_data": {
+        "name": "Triada",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2075615,
+        "longitude": -75.5679974,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8b03f1726a1a6780e85cc621178c9c4a0bab80669eaf75ee74871c4d7deabcf8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/465162492",
+      "source_url": "https://www.openstreetmap.org/node/465162492",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 465162492,
+        "lat": 6.2076127,
+        "lon": -75.5679803,
+        "tags": {
+          "amenity": "bar",
+          "name": "Discoteca Oz"
+        }
+      },
+      "normalized_data": {
+        "name": "Discoteca Oz",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2076127,
+        "longitude": -75.5679803,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c1012208c062462a785fc9e5eed46c1082fe8c3d13f46a723ab667c8485bbca1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/465164256",
+      "source_url": "https://www.openstreetmap.org/node/465164256",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 465164256,
+        "lat": 6.2084831,
+        "lon": -75.5677829,
+        "tags": {
+          "amenity": "bar",
+          "name": "Barcelona Restaurante Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Barcelona Restaurante Bar",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2084831,
+        "longitude": -75.5677829,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a732a3a4abb50d0e2e712da9d76140e02bbd03b0a403cc638929a0b1749cc906",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/465164659",
+      "source_url": "https://www.openstreetmap.org/node/465164659",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 465164659,
+        "lat": 6.2088671,
+        "lon": -75.5671048,
+        "tags": {
+          "amenity": "bar",
+          "name": "Thaico"
+        }
+      },
+      "normalized_data": {
+        "name": "Thaico",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2088671,
+        "longitude": -75.5671048,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f0740f8079521b880cf576a95c828ba04b4bf800b1b28ff16a80c1c01050a595",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/465165011",
+      "source_url": "https://www.openstreetmap.org/node/465165011",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 465165011,
+        "lat": 6.2091643,
+        "lon": -75.5687571,
+        "tags": {
+          "amenity": "bar",
+          "name": "Tropical Cocktails"
+        }
+      },
+      "normalized_data": {
+        "name": "Tropical Cocktails",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2091643,
+        "longitude": -75.5687571,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "03644ed2391f3c0bddd8decd3e8214246e7333aa4bf7c52095ab6d9d8cbc4a00",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/476773825",
+      "source_url": "https://www.openstreetmap.org/node/476773825",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 476773825,
+        "lat": 6.199855,
+        "lon": -75.5756922,
+        "tags": {
+          "amenity": "cinema",
+          "name": "CineColombia Oviedo"
+        }
+      },
+      "normalized_data": {
+        "name": "CineColombia Oviedo",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.199855,
+        "longitude": -75.5756922,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cinema"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bb7502d50e84247a30079585125069a71246a9bd78a77734a200a2de0fb14d8d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/491835977",
+      "source_url": "https://www.openstreetmap.org/node/491835977",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 491835977,
+        "lat": 6.2447062,
+        "lon": -75.5932427,
+        "tags": {
+          "name": "Casa Hotel Laureles",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Casa Hotel Laureles",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2447062,
+        "longitude": -75.5932427,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fd12bdb80dcb4472982dab1897060a0f7f93a72c558d4ff7ed383294dcedf8b4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/567074462",
+      "source_url": "https://www.openstreetmap.org/node/567074462",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 567074462,
+        "lat": 6.2167681,
+        "lon": -75.5982786,
+        "tags": {
+          "addr:street": "Diagonal 75B",
+          "amenity": "fast_food",
+          "brand:wikipedia": "en:Burger King",
+          "name": "Papa John's",
+          "source": "Kaart Ground Survey 2018"
+        }
+      },
+      "normalized_data": {
+        "name": "Papa John's",
+        "address": "Diagonal 75B, Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2167681,
+        "longitude": -75.5982786,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "37d49e18db4600d327485b182a2c76c558e69a74eafdb950b280ddd0ef542a28",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/567074568",
+      "source_url": "https://www.openstreetmap.org/node/567074568",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 567074568,
+        "lat": 6.1995319,
+        "lon": -75.5739113,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "McDonald's",
+          "brand:wikidata": "Q38076",
+          "cuisine": "burger",
+          "internet_access": "wlan",
+          "name": "McDonald's",
+          "name:es": "McDonald's poblado",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "McDonald's",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1995319,
+        "longitude": -75.5739113,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "51e6f8fb696f3b84404f96d32149ad65c1e047b2fd27191dad9a541317e488e3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/567074909",
+      "source_url": "https://www.openstreetmap.org/node/567074909",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 567074909,
+        "lat": 6.1791251,
+        "lon": -75.588128,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "McDonald's",
+          "brand:wikidata": "Q38076",
+          "cuisine": "burger",
+          "internet_access": "wlan",
+          "name": "McDonald's",
+          "name:es": "McDonald's las vegas",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "McDonald's",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1791251,
+        "longitude": -75.588128,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "28106816a828f22ae6181975d820e891aa59a00bef31dd3540afd9abc919f5cb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/567077811",
+      "source_url": "https://www.openstreetmap.org/node/567077811",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 567077811,
+        "lat": 6.2450208,
+        "lon": -75.5950116,
+        "tags": {
+          "addr:city": "Medellín",
+          "addr:street": "Transversal 39B",
+          "alt_name": "Crepes & Waffles",
+          "amenity": "restaurant",
+          "branch": "Laureles",
+          "brand": "Crepes & Waffles",
+          "brand:wikidata": "Q5184238",
+          "check_date": "2025-09-02",
+          "cuisine": "crepe;ice_cream",
+          "name": "Crepes & Waffles",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Crepes & Waffles",
+        "address": "Transversal 39B, Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2450208,
+        "longitude": -75.5950116,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "crepe;ice_cream"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f74cc835d7c356458253a7fe3700928101444dec699fcde2f6d2795fbe6d57f9",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/567079339",
+      "source_url": "https://www.openstreetmap.org/node/567079339",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 567079339,
+        "lat": 6.2330708,
+        "lon": -75.6036337,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Crepes & Waffles"
+        }
+      },
+      "normalized_data": {
+        "name": "Crepes & Waffles",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2330708,
+        "longitude": -75.6036337,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5fbe7a59668bce5a439f86908d9750cee50bc895d0f2f2b8baeee67e3763e45a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/567079715",
+      "source_url": "https://www.openstreetmap.org/node/567079715",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 567079715,
+        "lat": 6.2328148,
+        "lon": -75.6035994,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "J&C Delicias"
+        }
+      },
+      "normalized_data": {
+        "name": "J&C Delicias",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2328148,
+        "longitude": -75.6035994,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "aedcb6a9bbf1b824587febfadae1b753987e35cf12af8fedd6d57cb66f2f7006",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/567080024",
+      "source_url": "https://www.openstreetmap.org/node/567080024",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 567080024,
+        "lat": 6.2309453,
+        "lon": -75.6016644,
+        "tags": {
+          "amenity": "restaurant",
+          "fixme": "verify location (was merged into turning circle road)",
+          "name": "Balcones de la 80",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Balcones de la 80",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2309453,
+        "longitude": -75.6016644,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "29bf6ef73930388e72c5ae218ce29d82d51fa111bc1139cf78342e866f382c3b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/567084411",
+      "source_url": "https://www.openstreetmap.org/node/567084411",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 567084411,
+        "lat": 6.2522446,
+        "lon": -75.5644465,
+        "tags": {
+          "amenity": "theatre",
+          "name": "Lido",
+          "wheelchair": "limited",
+          "wikidata": "Q3776945",
+          "wikimedia_commons": "Category:Teatro Lido",
+          "wikipedia": "es:Teatro Lido"
+        }
+      },
+      "normalized_data": {
+        "name": "Lido",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2522446,
+        "longitude": -75.5644465,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "theatre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "664e15a99b10f913909b9740de36603fdcaed208007ce01ba24787ff596501d0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/571821435",
+      "source_url": "https://www.openstreetmap.org/node/571821435",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 571821435,
+        "lat": 6.2094353,
+        "lon": -75.5690601,
+        "tags": {
+          "name": "ArtHotel",
+          "tourism": "hotel",
+          "url": "http://arthotel.com.co"
+        }
+      },
+      "normalized_data": {
+        "name": "ArtHotel",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2094353,
+        "longitude": -75.5690601,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "69a98c1f27d28685c7ac428774138fc11a53314f8415e360ce0a3f9a1598e27d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/813330469",
+      "source_url": "https://www.openstreetmap.org/node/813330469",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 813330469,
+        "lat": 6.2458409,
+        "lon": -75.5921946,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Manyare"
+        }
+      },
+      "normalized_data": {
+        "name": "Manyare",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2458409,
+        "longitude": -75.5921946,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "103761cab850cf41eb906c919f76965e058e76071fb40f7bce7c93aed7f10ff0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/847830980",
+      "source_url": "https://www.openstreetmap.org/node/847830980",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 847830980,
+        "lat": 6.2622292,
+        "lon": -75.5770971,
+        "tags": {
+          "amenity": "food_court",
+          "cuisine": "regional",
+          "faculty": "arts",
+          "name": "Cafeteria Central",
+          "opening_hours": "Mo-Fr 05:30-18:50; Sa 06:00-14:00"
+        }
+      },
+      "normalized_data": {
+        "name": "Cafeteria Central",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2622292,
+        "longitude": -75.5770971,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Fr 05:30-18:50; Sa 06:00-14:00",
+        "social_profiles": {},
+        "tags": [
+          "food_court",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5c679df43f2e9d102497209cfed6a09e87841059aba5c616400ca2bf7d6e7921",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/852383931",
+      "source_url": "https://www.openstreetmap.org/node/852383931",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 852383931,
+        "lat": 6.2564303,
+        "lon": -75.5786652,
+        "tags": {
+          "fee": "no",
+          "name": "Centro Cultural Facultad de Artes U de A",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Centro Cultural Facultad de Artes U de A",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2564303,
+        "longitude": -75.5786652,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6c20a6e074b29a38b3808f4c53cab974bf4f7501912c5ce660c8585bd5194c3b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1014049769",
+      "source_url": "https://www.openstreetmap.org/node/1014049769",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1014049769,
+        "lat": 6.2522658,
+        "lon": -75.5852276,
+        "tags": {
+          "amenity": "cinema",
+          "name": "Multicine Jumbo 65 - Royal Films"
+        }
+      },
+      "normalized_data": {
+        "name": "Multicine Jumbo 65 - Royal Films",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2522658,
+        "longitude": -75.5852276,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cinema"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ad881b6b35cbbcf4232baf7b618c5997824125de527a2c06e7faee44378cbbad",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1116129168",
+      "source_url": "https://www.openstreetmap.org/node/1116129168",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1116129168,
+        "lat": 6.2624574,
+        "lon": -75.6102752,
+        "tags": {
+          "internet_access": "yes",
+          "internet_access:fee": "yes",
+          "name": "Casa Kleper",
+          "phone": "+57 4 5800548",
+          "smoking": "yes",
+          "stars": "1",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Casa Kleper",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2624574,
+        "longitude": -75.6102752,
+        "category": "accommodation",
+        "phone": "+57 4 5800548",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3f75feda9c472f6b7997800067485bdf0ed293341a1ed968f4aa6ce10069ef36",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1180065922",
+      "source_url": "https://www.openstreetmap.org/node/1180065922",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1180065922,
+        "lat": 6.2108162,
+        "lon": -75.5952196,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "Pollo asado",
+          "name": "Claudio Express Pollos",
+          "opening_hours": "Mo-Su 07:00-20:00"
+        }
+      },
+      "normalized_data": {
+        "name": "Claudio Express Pollos",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2108162,
+        "longitude": -75.5952196,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Su 07:00-20:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "Pollo asado"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "12e79792320007fefe021f2b619fdb957c33092efdbe812cb6be1cbbcfcc6e16",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1180065938",
+      "source_url": "https://www.openstreetmap.org/node/1180065938",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1180065938,
+        "lat": 6.2112934,
+        "lon": -75.595284,
+        "tags": {
+          "amenity": "food_court",
+          "name": "Soft Touch",
+          "opening_hours": "Mo-Su 07:00-20:00",
+          "smoking": "no",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Soft Touch",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2112934,
+        "longitude": -75.595284,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Su 07:00-20:00",
+        "social_profiles": {},
+        "tags": [
+          "food_court"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "aff8f020d5be4a7848f076e511a5df0ea8db23c229c1e60b57b3ce8c534b7ee7",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1180065962",
+      "source_url": "https://www.openstreetmap.org/node/1180065962",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1180065962,
+        "lat": 6.2145048,
+        "lon": -75.6019784,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "Tradicional Colombiana",
+          "name": "Restaurante Antojitos",
+          "opening_hours": "Mo-Su 08:00-20:00",
+          "smoking": "no",
+          "stars": "0",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Restaurante Antojitos",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2145048,
+        "longitude": -75.6019784,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Su 08:00-20:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "Tradicional Colombiana"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fb730bcbd5ab8f4ef858ee5f9df518fc442206f6509d8a2be4c9710f3a13b822",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1180066005",
+      "source_url": "https://www.openstreetmap.org/node/1180066005",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1180066005,
+        "lat": 6.2110855,
+        "lon": -75.595217,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "pizza",
+          "name": "Pizzotas",
+          "opening_hours": "Mo-Su 07:00-20:00"
+        }
+      },
+      "normalized_data": {
+        "name": "Pizzotas",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2110855,
+        "longitude": -75.595217,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Su 07:00-20:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7dd9d7dbbe952dfca41d74105e123a32803fb68d66e78a057bbf89e34eb760e4",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1193707998",
+      "source_url": "https://www.openstreetmap.org/node/1193707998",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1193707998,
+        "lat": 6.1592578,
+        "lon": -75.6034454,
+        "tags": {
+          "name": "Alquiler de vestidos",
+          "opening_hours": "Mo-Su 07:00-20:00",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Alquiler de vestidos",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1592578,
+        "longitude": -75.6034454,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Su 07:00-20:00",
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "be8b5189853901ca4b462600a9796257f6f683cfe8597081928793a4600a9e76",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1197785481",
+      "source_url": "https://www.openstreetmap.org/node/1197785481",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1197785481,
+        "lat": 6.3110307,
+        "lon": -75.5038265,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "Colombiana",
+          "internet_access": "no",
+          "name": "Restaurante Piedras Blancas",
+          "opening_hours": "Mo-Su 07:00-22:00",
+          "smoking": "yes",
+          "stars": "0",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Restaurante Piedras Blancas",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.3110307,
+        "longitude": -75.5038265,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Su 07:00-22:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "Colombiana"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "57037d47ecaf5b1e0c47210e98db1e054ca990c83330a796ac742b2088843639",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1201128316",
+      "source_url": "https://www.openstreetmap.org/node/1201128316",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1201128316,
+        "lat": 6.2079474,
+        "lon": -75.5630767,
+        "tags": {
+          "amenity": "cinema",
+          "name": "Cinema Vizcaya",
+          "name:es": "Cinecolombia Vizcaya",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Cinema Vizcaya",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2079474,
+        "longitude": -75.5630767,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cinema"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bfd024fb7c821f9b494e66983cc0eed33d9a753165cc9f3d23a90bdfc0e31c96",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1233059553",
+      "source_url": "https://www.openstreetmap.org/node/1233059553",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1233059553,
+        "lat": 6.2093879,
+        "lon": -75.5679677,
+        "tags": {
+          "name": "Hostal Lleras",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Hostal Lleras",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2093879,
+        "longitude": -75.5679677,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "76a2e24849414d0c405f451ae9e362cecd24243f267940a961049373c7c211dc",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1237519540",
+      "source_url": "https://www.openstreetmap.org/node/1237519540",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1237519540,
+        "lat": 6.1699781,
+        "lon": -75.5887034,
+        "tags": {
+          "amenity": "theatre",
+          "name": "Teatro Envigado"
+        }
+      },
+      "normalized_data": {
+        "name": "Teatro Envigado",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1699781,
+        "longitude": -75.5887034,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "theatre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2b9d04fc55a182fca766af09545bc2a60fb3ecaeaeab9c554b67c93c965e2df0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1237856120",
+      "source_url": "https://www.openstreetmap.org/node/1237856120",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1237856120,
+        "lat": 6.1693136,
+        "lon": -75.5873627,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "chicken",
+          "name": "Kokoriko"
+        }
+      },
+      "normalized_data": {
+        "name": "Kokoriko",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1693136,
+        "longitude": -75.5873627,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e99aa3ac0a1b1358731716a67a54add84f933e0251f346a7aa5dc8fad58a02a3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1239492476",
+      "source_url": "https://www.openstreetmap.org/node/1239492476",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1239492476,
+        "lat": 6.2573983,
+        "lon": -75.585371,
+        "tags": {
+          "check_date": "2024-11-12",
+          "name": "Hotel Sauces del Estadio",
+          "phone": "+5742304260",
+          "toilets:wheelchair": "yes",
+          "tourism": "hotel",
+          "website": "https://www.hotelsaucesdelestadio.com/home.html",
+          "wheelchair": "yes",
+          "wheelchair:description": "Solo 10 horas. Tiene elevador, rampa y baño accesible. Segun dicen por telefono"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Sauces del Estadio",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2573983,
+        "longitude": -75.585371,
+        "category": "accommodation",
+        "phone": "+5742304260",
+        "website": "https://www.hotelsaucesdelestadio.com/home.html",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e5e86b43a80b2d356e7b193dca5af32e3e692eeb7d4cc433061ad4e40e6e6ac5",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1279211879",
+      "source_url": "https://www.openstreetmap.org/node/1279211879",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1279211879,
+        "lat": 6.1791816,
+        "lon": -75.5838794,
+        "tags": {
+          "addr:city": "Envigado",
+          "addr:full": "Cra 43a 27a sur 11",
+          "addr:housenumber": "27A Sur - 11",
+          "addr:street": "Carrera 43A",
+          "fee": "no",
+          "name": "Casa Museo Otraparte",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Casa Museo Otraparte",
+        "address": "27A Sur - 11 Carrera 43A, Envigado, Colombia",
+        "city": "Envigado",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1791816,
+        "longitude": -75.5838794,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "83f5ef8f3ea98ccb3c9762df466b9f144727e283f49b7b5c34dcc8cb837815b7",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1279211880",
+      "source_url": "https://www.openstreetmap.org/node/1279211880",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1279211880,
+        "lat": 6.1793609,
+        "lon": -75.5840904,
+        "tags": {
+          "addr:city": "Envigado",
+          "addr:full": "Calle 27 Sur N° 43A - 61",
+          "addr:housenumber": "43A-61",
+          "addr:postcode": "055422",
+          "addr:street": "Calle 27 Sur",
+          "amenity": "cafe",
+          "name": "El Cafe de Otraparte"
+        }
+      },
+      "normalized_data": {
+        "name": "El Cafe de Otraparte",
+        "address": "43A-61 Calle 27 Sur, Envigado, Colombia",
+        "city": "Envigado",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1793609,
+        "longitude": -75.5840904,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7c1f74d47ce08789daeafd12514d7040e4b192d70cd1880d10a7bee2fa60a6c7",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1300800506",
+      "source_url": "https://www.openstreetmap.org/node/1300800506",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1300800506,
+        "lat": 6.2728369,
+        "lon": -75.5579751,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Shell Advance"
+        }
+      },
+      "normalized_data": {
+        "name": "Shell Advance",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.2728369,
+        "longitude": -75.5579751,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4595c2004babb5119f9d53a89668d6491d23f2ef029cf4e3d20a89c2d0cbd833",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1317319807",
+      "source_url": "https://www.openstreetmap.org/node/1317319807",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1317319807,
+        "lat": 6.271709,
+        "lon": -75.5584006,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Pollo Broster"
+        }
+      },
+      "normalized_data": {
+        "name": "Pollo Broster",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.271709,
+        "longitude": -75.5584006,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d6f4f78aaaaaa0b0c9aff76e235dd51edffffe8749958bc90ba1e583f015e187",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1468359145",
+      "source_url": "https://www.openstreetmap.org/node/1468359145",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1468359145,
+        "lat": 6.1764593,
+        "lon": -75.6130001,
+        "tags": {
+          "name": "Museo Counitario GAV",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Museo Counitario GAV",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1764593,
+        "longitude": -75.6130001,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9e0e907051ffb32811a907061b4937947308d385c45af447e1be4639236c491f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1468401006",
+      "source_url": "https://www.openstreetmap.org/node/1468401006",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1468401006,
+        "lat": 6.1767793,
+        "lon": -75.6134293,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Placa deportiva Sector Miranda",
+          "sport": "soccer"
+        }
+      },
+      "normalized_data": {
+        "name": "Placa deportiva Sector Miranda",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1767793,
+        "longitude": -75.6134293,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a9da0b289b774a499f1532e40e467bade35f84d1dd3d36c1c5034466cbaf0577",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1468412704",
+      "source_url": "https://www.openstreetmap.org/node/1468412704",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1468412704,
+        "lat": 6.1723296,
+        "lon": -75.6109514,
+        "tags": {
+          "name": "Auditorio Diego Echavarría M.",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Auditorio Diego Echavarría M.",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1723296,
+        "longitude": -75.6109514,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e823046e45e1cacc98c13988dda86423afcaaed4c655b299aef70235fb2b08da",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1468581919",
+      "source_url": "https://www.openstreetmap.org/node/1468581919",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1468581919,
+        "lat": 6.1772091,
+        "lon": -75.6152802,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "cancha deportiva Loma de los Zuleta"
+        }
+      },
+      "normalized_data": {
+        "name": "cancha deportiva Loma de los Zuleta",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1772091,
+        "longitude": -75.6152802,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "12c65fd1018ddf5efd61c2c726cdc9e4fb01e865e68fdefaea9927cfbd332a6c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1481731929",
+      "source_url": "https://www.openstreetmap.org/node/1481731929",
+      "source_last_checked_at": "2026-08-22T04:04:40.222Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1481731929,
+        "lat": 6.1720868,
+        "lon": -75.6107186,
+        "tags": {
+          "amenity": "bar",
+          "name": "Chapinos"
+        }
+      },
+      "normalized_data": {
+        "name": "Chapinos",
+        "address": "Medellín, Colombia",
+        "city": "Medellín",
+        "region": "Antioquia",
+        "parish": "Antioquia",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 6.1720868,
+        "longitude": -75.6107186,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2f531da774df8c7ad2bdc1e430437a9cfd69aa6608dd737b817f3c3c7d93843f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    }
+  ]
+}

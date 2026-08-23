@@ -1,0 +1,2169 @@
+{
+  "schema_version": 2,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Santo Domingo, Dominican Republic",
+    "country_code": "DO",
+    "country_slug": "dominican-republic",
+    "city_slug": "santo-domingo",
+    "collected_at": "2026-08-22T04:04:39.415Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "rules": {
+    "auto_publish": false,
+    "minimum_venue_confidence": 0.8,
+    "moment_expiry_hours": 24,
+    "targets": {
+      "venues": 30,
+      "discoveries": 20,
+      "moments": 10,
+      "polls": 4,
+      "scenes": 3
+    }
+  },
+  "city": {
+    "country_code": "DO",
+    "country_slug": "dominican-republic",
+    "country": "Dominican Republic",
+    "city_slug": "santo-domingo",
+    "city": "Santo Domingo",
+    "region": "Distrito Nacional",
+    "currency": "DOP",
+    "timezone": "America/Santo_Domingo",
+    "bbox": "18.4200,-70.0200,18.5500,-69.8000",
+    "launch_stage": "pilot",
+    "poll_templates": [
+      "¿Qué espacio cultural de Santo Domingo merece más atención?",
+      "¿Dónde está la mejor noche de música en vivo?",
+      "¿Qué negocio local debería organizar el próximo Momento?",
+      "¿Qué debería activar Promorang primero en Santo Domingo?"
+    ]
+  },
+  "poll_templates": [
+    {
+      "key": "do-santo-domingo-1",
+      "question": "¿Qué espacio cultural de Santo Domingo merece más atención?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "do-santo-domingo-2",
+      "question": "¿Dónde está la mejor noche de música en vivo?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "do-santo-domingo-3",
+      "question": "¿Qué negocio local debería organizar el próximo Momento?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "do-santo-domingo-4",
+      "question": "¿Qué debería activar Promorang primero en Santo Domingo?",
+      "status": "draft",
+      "category": "City Direction",
+      "threshold_for_moment": 25
+    }
+  ],
+  "stats": {
+    "source_elements": 2654,
+    "candidates": 50,
+    "pending_review": 3,
+    "needs_research": 47
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/349134300",
+      "source_url": "https://www.openstreetmap.org/node/349134300",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 349134300,
+        "lat": 18.4682486,
+        "lon": -69.8880275,
+        "tags": {
+          "name": "Hotel Llave Del Mar",
+          "tourism": "hotel",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Llave Del Mar",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4682486,
+        "longitude": -69.8880275,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4423ef4b56760bc83baa0de8337d2422f0c4a9ce3bd10e10107d64c05227d1df",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/446018864",
+      "source_url": "https://www.openstreetmap.org/node/446018864",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 446018864,
+        "lat": 18.4602624,
+        "lon": -69.9032654,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Adrian Tropical"
+        }
+      },
+      "normalized_data": {
+        "name": "Adrian Tropical",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4602624,
+        "longitude": -69.9032654,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "529411592ad8ad34136e8845576120228686c269e75890d9944cdea6d7d7b3cc",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/493560964",
+      "source_url": "https://www.openstreetmap.org/node/493560964",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 493560964,
+        "lat": 18.4529548,
+        "lon": -69.9422186,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Burger King",
+          "brand:wikidata": "Q177054",
+          "brand:wikipedia": "en:Burger King",
+          "cuisine": "burger",
+          "name": "Burger King",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Burger King",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4529548,
+        "longitude": -69.9422186,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c77c8788c1d1c6341f29ace136d2e4ac970dac91fa574e6436416e62cfcd5632",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/583253788",
+      "source_url": "https://www.openstreetmap.org/node/583253788",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 583253788,
+        "lat": 18.4693533,
+        "lon": -69.8969374,
+        "tags": {
+          "amenity": "cafe",
+          "name": "Colmado",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Colmado",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4693533,
+        "longitude": -69.8969374,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "05363e2122bcac954a8b121c59e7e251fe0faf98bd608907aa0d1f3436f511eb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596635668",
+      "source_url": "https://www.openstreetmap.org/node/596635668",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596635668,
+        "lat": 18.4708901,
+        "lon": -69.8912272,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "La Bodeguita"
+        }
+      },
+      "normalized_data": {
+        "name": "La Bodeguita",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4708901,
+        "longitude": -69.8912272,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d55607c6f34c7e4f2c7b413d14338f4828fd7d3b803503d6a1ea3a3b48a81c7d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596635669",
+      "source_url": "https://www.openstreetmap.org/node/596635669",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596635669,
+        "lat": 18.4718269,
+        "lon": -69.8909405,
+        "tags": {
+          "amenity": "fast_food",
+          "name": "Pizza House",
+          "source": "CNIGS/IPGH",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Pizza House",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4718269,
+        "longitude": -69.8909405,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5d97eec23ed1f98fa025b742f912d6866ef609fcf6b277cc5b265e104176ad90",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596635672",
+      "source_url": "https://www.openstreetmap.org/node/596635672",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596635672,
+        "lat": 18.4718031,
+        "lon": -69.8903064,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "pizza",
+          "name": "Pala Pizza",
+          "source": "CNIGS/IPGH",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Pala Pizza",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4718031,
+        "longitude": -69.8903064,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4839ce7d89305782757b3c94c6399b59dd79b395cbd87f1f91bfd2226f60a3b7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596635673",
+      "source_url": "https://www.openstreetmap.org/node/596635673",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596635673,
+        "lat": 18.4719951,
+        "lon": -69.8901782,
+        "tags": {
+          "addr:street": "Calle Espaillat",
+          "amenity": "restaurant",
+          "brand": "Pizza Hut",
+          "brand:wikidata": "Q191615",
+          "brand:wikipedia": "en:Pizza Hut",
+          "cuisine": "pizza",
+          "name": "Pizza Hut",
+          "source": "CNIGS/IPGH",
+          "wheelchair": "limited"
+        }
+      },
+      "normalized_data": {
+        "name": "Pizza Hut",
+        "address": "Calle Espaillat, Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4719951,
+        "longitude": -69.8901782,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2548afc82ba4fb58fa2859c7f3efd8e4da6dbe0257da3b9c1bec9b8dce142c89",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596635675",
+      "source_url": "https://www.openstreetmap.org/node/596635675",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596635675,
+        "lat": 18.4726508,
+        "lon": -69.8882049,
+        "tags": {
+          "amenity": "fast_food",
+          "name": "Petrus",
+          "source": "CNIGS/IPGH"
+        }
+      },
+      "normalized_data": {
+        "name": "Petrus",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4726508,
+        "longitude": -69.8882049,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "05827cc720a735af3f888ef7a5697d8a950b130fcfe8d9128236c9b5c27a0c2c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596635676",
+      "source_url": "https://www.openstreetmap.org/node/596635676",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596635676,
+        "lat": 18.4722775,
+        "lon": -69.8888039,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "chicken",
+          "name": "Pollo Rey",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Pollo Rey",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4722775,
+        "longitude": -69.8888039,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9574c3d4e3713e8895bc36bd8bc503184cb4385a86c8871a95c8f554e04fbe4b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596640327",
+      "source_url": "https://www.openstreetmap.org/node/596640327",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596640327,
+        "lat": 18.4731093,
+        "lon": -69.8864305,
+        "tags": {
+          "amenity": "cafe",
+          "name": "La Cafetera Colonial",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "La Cafetera Colonial",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4731093,
+        "longitude": -69.8864305,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d02ca4408ec78ea57d5c99b4d3fba91ce9e93985dd2cf5491ac6fbefc3e0a552",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596649639",
+      "source_url": "https://www.openstreetmap.org/node/596649639",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596649639,
+        "lat": 18.4767815,
+        "lon": -69.8842114,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "Taverna Vasca"
+        }
+      },
+      "normalized_data": {
+        "name": "Taverna Vasca",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4767815,
+        "longitude": -69.8842114,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2ab01fffa569e7bacfb9606a66fd487cf8eb6d44deadf3b992eb4ce9f722c397",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596649646",
+      "source_url": "https://www.openstreetmap.org/node/596649646",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596649646,
+        "lat": 18.4738763,
+        "lon": -69.8835025,
+        "tags": {
+          "amenity": "bar",
+          "internet_access": "wlan",
+          "name": "Fenix bar",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Fenix bar",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4738763,
+        "longitude": -69.8835025,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d4115f6dc7d4f3364bf457a8a9f32e27117905ac062c16c991d3896fee89f86d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596649651",
+      "source_url": "https://www.openstreetmap.org/node/596649651",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596649651,
+        "lat": 18.4768048,
+        "lon": -69.8837439,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Harrys"
+        }
+      },
+      "normalized_data": {
+        "name": "Harrys",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4768048,
+        "longitude": -69.8837439,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2881120b5337a88724450c876408bdb18024ad66670f45c174f541d192cd0146",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596663088",
+      "source_url": "https://www.openstreetmap.org/node/596663088",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596663088,
+        "lat": 18.4635836,
+        "lon": -69.8960441,
+        "tags": {
+          "addr:city": "Santo Domingo",
+          "addr:housenumber": "218",
+          "addr:postcode": "2890",
+          "addr:street": "Avenue George Washington",
+          "contact:fax": "+18092212020",
+          "contact:phone": "+18092210000",
+          "name": "Hotel Crowne Plaza",
+          "tourism": "hotel",
+          "wheelchair": "limited"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Crowne Plaza",
+        "address": "218 Avenue George Washington, Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4635836,
+        "longitude": -69.8960441,
+        "category": "accommodation",
+        "phone": "+18092210000",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ae55611bee7f9c6a03a68e3b62a65408265df22f46400ab6261842c87218dee1",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596671627",
+      "source_url": "https://www.openstreetmap.org/node/596671627",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596671627,
+        "lat": 18.4662103,
+        "lon": -69.8918463,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "pizza",
+          "name": "Pala Pizza",
+          "source": "KG Ground Survey 2016",
+          "wheelchair": "limited"
+        }
+      },
+      "normalized_data": {
+        "name": "Pala Pizza",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4662103,
+        "longitude": -69.8918463,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dfa18289eb28010c291091ada04ecb84f5feb50db2e7b7b6c152a6da64eb15f9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596671629",
+      "source_url": "https://www.openstreetmap.org/node/596671629",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596671629,
+        "lat": 18.4664634,
+        "lon": -69.8915008,
+        "tags": {
+          "amenity": "nightclub",
+          "name": "Casino Napolitano"
+        }
+      },
+      "normalized_data": {
+        "name": "Casino Napolitano",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4664634,
+        "longitude": -69.8915008,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "nightclub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "effc8fda0be9301c070a6cb1a749b2a9cb58b9fba273b7d93d4264ddfc47e90f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596671633",
+      "source_url": "https://www.openstreetmap.org/node/596671633",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596671633,
+        "lat": 18.4691746,
+        "lon": -69.88872,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "Palmito",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Palmito",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4691746,
+        "longitude": -69.88872,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d650328ad184893cdc5a044047d2278797ef4f424c592280840fab51d2e5163e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/596671636",
+      "source_url": "https://www.openstreetmap.org/node/596671636",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 596671636,
+        "lat": 18.4741225,
+        "lon": -69.8832105,
+        "tags": {
+          "amenity": "cafe",
+          "brand": "Segafredo",
+          "brand:wikidata": "Q21282762",
+          "brand:wikipedia": "it:Segafredo Zanetti",
+          "cuisine": "coffee_shop",
+          "name": "Segafredo",
+          "takeaway": "yes",
+          "wheelchair": "limited"
+        }
+      },
+      "normalized_data": {
+        "name": "Segafredo",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4741225,
+        "longitude": -69.8832105,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe",
+          "coffee_shop"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9b666f0f11009031df255a544b49c329500be5daa221dfca2b708997def10bf2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/597336173",
+      "source_url": "https://www.openstreetmap.org/node/597336173",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 597336173,
+        "lat": 18.4767304,
+        "lon": -69.8840007,
+        "tags": {
+          "amenity": "cafe",
+          "name": "Cafeteria Heladeria Amoremio"
+        }
+      },
+      "normalized_data": {
+        "name": "Cafeteria Heladeria Amoremio",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4767304,
+        "longitude": -69.8840007,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "729819729947b68f022116511f9967ca53b461158629a8af752c9365faf7faad",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/597336174",
+      "source_url": "https://www.openstreetmap.org/node/597336174",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 597336174,
+        "lat": 18.4770567,
+        "lon": -69.8837052,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Angelo"
+        }
+      },
+      "normalized_data": {
+        "name": "Angelo",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4770567,
+        "longitude": -69.8837052,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6fd4a538a9cb372262a93f107e141e408de5f2a26672f929d6530dc8fefc273c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/597453526",
+      "source_url": "https://www.openstreetmap.org/node/597453526",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 597453526,
+        "lat": 18.4751443,
+        "lon": -69.8827005,
+        "tags": {
+          "name": "Hostal Nicolas De Ovando",
+          "tourism": "hotel",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Hostal Nicolas De Ovando",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4751443,
+        "longitude": -69.8827005,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "090af4e5c4bb92f970bed74550169ef8797cc258ecba4c41ef8f72f3c9bffb16",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/597455226",
+      "source_url": "https://www.openstreetmap.org/node/597455226",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 597455226,
+        "lat": 18.4791101,
+        "lon": -69.8775257,
+        "tags": {
+          "amenity": "fast_food",
+          "name": "Pizza Store"
+        }
+      },
+      "normalized_data": {
+        "name": "Pizza Store",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4791101,
+        "longitude": -69.8775257,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "86d1b12ca26ca8ca7da162d1926ff502f383bfacae3b1f78df9fe497d7463204",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/597456591",
+      "source_url": "https://www.openstreetmap.org/node/597456591",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 597456591,
+        "lat": 18.4734399,
+        "lon": -69.8854304,
+        "tags": {
+          "name": "Hodelpa Novus Plaza",
+          "tourism": "hotel",
+          "wheelchair": "limited",
+          "wikidata": "Q111884828"
+        }
+      },
+      "normalized_data": {
+        "name": "Hodelpa Novus Plaza",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4734399,
+        "longitude": -69.8854304,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e7b7b4607a93245e23dd27f7983c92ff994a7fddb50f7c6db3cecdf8ef7e8c6f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/668435637",
+      "source_url": "https://www.openstreetmap.org/node/668435637",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 668435637,
+        "lat": 18.4539866,
+        "lon": -69.927497,
+        "tags": {
+          "addr:housenumber": "1",
+          "addr:postcode": "10102",
+          "addr:street": "Av Dr. Bernardo Correa y Cidron",
+          "name": "Libreria Cristiana Mensajes de Vida",
+          "shop": "books"
+        }
+      },
+      "normalized_data": {
+        "name": "Libreria Cristiana Mensajes de Vida",
+        "address": "1 Av Dr. Bernardo Correa y Cidron, Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4539866,
+        "longitude": -69.927497,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4cd6f9344160e3945d2554817af1fbbe24b295c4022ca20e78ce57117f689b78",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/735974664",
+      "source_url": "https://www.openstreetmap.org/node/735974664",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 735974664,
+        "lat": 18.4771045,
+        "lon": -69.8854438,
+        "tags": {
+          "name": "Tierra Plana Hostal",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Tierra Plana Hostal",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4771045,
+        "longitude": -69.8854438,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "862e5d245c1c1948faccbb2afa1a3b7a93465de324f8fc34e9c297ec9431a156",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/741535737",
+      "source_url": "https://www.openstreetmap.org/node/741535737",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 741535737,
+        "lat": 18.4696666,
+        "lon": -69.8862871,
+        "tags": {
+          "amenity": "restaurant",
+          "diet:vegetarian": "yes",
+          "name": "CRUDO",
+          "organic": "yes",
+          "type": "independent family-run",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "CRUDO",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4696666,
+        "longitude": -69.8862871,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "678e60fe0db5444d073207dc0097b4e07f774f3bfde14e171bb3710c1dfa98f2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/921997576",
+      "source_url": "https://www.openstreetmap.org/node/921997576",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 921997576,
+        "lat": 18.4663691,
+        "lon": -69.9385263,
+        "tags": {
+          "addr:housenumber": "802",
+          "addr:street": "Avenida Winston Churchill",
+          "amenity": "restaurant",
+          "cuisine": "mexican",
+          "name": "Spicy's Mexican Grill",
+          "phone": "809-338-0404",
+          "source": "yahoo_wms",
+          "website": "http://www.spicysmexicangrill.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Spicy's Mexican Grill",
+        "address": "802 Avenida Winston Churchill, Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4663691,
+        "longitude": -69.9385263,
+        "category": "restaurant",
+        "phone": "809-338-0404",
+        "website": "http://www.spicysmexicangrill.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "mexican"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6f24d88a7c93b302d28f69bd45ef0b7f7e452aef724713a44fc84c9adac917ce",
+      "confidence": 0.9,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/923175080",
+      "source_url": "https://www.openstreetmap.org/node/923175080",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 923175080,
+        "lat": 18.4768483,
+        "lon": -69.9445894,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Aka Sushi"
+        }
+      },
+      "normalized_data": {
+        "name": "Aka Sushi",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4768483,
+        "longitude": -69.9445894,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c5cbeaec16257ee03db1ca790d42140fd48e25dcb3fae09fd3379ffda2292fc3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/923175147",
+      "source_url": "https://www.openstreetmap.org/node/923175147",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 923175147,
+        "lat": 18.4770076,
+        "lon": -69.9445941,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "mexican",
+          "name": "Don Nacho"
+        }
+      },
+      "normalized_data": {
+        "name": "Don Nacho",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4770076,
+        "longitude": -69.9445941,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "mexican"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "62601ae6a742bb051af1ea55e12bc8cad3132a72861beee3f42e849f4cd4588f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/923175163",
+      "source_url": "https://www.openstreetmap.org/node/923175163",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 923175163,
+        "lat": 18.4768124,
+        "lon": -69.9444546,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Red Grill"
+        }
+      },
+      "normalized_data": {
+        "name": "Red Grill",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4768124,
+        "longitude": -69.9444546,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d07e209be50c2838bd36fbf11f354ffb90b26012d222a2b4ab5deca13ed08070",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/923486493",
+      "source_url": "https://www.openstreetmap.org/node/923486493",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 923486493,
+        "lat": 18.4693653,
+        "lon": -69.9392154,
+        "tags": {
+          "amenity": "cinema",
+          "brand": "Caribbean Cinemas",
+          "brand:wikidata": "Q5039364",
+          "brand:wikipedia": "en:Caribbean Cinemas",
+          "name": "Caribbean Cinemas"
+        }
+      },
+      "normalized_data": {
+        "name": "Caribbean Cinemas",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4693653,
+        "longitude": -69.9392154,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cinema"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "17bb5689ad1d0e85134b625a915d73de59e4935dbe3d7585215fffa45a1b04ae",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/928315089",
+      "source_url": "https://www.openstreetmap.org/node/928315089",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 928315089,
+        "lat": 18.4733976,
+        "lon": -69.9311417,
+        "tags": {
+          "addr:city": "Santo Domingo",
+          "addr:housenumber": "29",
+          "addr:postcode": "10122",
+          "addr:street": "Avenida Lope de Vega",
+          "amenity": "cinema",
+          "brand": "Caribbean Cinemas",
+          "brand:wikidata": "Q5039364",
+          "name": "Caribbean Cinemas Fine Arts",
+          "source": "yahoo_wms"
+        }
+      },
+      "normalized_data": {
+        "name": "Caribbean Cinemas Fine Arts",
+        "address": "29 Avenida Lope de Vega, Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4733976,
+        "longitude": -69.9311417,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cinema"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f30733e2734d79067720678f5cbf8f9a13013b1f54830f3f1141ea1ead10f290",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/928315092",
+      "source_url": "https://www.openstreetmap.org/node/928315092",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 928315092,
+        "lat": 18.4746041,
+        "lon": -69.9316834,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Max fifty burger",
+          "source": "yahoo_wms"
+        }
+      },
+      "normalized_data": {
+        "name": "Max fifty burger",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4746041,
+        "longitude": -69.9316834,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2aecb7c7eb8bcff3771cbaf42205fa045fda42f633c4964c2a2b1d314ddeda08",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/928315101",
+      "source_url": "https://www.openstreetmap.org/node/928315101",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 928315101,
+        "lat": 18.4756106,
+        "lon": -69.932296,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Mix",
+          "source": "yahoo_wms"
+        }
+      },
+      "normalized_data": {
+        "name": "Mix",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4756106,
+        "longitude": -69.932296,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "989d044d9aa964abd19525cd048bac8510753877938352993566a3de236e3532",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/928315105",
+      "source_url": "https://www.openstreetmap.org/node/928315105",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 928315105,
+        "lat": 18.4757171,
+        "lon": -69.9323689,
+        "tags": {
+          "addr:city": "Santo Domingo",
+          "addr:postcode": "10125",
+          "addr:street": "Avenida Gustavo Mejía Ricart",
+          "amenity": "fast_food",
+          "cuisine": "sandwich",
+          "name": "Empare Dado",
+          "source": "yahoo_wms"
+        }
+      },
+      "normalized_data": {
+        "name": "Empare Dado",
+        "address": "Avenida Gustavo Mejía Ricart, Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4757171,
+        "longitude": -69.9323689,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "sandwich"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1e3b7bfc32cbced04dd265533999ed94f905f1281d8750047583afbcba813bd2",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/928315110",
+      "source_url": "https://www.openstreetmap.org/node/928315110",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 928315110,
+        "lat": 18.4759653,
+        "lon": -69.9321546,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "italian",
+          "name": "La Lasagna",
+          "source": "yahoo_wms"
+        }
+      },
+      "normalized_data": {
+        "name": "La Lasagna",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4759653,
+        "longitude": -69.9321546,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "italian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "acbb39cf1cc39803ca939b13e2392636e605b598eab30f14422ad5ffc428ca9b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/928315120",
+      "source_url": "https://www.openstreetmap.org/node/928315120",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 928315120,
+        "lat": 18.4743189,
+        "lon": -69.9316838,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Olivia",
+          "source": "yahoo_wms"
+        }
+      },
+      "normalized_data": {
+        "name": "Olivia",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4743189,
+        "longitude": -69.9316838,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a65f9555052a1c106b85a5b45f6b9619653df829c5976598e962f604fa83ae21",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/928335631",
+      "source_url": "https://www.openstreetmap.org/node/928335631",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 928335631,
+        "lat": 18.4752927,
+        "lon": -69.9308475,
+        "tags": {
+          "amenity": "nightclub",
+          "name": "Praia",
+          "source": "yahoo_wms"
+        }
+      },
+      "normalized_data": {
+        "name": "Praia",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4752927,
+        "longitude": -69.9308475,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "nightclub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9460fe434cabfff5d34dd968ca22ccd7545cf2e08a8816cc287be23459dac00a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/928369428",
+      "source_url": "https://www.openstreetmap.org/node/928369428",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 928369428,
+        "lat": 18.4698823,
+        "lon": -69.9324308,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Quiznos",
+          "brand:wikidata": "Q1936229",
+          "brand:wikipedia": "en:Quiznos",
+          "cuisine": "sandwich",
+          "name": "Quiznos",
+          "source": "yahoo_wms",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Quiznos",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4698823,
+        "longitude": -69.9324308,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "sandwich"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "191a53b85c4676cc7f0686829a5a179b27d18b968ed62fd1ee49c5cbba5f8d2a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/931437269",
+      "source_url": "https://www.openstreetmap.org/node/931437269",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 931437269,
+        "lat": 18.487131,
+        "lon": -69.9425329,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "pizza",
+          "name": "Pizzarelli"
+        }
+      },
+      "normalized_data": {
+        "name": "Pizzarelli",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.487131,
+        "longitude": -69.9425329,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "61d0f069e159648d6a3b5d67779ff5a23316382149f668836d422811388dd0bd",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/931437279",
+      "source_url": "https://www.openstreetmap.org/node/931437279",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 931437279,
+        "lat": 18.4873729,
+        "lon": -69.9421832,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Burger King",
+          "brand:wikidata": "Q177054",
+          "brand:wikipedia": "en:Burger King",
+          "cuisine": "burger",
+          "name": "Burger King",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Burger King",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4873729,
+        "longitude": -69.9421832,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "89a77cb70fbde1a8c0fe934885341edaf792d1141333058445380f7f12635b27",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/938672698",
+      "source_url": "https://www.openstreetmap.org/node/938672698",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 938672698,
+        "lat": 18.4720032,
+        "lon": -69.9093307,
+        "tags": {
+          "amenity": "cinema",
+          "name": "Cinemateca",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Cinemateca",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4720032,
+        "longitude": -69.9093307,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cinema"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5fc27d4e1cc19c172676ae220cf6d5369f30342e17bb38bd2c545906c9cb8fb0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/938672873",
+      "source_url": "https://www.openstreetmap.org/node/938672873",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 938672873,
+        "lat": 18.4721489,
+        "lon": -69.908793,
+        "tags": {
+          "amenity": "cafe",
+          "name": "Cinema Café",
+          "wheelchair": "limited"
+        }
+      },
+      "normalized_data": {
+        "name": "Cinema Café",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4721489,
+        "longitude": -69.908793,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "64fc5853eb5f43bf3423e80b4d5ed58ba88f5fab35895bef82cf400027955dad",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/940890978",
+      "source_url": "https://www.openstreetmap.org/node/940890978",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 940890978,
+        "lat": 18.4655973,
+        "lon": -69.937029,
+        "tags": {
+          "addr:city": "Santo Domingo",
+          "addr:postcode": "10149",
+          "addr:street": "Calle Paseo de los Locutores",
+          "amenity": "restaurant",
+          "name": "Bob's"
+        }
+      },
+      "normalized_data": {
+        "name": "Bob's",
+        "address": "Calle Paseo de los Locutores, Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4655973,
+        "longitude": -69.937029,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f8ded18e21d2d3a47765562c2d777a00030f5b4315e075f00c82ca46d634200f",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/940890983",
+      "source_url": "https://www.openstreetmap.org/node/940890983",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 940890983,
+        "lat": 18.466339,
+        "lon": -69.9373169,
+        "tags": {
+          "addr:city": "Santo Domingo",
+          "addr:postcode": "10149",
+          "addr:street": "Avenida Roberto Pastoriza",
+          "amenity": "restaurant",
+          "name": "Il Caffé Di Ale;Il Capo",
+          "opening_hours": "We-Mo 12:00-23:00",
+          "phone": "809-547-2323;809-547-2929",
+          "source": "yahoo_wms",
+          "website": "http://www.facebook.com/ilcaffediale"
+        }
+      },
+      "normalized_data": {
+        "name": "Il Caffé Di Ale;Il Capo",
+        "address": "Avenida Roberto Pastoriza, Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.466339,
+        "longitude": -69.9373169,
+        "category": "restaurant",
+        "phone": "809-547-2323;809-547-2929",
+        "website": "http://www.facebook.com/ilcaffediale",
+        "opening_hours": "We-Mo 12:00-23:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ad13b0a61f2f8b1ace6151e5a034b0d0dfb560cd14aba7244f61a9c4d84b4305",
+      "confidence": 0.95,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/940948220",
+      "source_url": "https://www.openstreetmap.org/node/940948220",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 940948220,
+        "lat": 18.497481,
+        "lon": -69.9403561,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Body Shop",
+          "source": "KG Ground Survey 2016",
+          "sport": "fitness"
+        }
+      },
+      "normalized_data": {
+        "name": "Body Shop",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.497481,
+        "longitude": -69.9403561,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f5a8de44f5dfbfe02e1a2bf482edfefb0789708b3444aabc975832ca5ba574d1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/940948223",
+      "source_url": "https://www.openstreetmap.org/node/940948223",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 940948223,
+        "lat": 18.4709849,
+        "lon": -69.9419902,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "mexican",
+          "name": "Malala"
+        }
+      },
+      "normalized_data": {
+        "name": "Malala",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4709849,
+        "longitude": -69.9419902,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "mexican"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "27fa10e096551291deaede4b55724138f0b22b28269236d091b755c9777c2dbd",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/941786644",
+      "source_url": "https://www.openstreetmap.org/node/941786644",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 941786644,
+        "lat": 18.4780867,
+        "lon": -69.9310426,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "Expresso Jardín Chino",
+          "source": "yahoo_wms"
+        }
+      },
+      "normalized_data": {
+        "name": "Expresso Jardín Chino",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4780867,
+        "longitude": -69.9310426,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ef391e547d4a3a6fa944e57a9a91a289e7468a7ebc1ca39bb5aeb28d8dfb89d4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/941794475",
+      "source_url": "https://www.openstreetmap.org/node/941794475",
+      "source_last_checked_at": "2026-08-22T04:04:39.415Z",
+      "raw_data": {
+        "type": "node",
+        "id": 941794475,
+        "lat": 18.4761358,
+        "lon": -69.9288393,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Body Shop",
+          "source": "yahoo_wms",
+          "sport": "fitness",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Body Shop",
+        "address": "Santo Domingo, Dominican Republic",
+        "city": "Santo Domingo",
+        "region": "Distrito Nacional",
+        "parish": "Distrito Nacional",
+        "country": "Dominican Republic",
+        "country_code": "DO",
+        "latitude": 18.4761358,
+        "longitude": -69.9288393,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "99895f619d8cdcf2eeee974a1e8872ab679c1a802d17072ead7da93a9d6d66fc",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    }
+  ]
+}

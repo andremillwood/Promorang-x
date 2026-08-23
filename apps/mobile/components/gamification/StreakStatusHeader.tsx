@@ -8,11 +8,11 @@ interface StreakStatusHeaderProps {
   onPressStreak?: () => void;
 }
 
-export const StreakStatusHeader: React.FC<StreakStatusHeaderProps> = ({
+export function StreakStatusHeader({
   currentStreak = 5,
   hoursRemaining = 4,
   onPressStreak,
-}) => {
+}: StreakStatusHeaderProps) {
   const [pulseAnim] = useState(new Animated.Value(1));
 
   useEffect(() => {

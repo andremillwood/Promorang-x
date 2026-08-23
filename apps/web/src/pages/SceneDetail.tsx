@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useI18n } from "@/i18n/I18nContext";
 
 // Flagship Scenes Mock Fallback for rich preview
 const DEMO_SCENES: Record<string, any> = {
@@ -93,6 +94,7 @@ const DEMO_SCENES: Record<string, any> = {
 };
 
 export default function SceneDetail() {
+  const { t, formatNumber } = useI18n();
   const { slug } = useParams<{ slug: string }>();
   const [showShareModal, setShowShareModal] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
@@ -126,7 +128,7 @@ export default function SceneDetail() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Badge variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-400 font-mono text-xs uppercase tracking-wider">
-                Stewarded Scene
+                {t("sceneDetailPage.stewardedScene")}
               </Badge>
               <div className="flex items-center text-xs text-slate-400 gap-1">
                 <MapPin className="w-3.5 h-3.5 text-slate-400" />
@@ -144,14 +146,14 @@ export default function SceneDetail() {
               className="bg-slate-800 hover:bg-slate-700 text-slate-200 gap-2 border border-slate-700"
             >
               <Share2 className="w-4 h-4 text-emerald-400" />
-              Share Scene
+              {t("sceneDetailPage.shareScene")}
             </Button>
             <Button 
               onClick={() => setIsJoined(!isJoined)}
               className={isJoined ? "bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-2" : "bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-600 hover:to-emerald-600 text-slate-950 font-bold gap-2"}
             >
               <Zap className="w-4 h-4 fill-current" />
-              {isJoined ? "Joined Scene" : "Join Scene"}
+              {isJoined ? t("sceneDetailPage.joinedScene") : t("sceneDetailPage.joinScene")}
             </Button>
           </div>
         </div>
@@ -165,9 +167,9 @@ export default function SceneDetail() {
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-400" />
-              Active Scene Actions & Drops
+              {t("sceneDetailPage.activeActionsTitle")}
             </h2>
-            <span className="text-xs font-mono text-slate-400">{scene.actions.length} Actions Available</span>
+            <span className="text-xs font-mono text-slate-400">{t("sceneDetailPage.actionsAvailable", { count: scene.actions.length.toString() })}</span>
           </div>
 
           <div className="space-y-4">
@@ -199,18 +201,18 @@ export default function SceneDetail() {
                         </span>
                         <span className="flex items-center gap-1 text-purple-400">
                           <Award className="w-3.5 h-3.5" />
-                          {act.tickets} PromoShare Entries
+                          {t("sceneDetailPage.promoShareEntries", { count: act.tickets.toString() })}
                         </span>
                       </div>
                     </div>
 
                     <div className="flex flex-col items-end gap-2">
                       <Button className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold gap-2">
-                        Complete Action
+                        {t("sceneDetailPage.completeAction")}
                         <ArrowRight className="w-4 h-4" />
                       </Button>
                       <span className="text-[10px] text-slate-500 font-mono">
-                        {act.completed}/{act.capacity} Completed
+                        {t("sceneDetailPage.completedRatio", { completed: act.completed.toString(), capacity: act.capacity.toString() })}
                       </span>
                     </div>
                   </div>
@@ -225,7 +227,7 @@ export default function SceneDetail() {
           {/* STEWARD CARD */}
           <Card className="bg-slate-900 border-slate-800">
             <CardHeader className="pb-3">
-              <CardTitle className="text-xs uppercase font-mono tracking-wider text-slate-400">Scene Steward</CardTitle>
+              <CardTitle className="text-xs uppercase font-mono tracking-wider text-slate-400">{t("sceneDetailPage.stewardTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
@@ -239,7 +241,7 @@ export default function SceneDetail() {
                     {scene.steward_name}
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
                   </h4>
-                  <p className="text-xs text-slate-400">Verified Steward</p>
+                  <p className="text-xs text-slate-400">{t("sceneDetailPage.verifiedSteward")}</p>
                 </div>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
@@ -251,25 +253,25 @@ export default function SceneDetail() {
           {/* NETWORK STATS */}
           <Card className="bg-slate-900 border-slate-800">
             <CardHeader className="pb-3">
-              <CardTitle className="text-xs uppercase font-mono tracking-wider text-slate-400">Scene Activity & Impact</CardTitle>
+              <CardTitle className="text-xs uppercase font-mono tracking-wider text-slate-400">{t("sceneDetailPage.activityImpact")}</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4">
               <div className="bg-slate-950/60 p-3 rounded-lg border border-slate-800">
                 <div className="flex items-center gap-1.5 text-slate-400 text-xs font-mono mb-1">
                   <Users className="w-3.5 h-3.5 text-emerald-400" />
-                  Activated
+                  {t("sceneDetailPage.activatedLabel")}
                 </div>
-                <div className="text-xl font-black text-white">{scene.activated_members.toLocaleString()}</div>
-                <div className="text-[10px] text-slate-500">Verified Members</div>
+                <div className="text-xl font-black text-white">{formatNumber(scene.activated_members)}</div>
+                <div className="text-[10px] text-slate-500">{t("sceneDetailPage.verifiedMembers")}</div>
               </div>
 
               <div className="bg-slate-950/60 p-3 rounded-lg border border-slate-800">
                 <div className="flex items-center gap-1.5 text-slate-400 text-xs font-mono mb-1">
                   <Zap className="w-3.5 h-3.5 text-amber-400" />
-                  Actions
+                  {t("sceneDetailPage.actionsLabel")}
                 </div>
-                <div className="text-xl font-black text-white">{scene.actions_completed.toLocaleString()}</div>
-                <div className="text-[10px] text-slate-500">Completions</div>
+                <div className="text-xl font-black text-white">{formatNumber(scene.actions_completed)}</div>
+                <div className="text-[10px] text-slate-500">{t("sceneDetailPage.completions")}</div>
               </div>
             </CardContent>
           </Card>
@@ -282,10 +284,10 @@ export default function SceneDetail() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-lg font-bold">
               <QrCode className="w-5 h-5 text-amber-400" />
-              Recruit to {scene.title}
+              {t("sceneDetailPage.recruitTitle", { title: scene.title })}
             </DialogTitle>
             <DialogDescription className="text-slate-400 text-xs">
-              Share your direct Scene invitation link. When new users join and complete an Action, you build your Activated Referral score.
+              {t("sceneDetailPage.recruitDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -304,12 +306,12 @@ export default function SceneDetail() {
           <Button 
             onClick={() => {
               navigator.clipboard.writeText(`${window.location.origin}/scene/${scene.slug}?ref=user_123`);
-              alert("Invitation link copied!");
+              alert(t("sceneDetailPage.copiedAlert"));
               setShowShareModal(false);
             }}
             className="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold"
           >
-            Copy Direct Invitation Link
+            {t("sceneDetailPage.copyDirectLink")}
           </Button>
         </DialogContent>
       </Dialog>

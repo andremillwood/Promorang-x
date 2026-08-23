@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { LiquidityProvider } from '@/components/trading/LiquidityProvider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface Pool {
   id: string;
@@ -59,6 +60,7 @@ interface LPPosition {
 }
 
 export function LiquidityDashboard() {
+  const { t } = useI18n();
   const { user, session } = useAuth();
   const { toast } = useToast();
   const [pools, setPools] = useState<Pool[]>([]);
@@ -66,58 +68,61 @@ export function LiquidityDashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedPool, setSelectedPool] = useState<Pool | null>(null);
   const [isLpModalOpen, setIsLpModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('pools');
   const [gemsBalance, setGemsBalance] = useState(0);
-  const [userPieces, setUserPieces] = useState<{[key: string]: number}>({});
+
   const apiBaseUrl = (import.meta.env.VITE_API_URL || 'https://api.promorang.co').replace(/\/$/, '');
   const apiUrl = (path: string) => `${apiBaseUrl}${apiBaseUrl.endsWith('/api') ? '' : '/api'}${path}`;
 
   useEffect(() => {
     if (user && session?.access_token) {
-      fetchData();
+      fetchPools();
+      fetchPositions();
+      fetchGemsBalance();
     }
   }, [user, session?.access_token]);
 
-  const fetchData = async () => {
-    if (!session?.access_token) return;
-
-    setLoading(true);
+  const fetchPools = async () => {
     try {
-      const authHeaders = { 'Authorization': `Bearer ${session.access_token}` };
-      const [poolsRes, positionsRes, balanceRes] = await Promise.all([
-        fetch(apiUrl('/pieces/pools?status=active'), {
-          headers: authHeaders,
-        }),
-        fetch(apiUrl('/pieces/lp/positions'), {
-          headers: authHeaders,
-        }).catch(() => ({ ok: false })),
-        fetch(apiUrl('/pieces/gems/balance'), {
-          headers: authHeaders,
-        }),
-      ]);
-
-      if (poolsRes.ok) {
-        const poolsData = await poolsRes.json();
-        setPools(poolsData.pools || []);
-      }
-
-      if (positionsRes.ok) {
-        const positionsData = await positionsRes.json();
-        setPositions(positionsData.positions || []);
-      }
-
-      if (balanceRes.ok) {
-        const balanceData = await balanceRes.json();
-        setGemsBalance(balanceData.balance || 0);
-      }
-    } catch (error) {
-      console.error('Failed to fetch data:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load liquidity data',
-        variant: 'destructive',
+      const res = await fetch(apiUrl('/pools'), {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
       });
+      const data = await res.json();
+      if (data.pools) setPools(data.pools);
+    } catch (err) {
+      console.error('Failed to fetch pools', err);
+    }
+  };
+
+  const fetchPositions = async () => {
+    try {
+      const res = await fetch(apiUrl('/liquidity/positions'), {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.positions) setPositions(data.positions);
+    } catch (err) {
+      console.error('Failed to fetch LP positions', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchGemsBalance = async () => {
+    try {
+      const res = await fetch(apiUrl('/gems/balance'), {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.balance !== undefined) setGemsBalance(data.balance);
+    } catch (err) {
+      console.error('Failed to fetch gems balance', err);
     }
   };
 
@@ -175,13 +180,13 @@ export function LiquidityDashboard() {
             <div className="min-w-0">
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">
                 <Droplets className="h-3.5 w-3.5" />
-                Pieces Liquidity
+                {t("liquidityDash.eyebrow")}
               </div>
               <h1 className="max-w-3xl text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white md:text-6xl">
-                Back the value moving through Promorang.
+                {t("liquidityDash.heroTitle")}
               </h1>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-white/68 md:text-base">
-                Add Gems and Pieces to active pools so cultural value can trade with less friction. This is the advanced layer for people who want to support Moments, creators, venues, and status-backed assets.
+                {t("liquidityDash.heroSubtitle")}
               </p>
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <Button asChild variant="outline" size="sm">
@@ -194,7 +199,7 @@ export function LiquidityDashboard() {
             </div>
             <Button onClick={() => window.location.href = '/marketplace'}>
               <ArrowUpRight className="h-4 w-4 mr-1" />
-              Open Marketplace
+              {t("liquidityDash.openMarketplace")}
             </Button>
           </div>
         </div>
@@ -229,7 +234,7 @@ export function LiquidityDashboard() {
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Wallet className="h-4 w-4" />
-                Value Backed
+                {t("liquidityDash.valueBacked")}
               </div>
               <div className="text-2xl font-bold mt-1">{totalDeposited.toFixed(2)} Gems</div>
               <div className="text-sm text-muted-foreground">
@@ -242,7 +247,7 @@ export function LiquidityDashboard() {
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <DollarSign className="h-4 w-4" />
-                Fees Earned
+                {t("liquidityDash.feesEarned")}
               </div>
               <div className="text-2xl font-bold mt-1 text-green-600">
                 +{totalFeesEarned.toFixed(4)} Gems
@@ -257,7 +262,7 @@ export function LiquidityDashboard() {
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <PieChart className="h-4 w-4" />
-                Active Positions
+                {t("liquidityDash.activePositions")}
               </div>
               <div className="text-2xl font-bold mt-1">{positions.length}</div>
               <div className="text-sm text-muted-foreground">

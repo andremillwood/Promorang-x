@@ -6,8 +6,10 @@ import { Mail, MessageSquare, MapPin, Send, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { trackMetaEvent } from "@/components/MetaPixel";
+import { useI18n } from "@/i18n/I18nContext";
 
 const ContactPage = () => {
+    const { t } = useI18n();
     const [submitted, setSubmitted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
@@ -46,7 +48,7 @@ const ContactPage = () => {
 
             const payload = await response.json().catch(() => ({}));
             if (!response.ok || payload.success === false) {
-                throw new Error(payload.error || "Failed to send message");
+                throw new Error(payload.error || t("contact.failed"));
             }
 
             trackMetaEvent("Lead", {
@@ -55,7 +57,7 @@ const ContactPage = () => {
             });
             setSubmitted(true);
         } catch (sendError) {
-            setError(sendError instanceof Error ? sendError.message : "Failed to send message");
+            setError(sendError instanceof Error ? sendError.message : t("contact.failed"));
         } finally {
             setIsSubmitting(false);
         }
@@ -64,17 +66,16 @@ const ContactPage = () => {
     return (
         <div className="min-h-screen bg-background">
             <SEO
-                title="Contact Us | Promorang"
-                description="Get in touch with the Promorang team. We're here to help you create better moments."
+                title={t("contact.title")}
+                description={t("contact.copy")}
             />
 
             <main className="pt-24 pb-20 px-6">
                 <div className="container max-w-6xl mx-auto">
                     <div className="text-center max-w-2xl mx-auto mb-16">
-                        <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4">Get in touch</h1>
+                        <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4">{t("contact.title")}</h1>
                         <p className="text-lg text-muted-foreground">
-                            Have questions about moments, partnerships, or just want to say hello?
-                            We'd love to hear from you.
+                            {t("contact.copy")}
                         </p>
                     </div>
 
@@ -87,7 +88,7 @@ const ContactPage = () => {
                                         <Mail className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-lg">Email Us</h3>
+                                        <h3 className="font-bold text-lg">{t("contact.emailUs")}</h3>
                                         <p className="text-muted-foreground mb-2">For general inquiries and support.</p>
                                         <a href="mailto:support@promorang.co" className="text-primary font-semibold hover:underline">
                                             support@promorang.co
@@ -100,7 +101,7 @@ const ContactPage = () => {
                                         <MessageSquare className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-lg">Live Chat</h3>
+                                        <h3 className="font-bold text-lg">{t("contact.chat")}</h3>
                                         <p className="text-muted-foreground mb-2">Use a structured support ticket if you need account-specific follow-up.</p>
                                         <Link to="/support/tickets" className="text-primary font-semibold hover:underline">
                                             Open support tickets
@@ -113,7 +114,7 @@ const ContactPage = () => {
                                         <MapPin className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-lg">Partnerships</h3>
+                                        <h3 className="font-bold text-lg">{t("contact.partnerships")}</h3>
                                         <p className="text-muted-foreground">
                                             Brands, venues, communities, and agencies can use the same form for partnership requests.
                                         </p>
@@ -122,7 +123,7 @@ const ContactPage = () => {
                             </div>
 
                             <div className="p-8 bg-gradient-primary rounded-3xl text-white">
-                                <h3 className="text-2xl font-bold mb-4">Join the community</h3>
+                                <h3 className="text-2xl font-bold mb-4">{t("contact.community")}</h3>
                                 <p className="opacity-90 mb-6">
                                     Follow us on social media for the latest updates and featured moments.
                                 </p>
@@ -142,12 +143,12 @@ const ContactPage = () => {
                                     <div className="h-16 w-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
                                         <CheckCircle2 className="w-10 h-10" />
                                     </div>
-                                    <h3 className="text-2xl font-bold mb-2">Message Sent!</h3>
+                                    <h3 className="text-2xl font-bold mb-2">{t("contact.sent")}</h3>
                                     <p className="text-muted-foreground mb-8">
-                                        Thanks for reaching out. We'll get back to you within 24 hours.
+                                        {t("contact.sentCopy")}
                                     </p>
                                     <Button variant="outline" onClick={() => setSubmitted(false)}>
-                                        Send another message
+                                        {t("contact.another")}
                                     </Button>
                                 </div>
                             ) : (
@@ -159,7 +160,7 @@ const ContactPage = () => {
                                     )}
                                     <div className="grid sm:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <label htmlFor="first-name" className="text-sm font-semibold">First Name</label>
+                                            <label htmlFor="first-name" className="text-sm font-semibold">{t("contact.firstName")}</label>
                                             <Input
                                                 id="first-name"
                                                 value={formData.firstName}
@@ -169,7 +170,7 @@ const ContactPage = () => {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label htmlFor="last-name" className="text-sm font-semibold">Last Name</label>
+                                            <label htmlFor="last-name" className="text-sm font-semibold">{t("contact.lastName")}</label>
                                             <Input
                                                 id="last-name"
                                                 value={formData.lastName}
@@ -179,7 +180,7 @@ const ContactPage = () => {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label htmlFor="contact-email" className="text-sm font-semibold">Email Address</label>
+                                        <label htmlFor="contact-email" className="text-sm font-semibold">{t("contact.email")}</label>
                                         <Input
                                             id="contact-email"
                                             type="email"
@@ -190,7 +191,7 @@ const ContactPage = () => {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label htmlFor="topic" className="text-sm font-semibold">Topic</label>
+                                        <label htmlFor="topic" className="text-sm font-semibold">{t("contact.topic")}</label>
                                         <select
                                             id="topic"
                                             value={formData.topic}
@@ -205,7 +206,7 @@ const ContactPage = () => {
                                         </select>
                                     </div>
                                     <div className="space-y-2">
-                                        <label htmlFor="subject" className="text-sm font-semibold">Subject</label>
+                                        <label htmlFor="subject" className="text-sm font-semibold">{t("contact.subject")}</label>
                                         <Input
                                             id="subject"
                                             value={formData.subject}
@@ -215,7 +216,7 @@ const ContactPage = () => {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label htmlFor="message" className="text-sm font-semibold">Message</label>
+                                        <label htmlFor="message" className="text-sm font-semibold">{t("contact.message")}</label>
                                         <Textarea
                                             id="message"
                                             value={formData.message}
@@ -227,7 +228,7 @@ const ContactPage = () => {
                                     </div>
                                     <Button type="submit" variant="hero" className="w-full h-12" disabled={isSubmitting}>
                                         <Send className="w-4 h-4 mr-2" />
-                                        {isSubmitting ? "Sending..." : "Send Message"}
+                                        {isSubmitting ? t("contact.sending") : t("contact.send")}
                                     </Button>
                                 </form>
                             )}

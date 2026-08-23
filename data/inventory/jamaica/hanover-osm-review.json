@@ -1,0 +1,2461 @@
+{
+  "schema_version": 1,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Hanover, Jamaica",
+    "parish": "Hanover",
+    "iso_code": "JM-09",
+    "collected_at": "2026-08-22T01:48:13.744Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "stats": {
+    "source_elements": 78,
+    "candidates": 59,
+    "pending_review": 4,
+    "needs_research": 55
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1338117649",
+      "source_url": "https://www.openstreetmap.org/node/1338117649",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1338117649,
+        "lat": 18.3354014,
+        "lon": -78.3384611,
+        "tags": {
+          "name": "Sandals",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Sandals",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3354014,
+        "longitude": -78.3384611,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a2a087ade431e4dc403251c3396d7245043cf678fda8e5868fa48794b5122212",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1338117684",
+      "source_url": "https://www.openstreetmap.org/node/1338117684",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1338117684,
+        "lat": 18.3422552,
+        "lon": -78.335728,
+        "tags": {
+          "name": "Couples Negril",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Couples Negril",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3422552,
+        "longitude": -78.335728,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fd315f9c2e424957cf3cd0ec910db8b60557d6f7c5f26bcb868d2e988a55d0eb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3766738989",
+      "source_url": "https://www.openstreetmap.org/node/3766738989",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3766738989,
+        "lat": 18.4585298,
+        "lon": -78.1506238,
+        "tags": {
+          "name": "Grand Palladium Resort & Spa",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Grand Palladium Resort & Spa",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4585298,
+        "longitude": -78.1506238,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "842102fbb62c3d98df340b1f22c4111faa6a36ca85aa023ea272d6831706e2a4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3767410059",
+      "source_url": "https://www.openstreetmap.org/node/3767410059",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3767410059,
+        "lat": 18.4465857,
+        "lon": -78.1720787,
+        "tags": {
+          "name": "Sir Alexander Bustamante Square",
+          "source": "KG Ground Survey 2015",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Sir Alexander Bustamante Square",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4465857,
+        "longitude": -78.1720787,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7605f5256473a90a9b1648947fc6900779b014a54c505ce0636c89b9f3d0f063",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3774013421",
+      "source_url": "https://www.openstreetmap.org/node/3774013421",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3774013421,
+        "lat": 18.339164,
+        "lon": -78.3427081,
+        "tags": {
+          "name": "The Point",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "The Point",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.339164,
+        "longitude": -78.3427081,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7439d08d4b695ae94cbfefaf89f033311212686373c3fe1458d3e7c122522816",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4530594890",
+      "source_url": "https://www.openstreetmap.org/node/4530594890",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4530594890,
+        "lat": 18.4481064,
+        "lon": -78.2202538,
+        "tags": {
+          "addr:street": "Lances Bay",
+          "email": "coleman@le--mer.com",
+          "name": "Le Mer Villas",
+          "name:en": "Le Mer Villas",
+          "operator": "Karen",
+          "phone": "8764561102",
+          "tourism": "guest_house",
+          "website": "http://le-mer.com"
+        }
+      },
+      "normalized_data": {
+        "name": "Le Mer Villas",
+        "address": "Lances Bay, Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4481064,
+        "longitude": -78.2202538,
+        "category": "accommodation",
+        "phone": "8764561102",
+        "website": "http://le-mer.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e1339a67eed6540badec23409170c32714a1a8abb29e58a7da926e6e64ecfb7c",
+      "confidence": 0.9,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5048998421",
+      "source_url": "https://www.openstreetmap.org/node/5048998421",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5048998421,
+        "lat": 18.3922799,
+        "lon": -78.2662198,
+        "tags": {
+          "addr:street": "beach road",
+          "amenity": "restaurant",
+          "cuisine": "caribbean",
+          "name": "Green islamd jamaica",
+          "name:en": "Green islamd jamaica"
+        }
+      },
+      "normalized_data": {
+        "name": "Green islamd jamaica",
+        "address": "beach road, Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3922799,
+        "longitude": -78.2662198,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "caribbean"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "74347700292b2e15d20dc96d9d57e7a1c30c5b311b80306cbb02d73d940881b9",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7057335154",
+      "source_url": "https://www.openstreetmap.org/node/7057335154",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7057335154,
+        "lat": 18.4467629,
+        "lon": -78.1722269,
+        "tags": {
+          "name": "Lucea Clock Tower",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Lucea Clock Tower",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4467629,
+        "longitude": -78.1722269,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "aab8a11892984be41a17a644a70309d76c2fb7116fadadc0a957aad0e4ead9d5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7058601200",
+      "source_url": "https://www.openstreetmap.org/node/7058601200",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7058601200,
+        "lat": 18.4494382,
+        "lon": -78.0534075,
+        "tags": {
+          "name": "Henry Fairchild's Cut Stone Aqueduct and Waterwheel (1700)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Henry Fairchild's Cut Stone Aqueduct and Waterwheel (1700)",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4494382,
+        "longitude": -78.0534075,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "44f3d67c9401d61729c0c892775f732bfd04d4e36e8ebbbbdd9bb8d4056114dd",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9918681594",
+      "source_url": "https://www.openstreetmap.org/node/9918681594",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9918681594,
+        "lat": 18.4570074,
+        "lon": -78.1522942,
+        "tags": {
+          "amenity": "bar",
+          "name": "Xtra Time"
+        }
+      },
+      "normalized_data": {
+        "name": "Xtra Time",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4570074,
+        "longitude": -78.1522942,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5a00028dbc4af6796b0be325b6f61ec2b743e44d5736e436934934c082f3d4c0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9918881571",
+      "source_url": "https://www.openstreetmap.org/node/9918881571",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9918881571,
+        "lat": 18.4573364,
+        "lon": -78.1520748,
+        "tags": {
+          "name": "Grand Palladium Lady Hamilton Resort & Spa",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Grand Palladium Lady Hamilton Resort & Spa",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4573364,
+        "longitude": -78.1520748,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "780558b540beb047edbb92b0a72df7e9ea192de6cb45065104ff4b5292035e31",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/10110843025",
+      "source_url": "https://www.openstreetmap.org/node/10110843025",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 10110843025,
+        "lat": 18.4574627,
+        "lon": -78.1538671,
+        "tags": {
+          "amenity": "bar",
+          "name": "Travellers Cluc"
+        }
+      },
+      "normalized_data": {
+        "name": "Travellers Cluc",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4574627,
+        "longitude": -78.1538671,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6d6a51f9bb676fa8734665262f13d80ca37322de1cb3350eb7ad3a6e116cc229",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/10110843031",
+      "source_url": "https://www.openstreetmap.org/node/10110843031",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 10110843031,
+        "lat": 18.4541199,
+        "lon": -78.1537718,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Captain's Watersport",
+          "sport": "sailing"
+        }
+      },
+      "normalized_data": {
+        "name": "Captain's Watersport",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4541199,
+        "longitude": -78.1537718,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "78cfb6057aaed077b97a38ba39f78cd08f701ea6bdab75e53a789c74530df15c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/13040738452",
+      "source_url": "https://www.openstreetmap.org/node/13040738452",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "node",
+        "id": 13040738452,
+        "lat": 18.3702079,
+        "lon": -78.305783,
+        "tags": {
+          "amenity": "restaurant",
+          "check_date": "2025-07-17",
+          "name": "Dats’ Me Restaurant",
+          "website": "https://datsmerestaurant.com"
+        }
+      },
+      "normalized_data": {
+        "name": "Dats’ Me Restaurant",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3702079,
+        "longitude": -78.305783,
+        "category": "restaurant",
+        "phone": null,
+        "website": "https://datsmerestaurant.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9375cbfa8e4d9f02e4846b4faa5ce1d38969ed75cd1f45f6534446e3b40f2c14",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/310149342",
+      "source_url": "https://www.openstreetmap.org/way/310149342",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 310149342,
+        "center": {
+          "lat": 18.3350564,
+          "lon": -78.3386034
+        },
+        "tags": {
+          "name": "Sandals Negril Beach Resort & Spa",
+          "stars": "5",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Sandals Negril Beach Resort & Spa",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3350564,
+        "longitude": -78.3386034,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "39df7e3a61d4ee35c2106c0eac20fc5a9abbdd45c07ae69428ae72f2ec9d2b51",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/310190438",
+      "source_url": "https://www.openstreetmap.org/way/310190438",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 310190438,
+        "center": {
+          "lat": 18.3323703,
+          "lon": -78.3374872
+        },
+        "tags": {
+          "building": "hotel",
+          "name": "The Boardwalk Village",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "The Boardwalk Village",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3323703,
+        "longitude": -78.3374872,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a6552e031841649b8d700fa4747e64aa04c136fd527cfc7353262f7f783453a2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373106205",
+      "source_url": "https://www.openstreetmap.org/way/373106205",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373106205,
+        "center": {
+          "lat": 18.4537772,
+          "lon": -78.0172321
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "damage:Melissa": "yes",
+          "damage:Melissa:assessment": "2025-10-31",
+          "name": "Mikey Stinga Restaurant",
+          "source": "KG Ground Survey 2015",
+          "source:damage:Melissa": "NOAA"
+        }
+      },
+      "normalized_data": {
+        "name": "Mikey Stinga Restaurant",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4537772,
+        "longitude": -78.0172321,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dd4eb0d0b58919242a0f77fd975aa466f34ae3035fc1a17afdd37da5335c98e4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373167105",
+      "source_url": "https://www.openstreetmap.org/way/373167105",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373167105,
+        "center": {
+          "lat": 18.4589056,
+          "lon": -78.1309161
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Dolphin Cove",
+          "source": "KG Ground Survey 2015",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Dolphin Cove",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4589056,
+        "longitude": -78.1309161,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2c42356dc4397c8c53f4f46a539407d464fa185f704d743f9283387678751d44",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373167522",
+      "source_url": "https://www.openstreetmap.org/way/373167522",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373167522,
+        "center": {
+          "lat": 18.4578286,
+          "lon": -78.1515794
+        },
+        "tags": {
+          "building": "apartments",
+          "name": "Grand Palladium Jamaica Resort & Spa",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Grand Palladium Jamaica Resort & Spa",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4578286,
+        "longitude": -78.1515794,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "261925cb8ba23ba7592a6f744bdd4ec528c073ee963c802f11647571e07c8dc3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373228002",
+      "source_url": "https://www.openstreetmap.org/way/373228002",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373228002,
+        "center": {
+          "lat": 18.4438392,
+          "lon": -78.1709427
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Cherry Fashion Mart",
+          "shop": "clothes",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Cherry Fashion Mart",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4438392,
+        "longitude": -78.1709427,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "35ad535be143dfc3967dc250e1cb15d76cc5731b64486499dd28de5504934f89",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373228003",
+      "source_url": "https://www.openstreetmap.org/way/373228003",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373228003,
+        "center": {
+          "lat": 18.4439809,
+          "lon": -78.1710111
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Juici Patties",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4439809,
+        "longitude": -78.1710111,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "06845c5212722c508e6d0e269562ccfa9927809cc89db7ee1795484519c12df9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373228005",
+      "source_url": "https://www.openstreetmap.org/way/373228005",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373228005,
+        "center": {
+          "lat": 18.4442515,
+          "lon": -78.1711028
+        },
+        "tags": {
+          "addr:city": "Lucea",
+          "addr:street": "Main Street",
+          "building": "construction",
+          "name": "Ken's Haberdashery Centre",
+          "opening_hours": "Mo-Sa 09:00-19:30",
+          "payment:cash": "yes",
+          "payment:credit_cards": "yes",
+          "payment:visa": "yes",
+          "phone": "18764772555",
+          "shop": "department_store",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Ken's Haberdashery Centre",
+        "address": "Main Street, Lucea, Jamaica",
+        "city": "Lucea",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4442515,
+        "longitude": -78.1711028,
+        "category": "shopping",
+        "phone": "18764772555",
+        "website": null,
+        "opening_hours": "Mo-Sa 09:00-19:30",
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "90cd0d30098b7c2a8f50c0470ce64ffafd333477186ed7a1ca768df585fb8e0b",
+      "confidence": 0.85,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373228678",
+      "source_url": "https://www.openstreetmap.org/way/373228678",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373228678,
+        "center": {
+          "lat": 18.4452132,
+          "lon": -78.1718791
+        },
+        "tags": {
+          "building": "yes",
+          "name": "D Palmer's Jewellery",
+          "shop": "jewelry",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "D Palmer's Jewellery",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4452132,
+        "longitude": -78.1718791,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "af34eb08191f8c844c4e99405b5accb41a1de610761cabc65da75ea544320d5c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373238745",
+      "source_url": "https://www.openstreetmap.org/way/373238745",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373238745,
+        "center": {
+          "lat": 18.3799476,
+          "lon": -78.3019051
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Rhodes Beach Resort",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Rhodes Beach Resort",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3799476,
+        "longitude": -78.3019051,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1e7d6f87c3fbbbda1d246023bfd6643278870e3bb170645cdff98cdc32ff332b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373279083",
+      "source_url": "https://www.openstreetmap.org/way/373279083",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373279083,
+        "center": {
+          "lat": 18.4433779,
+          "lon": -78.1711045
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Buck's Restaurant",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Buck's Restaurant",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4433779,
+        "longitude": -78.1711045,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7e559c7bcfb0836b0dadddd9a7b557fc9a1eae59acbec0b466d1acb5143e9fa0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373279085",
+      "source_url": "https://www.openstreetmap.org/way/373279085",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373279085,
+        "center": {
+          "lat": 18.4436036,
+          "lon": -78.1712179
+        },
+        "tags": {
+          "building": "yes",
+          "name": "4 Eva Young Salon",
+          "shop": "beauty",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "4 Eva Young Salon",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4436036,
+        "longitude": -78.1712179,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7a486df03642154990bf4fb8f259243768f1c845664158a9051800ff393f641b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373280000",
+      "source_url": "https://www.openstreetmap.org/way/373280000",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373280000,
+        "center": {
+          "lat": 18.4451236,
+          "lon": -78.1725705
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Midtown Mall",
+          "shop": "mall",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Midtown Mall",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4451236,
+        "longitude": -78.1725705,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d0a0d1b09ab1301602f9d3bced2ebd48f94d8d92ce0c94da88b75374b951fe75",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373904954",
+      "source_url": "https://www.openstreetmap.org/way/373904954",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373904954,
+        "center": {
+          "lat": 18.3999782,
+          "lon": -78.2637773
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Sports Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Sports Bar",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3999782,
+        "longitude": -78.2637773,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5eca6c85a372c54146ebc501e0601ccd866a4fd9c594294d8885f5666443c13e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373911691",
+      "source_url": "https://www.openstreetmap.org/way/373911691",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373911691,
+        "center": {
+          "lat": 18.4549704,
+          "lon": -78.1530172
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Poseidon",
+          "source": "Bing"
+        }
+      },
+      "normalized_data": {
+        "name": "Poseidon",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4549704,
+        "longitude": -78.1530172,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b50e488cb340de7fc2f74575cf6001dcca3e51e70e2323943589fbf485b9c151",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373911718",
+      "source_url": "https://www.openstreetmap.org/way/373911718",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373911718,
+        "center": {
+          "lat": 18.454589,
+          "lon": -78.0267735
+        },
+        "tags": {
+          "addr:city": "Hopewell",
+          "addr:street": "Sandy Bay",
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Sky Beach Bar and Seafood Grill",
+          "source": "Bing"
+        }
+      },
+      "normalized_data": {
+        "name": "Sky Beach Bar and Seafood Grill",
+        "address": "Sandy Bay, Hopewell, Jamaica",
+        "city": "Hopewell",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.454589,
+        "longitude": -78.0267735,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ea801045d24d612d65c0c74e283ffb356bfebe6ff8019baee9cab4f7b5c9479a",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373924879",
+      "source_url": "https://www.openstreetmap.org/way/373924879",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373924879,
+        "center": {
+          "lat": 18.3548671,
+          "lon": -78.3358357
+        },
+        "tags": {
+          "addr:city": "Negril",
+          "addr:street": "Norman Manley Boulevard",
+          "air_conditioning": "yes",
+          "bar": "yes",
+          "brand": "RIU",
+          "brand:wikidata": "Q2005557",
+          "building": "hotel",
+          "contact:facebook": "https://www.facebook.com/HotelRiuNegril",
+          "email": "hotel.negril@riu.com",
+          "internet_access": "yes",
+          "internet_access:fee": "no",
+          "name": "Hotel Riu Negril",
+          "opening_hours": "24/7",
+          "operator": "RIU Hotels & Resorts",
+          "payment:cash": "yes",
+          "payment:credit_cards": "yes",
+          "payment:debit_cards": "yes",
+          "payment:mastercard": "yes",
+          "payment:visa": "yes",
+          "phone": "+1 876-957-5700",
+          "reservation": "yes",
+          "rooms": "400",
+          "smoking": "outside",
+          "source": "KG Ground Survey 2015;www.riu.com;survey",
+          "stars": "5",
+          "tourism": "hotel",
+          "website": "https://www.riu.com/es/hotel/jamaica/negril/hotel-riu-negril//",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Riu Negril",
+        "address": "Norman Manley Boulevard, Negril, Jamaica",
+        "city": "Negril",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3548671,
+        "longitude": -78.3358357,
+        "category": "accommodation",
+        "phone": "+1 876-957-5700",
+        "website": "https://www.riu.com/es/hotel/jamaica/negril/hotel-riu-negril//",
+        "opening_hours": "24/7",
+        "social_profiles": {
+          "facebook": "https://www.facebook.com/HotelRiuNegril"
+        },
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1a6a7025b14c1995700bb1d04084b6c09456fdf12675feaaaeb78688aa61b532",
+      "confidence": 1,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373931718",
+      "source_url": "https://www.openstreetmap.org/way/373931718",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373931718,
+        "center": {
+          "lat": 18.3474141,
+          "lon": -78.332323
+        },
+        "tags": {
+          "building": "hotel",
+          "name": "Sunset at the Palms",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Sunset at the Palms",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3474141,
+        "longitude": -78.332323,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cc2a4f0d59b07ef3765fd48dec6c80b8edfa5f19260c9a3f748fe6b6c1d44d05",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373931723",
+      "source_url": "https://www.openstreetmap.org/way/373931723",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373931723,
+        "center": {
+          "lat": 18.3456202,
+          "lon": -78.3339301
+        },
+        "tags": {
+          "building": "hotel",
+          "name": "Riu Palace Tropical Bay",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Riu Palace Tropical Bay",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3456202,
+        "longitude": -78.3339301,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bcafacfac89d9e97029600d60cdfe1dd5af0d8b6f90630bdb57e616f5d034f7e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373938187",
+      "source_url": "https://www.openstreetmap.org/way/373938187",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373938187,
+        "center": {
+          "lat": 18.3424285,
+          "lon": -78.3351986
+        },
+        "tags": {
+          "building": "hotel",
+          "name": "Grand Pineapple Beach Negril",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Grand Pineapple Beach Negril",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3424285,
+        "longitude": -78.3351986,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d490820d4b4026fb2b95bf6a55989836a0ee03a923ce043d05c91da74fd94f42",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373946845",
+      "source_url": "https://www.openstreetmap.org/way/373946845",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373946845,
+        "center": {
+          "lat": 18.3385808,
+          "lon": -78.340362
+        },
+        "tags": {
+          "building": "hotel",
+          "name": "Hedonism II",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Hedonism II",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3385808,
+        "longitude": -78.340362,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cba64dfaee99e4acbabbfe4cc3225dea25bfc3fb945f37b6493e5835232fd905",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373949793",
+      "source_url": "https://www.openstreetmap.org/way/373949793",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373949793,
+        "center": {
+          "lat": 18.3308564,
+          "lon": -78.3366489
+        },
+        "tags": {
+          "building": "hotel",
+          "name": "Seashore Bay Resort",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Seashore Bay Resort",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3308564,
+        "longitude": -78.3366489,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7eee7a3991d5f6c8ab25ecbb4d7eeb1f38d1593d9406ba7cee7deb14099cb029",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/507151836",
+      "source_url": "https://www.openstreetmap.org/way/507151836",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 507151836,
+        "center": {
+          "lat": 18.3806526,
+          "lon": -78.3012663
+        },
+        "tags": {
+          "landuse": "commercial",
+          "name": "Rhodes Hall Plantation",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Rhodes Hall Plantation",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3806526,
+        "longitude": -78.3012663,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ac1eb31542adca4d27f9acc5a22f7146ac1acf7f6450c160f5d0619414d56115",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/626950889",
+      "source_url": "https://www.openstreetmap.org/way/626950889",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 626950889,
+        "center": {
+          "lat": 18.3473752,
+          "lon": -78.3323438
+        },
+        "tags": {
+          "name": "Sunset at the Palms",
+          "rooms": "85",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Sunset at the Palms",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3473752,
+        "longitude": -78.3323438,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cc2a4f0d59b07ef3765fd48dec6c80b8edfa5f19260c9a3f748fe6b6c1d44d05",
+      "confidence": 0.6,
+      "review_status": "needs_research",
+      "duplicate_source_record_id": "way/373931718"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/626952434",
+      "source_url": "https://www.openstreetmap.org/way/626952434",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 626952434,
+        "center": {
+          "lat": 18.3456843,
+          "lon": -78.3342675
+        },
+        "tags": {
+          "addr:city": "Negril",
+          "addr:street": "Norman Manley Boulevard",
+          "air_conditioning": "yes",
+          "bar": "yes",
+          "brand": "RIU",
+          "brand:wikidata": "Q2005557",
+          "contact:facebook": "https://www.facebook.com/HotelRiuPalaceTropicalBay",
+          "description": "Located on Negril Beach, the Hotel Riu Palace Tropical Bay is a 5-star hotel with All Inclusive board, comfort rooms, entertainment programme, wellness center, gym, water sports, 3 swimming pools and free Wi-Fi.",
+          "email": "palace.tropicalbay@riu.com",
+          "image": "https://www.riu.com/en/binaris/vistas-hotel-riu-palace-tropical-bay-2_tcm55-207694.jpg",
+          "internet_access": "yes",
+          "internet_access:fee": "customers",
+          "name": "Hotel Riu Palace Tropical Bay",
+          "opening_hours": "24/7",
+          "operator": "RIU Hotels & Resorts",
+          "payment:american_express": "yes",
+          "payment:cash": "yes",
+          "payment:credit_cards": "yes",
+          "payment:debit_cards": "yes",
+          "payment:maestro": "yes",
+          "payment:mastercard": "yes",
+          "payment:visa": "yes",
+          "phone": "+1 876-957-5900",
+          "reservation": "yes",
+          "rooms": "400",
+          "smoking": "outside",
+          "source": "survey;local knowledge;www.riu.com",
+          "stars": "5",
+          "tourism": "hotel",
+          "website": "https://www.riu.com/en/hotel/jamaica/negril/hotel-riu-palace-tropical-bay",
+          "wheelchair": "yes",
+          "wikidata": "Q136539108"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Riu Palace Tropical Bay",
+        "address": "Norman Manley Boulevard, Negril, Jamaica",
+        "city": "Negril",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3456843,
+        "longitude": -78.3342675,
+        "category": "accommodation",
+        "phone": "+1 876-957-5900",
+        "website": "https://www.riu.com/en/hotel/jamaica/negril/hotel-riu-palace-tropical-bay",
+        "opening_hours": "24/7",
+        "social_profiles": {
+          "facebook": "https://www.facebook.com/HotelRiuPalaceTropicalBay"
+        },
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "78041ca0e6cd47599660b5398e9b5d79fa6b88c10c7fe5fe1fe8c861c82814e3",
+      "confidence": 1,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/626953206",
+      "source_url": "https://www.openstreetmap.org/way/626953206",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 626953206,
+        "center": {
+          "lat": 18.3425657,
+          "lon": -78.335466
+        },
+        "tags": {
+          "brand": "Couples",
+          "name": "Couples Negril",
+          "rooms": "234",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Couples Negril",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3425657,
+        "longitude": -78.335466,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "19ade6b90d409f8b8d99ba514ca55b97575723ce025ecf399d4fd10298fef403",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/626958816",
+      "source_url": "https://www.openstreetmap.org/way/626958816",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 626958816,
+        "center": {
+          "lat": 18.3409057,
+          "lon": -78.33987
+        },
+        "tags": {
+          "landuse": "commercial",
+          "name": "Royalton Negril",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Royalton Negril",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3409057,
+        "longitude": -78.33987,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6e4157c086700b2a3e11202fdfd14a78571006415b8b11e5d5cbcedb47984a26",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/626960427",
+      "source_url": "https://www.openstreetmap.org/way/626960427",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 626960427,
+        "center": {
+          "lat": 18.3396509,
+          "lon": -78.3430548
+        },
+        "tags": {
+          "name": "Point Village",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Point Village",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3396509,
+        "longitude": -78.3430548,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "216f471c06b97fda810cfb613b23b7b68a62be7a4e74d11af3654369305d85d3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/626962175",
+      "source_url": "https://www.openstreetmap.org/way/626962175",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 626962175,
+        "center": {
+          "lat": 18.3382724,
+          "lon": -78.3409444
+        },
+        "tags": {
+          "landuse": "commercial",
+          "name": "Hedonism II",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Hedonism II",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3382724,
+        "longitude": -78.3409444,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "13c2ceab02c053d68bd2d140d6fb6bda7acb144db92ee127e83a844b4b02e44d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/626972111",
+      "source_url": "https://www.openstreetmap.org/way/626972111",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 626972111,
+        "center": {
+          "lat": 18.3282101,
+          "lon": -78.3363718
+        },
+        "tags": {
+          "name": "Azul Beach Resort Negril",
+          "tourism": "hotel",
+          "wikidata": "Q111414730"
+        }
+      },
+      "normalized_data": {
+        "name": "Azul Beach Resort Negril",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3282101,
+        "longitude": -78.3363718,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8e8abb293319867ae7b129074387a6c9646c43bd3fe3e184236f2c5470cc171b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/626979028",
+      "source_url": "https://www.openstreetmap.org/way/626979028",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 626979028,
+        "center": {
+          "lat": 18.3296505,
+          "lon": -78.3366182
+        },
+        "tags": {
+          "name": "Ayurveda Resort",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Ayurveda Resort",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3296505,
+        "longitude": -78.3366182,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d158ce02b5338ab9d92d40bc0ed409055927ef9336e023f3d516dc3cf7ddbfdd",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/626979029",
+      "source_url": "https://www.openstreetmap.org/way/626979029",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 626979029,
+        "center": {
+          "lat": 18.3323411,
+          "lon": -78.3372772
+        },
+        "tags": {
+          "name": "The Boardwalk Village",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "The Boardwalk Village",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3323411,
+        "longitude": -78.3372772,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a6552e031841649b8d700fa4747e64aa04c136fd527cfc7353262f7f783453a2",
+      "confidence": 0.6,
+      "review_status": "needs_research",
+      "duplicate_source_record_id": "way/310190438"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/626980859",
+      "source_url": "https://www.openstreetmap.org/way/626980859",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 626980859,
+        "center": {
+          "lat": 18.3308084,
+          "lon": -78.3368162
+        },
+        "tags": {
+          "name": "Seashore Bay Resort",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Seashore Bay Resort",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3308084,
+        "longitude": -78.3368162,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7eee7a3991d5f6c8ab25ecbb4d7eeb1f38d1593d9406ba7cee7deb14099cb029",
+      "confidence": 0.6,
+      "review_status": "needs_research",
+      "duplicate_source_record_id": "way/373949793"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/675462689",
+      "source_url": "https://www.openstreetmap.org/way/675462689",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 675462689,
+        "center": {
+          "lat": 18.452541,
+          "lon": -78.1658408
+        },
+        "tags": {
+          "historic": "ruins",
+          "name": "Fort Charlotte (1761)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Fort Charlotte (1761)",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.452541,
+        "longitude": -78.1658408,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c946cebbd95dca9b6cbb864520218d212e9c80d0cef0be3be252b4c95deeaa79",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/755769608",
+      "source_url": "https://www.openstreetmap.org/way/755769608",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 755769608,
+        "center": {
+          "lat": 18.4500131,
+          "lon": -78.0580488
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Tryall Great House",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Tryall Great House",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4500131,
+        "longitude": -78.0580488,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d21af73dfcbc52e22623447bab6c8e7da55fde3fb936532861c5b49a49c6f615",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/756400034",
+      "source_url": "https://www.openstreetmap.org/way/756400034",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 756400034,
+        "center": {
+          "lat": 18.4526128,
+          "lon": -78.1701389
+        },
+        "tags": {
+          "name": "Hanover Museum",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Hanover Museum",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4526128,
+        "longitude": -78.1701389,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ef1ca278680ad949052ac779384ec884d9d4d587c1562f33a407d86e3fd70092",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/757913721",
+      "source_url": "https://www.openstreetmap.org/way/757913721",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 757913721,
+        "center": {
+          "lat": 18.4178598,
+          "lon": -78.2132122
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Replica of Sir Alexander Bustamante's House",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Replica of Sir Alexander Bustamante's House",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4178598,
+        "longitude": -78.2132122,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "da86c3529cc2b95cf9c096ea97c124b53e36a939c3e84220b74b5c867ad77985",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/826444550",
+      "source_url": "https://www.openstreetmap.org/way/826444550",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 826444550,
+        "center": {
+          "lat": 18.4025202,
+          "lon": -78.2615219
+        },
+        "tags": {
+          "addr:city": "Green Island",
+          "building": "yes",
+          "name": "VIVIENNE'S GUEST HOUSE",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "VIVIENNE'S GUEST HOUSE",
+        "address": "Green Island, Jamaica",
+        "city": "Green Island",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4025202,
+        "longitude": -78.2615219,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "da859714109f274ca92acb1a9dd0024d433482bb7e8d382c1a7f90d423f5a412",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/827276803",
+      "source_url": "https://www.openstreetmap.org/way/827276803",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 827276803,
+        "center": {
+          "lat": 18.4465065,
+          "lon": -78.175247
+        },
+        "tags": {
+          "addr:city": "Lucea",
+          "addr:street": "East Avenue",
+          "building": "yes",
+          "name": "Blue Paloma Bed And Breakfast",
+          "tourism": "hotel",
+          "wikidata": "Q112020253"
+        }
+      },
+      "normalized_data": {
+        "name": "Blue Paloma Bed And Breakfast",
+        "address": "East Avenue, Lucea, Jamaica",
+        "city": "Lucea",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4465065,
+        "longitude": -78.175247,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1d1875e619526c27a9279ebe949a55325e8376b440ee648ea9a624a2666a5042",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/828488985",
+      "source_url": "https://www.openstreetmap.org/way/828488985",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 828488985,
+        "center": {
+          "lat": 18.4570851,
+          "lon": -78.1541003
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Coral Pool Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Coral Pool Bar",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4570851,
+        "longitude": -78.1541003,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bce604e660273ea1b07d5fd14644552f7b24b01d6f841c6c93a54ac0ead0cc40",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/831693632",
+      "source_url": "https://www.openstreetmap.org/way/831693632",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 831693632,
+        "center": {
+          "lat": 18.4479832,
+          "lon": -78.0531759
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Bluebird Villa",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Bluebird Villa",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4479832,
+        "longitude": -78.0531759,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1b4ddcee1d209b3e970c31d24a3882be004c65390545f3bd3d6b50898088ba02",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/831693634",
+      "source_url": "https://www.openstreetmap.org/way/831693634",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 831693634,
+        "center": {
+          "lat": 18.4477097,
+          "lon": -78.0553017
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Anticipation Villa",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Anticipation Villa",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4477097,
+        "longitude": -78.0553017,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b61afca63f5c2eea4abf156f23b5afb86048c9269afbc087a6082a51129efd11",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1010923236",
+      "source_url": "https://www.openstreetmap.org/way/1010923236",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1010923236,
+        "center": {
+          "lat": 18.3361022,
+          "lon": -78.3389884
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "italian",
+          "name": "Cocina Romana"
+        }
+      },
+      "normalized_data": {
+        "name": "Cocina Romana",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3361022,
+        "longitude": -78.3389884,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "italian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bc0327f711e4ae2e5ec0f031c64130855640150d199c575205bfecca48ba5f40",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1082303425",
+      "source_url": "https://www.openstreetmap.org/way/1082303425",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1082303425,
+        "center": {
+          "lat": 18.4573554,
+          "lon": -78.1516131
+        },
+        "tags": {
+          "brand": "Grand Palladium",
+          "landcover": "scrub",
+          "name": "Grand Palladium Jamaica Resort & Spa",
+          "tourism": "hotel",
+          "website": "https://www.palladiumhotelgroup.com/en/hotels/jamaica/jamaicamontegobay/grand-palladium-jamaica-resort-spa?utm_source=mybusiness&utm_medium=organic&utm_campaign=MK_TT_gpjamaica&y_source=1_MTUwOTA4NTctNzE1LWxvY2F0aW9uLndlYnNpdGU%3D"
+        }
+      },
+      "normalized_data": {
+        "name": "Grand Palladium Jamaica Resort & Spa",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.4573554,
+        "longitude": -78.1516131,
+        "category": "accommodation",
+        "phone": null,
+        "website": "https://www.palladiumhotelgroup.com/en/hotels/jamaica/jamaicamontegobay/grand-palladium-jamaica-resort-spa?utm_source=mybusiness&utm_medium=organic&utm_campaign=MK_TT_gpjamaica&y_source=1_MTUwOTA4NTctNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "60baa317a131d83bdb7b8d9f7b377474331d95ed86ce0006bc6cd40005cde6b9",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "relation/18411869",
+      "source_url": "https://www.openstreetmap.org/relation/18411869",
+      "source_last_checked_at": "2026-08-22T01:48:13.744Z",
+      "raw_data": {
+        "type": "relation",
+        "id": 18411869,
+        "center": {
+          "lat": 18.3551312,
+          "lon": -78.3374736
+        },
+        "tags": {
+          "brand": "Riu",
+          "name": "Hotel Riu Negril",
+          "rooms": "400",
+          "tourism": "hotel",
+          "type": "multipolygon"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Riu Negril",
+        "address": "Hanover, Jamaica",
+        "city": "Hanover",
+        "parish": "Hanover",
+        "country": "Jamaica",
+        "latitude": 18.3551312,
+        "longitude": -78.3374736,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1d7e947ebeef639f5659feacbcd0f7747d5a8e827334f448e5a9e60210309ab5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    }
+  ]
+}

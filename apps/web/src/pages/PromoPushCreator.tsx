@@ -7,12 +7,14 @@ import {
   usePromoPushActiveCampaigns,
   usePromoPushCreatorLinks,
 } from "@/hooks/usePromoPush";
+import { useI18n } from "@/i18n/I18nContext";
 
 function money(value: number) {
   return `JMD ${Number(value || 0).toLocaleString()}`;
 }
 
 export default function PromoPushCreator() {
+  const { t, formatNumber } = useI18n();
   const activeCampaignsQuery = usePromoPushActiveCampaigns();
   const creatorLinksQuery = usePromoPushCreatorLinks();
   const createLink = useCreatePromoPushCreatorLink();
@@ -35,21 +37,21 @@ export default function PromoPushCreator() {
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#FF6A00]/40 bg-[#FF6A00]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-[#FFC300]">
               <Megaphone className="h-3.5 w-3.5" />
-              Creator Distribution
+              {t("promoPushCreatorPage.badge")}
             </div>
-            <h1 className="text-3xl font-black tracking-tight sm:text-5xl">Turn attention into verified earnings</h1>
+            <h1 className="text-3xl font-black tracking-tight sm:text-5xl">{t("promoPushCreatorPage.title")}</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-white/65 sm:text-base">
-              Claim creator links for active PromoPush campaigns, share them anywhere, and earn when your traffic produces verified proof.
+              {t("promoPushCreatorPage.subtitle")}
             </p>
           </div>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            { label: "Clicks", value: totals.clicks.toLocaleString(), icon: MousePointerClick },
-            { label: "Joins", value: totals.joins.toLocaleString(), icon: Users },
-            { label: "Verified Actions", value: totals.proof_verified.toLocaleString(), icon: ShieldCheck },
-            { label: "Earnings", value: money(totals.earnings), icon: BadgeDollarSign },
+            { label: t("promoPushCreatorPage.statClicks"), value: formatNumber(totals.clicks), icon: MousePointerClick },
+            { label: t("promoPushCreatorPage.statJoins"), value: formatNumber(totals.joins), icon: Users },
+            { label: t("promoPushCreatorPage.statVerifiedActions"), value: formatNumber(totals.proof_verified), icon: ShieldCheck },
+            { label: t("promoPushCreatorPage.statEarnings"), value: money(totals.earnings), icon: BadgeDollarSign },
           ].map((metric) => (
             <Card key={metric.label} className="border-white/10 bg-white/[0.04] text-white">
               <CardContent className="p-4">
@@ -66,15 +68,15 @@ export default function PromoPushCreator() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Plus className="h-5 w-5 text-[#FFC300]" />
-                Available Campaigns
+                {t("promoPushCreatorPage.availableCampaigns")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {activeCampaignsQuery.isLoading ? (
-                <p className="text-sm text-white/60">Loading active campaigns...</p>
+                <p className="text-sm text-white/60">{t("promoPushCreatorPage.loadingActiveCampaigns")}</p>
               ) : availableCampaigns.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-white/20 p-6 text-center text-sm text-white/60">
-                  No unclaimed creator campaigns are active right now.
+                  {t("promoPushCreatorPage.noUnclaimedCampaigns")}
                 </div>
               ) : (
                 availableCampaigns.map((campaign) => (
@@ -83,10 +85,10 @@ export default function PromoPushCreator() {
                       <div>
                         <p className="font-bold">{campaign.title}</p>
                         <p className="mt-1 text-sm text-white/55">
-                          {campaign.geo_label || "Geo campaign"} · {campaign.geo_radius_meters}m radius
+                          {campaign.geo_label || t("promoPushCreatorPage.geoCampaign")} · {t("promoPushCreatorPage.radiusMeters", { radius: formatNumber(campaign.geo_radius_meters) })}
                         </p>
                         <p className="mt-2 text-sm text-[#FFC300]">
-                          {money(Number(campaign.reward_rules?.creator_verified_action_jmd || 0))} per verified action
+                          {t("promoPushCreatorPage.perVerifiedAction", { amount: money(Number(campaign.reward_rules?.creator_verified_action_jmd || 0)) })}
                         </p>
                       </div>
                       <Button
@@ -95,7 +97,7 @@ export default function PromoPushCreator() {
                         className="bg-[#FF6A00] text-white hover:bg-[#e65f00]"
                       >
                         <Link2 className="mr-2 h-4 w-4" />
-                        Claim Link
+                        {t("promoPushCreatorPage.claimLink")}
                       </Button>
                     </div>
                   </div>
@@ -108,15 +110,15 @@ export default function PromoPushCreator() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-[#FFC300]" />
-                My Creator Links
+                {t("promoPushCreatorPage.myCreatorLinks")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {creatorLinksQuery.isLoading ? (
-                <p className="text-sm text-white/60">Loading creator links...</p>
+                <p className="text-sm text-white/60">{t("promoPushCreatorPage.loadingCreatorLinks")}</p>
               ) : creatorLinks.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-white/20 p-6 text-center text-sm text-white/60">
-                  Claim a campaign link to start tracking clicks, joins, conversions, and earnings.
+                  {t("promoPushCreatorPage.noCreatorLinks")}
                 </div>
               ) : (
                 creatorLinks.map((link) => (
@@ -132,29 +134,29 @@ export default function PromoPushCreator() {
                         </div>
                         <Button variant="outline" className="border-white/15 bg-transparent text-white hover:bg-white/10" onClick={() => navigator.clipboard.writeText(link.tracking_link)}>
                           <Copy className="mr-2 h-4 w-4" />
-                          Copy
+                          {t("promoPushCreatorPage.copy")}
                         </Button>
                       </div>
                       <div className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-5">
                         <div className="rounded-md bg-white/[0.04] p-3">
-                          <p className="font-black">{link.metrics?.clicks || 0}</p>
-                          <p className="text-xs text-white/50">Clicks</p>
+                          <p className="font-black">{formatNumber(link.metrics?.clicks || 0)}</p>
+                          <p className="text-xs text-white/50">{t("promoPushCreatorPage.thClicks")}</p>
                         </div>
                         <div className="rounded-md bg-white/[0.04] p-3">
-                          <p className="font-black">{link.metrics?.joins || 0}</p>
-                          <p className="text-xs text-white/50">Joins</p>
+                          <p className="font-black">{formatNumber(link.metrics?.joins || 0)}</p>
+                          <p className="text-xs text-white/50">{t("promoPushCreatorPage.thJoins")}</p>
                         </div>
                         <div className="rounded-md bg-white/[0.04] p-3">
-                          <p className="font-black">{link.metrics?.proof_verified || 0}</p>
-                          <p className="text-xs text-white/50">Verified</p>
+                          <p className="font-black">{formatNumber(link.metrics?.proof_verified || 0)}</p>
+                          <p className="text-xs text-white/50">{t("promoPushCreatorPage.thVerified")}</p>
                         </div>
                         <div className="rounded-md bg-white/[0.04] p-3">
                           <p className="font-black">{money(link.earnings?.pending || 0)}</p>
-                          <p className="text-xs text-white/50">Pending</p>
+                          <p className="text-xs text-white/50">{t("promoPushCreatorPage.thPending")}</p>
                         </div>
                         <div className="rounded-md bg-[#FFC300]/10 p-3">
                           <p className="font-black text-[#FFC300]">{money(link.earnings?.total || 0)}</p>
-                          <p className="text-xs text-[#FFC300]/70">Total</p>
+                          <p className="text-xs text-[#FFC300]/70">{t("promoPushCreatorPage.thTotal")}</p>
                         </div>
                       </div>
                     </div>
@@ -168,3 +170,4 @@ export default function PromoPushCreator() {
     </div>
   );
 }
+

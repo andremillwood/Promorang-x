@@ -27,10 +27,10 @@ import {
   useMyContentDrops,
 } from "@/hooks/useContentDistribution";
 import { useAuth } from "@/contexts/AuthContext";
-import { cn } from "@/lib/utils";
 import { seededContentDrops } from "@/data/seeded-content-drops";
 import { OpportunityTerms } from "@/components/economy/OpportunityTerms";
 import { LaunchContentDropModal } from "@/components/content/LaunchContentDropModal";
+import { useI18n } from "@/i18n/I18nContext";
 
 const defaultDrop = {
   title: "",
@@ -57,6 +57,7 @@ function getAssets(drop: ContentDistributionCampaign) {
 }
 
 function DropCard({ drop, featured = false }: { drop: ContentDistributionCampaign; featured?: boolean }) {
+  const { t, formatNumber } = useI18n();
   const assets = getAssets(drop);
   const primary = assets[0];
   const points = Number(drop.reward_config?.base_points || 0);
@@ -81,7 +82,7 @@ function DropCard({ drop, featured = false }: { drop: ContentDistributionCampaig
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
             <div className="absolute left-3 top-3 flex gap-2">
               <Badge className="bg-black/65 text-white">{drop.objective_type.replace("_", " ")}</Badge>
-              {drop.linked_moment_id && <Badge className="bg-primary text-primary-foreground">Moment linked</Badge>}
+              {drop.linked_moment_id && <Badge className="bg-primary text-primary-foreground">{t("drops.linked")}</Badge>}
             </div>
             <span className="absolute bottom-4 left-4 grid h-12 w-12 place-items-center rounded-full border border-white/35 bg-black/45 backdrop-blur"><Play className="h-5 w-5 fill-white" /></span>
           </div>
@@ -89,22 +90,22 @@ function DropCard({ drop, featured = false }: { drop: ContentDistributionCampaig
             <div>
               <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-white/45">
                 <Flame className="h-4 w-4 text-primary" />
-                Creator distribution drop
+                {t("drops.cardEyebrow")}
               </div>
               <h2 className="line-clamp-2 text-2xl font-black tracking-tight">{drop.title}</h2>
               <p className="mt-2 line-clamp-3 text-sm leading-6 text-white/50">
-                {drop.description || "Help this content move. Early contributors earn points, PromoShare entries, and visible distribution rank."}
+                {drop.description || t("drops.cardCopy")}
               </p>
             </div>
             <div className="mt-5">
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { label: "points", value: points },
-                  { label: "entries", value: entries },
-                  { label: "assets", value: assets.length },
+                  { label: t("drops.points"), value: points },
+                  { label: t("drops.entries"), value: entries },
+                  { label: t("drops.assets"), value: assets.length },
                 ].map((item) => (
                   <div key={item.label} className="rounded-xl bg-white/[0.06] p-3">
-                    <p className="text-xl font-black">{item.value}</p>
+                    <p className="text-xl font-black">{formatNumber(item.value)}</p>
                     <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/40">{item.label}</p>
                   </div>
                 ))}
@@ -114,15 +115,15 @@ function DropCard({ drop, featured = false }: { drop: ContentDistributionCampaig
               dark
               compact={!featured}
               className="mt-3"
-              cost="Free"
+              cost={t("drops.costFree")}
               reward={`${points} Points + ${entries} entry${entries === 1 ? "" : "ies"}${fundedGems > 0 ? ` + up to ${fundedGems} Gems` : ""}`}
-              funding={drop.linked_moment_id ? "Linked Moment pool" : "Campaign allocation"}
-              proof="Attributed action"
-              settlement="After verification"
+              funding={t(drop.linked_moment_id ? "drops.linkedPool" : "drops.campaignAllocation")}
+              proof={t("drops.proof")}
+              settlement={t("drops.settlement")}
             />
             <Button asChild className="mt-5 w-full justify-between">
               <Link to={`/content-drops/${drop.id}`}>
-                Open opportunity
+                {t("drops.openOpportunity")}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
@@ -134,6 +135,7 @@ function DropCard({ drop, featured = false }: { drop: ContentDistributionCampaig
 }
 
 export default function ContentDrops() {
+  const { t, formatNumber } = useI18n();
   const { session } = useAuth();
   const dropsQuery = useContentDrops("active");
   const myDropsQuery = useMyContentDrops("all");
@@ -209,23 +211,23 @@ export default function ContentDrops() {
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/20" />
           <div className="relative grid min-h-[420px] gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_360px] lg:items-end">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/35 bg-primary/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary"><RadioTower className="h-3 w-3" /> Creator signal</div>
-              <h1 className="mt-5 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.065em] sm:text-7xl">Move the culture.<br /><span className="text-primary">Prove your influence.</span></h1>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">Watch the original. Share with attribution. Help a creator, scene, or moment reach the right people, then earn the status and upside your movement creates.</p>
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/35 bg-primary/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary"><RadioTower className="h-3 w-3" /> {t("drops.signal")}</div>
+              <h1 className="mt-5 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.065em] sm:text-7xl">{t("drops.hero1")}<br /><span className="text-primary">{t("drops.hero2")}</span></h1>
+              <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">{t("drops.heroCopy")}</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <LaunchContentDropModal />
-                <Button asChild variant="outline" className="border-white/20 bg-black/35 text-white hover:bg-white/10 hover:text-white"><a href="#content-drop-feed">Browse drops <ArrowRight className="ml-2 h-4 w-4" /></a></Button>
-                <Button asChild variant="outline" className="border-white/20 bg-black/35 text-white hover:bg-white/10 hover:text-white"><Link to="/growth">Open Growth Hub</Link></Button>
+                <Button asChild variant="outline" className="border-white/20 bg-black/35 text-white hover:bg-white/10 hover:text-white"><a href="#content-drop-feed">{t("drops.browse")} <ArrowRight className="ml-2 h-4 w-4" /></a></Button>
+                <Button asChild variant="outline" className="border-white/20 bg-black/35 text-white hover:bg-white/10 hover:text-white"><Link to="/growth">{t("drops.growth")}</Link></Button>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-black/55 p-3 backdrop-blur-xl">
               {[
-                { label: "Active", value: totals.active, icon: RadioTower },
-                { label: "Assets", value: totals.assets, icon: Link2 },
-                { label: "Moments", value: totals.linked, icon: BadgeCheck },
+                { label: t("drops.active"), value: totals.active, icon: RadioTower },
+                { label: t("drops.assets"), value: totals.assets, icon: Link2 },
+                { label: t("drops.moments"), value: totals.linked, icon: BadgeCheck },
               ].map((item) => (
                 <div key={item.label} className="rounded-xl bg-white/[0.06] p-3">
-                  <item.icon className="h-4 w-4 text-primary" /><p className="mt-4 text-2xl font-black">{item.value}</p><p className="text-[9px] font-bold uppercase tracking-[0.13em] text-white/40">{item.label}</p>
+                  <item.icon className="h-4 w-4 text-primary" /><p className="mt-4 text-2xl font-black">{formatNumber(item.value)}</p><p className="text-[9px] font-bold uppercase tracking-[0.13em] text-white/40">{item.label}</p>
                 </div>
               ))}
             </div>
@@ -234,11 +236,11 @@ export default function ContentDrops() {
 
         <Tabs id="content-drop-feed" defaultValue="discover" className="mt-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Distribution opportunities</p><h2 className="mt-1 text-3xl font-black">Drops worth moving</h2></div>
+          <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("drops.eyebrow")}</p><h2 className="mt-1 text-3xl font-black">{t("drops.feedTitle")}</h2></div>
           <TabsList className="grid w-full grid-cols-3 bg-white/[0.06] sm:w-[420px]">
-            <TabsTrigger value="discover">Discover</TabsTrigger>
-            <TabsTrigger value="create">Launch</TabsTrigger>
-            <TabsTrigger value="mine">Mine</TabsTrigger>
+            <TabsTrigger value="discover">{t("drops.discover")}</TabsTrigger>
+            <TabsTrigger value="create">{t("drops.launch")}</TabsTrigger>
+            <TabsTrigger value="mine">{t("drops.mine")}</TabsTrigger>
           </TabsList>
           </div>
 
@@ -255,23 +257,23 @@ export default function ContentDrops() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Plus className="h-5 w-5 text-primary" />
-                  Launch a creator content drop
+                  {t("drops.launchTitle")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {!session?.access_token ? (
                   <div className="rounded-md border bg-muted p-5">
-                    <p className="font-semibold">Sign in to launch a content drop.</p>
-                    <p className="mt-1 text-sm text-muted-foreground">Public visitors can discover drops, but creators need an account to publish one.</p>
+                    <p className="font-semibold">{t("drops.signInTitle")}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{t("drops.signInCopy")}</p>
                   </div>
                 ) : (
                   <form onSubmit={submit} className="grid gap-4 lg:grid-cols-2">
                     <div>
-                      <Label htmlFor="drop-title">Drop title</Label>
-                      <Input id="drop-title" required value={draft.title} onChange={(e) => updateDraft("title", e.target.value)} className="mt-2" placeholder="Help push my new video" />
+                      <Label htmlFor="drop-title">{t("drops.dropTitle")}</Label>
+                      <Input id="drop-title" required value={draft.title} onChange={(e) => updateDraft("title", e.target.value)} className="mt-2" placeholder={t("drops.dropPlaceholder")} />
                     </div>
                     <div>
-                      <Label>Original platform</Label>
+                      <Label>{t("drops.platform")}</Label>
                       <Select value={draft.platform} onValueChange={(value) => updateDraft("platform", value)}>
                         <SelectTrigger className="mt-2">
                           <SelectValue />
@@ -284,29 +286,29 @@ export default function ContentDrops() {
                       </Select>
                     </div>
                     <div className="lg:col-span-2">
-                      <Label htmlFor="external-url">External content link</Label>
+                      <Label htmlFor="external-url">{t("drops.externalLink")}</Label>
                       <Input id="external-url" required type="url" value={draft.external_url} onChange={(e) => updateDraft("external_url", e.target.value)} className="mt-2" placeholder="https://..." />
                     </div>
                     <div className="lg:col-span-2">
-                      <Label htmlFor="asset-title">Asset label</Label>
-                      <Input id="asset-title" value={draft.asset_title} onChange={(e) => updateDraft("asset_title", e.target.value)} className="mt-2" placeholder="YouTube video, TikTok reel, Spotify track..." />
+                      <Label htmlFor="asset-title">{t("drops.assetLabel")}</Label>
+                      <Input id="asset-title" value={draft.asset_title} onChange={(e) => updateDraft("asset_title", e.target.value)} className="mt-2" placeholder={t("drops.assetPlaceholder")} />
                     </div>
                     <div className="lg:col-span-2">
-                      <Label htmlFor="drop-description">Why should people move this?</Label>
+                      <Label htmlFor="drop-description">{t("drops.why")}</Label>
                       <Textarea id="drop-description" value={draft.description} onChange={(e) => updateDraft("description", e.target.value)} className="mt-2 min-h-[110px]" />
                     </div>
                     <div>
-                      <Label htmlFor="base-points">Base points</Label>
+                      <Label htmlFor="base-points">{t("drops.basePoints")}</Label>
                       <Input id="base-points" type="number" min="0" value={draft.base_points} onChange={(e) => updateDraft("base_points", e.target.value)} className="mt-2" />
                     </div>
                     <div>
-                      <Label htmlFor="entries">PromoShare entries per verified action</Label>
+                      <Label htmlFor="entries">{t("drops.entriesPerAction")}</Label>
                       <Input id="entries" type="number" min="0" value={draft.entries_per_action} onChange={(e) => updateDraft("entries_per_action", e.target.value)} className="mt-2" />
                     </div>
                     <div className="lg:col-span-2">
                       <Button disabled={createDrop.isPending || addAsset.isPending} type="submit">
                         <RadioTower className="mr-2 h-4 w-4" />
-                        Launch Content Drop
+                        {t("drops.launchCta")}
                       </Button>
                     </div>
                   </form>
@@ -321,7 +323,7 @@ export default function ContentDrops() {
               {!myDrops.length && (
                 <Card>
                   <CardContent className="p-8 text-center text-muted-foreground">
-                    Your creator drops will appear here after launch.
+                    {t("drops.mineEmpty")}
                   </CardContent>
                 </Card>
               )}

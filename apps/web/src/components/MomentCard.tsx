@@ -9,6 +9,7 @@ import { buildMomentPath } from "@/lib/discovery";
 import { MomentValuePath } from "@/components/moments/MomentValuePath";
 import { ContentProvenanceBadge } from "@/components/content/ContentProvenance";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
+import { useI18n } from "@/i18n/I18nContext";
 
 type Moment = Tables<"moments"> & {
   slug?: string | null;
@@ -107,6 +108,7 @@ export function MomentCard({
   onSave,
   className
 }: MomentCardProps) {
+  const { t, formatDate, formatNumber } = useI18n();
   const [isHovered, setIsHovered] = useState(false);
   const [isSaved, setIsSaved] = useState(moment.is_saved || false);
 
@@ -129,18 +131,17 @@ export function MomentCard({
     navigate(`/profile/${moment.host_id}`);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
+  const formatCardDate = (dateString: string) => {
+    return formatDate(dateString, {
       weekday: "short",
       month: "short",
       day: "numeric",
     });
   };
 
-  const formatTime = (dateString: string) => {
+  const formatCardTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString("en-US", {
+    return date.toLocaleTimeString(undefined, {
       hour: "numeric",
       minute: "2-digit",
     });
@@ -229,7 +230,7 @@ export function MomentCard({
 
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           <span className="w-fit rounded-full border border-white/15 bg-black/70 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-md backdrop-blur-sm">
-            Moment
+            {t("momentCard.badge")}
           </span>
           {originLabel && (
             <span className={cn("px-2.5 py-1 backdrop-blur-sm text-xs font-semibold rounded-full shadow-md flex items-center gap-1", originLabel.tone)}>
@@ -246,13 +247,13 @@ export function MomentCard({
           {isAlmostFull && (
             <span className="px-2.5 py-1 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center gap-1 shadow-md animate-pulse">
               <Flame className="h-3 w-3" />
-              {spotsLeft} spots left!
+              {t("momentCard.spotsLeft", { count: formatNumber(spotsLeft) })}
             </span>
           )}
           {isHot && !isAlmostFull && (
             <span className="px-2.5 py-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-semibold rounded-full flex items-center gap-1 shadow-md">
               <Flame className="h-3 w-3" />
-              Trending
+              {t("momentCard.trending")}
             </span>
           )}
           {moment.reward && (
@@ -263,7 +264,7 @@ export function MomentCard({
           {moment.venue_name && (
             <span className="px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md flex items-center gap-1">
               <MapPin className="h-3 w-3" />
-              Venue
+              {t("momentCard.venue")}
             </span>
           )}
         </div>
@@ -301,7 +302,7 @@ export function MomentCard({
               )}
             </div>
             <span className="text-xs text-muted-foreground group-hover/host:text-primary transition-colors">
-              Hosted by {moment.host.full_name}
+              {t("momentCard.hostedBy", { name: moment.host.full_name })}
             </span>
           </div>
         )}
@@ -331,10 +332,10 @@ export function MomentCard({
         <div className="flex flex-col gap-1.5 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <Calendar className="h-3.5 w-3.5 text-primary" />
-            <span>{formatDate(occurrence.startsAt)}</span>
+            <span>{formatCardDate(occurrence.startsAt)}</span>
             <span className="text-muted-foreground/50">•</span>
             <Clock className="h-3.5 w-3.5 text-primary" />
-            <span>{formatTime(occurrence.startsAt)}</span>
+            <span>{formatCardTime(occurrence.startsAt)}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5 text-primary" />
@@ -351,7 +352,7 @@ export function MomentCard({
           ]}
         />
 
-        {/* Footer - only show participation that actually exists. */}
+        {/* Footer */}
         <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-3">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -359,21 +360,18 @@ export function MomentCard({
             </span>
             <div className="text-xs font-semibold text-muted-foreground transition-colors group-hover:text-foreground">
               {(moment.participant_count || 0) > 0
-                ? `${moment.participant_count} ${moment.participant_count === 1 ? "person" : "people"} joining`
-                : "Be the first to join"}
+                ? moment.participant_count === 1
+                  ? t("momentCard.personJoining", { count: formatNumber(moment.participant_count) })
+                  : t("momentCard.peopleJoining", { count: formatNumber(moment.participant_count) })
+                : t("momentCard.firstToJoin")}
             </div>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
-              View details
+            <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+              {t("momentCard.viewDetails")}
             </span>
           </div>
-        </div>
-
-        <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/30 pt-3 sm:hidden">
-          <span className="text-xs font-medium text-muted-foreground">Tap for details</span>
-          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">Open moment</span>
         </div>
       </div>
     </Link>

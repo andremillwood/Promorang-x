@@ -1,0 +1,4097 @@
+{
+  "schema_version": 1,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Manchester, Jamaica",
+    "parish": "Manchester",
+    "iso_code": "JM-12",
+    "collected_at": "2026-08-22T01:48:37.902Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "stats": {
+    "source_elements": 116,
+    "candidates": 100,
+    "pending_review": 5,
+    "needs_research": 95
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1900578933",
+      "source_url": "https://www.openstreetmap.org/node/1900578933",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1900578933,
+        "lat": 18.0364646,
+        "lon": -77.5069027,
+        "tags": {
+          "amenity": "bar",
+          "name": "Shock Wave"
+        }
+      },
+      "normalized_data": {
+        "name": "Shock Wave",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0364646,
+        "longitude": -77.5069027,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8659c49f5a4207603bbc310590b173d9965a414e74f58f358983308b76a72c1e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2602000621",
+      "source_url": "https://www.openstreetmap.org/node/2602000621",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2602000621,
+        "lat": 18.0566525,
+        "lon": -77.4460861,
+        "tags": {
+          "amenity": "fast_food",
+          "name": "Local Food Stop"
+        }
+      },
+      "normalized_data": {
+        "name": "Local Food Stop",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0566525,
+        "longitude": -77.4460861,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "36ca8ee5894b72eeead6ee1718b8b156bdd852254098db8830a529c7c72e0561",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2674346923",
+      "source_url": "https://www.openstreetmap.org/node/2674346923",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2674346923,
+        "lat": 18.0458768,
+        "lon": -77.5106397,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "OMG",
+          "phone": "18769627251"
+        }
+      },
+      "normalized_data": {
+        "name": "OMG",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0458768,
+        "longitude": -77.5106397,
+        "category": "restaurant",
+        "phone": "18769627251",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8779e8162db2a0d8fcd5466af12505cc80c2112ad2a7302ee363bb940dc75483",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2674346948",
+      "source_url": "https://www.openstreetmap.org/node/2674346948",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2674346948,
+        "lat": 18.0415292,
+        "lon": -77.5106587,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Domino's",
+          "brand:wikidata": "Q839466",
+          "cuisine": "pizza",
+          "level": "1",
+          "name": "Domino's",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Domino's",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0415292,
+        "longitude": -77.5106587,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a006dbe268777dc4a21c0a97dea4f60b42de1adb6a6c6eea0226e11abf09ddd5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2680420398",
+      "source_url": "https://www.openstreetmap.org/node/2680420398",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2680420398,
+        "lat": 18.0469314,
+        "lon": -77.5069843,
+        "tags": {
+          "addr:housename": "Elethe Mall",
+          "addr:street": "Caledonia Road",
+          "amenity": "bar",
+          "name": "Mojitos"
+        }
+      },
+      "normalized_data": {
+        "name": "Mojitos",
+        "address": "Caledonia Road, Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0469314,
+        "longitude": -77.5069843,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2477d6c029e59aaf00d4fa8ff1a8968cc9b9355f87b8ae565c93a68fcf7e0d5c",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2687427335",
+      "source_url": "https://www.openstreetmap.org/node/2687427335",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2687427335,
+        "lat": 18.0403317,
+        "lon": -77.5106726,
+        "tags": {
+          "addr:city": "Kingston",
+          "addr:housenumber": "17",
+          "addr:street": "Caledonia Road",
+          "addr:unit": "1",
+          "email": "mandeville@expressfitnessja.com",
+          "leisure": "sports_centre",
+          "name": "Express Fitness",
+          "opening_hours": "24/7",
+          "phone": "622-2921",
+          "website": "https://expressfitnessja.com/index.php?option=com_content&view=article&id=48&Itemid=212"
+        }
+      },
+      "normalized_data": {
+        "name": "Express Fitness",
+        "address": "17 Caledonia Road, Kingston, Jamaica",
+        "city": "Kingston",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0403317,
+        "longitude": -77.5106726,
+        "category": "fitness_wellness",
+        "phone": "622-2921",
+        "website": "https://expressfitnessja.com/index.php?option=com_content&view=article&id=48&Itemid=212",
+        "opening_hours": "24/7",
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b44d526c31dcbfab412fc3610c3dccf6bb6d51bf67fcd5a8856f3bf37761fd48",
+      "confidence": 0.95,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2689336181",
+      "source_url": "https://www.openstreetmap.org/node/2689336181",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2689336181,
+        "lat": 18.0409881,
+        "lon": -77.5118491,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "George's Gym"
+        }
+      },
+      "normalized_data": {
+        "name": "George's Gym",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0409881,
+        "longitude": -77.5118491,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "895044283e0c213e6f882b85ec9cc3485f972773e7336e5e51d3f43af30d5285",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2689336183",
+      "source_url": "https://www.openstreetmap.org/node/2689336183",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2689336183,
+        "lat": 18.0389291,
+        "lon": -77.5101037,
+        "tags": {
+          "amenity": "restaurant",
+          "level": "1",
+          "name": "Juici Patties"
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0389291,
+        "longitude": -77.5101037,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4e6548367a6b908250067f8d8a6746ebe72e06865858359beadfff83163002e5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2689336187",
+      "source_url": "https://www.openstreetmap.org/node/2689336187",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2689336187,
+        "lat": 18.0388636,
+        "lon": -77.5137615,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Tyson's Gym"
+        }
+      },
+      "normalized_data": {
+        "name": "Tyson's Gym",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0388636,
+        "longitude": -77.5137615,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cb9c31d9807f6554c359f5c5a947b4238904349be91dd1d1f775182f0cf5a25c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2689336188",
+      "source_url": "https://www.openstreetmap.org/node/2689336188",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2689336188,
+        "lat": 18.0383433,
+        "lon": -77.5138393,
+        "tags": {
+          "amenity": "bar",
+          "name": "Beaver's"
+        }
+      },
+      "normalized_data": {
+        "name": "Beaver's",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0383433,
+        "longitude": -77.5138393,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d6943933fb228e086b544f67c656e49d592ff2fe7d238f120481d566d0241ace",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2689336189",
+      "source_url": "https://www.openstreetmap.org/node/2689336189",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2689336189,
+        "lat": 18.0385423,
+        "lon": -77.5142658,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "Bamboo Gardens"
+        }
+      },
+      "normalized_data": {
+        "name": "Bamboo Gardens",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0385423,
+        "longitude": -77.5142658,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "edbe352b7a44f01cdf997ab261d2e49481febd6fd146786fd3f6255951b179a2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2696260298",
+      "source_url": "https://www.openstreetmap.org/node/2696260298",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2696260298,
+        "lat": 18.0565508,
+        "lon": -77.4981087,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Ingleside Wellness and Recreation Centre"
+        }
+      },
+      "normalized_data": {
+        "name": "Ingleside Wellness and Recreation Centre",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0565508,
+        "longitude": -77.4981087,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "307bdf5702779b7c6281d78dd75df08b88fdd466d5983a9ca79f36cdc389bebc",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2730665230",
+      "source_url": "https://www.openstreetmap.org/node/2730665230",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2730665230,
+        "lat": 18.0336148,
+        "lon": -77.5140807,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Bloomfield Great House",
+          "opening_hours": "Mo-Sa 12:00-22:00"
+        }
+      },
+      "normalized_data": {
+        "name": "Bloomfield Great House",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0336148,
+        "longitude": -77.5140807,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Sa 12:00-22:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bdd249e8be4ef000eeeb92d0b19bcda3db635b579d2795b2c489caf815b09200",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2730678156",
+      "source_url": "https://www.openstreetmap.org/node/2730678156",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2730678156,
+        "lat": 18.0377472,
+        "lon": -77.5094345,
+        "tags": {
+          "name": "Chea Go",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Chea Go",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0377472,
+        "longitude": -77.5094345,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2a940eb96ee8bbce6a39af1a47e81ffebce040267dfecae522282347d7b2c43a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3125637025",
+      "source_url": "https://www.openstreetmap.org/node/3125637025",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3125637025,
+        "lat": 18.0308001,
+        "lon": -77.5369234,
+        "tags": {
+          "amenity": "bar",
+          "name": "Alcohole",
+          "smoking": "isolated"
+        }
+      },
+      "normalized_data": {
+        "name": "Alcohole",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0308001,
+        "longitude": -77.5369234,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9c37f5920a28828853be6a1029fdaef975deadff6768fd3d0d522a80fd170fff",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3247521290",
+      "source_url": "https://www.openstreetmap.org/node/3247521290",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3247521290,
+        "lat": 17.8664149,
+        "lon": -77.3938544,
+        "tags": {
+          "name": "Alligator Hole",
+          "tourism": "viewpoint"
+        }
+      },
+      "normalized_data": {
+        "name": "Alligator Hole",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 17.8664149,
+        "longitude": -77.3938544,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "viewpoint"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0acd1dfc7d006bb8c1d27dbfdab3bfd3a6da79aecbdea0b384c769dd5591cb2d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3759306691",
+      "source_url": "https://www.openstreetmap.org/node/3759306691",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3759306691,
+        "lat": 18.0432347,
+        "lon": -77.5100469,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "Lucky Chinese Restaurant"
+        }
+      },
+      "normalized_data": {
+        "name": "Lucky Chinese Restaurant",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0432347,
+        "longitude": -77.5100469,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "341ca6c3fed1f525be95b79215a03b87696416f5105b0ed8d5d049b659597532",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3759540602",
+      "source_url": "https://www.openstreetmap.org/node/3759540602",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3759540602,
+        "lat": 18.0389431,
+        "lon": -77.5137215,
+        "tags": {
+          "name": "Leighton's Beauty Salon",
+          "shop": "beauty"
+        }
+      },
+      "normalized_data": {
+        "name": "Leighton's Beauty Salon",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0389431,
+        "longitude": -77.5137215,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "df3a00648e05509e663f3770479f17d6276d76b3df45a5fdf43e887ef12d781f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3762916134",
+      "source_url": "https://www.openstreetmap.org/node/3762916134",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3762916134,
+        "lat": 18.0388271,
+        "lon": -77.5085561,
+        "tags": {
+          "level": "2",
+          "name": "Latty's Fashion",
+          "shop": "beauty"
+        }
+      },
+      "normalized_data": {
+        "name": "Latty's Fashion",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0388271,
+        "longitude": -77.5085561,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f4e902523659fa9c59dc97a544b5bc2a205059cb2ebb542f7a2204b1595a413c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3762929240",
+      "source_url": "https://www.openstreetmap.org/node/3762929240",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3762929240,
+        "lat": 18.0386652,
+        "lon": -77.5082731,
+        "tags": {
+          "addr:city": "Mandeville",
+          "addr:housenumber": "25",
+          "addr:street": "Manchester Road",
+          "amenity": "marketplace",
+          "name": "Trading Place Ltd.",
+          "phone": "962-3445"
+        }
+      },
+      "normalized_data": {
+        "name": "Trading Place Ltd.",
+        "address": "25 Manchester Road, Mandeville, Jamaica",
+        "city": "Mandeville",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0386652,
+        "longitude": -77.5082731,
+        "category": "other",
+        "phone": "962-3445",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marketplace"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6ea829b360748287bed64f409aff6e1be5f4c15311b8f1741d7c0880ac45938a",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3762973362",
+      "source_url": "https://www.openstreetmap.org/node/3762973362",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3762973362,
+        "lat": 18.0385,
+        "lon": -77.5088511,
+        "tags": {
+          "addr:city": "Mandeville",
+          "addr:housenumber": "12",
+          "addr:street": "Manchester Road",
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "level": "2",
+          "name": "China Jade",
+          "phone": "961-5233"
+        }
+      },
+      "normalized_data": {
+        "name": "China Jade",
+        "address": "12 Manchester Road, Mandeville, Jamaica",
+        "city": "Mandeville",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0385,
+        "longitude": -77.5088511,
+        "category": "restaurant",
+        "phone": "961-5233",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2675f4086fd92b3ad4273ec46ef20d1b3d7b6d09f5d153fb58acbf3bca4d494a",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3762973363",
+      "source_url": "https://www.openstreetmap.org/node/3762973363",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3762973363,
+        "lat": 18.0385714,
+        "lon": -77.5088619,
+        "tags": {
+          "addr:city": "Mandeville",
+          "addr:housenumber": "12",
+          "addr:street": "Manchester Road",
+          "level": "1",
+          "name": "Broadway Jewellery, Repairing, & Gift Shop",
+          "operator": "J. Chambers",
+          "shop": "jewelry"
+        }
+      },
+      "normalized_data": {
+        "name": "Broadway Jewellery, Repairing, & Gift Shop",
+        "address": "12 Manchester Road, Mandeville, Jamaica",
+        "city": "Mandeville",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0385714,
+        "longitude": -77.5088619,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d269bc1a3d18126d37db8f1acf267c21fbc3369e32b9fa89c3ec789156c4300c",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3763236739",
+      "source_url": "https://www.openstreetmap.org/node/3763236739",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3763236739,
+        "lat": 18.008872,
+        "lon": -77.4904112,
+        "tags": {
+          "amenity": "cafe",
+          "name": "Internet Cafe"
+        }
+      },
+      "normalized_data": {
+        "name": "Internet Cafe",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.008872,
+        "longitude": -77.4904112,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dcbd191b9f68910806b34c0377ba35f4412c6924883355144732791edcd99d16",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3764093908",
+      "source_url": "https://www.openstreetmap.org/node/3764093908",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3764093908,
+        "lat": 18.0399282,
+        "lon": -77.5073887,
+        "tags": {
+          "amenity": "cafe",
+          "name": "Juicilious Juices"
+        }
+      },
+      "normalized_data": {
+        "name": "Juicilious Juices",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0399282,
+        "longitude": -77.5073887,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e8e707f1f63cfe539870b33f1836fbbafdd856e8db08f51fb87aabf3857912f4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3764197291",
+      "source_url": "https://www.openstreetmap.org/node/3764197291",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3764197291,
+        "lat": 18.0371355,
+        "lon": -77.5064513,
+        "tags": {
+          "addr:city": "Mandeville",
+          "addr:housenumber": "45",
+          "addr:street": "Manchester Road",
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "level": "2",
+          "name": "China Jade",
+          "phone": "625-8886"
+        }
+      },
+      "normalized_data": {
+        "name": "China Jade",
+        "address": "45 Manchester Road, Mandeville, Jamaica",
+        "city": "Mandeville",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0371355,
+        "longitude": -77.5064513,
+        "category": "restaurant",
+        "phone": "625-8886",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cd35a69a718a1175b27d044b92d7abbde356d34b42b6df516bab21f0ca47b6aa",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3764208864",
+      "source_url": "https://www.openstreetmap.org/node/3764208864",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3764208864,
+        "lat": 18.0368958,
+        "lon": -77.5064875,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "burger",
+          "level": "1",
+          "name": "Juici Patties"
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0368958,
+        "longitude": -77.5064875,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1c37194cf9f2b97e4374885a6c7a001dc4422729e451f40974599db4c8cd7789",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3764208865",
+      "source_url": "https://www.openstreetmap.org/node/3764208865",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3764208865,
+        "lat": 18.0367976,
+        "lon": -77.5064674,
+        "tags": {
+          "level": "1",
+          "name": "Cheago Fashion",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Cheago Fashion",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0367976,
+        "longitude": -77.5064674,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bad5c15e6e8abe37a75c477beded199ffc5dabee365853043cc5a9417f397e17",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3764417282",
+      "source_url": "https://www.openstreetmap.org/node/3764417282",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3764417282,
+        "lat": 18.0459879,
+        "lon": -77.50715,
+        "tags": {
+          "name": "Bookland",
+          "shop": "books"
+        }
+      },
+      "normalized_data": {
+        "name": "Bookland",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0459879,
+        "longitude": -77.50715,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c71fdb07c66ebdf16561fe92f04a5450251b1f794e0f2b79471f03886cfbc614",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4017775791",
+      "source_url": "https://www.openstreetmap.org/node/4017775791",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4017775791,
+        "lat": 18.0448072,
+        "lon": -77.5099052,
+        "tags": {
+          "addr:city": "Mandeville",
+          "addr:street": "Caledonia Road",
+          "amenity": "restaurant",
+          "capacity": "80",
+          "cuisine": "jamaican",
+          "name": "Island Grill",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Island Grill",
+        "address": "Caledonia Road, Mandeville, Jamaica",
+        "city": "Mandeville",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0448072,
+        "longitude": -77.5099052,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "jamaican"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "49b2dad169235c30bfe5b68cd62a18f14e43dd80a948d0ef03ad816335fa2aa2",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4552052789",
+      "source_url": "https://www.openstreetmap.org/node/4552052789",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4552052789,
+        "lat": 18.0364111,
+        "lon": -77.5058821,
+        "tags": {
+          "name": "Frederick's Jewellers & Engravings",
+          "name:en": "Frederick's Jewellers & Engravings",
+          "shop": "jewelry"
+        }
+      },
+      "normalized_data": {
+        "name": "Frederick's Jewellers & Engravings",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0364111,
+        "longitude": -77.5058821,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ee80edfaa1e0d9e619345cb32c865751b782bc34b11081c7b42655daae7170ae",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4735253229",
+      "source_url": "https://www.openstreetmap.org/node/4735253229",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4735253229,
+        "lat": 18.0554278,
+        "lon": -77.4818424,
+        "tags": {
+          "amenity": "bar",
+          "cuisine": "caribbean",
+          "email": "standpipegrocery@gmail.com",
+          "internet_access": "wlan",
+          "name": "Standpipe Bar",
+          "name:en": "Standpipe Bar",
+          "opening_hours": "Mo-Su 06:00-20:00"
+        }
+      },
+      "normalized_data": {
+        "name": "Standpipe Bar",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0554278,
+        "longitude": -77.4818424,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Su 06:00-20:00",
+        "social_profiles": {},
+        "tags": [
+          "bar",
+          "caribbean"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f38d2f857b0fc38033aedb6284db02446e9df861603995d63e5935b5d3520f20",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6187168185",
+      "source_url": "https://www.openstreetmap.org/node/6187168185",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6187168185,
+        "lat": 17.9935478,
+        "lon": -77.4721453,
+        "tags": {
+          "addr:street": "May Day Road",
+          "name": "Old England",
+          "name:en": "Old England District",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Old England",
+        "address": "May Day Road, Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 17.9935478,
+        "longitude": -77.4721453,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1a33d8f923dc6cdbdbd310a9dfe240bf7a1761b6bc0be410606334489872e309",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6282142486",
+      "source_url": "https://www.openstreetmap.org/node/6282142486",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6282142486,
+        "lat": 18.0460448,
+        "lon": -77.4995084,
+        "tags": {
+          "addr:street": "Caledonia Road",
+          "amenity": "cafe",
+          "name": "Fruits Gallery"
+        }
+      },
+      "normalized_data": {
+        "name": "Fruits Gallery",
+        "address": "Caledonia Road, Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0460448,
+        "longitude": -77.4995084,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "167c76ccf5238b58de7325f566ef8757ea0ac68bcddbc960561657d6a1456b12",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9397951766",
+      "source_url": "https://www.openstreetmap.org/node/9397951766",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9397951766,
+        "lat": 18.0348683,
+        "lon": -77.4115465,
+        "tags": {
+          "addr:street": "Porus Main Road",
+          "contact:facebook": "https://business.facebook.com/The-Beauty-Guru-100325098039949/",
+          "name": "The Beauty Guru",
+          "shop": "beauty"
+        }
+      },
+      "normalized_data": {
+        "name": "The Beauty Guru",
+        "address": "Porus Main Road, Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0348683,
+        "longitude": -77.4115465,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {
+          "facebook": "https://business.facebook.com/The-Beauty-Guru-100325098039949/"
+        },
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1389c3e220bf984bc033176d606e4baf9d8e2263bfcd7bbb4eb7e1ede90ac9d1",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9701247557",
+      "source_url": "https://www.openstreetmap.org/node/9701247557",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9701247557,
+        "lat": 18.0388327,
+        "lon": -77.5131245,
+        "tags": {
+          "contact:facebook": "https://www.facebook.com/blissnailloungeja/",
+          "name": "Bliss Nail Lounge",
+          "shop": "beauty"
+        }
+      },
+      "normalized_data": {
+        "name": "Bliss Nail Lounge",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0388327,
+        "longitude": -77.5131245,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {
+          "facebook": "https://www.facebook.com/blissnailloungeja/"
+        },
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e1cea86282c431aad4329db4f472835b82020662f8ab057b349bbe39a45f47fa",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12442300223",
+      "source_url": "https://www.openstreetmap.org/node/12442300223",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12442300223,
+        "lat": 17.8679689,
+        "lon": -77.5651226,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Oswald Seafod Restaurant & Bar",
+          "opening_hours": "Mo-Su 08:00-24:00",
+          "phone": "+18763313033"
+        }
+      },
+      "normalized_data": {
+        "name": "Oswald Seafod Restaurant & Bar",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 17.8679689,
+        "longitude": -77.5651226,
+        "category": "restaurant",
+        "phone": "+18763313033",
+        "website": null,
+        "opening_hours": "Mo-Su 08:00-24:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "386f78fff1689f353adabf20cb15ebfe56517a0b5658103330d5b0746c6984b3",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/178560035",
+      "source_url": "https://www.openstreetmap.org/way/178560035",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 178560035,
+        "center": {
+          "lat": 18.0394735,
+          "lon": -77.5084011
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Grove Court",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "Grove Court",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0394735,
+        "longitude": -77.5084011,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "61914acccf3a360b222e92cc912a1f8e7bd50d24f43201747c311cf9b6bb65cf",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/231127138",
+      "source_url": "https://www.openstreetmap.org/way/231127138",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 231127138,
+        "center": {
+          "lat": 18.0403757,
+          "lon": -77.5080365
+        },
+        "tags": {
+          "amenity": "cafe",
+          "building": "yes",
+          "name": "Butterfly Cafe & Lounge"
+        }
+      },
+      "normalized_data": {
+        "name": "Butterfly Cafe & Lounge",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0403757,
+        "longitude": -77.5080365,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a56856850303e0a57fea27b6983035730f5ccd4ace11ff3b3c8669c1ffdf44f5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/247283102",
+      "source_url": "https://www.openstreetmap.org/way/247283102",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 247283102,
+        "center": {
+          "lat": 18.0383005,
+          "lon": -77.5072071
+        },
+        "tags": {
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "building": "yes",
+          "cuisine": "chicken",
+          "name": "KFC",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0383005,
+        "longitude": -77.5072071,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e2392888053b475930372173cd753dc44775f97f32ba9efe4d4817cfa93b3375",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/247283114",
+      "source_url": "https://www.openstreetmap.org/way/247283114",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 247283114,
+        "center": {
+          "lat": 18.0384491,
+          "lon": -77.5086106
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Burger King",
+          "brand:wikidata": "Q177054",
+          "brand:wikipedia": "en:Burger King",
+          "building": "yes",
+          "cuisine": "burger",
+          "name": "Burger King",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Burger King",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0384491,
+        "longitude": -77.5086106,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "867e5b0b251c48ebc11984ae21c0b84086245aa4fc596399bbc433ee4159c353",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/262376113",
+      "source_url": "https://www.openstreetmap.org/way/262376113",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 262376113,
+        "center": {
+          "lat": 18.0471105,
+          "lon": -77.5069389
+        },
+        "tags": {
+          "building": "commercial",
+          "name": "Elethe Mall",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "Elethe Mall",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0471105,
+        "longitude": -77.5069389,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c506027514de6972f69a3ba5df5e7a9318876bbdc94a50f91cdd20dd6426f4a1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/264552565",
+      "source_url": "https://www.openstreetmap.org/way/264552565",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 264552565,
+        "center": {
+          "lat": 18.0459155,
+          "lon": -77.5075595
+        },
+        "tags": {
+          "name": "Manchester Shopping Centre",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "Manchester Shopping Centre",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0459155,
+        "longitude": -77.5075595,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c21556ec136347db98bd22341a223609f3801ce3445968c92ee0f363a2d70f39",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/264552566",
+      "source_url": "https://www.openstreetmap.org/way/264552566",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 264552566,
+        "center": {
+          "lat": 18.0454568,
+          "lon": -77.5072328
+        },
+        "tags": {
+          "amenity": "food_court",
+          "building": "yes",
+          "name": "Food Court",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Food Court",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0454568,
+        "longitude": -77.5072328,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "food_court"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cccafef4d59d01663e7713f310508ef2ea3a717715512824827ee99d54fad1de",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371966221",
+      "source_url": "https://www.openstreetmap.org/way/371966221",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371966221,
+        "center": {
+          "lat": 18.034778,
+          "lon": -77.4069463
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Cool",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Cool",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.034778,
+        "longitude": -77.4069463,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6114d2bcaed348caed3dab8b19c551eb668cdb8f9aa48b4086ccdc6bf00b0dda",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371966723",
+      "source_url": "https://www.openstreetmap.org/way/371966723",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371966723,
+        "center": {
+          "lat": 18.0343778,
+          "lon": -77.4082876
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Occasions Beauty Salon",
+          "shop": "beauty",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Occasions Beauty Salon",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0343778,
+        "longitude": -77.4082876,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "878e4d74d9ebb4b5be5e90326e7d495276e21791dfb30c438267d92caaa5429b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371968515",
+      "source_url": "https://www.openstreetmap.org/way/371968515",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371968515,
+        "center": {
+          "lat": 18.0345571,
+          "lon": -77.4092936
+        },
+        "tags": {
+          "amenity": "pub",
+          "building": "yes",
+          "name": "Unique Pub",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Unique Pub",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0345571,
+        "longitude": -77.4092936,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4fd640775a447979da9b4170c044b17e93ad5992d7c2f79cb203dae662b97a64",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371968992",
+      "source_url": "https://www.openstreetmap.org/way/371968992",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371968992,
+        "center": {
+          "lat": 18.0348081,
+          "lon": -77.4129521
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Sher's Restaurant and Bar",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Sher's Restaurant and Bar",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0348081,
+        "longitude": -77.4129521,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "93a9744f3e24dbd1933bb7ca42f7ad198e2d63b8c24e238b726e43154b9e382f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372056570",
+      "source_url": "https://www.openstreetmap.org/way/372056570",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372056570,
+        "center": {
+          "lat": 18.0393049,
+          "lon": -77.4258385
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Wray and Nephew"
+        }
+      },
+      "normalized_data": {
+        "name": "Wray and Nephew",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0393049,
+        "longitude": -77.4258385,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a216944fc6aa0f31ac9d486323cc86b001266cfeaf224f61f906173e568c37a2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372058891",
+      "source_url": "https://www.openstreetmap.org/way/372058891",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372058891,
+        "center": {
+          "lat": 18.0666948,
+          "lon": -77.4986848
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Wray and Nephew"
+        }
+      },
+      "normalized_data": {
+        "name": "Wray and Nephew",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0666948,
+        "longitude": -77.4986848,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cb49eec32b8e0806bbecf08cbeb7a08576b21a2b0e3899cc1a9ac9e4b528feec",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372064934",
+      "source_url": "https://www.openstreetmap.org/way/372064934",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372064934,
+        "center": {
+          "lat": 18.0196792,
+          "lon": -77.5371526
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "seafood",
+          "name": "Seafood Palace"
+        }
+      },
+      "normalized_data": {
+        "name": "Seafood Palace",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0196792,
+        "longitude": -77.5371526,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "seafood"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "44e1e25854b7233b3eb850b281d343f6d5303a94daf56030ef9c22e2935129bd",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372064937",
+      "source_url": "https://www.openstreetmap.org/way/372064937",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372064937,
+        "center": {
+          "lat": 18.0114816,
+          "lon": -77.5464149
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Foster's Grocery and Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Foster's Grocery and Bar",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0114816,
+        "longitude": -77.5464149,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "96c25bcfafbe94575ef2e023537559c3550dfd33db83f08f43ba4468da68bb55",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372066597",
+      "source_url": "https://www.openstreetmap.org/way/372066597",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372066597,
+        "center": {
+          "lat": 18.0103422,
+          "lon": -77.5470758
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Steve's"
+        }
+      },
+      "normalized_data": {
+        "name": "Steve's",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0103422,
+        "longitude": -77.5470758,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e9e163f43c52be70d087af39e95738b190eeca3865ef3bcc8c4e9e6b90d754ec",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372068801",
+      "source_url": "https://www.openstreetmap.org/way/372068801",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372068801,
+        "center": {
+          "lat": 17.9979796,
+          "lon": -77.5579226
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Ann's Chill Out Stop"
+        }
+      },
+      "normalized_data": {
+        "name": "Ann's Chill Out Stop",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 17.9979796,
+        "longitude": -77.5579226,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a7a09b47e284f1b2a3b98f353c9396c208e18ff2f04c4b318dc1f893b3b68447",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372072721",
+      "source_url": "https://www.openstreetmap.org/way/372072721",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372072721,
+        "center": {
+          "lat": 18.0094426,
+          "lon": -77.5828145
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "jerk",
+          "damage:Melissa": "yes",
+          "damage:Melissa:assessment": "2025-11-02",
+          "damage:Melissa:event": "TC-2025-000196-JAM",
+          "name": "Hill View Jerk Centre",
+          "source:damage:Melissa": "NOAA"
+        }
+      },
+      "normalized_data": {
+        "name": "Hill View Jerk Centre",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0094426,
+        "longitude": -77.5828145,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "jerk"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "910f672169be6e9d727da8c09896465f9b6ca287db7683a63d490c64598f52a5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372352567",
+      "source_url": "https://www.openstreetmap.org/way/372352567",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372352567,
+        "center": {
+          "lat": 18.0297183,
+          "lon": -77.5494743
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "car_wash": "yes",
+          "check_date": "2015-09-25",
+          "name": "Sheldung Bar and Car Wash"
+        }
+      },
+      "normalized_data": {
+        "name": "Sheldung Bar and Car Wash",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0297183,
+        "longitude": -77.5494743,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6c07c2f5b422c1fd87883874cd1a60a0d10b68e791a734c82ac290bc23b5220d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372365319",
+      "source_url": "https://www.openstreetmap.org/way/372365319",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372365319,
+        "center": {
+          "lat": 18.0386516,
+          "lon": -77.5107511
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "cuisine": "burger",
+          "name": "Tastee Patties"
+        }
+      },
+      "normalized_data": {
+        "name": "Tastee Patties",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0386516,
+        "longitude": -77.5107511,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4d92d7cf18271e97e3cee321bc7678c3c98c24b67d9bee73ebb2833d24501712",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372367040",
+      "source_url": "https://www.openstreetmap.org/way/372367040",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372367040,
+        "center": {
+          "lat": 18.0408999,
+          "lon": -77.5107067
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Caledonia Mall",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "Caledonia Mall",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0408999,
+        "longitude": -77.5107067,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "58f99259b4b5fdf79f0d82e13e40b9f192eaf840d0e7979b4054e534c2c01e01",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372367041",
+      "source_url": "https://www.openstreetmap.org/way/372367041",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372367041,
+        "center": {
+          "lat": 18.0406346,
+          "lon": -77.5111841
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Caledonia Mall",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "Caledonia Mall",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0406346,
+        "longitude": -77.5111841,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "58f99259b4b5fdf79f0d82e13e40b9f192eaf840d0e7979b4054e534c2c01e01",
+      "confidence": 0.6,
+      "review_status": "needs_research",
+      "duplicate_source_record_id": "way/372367040"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372389639",
+      "source_url": "https://www.openstreetmap.org/way/372389639",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372389639,
+        "center": {
+          "lat": 18.0449808,
+          "lon": -77.5103002
+        },
+        "tags": {
+          "building": "yes",
+          "name": "MidWay Mall",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "MidWay Mall",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0449808,
+        "longitude": -77.5103002,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8ac9c0599c76e4ede58d4960c412632b6a7fe73a804feaf86c2843e98615e227",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372389642",
+      "source_url": "https://www.openstreetmap.org/way/372389642",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372389642,
+        "center": {
+          "lat": 18.0444455,
+          "lon": -77.5102931
+        },
+        "tags": {
+          "building": "yes",
+          "name": "MidWay Mall",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "MidWay Mall",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0444455,
+        "longitude": -77.5102931,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "635a41d270b60461c4bcf3a0ad9a84edb6fdca105cac5de24878033f00c6c6ab",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372389644",
+      "source_url": "https://www.openstreetmap.org/way/372389644",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372389644,
+        "center": {
+          "lat": 18.0446581,
+          "lon": -77.5108132
+        },
+        "tags": {
+          "building": "yes",
+          "name": "MidWay Mall",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "MidWay Mall",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0446581,
+        "longitude": -77.5108132,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "43bb902e313ed46508c655f8c39f130fd486a13cdb0ef48aed2718d8dc7f60a8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372399449",
+      "source_url": "https://www.openstreetmap.org/way/372399449",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372399449,
+        "center": {
+          "lat": 18.0392435,
+          "lon": -77.5123267
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Maxie",
+          "shop": "department_store",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Maxie",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0392435,
+        "longitude": -77.5123267,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9bf417529846c0b8410dadcda38e39e018b842d29543ab7317c2df6d23b4ad13",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372740488",
+      "source_url": "https://www.openstreetmap.org/way/372740488",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372740488,
+        "center": {
+          "lat": 18.0387059,
+          "lon": -77.5082766
+        },
+        "tags": {
+          "addr:city": "Mandeville",
+          "addr:street": "Manchester Road",
+          "amenity": "marketplace",
+          "building": "yes",
+          "name": "Dormac's"
+        }
+      },
+      "normalized_data": {
+        "name": "Dormac's",
+        "address": "Manchester Road, Mandeville, Jamaica",
+        "city": "Mandeville",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0387059,
+        "longitude": -77.5082766,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marketplace"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c3efd68c01de1847a921bf92e7b1e481bdd6cc4a4a7b219f231431b120746bad",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372760957",
+      "source_url": "https://www.openstreetmap.org/way/372760957",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372760957,
+        "center": {
+          "lat": 18.0414545,
+          "lon": -77.5090737
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "regional",
+          "name": "Star Grill"
+        }
+      },
+      "normalized_data": {
+        "name": "Star Grill",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0414545,
+        "longitude": -77.5090737,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "30ed473debc7987ff4aca3c936ebad7e1ab211de5d4d8f8766602cacab337278",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372761328",
+      "source_url": "https://www.openstreetmap.org/way/372761328",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372761328,
+        "center": {
+          "lat": 18.0417597,
+          "lon": -77.5092198
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Bride's Fashion",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Bride's Fashion",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0417597,
+        "longitude": -77.5092198,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e643772c90d47d1e6f8db80a34cefd872f5401cf3133a386e3c10182dcdfc5ca",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372771423",
+      "source_url": "https://www.openstreetmap.org/way/372771423",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372771423,
+        "center": {
+          "lat": 18.0084193,
+          "lon": -77.4992781
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Hott Spot"
+        }
+      },
+      "normalized_data": {
+        "name": "Hott Spot",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0084193,
+        "longitude": -77.4992781,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9e5a826f050dbd26aa6feb4da00313734fab907850b01bbe0e4ca05ed68d6fe9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372775842",
+      "source_url": "https://www.openstreetmap.org/way/372775842",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372775842,
+        "center": {
+          "lat": 18.004061,
+          "lon": -77.4932753
+        },
+        "tags": {
+          "amenity": "marketplace",
+          "building": "yes",
+          "name": "Absolute Wholesale & Meat Mart"
+        }
+      },
+      "normalized_data": {
+        "name": "Absolute Wholesale & Meat Mart",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.004061,
+        "longitude": -77.4932753,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marketplace"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e1ba94beb6cb22e17a324fd8790f2077b2b23daddf4c77dda8b5d15ef1ac784e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372775847",
+      "source_url": "https://www.openstreetmap.org/way/372775847",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372775847,
+        "center": {
+          "lat": 18.0100061,
+          "lon": -77.4896971
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Wholesale Lounge"
+        }
+      },
+      "normalized_data": {
+        "name": "Wholesale Lounge",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0100061,
+        "longitude": -77.4896971,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "deed48d4ed9ea74093e6d5bf4f60de2f57b88f72d22e9b55484cca51041fe852",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372842358",
+      "source_url": "https://www.openstreetmap.org/way/372842358",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372842358,
+        "center": {
+          "lat": 18.0406847,
+          "lon": -77.5060208
+        },
+        "tags": {
+          "amenity": "pub",
+          "building": "yes",
+          "name": "Willy's Pub",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Willy's Pub",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0406847,
+        "longitude": -77.5060208,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8354850336cfbb7b09905bc4a43fed493db8f299312874294f8edf7b22c26b57",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372842360",
+      "source_url": "https://www.openstreetmap.org/way/372842360",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372842360,
+        "center": {
+          "lat": 18.0408162,
+          "lon": -77.50632
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Jill's Art & Craft",
+          "shop": "craft",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Jill's Art & Craft",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0408162,
+        "longitude": -77.50632,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "craft"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "70507b177dc65f4cf4c2b13264fd7427e6e5349ed9755b9eb852895a4680fea3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372847857",
+      "source_url": "https://www.openstreetmap.org/way/372847857",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372847857,
+        "center": {
+          "lat": 18.0401334,
+          "lon": -77.5072586
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Bashment Corner",
+          "phone": "799-2526",
+          "shop": "clothes",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Bashment Corner",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0401334,
+        "longitude": -77.5072586,
+        "category": "shopping",
+        "phone": "799-2526",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3905d2a43a49e5f101a1f71146c0c6fc3f820256b262b8c85cd9ecbb868da6fa",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372854268",
+      "source_url": "https://www.openstreetmap.org/way/372854268",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372854268,
+        "center": {
+          "lat": 18.0376059,
+          "lon": -77.5071265
+        },
+        "tags": {
+          "amenity": "marketplace",
+          "building": "yes",
+          "name": "Mandeville Market"
+        }
+      },
+      "normalized_data": {
+        "name": "Mandeville Market",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0376059,
+        "longitude": -77.5071265,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marketplace"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "45803d96ba939b8ddb868accb7bd69710a2d3305b85d516c7d4b6cbffa38b4c6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372855055",
+      "source_url": "https://www.openstreetmap.org/way/372855055",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372855055,
+        "center": {
+          "lat": 18.0368037,
+          "lon": -77.5068235
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "cuisine": "regional",
+          "drive_through": "yes",
+          "name": "Mother's"
+        }
+      },
+      "normalized_data": {
+        "name": "Mother's",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0368037,
+        "longitude": -77.5068235,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "94a8d90188af964ce5cb188258d46423c2b1a917e38bf9d1200bec41e29cd62b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372858098",
+      "source_url": "https://www.openstreetmap.org/way/372858098",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372858098,
+        "center": {
+          "lat": 18.0352066,
+          "lon": -77.5056387
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "regional",
+          "name": "The Vineyard"
+        }
+      },
+      "normalized_data": {
+        "name": "The Vineyard",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0352066,
+        "longitude": -77.5056387,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "37e19f089717397541ca3af55cf071b476c0cb9bc8904db7b9d461bdce1853de",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372876073",
+      "source_url": "https://www.openstreetmap.org/way/372876073",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372876073,
+        "center": {
+          "lat": 18.0400552,
+          "lon": -77.5077487
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Bambu Bar & Grill"
+        }
+      },
+      "normalized_data": {
+        "name": "Bambu Bar & Grill",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0400552,
+        "longitude": -77.5077487,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ba2133c2e4b6c541c4f53153de32b7c60ca38c59998b358d2bb829220d9b16b4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372879594",
+      "source_url": "https://www.openstreetmap.org/way/372879594",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372879594,
+        "center": {
+          "lat": 18.0461404,
+          "lon": -77.5072285
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Manchester Shopping Centre",
+          "shop": "mall",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Manchester Shopping Centre",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0461404,
+        "longitude": -77.5072285,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0a18d83b817ab54d94113ffdf8f50b644348eb555b310d09f7726dd00706ac28",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372879595",
+      "source_url": "https://www.openstreetmap.org/way/372879595",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372879595,
+        "center": {
+          "lat": 18.0459485,
+          "lon": -77.5068722
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Manchester Shopping Centre",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "Manchester Shopping Centre",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0459485,
+        "longitude": -77.5068722,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0a18d83b817ab54d94113ffdf8f50b644348eb555b310d09f7726dd00706ac28",
+      "confidence": 0.6,
+      "review_status": "needs_research",
+      "duplicate_source_record_id": "way/372879594"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372879596",
+      "source_url": "https://www.openstreetmap.org/way/372879596",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372879596,
+        "center": {
+          "lat": 18.0459387,
+          "lon": -77.5077715
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Manchester Shopping Centre",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "Manchester Shopping Centre",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0459387,
+        "longitude": -77.5077715,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c21556ec136347db98bd22341a223609f3801ce3445968c92ee0f363a2d70f39",
+      "confidence": 0.6,
+      "review_status": "needs_research",
+      "duplicate_source_record_id": "way/264552565"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372880846",
+      "source_url": "https://www.openstreetmap.org/way/372880846",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372880846,
+        "center": {
+          "lat": 18.0470348,
+          "lon": -77.5064077
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Burger King",
+          "brand:wikidata": "Q177054",
+          "brand:wikipedia": "en:Burger King",
+          "building": "yes",
+          "cuisine": "burger",
+          "drive_through": "yes",
+          "name": "Burger King",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Burger King",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0470348,
+        "longitude": -77.5064077,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "85851d5a3ca6524044e634338a9ad3428d03c69e563478882d0c2bd08d9ee451",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372880847",
+      "source_url": "https://www.openstreetmap.org/way/372880847",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372880847,
+        "center": {
+          "lat": 18.046881,
+          "lon": -77.5075525
+        },
+        "tags": {
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "brand:wikipedia": "en:KFC",
+          "building": "yes",
+          "cuisine": "chicken",
+          "drive_through": "yes",
+          "name": "KFC",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.046881,
+        "longitude": -77.5075525,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c1410be131003fcbc4c0071979f929752081c03a8a6aa50315f3589d86cea274",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372880848",
+      "source_url": "https://www.openstreetmap.org/way/372880848",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372880848,
+        "center": {
+          "lat": 18.0468244,
+          "lon": -77.5078137
+        },
+        "tags": {
+          "addr:housenumber": "2b",
+          "addr:street": "Caledonia Road",
+          "amenity": "restaurant",
+          "brand": "Pizza Hut",
+          "brand:wikidata": "Q191615",
+          "building": "yes",
+          "cuisine": "pizza",
+          "delivery": "yes",
+          "drive_in": "yes",
+          "level": "0",
+          "name": "Pizza Hut",
+          "opening_hours": "Mo-Th 10:00-23:59; Fr 10:00-23:59; Sa 00:00-01:00,10:00-23:59; Su 00:00-01:00,10:00-23:59",
+          "operator": "Restaurants of Jamaica",
+          "phone": "1(876) 625-0247",
+          "smoking": "no",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Pizza Hut",
+        "address": "2b Caledonia Road, Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0468244,
+        "longitude": -77.5078137,
+        "category": "restaurant",
+        "phone": "1(876) 625-0247",
+        "website": null,
+        "opening_hours": "Mo-Th 10:00-23:59; Fr 10:00-23:59; Sa 00:00-01:00,10:00-23:59; Su 00:00-01:00,10:00-23:59",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f491df84d71e455658e25fdade64f1104c525d9c71912bb560bc5afe190d85ec",
+      "confidence": 0.85,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372880849",
+      "source_url": "https://www.openstreetmap.org/way/372880849",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372880849,
+        "center": {
+          "lat": 18.0468614,
+          "lon": -77.5080919
+        },
+        "tags": {
+          "building": "commercial",
+          "building:levels": "3",
+          "name": "Central Plaza",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "Central Plaza",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0468614,
+        "longitude": -77.5080919,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e0eca33967208889dfc4b59cff37662d363b7593270ac786c640a13c2efd86bc",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/372883870",
+      "source_url": "https://www.openstreetmap.org/way/372883870",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 372883870,
+        "center": {
+          "lat": 18.0563196,
+          "lon": -77.5163557
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Paulette's Hot Spot"
+        }
+      },
+      "normalized_data": {
+        "name": "Paulette's Hot Spot",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0563196,
+        "longitude": -77.5163557,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1c0d43e6ae5df1cd6f2feece1c339984daa13d8c85daf9dbc812a9853602ec43",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373033912",
+      "source_url": "https://www.openstreetmap.org/way/373033912",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373033912,
+        "center": {
+          "lat": 18.0505488,
+          "lon": -77.4866206
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Formula One Sports Bar & Grill",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Formula One Sports Bar & Grill",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0505488,
+        "longitude": -77.4866206,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ab4f75ffe0b356c2fbee1d014f06b0040ceaca72d04019e5eff5b980e1a62a46",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373041053",
+      "source_url": "https://www.openstreetmap.org/way/373041053",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373041053,
+        "center": {
+          "lat": 18.0567204,
+          "lon": -77.4749607
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Royal Beverages"
+        }
+      },
+      "normalized_data": {
+        "name": "Royal Beverages",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0567204,
+        "longitude": -77.4749607,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ba8c105ce44fa5973b3bd05a68a07459fd1cc53b69c1fd59a563dc922da4b1ca",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373041059",
+      "source_url": "https://www.openstreetmap.org/way/373041059",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373041059,
+        "center": {
+          "lat": 18.0564824,
+          "lon": -77.4745667
+        },
+        "tags": {
+          "amenity": "pub",
+          "building": "yes",
+          "name": "Royal Palm Pub & Games",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Royal Palm Pub & Games",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0564824,
+        "longitude": -77.4745667,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "58d72f7134d3329554129deed294abc0aef13eec1d0cfd49efeee878ba29105a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373071151",
+      "source_url": "https://www.openstreetmap.org/way/373071151",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373071151,
+        "center": {
+          "lat": 18.0704769,
+          "lon": -77.4653569
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Don D's Mini Mart & Bar",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Don D's Mini Mart & Bar",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0704769,
+        "longitude": -77.4653569,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "66ec5248d075e1eca04d3c13a0bd840303c5d249aadd60eaf0a7b49b492d3019",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373072758",
+      "source_url": "https://www.openstreetmap.org/way/373072758",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373072758,
+        "center": {
+          "lat": 18.0707148,
+          "lon": -77.4655697
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "cuisine": "regional",
+          "damage:Melissa": "yes",
+          "damage:Melissa:assessment": "2025-11-02",
+          "name": "Sunrise Bar & Restaurant",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015.",
+          "source:damage:Melissa": "NOAA"
+        }
+      },
+      "normalized_data": {
+        "name": "Sunrise Bar & Restaurant",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0707148,
+        "longitude": -77.4655697,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d196bbe69cb3a10ecefb277053d6a3b9d1c8a3eed379f4c9d8cfc2dbc4e5426c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373072761",
+      "source_url": "https://www.openstreetmap.org/way/373072761",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373072761,
+        "center": {
+          "lat": 18.0708008,
+          "lon": -77.4654925
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "damage:Melissa": "yes",
+          "damage:Melissa:assessment": "2025-11-02",
+          "name": "Sports Bar",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015.",
+          "source:damage:Melissa": "NOAA"
+        }
+      },
+      "normalized_data": {
+        "name": "Sports Bar",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0708008,
+        "longitude": -77.4654925,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b56af49f1855c6e027166d2cfc7e46856ba0417f7eb78a55d07468cac5da4382",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373112033",
+      "source_url": "https://www.openstreetmap.org/way/373112033",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373112033,
+        "center": {
+          "lat": 18.0345189,
+          "lon": -77.4096153
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "regional",
+          "name": "The Jerk Master",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "The Jerk Master",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0345189,
+        "longitude": -77.4096153,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0230f495e547e446d6c33c313a3f65fb4ec2a726908d41da6530cc2b41082331",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/442843907",
+      "source_url": "https://www.openstreetmap.org/way/442843907",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 442843907,
+        "center": {
+          "lat": 17.9851273,
+          "lon": -77.5910284
+        },
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Alpart Sports Club"
+        }
+      },
+      "normalized_data": {
+        "name": "Alpart Sports Club",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 17.9851273,
+        "longitude": -77.5910284,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c275b852064de0e4864d366b64c0f11da6bcf94af1261887eb8289cf26689e02",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/674029328",
+      "source_url": "https://www.openstreetmap.org/way/674029328",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 674029328,
+        "center": {
+          "lat": 18.0376255,
+          "lon": -77.5107845
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "regional",
+          "name": "Bus Restaurant",
+          "opening_hours": "24/7"
+        }
+      },
+      "normalized_data": {
+        "name": "Bus Restaurant",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0376255,
+        "longitude": -77.5107845,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "24/7",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "024ba25eb6aa73ee7dd321ad679fac7023ab0c683f4694ee14e65dd6ebdc7ddf",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/756341195",
+      "source_url": "https://www.openstreetmap.org/way/756341195",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 756341195,
+        "center": {
+          "lat": 18.1107305,
+          "lon": -77.5857458
+        },
+        "tags": {
+          "name": "The Maidstone Museum",
+          "name:en": "Maidstone",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "The Maidstone Museum",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.1107305,
+        "longitude": -77.5857458,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8c82b666eb8e621acb0af1b964e3ba7ff8627f7d4b9239b91ae3f2011d02ac87",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/758445745",
+      "source_url": "https://www.openstreetmap.org/way/758445745",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 758445745,
+        "center": {
+          "lat": 18.0387061,
+          "lon": -77.5059609
+        },
+        "tags": {
+          "name": "Mandeville Hotel",
+          "tourism": "hotel",
+          "wikidata": "Q111884724"
+        }
+      },
+      "normalized_data": {
+        "name": "Mandeville Hotel",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0387061,
+        "longitude": -77.5059609,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bfe7391cecd04ba7e315b64b07e0086e993827cbc5516710a20fe744c0b60d1d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/828865531",
+      "source_url": "https://www.openstreetmap.org/way/828865531",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 828865531,
+        "center": {
+          "lat": 18.159265,
+          "lon": -77.4880659
+        },
+        "tags": {
+          "building": "yes",
+          "layer": "1",
+          "name": "Hotel Villa Bella",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Villa Bella",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.159265,
+        "longitude": -77.4880659,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d32a648a478eae74315085ff3f5cc806f1325e2a6a9d9cf02d4ac8120a0d51a9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/830838294",
+      "source_url": "https://www.openstreetmap.org/way/830838294",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 830838294,
+        "center": {
+          "lat": 18.0422476,
+          "lon": -77.5117731
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Golf View Hotel",
+          "tourism": "hotel",
+          "wikidata": "Q112020232"
+        }
+      },
+      "normalized_data": {
+        "name": "Golf View Hotel",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0422476,
+        "longitude": -77.5117731,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7c3093af81c9cd2448d9c3a1d4ceb3b220afdcaa016414516d61d468f014dca2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1008917224",
+      "source_url": "https://www.openstreetmap.org/way/1008917224",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1008917224,
+        "center": {
+          "lat": 18.0317764,
+          "lon": -77.5247237
+        },
+        "tags": {
+          "addr:city": "Balvenie Heights",
+          "addr:housenumber": "7",
+          "addr:street": "Hillview Drive",
+          "building": "yes",
+          "name": "Mandeview Hotel",
+          "tourism": "hotel",
+          "wikidata": "Q112020233"
+        }
+      },
+      "normalized_data": {
+        "name": "Mandeview Hotel",
+        "address": "7 Hillview Drive, Balvenie Heights, Jamaica",
+        "city": "Balvenie Heights",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0317764,
+        "longitude": -77.5247237,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "083bacfccf901fad0176a3a218a5585b2b2c037141aa7eaa1dbecbcae9e48c32",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1069627379",
+      "source_url": "https://www.openstreetmap.org/way/1069627379",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1069627379,
+        "center": {
+          "lat": 18.0407369,
+          "lon": -77.5047214
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "GL Steakhouse"
+        }
+      },
+      "normalized_data": {
+        "name": "GL Steakhouse",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0407369,
+        "longitude": -77.5047214,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f92ca779d15140bf9609466d10a6244ae9875c14932e1840c7a505b0f94d183e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1069627380",
+      "source_url": "https://www.openstreetmap.org/way/1069627380",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1069627380,
+        "center": {
+          "lat": 18.0414053,
+          "lon": -77.5054637
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Regie's Fine Dining"
+        }
+      },
+      "normalized_data": {
+        "name": "Regie's Fine Dining",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0414053,
+        "longitude": -77.5054637,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9061a05d11ea6891b880ac81d8c1c4011688530e61cd38ccbfac5cf85873cc99",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "relation/13507247",
+      "source_url": "https://www.openstreetmap.org/relation/13507247",
+      "source_last_checked_at": "2026-08-22T01:48:37.902Z",
+      "raw_data": {
+        "type": "relation",
+        "id": 13507247,
+        "center": {
+          "lat": 18.0347926,
+          "lon": -77.5338387
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Tropics View Jamaica",
+          "tourism": "hotel",
+          "type": "multipolygon"
+        }
+      },
+      "normalized_data": {
+        "name": "Tropics View Jamaica",
+        "address": "Manchester, Jamaica",
+        "city": "Manchester",
+        "parish": "Manchester",
+        "country": "Jamaica",
+        "latitude": 18.0347926,
+        "longitude": -77.5338387,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b4d88299a7c8c5cc6bfaf6410d2326dc34c92b2cf19ad29fb65c5fa3af5d3e22",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    }
+  ]
+}

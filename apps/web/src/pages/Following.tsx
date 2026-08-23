@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { FollowButton } from "@/components/FollowButton";
 import { cultureImages } from "@/data/culture-demo";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface FollowingUser {
     id: string;
@@ -47,6 +48,7 @@ interface SuggestedUser {
 }
 
 const Following = () => {
+    const { t, formatNumber } = useI18n();
     const { user } = useAuth();
     const [filter, setFilter] = useState<"all" | "upcoming" | "new">("all");
     const [followingUsers, setFollowingUsers] = useState<FollowingUser[]>([]);
@@ -248,12 +250,12 @@ const Following = () => {
                 <main className="pt-20 pb-16 px-4">
                     <div className="max-w-6xl mx-auto text-center py-16">
                         <Users className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
-                        <h3 className="font-medium text-lg mb-2">Sign in to see your following</h3>
+                        <h3 className="font-medium text-lg mb-2">{t("following.signIn")}</h3>
                         <p className="text-muted-foreground mb-4">
-                            Follow creators and hosts to see their moments here
+                            {t("following.signInCopy")}
                         </p>
                         <Button asChild>
-                            <Link to="/auth">Sign In</Link>
+                            <Link to="/auth">{t("wallet.signIn")}</Link>
                         </Button>
                     </div>
                 </main>
@@ -269,12 +271,12 @@ const Following = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/30" />
                     <div className="relative mx-auto flex min-h-[330px] max-w-6xl items-end justify-between gap-8 px-5 pb-10 pt-20 sm:px-8">
                         <div className="max-w-2xl">
-                            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400 backdrop-blur"><Radio className="h-3.5 w-3.5" /> Your chosen signal</div>
-                            <h1 className="text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">Stay close to the people shaping your scene.</h1>
-                            <p className="mt-5 max-w-xl text-base leading-7 text-white/55">New moments, drops, and invitations from creators and hosts you decided were worth following.</p>
+                            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400 backdrop-blur"><Radio className="h-3.5 w-3.5" /> {t("following.eyebrow")}</div>
+                            <h1 className="text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">{t("following.title")}</h1>
+                            <p className="mt-5 max-w-xl text-base leading-7 text-white/55">{t("following.copy")}</p>
                         </div>
                         <Button className="hidden bg-orange-500 font-bold text-black hover:bg-orange-400 sm:inline-flex" asChild>
-                            <Link to="/creators">Find more people <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                            <Link to="/creators">{t("following.findPeople")} <ArrowRight className="ml-2 h-4 w-4" /></Link>
                         </Button>
                     </div>
                 </section>
@@ -300,10 +302,10 @@ const Following = () => {
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="font-medium flex items-center gap-2">
                                 <Users className="h-4 w-4 text-primary" />
-                                People you follow ({followingUsers.length})
+                                {t("following.people", { count: formatNumber(followingUsers.length) })}
                             </h3>
                             <Link to="/creators" className="text-sm font-bold text-orange-400 hover:text-orange-300">
-                                Discover creators
+                                {t("following.discover")}
                             </Link>
                         </div>
                         
@@ -347,7 +349,7 @@ const Following = () => {
                                     <div className="h-14 w-14 rounded-full border-2 border-dashed border-primary/50 flex items-center justify-center text-primary hover:bg-primary/10 transition-colors">
                                         <UserPlus className="h-5 w-5" />
                                     </div>
-                                    <span className="text-xs text-muted-foreground">Find more</span>
+                                    <span className="text-xs text-muted-foreground">{t("following.findMore")}</span>
                                 </Link>
                             </div>
                         ) : (
@@ -430,9 +432,9 @@ const Following = () => {
                     {/* Filter Pills */}
                     <div className="flex gap-2 mb-6">
                         {[
-                            { value: "all" as const, label: "All", icon: null },
-                            { value: "upcoming" as const, label: "Coming Soon", icon: Calendar },
-                            { value: "new" as const, label: "New Posts", icon: Sparkles },
+                            { value: "all" as const, label: t("following.all"), icon: null },
+                            { value: "upcoming" as const, label: t("following.soon"), icon: Calendar },
+                            { value: "new" as const, label: t("following.new"), icon: Sparkles },
                         ].map(option => (
                             <button
                                 key={option.value}
@@ -475,16 +477,16 @@ const Following = () => {
                         <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.03] py-16 text-center">
                             <Users className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
                             <h3 className="font-medium text-lg mb-2">
-                                {followingUsers.length === 0 ? "Start following people" : "No upcoming moments"}
+                                {followingUsers.length === 0 ? t("following.start") : t("following.noMoments")}
                             </h3>
                             <p className="text-muted-foreground mb-4 max-w-md mx-auto">
                                 {followingUsers.length === 0 
-                                    ? "Follow creators and hosts to see their moments in your feed"
+                                    ? t("following.emptyCopy")
                                     : "People you follow haven't posted any upcoming moments matching this filter"
                                 }
                             </p>
                             <Button asChild>
-                                <Link to="/discover">Explore moments</Link>
+                                <Link to="/discover">{t("saved.explore")}</Link>
                             </Button>
                         </div>
                     )}

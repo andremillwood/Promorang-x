@@ -2,6 +2,8 @@
 
 Promorang is a multi-surface platform for Moments, verified participation, merchant commerce, sponsorship, rewards, and reusable outcome records.
 
+> 📜 **Guiding Product Constitution**: All architecture, UX, and copy decisions must strictly adhere to the [Product Ethos & Human UX Constitution](docs/PRODUCT_ETHOS_AND_HUMAN_UX.md).
+
 ## Repository layout
 
 | Path | Purpose |

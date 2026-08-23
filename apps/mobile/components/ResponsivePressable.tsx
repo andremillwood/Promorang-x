@@ -4,7 +4,9 @@ type ResponsivePressableProps = Omit<PressableProps, 'style'> & {
   style?: StyleProp<ViewStyle> | ((state: { pressed: boolean }) => StyleProp<ViewStyle>);
 };
 
-export function ResponsivePressable({ style, hitSlop = 3, ...props }: ResponsivePressableProps) {
+const DEFAULT_HIT_SLOP = { top: 8, bottom: 8, left: 8, right: 8 };
+
+export function ResponsivePressable({ style, hitSlop = DEFAULT_HIT_SLOP, ...props }: ResponsivePressableProps) {
   return (
     <Pressable
       {...props}

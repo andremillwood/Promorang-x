@@ -1,74 +1,137 @@
-import React, { useEffect, useState } from 'react';
-import { Download, X } from 'lucide-react';
-import { triggerHaptic } from '@/lib/nativeWebApis';
+import { useEffect, useState } from "react";
+import { Download, X, Share, PlusSquare, Sparkles } from "lucide-react";
+import { triggerHaptic } from "@/lib/nativeWebApis";
+import logo from "@/assets/promorang-logo-full.png";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showBanner, setShowBanner] = useState(false);
+  const [showIOSPrompt, setShowIOSPrompt] = useState(false);
+  const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Check if running in standalone display mode
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+
+    if (isStandalone) {
+      return;
+    }
+
+    // Check 7-day dismissal cooldown
+    const lastDismissed = localStorage.getItem("promorang:pwa_prompt_dismissed");
+    if (lastDismissed) {
+      const daysSince = (Date.now() - Number(lastDismissed)) / (1000 * 60 * 60 * 24);
+      if (daysSince < 7) {
+        return;
+      }
+    }
+
+    // Detect iOS Safari
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(userAgent);
+    const isSafari = /safari/.test(userAgent) && !/chrome|crios|fxios/.test(userAgent);
+
+    if (isIOS && isSafari) {
+      const timer = setTimeout(() => {
+        setShowIOSPrompt(true);
+        setDismissed(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+
+    // Android / Chrome beforeinstallprompt handler
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowBanner(true);
+      setDismissed(false);
     };
 
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
   const handleInstall = async () => {
-    triggerHaptic('medium');
+    triggerHaptic("medium");
     if (!deferredPrompt) return;
 
     await deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setShowBanner(false);
+    if (outcome === "accepted") {
+      setDismissed(true);
     }
     setDeferredPrompt(null);
   };
 
   const handleDismiss = () => {
-    triggerHaptic('light');
-    setShowBanner(false);
+    triggerHaptic("light");
+    setDismissed(true);
+    setShowIOSPrompt(false);
+    localStorage.setItem("promorang:pwa_prompt_dismissed", String(Date.now()));
   };
 
-  if (!showBanner) return null;
+  if (dismissed || (!deferredPrompt && !showIOSPrompt)) return null;
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 z-[9998] md:left-auto md:right-6 md:bottom-6 md:w-96 rounded-2xl bg-[#141414] border border-[#ff6a00]/30 p-4 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3 animate-in slide-in-from-bottom-5">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-[#ff6a00]/10 flex items-center justify-center text-[#ff6a00] flex-shrink-0">
-          <Download className="w-5 h-5" />
+    <aside aria-label="Install Promorang App" className="fixed bottom-20 left-4 right-4 z-[9998] md:left-auto md:right-6 md:bottom-6 md:w-96 rounded-3xl bg-[#0e0e11]/95 border border-primary/30 p-4 shadow-2xl backdrop-blur-2xl text-white animate-in slide-in-from-bottom-5 duration-300">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-amber-500 p-1.5 flex items-center justify-center shrink-0 shadow-md">
+            <img src={logo} alt="Promorang" className="h-full w-full object-contain" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <h4 className="text-xs font-black uppercase tracking-wider text-white">Install Promorang App</h4>
+              <span className="flex items-center gap-0.5 rounded-full bg-primary/20 px-1.5 py-0.5 text-[8px] font-black text-primary font-mono">
+                <Sparkles className="h-2 w-2" /> PWA
+              </span>
+            </div>
+            <p className="text-[11px] text-white/80 leading-tight mt-0.5 font-medium">
+              Instant door access, live check-ins & offline perks
+            </p>
+          </div>
         </div>
-        <div>
-          <h4 className="text-sm font-bold text-white">Install Promorang App</h4>
-          <p className="text-xs text-gray-400">Add to your Home Screen for native experience</p>
-        </div>
-      </div>
 
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <button
-          onClick={handleInstall}
-          className="px-3 py-1.5 rounded-lg bg-[#ff6a00] text-black font-bold text-xs hover:bg-[#ff6a00]/90 transition-colors"
-        >
-          Install
-        </button>
         <button
           onClick={handleDismiss}
-          className="p-1.5 rounded-lg text-gray-400 hover:text-white transition-colors"
+          className="p-1 rounded-full text-white/60 hover:bg-white/10 hover:text-white transition"
           aria-label="Dismiss banner"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
-    </div>
+
+      <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2">
+        {showIOSPrompt ? (
+          <p className="text-[11px] text-white/90 flex items-center gap-1.5 font-medium">
+            <span>Tap</span>
+            <Share className="h-3.5 w-3.5 text-primary inline" />
+            <span>then</span>
+            <strong className="text-white font-bold">Add to Home Screen</strong>
+            <PlusSquare className="h-3.5 w-3.5 text-primary inline" />
+          </p>
+        ) : (
+          <p className="text-[11px] text-white/75 font-medium">Fast, lightweight & no app store required</p>
+        )}
+
+        {!showIOSPrompt && deferredPrompt && (
+          <button
+            onClick={handleInstall}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary text-white font-black text-xs hover:bg-primary/90 transition-all shadow-[0_0_15px_rgba(255,106,0,0.4)] active:scale-95"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Install
+          </button>
+        )}
+      </div>
+    </aside>
   );
 }
 

@@ -52,8 +52,10 @@ import { EconomyPathGuide } from "@/components/participant/EconomyPathGuide";
 import { KeyUnlockAnimation } from "@/components/rewards/KeyUnlockAnimation";
 import { PublicStanding } from "@/components/rewards/PublicStanding";
 import { PersonalValueNav } from "@/components/value/PersonalValueNav";
+import { useI18n } from "@/i18n/I18nContext";
 
 const Rewards = () => {
+  const { t, formatNumber } = useI18n();
   const { user, roles } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -76,13 +78,13 @@ const Rewards = () => {
   const handleCopyCode = async (code: string) => {
     await navigator.clipboard.writeText(code);
     toast({
-      title: "Copied!",
-      description: "Redemption code copied to clipboard.",
+      title: t("rewardsPage.copiedToastTitle"),
+      description: t("rewardsPage.copiedToastDesc"),
     });
   };
 
   const handleShareWin = async (rewardName: string, momentName: string) => {
-    const text = `I just unlocked ${rewardName} from ${momentName} using Promorang! 🎉`;
+    const text = t("rewardsPage.shareWinText", { reward: rewardName, moment: momentName });
     if (navigator.share) {
       try {
         await navigator.share({
@@ -96,8 +98,8 @@ const Rewards = () => {
     } else {
       await navigator.clipboard.writeText(`${text} ${window.location.origin}`);
       toast({
-        title: "Link Copied! 🔗",
-        description: "Share your win with friends on social media.",
+        title: t("rewardsPage.shareLinkToastTitle"),
+        description: t("rewardsPage.shareLinkToastDesc"),
       });
     }
   };
@@ -117,11 +119,11 @@ const Rewards = () => {
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="mb-2 flex items-center gap-3 font-serif text-2xl font-black text-foreground sm:text-3xl">
-            The Rewards Vault
+            {t("rewardsPage.title")}
             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           </h1>
           <p className="text-muted-foreground font-medium">
-            Verified proof of work yields exclusive standing and perks.
+            {t("rewardsPage.subtitle")}
           </p>
         </div>
         
@@ -131,18 +133,18 @@ const Rewards = () => {
                 <ShieldCheck className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Vault Liquidity</p>
-                <p className="text-[10px] text-emerald-600/70 font-bold dark:text-emerald-400/80">$42,500 USD Locked in Rewards</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">{t("rewardsPage.vaultLiquidity")}</p>
+                <p className="text-[10px] text-emerald-600/70 font-bold dark:text-emerald-400/80">{t("rewardsPage.vaultLiquidityDesc")}</p>
             </div>
         </div>
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button asChild variant="outline">
-          <Link to="/wallet">Open Wallet</Link>
+          <Link to="/wallet">{t("rewardsPage.openWallet")}</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link to="/marketplace">Open Marketplace</Link>
+          <Link to="/marketplace">{t("rewardsPage.openMarketplace")}</Link>
         </Button>
       </div>
 
@@ -160,19 +162,19 @@ const Rewards = () => {
           <div className="relative z-10">
             <div className="flex items-center gap-2 text-muted-foreground mb-4">
               <Coins className="w-4 h-4 text-amber-500" />
-              <span className="text-sm font-medium uppercase tracking-wider">Total Points</span>
+              <span className="text-sm font-medium uppercase tracking-wider">{t("rewardsPage.totalPoints")}</span>
             </div>
             {balanceLoading ? (
               <Skeleton className="h-10 w-24 mb-2" />
             ) : (
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-foreground sm:text-4xl">{balance?.points?.toLocaleString() || 0}</span>
-                <span className="text-sm text-green-600 font-medium dark:text-green-400">Earned activity</span>
+                <span className="text-3xl font-bold text-foreground sm:text-4xl">{formatNumber(balance?.points || 0)}</span>
+                <span className="text-sm text-green-600 font-medium dark:text-green-400">{t("rewardsPage.earnedActivity")}</span>
               </div>
             )}
             <p className="text-xs text-muted-foreground mt-4 flex items-center gap-1">
               <span className="w-3 h-3"><Info className="w-3 h-3" /></span>
-              Points convert to Keys every 1,000 pts.
+              {t("rewardsPage.pointsDisclaimer")}
             </p>
           </div>
         </div>
@@ -185,18 +187,18 @@ const Rewards = () => {
           <div className="relative z-10">
             <div className="flex items-center gap-2 text-muted-foreground mb-4">
               <Key className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium uppercase tracking-wider">PromoKeys</span>
+              <span className="text-sm font-medium uppercase tracking-wider">{t("rewardsPage.promoKeys")}</span>
             </div>
             {balanceLoading ? (
               <Skeleton className="h-10 w-24 mb-2" />
             ) : (
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-foreground sm:text-4xl">{balance?.promokeys || 0}</span>
-                <span className="text-sm text-primary font-medium">Locked access</span>
+                <span className="text-3xl font-bold text-foreground sm:text-4xl">{formatNumber(balance?.promokeys || 0)}</span>
+                <span className="text-sm text-primary font-medium">{t("rewardsPage.lockedAccess")}</span>
               </div>
             )}
             <p className="text-xs text-muted-foreground mt-4">
-              Spend Keys to unlock high-value funded moments.
+              {t("rewardsPage.promoKeysDesc")}
             </p>
           </div>
         </div>
@@ -210,14 +212,14 @@ const Rewards = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Sparkles className="w-4 h-4 text-accent" />
-                <span className="text-sm font-bold uppercase tracking-wider text-accent">Access Rank</span>
+                <span className="text-sm font-bold uppercase tracking-wider text-accent">{t("rewardsPage.accessRank")}</span>
               </div>
             </div>
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-3xl font-black text-foreground sm:text-4xl">Rank {user?.user_metadata?.maturity_state || 2}</span>
+              <span className="text-3xl font-black text-foreground sm:text-4xl">{t("rewardsPage.rankPrefix", { rank: String(user?.user_metadata?.maturity_state || 2) })}</span>
             </div>
             <div className="mt-2 text-xs text-muted-foreground font-medium flex items-center gap-1 mb-4">
-               Current Status: <Badge variant="outline" className="text-[10px] uppercase bg-accent/10 text-accent border-accent/20 px-1 py-0 h-4">Verified Explorer</Badge>
+               {t("rewardsPage.currentStatusLabel")} <Badge variant="outline" className="text-[10px] uppercase bg-accent/10 text-accent border-accent/20 px-1 py-0 h-4">{t("rewardsPage.verifiedExplorerBadge")}</Badge>
             </div>
             
             <div className="mt-4 mb-4">
@@ -225,23 +227,23 @@ const Rewards = () => {
                 <div className="h-full bg-gradient-to-r from-orange-600 via-orange-400 to-amber-300 animate-pulse" style={{ width: '45%' }}></div>
               </div>
               <div className="mt-2 flex items-center justify-between gap-3">
-                <p className="text-[10px] text-muted-foreground font-bold uppercase">Progress to Rank 3</p>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase">{t("rewardsPage.progressToRank3")}</p>
                 <p className="text-[10px] text-primary font-bold">45%</p>
               </div>
-              <p className="text-[9px] text-muted-foreground mt-1 italic">12 more Canon Entries required to reach Priority Access.</p>
+              <p className="text-[9px] text-muted-foreground mt-1 italic">{t("rewardsPage.canonEntriesRequired")}</p>
             </div>
 
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="secondary" size="sm" className="w-full mt-2 text-xs font-bold h-9 bg-background/50 hover:bg-background border border-border/50 text-foreground shadow-sm">
-                  <Key className="w-3.5 h-3.5 mr-2 text-primary" /> View Unlock Matrix
+                  <Key className="w-3.5 h-3.5 mr-2 text-primary" /> {t("rewardsPage.viewUnlockMatrix")}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md bg-background border-border/60 p-0 overflow-hidden">
                  <div className="bg-charcoal text-cream p-6 text-center relative overflow-hidden">
                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-accent/20 rounded-full blur-[50px] pointer-events-none" />
-                     <h3 className="font-serif text-2xl font-bold relative z-10">The Access Matrix</h3>
-                     <p className="text-white/60 text-sm mt-1 relative z-10">Your rank determines what you can reach.</p>
+                     <h3 className="font-serif text-2xl font-bold relative z-10">{t("rewardsPage.matrixModalTitle")}</h3>
+                     <p className="text-white/60 text-sm mt-1 relative z-10">{t("rewardsPage.matrixModalDesc")}</p>
                  </div>
                  <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
                     
@@ -251,8 +253,8 @@ const Rewards = () => {
                           <span className="font-black text-muted-foreground">1</span>
                        </div>
                        <div className="min-w-0">
-                          <h4 className="font-bold text-foreground">General Admission</h4>
-                          <p className="text-xs text-muted-foreground mt-1">Basic check-ins and standard rewards.</p>
+                          <h4 className="font-bold text-foreground">{t("rewardsPage.matrixRank1Title")}</h4>
+                          <p className="text-xs text-muted-foreground mt-1">{t("rewardsPage.matrixRank1Desc")}</p>
                        </div>
                     </div>
 
@@ -263,8 +265,8 @@ const Rewards = () => {
                           2
                        </div>
                        <div className="min-w-0">
-                          <h4 className="font-bold text-primary">Verified Explorer</h4>
-                          <p className="text-xs text-muted-foreground mt-1">Unlock minor multipliers. Validated in the Canon.</p>
+                          <h4 className="font-bold text-primary">{t("rewardsPage.matrixRank2Title")}</h4>
+                          <p className="text-xs text-muted-foreground mt-1">{t("rewardsPage.matrixRank2Desc")}</p>
                        </div>
                     </div>
 
@@ -275,8 +277,8 @@ const Rewards = () => {
                           <span className="font-black text-muted-foreground">3</span>
                        </div>
                        <div className="min-w-0">
-                          <h4 className="font-bold text-foreground">Priority Access</h4>
-                          <p className="mt-1 text-xs font-medium text-orange-600 dark:text-orange-400">Unlocks 24-hour early access to high-value bounties.</p>
+                          <h4 className="font-bold text-foreground">{t("rewardsPage.matrixRank3Title")}</h4>
+                          <p className="mt-1 text-xs font-medium text-orange-600 dark:text-orange-400">{t("rewardsPage.matrixRank3Desc")}</p>
                        </div>
                     </div>
 
@@ -287,11 +289,11 @@ const Rewards = () => {
                           <span className="font-black text-orange-600 dark:text-orange-400">5</span>
                        </div>
                        <div className="min-w-0">
-                          <h4 className="font-bold text-foreground">The VIP Matrix</h4>
+                          <h4 className="font-bold text-foreground">{t("rewardsPage.matrixRank5Title")}</h4>
                           <ul className="text-xs text-muted-foreground mt-1 space-y-1 list-disc list-inside">
-                             <li>Line skips at partner venues</li>
-                             <li>Exclusive e-commerce drops</li>
-                             <li>Direct brand sponsorship matching</li>
+                             <li>{t("rewardsPage.matrixRank5Feat1")}</li>
+                             <li>{t("rewardsPage.matrixRank5Feat2")}</li>
+                             <li>{t("rewardsPage.matrixRank5Feat3")}</li>
                           </ul>
                        </div>
                     </div>
@@ -310,16 +312,16 @@ const Rewards = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Users className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-bold uppercase tracking-wider text-emerald-600">Referral Hub</span>
+                <span className="text-sm font-bold uppercase tracking-wider text-emerald-600">{t("rewardsPage.referralHub")}</span>
               </div>
             </div>
             <div className="flex items-baseline gap-2 mb-2">
               <span className="text-4xl font-black text-foreground">12</span>
-              <span className="text-[10px] text-emerald-500 font-bold uppercase">Successes</span>
+              <span className="text-[10px] text-emerald-500 font-bold uppercase">{t("rewardsPage.successes")}</span>
             </div>
-            <p className="text-[10px] text-muted-foreground mt-2 font-medium">Earn <span className="text-emerald-600">+100 Pts</span> for every new explorer you bring to the wall.</p>
+            <p className="text-[10px] text-muted-foreground mt-2 font-medium">{t("rewardsPage.referralDescPart1")}<span className="text-emerald-600">{t("rewardsPage.referralDescPart2")}</span>{t("rewardsPage.referralDescPart3")}</p>
             <Button variant="outline" size="sm" className="w-full mt-6 text-xs font-bold h-9 bg-emerald-500/5 hover:bg-emerald-500/10 border-emerald-500/20 text-emerald-600 shadow-sm">
-              <Share2 className="w-3.5 h-3.5 mr-2" /> Invite & Grow
+              <Share2 className="w-3.5 h-3.5 mr-2" /> {t("rewardsPage.inviteAndGrow")}
             </Button>
           </div>
         </div>
@@ -332,21 +334,21 @@ const Rewards = () => {
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-2 font-semibold text-base transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
           >
             <Gift className="w-4 h-4 mr-2" />
-            My Perks
+            {t("rewardsPage.tabMyPerks")}
           </TabsTrigger>
           <TabsTrigger
             value="standing"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-2 font-semibold text-base transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
           >
             <Crown className="w-4 h-4 mr-2" />
-            Standing
+            {t("rewardsPage.tabStanding")}
           </TabsTrigger>
           <TabsTrigger
             value="history"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-2 font-semibold text-base transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
           >
             <HistoryIcon className="w-4 h-4 mr-2" />
-            Activity Ledger
+            {t("rewardsPage.tabActivityLedger")}
           </TabsTrigger>
         </TabsList>
 
@@ -357,9 +359,9 @@ const Rewards = () => {
             <div>
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="font-serif text-xl font-semibold text-foreground">
-                  Available for Unlock
+                  {t("rewardsPage.availUnlockTitle")}
                 </h2>
-                {earnedRewards.length > 0 && <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">{earnedRewards.length} Keys Required</Badge>}
+                {earnedRewards.length > 0 && <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">{t("rewardsPage.keysRequired", { count: earnedRewards.length.toString() })}</Badge>}
               </div>
 
               {rewardsLoading ? (
@@ -373,12 +375,12 @@ const Rewards = () => {
                   <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                     <HistoryIcon className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-1">Vault empty</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">{t("rewardsPage.vaultEmptyTitle")}</h3>
                   <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-                    Attend moments and complete verified actions to earn exclusive brand perks.
+                    {t("rewardsPage.vaultEmptyDesc")}
                   </p>
                   <Button variant="hero" onClick={() => navigate("/explore/moments")}>
-                    Explore Moments
+                    {t("rewardsPage.exploreMomentsCta")}
                   </Button>
                 </div>
               ) : (
@@ -408,7 +410,7 @@ const Rewards = () => {
                                     </Avatar>
                                 ))}
                              </div>
-                             <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest">+12 others claimed</p>
+                             <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest">{t("rewardsPage.othersClaimed")}</p>
                           </div>
                         </div>
                       </div>
@@ -425,7 +427,7 @@ const Rewards = () => {
                               }}
                             >
                               <Key className="w-4 h-4 mr-2" />
-                              Spend 1 Key
+                              {t("rewardsPage.spendKey")}
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="sm:max-w-md bg-charcoal text-cream border-white/5 p-0 overflow-hidden">
@@ -439,13 +441,13 @@ const Rewards = () => {
                                             <Gift className="w-10 h-10 text-white" />
                                         </div>
                                         <h3 className="font-black text-3xl mb-1 italic font-serif text-white tracking-tight">{reward.reward_value}</h3>
-                                        <p className="text-white/70 text-sm font-medium">Unlocked via Verified Action</p>
+                                        <p className="text-white/70 text-sm font-medium">{t("rewardsPage.unlockedVia")}</p>
                                     </div>
                                     
                                     <div className="p-8 space-y-8">
                                         {reward.redemption_code && (
                                             <div className="bg-white/5 rounded-2xl p-6 border border-white/5 text-center relative group">
-                                                <p className="text-[10px] uppercase font-black tracking-[0.2em] text-white/40 mb-4">Digital Redemption Code</p>
+                                                <p className="text-[10px] uppercase font-black tracking-[0.2em] text-white/40 mb-4">{t("rewardsPage.digitalRedemptionCode")}</p>
                                                 <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                                                     <code className="max-w-full break-all text-3xl font-black italic tracking-tighter text-primary sm:text-4xl">
                                                         {reward.redemption_code}
@@ -469,7 +471,7 @@ const Rewards = () => {
                                                 onClick={() => handleShareWin(reward.reward_value, reward.moment?.title || "a campaign")}
                                             >
                                                 <Share2 className="w-4 h-4 mr-2 text-primary" />
-                                                Brag to Wall
+                                                {t("rewardsPage.bragToWall")}
                                             </Button>
                                             <Button
                                                 variant="hero"
@@ -477,12 +479,12 @@ const Rewards = () => {
                                                 onClick={() => claimReward.mutate(reward.id)}
                                                 disabled={claimReward.isPending}
                                             >
-                                                {claimReward.isPending ? "Syncing..." : "Mark Used"}
+                                                {claimReward.isPending ? t("rewardsPage.syncing") : t("rewardsPage.markUsed")}
                                             </Button>
                                         </div>
                                         
                                         <p className="text-center text-[9px] text-white/20 font-medium uppercase tracking-widest">
-                                            Reward transaction #8829-X Verified by Promorang Node
+                                            {t("rewardsPage.verifiedNodeText")}
                                         </p>
                                     </div>
                                 </>
@@ -501,7 +503,7 @@ const Rewards = () => {
               <div className="pt-8 border-t border-border">
                 <div className="flex items-center gap-2 mb-6">
                     <HistoryIcon className="w-5 h-5 text-muted-foreground" />
-                    <h2 className="font-serif text-xl font-bold text-foreground">Unlocked History</h2>
+                    <h2 className="font-serif text-xl font-bold text-foreground">{t("rewardsPage.unlockedHistoryTitle")}</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {claimedRewards.map((reward) => (
@@ -518,7 +520,7 @@ const Rewards = () => {
                             {reward.reward_value}
                           </h4>
                           <p className="text-[10px] text-muted-foreground font-medium">
-                            Redeemed {format(new Date(reward.claimed_at!), "MMM d, yyyy")}
+                            {t("rewardsPage.redeemedOn", { date: format(new Date(reward.claimed_at!), "MMM d, yyyy") })}
                           </p>
                         </div>
                       </div>
@@ -537,9 +539,9 @@ const Rewards = () => {
                    <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] opacity-30 pointer-events-none" />
                    <div className="relative z-10">
                        <Crown className="w-12 h-12 text-primary mx-auto mb-4 animate-bounce" />
-                       <h2 className="font-serif text-4xl font-black italic text-white tracking-tighter">Community Standing</h2>
+                       <h2 className="font-serif text-4xl font-black italic text-white tracking-tighter">{t("rewardsPage.communityStandingTitle")}</h2>
                        <p className="text-white/50 text-sm mt-2 max-w-lg mx-auto">
-                           Access Ranks and social capital are verified in real-time. Consistency is the only path to the top.
+                           {t("rewardsPage.communityStandingDesc")}
                        </p>
                    </div>
                </div>
@@ -554,10 +556,10 @@ const Rewards = () => {
             <div className="p-6 border-b border-border bg-muted/30">
               <h2 className="font-serif text-xl font-semibold text-foreground flex items-center gap-2">
                 <HistoryIcon className="w-5 h-5 text-primary" />
-                Economy Ledger
+                {t("rewardsPage.economyLedgerTitle")}
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Your full activity history and point earnings.
+                {t("rewardsPage.economyLedgerDesc")}
               </p>
             </div>
 
@@ -570,8 +572,8 @@ const Rewards = () => {
             ) : history?.length === 0 ? (
               <div className="p-12 text-center">
                 <LockIcon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                <p className="text-muted-foreground font-medium">No activity recorded yet.</p>
-                <p className="text-xs text-muted-foreground mt-1">Start participating to build your ledger.</p>
+                <p className="text-muted-foreground font-medium">{t("rewardsPage.noActivityTitle")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("rewardsPage.noActivityDesc")}</p>
               </div>
             ) : (
               <div className="divide-y divide-border">
@@ -614,7 +616,7 @@ const Rewards = () => {
           <div className="mt-6 p-4 bg-primary/5 border border-primary/10 rounded-xl">
             <p className="text-xs text-muted-foreground leading-relaxed">
               <span className="font-bold text-primary mr-1 italic">Note:</span>
-              The Ledger records every interaction that impacts your platform standing. Consistency is the primary driver of your **Access Rank**, while Points grant you the **Keys** needed to unlock funded opportunities.
+              {t("rewardsPage.ledgerNote")}
             </p>
           </div>
         </TabsContent>

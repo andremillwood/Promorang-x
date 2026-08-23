@@ -19,6 +19,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
 
 const journeySteps = [
   {
@@ -92,11 +93,31 @@ const reasons = [
 ];
 
 export default function WhyJoin() {
+  const { t } = useI18n();
+  const localizedReasons = [1, 2, 3, 4].map((index) => t(`whyJoin.reason${index}`));
+  const localizedJourneySteps = journeySteps.map((step, index) => ({
+    ...step,
+    title: t(`whyJoin.step${index + 1}Title`),
+    description: t(`whyJoin.step${index + 1}Copy`),
+  }));
+  const valueKeys = ["points", "keys", "pieces", "promoShare", "gems"];
+  const localizedValueLayers = valueLayers.map((layer, index) => ({
+    ...layer,
+    title: t(`whyJoin.${valueKeys[index]}Title`),
+    description: t(`whyJoin.${valueKeys[index]}Copy`),
+  }));
+  const localizedParticipantPaths = ["early", "power"].map((key, index) => ({
+    ...participantPaths[index],
+    title: t(`whyJoin.${key}Title`),
+    description: t(`whyJoin.${key}Copy`),
+    bullets: t(`whyJoin.${key}Bullets`).split("|"),
+  }));
+  const localizedRewardBullets = t("whyJoin.rewardBullets").split("|");
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Why Join Promorang - Because Real Life Should Add Up"
-        description="Promorang helps you find better moments, leave Marks when you show up, unlock Points, Keys, Pieces, PromoShare eligibility, Gems, and stronger local standing."
+        title={t("whyJoin.seoTitle")}
+        description={t("whyJoin.seoCopy")}
       />
 
       <section className="relative overflow-hidden bg-gradient-hero pb-20 pt-24 md:pb-28 md:pt-36">
@@ -106,25 +127,24 @@ export default function WhyJoin() {
           <div className="mx-auto max-w-4xl text-center">
             <Badge className="mb-6 border-primary/20 bg-primary/10 text-primary" variant="outline">
               <Sparkles className="mr-1 h-3 w-3" />
-              Participant Guide
+              {t("whyJoin.badge")}
             </Badge>
             <h1 className="font-serif text-4xl font-bold leading-tight md:text-6xl lg:text-7xl">
-              Real life should
-              <span className="text-gradient-primary"> add up for you.</span>
+              {t("whyJoin.hero1")}
+              <span className="text-gradient-primary"> {t("whyJoin.hero2")}</span>
             </h1>
             <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-muted-foreground md:text-xl">
-              Promorang is for people who want more from showing up. Find moments worth joining, leave Marks when you arrive,
-              and turn real participation into access, Pieces, PromoShare eligibility, Gems, and stronger local standing.
+              {t("whyJoin.heroCopy")}
             </p>
             <div className="mt-10 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
               <Button size="xl" variant="hero" asChild>
                 <Link to="/explore/moments">
-                  Find Your First Moment
+                  {t("whyJoin.firstMoment")}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link to="/wallet">See Your Wallet</Link>
+                <Link to="/wallet">{t("whyJoin.wallet")}</Link>
               </Button>
             </div>
           </div>
@@ -136,26 +156,26 @@ export default function WhyJoin() {
           <div className="mx-auto mb-12 max-w-3xl text-center">
             <Badge className="mb-4" variant="outline">
               <Target className="mr-1 h-3 w-3" />
-              The Loop
+              {t("whyJoin.loop")}
             </Badge>
             <h2 className="font-serif text-3xl font-bold md:text-5xl">
-              How Promorang works
+              {t("whyJoin.how")}
             </h2>
             <GuidanceDisclosure
               id="why-join:participant-loop"
-              eyebrow="Participant guide"
-              title="How the participant loop works"
-              summary="One real action can start a longer chain of useful outcomes."
+              eyebrow={t("whyJoin.guideEyebrow")}
+              title={t("whyJoin.guideTitle")}
+              summary={t("whyJoin.guideSummary")}
               className="mt-4"
               tone="light"
             >
               <p className="text-lg leading-8 text-muted-foreground">
-                The system is simple on purpose. One real action can start a longer chain of useful outcomes.
+                {t("whyJoin.guideCopy")}
               </p>
             </GuidanceDisclosure>
           </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {journeySteps.map((step) => (
+            {localizedJourneySteps.map((step) => (
               <Card key={step.title} className="border-border bg-card shadow-sm">
                 <CardContent className="p-6">
                   <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -176,21 +196,19 @@ export default function WhyJoin() {
             <div>
               <Badge className="mb-4 border-primary/20 bg-primary/10 text-primary" variant="outline">
                 <MapPin className="mr-1 h-3 w-3" />
-                What A Mark Means
+                {t("whyJoin.markBadge")}
               </Badge>
               <h2 className="font-serif text-3xl font-bold md:text-5xl">
-                A Mark means you were really there.
+                {t("whyJoin.markTitle")}
               </h2>
               <p className="mt-5 text-lg leading-8 text-zinc-300">
-                A Mark is how Promorang remembers the places, hosts, creators, and communities you keep choosing.
-                It turns real-world participation into something the platform can reward, the community can recognize,
-                and your future opportunities can build on.
+                {t("whyJoin.markCopy")}
               </p>
               <div className="mt-8 space-y-3">
                 {[
-                  "Marks make repeat participation visible.",
-                  "Marks help unlock progression, access, and standing.",
-                  "Marks can increase your eligibility for Pieces and PromoShare.",
+                  t("whyJoin.mark1"),
+                  t("whyJoin.mark2"),
+                  t("whyJoin.mark3"),
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
                     <CheckCircle2 className="h-5 w-5 text-primary" />
@@ -201,7 +219,7 @@ export default function WhyJoin() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              {valueLayers.map((layer) => (
+              {localizedValueLayers.map((layer) => (
                 <div key={layer.title} className="rounded-3xl border border-white/10 bg-white/5 p-6">
                   <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                     <layer.icon className="h-5 w-5" />
@@ -220,17 +238,17 @@ export default function WhyJoin() {
           <div className="mx-auto mb-14 max-w-3xl text-center">
             <Badge className="mb-4" variant="outline">
               <Trophy className="mr-1 h-3 w-3" />
-              Two Fastest Paths
+              {t("whyJoin.pathsBadge")}
             </Badge>
             <h2 className="font-serif text-3xl font-bold md:text-5xl">
-              Early participants and power performers can compound fastest.
+              {t("whyJoin.pathsTitle")}
             </h2>
             <p className="mt-4 text-lg leading-8 text-muted-foreground">
-              Promorang is built to reward both the people who get there early and the people who create real momentum around a moment.
+              {t("whyJoin.pathsCopy")}
             </p>
           </div>
           <div className="grid gap-6 lg:grid-cols-2">
-            {participantPaths.map((path) => (
+            {localizedParticipantPaths.map((path) => (
               <Card key={path.title} className="overflow-hidden border-border bg-card shadow-sm">
                 <CardContent className="p-7">
                   <h3 className="font-serif text-2xl font-bold">{path.title}</h3>
@@ -256,13 +274,13 @@ export default function WhyJoin() {
             <div>
               <Badge className="mb-4" variant="outline">
                 <Users className="mr-1 h-3 w-3" />
-                Why Join
+                {t("whyJoin.reasonsBadge")}
               </Badge>
               <h2 className="font-serif text-3xl font-bold md:text-5xl">
-                This is for people whose real habits should become useful.
+                {t("whyJoin.reasonsTitle")}
               </h2>
               <div className="mt-6 grid gap-3">
-                {reasons.map((item) => (
+                {localizedReasons.map((item) => (
                   <div key={item} className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4">
                     <CheckCircle2 className="mt-0.5 h-5 w-5 text-primary" />
                     <span className="text-sm leading-7 text-muted-foreground">{item}</span>
@@ -274,21 +292,16 @@ export default function WhyJoin() {
             <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8">
               <Badge className="mb-4 border-primary/20 bg-primary/10 text-primary" variant="outline">
                 <Gift className="mr-1 h-3 w-3" />
-                Why PromoShare and Gems Exist
+                {t("whyJoin.rewardBadge")}
               </Badge>
               <h3 className="font-serif text-2xl font-bold md:text-3xl">
-                Rewards should be structured, not vague.
+                {t("whyJoin.rewardTitle")}
               </h3>
               <p className="mt-4 leading-8 text-muted-foreground">
-                PromoShare is the qualified recurring reward layer. Gems are the spendable unit that keeps value moving inside the platform.
-                Together they let Promorang reward verified contribution without pretending every action is instant cash.
+                {t("whyJoin.rewardCopy")}
               </p>
               <div className="mt-6 space-y-3">
-                {[
-                  "PromoShare tracks recurring eligibility.",
-                  "Gems keep funded value legible and usable.",
-                  "Qualified rewards protect the system from spam and empty promises.",
-                ].map((item) => (
+                {localizedRewardBullets.map((item) => (
                   <div key={item} className="flex items-center gap-3 rounded-xl bg-muted/40 p-4">
                     <CheckCircle2 className="h-4 w-4 text-primary" />
                     <span className="text-sm text-foreground">{item}</span>
@@ -303,21 +316,21 @@ export default function WhyJoin() {
       <section className="bg-charcoal py-20 text-white md:py-28">
         <div className="container px-4 text-center sm:px-6">
           <h2 className="font-serif text-3xl font-bold md:text-5xl">
-            Start with one moment.
-            <span className="text-gradient-primary"> Let the rest compound.</span>
+            {t("whyJoin.ctaTitle1")}
+            <span className="text-gradient-primary"> {t("whyJoin.ctaTitle2")}</span>
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-zinc-300">
-            You do not need to understand every layer on day one. You just need to show up somewhere worth remembering.
+            {t("whyJoin.ctaCopy")}
           </p>
           <div className="mt-10 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
             <Button size="xl" variant="hero" asChild>
               <Link to="/explore/moments">
-                Find Moments
+                {t("whyJoin.findMoments")}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
             <Button size="lg" variant="ghost" className="text-white hover:bg-white/10 hover:text-white" asChild>
-              <Link to="/promoshare">See PromoShare</Link>
+              <Link to="/promoshare">{t("whyJoin.seePromoShare")}</Link>
             </Button>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface FollowButtonProps {
     userId: string;
@@ -27,6 +28,7 @@ export function FollowButton({
     className,
     onFollowChange,
 }: FollowButtonProps) {
+    const { t, formatNumber } = useI18n();
     const { toast } = useToast();
     const { user } = useAuth();
     const [isFollowing, setIsFollowing] = useState(initialFollowing);
@@ -54,8 +56,8 @@ export function FollowButton({
     const handleToggleFollow = async () => {
         if (!user) {
             toast({
-                title: "Sign in required",
-                description: "Please sign in to follow users",
+                title: t("followButton.signInRequired"),
+                description: t("followButton.signInDesc"),
                 variant: "destructive"
             });
             return;
@@ -88,8 +90,8 @@ export function FollowButton({
                 }
 
                 toast({
-                    title: "Unfollowed",
-                    description: "Removed from your following list",
+                    title: t("followButton.unfollowed"),
+                    description: t("followButton.unfollowedDesc"),
                 });
             } else {
                 // Follow
@@ -109,8 +111,8 @@ export function FollowButton({
                 }
 
                 toast({
-                    title: "Following!",
-                    description: "You'll see their moments in your feed",
+                    title: t("followButton.followingToast"),
+                    description: t("followButton.followingToastDesc"),
                 });
             }
 
@@ -118,7 +120,7 @@ export function FollowButton({
         } catch (error) {
             console.error('Follow error:', error);
             toast({
-                title: "Error",
+                title: t("common.error"),
                 description: "Failed to update follow status. Please try again.",
                 variant: "destructive"
             });
@@ -165,7 +167,7 @@ export function FollowButton({
                 ) : (
                     <UserPlus className="h-3 w-3 mr-1" />
                 )}
-                {isFollowing ? "Following" : "Follow"}
+                {isFollowing ? t("followButton.following") : t("followButton.follow")}
             </Button>
         );
     }
@@ -185,12 +187,14 @@ export function FollowButton({
                 ) : (
                     <UserPlus className="h-4 w-4 mr-2" />
                 )}
-                {isFollowing ? "Following" : "Follow"}
+                {isFollowing ? t("followButton.following") : t("followButton.follow")}
             </Button>
 
             {followerCount !== undefined && (
                 <span className="text-sm text-muted-foreground">
-                    {followerCount.toLocaleString()} follower{followerCount !== 1 ? "s" : ""}
+                    {followerCount === 1
+                        ? t("followButton.followers", { count: formatNumber(followerCount) })
+                        : t("followButton.followersPlural", { count: formatNumber(followerCount) })}
                 </span>
             )}
         </div>

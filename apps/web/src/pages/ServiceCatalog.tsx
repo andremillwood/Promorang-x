@@ -13,8 +13,10 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ProductDialog } from "@/components/agency/ProductDialog";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function ServiceCatalog() {
+    const { t } = useI18n();
     const { activeOrgId, activeRole } = useAuth();
     const { data: products, isLoading } = useProducts(activeOrgId);
     const deleteProduct = useDeleteProduct();
@@ -28,7 +30,7 @@ export default function ServiceCatalog() {
     );
 
     const handleDelete = (id: string) => {
-        if (window.confirm("Are you sure you want to delete this item?")) {
+        if (window.confirm(t("serviceCatalogPage.confirmDelete"))) {
             deleteProduct.mutate({ id, organizationId: activeOrgId! });
         }
     };
@@ -47,14 +49,14 @@ export default function ServiceCatalog() {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="font-serif text-3xl font-bold text-foreground">Catalog</h1>
+                    <h1 className="font-serif text-3xl font-bold text-foreground">{t("serviceCatalogPage.title")}</h1>
                     <p className="text-muted-foreground mt-1">
-                        Manage your expertise, services, and digital products.
+                        {t("serviceCatalogPage.subtitle")}
                     </p>
                 </div>
                 <Button onClick={handleCreate} className="rounded-xl px-6 shadow-soft">
                     <Plus className="w-4 h-4 mr-2" />
-                    Add Service
+                    {t("serviceCatalogPage.addService")}
                 </Button>
             </div>
 
@@ -62,7 +64,7 @@ export default function ServiceCatalog() {
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
-                        placeholder="Search services..."
+                        placeholder={t("serviceCatalogPage.searchPlaceholder")}
                         className="pl-10 rounded-xl"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -70,7 +72,7 @@ export default function ServiceCatalog() {
                 </div>
                 <Button variant="outline" className="rounded-xl">
                     <Filter className="w-4 h-4 mr-2" />
-                    Filter
+                    {t("serviceCatalogPage.filter")}
                 </Button>
             </div>
 
@@ -86,11 +88,11 @@ export default function ServiceCatalog() {
                                 <Plus className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold">No services yet</h3>
-                                <p className="text-muted-foreground">List your first service or expertise to get started.</p>
+                                <h3 className="text-lg font-semibold">{t("serviceCatalogPage.noServicesTitle")}</h3>
+                                <p className="text-muted-foreground">{t("serviceCatalogPage.noServicesDesc")}</p>
                             </div>
                             <Button onClick={handleCreate} variant="outline" className="rounded-xl">
-                                Add Item
+                                {t("serviceCatalogPage.addItem")}
                             </Button>
                         </CardContent>
                     </Card>
@@ -120,14 +122,14 @@ export default function ServiceCatalog() {
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem onClick={() => handleEdit(product)}>
                                                 <Edit2 className="w-4 h-4 mr-2" />
-                                                Edit
+                                                {t("serviceCatalogPage.edit")}
                                             </DropdownMenuItem>
                                             <DropdownMenuItem
                                                 onClick={() => handleDelete(product.id)}
                                                 className="text-destructive focus:text-destructive"
                                             >
                                                 <Trash2 className="w-4 h-4 mr-2" />
-                                                Delete
+                                                {t("serviceCatalogPage.delete")}
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
@@ -137,11 +139,11 @@ export default function ServiceCatalog() {
                                 <div className="flex justify-between items-start">
                                     <CardTitle className="text-lg group-hover:text-primary transition-colors">{product.name}</CardTitle>
                                     <span className="font-bold text-primary">
-                                        {product.price ? `$${product.price}` : "Custom"}
+                                        {product.price ? `$${product.price}` : t("serviceCatalogPage.customPrice")}
                                     </span>
                                 </div>
                                 <CardDescription className="line-clamp-2 mt-1 min-h-[2.5rem]">
-                                    {product.description || "No description provided."}
+                                    {product.description || t("serviceCatalogPage.noDescription")}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -150,7 +152,7 @@ export default function ServiceCatalog() {
                                         {product.status}
                                     </Badge>
                                     <Button variant="ghost" size="sm" className="h-8 text-[11px] font-bold uppercase tracking-wider hover:text-primary" onClick={() => handleEdit(product)}>
-                                        View Details
+                                        {t("serviceCatalogPage.viewDetails")}
                                     </Button>
                                 </div>
                             </CardContent>

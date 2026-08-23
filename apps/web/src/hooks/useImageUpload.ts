@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-type BucketType = "moment-images" | "avatars";
+type BucketType = "moment-images" | "avatars" | "enrichment-proofs";
 
 export function useImageUpload() {
   const [uploading, setUploading] = useState(false);
@@ -19,7 +19,9 @@ export function useImageUpload() {
     const allowVideo = options.allowVideo === true;
 
     // Validate file type
-    const validTypes = allowVideo
+    const validTypes = bucket === "enrichment-proofs"
+      ? ["image/jpeg", "image/png", "image/webp", "application/pdf"]
+      : allowVideo
       ? ["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/webm", "video/quicktime"]
       : ["image/jpeg", "image/png", "image/webp", "image/gif"];
     if (!validTypes.includes(file.type)) {
@@ -27,14 +29,16 @@ export function useImageUpload() {
         title: "Invalid file type",
         description: allowVideo
           ? "Please upload a JPEG, PNG, WebP, GIF, MP4, WebM, or MOV file."
-          : "Please upload a JPEG, PNG, WebP, or GIF image.",
+          : bucket === "enrichment-proofs"
+            ? "Please upload a JPEG, PNG, WebP, or PDF proof file."
+            : "Please upload a JPEG, PNG, WebP, or GIF image.",
         variant: "destructive",
       });
       return null;
     }
 
     // Validate file size
-    const maxSize = allowVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+    const maxSize = allowVideo ? 50 * 1024 * 1024 : bucket === "enrichment-proofs" ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxSize) {
       toast({
         title: "File too large",

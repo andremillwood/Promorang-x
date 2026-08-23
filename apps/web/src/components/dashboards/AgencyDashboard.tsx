@@ -19,6 +19,7 @@ import {
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/i18n/I18nContext";
 
 const roleTone = {
   brand: {
@@ -43,6 +44,7 @@ type ClientCampaign = {
 };
 
 const AgencyDashboard = () => {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState("clients");
   const { agencyClients, organizations, activeOrgId, setActiveOrgId, setActiveRole, refreshWorkspaceContext } = useAuth();
   const { toast } = useToast();
@@ -79,9 +81,9 @@ const AgencyDashboard = () => {
   return (
     <div className="space-y-6 sm:space-y-8">
       <DashboardHero
-        badge="Agency Portfolio"
-        title="Operate multi-client work from one proof layer"
-        description={`${activeOrg?.name || "Agency portfolio"} brings client activations, collaborator matching, and verified outcomes into one client-ready view.`}
+        badge={t("agencyDash.badge")}
+        title={t("agencyDash.title")}
+        description={t("agencyDash.copy", { name: activeOrg?.name || t("agencyDash.badge") })}
         actions={[
           agencyClients.length === 0
             ? { label: "Connect your first client", onClick: () => setActiveTab("clients"), icon: Building2 }
@@ -95,32 +97,32 @@ const AgencyDashboard = () => {
           { label: "Review client impact", onClick: () => setActiveTab("impact"), icon: TrendingUp },
         ]}
         stats={[
-          { label: "Client Accounts", value: agencyClients.length.toString(), helper: "Managed directly", icon: Briefcase, accentClass: "text-primary-light" },
-          { label: "Brand Clients", value: brandClients.toString(), helper: "Brand relationships", icon: Building2, accentClass: "text-sky-300" },
-          { label: "Venue Clients", value: venueClients.toString(), helper: "Venue relationships", icon: Store, accentClass: "text-emerald-300" },
-          { label: "Live Activations", value: activeClientCampaigns.length.toString(), helper: "Across connected clients", icon: Sparkles, accentClass: "text-amber-300" },
-          { label: "Proven Results", value: provenClientCampaigns.length.toString(), helper: "Ready for client review", icon: TrendingUp, accentClass: "text-emerald-300" },
+          { label: t("agencyDash.clientAccounts"), value: agencyClients.length.toString(), helper: "Managed directly", icon: Briefcase, accentClass: "text-primary-light" },
+          { label: t("agencyDash.brandClients"), value: brandClients.toString(), helper: "Brand relationships", icon: Building2, accentClass: "text-sky-300" },
+          { label: t("agencyDash.venueClients"), value: venueClients.toString(), helper: "Venue relationships", icon: Store, accentClass: "text-emerald-300" },
+          { label: t("agencyDash.liveActivations"), value: activeClientCampaigns.length.toString(), helper: "Across connected clients", icon: Sparkles, accentClass: "text-amber-300" },
+          { label: t("agencyDash.provenResults"), value: provenClientCampaigns.length.toString(), helper: "Ready for client review", icon: TrendingUp, accentClass: "text-emerald-300" },
         ]}
         isLoading={clientCampaignQuery.isLoading}
       />
 
       <DashboardWorkspaceNav
-        eyebrow="Agency workspace"
-        title="Move between accounts, activations, and proof"
+        eyebrow={t("agencyDash.eyebrow")}
+        title={t("agencyDash.workspaceTitle")}
         activeValue={activeTab}
         onValueChange={setActiveTab}
         anchorId="agency-workspace"
         items={[
-          { value: "clients", label: "Client accounts", icon: Building2 },
-          { value: "activations", label: "Activations", icon: Sparkles },
-          { value: "impact", label: "Impact", icon: TrendingUp },
+          { value: "clients", label: t("agencyDash.tabClients"), icon: Building2 },
+          { value: "activations", label: t("agencyDash.tabActivations"), icon: Sparkles },
+          { value: "impact", label: t("agencyDash.tabImpact"), icon: TrendingUp },
         ]}
       />
 
       <section aria-labelledby="agency-attention-heading" className="grid gap-3 rounded-3xl border border-border/70 bg-card/55 p-5 sm:grid-cols-3 sm:p-6">
         <div className="sm:col-span-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Portfolio attention</p>
-          <h2 id="agency-attention-heading" className="mt-2 font-serif text-2xl font-semibold">What needs an operator now</h2>
+          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("agencyDash.portfolioAttention")}</p>
+          <h2 id="agency-attention-heading" className="mt-2 font-serif text-2xl font-semibold">{t("agencyDash.attentionHeading")}</h2>
         </div>
         {[
           { label: "Relationship requests", value: pendingRelationships, detail: pendingRelationships ? "Approve or decline client access." : "No access requests waiting.", action: "clients" },

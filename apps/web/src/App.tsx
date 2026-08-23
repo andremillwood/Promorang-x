@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { routerBasename } from "@/i18n/locale-routing";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { TourProvider } from "@/contexts/TourContext";
@@ -15,10 +16,12 @@ import AppLayout from "@/components/layouts/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import GrowthTracker from "@/components/GrowthTracker";
 import MetaPixel from "@/components/MetaPixel";
+import { MarketProvider } from "@/contexts/MarketContext";
 
 import ChunkErrorBoundary from "./components/ChunkErrorBoundary";
 import { MidasDemonstrationTour } from "./components/demo/MidasDemonstrationTour";
 import { PromorangRolePilotHUD } from "./components/onboarding/PromorangRolePilotHUD";
+import { IntentGoalModal } from "./components/intent/IntentGoalModal";
 
 // Route-level code splitting — each page loads on demand
 const Index = lazy(() => import("./pages/Index"));
@@ -31,6 +34,7 @@ const PostLoginRouter = lazy(() => import("@/components/onboarding/PostLoginRout
 const BrandOnboarding = lazy(() => import("./pages/onboarding/BrandOnboarding"));
 const ForCommunities = lazy(() => import("./pages/ForCommunities"));
 const ForBrands = lazy(() => import("./pages/ForBrands"));
+const SolutionsHub = lazy(() => import("./pages/SolutionsHub"));
 const ForCreators = lazy(() => import("./pages/ForCreators"));
 const ForMerchants = lazy(() => import("./pages/ForMerchants"));
 const ForAgencies = lazy(() => import("./pages/ForAgencies"));
@@ -69,6 +73,7 @@ const CreateMoment = lazy(() => import("./pages/CreateMoment"));
 const Discover = lazy(() => import("./pages/Discover"));
 const DiscoveryDetail = lazy(() => import("./pages/DiscoveryDetail"));
 const ExploreMoments = lazy(() => import("./pages/ExploreMoments"));
+const EventScout = lazy(() => import("./pages/EventScout"));
 const ExploreVenues = lazy(() => import("./pages/ExploreVenues"));
 const ExploreRewards = lazy(() => import("./pages/ExploreRewards"));
 const ExploreContent = lazy(() => import("./pages/ExploreContent"));
@@ -84,8 +89,10 @@ const BrandProfile = lazy(() => import("./pages/BrandProfile"));
 const Merchants = lazy(() => import("./pages/Merchants"));
 const Hosts = lazy(() => import("./pages/Hosts"));
 const VenueProfile = lazy(() => import("./pages/VenueProfile"));
+const ScoutEnrichment = lazy(() => import("./pages/ScoutEnrichment"));
 const CategoryArchive = lazy(() => import("./pages/CategoryArchive"));
 const LocationArchive = lazy(() => import("./pages/LocationArchive"));
+const CityStewards = lazy(() => import("./pages/CityStewards"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
 const CommerceDetail = lazy(() => import("./pages/CommerceDetail"));
 const CommerceReceiptDetail = lazy(() => import("./pages/CommerceReceiptDetail"));
@@ -180,7 +187,8 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
+            <BrowserRouter basename={routerBasename()}>
+              <MarketProvider>
               <DemoExperienceProvider>
                 <MetaPixel />
                 <GrowthTracker />
@@ -188,6 +196,7 @@ const App = () => (
                 <RouteScrollManager />
                 <MidasDemonstrationTour />
                 <PromorangRolePilotHUD />
+                <IntentGoalModal />
                 <ChunkErrorBoundary>
                   <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
                   <Routes>
@@ -230,6 +239,8 @@ const App = () => (
                     <Route path="/post-login" element={<PostLoginRouter />} />
                     <Route path="/for-communities" element={<ForCommunities />} />
                     <Route path="/for-brands" element={<ForBrands />} />
+                    <Route path="/solutions" element={<SolutionsHub />} />
+                    <Route path="/solutions/:vertical" element={<SolutionsHub />} />
                     <Route path="/for-creators" element={<ForCreators />} />
                     <Route path="/for-merchants" element={<ForMerchants />} />
                     <Route path="/for-agencies" element={<ForAgencies />} />
@@ -327,7 +338,10 @@ const App = () => (
                     <Route path="/categories/:categorySlug" element={<CategoryArchive />} />
                     <Route path="/locations/:countrySlug" element={<LocationArchive />} />
                     <Route path="/locations/:countrySlug/:citySlug" element={<LocationArchive />} />
+                    <Route path="/city-stewards" element={<CityStewards />} />
                     <Route path="/venues/:slug" element={<VenueProfile />} />
+                    <Route path="/scout/enrichment" element={<ProtectedRoute><ScoutEnrichment /></ProtectedRoute>} />
+                    <Route path="/scout/events" element={<ProtectedRoute><EventScout /></ProtectedRoute>} />
                     <Route path="/moments/:id" element={<MomentDetail />} />
                     <Route path="/moments/:id/record" element={<MomentRecord />} />
                     <Route path="/moments/:id/edit" element={<ProtectedRoute><EditMoment /></ProtectedRoute>} />
@@ -438,6 +452,7 @@ const App = () => (
                 </ChunkErrorBoundary>
                 <PWAInstallPrompt />
               </DemoExperienceProvider>
+              </MarketProvider>
             </BrowserRouter>
           </TooltipProvider>
         </TourProvider>

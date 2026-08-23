@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { resolveCommerceReceiptPresentation } from '@promorang/shared';
+import { useI18n } from '@/i18n/I18nContext';
 
 type CommerceReceipt = {
   id: string;
@@ -56,6 +57,7 @@ function receiptValue(receipt: CommerceReceipt) {
 }
 
 export function CommerceReceiptRail() {
+  const { t, locale } = useI18n();
   const { user } = useAuth();
   const q = useQuery({
     queryKey: ['commerce-receipts', user?.id],
@@ -79,7 +81,7 @@ export function CommerceReceiptRail() {
       <div className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Receipt className="h-4 w-4 text-primary" />
-          <h2 className="font-black">Commerce receipts</h2>
+          <h2 className="font-black">{t("receipt.railTitle")}</h2>
         </div>
         {q.data?.length ? <Badge variant="secondary">{q.data.length}</Badge> : null}
       </div>
@@ -92,7 +94,7 @@ export function CommerceReceiptRail() {
         <Card className="border-dashed">
           <CardContent className="flex items-center gap-3 p-4 text-sm text-muted-foreground">
             <BadgeCheck className="h-5 w-5 text-primary" />
-            Purchases, reservations, claimed offers, and merchant redemptions will appear here.
+            {t("receipt.railEmpty")}
           </CardContent>
         </Card>
       ) : (
@@ -121,15 +123,15 @@ export function CommerceReceiptRail() {
                   {presentation.outcomes.length > 1 ? <p className="mt-2 text-xs font-semibold text-emerald-600 dark:text-emerald-300">+ {presentation.outcomes.slice(1).map((outcome) => outcome.value).join(' · ')}</p> : null}
                   <div className="mt-4 rounded-xl border border-dashed bg-muted/35 p-3">
                     <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                      {receipt.redemption_code ? 'Redemption code' : 'Receipt value'}
+                      {receipt.redemption_code ? t("receipt.redemptionCode") : t("receipt.receiptValue")}
                     </p>
                     <p className="mt-1 break-all font-mono text-sm font-bold">{receiptValue(receipt)}</p>
                   </div>
                   <p className="mt-3 text-[11px] text-muted-foreground">
-                    {new Date(receipt.occurred_at).toLocaleDateString()}
+                    {new Date(receipt.occurred_at).toLocaleDateString(locale)}
                     {receipt.attribution?.source ? ` · ${receipt.attribution.source}` : ''}
                   </p>
-                  <p className="mt-3 text-xs font-bold text-primary">Open receipt →</p>
+                  <p className="mt-3 text-xs font-bold text-primary">{t("receipt.open")}</p>
                 </div>
               </Link>
             );

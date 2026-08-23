@@ -18,11 +18,11 @@ interface CameraMomentScannerProps {
   onMomentCaptured?: (data: { uri?: string; timestamp: number }) => void;
 }
 
-export const CameraMomentScanner: React.FC<CameraMomentScannerProps> = ({
+export function CameraMomentScanner({
   visible,
   onClose,
   onMomentCaptured,
-}) => {
+}: CameraMomentScannerProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [flashOn, setFlashOn] = useState(false);
 

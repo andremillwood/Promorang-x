@@ -18,54 +18,53 @@ import {
     Zap,
     Check,
 } from "lucide-react";
-
-const sponsorshipBenefits = [
-    {
-        icon: Target,
-        title: "Participation Fit",
-        description:
-            "Match your campaign to Moments, creators, venues, Scenes, and audiences where people already have a reason to care.",
-    },
-    {
-        icon: Handshake,
-        title: "Human Integration",
-        description:
-            "Show up inside the experience instead of interrupting it. Give people a useful reason to participate.",
-    },
-    {
-        icon: Users,
-        title: "Verified Audiences",
-        description:
-            "See the people who joined, checked in, scanned, redeemed, posted, or returned after the campaign.",
-    },
-    {
-        icon: BarChart3,
-        title: "Participation Reporting",
-        description:
-            "Read campaign performance through attendance, QR engagement, creator content, redemptions, and repeat movement.",
-    },
-    {
-        icon: ShieldCheck,
-        title: "Return You Can Trust",
-        description:
-            "Track the journey from visibility to action with verified Moments, counted contributions, and clear participation receipts.",
-    },
-];
-
-const stats = [
-    { value: "Moments", label: "Campaign building blocks" },
-    { value: "Marks", label: "Verified participation" },
-    { value: "QR", label: "On-site engagement" },
-    { value: "UGC", label: "Creator and Scene signal" },
-];
+import { useI18n } from "@/i18n/I18nContext";
+import { TranslationKey } from "@/i18n/translations";
 
 const ForBrands = () => {
     const { user } = useAuth();
+    const { t } = useI18n();
+
+    const sponsorshipBenefits: Array<{ icon: typeof Target; titleKey: TranslationKey; descKey: TranslationKey }> = [
+        {
+            icon: Target,
+            titleKey: "forBrands.benefit1Title",
+            descKey: "forBrands.benefit1Desc",
+        },
+        {
+            icon: Handshake,
+            titleKey: "forBrands.benefit2Title",
+            descKey: "forBrands.benefit2Desc",
+        },
+        {
+            icon: Users,
+            titleKey: "forBrands.benefit3Title",
+            descKey: "forBrands.benefit3Desc",
+        },
+        {
+            icon: BarChart3,
+            titleKey: "forBrands.benefit4Title",
+            descKey: "forBrands.benefit4Desc",
+        },
+        {
+            icon: ShieldCheck,
+            titleKey: "forBrands.benefit5Title",
+            descKey: "forBrands.benefit5Desc",
+        },
+    ];
+
+    const stats: Array<{ valKey: TranslationKey; labelKey: TranslationKey }> = [
+        { valKey: "forBrands.statMomentsVal", labelKey: "forBrands.statMoments" },
+        { valKey: "forBrands.statMarksVal", labelKey: "forBrands.statMarksStat" },
+        { valKey: "forBrands.statQrVal", labelKey: "forBrands.statQr" },
+        { valKey: "forBrands.statUgcVal", labelKey: "forBrands.statUgc" },
+    ];
+
     return (
         <div className="min-h-screen overflow-x-clip bg-background">
             <SEO
-                title="Promorang for Brands - Turn Promotions Into Participation"
-                description="Promorang helps brands turn marketing visibility into measurable consumer participation through Moments, creators, venues, QR engagement, and campaign reporting."
+                title={t("forBrands.seoTitle")}
+                description={t("forBrands.seoDescription")}
                 type="website"
             />
 
@@ -78,42 +77,40 @@ const ForBrands = () => {
                     <div className="min-w-0">
                         <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-primary mb-8">
                             <Building2 className="w-4 h-4" />
-                            <span className="min-w-0 text-sm font-medium">Participation Marketing Platform</span>
+                            <span className="min-w-0 text-sm font-medium">{t("forBrands.badge")}</span>
                         </div>
 
                         <h1 className="mb-6 max-w-4xl break-words text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] text-white sm:text-6xl md:text-7xl">
-                            Turn Promotions <br className="hidden sm:block" />
-                            <span className="text-gradient-primary">Into Participation.</span>
+                            {t("forBrands.heroTitle1")} <br className="hidden sm:block" />
+                            <span className="text-gradient-primary">{t("forBrands.heroTitle2")}</span>
                         </h1>
 
                         <p className="mb-10 max-w-2xl text-base leading-8 text-zinc-200 sm:text-lg md:text-xl">
-                            Promorang helps brands create Moments people actually want to join:
-                            better nights out, useful perks, local rituals, creator-led missions, and venue activations.
-                            Then you can see who showed up, scanned, redeemed, created content, and came back.
+                            {t("forBrands.heroCopy")}
                         </p>
 
                         <MarketingPromiseStrip
                             variant="dark"
                             className="mb-8 max-w-3xl"
                             items={[
-                                { label: "Situation", text: "Awareness is easy to buy. Real participation is harder to prove." },
-                                { label: "Promorang makes possible", text: "Your spend becomes a moment people can attend, redeem, share, and remember." },
-                                { label: "Next move", text: "Start with one activation that can prove attendance before scaling the campaign." },
+                                { label: t("forBrands.promiseSituationLabel"), text: t("forBrands.promiseSituationText") },
+                                { label: t("forBrands.promisePossibleLabel"), text: t("forBrands.promisePossibleText") },
+                                { label: t("forBrands.promiseNextLabel"), text: t("forBrands.promiseNextText") },
                             ]}
                         />
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Button variant="hero" size="xl" asChild>
                                 <a href="#outcomes">
-                                    Explore Brand Flow
+                                    {t("forBrands.exploreFlow")}
                                     <ArrowRight className="w-5 h-5 ml-2" />
                                 </a>
                             </Button>
                             <Button variant="outline" size="lg" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white" asChild>
                                 {user ? (
-                                    <Link to="/onboarding/brand">Start Brand Account</Link>
+                                    <Link to="/onboarding/brand">{t("forBrands.startAccount")}</Link>
                                 ) : (
-                                    <Link to="/auth">Start a Brand Pilot</Link>
+                                    <Link to="/auth">{t("forBrands.startPilot")}</Link>
                                 )}
                             </Button>
                         </div>
@@ -123,23 +120,23 @@ const ForBrands = () => {
                         <div className="relative rounded-3xl border border-white/15 bg-white/[0.07] p-5 shadow-2xl backdrop-blur-xl">
                             <div className="mb-5 flex items-center justify-between">
                                 <div>
-                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">Participation Signal</p>
-                                    <p className="mt-1 text-sm text-zinc-300">Activation preview</p>
+                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">{t("forBrands.signalBadge")}</p>
+                                    <p className="mt-1 text-sm text-zinc-300">{t("forBrands.previewSubtitle")}</p>
                                 </div>
-                                <Badge className="border-primary/20 bg-primary/15 text-primary">Live</Badge>
+                                <Badge className="border-primary/20 bg-primary/15 text-primary">{t("forBrands.liveBadge")}</Badge>
                             </div>
                             <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
-                                <h2 className="text-2xl font-black tracking-[-0.04em] text-white">Coffee Tour Weekend</h2>
-                                <p className="mt-2 text-sm leading-6 text-zinc-300">A Moment route that gives locals a reason to visit, scan, redeem, return, and talk.</p>
+                                <h2 className="text-2xl font-black tracking-[-0.04em] text-white">{t("forBrands.coffeeTourTitle")}</h2>
+                                <p className="mt-2 text-sm leading-6 text-zinc-300">{t("forBrands.coffeeTourDesc")}</p>
                                 <div className="mt-6 grid grid-cols-3 gap-3">
                                     {[
-                                        ["Live", "redemptions"],
-                                        ["184", "Marks"],
-                                        ["Proof", "return record"],
-                                    ].map(([value, label]) => (
-                                        <div key={label} className="rounded-xl bg-white/10 p-3 text-center">
-                                            <p className="text-xl font-black text-white">{value}</p>
-                                            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">{label}</p>
+                                        { valKey: "forBrands.statRedemptionsVal" as const, labelKey: "forBrands.statRedemptions" as const },
+                                        { valKey: "forBrands.statMarksVal" as const, labelKey: "forBrands.statMarks" as const },
+                                        { valKey: "forBrands.statReturnVal" as const, labelKey: "forBrands.statReturn" as const },
+                                    ].map(({ valKey, labelKey }) => (
+                                        <div key={labelKey} className="rounded-xl bg-white/10 p-3 text-center">
+                                            <p className="text-xl font-black text-white">{t(valKey)}</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">{t(labelKey)}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -161,18 +158,16 @@ const ForBrands = () => {
                         <div>
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary mb-6">
                                 <BarChart3 className="w-4 h-4" />
-                                <span className="text-sm font-medium">Participation Measurement</span>
+                                <span className="text-sm font-medium">{t("forBrands.measurementBadge")}</span>
                             </div>
 
                             <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground md:text-5xl">
-                                Move Beyond Awareness. <br />
-                                Measure What People Actually Do.
+                                {t("forBrands.measurementTitle1")} <br />
+                                {t("forBrands.measurementTitle2")}
                             </h2>
 
                             <p className="text-lg text-muted-foreground mb-8">
-                                Already promoting Carnival, a local festival, a product launch, or a neighborhood campaign?
-                                Use Promorang to turn visibility into Moments people join, remember,
-                                redeem, and return from with a clear recap of the participation your campaign created.
+                                {t("forBrands.measurementCopy")}
                             </p>
 
                             <div className="space-y-4 mb-8">
@@ -183,10 +178,10 @@ const ForBrands = () => {
                                         </div>
                                         <div>
                                             <h4 className="font-semibold text-foreground mb-1">
-                                                {benefit.title}
+                                                {t(benefit.titleKey)}
                                             </h4>
                                             <p className="text-sm text-muted-foreground">
-                                                {benefit.description}
+                                                {t(benefit.descKey)}
                                             </p>
                                         </div>
                                     </div>
@@ -194,7 +189,7 @@ const ForBrands = () => {
                             </div>
 
                             <Button variant="hero" asChild>
-                                <Link to="/strategies">Explore Moment Ideas</Link>
+                                <Link to="/strategies">{t("forBrands.exploreMomentsBtn")}</Link>
                             </Button>
                         </div>
 
@@ -204,28 +199,28 @@ const ForBrands = () => {
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/30 transition-colors" />
                                 <div className="relative z-10">
                                     <div className="flex items-center justify-between mb-8">
-                                        <h4 className="text-xl font-black tracking-[-0.04em] text-white">Scene Pulse</h4>
-                                        <Badge className="bg-primary/20 text-primary border-primary/20 animate-pulse">Live Feed</Badge>
+                                        <h4 className="text-xl font-black tracking-[-0.04em] text-white">{t("forBrands.scenePulseTitle")}</h4>
+                                        <Badge className="bg-primary/20 text-primary border-primary/20 animate-pulse">{t("forBrands.pulseLive")}</Badge>
                                     </div>
                                     <div className="space-y-4">
                                         {[
-                                            { title: "Yoga in the Park", verified: "84%", status: "Active", energy: "Heartfelt" },
-                                            { title: "Craft Coffee Tour", verified: "92%", status: "Active", energy: "Vibrant" },
+                                            { titleKey: "forBrands.pulse1Title" as const, verified: "84%", status: "Active", energyKey: "forBrands.pulse1Energy" as const },
+                                            { titleKey: "forBrands.pulse2Title" as const, verified: "92%", status: "Active", energyKey: "forBrands.pulse2Energy" as const },
                                         ].map((intel, i) => (
                                             <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
                                                 <div>
-                                                    <p className="text-xs font-bold text-white">{intel.title}</p>
-                                                    <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Status: {intel.status}</p>
+                                                    <p className="text-xs font-bold text-white">{t(intel.titleKey)}</p>
+                                                    <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">{t("forBrands.pulseStatus", { status: intel.status })}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-xs font-black text-primary">{intel.verified} Verified</p>
-                                                    <p className="text-[9px] text-white/20 uppercase font-black">{intel.energy}</p>
+                                                    <p className="text-xs font-black text-primary">{t("forBrands.pulseVerified", { verified: intel.verified })}</p>
+                                                    <p className="text-[9px] text-white/20 uppercase font-black">{t(intel.energyKey)}</p>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                     <div className="mt-8 p-4 bg-primary/10 rounded-xl border border-primary/20 text-center">
-                                        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Real stories unfold every day</p>
+                                        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">{t("forBrands.pulseFooter")}</p>
                                     </div>
                                 </div>
                             </div>
@@ -241,9 +236,9 @@ const ForBrands = () => {
                         {stats.map((stat, index) => (
                             <div key={index} className="text-center">
                                 <p className="text-3xl font-black text-primary md:text-4xl">
-                                    {stat.value}
+                                    {t(stat.valKey)}
                                 </p>
-                                <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+                                <p className="text-sm text-muted-foreground mt-1">{t(stat.labelKey)}</p>
                             </div>
                         ))}
                     </div>
@@ -255,13 +250,13 @@ const ForBrands = () => {
                 <div className="container px-4 sm:px-6">
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-foreground mb-6">
-                            <span className="text-sm font-medium">Moments Are The Atomic Unit</span>
+                            <span className="text-sm font-medium">{t("forBrands.catalogBadge")}</span>
                         </div>
                         <h2 className="mb-4 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground md:text-5xl">
-                            Build Activations From Human Moments
+                            {t("forBrands.catalogTitle")}
                         </h2>
                         <p className="text-lg text-muted-foreground">
-                            A Moment is a small, understandable activation: a place, a reason to participate, a simple action path, and a clear record of what people did.
+                            {t("forBrands.catalogCopy")}
                         </p>
                     </div>
 
@@ -269,32 +264,32 @@ const ForBrands = () => {
                         {/* Scene Moment - Entry Level */}
                         <div className="bg-card rounded-xl p-8 border border-border hover:shadow-soft-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 mb-4 text-xs font-bold">
-                                START HERE
+                                {t("forBrands.cardStartHere")}
                             </div>
                             <div className="h-12 w-12 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-6 text-emerald-600">
                                 <Users className="w-6 h-6" />
                             </div>
-                            <h3 className="text-xl font-bold mb-2">Scene Moment</h3>
-                            <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">SINGLE LOCATION</p>
+                            <h3 className="text-xl font-bold mb-2">{t("forBrands.cardSceneTitle")}</h3>
+                            <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">{t("forBrands.cardSingleLocation")}</p>
                             <p className="text-muted-foreground mb-6 min-h-[48px]">
-                                Start with one place, one audience, and one clear reason for people to participate.
+                                {t("forBrands.cardSceneDesc")}
                             </p>
                             <div className="space-y-2 mb-8 text-sm">
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Pilot Budget</span>
+                                    <span className="text-muted-foreground">{t("forBrands.cardPilotBudget")}</span>
                                     <span className="font-mono font-medium">$0 – $150</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Support Range</span>
+                                    <span className="text-muted-foreground">{t("forBrands.cardSupportRange")}</span>
                                     <span className="font-mono font-medium text-emerald-500">$0 – $30</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Verification</span>
-                                    <span className="font-mono font-medium text-emerald-500">GPS + Time</span>
+                                    <span className="text-muted-foreground">{t("forBrands.cardVerification")}</span>
+                                    <span className="font-mono font-medium text-emerald-500">{t("forBrands.cardGpsTime")}</span>
                                 </div>
                             </div>
                             <Button variant="outline" className="w-full" asChild>
-                                <Link to="/auth">Start Free</Link>
+                                <Link to="/auth">{t("forBrands.cardStartFree")}</Link>
                             </Button>
                         </div>
 
@@ -303,51 +298,51 @@ const ForBrands = () => {
                             <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-6 text-primary">
                                 <Target className="w-6 h-6" />
                             </div>
-                            <h3 className="text-xl font-bold mb-2">Activation Moment</h3>
-                            <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">Single Location</p>
+                            <h3 className="text-xl font-bold mb-2">{t("forBrands.cardActivationTitle")}</h3>
+                            <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">{t("forBrands.cardSingleLocation")}</p>
                             <p className="text-muted-foreground mb-6 min-h-[48px]">
-                                Create a specific Moment around a launch, venue, creator, or cultural occasion.
+                                {t("forBrands.cardActivationDesc")}
                             </p>
                             <div className="space-y-2 mb-8 text-sm">
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Pilot Budget</span>
+                                    <span className="text-muted-foreground">{t("forBrands.cardPilotBudget")}</span>
                                     <span className="font-mono font-medium">$250 – $750</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Verification</span>
-                                    <span className="font-mono font-medium text-emerald-500">GPS + Time</span>
+                                    <span className="text-muted-foreground">{t("forBrands.cardVerification")}</span>
+                                    <span className="font-mono font-medium text-emerald-500">{t("forBrands.cardGpsTime")}</span>
                                 </div>
                             </div>
                             <Button variant="outline" className="w-full" asChild>
-                                <Link to="/strategies">Explore Potential Outcomes</Link>
+                                <Link to="/strategies">{t("forBrands.cardExplorePotential")}</Link>
                             </Button>
                         </div>
 
                         {/* Bounty */}
                         <div className="bg-card rounded-xl p-8 border border-primary/20 shadow-soft-xl relative overflow-hidden transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]">
                             <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg">
-                                SCALABLE
+                                {t("forBrands.cardScalable")}
                             </div>
                             <div className="h-12 w-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-6 text-white">
                                 <Sparkles className="w-6 h-6" />
                             </div>
-                            <h3 className="text-xl font-bold mb-2">Bounty Moment</h3>
-                            <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">Distributed</p>
+                            <h3 className="text-xl font-bold mb-2">{t("forBrands.cardBountyTitle")}</h3>
+                            <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">{t("forBrands.cardDistributed")}</p>
                             <p className="text-muted-foreground mb-6 min-h-[48px]">
-                                Run the same participation brief across multiple hosts, creators, or venues with proof attached to each action.
+                                {t("forBrands.cardBountyDesc")}
                             </p>
                             <div className="space-y-2 mb-8 text-sm">
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Pilot Budget</span>
+                                    <span className="text-muted-foreground">{t("forBrands.cardPilotBudget")}</span>
                                     <span className="font-mono font-medium">$500 – $2.5k</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Verification</span>
-                                    <span className="font-mono font-medium text-emerald-500">Proof of Work</span>
+                                    <span className="text-muted-foreground">{t("forBrands.cardVerification")}</span>
+                                    <span className="font-mono font-medium text-emerald-500">{t("forBrands.cardProofOfWork")}</span>
                                 </div>
                             </div>
                             <Button variant="hero" className="w-full" asChild>
-                                <Link to="/strategies">Discover Targeted Outcomes</Link>
+                                <Link to="/strategies">{t("forBrands.cardDiscoverTargeted")}</Link>
                             </Button>
                         </div>
 
@@ -356,23 +351,23 @@ const ForBrands = () => {
                             <div className="h-12 w-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-6 text-blue-600">
                                 <Users className="w-6 h-6" />
                             </div>
-                            <h3 className="text-xl font-bold mb-2">Digital Moment</h3>
-                            <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">Remote</p>
+                            <h3 className="text-xl font-bold mb-2">{t("forBrands.cardDigitalTitle")}</h3>
+                            <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">{t("forBrands.cardRemote")}</p>
                             <p className="text-muted-foreground mb-6 min-h-[48px]">
-                                Verified participation without physical limits. Ideal for remote activations.
+                                {t("forBrands.cardDigitalDesc")}
                             </p>
                             <div className="space-y-2 mb-8 text-sm">
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Pilot Budget</span>
+                                    <span className="text-muted-foreground">{t("forBrands.cardPilotBudget")}</span>
                                     <span className="font-mono font-medium">$150 – $500</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Verification</span>
-                                    <span className="font-mono font-medium text-emerald-500">Digital Proof</span>
+                                    <span className="text-muted-foreground">{t("forBrands.cardVerification")}</span>
+                                    <span className="font-mono font-medium text-emerald-500">{t("forBrands.cardDigitalProof")}</span>
                                 </div>
                             </div>
                             <Button variant="outline" className="w-full" asChild>
-                                <Link to="/strategies">View Verification Logic</Link>
+                                <Link to="/strategies">{t("forBrands.cardViewLogic")}</Link>
                             </Button>
                         </div>
                     </div>
@@ -385,45 +380,44 @@ const ForBrands = () => {
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 text-[10px] font-black uppercase tracking-widest mb-6">
                             <Zap className="w-3 h-3" />
-                            Industry Activation Playbooks
+                            {t("forBrands.playbooksBadge")}
                         </div>
                         <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white md:text-5xl">
-                            Design Moments <span className="text-primary">People Want To Join.</span>
+                            {t("forBrands.playbooksTitle1")} <span className="text-primary">{t("forBrands.playbooksTitle2")}</span>
                         </h2>
                         <p className="text-white/60 text-lg">
-                            Each industry has a different human reason to participate. Use these playbooks
-                            to turn products, places, and services into Moments people understand quickly.
+                            {t("forBrands.playbooksCopy")}
                         </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {[
                             {
-                                industry: "Food & Beverage",
-                                description: "Hospitality and taste-makers.",
-                                idea: "Founder's Table",
-                                ideaDesc: "Reserved seating and off-menu items for early guests who check in and share proof.",
+                                industryKey: "forBrands.playbook1Industry" as const,
+                                descKey: "forBrands.playbook1Desc" as const,
+                                ideaKey: "forBrands.playbook1Idea" as const,
+                                ideaDescKey: "forBrands.playbook1IdeaDesc" as const,
                                 icon: Zap,
                             },
                             {
-                                industry: "Luxury & Retail",
-                                description: "Physical goods and limited drops.",
-                                idea: "Preview Drop",
-                                ideaDesc: "Early access to a product release for people who join the launch Moment.",
+                                industryKey: "forBrands.playbook2Industry" as const,
+                                descKey: "forBrands.playbook2Desc" as const,
+                                ideaKey: "forBrands.playbook2Idea" as const,
+                                ideaDescKey: "forBrands.playbook2IdeaDesc" as const,
                                 icon: Sparkles,
                             },
                             {
-                                industry: "Professional Services",
-                                description: "Expertise and priority access.",
-                                idea: "Priority Session",
-                                ideaDesc: "A limited session for customers who complete a qualifying action path.",
+                                industryKey: "forBrands.playbook3Industry" as const,
+                                descKey: "forBrands.playbook3Desc" as const,
+                                ideaKey: "forBrands.playbook3Idea" as const,
+                                ideaDescKey: "forBrands.playbook3IdeaDesc" as const,
                                 icon: ShieldCheck,
                             },
                             {
-                                industry: "Digital & SaaS",
-                                description: "Platforms and remote tools.",
-                                idea: "Beta Circle",
-                                ideaDesc: "Invite engaged users into a small product feedback Moment with clear next steps.",
+                                industryKey: "forBrands.playbook4Industry" as const,
+                                descKey: "forBrands.playbook4Desc" as const,
+                                ideaKey: "forBrands.playbook4Idea" as const,
+                                ideaDescKey: "forBrands.playbook4IdeaDesc" as const,
                                 icon: Target,
                             }
                         ].map((category, i) => (
@@ -431,11 +425,11 @@ const ForBrands = () => {
                                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-6 text-primary group-hover:scale-110 transition-transform">
                                     <category.icon className="w-5 h-5" />
                                 </div>
-                                <h3 className="text-lg font-bold text-white mb-1">{category.industry}</h3>
-                                <p className="text-xs text-white/40 mb-6">{category.description}</p>
+                                <h3 className="text-lg font-bold text-white mb-1">{t(category.industryKey)}</h3>
+                                <p className="text-xs text-white/40 mb-6">{t(category.descKey)}</p>
                                 <div className="pt-6 border-t border-white/10">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2 italic">{category.idea}</p>
-                                    <p className="text-xs text-white/60 leading-relaxed">{category.ideaDesc}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2 italic">{t(category.ideaKey)}</p>
+                                    <p className="text-xs text-white/60 leading-relaxed">{t(category.ideaDescKey)}</p>
                                 </div>
                             </div>
                         ))}
@@ -455,22 +449,22 @@ const ForBrands = () => {
                                         <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                                             <Sparkles className="w-5 h-5 text-blue-500" />
                                         </div>
-                                        <h4 className="font-bold text-lg">Scene Reach</h4>
+                                        <h4 className="font-bold text-lg">{t("forBrands.sceneReachTitle")}</h4>
                                     </div>
-                                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Social Reach</Badge>
+                                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">{t("forBrands.socialReachBadge")}</Badge>
                                 </div>
                                 <div className="space-y-6">
                                     <div className="p-4 bg-muted/50 rounded-2xl border border-border">
                                         <div className="flex justify-between mb-2">
-                                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Participation Signal</span>
-                                            <span className="text-xs font-black text-primary">Strong</span>
+                                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{t("forBrands.signalBadge")}</span>
+                                            <span className="text-xs font-black text-primary">{t("forBrands.signalStrong")}</span>
                                         </div>
                                         <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
                                             <div className="w-[85%] h-full bg-primary" />
                                         </div>
                                     </div>
                                     <p className="text-sm text-center text-muted-foreground italic">
-                                        "When the right people join a Moment, your campaign moves through real social circles instead of staying in an ad slot."
+                                        {t("forBrands.reachQuote")}
                                     </p>
                                 </div>
                             </div>
@@ -479,26 +473,25 @@ const ForBrands = () => {
                         <div>
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary mb-6">
                                 <Users className="w-4 h-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Creator And Scene Amplification</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-primary">{t("forBrands.amplificationBadge")}</span>
                             </div>
                             <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
-                                Reach the Right <span className="text-primary italic">People.</span>
+                                {t("forBrands.reachPeopleTitle1")} <span className="text-primary italic">{t("forBrands.reachPeopleTitle2")}</span>
                             </h2>
                             <p className="text-lg text-muted-foreground mb-8">
-                                A strong Moment gives creators and scene members something real to talk about.
-                                Promorang helps connect activation participation to the content, check-ins, referrals, and QR paths that show how the Moment traveled.
+                                {t("forBrands.reachPeopleCopy")}
                             </p>
                             <div className="space-y-4">
                                 {[
-                                    { title: "Creator Fit", desc: "Invite creators whose audience matches the Moment and location." },
-                                    { title: "Scene Signal", desc: "Collect posts, check-ins, scans, and redemption activity in one activation record." },
-                                    { title: "Activation Reports", desc: "See how far your Moment traveled across people, places, and social media." },
+                                    { titleKey: "forBrands.amp1Title" as const, descKey: "forBrands.amp1Desc" as const },
+                                    { titleKey: "forBrands.amp2Title" as const, descKey: "forBrands.amp2Desc" as const },
+                                    { titleKey: "forBrands.amp3Title" as const, descKey: "forBrands.amp3Desc" as const },
                                 ].map((item, i) => (
                                     <div key={i} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-colors">
                                         <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
                                         <div>
-                                            <h4 className="font-bold text-foreground text-sm">{item.title}</h4>
-                                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                                            <h4 className="font-bold text-foreground text-sm">{t(item.titleKey)}</h4>
+                                            <p className="text-xs text-muted-foreground">{t(item.descKey)}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -515,13 +508,13 @@ const ForBrands = () => {
                         <div className="text-center mb-16">
                             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/20 text-amber-500 border border-amber-500/30 mb-6">
                                 <Target className="w-4 h-4" />
-                                <span className="text-sm font-bold uppercase tracking-wider">Why People Participate</span>
+                                <span className="text-sm font-bold uppercase tracking-wider">{t("forBrands.whyBadge")}</span>
                             </div>
                             <h2 className="mb-4 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white md:text-5xl">
-                                Why People Actually Show Up
+                                {t("forBrands.whyTitle")}
                             </h2>
                             <p className="text-white/60 text-lg">
-                                People show up when the offer feels human, scarce, and worth being part of.
+                                {t("forBrands.whyCopy")}
                             </p>
                         </div>
 
@@ -531,24 +524,24 @@ const ForBrands = () => {
                                     <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
                                         <Sparkles className="w-6 h-6 text-amber-500" />
                                     </div>
-                                    <h3 className="font-bold text-xl text-white">There Is A Clear Reason</h3>
+                                    <h3 className="font-bold text-xl text-white">{t("forBrands.reason1Title")}</h3>
                                 </div>
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center py-2 border-b border-white/10">
-                                        <span className="text-white/60">Join a Moment</span>
-                                        <span className="font-bold text-amber-500">Plan</span>
+                                        <span className="text-white/60">{t("forBrands.reason1Step1")}</span>
+                                        <span className="font-bold text-amber-500">{t("forBrands.reason1Step1Badge")}</span>
                                     </div>
                                     <div className="flex justify-between items-center py-2 border-b border-white/10">
-                                        <span className="text-white/60">Check in at the venue</span>
-                                        <span className="font-bold text-amber-500">Proof</span>
+                                        <span className="text-white/60">{t("forBrands.reason1Step2")}</span>
+                                        <span className="font-bold text-amber-500">{t("forBrands.reason1Step2Badge")}</span>
                                     </div>
                                     <div className="flex justify-between items-center py-2 border-b border-white/10">
-                                        <span className="text-white/60">Redeem or share</span>
-                                        <span className="font-bold text-amber-500">Action</span>
+                                        <span className="text-white/60">{t("forBrands.reason1Step3")}</span>
+                                        <span className="font-bold text-amber-500">{t("forBrands.reason1Step3Badge")}</span>
                                     </div>
                                 </div>
                                 <p className="text-sm text-white/40 mt-4">
-                                    The best activations are simple: know what to do, know where to go, and know what it unlocks.
+                                    {t("forBrands.reason1Footer")}
                                 </p>
                             </div>
 
@@ -557,47 +550,47 @@ const ForBrands = () => {
                                     <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
                                         <Sparkles className="w-6 h-6 text-primary" />
                                     </div>
-                                    <h3 className="font-bold text-xl text-white">They Feel Part Of It</h3>
+                                    <h3 className="font-bold text-xl text-white">{t("forBrands.reason2Title")}</h3>
                                 </div>
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-3 py-2">
                                         <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-                                        <span className="text-white/60">Newcomer to regular to insider</span>
+                                        <span className="text-white/60">{t("forBrands.reason2Step1")}</span>
                                     </div>
                                     <div className="flex items-center gap-3 py-2">
                                         <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                                        <span className="text-white/60">Insider to advocate to host</span>
+                                        <span className="text-white/60">{t("forBrands.reason2Step2")}</span>
                                     </div>
                                     <div className="flex items-center gap-3 py-2">
                                         <div className="w-2 h-2 rounded-full bg-primary"></div>
-                                        <span className="text-white/60">Return visits create stronger Scene memory</span>
+                                        <span className="text-white/60">{t("forBrands.reason2Step3")}</span>
                                     </div>
                                 </div>
                                 <p className="text-sm text-white/40 mt-4">
-                                    People return when the experience recognizes them without making the campaign feel mechanical.
+                                    {t("forBrands.reason2Footer")}
                                 </p>
                             </div>
                         </div>
 
                         <div className="bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 rounded-2xl p-8 text-center">
                             <h3 className="mb-4 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white">
-                                You Are Not Buying Attention. You Are Creating A Moment People Can Join.
+                                {t("forBrands.bannerTitle")}
                             </h3>
                             <p className="text-white/70 mb-6 max-w-2xl mx-auto">
-                                The brand is not interrupting the Moment. It is making the Moment more useful, more social, or more memorable while receiving proof that real participation happened.
+                                {t("forBrands.bannerCopy")}
                             </p>
                             <div className="flex flex-wrap justify-center gap-4 text-sm">
                                 <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
                                     <Check className="w-4 h-4 text-emerald-500" />
-                                    <span className="text-white">GPS-verified attendance</span>
+                                    <span className="text-white">{t("forBrands.bannerCheck1")}</span>
                                 </div>
                                 <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
                                     <Check className="w-4 h-4 text-emerald-500" />
-                                    <span className="text-white">Clear participation path</span>
+                                    <span className="text-white">{t("forBrands.bannerCheck2")}</span>
                                 </div>
                                 <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
                                     <Check className="w-4 h-4 text-emerald-500" />
-                                    <span className="text-white">Creator and Scene context</span>
+                                    <span className="text-white">{t("forBrands.bannerCheck3")}</span>
                                 </div>
                             </div>
                         </div>
@@ -610,27 +603,27 @@ const ForBrands = () => {
                 <div className="container px-6">
                     <div className="max-w-3xl mx-auto text-center">
                         <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
-                            Ready to create a Moment people remember?
+                            {t("forBrands.ctaTitle")}
                         </h2>
                         <p className="text-cream/70 text-lg mb-8">
-                            Start with one pilot activation, prove participation, then scale what works.
+                            {t("forBrands.ctaCopy")}
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Button variant="hero" size="xl" asChild>
                                 {user ? (
                                     <Link to="/onboarding/brand">
-                                        Start Brand Account
+                                        {t("forBrands.startAccount")}
                                         <ArrowRight className="w-5 h-5 ml-2" />
                                     </Link>
                                 ) : (
                                     <Link to="/auth">
-                                        Start a Brand Pilot
+                                        {t("forBrands.startPilot")}
                                         <ArrowRight className="w-5 h-5 ml-2" />
                                     </Link>
                                 )}
                             </Button>
                             <Button variant="outline" size="lg" className="border-cream/30 text-cream hover:bg-cream/10" asChild>
-                                <Link to="/strategies">View Moment Catalog</Link>
+                                <Link to="/strategies">{t("forBrands.viewCatalog")}</Link>
                             </Button>
                         </div>
                     </div>

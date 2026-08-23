@@ -36,6 +36,7 @@ import { TeamSlashModal } from "@/components/TeamSlashModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
+import { useI18n } from "@/i18n/I18nContext";
 
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { DiscoveryWidget, DiscoveryProps } from "@/components/radar/DiscoveryWidget";
@@ -70,6 +71,7 @@ const formatMomentDate = (value?: string | null) => {
 };
 
 const Discover = () => {
+  const { t } = useI18n();
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
@@ -126,8 +128,8 @@ const Discover = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-[#ff5500] selection:text-white">
       <SEO
-        title="Discover Local Events & Perks — Promorang"
-        description="Browse upcoming events, venue perks, and live community gatherings near you."
+        title={`${t("discover.title")} — Promorang`}
+        description={t("discover.copy")}
         url={getSiteUrl("/discover")}
       />
 
@@ -138,13 +140,13 @@ const Discover = () => {
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-6 sm:pb-8">
           <div className="space-y-2">
             <Badge className="rounded-full bg-[#ff5500] text-white font-bold text-[10px] sm:text-xs px-3.5 py-1 uppercase tracking-wider border-none">
-              Explore Culture & Events
+              {t("discover.badge")}
             </Badge>
             <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
-              Discover What's Happening
+              {t("discover.title")}
             </h1>
             <p className="text-white/60 text-sm sm:text-base max-w-xl font-normal">
-              Find upcoming moments, reserve your spot, and unlock exclusive attendee perks.
+              {t("discover.copy")}
             </p>
           </div>
 
@@ -154,7 +156,7 @@ const Discover = () => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
               <input
                 type="text"
-                placeholder="Search events or venues..."
+                placeholder={t("discover.search")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full rounded-2xl bg-white/5 border border-white/10 pl-11 pr-4 py-2.5 sm:py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#ff5500] transition"
@@ -170,7 +172,7 @@ const Discover = () => {
                   viewMode === "grid" ? "bg-[#ff5500] text-white shadow-lg" : "text-white/60 hover:text-white"
                 }`}
               >
-                <LayoutGrid className="h-4 w-4" /> Grid
+                <LayoutGrid className="h-4 w-4" /> {t("discover.grid")}
               </button>
               <button
                 type="button"
@@ -179,7 +181,7 @@ const Discover = () => {
                   viewMode === "map" ? "bg-[#ff5500] text-white shadow-lg" : "text-white/60 hover:text-white"
                 }`}
               >
-                <Map className="h-4 w-4" /> Map View
+                <Map className="h-4 w-4" /> {t("discover.map")}
               </button>
             </div>
 
@@ -323,8 +325,8 @@ const Discover = () => {
             ) : (
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <h3 className="text-2xl font-bold text-white">Upcoming Events</h3>
-                  <span className="text-xs font-semibold text-white/50">{filteredMoments.length} events found</span>
+                  <h3 className="text-2xl font-bold text-white">{t("discover.upcoming")}</h3>
+                  <span className="text-xs font-semibold text-white/50">{t("discover.found", { count: filteredMoments.length })}</span>
                 </div>
 
                 {discoveryQuery.isLoading ? (
@@ -336,8 +338,8 @@ const Discover = () => {
                 ) : filteredMoments.length === 0 ? (
                   <div className="text-center py-16 bg-white/5 rounded-3xl border border-white/10 space-y-3">
                     <Compass className="h-10 w-10 text-white/30 mx-auto" />
-                    <h4 className="text-lg font-bold text-white">No events found</h4>
-                    <p className="text-xs text-white/50">Try broadening your search or switching categories.</p>
+                    <h4 className="text-lg font-bold text-white">{t("discover.empty")}</h4>
+                    <p className="text-xs text-white/50">{t("discover.emptyHelp")}</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

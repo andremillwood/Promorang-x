@@ -14,6 +14,7 @@ import { ImageUpload } from "@/components/ImageUpload";
 import { CheckInCelebration } from '@/components/CheckInCelebration';
 import { AnimatePresence } from 'framer-motion';
 import { demoMoments } from "@/data/demo-moments";
+import { useI18n } from "@/i18n/I18nContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -26,6 +27,7 @@ type ProofRequirement = {
 };
 
 const CheckIn = () => {
+  const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const { user, session } = useAuth();
@@ -105,7 +107,7 @@ const CheckIn = () => {
     if (data) setMoment(data);
     if (error) {
       console.error("Error fetching moment:", error);
-      toast({ title: "Event not found", description: "Could not load event details.", variant: "destructive" });
+      toast({ title: t("checkIn.toastEventNotFound"), description: t("checkIn.toastEventNotFoundDesc"), variant: "destructive" });
     }
   };
 
@@ -138,7 +140,7 @@ const CheckIn = () => {
   const handleGPSVerify = () => {
     setLoading(true);
     if (!navigator.geolocation) {
-      toast({ title: "Not Supported", description: "GPS is not supported by your browser", variant: "destructive" });
+      toast({ title: t("checkIn.toastGpsNotSupported"), description: t("checkIn.toastGpsNotSupportedDesc"), variant: "destructive" });
       setLoading(false);
       return;
     }
@@ -157,19 +159,19 @@ const CheckIn = () => {
           const inside = dist <= 0.2; // 200 meter geofence
           setIsWithinGeofence(inside);
           if (inside) {
-            toast({ title: "Verified On-Site! 🛡️", description: `You are at the venue (${(dist * 1000).toFixed(0)}m away).` });
+            toast({ title: t("checkIn.toastGpsVerifiedOnSite"), description: t("checkIn.toastGpsVerifiedOnSiteDesc", { meters: (dist * 1000).toFixed(0) }) });
           } else {
-            toast({ title: "Location Captured", description: `You are ${dist.toFixed(2)} km away from venue.` });
+            toast({ title: t("checkIn.toastLocationCaptured"), description: t("checkIn.toastLocationCapturedDesc", { km: dist.toFixed(2) }) });
           }
         } else {
           setIsWithinGeofence(true);
-          toast({ title: "Location Verified ✓", description: "GPS coordinates captured." });
+          toast({ title: t("checkIn.toastLocationVerified"), description: t("checkIn.toastLocationVerifiedDesc") });
         }
       },
       (err) => {
         setLoading(false);
         console.warn("GPS error:", err);
-        toast({ title: "GPS Error", description: "Could not fetch current coordinates", variant: "destructive" });
+        toast({ title: t("checkIn.toastGpsError"), description: t("checkIn.toastGpsErrorDesc"), variant: "destructive" });
       }
     );
   };
@@ -181,7 +183,7 @@ const CheckIn = () => {
     setLoading(true);
 
     if (id?.startsWith('m')) {
-      toast({ title: "Check-in Complete 🎉", description: "Successfully verified for this demo event!" });
+      toast({ title: t("checkIn.toastDemoComplete"), description: t("checkIn.toastDemoCompleteDesc") });
       setSuccess(true);
       setLoading(false);
       return;
@@ -228,12 +230,12 @@ const CheckIn = () => {
       }
 
       toast({
-        title: "Check-in Complete! 🎉",
-        description: "Your attendance is verified.",
+        title: t("checkIn.toastComplete"),
+        description: t("checkIn.toastCompleteDesc"),
       });
 
     } catch (error: any) {
-      toast({ title: "Check-in Failed", description: error.message, variant: "destructive" });
+      toast({ title: t("checkIn.toastFailed"), description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -243,10 +245,10 @@ const CheckIn = () => {
     return (
       <div className="min-h-screen bg-[#0a0a0b] text-white flex flex-col items-center justify-center p-6 text-center">
         <div className="max-w-md space-y-4">
-          <h1 className="text-3xl font-extrabold">Sign in to Check In</h1>
-          <p className="text-white/60 text-sm">You must be signed in to verify attendance and claim perks.</p>
+          <h1 className="text-3xl font-extrabold">{t("checkIn.unauthTitle")}</h1>
+          <p className="text-white/60 text-sm">{t("checkIn.unauthCopy")}</p>
           <Button className="rounded-full bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold px-8" onClick={() => navigate("/auth")}>
-            Sign In
+            {t("checkIn.unauthButton")}
           </Button>
         </div>
       </div>
@@ -260,10 +262,10 @@ const CheckIn = () => {
           <div className="w-16 h-16 rounded-full bg-[#ff5500]/15 flex items-center justify-center mx-auto text-[#ff5500]">
             <QrCode className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-black">RSVP First to Check In</h1>
-          <p className="text-white/60 text-sm">Please reserve your spot for this event before verifying your attendance at the door.</p>
+          <h1 className="text-2xl font-black">{t("checkIn.rsvpTitle")}</h1>
+          <p className="text-white/60 text-sm">{t("checkIn.rsvpCopy")}</p>
           <Button className="w-full rounded-full bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold py-6" asChild>
-            <Link to={`/moments/${id}`}>View Event & RSVP</Link>
+            <Link to={`/moments/${id}`}>{t("checkIn.rsvpButton")}</Link>
           </Button>
         </div>
       </div>
@@ -280,7 +282,7 @@ const CheckIn = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-[#ff5500] selection:text-white">
-      <SEO title={`Check-in: ${moment.title}`} description={`Check in at ${moment.title}`} />
+      <SEO title={t("checkIn.seoTitle", { title: moment.title })} description={t("checkIn.seoDescription", { title: moment.title })} />
 
       <AnimatePresence>
         {success && <CheckInCelebration onComplete={() => {}} />}
@@ -292,33 +294,33 @@ const CheckIn = () => {
             <div className="w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-12 h-12" />
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white">Attendance Verified!</h1>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white">{t("checkIn.successTitle")}</h1>
             <p className="text-white/70 text-base">
-              You are checked in for <span className="text-white font-bold">{moment.title}</span>. Your reward and memory badge have been added to your Vault.
+              {t("checkIn.successCopy", { title: moment.title })}
             </p>
 
             <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 space-y-4 text-left">
               <div className="flex items-center gap-3">
                 <Gift className="h-6 w-6 text-amber-400" />
                 <div>
-                  <h4 className="font-bold text-white text-base">Reward Unlocked</h4>
-                  <p className="text-xs text-white/60">{moment.reward || "Complimentary Perk & Memory Badge"}</p>
+                  <h4 className="font-bold text-white text-base">{t("checkIn.rewardUnlocked")}</h4>
+                  <p className="text-xs text-white/60">{moment.reward || t("checkIn.complimentaryPerk")}</p>
                 </div>
               </div>
 
               {proofSubmissionId && (
                 <div className="pt-3 border-t border-white/10 text-xs text-white/50">
-                  Ref Code: <span className="font-mono text-white/80">{proofSubmissionId}</span>
+                  {t("checkIn.refCode")} <span className="font-mono text-white/80">{proofSubmissionId}</span>
                 </div>
               )}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button asChild className="flex-1 rounded-full bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold py-6">
-                <Link to="/vault">View My Vault <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link to="/vault">{t("checkIn.viewVault")} <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
               <Button asChild variant="outline" className="flex-1 rounded-full border-white/20 text-white hover:bg-white/10 py-6">
-                <Link to={`/moments/${id}`}>Back to Event</Link>
+                <Link to={`/moments/${id}`}>{t("checkIn.backToEvent")}</Link>
               </Button>
             </div>
           </div>
@@ -327,11 +329,11 @@ const CheckIn = () => {
             {/* Left Cover & Event Info Card */}
             <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 sm:p-8 space-y-6">
               <Link to={`/moments/${id}`} className="inline-flex items-center text-xs font-semibold text-white/60 hover:text-white">
-                ← Return to {moment.title}
+                {t("checkIn.returnTo", { title: moment.title })}
               </Link>
 
               <div className="space-y-2">
-                <span className="text-xs font-bold text-[#ff5500] uppercase tracking-wider">Attendance Check-in</span>
+                <span className="text-xs font-bold text-[#ff5500] uppercase tracking-wider">{t("checkIn.badge")}</span>
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-white">{moment.title}</h1>
                 <p className="text-sm text-white/60 flex items-center gap-1.5 pt-1">
                   <MapPin className="h-4 w-4 text-[#ff5500]" /> {moment.venue_name || moment.location}
@@ -342,7 +344,7 @@ const CheckIn = () => {
                 <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 flex items-center gap-3">
                   <Gift className="h-6 w-6 text-amber-400 shrink-0" />
                   <div>
-                    <h4 className="font-bold text-white text-sm">Reward for Checking In</h4>
+                    <h4 className="font-bold text-white text-sm">{t("checkIn.rewardForCheckingIn")}</h4>
                     <p className="text-xs text-white/70">{moment.reward}</p>
                   </div>
                 </div>
@@ -352,18 +354,18 @@ const CheckIn = () => {
             {/* Right Check-in Input Form */}
             <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 sm:p-8 space-y-6">
               <div className="space-y-1">
-                <h2 className="text-xl font-bold text-white">Enter Check-in Code</h2>
-                <p className="text-xs text-white/50">Enter the code displayed at the entrance desk to verify your visit.</p>
+                <h2 className="text-xl font-bold text-white">{t("checkIn.enterCodeTitle")}</h2>
+                <p className="text-xs text-white/50">{t("checkIn.enterCodeCopy")}</p>
               </div>
 
               <form onSubmit={handleCheckIn} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="code" className="text-xs uppercase font-bold text-white/70">Check-in Code</Label>
+                  <Label htmlFor="code" className="text-xs uppercase font-bold text-white/70">{t("checkIn.codeLabel")}</Label>
                   <Input
                     id="code"
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
-                    placeholder="ENTER CODE"
+                    placeholder={t("checkIn.codePlaceholder")}
                     className="text-center text-2xl font-mono tracking-widest h-14 bg-white/5 border-white/15 text-white uppercase rounded-2xl"
                     maxLength={8}
                   />
@@ -373,14 +375,14 @@ const CheckIn = () => {
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-wider text-white/70 flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4 text-[#ff5500]" /> Geofence Verification
+                      <MapPin className="h-4 w-4 text-[#ff5500]" /> {t("checkIn.geofenceVerification")}
                     </span>
                     {locationVerified && (
                       <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
                         isWithinGeofence ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                       }`}>
                         <ShieldCheck className="h-3.5 w-3.5" />
-                        {isWithinGeofence ? "Verified On-Site" : "Remote Check-In"}
+                        {isWithinGeofence ? t("checkIn.verifiedOnSite") : t("checkIn.remoteCheckIn")}
                       </span>
                     )}
                   </div>
@@ -392,19 +394,19 @@ const CheckIn = () => {
                     onClick={handleGPSVerify}
                     disabled={loading}
                   >
-                    {locationVerified ? "Re-Check GPS Position ✓" : "Verify GPS Proximity"}
+                    {locationVerified ? t("checkIn.recheckGps") : t("checkIn.verifyGps")}
                   </Button>
 
                   {distanceKm !== null && (
                     <p className="text-[11px] text-white/50 text-center">
-                      Distance to Venue: <span className="text-white font-mono">{distanceKm < 1 ? `${(distanceKm * 1000).toFixed(0)}m` : `${distanceKm.toFixed(2)} km`}</span>
+                      {t("checkIn.distanceToVenue")} <span className="text-white font-mono">{distanceKm < 1 ? `${(distanceKm * 1000).toFixed(0)}m` : `${distanceKm.toFixed(2)} km`}</span>
                     </p>
                   )}
                 </div>
 
                 {moment.proof_type === 'Photo' && (
                   <div className="space-y-2">
-                    <Label className="text-xs uppercase font-bold text-white/70">Photo Evidence</Label>
+                    <Label className="text-xs uppercase font-bold text-white/70">{t("checkIn.photoEvidence")}</Label>
                     <ImageUpload
                       onImageSelect={(file) => setImageFile(file)}
                       previewUrl={imageFile ? URL.createObjectURL(imageFile) : undefined}
@@ -420,7 +422,7 @@ const CheckIn = () => {
                   {loading || uploading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
-                    <>Complete Check-in & Claim Perk <Sparkles className="ml-2 h-5 w-5" /></>
+                    <>{t("checkIn.submitButton")} <Sparkles className="ml-2 h-5 w-5" /></>
                   )}
                 </Button>
               </form>

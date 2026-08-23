@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import logo from "@/assets/promorang-logo-full.png";
+import { useI18n } from "@/i18n/I18nContext";
 
 const footerLinks = {
   discover: [
@@ -52,21 +53,22 @@ const footerLinks = {
 };
 
 const Footer = ({ showCta = true }: { showCta?: boolean }) => {
+  const { t } = useI18n();
   return (
     <footer className="bg-background border-t border-border">
       {/* CTA Section */}
       {showCta ? <div className="container px-4 py-14 sm:px-6 md:py-24">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Find the moment you want to be part of.
+            {t("footer.ctaTitle")}
           </h2>
           <p className="mb-8 text-base text-muted-foreground sm:text-lg">
-            Show up, leave your Mark, and let the best parts of the night keep building after it ends.
+            {t("footer.ctaCopy")}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button variant="hero" size="xl" asChild>
               <Link to="/free/scene">
-                Find Your Scene
+                {t("footer.ctaButton")}
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </Button>
@@ -84,13 +86,13 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
                 <img src={logo} alt="Promorang" className="h-8 w-auto mb-4" />
               </Link>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Moments, people, proof, and the value that stays with them.
+                {t("footer.tagline")}
               </p>
             </div>
 
             {/* Discover Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Explore</h4>
+              <h4 className="font-semibold text-foreground mb-4">{t("footer.explore")}</h4>
               <ul className="space-y-3">
                 {footerLinks.discover.map((link) => (
                   <li key={link.label}>
@@ -107,7 +109,7 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
 
             {/* How It Works Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">How it works</h4>
+              <h4 className="font-semibold text-foreground mb-4">{t("footer.how")}</h4>
               <ul className="space-y-3">
                 {footerLinks.how.map((link) => (
                   <li key={link.label}>
@@ -124,7 +126,7 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
 
             {/* Partner Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">For partners</h4>
+              <h4 className="font-semibold text-foreground mb-4">{t("footer.partners")}</h4>
               <ul className="space-y-3">
                 {footerLinks.partners.map((link) => (
                   <li key={link.label}>
@@ -140,13 +142,13 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Free tools</h4>
+              <h4 className="font-semibold text-foreground mb-4">{t("footer.tools")}</h4>
               <ul className="space-y-3">{footerLinks.tools.map(link=><li key={link.label}><Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link></li>)}</ul>
             </div>
 
             {/* Support Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Support</h4>
+              <h4 className="font-semibold text-foreground mb-4">{t("footer.support")}</h4>
               <ul className="space-y-3">
                 {footerLinks.support.map((link) => (
                   <li key={link.label}>
@@ -169,7 +171,7 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
         <div className="container px-4 py-6 sm:px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              © 2026 Promorang. All rights reserved.
+              {t("footer.rights")}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
               {[

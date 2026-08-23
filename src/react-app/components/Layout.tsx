@@ -231,14 +231,20 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0D0D0E]">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-xl focus:bg-orange-600 focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:shadow-2xl"
+      >
+        Skip to main content
+      </a>
       {/* Main Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Left Side - Logo & Search */}
             <div className="flex items-center space-x-4">
-              <Link to="/home" className="flex items-center space-x-3 group">
+              <Link to="/home" aria-label="Promorang Home" className="flex items-center space-x-3 group">
                 <img 
                   src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_FULL-02.png"
                   alt="Promorang"
@@ -254,12 +260,14 @@ export default function Layout({ children }: LayoutProps) {
               {/* Desktop Search Button */}
               <Tooltip content="Search (⌘K)" position="bottom" compact={true}>
                 <button
+                  type="button"
+                  aria-label="Open search palette"
                   onClick={() => setShowSearchModal(true)}
-                  className="hidden md:flex items-center space-x-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  className="hidden md:flex items-center space-x-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 >
-                  <Search className="w-4 h-4 text-gray-600" />
-                  <span className="text-sm text-gray-600">Search...</span>
-                  <kbd className="hidden lg:inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded">
+                  <Search className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Search...</span>
+                  <kbd className="hidden lg:inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded">
                     ⌘K
                   </kbd>
                 </button>
@@ -268,8 +276,10 @@ export default function Layout({ children }: LayoutProps) {
               {/* Desktop Notifications */}
               <Tooltip content="Notifications" position="bottom" compact={true}>
                 <button
+                  type="button"
+                  aria-label="View notifications"
                   onClick={() => setShowNotifications(true)}
-                  className="hidden md:flex relative p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100"
+                  className="hidden md:flex relative p-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
                   <Bell className="w-5 h-5" />
                   {unreadCount > 0 && (
@@ -750,76 +760,79 @@ export default function Layout({ children }: LayoutProps) {
       </nav>
 
       {/* Mobile Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30">
+      <nav role="navigation" aria-label="Mobile navigation" className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-30">
         <div className="flex">
           {/* Core Navigation - 5 Intent Destinations */}
           <Link
             to="/home"
             className={`flex-1 flex flex-col items-center justify-center py-2.5 px-1 transition-colors ${
-              isActive('/home') || isActive('/radar') ? 'text-[#FF5500] font-bold' : 'text-gray-400 hover:text-gray-200'
+              isActive('/home') || isActive('/radar') ? 'text-[#FF5500] font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             <Home className="w-5 h-5" />
-            <span className="text-[10px] mt-1 font-medium leading-tight">Today</span>
+            <span className="text-[10px] mt-1 font-semibold leading-tight">Today</span>
           </Link>
           
           <Link
             to="/earn"
             className={`flex-1 flex flex-col items-center justify-center py-2.5 px-1 transition-colors ${
-              isActive('/earn') ? 'text-[#FF5500] font-bold' : 'text-gray-400 hover:text-gray-200'
+              isActive('/earn') ? 'text-[#FF5500] font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             <Compass className="w-5 h-5" />
-            <span className="text-[10px] mt-1 font-medium leading-tight">Discover</span>
+            <span className="text-[10px] mt-1 font-semibold leading-tight">Discover</span>
           </Link>
 
           <Link
             to="/create"
             className={`flex-1 flex flex-col items-center justify-center py-2.5 px-1 transition-colors ${
-              isActive('/create') ? 'text-[#FF5500] font-bold' : 'text-gray-400 hover:text-gray-200'
+              isActive('/create') ? 'text-[#FF5500] font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             <div className="bg-gradient-to-r from-[#FF5500] to-[#FF7F00] text-white p-1.5 rounded-full shadow-lg shadow-orange-500/30">
               <Plus className="w-4 h-4" />
             </div>
-            <span className="text-[10px] mt-0.5 font-medium leading-tight text-white">Create</span>
+            <span className="text-[10px] mt-0.5 font-bold leading-tight text-white">Create</span>
           </Link>
           
           <Link
             to="/success"
             className={`flex-1 flex flex-col items-center justify-center py-2.5 px-1 transition-colors ${
-              isActive('/success') ? 'text-[#FF5500] font-bold' : 'text-gray-400 hover:text-gray-200'
+              isActive('/success') ? 'text-[#FF5500] font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             <Gauge className="w-5 h-5" />
-            <span className="text-[10px] mt-1 font-medium leading-tight">Progress</span>
+            <span className="text-[10px] mt-1 font-semibold leading-tight">Progress</span>
           </Link>
           
           <Link
             to="/invest"
             className={`flex-1 flex flex-col items-center justify-center py-2.5 px-1 transition-colors ${
-              isActive('/invest') || isActive('/pieces') ? 'text-[#FF5500] font-bold' : 'text-gray-400 hover:text-gray-200'
+              isActive('/invest') || isActive('/pieces') ? 'text-[#FF5500] font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             <TrendingUp className="w-5 h-5" />
-            <span className="text-[10px] mt-1 font-medium leading-tight">Vault</span>
+            <span className="text-[10px] mt-1 font-semibold leading-tight">Vault</span>
           </Link>
           
           {/* Menu Button */}
           <button
+            type="button"
+            aria-label="More navigation options"
+            aria-expanded={showMobileMenu}
             onClick={() => setShowMobileMenu(!showMobileMenu)}
             className={`flex-1 flex flex-col items-center justify-center py-2.5 px-1 transition-colors ${
-              showMobileMenu ? 'text-[#FF5500] font-bold' : 'text-gray-400 hover:text-gray-200'
+              showMobileMenu ? 'text-[#FF5500] font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             <Menu className="w-5 h-5" />
-            <span className="text-[10px] mt-1 font-medium leading-tight">More</span>
+            <span className="text-[10px] mt-1 font-semibold leading-tight">More</span>
           </button>
         </div>
-      </div>
+      </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 lg:pb-8">
+      <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 lg:pb-8">
         {children}
       </main>
 

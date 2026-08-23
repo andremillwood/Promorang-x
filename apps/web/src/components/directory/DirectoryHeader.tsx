@@ -14,6 +14,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface DirectoryHeaderProps {
     title: string;
@@ -40,6 +41,7 @@ export const DirectoryHeader = ({
     onClearFilters,
     searchCategory = "all"
 }: DirectoryHeaderProps) => {
+    const { t } = useI18n();
     return (
         <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 md:gap-4">
@@ -58,7 +60,7 @@ export const DirectoryHeader = ({
                         className="text-[10px] md:text-xs h-7 md:h-8 text-muted-foreground hover:text-foreground w-fit"
                     >
                         <X className="w-3 h-3 mr-1.5 md:mr-2" />
-                        Clear filters
+                        {t("directory.clear")}
                     </Button>
                 )}
             </div>
@@ -79,10 +81,10 @@ export const DirectoryHeader = ({
                     <div className="flex gap-2">
                         <Select value={category} onValueChange={setCategory}>
                             <SelectTrigger className="w-full sm:w-[160px] h-9 md:h-10 bg-background text-sm" data-tour="directory-category">
-                                <SelectValue placeholder="Category" />
+                                <SelectValue placeholder={t("directory.category")} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All Categories</SelectItem>
+                                <SelectItem value="all">{t("directory.allCategories")}</SelectItem>
                                 {categories.map((cat) => (
                                     <SelectItem key={cat.value} value={cat.value}>
                                         {cat.label}
@@ -100,13 +102,13 @@ export const DirectoryHeader = ({
                 {searchTerm && searchTerm.length >= 2 && (
                     <div className="flex items-center justify-between px-4 py-2 bg-primary/5 rounded-lg border border-primary/10 animate-in fade-in slide-in-from-top-1">
                         <p className="text-xs text-muted-foreground">
-                            Searching <span className="font-semibold text-foreground">{title}</span> for "{searchTerm}"
+                            {t("directory.searching", { title, query: searchTerm })}
                         </p>
                         <Link
                             to={`/search?q=${encodeURIComponent(searchTerm)}&category=${searchCategory}`}
                             className="text-xs font-medium text-primary hover:underline flex items-center gap-1 group"
                         >
-                            Search all Moments, Brands & Hosts
+                            {t("directory.searchAll")}
                             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                         </Link>
                     </div>

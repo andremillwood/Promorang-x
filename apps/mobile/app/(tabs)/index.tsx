@@ -63,6 +63,9 @@ export default function StakeholderHomeScreen() {
     hasReturned: vaultObjects > 4,
   });
 
+  return (
+    <View style={styles.screen}>
+      <AppHeader />
       <View style={styles.topModeBar}>
         <Pressable
           style={[styles.modeBtn, feedMode === 'today' && styles.modeBtnActive]}

@@ -10,6 +10,7 @@ import { MapPin, ExternalLink, Heart, Share2, MessageSquare, ArrowRight, Activit
 import { useToast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
 import { CAMERA_CONSENT, MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
+import { useI18n } from "@/i18n/I18nContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -21,6 +22,7 @@ const pulseTone = {
 } as const;
 
 export default function ContentMissionDetail() {
+  const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const { user, session } = useAuth();
   const { toast } = useToast();
@@ -80,13 +82,13 @@ export default function ContentMissionDetail() {
     onSuccess: ({ eventType }) => {
       queryClient.invalidateQueries({ queryKey: ["content-metrics", missionQuery.data?.content?.id] });
       toast({
-        title: "Action recorded",
-        description: `Your ${eventType} helped strengthen the mission signal.`,
+        title: t("contentMission.toastActionRecorded"),
+        description: t("contentMission.toastActionRecordedDesc", { eventType }),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Action failed",
+        title: t("contentMission.toastActionFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -122,7 +124,7 @@ export default function ContentMissionDetail() {
     return (
       <main className="mx-auto max-w-4xl">
         <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-5 text-sm text-destructive">
-          {(missionQuery.error as Error)?.message || "Mission not found"}
+          {(missionQuery.error as Error)?.message || t("contentMission.notFound")}
         </div>
       </main>
     );
@@ -133,8 +135,8 @@ export default function ContentMissionDetail() {
   return (
     <main className="mx-auto max-w-6xl space-y-6 text-white sm:space-y-8">
       <SEO
-        title={`${mission.content?.title || "Mission"} · ${archetype.label}`}
-        description={mission.action_text || mission.content?.description || "See what this creator story is inviting people into."}
+        title={`${mission.content?.title || t("contentMission.titleDefault")} · ${archetype.label}`}
+        description={mission.action_text || mission.content?.description || t("contentMission.descDefault")}
         image={heroImage}
         url={`https://promorang.co/missions/${mission.id}`}
         type="article"
@@ -171,7 +173,7 @@ export default function ContentMissionDetail() {
 
       {galleryImages.length > 0 ? (
         <section className="rounded-3xl border border-border bg-card p-5 sm:p-6">
-          <h2 className="font-serif text-2xl font-bold">Mission Gallery</h2>
+          <h2 className="font-serif text-2xl font-bold">{t("contentMission.galleryTitle")}</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {galleryImages.map((image: { url: string; alt?: string; caption?: string }, index: number) => (
               <figure key={`${image.url}-${index}`} className="overflow-hidden rounded-2xl border border-border bg-background">
@@ -187,21 +189,21 @@ export default function ContentMissionDetail() {
         <div className="space-y-6">
           <GuidanceDisclosure
             id="content-mission:mission-flow"
-            eyebrow="Mission guide"
-            title="How the mission moves from story to action"
-            summary="Feel drawn in, show up, and see what opens after the linked Moment."
+            eyebrow={t("contentMission.guideEyebrow")}
+            title={t("contentMission.guideTitle")}
+            summary={t("contentMission.guideSummary")}
             className="mt-0"
             tone="light"
           >
             <div className="flex items-center gap-2">
               <Activity className="h-4 w-4 text-primary" />
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Mission Flow</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{t("contentMission.flowBadge")}</p>
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {[
-                { step: "Feel drawn in", detail: "Take in the creator's perspective and understand why this matters." },
-                { step: "Show up", detail: "Follow the invitation into the linked place, people, or Moment." },
-                { step: "See what opens", detail: "Check in, take part, keep the memory, and discover what comes next." },
+                { step: t("contentMission.step1Title"), detail: t("contentMission.step1Desc") },
+                { step: t("contentMission.step2Title"), detail: t("contentMission.step2Desc") },
+                { step: t("contentMission.step3Title"), detail: t("contentMission.step3Desc") },
               ].map((item) => (
                 <div key={item.step} className="rounded-2xl border border-border/60 bg-background/70 p-4">
                   <p className="text-sm font-semibold text-foreground">{item.step}</p>
@@ -212,16 +214,16 @@ export default function ContentMissionDetail() {
           </GuidanceDisclosure>
 
           <div className="rounded-3xl border border-primary/15 bg-primary/5 p-5 sm:p-6">
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">What to do when you get there</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{t("contentMission.whatToDo")}</p>
             <p className="mt-3 text-sm font-medium text-foreground">
-              {mission.physical_unlock_rules?.summary || "Complete the linked moment to unlock the hybrid mission reward."}
+              {mission.physical_unlock_rules?.summary || t("contentMission.whatToDoDefault")}
             </p>
             {mission.physical_unlock_rules?.perk_hint && (
               <p className="mt-3 text-sm text-muted-foreground">
                 {mission.physical_unlock_rules.perk_hint}
               </p>
             )}
-            {mission.camera_consent ? <p className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-3 text-sm text-emerald-200"><Activity className="h-4 w-4" />Camera boundary: {CAMERA_CONSENT[mission.camera_consent as keyof typeof CAMERA_CONSENT]}</p> : null}
+            {mission.camera_consent ? <p className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-3 text-sm text-emerald-200"><Activity className="h-4 w-4" />{t("contentMission.cameraBoundary")} {CAMERA_CONSENT[mission.camera_consent as keyof typeof CAMERA_CONSENT]}</p> : null}
             <div className="mt-4 flex flex-wrap gap-2">
               {(mission.entry_action_types || []).map((action: string) => (
                 <span key={action} className="rounded-full bg-background px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">
@@ -234,27 +236,27 @@ export default function ContentMissionDetail() {
           <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Help the story travel</p>
-                <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">Bring the right people into what happens next</h2>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">{t("contentMission.helpStoryTravel")}</p>
+                <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">{t("contentMission.bringPeople")}</h2>
               </div>
-              <span className="text-sm font-semibold text-primary">{actionCount} tracked actions</span>
+              <span className="text-sm font-semibold text-primary">{t("contentMission.trackedActions", { count: actionCount })}</span>
             </div>
             {user ? <div className="mt-5 grid gap-3 sm:grid-cols-3">
               <Button variant="outline" onClick={() => engage.mutate("like")} disabled={engage.isPending}>
                 <Heart className="mr-2 h-4 w-4" />
-                Like
+                {t("contentMission.like")}
               </Button>
               <Button variant="outline" onClick={() => engage.mutate("share")} disabled={engage.isPending}>
                 <Share2 className="mr-2 h-4 w-4" />
-                Share
+                {t("contentMission.share")}
               </Button>
               <Button variant="outline" onClick={() => engage.mutate("comment")} disabled={engage.isPending}>
                 <MessageSquare className="mr-2 h-4 w-4" />
-                Comment Intent
+                {t("contentMission.commentIntent")}
               </Button>
             </div> : (
               <Button asChild variant="hero" className="mt-5 w-full">
-                <Link to="/auth">Join to take this mission <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link to="/auth">{t("contentMission.joinToTake")} <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             )}
           </div>
@@ -262,7 +264,7 @@ export default function ContentMissionDetail() {
 
         <div className="space-y-6">
           <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Linked Moment</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">{t("contentMission.linkedMoment")}</p>
             <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">{mission.moment?.title}</h2>
             <div className="mt-4 space-y-3 text-sm text-muted-foreground">
               <p className="flex items-center gap-2">
@@ -270,22 +272,22 @@ export default function ContentMissionDetail() {
                 {mission.moment?.venue_name || mission.moment?.location}
               </p>
               <p>
-                Reward: <span className="font-semibold text-foreground">{mission.moment?.reward || "Memory unlock"}</span>
+                {t("contentMission.rewardLabel")} <span className="font-semibold text-foreground">{mission.moment?.reward || t("contentMission.memoryUnlock")}</span>
               </p>
               <p>
-                O2O conversion: <span className="font-semibold text-foreground">{Number(mission.o2o_conversion_rate || 0).toFixed(1)}%</span>
+                {t("contentMission.o2oConversionLabel")} <span className="font-semibold text-foreground">{Number(mission.o2o_conversion_rate || 0).toFixed(1)}%</span>
               </p>
             </div>
             <div className="mt-5 flex flex-col gap-3">
               <Button asChild variant="hero">
                 <Link to={`/moments/${mission.moment?.id}?missionId=${mission.id}&contentId=${mission.content?.id}`}>
-                  Open Linked Moment
+                  {t("contentMission.openLinkedMoment")}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline">
                 <a href={mission.content?.platform_url || "#"} target="_blank" rel="noreferrer">
-                  Watch on Source Platform
+                  {t("contentMission.watchOnPlatform")}
                   <ExternalLink className="ml-2 h-4 w-4" />
                 </a>
               </Button>
@@ -294,15 +296,15 @@ export default function ContentMissionDetail() {
 
           <GuidanceDisclosure
             id="content-mission:why-it-matters"
-            eyebrow="Mission context"
-            title="Why this story matters"
-            summary="The story connects attention to a real Moment, arrival, return, and memory."
+            eyebrow={t("contentMission.whyMattersEyebrow")}
+            title={t("contentMission.whyMattersTitle")}
+            summary={t("contentMission.whyMattersSummary")}
             className="mt-0"
             tone="light"
           >
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Why this matters</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">{t("contentMission.whyMattersBadge")}</p>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              This story is connected to a real Moment. Promorang can show the creator, host, venue, and partners what the story helped set in motion—from attention to arrival, connection, return, and memory.
+              {t("contentMission.whyMattersCopy")}
             </p>
           </GuidanceDisclosure>
         </div>

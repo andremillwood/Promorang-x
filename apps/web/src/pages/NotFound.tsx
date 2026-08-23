@@ -1,8 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, Compass, ArrowLeft } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
 
 const NotFound = () => {
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   return (
@@ -17,10 +19,10 @@ const NotFound = () => {
             <span className="font-serif text-4xl font-bold text-muted-foreground group-hover:text-primary transition-colors">404</span>
           </div>
           <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            Lost in the <span className="italic text-primary">moment</span>?
+            {t("notFound.titlePart1")}<span className="italic text-primary">{t("notFound.titlePart2")}</span>{t("notFound.titlePart3")}
           </h1>
           <p className="text-lg text-muted-foreground mb-10 leading-relaxed">
-            The page you're looking for has moved to a different timeline or never existed in this one.
+            {t("notFound.desc")}
           </p>
         </div>
 
@@ -28,18 +30,18 @@ const NotFound = () => {
           <Button asChild variant="hero" size="lg" className="w-full rounded-2xl shadow-soft hover:shadow-primary/20 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300">
             <Link to="/explore/moments">
               <Compass className="w-4 h-4 mr-2" />
-              Explore Moments
+              {t("notFound.explore")}
             </Link>
           </Button>
           <Button variant="outline" size="lg" className="w-full rounded-2xl bg-background/50 backdrop-blur-sm border-border/50 hover:bg-muted/50 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200" onClick={() => navigate(-1)}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Go Back
+            {t("notFound.goBack")}
           </Button>
         </div>
 
         <div className="mt-12 text-sm text-muted-foreground font-medium flex items-center justify-center gap-6">
-          <Link to="/" className="hover:text-primary transition-colors">Home Base</Link>
-          <Link to="/auth" className="hover:text-primary transition-colors">Join Us</Link>
+          <Link to="/" className="hover:text-primary transition-colors">{t("notFound.homeBase")}</Link>
+          <Link to="/auth" className="hover:text-primary transition-colors">{t("notFound.joinUs")}</Link>
         </div>
       </div>
     </div>

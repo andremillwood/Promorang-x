@@ -1,0 +1,2172 @@
+{
+  "schema_version": 2,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Bogotá, Colombia",
+    "country_code": "CO",
+    "country_slug": "colombia",
+    "city_slug": "bogota",
+    "collected_at": "2026-08-22T04:04:40.112Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "rules": {
+    "auto_publish": false,
+    "minimum_venue_confidence": 0.8,
+    "moment_expiry_hours": 24,
+    "targets": {
+      "venues": 30,
+      "discoveries": 20,
+      "moments": 10,
+      "polls": 4,
+      "scenes": 3
+    }
+  },
+  "city": {
+    "country_code": "CO",
+    "country_slug": "colombia",
+    "country": "Colombia",
+    "city_slug": "bogota",
+    "city": "Bogotá",
+    "region": "Bogotá D.C.",
+    "currency": "COP",
+    "timezone": "America/Bogota",
+    "bbox": "4.4500,-74.2200,4.8400,-73.9800",
+    "launch_stage": "pilot",
+    "poll_templates": [
+      "¿Qué escena cultural de Bogotá merece más atención?",
+      "¿Dónde está la mejor noche de música en vivo?",
+      "¿Qué espacio gastronómico debería organizar un Momento?",
+      "¿Qué debería activar Promorang en Bogotá?"
+    ]
+  },
+  "poll_templates": [
+    {
+      "key": "co-bogota-1",
+      "question": "¿Qué escena cultural de Bogotá merece más atención?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "co-bogota-2",
+      "question": "¿Dónde está la mejor noche de música en vivo?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "co-bogota-3",
+      "question": "¿Qué espacio gastronómico debería organizar un Momento?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "co-bogota-4",
+      "question": "¿Qué debería activar Promorang en Bogotá?",
+      "status": "draft",
+      "category": "City Direction",
+      "threshold_for_moment": 25
+    }
+  ],
+  "stats": {
+    "source_elements": 12440,
+    "candidates": 50,
+    "pending_review": 0,
+    "needs_research": 50
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/253846055",
+      "source_url": "https://www.openstreetmap.org/node/253846055",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 253846055,
+        "lat": 4.6641184,
+        "lon": -74.0028988,
+        "tags": {
+          "amenity": "restaurant",
+          "created_by": "JOSM",
+          "name": "Casa de Piedra"
+        }
+      },
+      "normalized_data": {
+        "name": "Casa de Piedra",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6641184,
+        "longitude": -74.0028988,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "abad4b24d8a40aeec16cd8ead12fe69d807301a11cb3461675d38d8e704bd706",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/262567789",
+      "source_url": "https://www.openstreetmap.org/node/262567789",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 262567789,
+        "lat": 4.6137699,
+        "lon": -74.0666723,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "La Casa de la Abuela"
+        }
+      },
+      "normalized_data": {
+        "name": "La Casa de la Abuela",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6137699,
+        "longitude": -74.0666723,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ebae4da55184e5417555b7171096ba922623d99addfa9350f8cb1ba7999dafdd",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/264785624",
+      "source_url": "https://www.openstreetmap.org/node/264785624",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 264785624,
+        "lat": 4.6456017,
+        "lon": -74.0634903,
+        "tags": {
+          "amenity": "restaurant",
+          "diet:vegetarian": "only",
+          "fixme": "Google claims this place is permanently closed. Can someone confirm?",
+          "name": "Vegetariano Vega"
+        }
+      },
+      "normalized_data": {
+        "name": "Vegetariano Vega",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6456017,
+        "longitude": -74.0634903,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ed9c15be6a7c8fde1dfa374400a72583824f74bf9ea9acaa5cdd88a0d9de6007",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/264785679",
+      "source_url": "https://www.openstreetmap.org/node/264785679",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 264785679,
+        "lat": 4.6455605,
+        "lon": -74.0636786,
+        "tags": {
+          "amenity": "restaurant",
+          "created_by": "Potlatch 0.9a",
+          "diet:vegetarian": "only",
+          "name": "Vegetariano Ajonjoli"
+        }
+      },
+      "normalized_data": {
+        "name": "Vegetariano Ajonjoli",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6455605,
+        "longitude": -74.0636786,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3de69f055cf263c11fd958b9e1554e721155639d7fe90ba7f81c3add8657377b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/265024916",
+      "source_url": "https://www.openstreetmap.org/node/265024916",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 265024916,
+        "lat": 4.6534938,
+        "lon": -74.0588892,
+        "tags": {
+          "addr:postcode": "110231",
+          "addr:street": "Calle 69A",
+          "amenity": "restaurant",
+          "name": "Desayunadero De La 42",
+          "source": "Kaart Ground Survey 2017"
+        }
+      },
+      "normalized_data": {
+        "name": "Desayunadero De La 42",
+        "address": "Calle 69A, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6534938,
+        "longitude": -74.0588892,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3050d18a29dc0b38c044a66a03d36602b8736a2c2c511f4c5ec91b1e337dc210",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/265501503",
+      "source_url": "https://www.openstreetmap.org/node/265501503",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 265501503,
+        "lat": 4.6396774,
+        "lon": -74.0630225,
+        "tags": {
+          "amenity": "cafe",
+          "brand": "Juan Valdez Café",
+          "brand:wikidata": "Q6301102",
+          "brand:wikipedia": "en:Juan Valdez Café",
+          "check_date": "2026-04-08",
+          "cuisine": "coffee_shop",
+          "name": "Juan Valdez Café",
+          "name:es": "Juan Valdez Café",
+          "shop": "coffee",
+          "takeaway": "yes",
+          "website": "https://juanvaldez.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Juan Valdez Café",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6396774,
+        "longitude": -74.0630225,
+        "category": "cafe",
+        "phone": null,
+        "website": "https://juanvaldez.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe",
+          "coffee_shop",
+          "coffee"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0808402bbdb8b6cf43ca4c3dd560d87fc046b98d9401fc1188c822d187c0ade2",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/265501535",
+      "source_url": "https://www.openstreetmap.org/node/265501535",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 265501535,
+        "lat": 4.6402868,
+        "lon": -74.0628995,
+        "tags": {
+          "addr:street": "Avenida Carrera 7",
+          "amenity": "cafe",
+          "name": "La Cafeteria",
+          "source": "Kaart Ground Survey 2017"
+        }
+      },
+      "normalized_data": {
+        "name": "La Cafeteria",
+        "address": "Avenida Carrera 7, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6402868,
+        "longitude": -74.0628995,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "193fc0ef39f65384f94aaab8007db75650bb8fdcc3b0ff877f270fc69663384b",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/266045580",
+      "source_url": "https://www.openstreetmap.org/node/266045580",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 266045580,
+        "lat": 4.5968372,
+        "lon": -74.0774643,
+        "tags": {
+          "name": "Museo Iglesia Santa Clara",
+          "tourism": "museum",
+          "wheelchair": "limited",
+          "wikidata": "Q5911533",
+          "wikimedia_commons": "Category:Iglesia de Santa Clara, Bogotá",
+          "wikipedia": "es:Museo Iglesia de Santa Clara"
+        }
+      },
+      "normalized_data": {
+        "name": "Museo Iglesia Santa Clara",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.5968372,
+        "longitude": -74.0774643,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "aaa53b396296a6c28ea8f2de8a3692a8f7c71050dbf67e9443ad8e4dfd72d935",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/268636471",
+      "source_url": "https://www.openstreetmap.org/node/268636471",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 268636471,
+        "lat": 4.6573428,
+        "lon": -74.0562028,
+        "tags": {
+          "addr:street": "Carrera 9",
+          "amenity": "restaurant",
+          "name": "Shi Zen",
+          "source": "Kaart Ground Survey 2017"
+        }
+      },
+      "normalized_data": {
+        "name": "Shi Zen",
+        "address": "Carrera 9, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6573428,
+        "longitude": -74.0562028,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ec0b3464182ee45e4940e8609a23c078673bd303ac2fa99b75960945b6c57645",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/268636486",
+      "source_url": "https://www.openstreetmap.org/node/268636486",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 268636486,
+        "lat": 4.6575657,
+        "lon": -74.0560391,
+        "tags": {
+          "addr:postcode": "110221",
+          "addr:street": "Carrera 9",
+          "alt_name": "Crepes & Waffles",
+          "amenity": "restaurant",
+          "brand": "Crepes & Waffles",
+          "brand:wikidata": "Q5184238",
+          "check_date": "2025-09-15",
+          "cuisine": "crepe;ice_cream",
+          "name": "Crepes & Waffles",
+          "source": "Kaart Ground Survey 2017"
+        }
+      },
+      "normalized_data": {
+        "name": "Crepes & Waffles",
+        "address": "Carrera 9, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6575657,
+        "longitude": -74.0560391,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "crepe;ice_cream"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3e4d92a8f09e204816c149100ff4c1e3bcf28eabb357778d04f6fbf7bf2d9f2e",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/311369079",
+      "source_url": "https://www.openstreetmap.org/node/311369079",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 311369079,
+        "lat": 4.6593915,
+        "lon": -74.0465391,
+        "tags": {
+          "name": "Entrada de Horizontes-Las Moyas",
+          "name:es": "Entrada de Horizontes-Las Moyas",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Entrada de Horizontes-Las Moyas",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6593915,
+        "longitude": -74.0465391,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2bfe8d5e430e85e99f43b8c7e8a420a5575589b7078f238e7ae92bae5536d5de",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/313367674",
+      "source_url": "https://www.openstreetmap.org/node/313367674",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 313367674,
+        "lat": 4.6595407,
+        "lon": -74.1085721,
+        "tags": {
+          "addr:street": "Calle 25B",
+          "brand": "Marriott",
+          "brand:wikidata": "Q3918608",
+          "brand:wikipedia": "en:Marriott Hotels & Resorts",
+          "name": "Bogotá Marriott",
+          "operator": "Marriott",
+          "source": "Kaart Ground Survey 2017",
+          "tourism": "hotel",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Bogotá Marriott",
+        "address": "Calle 25B, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6595407,
+        "longitude": -74.1085721,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7c67f2988036565bee0741c7e2e3e33dcefd4877e93062e27ebc344ac4304bec",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/317504265",
+      "source_url": "https://www.openstreetmap.org/node/317504265",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 317504265,
+        "lat": 4.781077,
+        "lon": -74.13439,
+        "tags": {
+          "amenity": "restaurant",
+          "created_by": "Potlatch 0.10f",
+          "name": "Rancho Porkis"
+        }
+      },
+      "normalized_data": {
+        "name": "Rancho Porkis",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.781077,
+        "longitude": -74.13439,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "12df47156c4bf91f1334de9c96ea3c0a4f16a55107f40b97a8c7e40e240767b8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/322777742",
+      "source_url": "https://www.openstreetmap.org/node/322777742",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 322777742,
+        "lat": 4.6741037,
+        "lon": -74.0379509,
+        "tags": {
+          "ele": "2593.022217",
+          "name": "Mirador La Paloma",
+          "tourism": "viewpoint"
+        }
+      },
+      "normalized_data": {
+        "name": "Mirador La Paloma",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6741037,
+        "longitude": -74.0379509,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "viewpoint"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "847e97ed05ae79615651acaad31aa02e6aee90f991ada0d4887a6591a0bc5a54",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/322778280",
+      "source_url": "https://www.openstreetmap.org/node/322778280",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 322778280,
+        "lat": 4.6738492,
+        "lon": -73.9955443,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "Balcon de Teusaca"
+        }
+      },
+      "normalized_data": {
+        "name": "Balcon de Teusaca",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6738492,
+        "longitude": -73.9955443,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0c4a4c1d538dbb8a7477c444d26812f398612c0ff5914a9f21164bd62336271d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/326438501",
+      "source_url": "https://www.openstreetmap.org/node/326438501",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 326438501,
+        "lat": 4.7229469,
+        "lon": -74.0275314,
+        "tags": {
+          "addr:city": "Bogotá D.C.",
+          "addr:street": "Calle 147",
+          "leisure": "sports_centre",
+          "name": "HardBody",
+          "source": "Kaart Ground Survey 2017"
+        }
+      },
+      "normalized_data": {
+        "name": "HardBody",
+        "address": "Calle 147, Bogotá D.C., Colombia",
+        "city": "Bogotá D.C.",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.7229469,
+        "longitude": -74.0275314,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "abb2cac1b9a1a748402e3970fdec64407f2187068616c1d6924d768065bcf356",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/326846855",
+      "source_url": "https://www.openstreetmap.org/node/326846855",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 326846855,
+        "lat": 4.6603898,
+        "lon": -74.1189966,
+        "tags": {
+          "addr:street": "Calle 23",
+          "name": "Los 3 Elefantes - La Esperanza",
+          "opening_hours": "Mo-Th 10:00-20:00; Fr,Sa 10:00-21:00; PH,Su 10:00-20:00",
+          "operator": "Los 3 Elefantes",
+          "shop": "department_store",
+          "source": "Kaart Ground Survey 2017"
+        }
+      },
+      "normalized_data": {
+        "name": "Los 3 Elefantes - La Esperanza",
+        "address": "Calle 23, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6603898,
+        "longitude": -74.1189966,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Th 10:00-20:00; Fr,Sa 10:00-21:00; PH,Su 10:00-20:00",
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5fec3c396690c41afe2a9e3577c67b683211308106e6f40d4e21512f693ff692",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/327359639",
+      "source_url": "https://www.openstreetmap.org/node/327359639",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 327359639,
+        "lat": 4.7295544,
+        "lon": -74.0494701,
+        "tags": {
+          "addr:street": "Avenida Carrera 45",
+          "name": "Granada Hills",
+          "shop": "department_store",
+          "source": "Kaart Ground Survey 2017"
+        }
+      },
+      "normalized_data": {
+        "name": "Granada Hills",
+        "address": "Avenida Carrera 45, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.7295544,
+        "longitude": -74.0494701,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ea4d42142b142cc2d72537db867eecb9c8c4a9153af7ab58d31adbae4bfb6df1",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/333749813",
+      "source_url": "https://www.openstreetmap.org/node/333749813",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 333749813,
+        "lat": 4.5976953,
+        "lon": -74.078472,
+        "tags": {
+          "name": "Museo Histórico Policia",
+          "opening_hours": "Tu-Su 08:00-17:00",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Museo Histórico Policia",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.5976953,
+        "longitude": -74.078472,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Tu-Su 08:00-17:00",
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "437b7d34562a8ce35158499b3aa954e4ae54d0a4aafa8600882c97c746696d60",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/333751267",
+      "source_url": "https://www.openstreetmap.org/node/333751267",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 333751267,
+        "lat": 4.5999936,
+        "lon": -74.068419,
+        "tags": {
+          "addr:housenumber": "2-43",
+          "addr:street": "Calle 12F",
+          "name": "Chocolate Hostel",
+          "old_name": "Platypus",
+          "tourism": "hostel"
+        }
+      },
+      "normalized_data": {
+        "name": "Chocolate Hostel",
+        "address": "2-43 Calle 12F, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.5999936,
+        "longitude": -74.068419,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hostel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "03d260efb29c31d17b6e2ee6d6b84b33e29ef209bbfe7951d26d82b434aba0eb",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/334407033",
+      "source_url": "https://www.openstreetmap.org/node/334407033",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 334407033,
+        "lat": 4.6857884,
+        "lon": -74.0481972,
+        "tags": {
+          "name": "Hotel Andes Plaza",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Andes Plaza",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6857884,
+        "longitude": -74.0481972,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f63590760cb3d5ef3ac4495864998b74495dc0a4643272ec30f61e02310f3e99",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/339057694",
+      "source_url": "https://www.openstreetmap.org/node/339057694",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 339057694,
+        "lat": 4.6809469,
+        "lon": -74.0818662,
+        "tags": {
+          "name": "Panamericana",
+          "shop": "books"
+        }
+      },
+      "normalized_data": {
+        "name": "Panamericana",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6809469,
+        "longitude": -74.0818662,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6f2640a4a8cd317377dfed088bba0fdb8f96a046b3f76c5c559d48c27d2f4aed",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/340194933",
+      "source_url": "https://www.openstreetmap.org/node/340194933",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 340194933,
+        "lat": 4.8399314,
+        "lon": -74.0312219,
+        "tags": {
+          "amenity": "pub",
+          "name": "Aguapanelas"
+        }
+      },
+      "normalized_data": {
+        "name": "Aguapanelas",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.8399314,
+        "longitude": -74.0312219,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d05233791e877f75cefc3f4a74c82758d533c3aec8a3a02f0d08756408d39dc4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/340429454",
+      "source_url": "https://www.openstreetmap.org/node/340429454",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 340429454,
+        "lat": 4.6761001,
+        "lon": -74.0475614,
+        "tags": {
+          "amenity": "cafe",
+          "brand": "Juan Valdez Café",
+          "brand:wikidata": "Q6301102",
+          "brand:wikipedia": "en:Juan Valdez Café",
+          "check_date": "2025-10-04",
+          "cuisine": "coffee_shop",
+          "name": "Juan Valdez Café",
+          "name:es": "Juan Valdez Café",
+          "opening_hours": "Mo-Su 07:00-22:00",
+          "shop": "coffee",
+          "takeaway": "yes",
+          "website": "https://juanvaldez.com/",
+          "wheelchair": "limited"
+        }
+      },
+      "normalized_data": {
+        "name": "Juan Valdez Café",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6761001,
+        "longitude": -74.0475614,
+        "category": "cafe",
+        "phone": null,
+        "website": "https://juanvaldez.com/",
+        "opening_hours": "Mo-Su 07:00-22:00",
+        "social_profiles": {},
+        "tags": [
+          "cafe",
+          "coffee_shop",
+          "coffee"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cad466b9b3cfd6bc342aa9d4bdf1a19cce2a25bac8fec36729c6c4b4a5b588e7",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/345303659",
+      "source_url": "https://www.openstreetmap.org/node/345303659",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 345303659,
+        "lat": 4.6467265,
+        "lon": -74.0617795,
+        "tags": {
+          "amenity": "restaurant",
+          "created_by": "Potlatch 0.10f",
+          "diet:vegetarian": "only",
+          "name": "Vegetariano Espiga"
+        }
+      },
+      "normalized_data": {
+        "name": "Vegetariano Espiga",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6467265,
+        "longitude": -74.0617795,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1ee7ad2f8aa738af303652349f054a1717c1a405b1784c426f14a037cb421a82",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/345601439",
+      "source_url": "https://www.openstreetmap.org/node/345601439",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 345601439,
+        "lat": 4.6249417,
+        "lon": -74.0665373,
+        "tags": {
+          "amenity": "restaurant",
+          "created_by": "Potlatch 0.10f",
+          "name": "Trento"
+        }
+      },
+      "normalized_data": {
+        "name": "Trento",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6249417,
+        "longitude": -74.0665373,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b9dc34b36f6072a1f1578cc72f121b74782c60c35ff391ecfbca335403feb8bd",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/349613378",
+      "source_url": "https://www.openstreetmap.org/node/349613378",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 349613378,
+        "lat": 4.7910754,
+        "lon": -74.0416046,
+        "tags": {
+          "ele": "2568",
+          "leisure": "sports_centre",
+          "name": "Centro Campestre Cafam"
+        }
+      },
+      "normalized_data": {
+        "name": "Centro Campestre Cafam",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.7910754,
+        "longitude": -74.0416046,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5fec26619a526ddf387b8695d661c9716f40476b7710ef18f8a0be3440233434",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/354742369",
+      "source_url": "https://www.openstreetmap.org/node/354742369",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 354742369,
+        "lat": 4.6673274,
+        "lon": -74.0552793,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "La Mona"
+        }
+      },
+      "normalized_data": {
+        "name": "La Mona",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6673274,
+        "longitude": -74.0552793,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bc4854e0466830ed1f1fea5c094bdcb4076d4c846b9d9a74189e2e89a2cf29d1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/354742837",
+      "source_url": "https://www.openstreetmap.org/node/354742837",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 354742837,
+        "lat": 4.668087,
+        "lon": -74.0521956,
+        "tags": {
+          "addr:street": "Calle 85",
+          "amenity": "restaurant",
+          "check_date": "2025-11-28",
+          "name": "Chamois",
+          "source": "Kaart Ground Survey 2017",
+          "wheelchair": "limited"
+        }
+      },
+      "normalized_data": {
+        "name": "Chamois",
+        "address": "Calle 85, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.668087,
+        "longitude": -74.0521956,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d6bb9a4a7f1b59f0252a19c3d8d235c83b3f41883440e5f9c44adafd0df82c03",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/356120486",
+      "source_url": "https://www.openstreetmap.org/node/356120486",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 356120486,
+        "lat": 4.7043979,
+        "lon": -74.0425077,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Pan Pa' Ya!",
+          "brand:wikidata": "Q131744932",
+          "name": "Pan Pa' Ya!",
+          "shop": "bakery"
+        }
+      },
+      "normalized_data": {
+        "name": "Pan Pa' Ya!",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.7043979,
+        "longitude": -74.0425077,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "bakery"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d922d5af810d4e51b7a777f4ed6b26f8273f2911c1ef45523b64223660225ba7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/356131190",
+      "source_url": "https://www.openstreetmap.org/node/356131190",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 356131190,
+        "lat": 4.677651,
+        "lon": -74.0440023,
+        "tags": {
+          "check_date": "2024-04-17",
+          "name": "Hotel Windsor House",
+          "tourism": "hotel",
+          "wheelchair": "limited"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Windsor House",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.677651,
+        "longitude": -74.0440023,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b92ead32c0b01fe82c52beedd34e09084373cc88e38118ed84ca0b3b07db1e88",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/356132087",
+      "source_url": "https://www.openstreetmap.org/node/356132087",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 356132087,
+        "lat": 4.6789491,
+        "lon": -74.0450987,
+        "tags": {
+          "addr:street": "Carrera 11",
+          "amenity": "fast_food",
+          "brand": "Pan Pa' Ya!",
+          "brand:wikidata": "Q131744932",
+          "name": "Pan Pa' Ya!",
+          "shop": "bakery",
+          "source": "Kaart Ground Survey 2017"
+        }
+      },
+      "normalized_data": {
+        "name": "Pan Pa' Ya!",
+        "address": "Carrera 11, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6789491,
+        "longitude": -74.0450987,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "bakery"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e7a887ddbba8a9d57612c02a090abf59685b60cea36778206e7b76a883646268",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/361325413",
+      "source_url": "https://www.openstreetmap.org/node/361325413",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 361325413,
+        "lat": 4.7127148,
+        "lon": -74.071167,
+        "tags": {
+          "amenity": "bar",
+          "level": "1",
+          "name": "Hollywood"
+        }
+      },
+      "normalized_data": {
+        "name": "Hollywood",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.7127148,
+        "longitude": -74.071167,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "96c20b9afb5cca7054a7033795a27c066392a13db82ff03ba3fe7eef122e1fea",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/361325694",
+      "source_url": "https://www.openstreetmap.org/node/361325694",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 361325694,
+        "lat": 4.6917859,
+        "lon": -74.035477,
+        "tags": {
+          "name": "Radisson",
+          "tourism": "hotel",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Radisson",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6917859,
+        "longitude": -74.035477,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f04e03b50a0feee828f4952a871b982e917b13c0aaf1084fcaeecea8368f16ce",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/366402598",
+      "source_url": "https://www.openstreetmap.org/node/366402598",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 366402598,
+        "lat": 4.726548,
+        "lon": -74.0450953,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "Fritanga Gourmet"
+        }
+      },
+      "normalized_data": {
+        "name": "Fritanga Gourmet",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.726548,
+        "longitude": -74.0450953,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c3124b3b2c8228e51fcab617f291298d01368462fe0a92cebac03cde596fdfc7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/366403457",
+      "source_url": "https://www.openstreetmap.org/node/366403457",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 366403457,
+        "lat": 4.726857,
+        "lon": -74.0499148,
+        "tags": {
+          "addr:street": "Autopista Norte - Paralela Oriental",
+          "amenity": "fast_food",
+          "name": "El Corral",
+          "source": "Kaart Ground Survey 2017"
+        }
+      },
+      "normalized_data": {
+        "name": "El Corral",
+        "address": "Autopista Norte - Paralela Oriental, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.726857,
+        "longitude": -74.0499148,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1deb52c5c2bae51fe6345197698464a594ea5d3ec8125e86a48148740bd952b4",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/366403460",
+      "source_url": "https://www.openstreetmap.org/node/366403460",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 366403460,
+        "lat": 4.7296261,
+        "lon": -74.0495424,
+        "tags": {
+          "amenity": "fast_food",
+          "name": "Chopinar"
+        }
+      },
+      "normalized_data": {
+        "name": "Chopinar",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.7296261,
+        "longitude": -74.0495424,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f0fa014e53917c871bfff7a6187947a1d3f073f21ea21dbc786a75ede88c38b3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/366425931",
+      "source_url": "https://www.openstreetmap.org/node/366425931",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 366425931,
+        "lat": 4.7658569,
+        "lon": -74.0470099,
+        "tags": {
+          "name": "Mirandela Plaza",
+          "shop": "department_store"
+        }
+      },
+      "normalized_data": {
+        "name": "Mirandela Plaza",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.7658569,
+        "longitude": -74.0470099,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "99c95fbb73af053af4ecf9ebf9c5c5424a1cd9a8778f0c410087c63df54bba0a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/366441930",
+      "source_url": "https://www.openstreetmap.org/node/366441930",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 366441930,
+        "lat": 4.6869821,
+        "lon": -74.0743285,
+        "tags": {
+          "addr:street": "Avenida Carrera 68",
+          "brand": "Éxito",
+          "brand:wikidata": "Q106463667",
+          "name": "Éxito",
+          "old_name": "Cafam Floresta",
+          "shop": "department_store",
+          "source": "Kaart Ground Survey 2017"
+        }
+      },
+      "normalized_data": {
+        "name": "Éxito",
+        "address": "Avenida Carrera 68, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6869821,
+        "longitude": -74.0743285,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "462303bbb9e8995562d7454da8008e2687afb074bcf3e5cffe1867289b342fef",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/368176844",
+      "source_url": "https://www.openstreetmap.org/node/368176844",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 368176844,
+        "lat": 4.6504734,
+        "lon": -74.0917405,
+        "tags": {
+          "amenity": "cafe",
+          "name": "Salon de Té F&W"
+        }
+      },
+      "normalized_data": {
+        "name": "Salon de Té F&W",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6504734,
+        "longitude": -74.0917405,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0c2dae3832e2caa4ecf4db5a0dece9cc2a8a0cffeec3a5638d7b57ba86e68260",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/369320709",
+      "source_url": "https://www.openstreetmap.org/node/369320709",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 369320709,
+        "lat": 4.6704695,
+        "lon": -74.0567602,
+        "tags": {
+          "addr:street": "Avenida Calle 85",
+          "amenity": "restaurant",
+          "name": "Sabrosito",
+          "source": "Kaart Ground Survey 2017"
+        }
+      },
+      "normalized_data": {
+        "name": "Sabrosito",
+        "address": "Avenida Calle 85, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6704695,
+        "longitude": -74.0567602,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2cee0b03f2d2bf03ded3e6d2d063af98fcc4b0c5f44ad4719f177b891871973a",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/373284906",
+      "source_url": "https://www.openstreetmap.org/node/373284906",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 373284906,
+        "lat": 4.6672354,
+        "lon": -74.0530569,
+        "tags": {
+          "amenity": "cinema",
+          "name": "Cine Colombia Andino",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Cine Colombia Andino",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6672354,
+        "longitude": -74.0530569,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cinema"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ca7bed66967dbb0925c24964723ee4fe76e943bfd7ce637f50ef6b9a73ab21fd",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/373288855",
+      "source_url": "https://www.openstreetmap.org/node/373288855",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 373288855,
+        "lat": 4.667793,
+        "lon": -74.0535672,
+        "tags": {
+          "addr:housenumber": "83-48",
+          "addr:street": "Carrera 12A",
+          "amenity": "pub",
+          "check_date": "2025-11-05",
+          "name": "El Irish",
+          "theme": "irish"
+        }
+      },
+      "normalized_data": {
+        "name": "El Irish",
+        "address": "83-48 Carrera 12A, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.667793,
+        "longitude": -74.0535672,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0b724f47c5f9124508dfdbe51244455f51910f1d401c241e0a4c8f2fad32dbf4",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/385176803",
+      "source_url": "https://www.openstreetmap.org/node/385176803",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 385176803,
+        "lat": 4.6096182,
+        "lon": -74.0701012,
+        "tags": {
+          "name": "Terraza Pasteur",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "Terraza Pasteur",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6096182,
+        "longitude": -74.0701012,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "21acb832d48690a9e8a2fc735a21587dee70697e64f302856204a5cf1e13d8f6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/385179125",
+      "source_url": "https://www.openstreetmap.org/node/385179125",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 385179125,
+        "lat": 4.6141388,
+        "lon": -74.069271,
+        "tags": {
+          "addr:street": "Carrera 7",
+          "amenity": "restaurant",
+          "name": "Sabrosito",
+          "source": "Kaart Ground Survey 2017"
+        }
+      },
+      "normalized_data": {
+        "name": "Sabrosito",
+        "address": "Carrera 7, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6141388,
+        "longitude": -74.069271,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b687758621a25b3458b56960ca9d608afd8d1f4f2c1e0290aa1b4e85d4a66871",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/385626394",
+      "source_url": "https://www.openstreetmap.org/node/385626394",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 385626394,
+        "lat": 4.6859643,
+        "lon": -74.0501146,
+        "tags": {
+          "name": "Hotel Beldevere",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Beldevere",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6859643,
+        "longitude": -74.0501146,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "24a90b67a07d2f753156dac47ca4ce7179ab50a6f588a0c277ce1e112bef4b59",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/405236743",
+      "source_url": "https://www.openstreetmap.org/node/405236743",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 405236743,
+        "lat": 4.7070904,
+        "lon": -74.0581185,
+        "tags": {
+          "amenity": "cafe",
+          "brand": "Pan Pa' Ya!",
+          "brand:wikidata": "Q131744932",
+          "level": "0",
+          "name": "Pan Pa' Ya!",
+          "payment:cards": "yes",
+          "payment:cash": "yes",
+          "service:electricity": "no",
+          "shop": "bakery",
+          "smoking": "no",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Pan Pa' Ya!",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.7070904,
+        "longitude": -74.0581185,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe",
+          "bakery"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "418cb98a8ff0330693b712bf9597299b11a83f1d1e402e0e505b587f6a1762a0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/416309486",
+      "source_url": "https://www.openstreetmap.org/node/416309486",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 416309486,
+        "lat": 4.6007895,
+        "lon": -74.0713896,
+        "tags": {
+          "amenity": "restaurant",
+          "diet:vegetarian": "only",
+          "name": "Vegetariano Sesamo"
+        }
+      },
+      "normalized_data": {
+        "name": "Vegetariano Sesamo",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6007895,
+        "longitude": -74.0713896,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0817e4336da43d6e94e89b7d6ccfcf4442787acd1ed7e1233d59e4a0c5fa1b6d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/416309492",
+      "source_url": "https://www.openstreetmap.org/node/416309492",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 416309492,
+        "lat": 4.6005189,
+        "lon": -74.0709242,
+        "tags": {
+          "alt_name": "Crepes & Waffles",
+          "amenity": "restaurant",
+          "brand": "Crepes & Waffles",
+          "brand:wikidata": "Q5184238",
+          "check_date": "2025-11-15",
+          "cuisine": "crepe;ice_cream",
+          "name": "Crepes & Waffles",
+          "opening_hours": "Mo-Sa 11:45-20:30; Su 11:45-19:30",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Crepes & Waffles",
+        "address": "Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6005189,
+        "longitude": -74.0709242,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Sa 11:45-20:30; Su 11:45-19:30",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "crepe;ice_cream"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e12e9c5fb1d5f4b3bc983193dca84d1da2dbaf541be5f3daaa9646dbe5a33f6c",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/416309777",
+      "source_url": "https://www.openstreetmap.org/node/416309777",
+      "source_last_checked_at": "2026-08-22T04:04:40.112Z",
+      "raw_data": {
+        "type": "node",
+        "id": 416309777,
+        "lat": 4.6164098,
+        "lon": -74.0674792,
+        "tags": {
+          "addr:street": "Calle 30",
+          "amenity": "restaurant",
+          "diet:vegetarian": "only",
+          "email": "rest_naturalmente@hotmail.com",
+          "name": "Vegetariano Naturalmente"
+        }
+      },
+      "normalized_data": {
+        "name": "Vegetariano Naturalmente",
+        "address": "Calle 30, Bogotá, Colombia",
+        "city": "Bogotá",
+        "region": "Bogotá D.C.",
+        "parish": "Bogotá D.C.",
+        "country": "Colombia",
+        "country_code": "CO",
+        "latitude": 4.6164098,
+        "longitude": -74.0674792,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b5f4b8d79d7510c297b972a6a05e8b4fb3cb217b1d1eab040310b572223865f7",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    }
+  ]
+}

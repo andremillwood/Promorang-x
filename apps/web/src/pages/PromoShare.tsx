@@ -43,6 +43,7 @@ import { SpinWheelModal } from '@/components/SpinWheelModal';
 import { TeamSlashModal } from '@/components/TeamSlashModal';
 import { DailyRewardsModal } from '@/components/DailyRewardsModal';
 import { cultureEvents } from '@/data/culture-demo';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface CycleStats {
   cycle_id: string;
@@ -60,6 +61,12 @@ interface CycleStats {
     moves: { current: number; required: number; complete: boolean };
     moments: { current: number; required: number; complete: boolean };
     referrals: { current: number; required: number; complete: boolean };
+  };
+  sponsor_config?: {
+    sponsor_name?: string;
+    sponsor_logo_url?: string;
+    prize_pool?: number;
+    distribution_type?: string;
   };
 }
 
@@ -124,6 +131,7 @@ interface FeaturedPoolPlacement {
 }
 
 const PromoShare = () => {
+  const { t } = useI18n();
   const { user, session, activeRole } = useAuth();
   const [data, setData] = useState<PromoShareData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -349,7 +357,7 @@ const PromoShare = () => {
         <div className="flex-1 min-w-0 space-y-8">
           {primaryCycle ? (
             <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
-              <p className="text-xs font-bold text-white/45">Nearest unlock</p>
+              <p className="text-xs font-bold text-white/45">{t("promoshare.nearestUnlock")}</p>
               <p className="mt-2 text-sm font-semibold">{primaryCycle.eligible ? `${primaryCycle.cycle_name} is open to you.` : 'Complete another verified move, moment, or referral to increase your weight.'}</p>
             </div>
           ) : null}
@@ -359,7 +367,7 @@ const PromoShare = () => {
           {isSponsorView && (
             <Card className="border-primary/20">
               <CardHeader>
-                <CardTitle>Fund a verified outcome</CardTitle>
+                <CardTitle>{t("promoshare.fundOutcome")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <GuidanceDisclosure
@@ -417,7 +425,7 @@ const PromoShare = () => {
           {isHostView && (
             <Card className="border-primary/20">
               <CardHeader>
-                <CardTitle>Host Layer</CardTitle>
+                <CardTitle>{t("promoshare.hostLayer")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <GuidanceDisclosure

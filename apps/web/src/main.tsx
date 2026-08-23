@@ -3,6 +3,7 @@ import App from "./App.tsx";
 import "./index.css";
 
 import { HelmetProvider } from 'react-helmet-async';
+import { I18nProvider } from "./i18n/I18nContext.tsx";
 
 const CHUNK_RELOAD_KEY = "promorang:chunk-reload";
 
@@ -62,23 +63,32 @@ window.addEventListener("unhandledrejection", (event) => {
     }
 });
 
-if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
     window.addEventListener("load", () => {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-            for (const registration of registrations) {
-                registration.unregister();
-            }
-        });
-        if ('caches' in window) {
-            caches.keys().then((keys) => {
-                keys.forEach((key) => caches.delete(key));
+        navigator.serviceWorker
+            .register("/sw.js")
+            .then((registration) => {
+                registration.onupdatefound = () => {
+                    const installingWorker = registration.installing;
+                    if (installingWorker) {
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === "installed" && navigator.serviceWorker.controller) {
+                                console.log("New Promorang update ready.");
+                            }
+                        };
+                    }
+                };
+            })
+            .catch((error) => {
+                console.warn("PWA Service Worker registration failed:", error);
             });
-        }
     });
 }
 
 createRoot(document.getElementById("root")!).render(
     <HelmetProvider>
-        <App />
+        <I18nProvider>
+            <App />
+        </I18nProvider>
     </HelmetProvider>
 );

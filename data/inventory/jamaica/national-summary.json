@@ -1,0 +1,92 @@
+{
+  "started_at": "2026-08-22T01:46:56.091Z",
+  "parishes": [
+    {
+      "parish": "Kingston",
+      "candidates": 133,
+      "batch_id": "c90674f5-07d4-4f90-86e7-694a4f75d9cd",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/kingston-osm-review.json"
+    },
+    {
+      "parish": "Saint Andrew",
+      "candidates": 453,
+      "batch_id": "b57bf3f2-c1f6-4bad-aeb4-5299b1d1dd76",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/saint-andrew-osm-review.json"
+    },
+    {
+      "parish": "Saint Thomas",
+      "candidates": 68,
+      "batch_id": "080a6a30-9b15-4247-8e87-fbe52ba3856c",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/saint-thomas-osm-review.json"
+    },
+    {
+      "parish": "Portland",
+      "candidates": 137,
+      "batch_id": "36f61b17-bc95-4eee-b642-15e660c9775b",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/portland-osm-review.json"
+    },
+    {
+      "parish": "Saint Mary",
+      "candidates": 47,
+      "batch_id": "0b8032d8-6f81-4391-9416-7ea5d45a042c",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/saint-mary-osm-review.json"
+    },
+    {
+      "parish": "Saint Ann",
+      "candidates": 221,
+      "batch_id": "839ff6e5-6ff2-45ca-96e5-ed3273db2440",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/saint-ann-osm-review.json"
+    },
+    {
+      "parish": "Trelawny",
+      "candidates": 51,
+      "batch_id": "edd207b7-e5d2-42bc-bb42-c3cea07011f0",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/trelawny-osm-review.json"
+    },
+    {
+      "parish": "Saint James",
+      "candidates": 240,
+      "batch_id": "809f3ca3-289a-4b88-93c7-8f616d893056",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/saint-james-osm-review.json"
+    },
+    {
+      "parish": "Hanover",
+      "candidates": 59,
+      "batch_id": "dd8b3cac-a205-418f-aead-c13220ef0d10",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/hanover-osm-review.json"
+    },
+    {
+      "parish": "Westmoreland",
+      "candidates": 276,
+      "batch_id": "cf30538c-1312-4a6f-b5d5-766aff3fe236",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/westmoreland-osm-review.json"
+    },
+    {
+      "parish": "Saint Elizabeth",
+      "candidates": 177,
+      "batch_id": "e7b208b5-3c72-4acd-ae99-bce6384cfe88",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/saint-elizabeth-osm-review.json"
+    },
+    {
+      "parish": "Manchester",
+      "candidates": 100,
+      "batch_id": "c78aa048-1a55-4160-a34e-f37a28495663",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/manchester-osm-review.json"
+    },
+    {
+      "parish": "Clarendon",
+      "candidates": 80,
+      "batch_id": "41286408-8700-413d-823d-9126044d07ee",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/clarendon-osm-review.json"
+    },
+    {
+      "parish": "Saint Catherine",
+      "candidates": 283,
+      "batch_id": "1aa700da-7fba-4934-89c6-1c1921875019",
+      "output": "/Users/bumblebeecreative/Documents/GitHub/Promorang-x/data/inventory/jamaica/saint-catherine-osm-review.json"
+    }
+  ],
+  "total_candidates": 2325,
+  "failures": [],
+  "completed_at": "2026-08-22T01:49:21.053Z"
+}

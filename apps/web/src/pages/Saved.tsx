@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Bookmark, ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Tables } from "@/integrations/supabase/types";
+import { useI18n } from "@/i18n/I18nContext";
 
 type SavedCollection = {
     id: string;
@@ -22,13 +23,14 @@ const initialCollections: SavedCollection[] = [
 ];
 
 const Saved = () => {
+    const { t } = useI18n();
     const { toast } = useToast();
     const [collections, setCollections] = useState(initialCollections);
 
     const handleCreateCollection = (name: string) => {
         toast({
-            title: "Collection created",
-            description: `"${name}" is ready for you to add moments`,
+            title: t("saved.created"),
+            description: t("saved.createdCopy", { name }),
         });
         // TODO: Persist to Supabase
     };
@@ -36,8 +38,8 @@ const Saved = () => {
     const handleDeleteCollection = (id: string) => {
         setCollections(prev => prev.filter(c => c.id !== id));
         toast({
-            title: "Collection deleted",
-            description: "The collection has been removed",
+            title: t("saved.deleted"),
+            description: t("saved.deletedCopy"),
         });
         // TODO: Persist to Supabase
     };
@@ -53,26 +55,26 @@ const Saved = () => {
                         <div className="max-w-2xl">
                             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/40 bg-black/45 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-400 backdrop-blur">
                                 <Bookmark className="h-3.5 w-3.5" />
-                                Your shortlist
+                                {t("saved.eyebrow")}
                             </div>
                             <h1 className="max-w-4xl font-serif text-4xl font-bold leading-[0.92] tracking-[-.045em] sm:text-6xl xl:text-8xl">
-                                Keep the moments that keep calling you back.
+                                {t("saved.title")}
                             </h1>
                             <p className="mt-5 max-w-xl text-base leading-7 text-white/65">
-                                Plans, drops, places, and scenes you chose before the feed moved on.
+                                {t("saved.copy")}
                             </p>
                             <div className="mt-7 flex flex-wrap gap-3">
                                 <Link
                                     to="/discover"
                                     className="inline-flex items-center gap-2 rounded-md bg-orange-500 px-5 py-3 text-sm font-bold text-black transition hover:bg-orange-400"
                                 >
-                                    Find something new <ArrowRight className="h-4 w-4" />
+                                    {t("saved.discover")} <ArrowRight className="h-4 w-4" />
                                 </Link>
                                 <Link
                                     to="/pulse"
                                     className="inline-flex items-center gap-2 rounded-md border border-white/20 bg-black/30 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/10"
                                 >
-                                    <Sparkles className="h-4 w-4 text-orange-400" /> See what is live
+                                    <Sparkles className="h-4 w-4 text-orange-400" /> {t("saved.live")}
                                 </Link>
                             </div>
                         </div>

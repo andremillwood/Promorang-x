@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { cultureImages } from '@/data/culture-demo';
+import { useI18n } from '@/i18n/I18nContext';
 
 type PieceType = 'content' | 'moment' | 'host' | 'venue';
 
@@ -42,6 +43,7 @@ interface EarningEvent {
 }
 
 export function PiecePortfolio() {
+  const { t } = useI18n();
   const { session } = useAuth();
   const { toast } = useToast();
   const [positions, setPositions] = useState<PortfolioPosition[]>([]);
@@ -111,20 +113,20 @@ export function PiecePortfolio() {
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/35" />
         <div className="relative mx-auto flex min-h-[350px] max-w-7xl flex-col justify-end gap-6 px-5 pb-10 pt-20 sm:px-8 md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400"><WalletCards className="h-3.5 w-3.5" /> Co-Ownership Collectibles</div>
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400"><WalletCards className="h-3.5 w-3.5" /> {t("piecePortfolio.heroEyebrow")}</div>
             <h1 className="max-w-3xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">
-              Keep a stake in what you helped move.
+              {t("piecePortfolio.heroTitle")}
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/55">
-              Pieces give you a real co-ownership stake in viral moments, creator drops, and local venues—unlocking secret perks, ticket draws, and Gem yields as participation grows.
+              {t("piecePortfolio.heroSubtitle")}
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button asChild variant="outline">
-              <Link to="/marketplace">Exchange Collectibles</Link>
+              <Link to="/marketplace">{t("piecePortfolio.exchangeCollectibles")}</Link>
             </Button>
             <Button asChild>
-              <Link to="/liquidity">Growth Pools</Link>
+              <Link to="/liquidity">{t("piecePortfolio.growthPools")}</Link>
             </Button>
           </div>
         </div>
@@ -135,13 +137,13 @@ export function PiecePortfolio() {
         <div className="mb-8 grid gap-4 md:grid-cols-3">
           <Card className="rounded-lg border-white/10 bg-[#111]">
             <CardHeader>
-              <CardTitle className="text-sm text-muted-foreground">Total Value</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("piecePortfolio.totalValue")}</CardTitle>
             </CardHeader>
             <CardContent className="text-3xl font-bold">{totalValue.toFixed(2)} Gems</CardContent>
           </Card>
           <Card className="rounded-lg border-white/10 bg-[#111]">
             <CardHeader>
-              <CardTitle className="text-sm text-muted-foreground">Total P/L</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("piecePortfolio.totalPnl")}</CardTitle>
             </CardHeader>
             <CardContent className={`flex items-center gap-2 text-3xl font-bold ${totalPnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               {totalPnl >= 0 ? <TrendingUp className="h-6 w-6" /> : <TrendingDown className="h-6 w-6" />}
@@ -150,7 +152,7 @@ export function PiecePortfolio() {
           </Card>
           <Card className="rounded-lg border-white/10 bg-[#111]">
             <CardHeader>
-              <CardTitle className="text-sm text-muted-foreground">Positions</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("piecePortfolio.positions")}</CardTitle>
             </CardHeader>
             <CardContent className="text-3xl font-bold">{positions.length}</CardContent>
           </Card>
@@ -159,13 +161,13 @@ export function PiecePortfolio() {
         {positions.length === 0 ? (
           <div className="rounded-lg border bg-card p-8 text-center">
             <Gem className="mx-auto mb-5 h-8 w-8 text-orange-400" />
-            <h2 className="text-2xl font-black">Your first piece begins with proof.</h2>
+            <h2 className="text-2xl font-black">{t("piecePortfolio.emptyTitle")}</h2>
             <p className="mx-auto mt-2 max-w-xl text-muted-foreground">
-              Join something worth showing up for, complete the action, and verify it. Eligible participation can become a position you keep.
+              {t("piecePortfolio.emptyCopy")}
             </p>
             <div className="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
-              <Button asChild variant="outline"><Link to="/discover">Find a moment</Link></Button>
-              <Button asChild><Link to="/marketplace">Open Marketplace</Link></Button>
+              <Button asChild variant="outline"><Link to="/discover">{t("piecePortfolio.findMoment")}</Link></Button>
+              <Button asChild><Link to="/marketplace">{t("piecePortfolio.openMarketplace")}</Link></Button>
             </div>
           </div>
         ) : (

@@ -4,8 +4,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useHasCompletedOnboarding } from "@/hooks/useUserPreferences";
 import OnboardingSurvey from "@/components/onboarding/OnboardingSurvey";
 import { getAnonymousId, trackGrowthEvent } from "@/lib/marketing-attribution";
+import { useI18n } from "@/i18n/I18nContext";
 
 const Onboarding = () => {
+  const { t } = useI18n();
   const { user, loading: authLoading } = useAuth();
   const { hasCompleted, isLoading: prefsLoading } = useHasCompletedOnboarding();
   const navigate = useNavigate();
@@ -51,7 +53,7 @@ const Onboarding = () => {
   if (authLoading || prefsLoading) {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
+        <div className="animate-pulse text-muted-foreground">{t("onboarding.loading")}</div>
       </div>
     );
   }

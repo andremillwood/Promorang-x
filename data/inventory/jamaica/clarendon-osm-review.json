@@ -1,0 +1,3330 @@
+{
+  "schema_version": 1,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Clarendon, Jamaica",
+    "parish": "Clarendon",
+    "iso_code": "JM-13",
+    "collected_at": "2026-08-22T01:49:03.262Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "stats": {
+    "source_elements": 97,
+    "candidates": 80,
+    "pending_review": 0,
+    "needs_research": 80
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3767804376",
+      "source_url": "https://www.openstreetmap.org/node/3767804376",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3767804376,
+        "lat": 17.9694245,
+        "lon": -77.3492654,
+        "tags": {
+          "amenity": "pub",
+          "name": "Twitter Pub",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Twitter Pub",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9694245,
+        "longitude": -77.3492654,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "95284012c65d2b960bb6bbd1fe6c3c7d7e32fc8951428e1e2ff9a49a3e6694c5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3769090123",
+      "source_url": "https://www.openstreetmap.org/node/3769090123",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3769090123,
+        "lat": 17.9735026,
+        "lon": -77.2523613,
+        "tags": {
+          "name": "Crisp Waterstore",
+          "shop": "department_store",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Crisp Waterstore",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9735026,
+        "longitude": -77.2523613,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dbcc6942e32ceb95b283b08baa2b534a4381291dc1138f9f65a04d2edd559b29",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3769227294",
+      "source_url": "https://www.openstreetmap.org/node/3769227294",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3769227294,
+        "lat": 17.9699186,
+        "lon": -77.2441484,
+        "tags": {
+          "level": "1",
+          "name": "Sam Chen Fashion",
+          "shop": "clothes",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Sam Chen Fashion",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9699186,
+        "longitude": -77.2441484,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b9f9df80692ab7be7fee381c6205a891d80447ce707f5688feb932ee8a14f930",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3769304961",
+      "source_url": "https://www.openstreetmap.org/node/3769304961",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3769304961,
+        "lat": 17.9712912,
+        "lon": -77.2442503,
+        "tags": {
+          "level": "2",
+          "name": "Canadian Fashions",
+          "shop": "clothes",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Canadian Fashions",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9712912,
+        "longitude": -77.2442503,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "caaeb86a55ba4c8e1081db210f611f46c2c165fa6ec7cb6182023de041f67b69",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3769752274",
+      "source_url": "https://www.openstreetmap.org/node/3769752274",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3769752274,
+        "lat": 17.9687505,
+        "lon": -77.2427317,
+        "tags": {
+          "addr:city": "May Pen",
+          "addr:housenumber": "45",
+          "addr:street": "Main Street",
+          "amenity": "restaurant",
+          "level": "2",
+          "name": "The Endz Restaurant Sports Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "The Endz Restaurant Sports Bar",
+        "address": "45 Main Street, May Pen, Jamaica",
+        "city": "May Pen",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9687505,
+        "longitude": -77.2427317,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4ad6ae48c376a52735fe0e13aa8eb84df480456081ddb59172c274d8db6e0d24",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3769757201",
+      "source_url": "https://www.openstreetmap.org/node/3769757201",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3769757201,
+        "lat": 17.968665,
+        "lon": -77.2429905,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Domino's",
+          "brand:wikidata": "Q839466",
+          "brand:wikipedia": "en:Domino's Pizza",
+          "cuisine": "pizza",
+          "name": "Domino's",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015.",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Domino's",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.968665,
+        "longitude": -77.2429905,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "eea983337e71a87cd62e4f0c39c3ad27a820dece98c61b74ceae8cad00835662",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6294663887",
+      "source_url": "https://www.openstreetmap.org/node/6294663887",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6294663887,
+        "lat": 17.9311408,
+        "lon": -77.2476691,
+        "tags": {
+          "addr:street": "Halse Hall Main Road",
+          "name": "Jamalco Great House",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Jamalco Great House",
+        "address": "Halse Hall Main Road, Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9311408,
+        "longitude": -77.2476691,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cef85193470cde959731009f101981f7709ec9331b9039d46a064a3c5bc33122",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7044684204",
+      "source_url": "https://www.openstreetmap.org/node/7044684204",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7044684204,
+        "lat": 17.8312151,
+        "lon": -77.1796659,
+        "tags": {
+          "name": "Salt River Mineral Bath",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Salt River Mineral Bath",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.8312151,
+        "longitude": -77.1796659,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b591df3cbfac88d37adfbab612f19a3b974096ae40bd98c12cda331595418356",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7062086677",
+      "source_url": "https://www.openstreetmap.org/node/7062086677",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7062086677,
+        "lat": 17.7700158,
+        "lon": -77.2637478,
+        "tags": {
+          "name": "Rocky Point Beach",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Rocky Point Beach",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.7700158,
+        "longitude": -77.2637478,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ebe000e8db7801d68ebb31c574b9ba7b633e18da04437a00a6acf21524a04197",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7077968691",
+      "source_url": "https://www.openstreetmap.org/node/7077968691",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7077968691,
+        "lat": 18.0831423,
+        "lon": -77.2666539,
+        "tags": {
+          "name": "Chapelton Clocktower",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Chapelton Clocktower",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 18.0831423,
+        "longitude": -77.2666539,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8e7638331e546dfecc387d20cac4889bba8f1d47e896451bf85dd96dc1227c55",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7354749886",
+      "source_url": "https://www.openstreetmap.org/node/7354749886",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7354749886,
+        "lat": 18.1326417,
+        "lon": -77.2080232,
+        "tags": {
+          "amenity": "pub",
+          "name": "San San Square"
+        }
+      },
+      "normalized_data": {
+        "name": "San San Square",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 18.1326417,
+        "longitude": -77.2080232,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8d958b91d3dae1074f80a83b185fdf7715d738987d7b7d4ea2f50e8560102950",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11382621369",
+      "source_url": "https://www.openstreetmap.org/node/11382621369",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11382621369,
+        "lat": 17.9952684,
+        "lon": -77.3741403,
+        "tags": {
+          "amenity": "fast_food",
+          "name": "Juice patties"
+        }
+      },
+      "normalized_data": {
+        "name": "Juice patties",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9952684,
+        "longitude": -77.3741403,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c19c94761fa4971b8bddbb47cedd5f6e740a8ae051b3dc69c3e15305322f227e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/221609445",
+      "source_url": "https://www.openstreetmap.org/way/221609445",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 221609445,
+        "center": {
+          "lat": 17.9699638,
+          "lon": -77.2450433
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "drive_through": "yes",
+          "name": "Juici Patties",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9699638,
+        "longitude": -77.2450433,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "894054a732dd8f7d2ee84cd7767874ef9e989d65d7c1c772eb016a2f91552e20",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371924349",
+      "source_url": "https://www.openstreetmap.org/way/371924349",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371924349,
+        "center": {
+          "lat": 17.9692011,
+          "lon": -77.3061006
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "burger",
+          "name": "Sweet and Juicy",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015.rest"
+        }
+      },
+      "normalized_data": {
+        "name": "Sweet and Juicy",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9692011,
+        "longitude": -77.3061006,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cfc7558e969700af4289fdac4359362b6c8b6cc673f1db63668b4483f17bb08c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371925256",
+      "source_url": "https://www.openstreetmap.org/way/371925256",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371925256,
+        "center": {
+          "lat": 17.9689862,
+          "lon": -77.3170726
+        },
+        "tags": {
+          "amenity": "pub;restaurant",
+          "building": "yes",
+          "name": "Trucker's Pub and So Nice Restaurant",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Trucker's Pub and So Nice Restaurant",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9689862,
+        "longitude": -77.3170726,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub;restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7721509e6341cf5580eb70472c9ffb5a075d208fbfa04400c825514321be3861",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371927741",
+      "source_url": "https://www.openstreetmap.org/way/371927741",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371927741,
+        "center": {
+          "lat": 17.9654055,
+          "lon": -77.3313494
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Flava Bar",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Flava Bar",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9654055,
+        "longitude": -77.3313494,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "13d907a485279b3e1555d6e6bb0f7eb0514195229be2d1824de91cbc1ef65a3c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371929815",
+      "source_url": "https://www.openstreetmap.org/way/371929815",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371929815,
+        "center": {
+          "lat": 17.9670672,
+          "lon": -77.3454789
+        },
+        "tags": {
+          "amenity": "pub",
+          "building": "yes",
+          "name": "Top of the Line Pub",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Top of the Line Pub",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9670672,
+        "longitude": -77.3454789,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "05b58737a5e004a8927ccf0d294f531711c0a877d16e7631425bb535c2abfd66",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371929820",
+      "source_url": "https://www.openstreetmap.org/way/371929820",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371929820,
+        "center": {
+          "lat": 17.9671599,
+          "lon": -77.345641
+        },
+        "tags": {
+          "amenity": "pub",
+          "building": "yes",
+          "name": "God Father's Pub",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "God Father's Pub",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9671599,
+        "longitude": -77.345641,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "89b81f1ca6f4142b1aeb1e0bc1a5591dd32ce428b95c7167bd22d80d465e035d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371930831",
+      "source_url": "https://www.openstreetmap.org/way/371930831",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371930831,
+        "center": {
+          "lat": 17.9675496,
+          "lon": -77.3462878
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Dolly's Bar",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Dolly's Bar",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9675496,
+        "longitude": -77.3462878,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b29467fc4c93a02653f48cb51385fd8176c9f3afb90ee02d96e7586ab1809f42",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371931011",
+      "source_url": "https://www.openstreetmap.org/way/371931011",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371931011,
+        "center": {
+          "lat": 17.9678038,
+          "lon": -77.34663
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Amazing Taste Restaurant",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Amazing Taste Restaurant",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9678038,
+        "longitude": -77.34663,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b0f5eb35511cd800c2482750f4434f6642873b87b34024c91351b322bea6d69a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371931812",
+      "source_url": "https://www.openstreetmap.org/way/371931812",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371931812,
+        "center": {
+          "lat": 17.9697467,
+          "lon": -77.3516906
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "El Classica Uno Parada",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "El Classica Uno Parada",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9697467,
+        "longitude": -77.3516906,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ef8ea6ea0720771ef8bef474329953a92f17414d654c46de77d1b8de6aa45bc4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371932366",
+      "source_url": "https://www.openstreetmap.org/way/371932366",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371932366,
+        "center": {
+          "lat": 17.9698567,
+          "lon": -77.3522092
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Fysh Side Jerk and Bar",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Fysh Side Jerk and Bar",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9698567,
+        "longitude": -77.3522092,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6a10b908602b22c7b40862bf5a98d6c33b8cf69794dc8505140a6d64cfee6ff3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371935157",
+      "source_url": "https://www.openstreetmap.org/way/371935157",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371935157,
+        "center": {
+          "lat": 17.9698917,
+          "lon": -77.3552572
+        },
+        "tags": {
+          "building": "hotel",
+          "name": "Dynasty Jamaica Hotel",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015.",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Dynasty Jamaica Hotel",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9698917,
+        "longitude": -77.3552572,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "00c0a60b7482812b27ef84f66163634776d32e3777ae05fd58fc7f10a792122e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371935160",
+      "source_url": "https://www.openstreetmap.org/way/371935160",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371935160,
+        "center": {
+          "lat": 17.9703663,
+          "lon": -77.3558193
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "seafood",
+          "name": "S & W Drive In",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "S & W Drive In",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9703663,
+        "longitude": -77.3558193,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "seafood"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9bc63239658fdc1852ab427d11bb63dea558827c8983cc8156a759158605ba52",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371936195",
+      "source_url": "https://www.openstreetmap.org/way/371936195",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371936195,
+        "center": {
+          "lat": 17.9702721,
+          "lon": -77.3575227
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Comfort Salon",
+          "shop": "beauty",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Comfort Salon",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9702721,
+        "longitude": -77.3575227,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4790029439a3df1003ffc9bf0cd462c37ff3f4715a848483303b9f93cdbb22f6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371936196",
+      "source_url": "https://www.openstreetmap.org/way/371936196",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371936196,
+        "center": {
+          "lat": 17.9702478,
+          "lon": -77.3576049
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Lady Beck's Restaurant and Bar",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Lady Beck's Restaurant and Bar",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9702478,
+        "longitude": -77.3576049,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3c2e98e360ce4af2665602914400ae8ac44aae3e5627e32410b00b89b8ef60e3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371936197",
+      "source_url": "https://www.openstreetmap.org/way/371936197",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371936197,
+        "center": {
+          "lat": 17.9703248,
+          "lon": -77.3577288
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Karl's Sports Bar and Restaurant",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Karl's Sports Bar and Restaurant",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9703248,
+        "longitude": -77.3577288,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4fb8199820a4cc71e81a8696df51bad8d453e808ab71df03c4c38509e0342775",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371949477",
+      "source_url": "https://www.openstreetmap.org/way/371949477",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371949477,
+        "center": {
+          "lat": 17.9734464,
+          "lon": -77.3604945
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Denise Sports Bar & Lounge",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Denise Sports Bar & Lounge",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9734464,
+        "longitude": -77.3604945,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "63e71cbe10acc123d192a34bd7f8ce3a6d2f165d892c18e844e9b93a06984472",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371951584",
+      "source_url": "https://www.openstreetmap.org/way/371951584",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371951584,
+        "center": {
+          "lat": 17.9933243,
+          "lon": -77.370817
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Restaurant and Bar",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Restaurant and Bar",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9933243,
+        "longitude": -77.370817,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2a730f60cf50e51ba4c910b1903e1496b433c031b640833e68d266a7338f70bb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371952881",
+      "source_url": "https://www.openstreetmap.org/way/371952881",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371952881,
+        "center": {
+          "lat": 17.9952621,
+          "lon": -77.3741383
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Juici Patties",
+          "opening_hours": "Mo-Su 06:00-23:00",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015.",
+          "website": "https://juicipatties.com/",
+          "wheelchair": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9952621,
+        "longitude": -77.3741383,
+        "category": "restaurant",
+        "phone": null,
+        "website": "https://juicipatties.com/",
+        "opening_hours": "Mo-Su 06:00-23:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a64fc3a06460a1c1feb354f5e57548bf068a98e23cff61873ac3fb6c71c5cacc",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371955901",
+      "source_url": "https://www.openstreetmap.org/way/371955901",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371955901,
+        "center": {
+          "lat": 18.0066378,
+          "lon": -77.3820067
+        },
+        "tags": {
+          "building": "hotel",
+          "name": "Alex's Guest House",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015.",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Alex's Guest House",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 18.0066378,
+        "longitude": -77.3820067,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c0c774bb0604db2dbbfbd86e42132acf5168735cd88be26b24b7fd499473e68a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371957089",
+      "source_url": "https://www.openstreetmap.org/way/371957089",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371957089,
+        "center": {
+          "lat": 18.008022,
+          "lon": -77.3829468
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Wray and Nephew",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Wray and Nephew",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 18.008022,
+        "longitude": -77.3829468,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8db0b5331a7bd06e4f34490f36c82dee6a037992f27ce741593336d8d65a1eae",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371958913",
+      "source_url": "https://www.openstreetmap.org/way/371958913",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371958913,
+        "center": {
+          "lat": 18.0096209,
+          "lon": -77.3846166
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Ann",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Ann",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 18.0096209,
+        "longitude": -77.3846166,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8c53b3bcddcaf1ac4572571bfb3f231a6561c1337fe0c164483e6f9a5dacaf43",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371960500",
+      "source_url": "https://www.openstreetmap.org/way/371960500",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371960500,
+        "center": {
+          "lat": 18.0229522,
+          "lon": -77.389762
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Wray and Nephew",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Wray and Nephew",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 18.0229522,
+        "longitude": -77.389762,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "df1f4a7c1d91bdd91a0e727fb61856decdab55cd555e54f295b2d33528d28aad",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371962543",
+      "source_url": "https://www.openstreetmap.org/way/371962543",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371962543,
+        "center": {
+          "lat": 18.0269092,
+          "lon": -77.3915337
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Wray and Nephew",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Wray and Nephew",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 18.0269092,
+        "longitude": -77.3915337,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a871f3a30db4b8e4cc306c0c2bcb304cfaff0ba8090cb69269d8af36fbdc92d3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371962986",
+      "source_url": "https://www.openstreetmap.org/way/371962986",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371962986,
+        "center": {
+          "lat": 18.03433,
+          "lon": -77.3984736
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Empire",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Empire",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 18.03433,
+        "longitude": -77.3984736,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4a87032c5582df96c1af668f29bc09ac9057732c9086189bdd6cf2e4c1ea32fa",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373271158",
+      "source_url": "https://www.openstreetmap.org/way/373271158",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373271158,
+        "center": {
+          "lat": 17.969976,
+          "lon": -77.3535322
+        },
+        "tags": {
+          "amenity": "pub",
+          "building": "yes",
+          "name": "K's Pub",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "K's Pub",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.969976,
+        "longitude": -77.3535322,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8d2602fe15c9e06f309b2675998fcfba8fb4de80a9da2f638d54e96ece2b4e91",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373283602",
+      "source_url": "https://www.openstreetmap.org/way/373283602",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373283602,
+        "center": {
+          "lat": 17.9689,
+          "lon": -77.3490713
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Michelle's",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Michelle's",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9689,
+        "longitude": -77.3490713,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "816aae28f4649cd630a0256decb981f93650dcc8f4257661a02127713af226ef",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373330210",
+      "source_url": "https://www.openstreetmap.org/way/373330210",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373330210,
+        "center": {
+          "lat": 17.9766325,
+          "lon": -77.2994669
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "building:levels": "2",
+          "name": "Hard Copy Bar & Games",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Hard Copy Bar & Games",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9766325,
+        "longitude": -77.2994669,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5b43e4854c8a408248d743c0493602446f045c587b702cad6f1100ff2e831b99",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373346785",
+      "source_url": "https://www.openstreetmap.org/way/373346785",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373346785,
+        "center": {
+          "lat": 17.972597,
+          "lon": -77.2685556
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Diamond House",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015.3"
+        }
+      },
+      "normalized_data": {
+        "name": "Diamond House",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.972597,
+        "longitude": -77.2685556,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "68151490ca1a99c238dd22c875e44f131ea3b4acb925d85c3b203c78e1022f7a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373431039",
+      "source_url": "https://www.openstreetmap.org/way/373431039",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373431039,
+        "center": {
+          "lat": 17.9736956,
+          "lon": -77.2658641
+        },
+        "tags": {
+          "amenity": "cafe",
+          "building": "yes",
+          "cuisine": "ice_cream",
+          "name": "M&J Pastries & Snack",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "M&J Pastries & Snack",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9736956,
+        "longitude": -77.2658641,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe",
+          "ice_cream"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5862c38b05a9533c4a0d3f53ad58e2d5cfc0d9dd502a6a39fa8390f652571b97",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373431046",
+      "source_url": "https://www.openstreetmap.org/way/373431046",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373431046,
+        "center": {
+          "lat": 17.9741501,
+          "lon": -77.2632389
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Star Time Cool Out Bar",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Star Time Cool Out Bar",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9741501,
+        "longitude": -77.2632389,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f748a45535125c5398285fd8bebf38821037b72db8760ddbb1ca960468155aa9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373431052",
+      "source_url": "https://www.openstreetmap.org/way/373431052",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373431052,
+        "center": {
+          "lat": 17.9744313,
+          "lon": -77.2621323
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "regional",
+          "name": "Boston Jerk Pit",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Boston Jerk Pit",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9744313,
+        "longitude": -77.2621323,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d22efa859de04f703495c367c4bfcf7790e0b930f6cc04f6e9ca500fd00d121a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373431053",
+      "source_url": "https://www.openstreetmap.org/way/373431053",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373431053,
+        "center": {
+          "lat": 17.9745092,
+          "lon": -77.261879
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "D&P"
+        }
+      },
+      "normalized_data": {
+        "name": "D&P",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9745092,
+        "longitude": -77.261879,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d5547c1b053c59e31e87aedd4de1873974acf08c03e578d9d5ac0e5dc7e83cec",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373431059",
+      "source_url": "https://www.openstreetmap.org/way/373431059",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373431059,
+        "center": {
+          "lat": 17.9753536,
+          "lon": -77.2581902
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Windows",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Windows",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9753536,
+        "longitude": -77.2581902,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cfcc612fb7e5606173c73183a288a6486ab3078cbb2d990b8becb80cc61d92bb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373432904",
+      "source_url": "https://www.openstreetmap.org/way/373432904",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373432904,
+        "center": {
+          "lat": 17.9742927,
+          "lon": -77.2542455
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Front Page",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Front Page",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9742927,
+        "longitude": -77.2542455,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2d0c7e0c8da02a402547e1f3d1af6112f11e9b836d06a8b37ca4b47741e7c854",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373439307",
+      "source_url": "https://www.openstreetmap.org/way/373439307",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373439307,
+        "center": {
+          "lat": 17.9738123,
+          "lon": -77.2530144
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Hairs & Hairs",
+          "phone": "986-9716",
+          "shop": "beauty",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Hairs & Hairs",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9738123,
+        "longitude": -77.2530144,
+        "category": "other",
+        "phone": "986-9716",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "87c33944ba6b907832db0143ce59641347f45699696ef20f85af73404efb86bc",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373449843",
+      "source_url": "https://www.openstreetmap.org/way/373449843",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373449843,
+        "center": {
+          "lat": 17.971748,
+          "lon": -77.2487851
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "amenity_1": "bar",
+          "building": "yes",
+          "cuisine": "regional",
+          "name": "Magnum Rogers",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Magnum Rogers",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.971748,
+        "longitude": -77.2487851,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "02d88c83edb00e475b38ddb0a0273d9c4b3c980327dbc7b23fd0a697e7f522c3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373449875",
+      "source_url": "https://www.openstreetmap.org/way/373449875",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373449875,
+        "center": {
+          "lat": 17.9703867,
+          "lon": -77.2445923
+        },
+        "tags": {
+          "amenity": "internet_cafe",
+          "building": "yes",
+          "name": "Hall's Computer Electronics & More",
+          "phone": "786-0697",
+          "shop": "computer",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Hall's Computer Electronics & More",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9703867,
+        "longitude": -77.2445923,
+        "category": "other",
+        "phone": "786-0697",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "internet_cafe",
+          "computer"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "88a1e57b3e9467ef1baa2e2c206a956e333a2de2a7448fb4c12e40db71beae94",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373456714",
+      "source_url": "https://www.openstreetmap.org/way/373456714",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373456714,
+        "center": {
+          "lat": 17.9704116,
+          "lon": -77.2455009
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "regional",
+          "name": "Steir's Jerk Centre",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Steir's Jerk Centre",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9704116,
+        "longitude": -77.2455009,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bf3a749e43c515ce28c1431edfc8469be7e1a055ac977dab3ee3d61c85695903",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373468383",
+      "source_url": "https://www.openstreetmap.org/way/373468383",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373468383,
+        "center": {
+          "lat": 17.9704148,
+          "lon": -77.2441458
+        },
+        "tags": {
+          "addr:housenumber": "1a",
+          "addr:street": "Chapelton Road",
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Gwango Tree Bar & Sports Club",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Gwango Tree Bar & Sports Club",
+        "address": "1a Chapelton Road, Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9704148,
+        "longitude": -77.2441458,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0b3daf5c3e068a0e163349172c4c12b05fc1c6f05c323035b1c9bc7f8b559917",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373468393",
+      "source_url": "https://www.openstreetmap.org/way/373468393",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373468393,
+        "center": {
+          "lat": 17.9709121,
+          "lon": -77.2440637
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Corner Bar",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Corner Bar",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9709121,
+        "longitude": -77.2440637,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fcd3238e571d68bcdb2689d96f9027b39b3610d62f3154c3ebe9d2df8c827d09",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373468399",
+      "source_url": "https://www.openstreetmap.org/way/373468399",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373468399,
+        "center": {
+          "lat": 17.9753254,
+          "lon": -77.2463873
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Norma's",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Norma's",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9753254,
+        "longitude": -77.2463873,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dec56d9eff86b739eb8a397c0743eb9e7da908191d8d579c437db8ae03c9b60b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373525484",
+      "source_url": "https://www.openstreetmap.org/way/373525484",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373525484,
+        "center": {
+          "lat": 17.966067,
+          "lon": -77.2396693
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Macy Department Store",
+          "shop": "department_store",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Macy Department Store",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.966067,
+        "longitude": -77.2396693,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f56cc822b6544bb0b0ce8806da3fd910e6ba35c6713702c09dea33973d196981",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373531361",
+      "source_url": "https://www.openstreetmap.org/way/373531361",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373531361,
+        "center": {
+          "lat": 17.9671958,
+          "lon": -77.2410399
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "cuisine": "burger",
+          "name": "Juici Patties",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9671958,
+        "longitude": -77.2410399,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ec6b458f1824ecdf3d6c9d944e099e4476e7250f75070849d380bffdf2f9ab29",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373531369",
+      "source_url": "https://www.openstreetmap.org/way/373531369",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373531369,
+        "center": {
+          "lat": 17.9671065,
+          "lon": -77.2417594
+        },
+        "tags": {
+          "addr:city": "May Pen",
+          "addr:country": "JM",
+          "addr:housenumber": "31",
+          "addr:street": "Main Street",
+          "building": "yes",
+          "name": "Bargain Village",
+          "shop": "mall",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Bargain Village",
+        "address": "31 Main Street, May Pen, JM",
+        "city": "May Pen",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9671065,
+        "longitude": -77.2417594,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1519b09a737823b7e7e7d08d498c9889193fb27ab02554d5b96b3493c1d0f907",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373531370",
+      "source_url": "https://www.openstreetmap.org/way/373531370",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373531370,
+        "center": {
+          "lat": 17.9673034,
+          "lon": -77.2417771
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Burger King",
+          "brand:wikidata": "Q177054",
+          "brand:wikipedia": "en:Burger King",
+          "building": "yes",
+          "cuisine": "burger",
+          "name": "Burger King",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015.",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Burger King",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9673034,
+        "longitude": -77.2417771,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "53e4f591c1804b260095e31e56cf81ef36b0bd0317ceab50cdc13d4c76f0bcfa",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373531371",
+      "source_url": "https://www.openstreetmap.org/way/373531371",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373531371,
+        "center": {
+          "lat": 17.9670517,
+          "lon": -77.2420728
+        },
+        "tags": {
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "brand:wikipedia": "en:KFC",
+          "building": "yes",
+          "cuisine": "chicken",
+          "drive_through": "yes",
+          "name": "KFC",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015.",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9670517,
+        "longitude": -77.2420728,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2db00de2ff66918f328d610ac26d8ac575e61a1b7ba4dc9d7680926959adf35e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373533050",
+      "source_url": "https://www.openstreetmap.org/way/373533050",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373533050,
+        "center": {
+          "lat": 17.9677577,
+          "lon": -77.241699
+        },
+        "tags": {
+          "addr:city": "May Pen",
+          "addr:housenumber": "34",
+          "addr:street": "Main Street",
+          "building": "yes",
+          "name": "Payless Jewellers",
+          "shop": "jewelry",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Payless Jewellers",
+        "address": "34 Main Street, May Pen, Jamaica",
+        "city": "May Pen",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9677577,
+        "longitude": -77.241699,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "543a2d93d4157aba317ad29827a8f852e2482a728b51228025551416b36e427a",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373533051",
+      "source_url": "https://www.openstreetmap.org/way/373533051",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373533051,
+        "center": {
+          "lat": 17.9678649,
+          "lon": -77.2418278
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Mother's",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Mother's",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9678649,
+        "longitude": -77.2418278,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dbc5c8673d4b93c4c61f12a7887e833336176f33d19fda853a0d3742c96b32d7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373534360",
+      "source_url": "https://www.openstreetmap.org/way/373534360",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373534360,
+        "center": {
+          "lat": 17.9689431,
+          "lon": -77.2432963
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Fashion House",
+          "shop": "clothes",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Fashion House",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9689431,
+        "longitude": -77.2432963,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "797393c46f198fe028419e248493c72575ea4a6f01cac900c982dbabed685369",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373534361",
+      "source_url": "https://www.openstreetmap.org/way/373534361",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373534361,
+        "center": {
+          "lat": 17.9688216,
+          "lon": -77.2431323
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "The Captain's Bakery and Grill",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "The Captain's Bakery and Grill",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9688216,
+        "longitude": -77.2431323,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1c93b18ca8893bbf8d17d3d104ab86ba9bdcc677eb0a8a62f785b4a2221c521a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373539197",
+      "source_url": "https://www.openstreetmap.org/way/373539197",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373539197,
+        "center": {
+          "lat": 17.969713,
+          "lon": -77.2432588
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Casper Wholesale & Retail",
+          "shop": "clothes",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Casper Wholesale & Retail",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.969713,
+        "longitude": -77.2432588,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "571a0836871a156a3b1d993a9e546e48f9f89c0a09a042d39717f20e38fb799c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373543871",
+      "source_url": "https://www.openstreetmap.org/way/373543871",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373543871,
+        "center": {
+          "lat": 17.9658045,
+          "lon": -77.2394325
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "cuisine": "burger;patties",
+          "diet:meat": "yes",
+          "diet:vegetarian": "yes",
+          "name": "Juici Patties",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9658045,
+        "longitude": -77.2394325,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger;patties"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "727f0336825fbdf9689b7953703f88d21e5e44a5c853f9e1f52577a8496ed22c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373599137",
+      "source_url": "https://www.openstreetmap.org/way/373599137",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373599137,
+        "center": {
+          "lat": 17.9499357,
+          "lon": -77.2143781
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Eternity Sports Bar",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Eternity Sports Bar",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9499357,
+        "longitude": -77.2143781,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2c6a3544e26358af4603233b901538d359a4076776ea0448c2e622d49df4225b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373599138",
+      "source_url": "https://www.openstreetmap.org/way/373599138",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373599138,
+        "center": {
+          "lat": 17.9492035,
+          "lon": -77.2136643
+        },
+        "tags": {
+          "amenity": "bar",
+          "amenity_1": "restaurant",
+          "building": "yes",
+          "name": "MVP Restaurant & Bar",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "MVP Restaurant & Bar",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9492035,
+        "longitude": -77.2136643,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "62d19ac7dd7fc45dc878963a9493a833db1a8edde9e8542c9d26429b7bf26778",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373607001",
+      "source_url": "https://www.openstreetmap.org/way/373607001",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373607001,
+        "center": {
+          "lat": 17.9472754,
+          "lon": -77.2122356
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Beauty Salon",
+          "shop": "beauty",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Beauty Salon",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9472754,
+        "longitude": -77.2122356,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "40b6f10d83958d72bf9ebd519846a74d0970ea2fcedeb9abb5f9fe9575df654b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373607002",
+      "source_url": "https://www.openstreetmap.org/way/373607002",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373607002,
+        "center": {
+          "lat": 17.9463184,
+          "lon": -77.2097057
+        },
+        "tags": {
+          "amenity": "bar",
+          "amenity_1": "restaurant",
+          "amenity_2": "liquor store",
+          "building": "yes",
+          "name": "Toby's Restaurant & Bar & Wholesale Liquor",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Toby's Restaurant & Bar & Wholesale Liquor",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9463184,
+        "longitude": -77.2097057,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c01a80a7086525b14c0357b17b9a564a57fad7e9471c4424e1336e96df73c32f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373908299",
+      "source_url": "https://www.openstreetmap.org/way/373908299",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373908299,
+        "center": {
+          "lat": 17.9478686,
+          "lon": -77.2029696
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Brent Corner",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Brent Corner",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9478686,
+        "longitude": -77.2029696,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "56c60705e5b5095bf8f36aa6d1adbc4ed35275be5100a9a13849e963f5df24e1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373915263",
+      "source_url": "https://www.openstreetmap.org/way/373915263",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373915263,
+        "center": {
+          "lat": 17.9565962,
+          "lon": -77.237904
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Original Home Pub",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Original Home Pub",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9565962,
+        "longitude": -77.237904,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "de17146f6c1d6e4d6e13def7e27fd50120023ef3b1c8eeb5d350290d6d0c4594",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373985678",
+      "source_url": "https://www.openstreetmap.org/way/373985678",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373985678,
+        "center": {
+          "lat": 17.9367169,
+          "lon": -77.172887
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "regional",
+          "name": "Head of the Class Jerk Centre",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Head of the Class Jerk Centre",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9367169,
+        "longitude": -77.172887,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1aab8083f7aecf1e9c2d009d8195f8408625626b5c14ed1e2bd32c725abd0c35",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373985683",
+      "source_url": "https://www.openstreetmap.org/way/373985683",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373985683,
+        "center": {
+          "lat": 17.9364969,
+          "lon": -77.1711237
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "bar": "yes",
+          "building": "yes",
+          "name": "Sophia's",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Sophia's",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9364969,
+        "longitude": -77.1711237,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4ca97899d7356ad921805ca36ab3d8c2526314b00af7972939ad9ce6ed22114b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373992073",
+      "source_url": "https://www.openstreetmap.org/way/373992073",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373992073,
+        "center": {
+          "lat": 17.9329003,
+          "lon": -77.1624571
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Our Parent's Place",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Our Parent's Place",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9329003,
+        "longitude": -77.1624571,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "218a7c129df7ddb52406736db4ff382b9fd1aed0825ca27befd7b9d797007320",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373992076",
+      "source_url": "https://www.openstreetmap.org/way/373992076",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373992076,
+        "center": {
+          "lat": 17.9313108,
+          "lon": -77.1622627
+        },
+        "tags": {
+          "amenity": "nightclub",
+          "building": "yes",
+          "name": "Sport Bar Club",
+          "source": "Updates from driving in Jamaica. KG Ground Survey 2015."
+        }
+      },
+      "normalized_data": {
+        "name": "Sport Bar Club",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9313108,
+        "longitude": -77.1622627,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "nightclub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3cc15ae7453ce43201bcb30e22d601ac5b15d60d432f90b2c48adfe06c8dc061",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/744164402",
+      "source_url": "https://www.openstreetmap.org/way/744164402",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 744164402,
+        "center": {
+          "lat": 17.8534606,
+          "lon": -77.3529997
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Milk River Mineral Bath and Spa",
+          "shop": "massage",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Milk River Mineral Bath and Spa",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.8534606,
+        "longitude": -77.3529997,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "massage",
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "443e086fffc3d555f892270900b12cfe9e356aa1b8517229b2527b519332dfa3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/751749090",
+      "source_url": "https://www.openstreetmap.org/way/751749090",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 751749090,
+        "center": {
+          "lat": 17.9310156,
+          "lon": -77.2475772
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Homar's Roti & Grill"
+        }
+      },
+      "normalized_data": {
+        "name": "Homar's Roti & Grill",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9310156,
+        "longitude": -77.2475772,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "61fab6877abd30102cc2b9291eeb40e44c014a571f7c62695ff284449f726fad",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/824983805",
+      "source_url": "https://www.openstreetmap.org/way/824983805",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 824983805,
+        "center": {
+          "lat": 17.9690031,
+          "lon": -77.350744
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Bridge Palm Hotel",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Bridge Palm Hotel",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9690031,
+        "longitude": -77.350744,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "135854448d268a086f1597e89c4069ed1487bcf547459af776d57e876dce7ed5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1178154930",
+      "source_url": "https://www.openstreetmap.org/way/1178154930",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1178154930,
+        "center": {
+          "lat": 17.990436,
+          "lon": -77.3684586
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "fish;chicken",
+          "name": "Murray's Fish and Jerk Hut"
+        }
+      },
+      "normalized_data": {
+        "name": "Murray's Fish and Jerk Hut",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.990436,
+        "longitude": -77.3684586,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "fish;chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cc0a00a0e19a1598ee87b645f96f2a2517244ddddd9fe6f086930b3ee2d2a5aa",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1258914030",
+      "source_url": "https://www.openstreetmap.org/way/1258914030",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1258914030,
+        "center": {
+          "lat": 17.969868,
+          "lon": -77.2453491
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "commercial",
+          "name": "Juici Patties"
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.969868,
+        "longitude": -77.2453491,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "894054a732dd8f7d2ee84cd7767874ef9e989d65d7c1c772eb016a2f91552e20",
+      "confidence": 0.6,
+      "review_status": "needs_research",
+      "duplicate_source_record_id": "way/221609445"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1258914032",
+      "source_url": "https://www.openstreetmap.org/way/1258914032",
+      "source_last_checked_at": "2026-08-22T01:49:03.262Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1258914032,
+        "center": {
+          "lat": 17.9735601,
+          "lon": -77.2505113
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Pizza Hut , KFC"
+        }
+      },
+      "normalized_data": {
+        "name": "Pizza Hut , KFC",
+        "address": "Clarendon, Jamaica",
+        "city": "Clarendon",
+        "parish": "Clarendon",
+        "country": "Jamaica",
+        "latitude": 17.9735601,
+        "longitude": -77.2505113,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "72dd447572fd962f214a09b5717a6682840c14fe186760a18a146b6b1f8803e6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    }
+  ]
+}

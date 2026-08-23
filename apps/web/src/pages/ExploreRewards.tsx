@@ -12,6 +12,7 @@ import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Coins, Gift, KeyRound, MapPin, Search, ShieldCheck, Sparkles, Tag } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface PublicRewardRow {
   id: string;
@@ -38,45 +39,6 @@ interface PublicRewardRow {
   brand_name: string | null;
 }
 
-const rewardPaths = [
-  {
-    title: "Proof-Based Missions",
-    description: "Complete a moment, upload proof, and unlock value tied to that verified action.",
-    href: "/watch-unlock",
-    cta: "Browse missions",
-    icon: Sparkles,
-  },
-  {
-    title: "Wallet and Keys",
-    description: "Track the points, keys, and unlock state that shape what you can claim next.",
-    href: "/wallet",
-    cta: "Open wallet",
-    icon: KeyRound,
-  },
-  {
-    title: "Rewards Vault",
-    description: "Review claimed, earned, and locked rewards once you are inside the participant flow.",
-    href: "/dashboard/rewards",
-    cta: "Open rewards",
-    icon: Gift,
-  },
-];
-
-const rewardTypes = [
-  { value: "all", label: "All reward types" },
-  { value: "discount_percentage", label: "Percentage off" },
-  { value: "discount_fixed", label: "Fixed discount" },
-  { value: "free_item", label: "Free item" },
-  { value: "bogo", label: "BOGO" },
-];
-
-const rewardSources = [
-  { value: "all", label: "All sources" },
-  { value: "merchant", label: "Venue rewards" },
-  { value: "advertiser", label: "Brand rewards" },
-  { value: "platform", label: "Platform rewards" },
-];
-
 const isMissingSupabaseRelation = (error: unknown) => {
   if (!error || typeof error !== "object") return false;
   const relationError = error as { code?: string; message?: string; details?: string };
@@ -90,9 +52,28 @@ const isMissingSupabaseRelation = (error: unknown) => {
 
 const ExploreRewards = () => {
   const { user } = useAuth();
+  const { t, formatDate, formatNumber } = useI18n();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeRewardType, setActiveRewardType] = useState("all");
   const [activeSource, setActiveSource] = useState("all");
+  const rewardPaths = [
+    { title: t("rewards.missionsTitle"), description: t("rewards.missionsCopy"), href: "/watch-unlock", cta: t("rewards.browseMissions"), icon: Sparkles },
+    { title: t("rewards.walletTitle"), description: t("rewards.walletCopy"), href: "/wallet", cta: t("rewards.openWallet"), icon: KeyRound },
+    { title: t("rewards.vaultTitle"), description: t("rewards.vaultCopy"), href: "/dashboard/rewards", cta: t("rewards.openRewards"), icon: Gift },
+  ];
+  const rewardTypes = [
+    { value: "all", label: t("rewards.allTypes") },
+    { value: "discount_percentage", label: t("rewards.percentage") },
+    { value: "discount_fixed", label: t("rewards.fixed") },
+    { value: "free_item", label: t("rewards.freeItem") },
+    { value: "bogo", label: t("rewards.bogo") },
+  ];
+  const rewardSources = [
+    { value: "all", label: t("rewards.allSources") },
+    { value: "merchant", label: t("rewards.venueRewards") },
+    { value: "advertiser", label: t("rewards.brandRewards") },
+    { value: "platform", label: t("rewards.platformRewards") },
+  ];
 
   const rewardsQuery = useQuery({
     queryKey: ["explore-rewards"],
@@ -139,14 +120,14 @@ const ExploreRewards = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Explore Rewards"
-        description="See how reward loops work across proofs, offers, points, keys, and participant claims on Promorang."
+        title={t("rewards.seoTitle")}
+        description={t("rewards.seoDescription")}
         url={getSiteUrl("/explore/rewards")}
         schema={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "Explore Rewards",
-          description: "See how reward loops work across proofs, offers, points, keys, and participant claims on Promorang.",
+          name: t("rewards.seoTitle"),
+          description: t("rewards.seoDescription"),
         }}
       />
 
@@ -154,32 +135,32 @@ const ExploreRewards = () => {
         <div className="mx-auto max-w-6xl">
           <div className="rounded-[2rem] border border-emerald-500/15 bg-gradient-to-br from-emerald-500/5 via-background to-amber-500/10 p-6 shadow-soft sm:p-8">
             <Badge variant="secondary" className="mb-4 rounded-full px-3 py-1">
-              Reward Discovery
+              {t("rewards.badge")}
             </Badge>
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
                 <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-                  Explore the reward economy behind the moments.
+                  {t("rewards.title")}
                 </h1>
                 <GuidanceDisclosure
                   id="explore-rewards:reward-economy"
-                  eyebrow="Reward guide"
-                  title="How rewards connect action to value"
-                  summary="Rewards sit inside proof loops, keys, points, and eligibility rules rather than a generic coupon list."
+                  eyebrow={t("rewards.guideEyebrow")}
+                  title={t("rewards.guideTitle")}
+                  summary={t("rewards.guideSummary")}
                   className="mt-4"
                   tone="light"
                 >
                   <p className="text-sm text-muted-foreground sm:text-base">
-                    Promorang rewards are not a generic coupon list. They sit inside proof loops, keys, points, and eligibility rules that connect action to value.
+                    {t("rewards.guideCopy")}
                   </p>
                 </GuidanceDisclosure>
               </div>
               <div className="rounded-2xl border border-emerald-500/15 bg-background/80 p-4 text-sm text-muted-foreground shadow-soft">
-                <p className="font-semibold text-foreground">{user ? "Signed in" : "Guest mode"}</p>
+                <p className="font-semibold text-foreground">{t(user ? "rewards.signedIn" : "rewards.guest")}</p>
                 <p className="mt-1">
                   {user
-                    ? "You can move from discovery into wallet and reward surfaces immediately."
-                    : "You can browse the reward model here, then sign in when you want claims and balances."}
+                    ? t("rewards.signedInCopy")
+                    : t("rewards.guestCopy")}
                 </p>
               </div>
             </div>
@@ -206,9 +187,9 @@ const ExploreRewards = () => {
 
           <GuidanceDisclosure
             id="explore-rewards:points-keys-proof"
-            eyebrow="Eligibility guide"
-            title="How points, keys, and proof shape rewards"
-            summary="Some rewards are instant; others depend on proof review, maturity, or redemption controls."
+            eyebrow={t("rewards.eligibilityEyebrow")}
+            title={t("rewards.eligibilityTitle")}
+            summary={t("rewards.eligibilitySummary")}
             className="mt-8"
             tone="light"
           >
@@ -216,22 +197,22 @@ const ExploreRewards = () => {
               <Card className="shadow-soft">
                 <CardContent className="p-5">
                   <Coins className="mb-3 h-5 w-5 text-amber-500" />
-                  <p className="font-semibold text-foreground">Points</p>
-                  <p className="mt-2 text-sm text-muted-foreground">Activity can earn points. Those points contribute to access and progression rather than acting like raw cash.</p>
+                  <p className="font-semibold text-foreground">{t("rewards.points")}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{t("rewards.pointsCopy")}</p>
                 </CardContent>
               </Card>
               <Card className="shadow-soft">
                 <CardContent className="p-5">
                   <KeyRound className="mb-3 h-5 w-5 text-primary" />
-                  <p className="font-semibold text-foreground">Keys</p>
-                  <p className="mt-2 text-sm text-muted-foreground">Keys gate higher-value opportunities and turn participation history into selective access.</p>
+                  <p className="font-semibold text-foreground">{t("rewards.keys")}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{t("rewards.keysCopy")}</p>
                 </CardContent>
               </Card>
               <Card className="shadow-soft">
                 <CardContent className="p-5">
                   <ShieldCheck className="mb-3 h-5 w-5 text-emerald-600" />
-                  <p className="font-semibold text-foreground">Proof and Eligibility</p>
-                  <p className="mt-2 text-sm text-muted-foreground">Some rewards are instant, some depend on proof review, and some depend on longer maturity or redemption controls.</p>
+                  <p className="font-semibold text-foreground">{t("rewards.proof")}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{t("rewards.proofCopy")}</p>
                 </CardContent>
               </Card>
             </div>
@@ -243,7 +224,7 @@ const ExploreRewards = () => {
               <Input
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search rewards by title, code, brand, venue, or city..."
+                placeholder={t("rewards.search")}
                 className="h-12 pl-11"
               />
             </div>
@@ -283,18 +264,18 @@ const ExploreRewards = () => {
 
           <div className="mt-6 flex items-center justify-between">
             <div>
-              <h2 className="font-serif text-2xl font-bold">Browseable rewards</h2>
-              <p className="text-sm text-muted-foreground">Public reward offers and discount mechanics connected to brands and venues.</p>
+              <h2 className="font-serif text-2xl font-bold">{t("rewards.browseTitle")}</h2>
+              <p className="text-sm text-muted-foreground">{t("rewards.browseCopy")}</p>
             </div>
             {!rewardsQuery.isLoading ? (
               <Badge variant="outline" className="rounded-full">
-                {filteredRewards.length} rewards
+                {t("rewards.count", { count: formatNumber(filteredRewards.length) })}
               </Badge>
             ) : null}
           </div>
           {rewardsQuery.data?.unavailable ? (
             <div className="mt-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-muted-foreground">
-              Public reward browsing is temporarily unavailable in this environment because the reward discovery view has not been provisioned yet.
+              {t("rewards.unavailable")}
             </div>
           ) : null}
 
@@ -334,27 +315,27 @@ const ExploreRewards = () => {
                       </div>
                       <div>
                         <CardTitle className="font-serif text-2xl">
-                          {reward.name || "Untitled reward"}
+                          {reward.name || t("rewards.untitled")}
                         </CardTitle>
                         <CardDescription className="mt-2 line-clamp-3">
-                          {reward.description || "Public reward offer available in the Promorang discovery layer."}
+                          {reward.description || t("rewards.defaultCopy")}
                         </CardDescription>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="rounded-2xl bg-muted/40 p-4">
-                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">Offer value</p>
+                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t("rewards.offerValue")}</p>
                         <p className="mt-2 text-2xl font-bold text-foreground">
                           {typeof reward.discount_value === "number"
                             ? reward.discount_type?.includes("percentage")
                               ? `${reward.discount_value}%`
                               : `$${reward.discount_value}`
-                            : "Open reward"}
+                            : t("rewards.openReward")}
                         </p>
                         {reward.code ? (
                           <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
                             <Tag className="h-4 w-4 text-primary" />
-                            Code: {reward.code}
+                            {t("rewards.code", { code: reward.code })}
                           </p>
                         ) : null}
                       </div>
@@ -368,7 +349,7 @@ const ExploreRewards = () => {
                         ) : null}
                         {reward.brand_name ? (
                           <p>
-                            Brand:{" "}
+                            {t("rewards.brand")}{" "}
                             {reward.brand_slug ? (
                               <Link to={`/brands/${reward.brand_slug}`} className="text-foreground hover:text-primary">
                                 {reward.brand_name}
@@ -379,21 +360,21 @@ const ExploreRewards = () => {
                           </p>
                         ) : null}
                         {reward.expires_at ? (
-                          <p>Expires {new Date(reward.expires_at).toLocaleDateString()}</p>
+                          <p>{t("rewards.expires", { date: formatDate(reward.expires_at) })}</p>
                         ) : (
-                          <p>No stated expiry</p>
+                          <p>{t("rewards.noExpiry")}</p>
                         )}
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div className="rounded-2xl bg-muted/40 p-3">
-                          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">System</p>
+                          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t("rewards.system")}</p>
                           <p className="mt-2 text-sm font-semibold text-foreground capitalize">{reward.system || "public"}</p>
                         </div>
                         <div className="rounded-2xl bg-muted/40 p-3">
-                          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">Remaining</p>
+                          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t("rewards.remaining")}</p>
                           <p className="mt-2 text-sm font-semibold text-foreground">
-                            {usageRemaining === null ? "Open" : usageRemaining}
+                            {usageRemaining === null ? t("rewards.open") : formatNumber(usageRemaining)}
                           </p>
                         </div>
                       </div>
@@ -401,12 +382,12 @@ const ExploreRewards = () => {
                       <div className="flex gap-3">
                         {reward.drop_id ? (
                           <Button asChild variant="outline" className="flex-1">
-                            <Link to="/watch-unlock">Related mission</Link>
+                            <Link to="/watch-unlock">{t("rewards.relatedMission")}</Link>
                           </Button>
                         ) : null}
                         <Button asChild className="flex-1">
                           <Link to={user ? "/dashboard/rewards" : "/auth"}>
-                            {user ? "Open rewards" : "Sign in to claim"}
+                            {t(user ? "rewards.openRewards" : "rewards.signInClaim")}
                           </Link>
                         </Button>
                       </div>
@@ -417,9 +398,9 @@ const ExploreRewards = () => {
             </div>
           ) : (
             <div className="mt-6 rounded-3xl border border-dashed border-border bg-muted/20 px-6 py-12 text-center">
-              <h3 className="font-serif text-2xl font-bold">No rewards matched</h3>
+              <h3 className="font-serif text-2xl font-bold">{t("rewards.noMatch")}</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Try a broader search or switch reward type and source filters to scan a different slice of available value.
+                {t("rewards.noMatchCopy")}
               </p>
             </div>
           )}

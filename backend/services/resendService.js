@@ -6,6 +6,7 @@
 
 const { Resend } = require('resend');
 const { resolveEmailRecipient } = require('./demoEmailRouting');
+const { getEmailContent, getLocalizedEmailUrl, normalizeEmailLocale } = require('./emailI18n');
 
 // Initialize Resend client
 // Initialize Resend client
@@ -553,9 +554,9 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
 }
 
 /**
- * Send an email using Resend
+ * Send an email using Resend (supports html or React component)
  */
-async function sendEmail({ to, subject, html, text, replyTo, tags, userId, emailType, metadata }) {
+async function sendEmail({ to, subject, html, react, text, replyTo, tags, userId, emailType, metadata }) {
   try {
     const recipients = Array.isArray(to) ? to : [to];
     const supabase = getBackendSupabase();
@@ -563,11 +564,21 @@ async function sendEmail({ to, subject, html, text, replyTo, tags, userId, email
       recipients.map((recipient) => resolveEmailRecipient(supabase, recipient))
     );
 
+    let finalHtml = html;
+    if (react && !finalHtml) {
+      try {
+        const { renderEmail } = require('../emails');
+        finalHtml = await renderEmail(react);
+      } catch (err) {
+        console.warn('[Resend] Failed to render React email component, falling back:', err.message);
+      }
+    }
+
     const { data, error } = await resend.emails.send({
       from: EMAIL_CONFIG.fromAddress,
       to: resolvedRecipients,
       subject,
-      html,
+      html: finalHtml,
       text,
       replyTo: replyTo || EMAIL_CONFIG.supportEmail,
       tags: tags || [{ name: 'platform', value: 'promorang' }],
@@ -659,62 +670,60 @@ async function logSentEmailEvents({ supabase, recipients, resolvedRecipients, su
 /**
  * Welcome email for new users - Premium brand experience
  */
-async function sendWelcomeEmail(userEmail, userName) {
+async function sendWelcomeEmail(userEmail, userName, options = {}) {
+  const locale = options.locale || 'en';
+  const contentData = getEmailContent('welcome', locale, { name: userName || 'there' });
+  const dashboardUrl = getLocalizedEmailUrl('/dashboard', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'Welcome to Promorang',
-    preheader: 'Your journey to earning rewards starts now.',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Welcome to <strong>Promorang</strong> — where your engagement becomes real rewards. We're thrilled to have you join our community of creators, influencers, and reward-earners.</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-card">
-        <div class="label">Welcome Bonus</div>
-        <div class="value">100 Points + 10 Keys</div>
-        <div class="sublabel">Already credited to your account</div>
+        <div class="label">${contentData.bonusLabel}</div>
+        <div class="value">${contentData.bonusValue}</div>
+        <div class="sublabel">${contentData.bonusSublabel}</div>
       </div>
       
-      <div class="section-title">What you can do</div>
+      <div class="section-title">${contentData.sectionTitle}</div>
       <ul class="feature-list">
-        <li>Complete Drops to earn Gems and unlock opportunities</li>
-        <li>Invest in content you believe in and share in the success</li>
-        <li>Build daily streaks for compounding bonus rewards</li>
-        <li>Grow your network and earn from every referral</li>
+        ${(contentData.features || []).map(f => `<li>${f}</li>`).join('')}
       </ul>
       
       <div class="divider"></div>
       
-      <p style="text-align: center; color: ${BRAND.textMuted};">Ready to start earning? Your dashboard awaits.</p>
+      <p style="text-align: center; color: ${BRAND.textMuted};">${contentData.readyPrompt}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/dashboard`,
-    ctaText: 'Enter Dashboard',
-    footerNote: 'Complete your first Drop within 24 hours to unlock a 2x earnings multiplier on your next three completions.',
+    ctaUrl: dashboardUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   const text = `
-Welcome to Promorang, ${userName}!
+${contentData.title}, ${userName}!
 
-Your journey to earning rewards starts now.
+${contentData.preheader}
 
-Welcome Bonus: 100 Points + 10 Keys (already credited)
+${contentData.bonusLabel}: ${contentData.bonusValue} (${contentData.bonusSublabel})
 
-What you can do:
-- Complete Drops to earn Gems and unlock opportunities
-- Invest in content you believe in and share in the success  
-- Build daily streaks for compounding bonus rewards
-- Grow your network and earn from every referral
+${contentData.sectionTitle}:
+${(contentData.features || []).map(f => `- ${f}`).join('\n')}
 
-Get started: ${EMAIL_CONFIG.frontendUrl}/dashboard
+${contentData.ctaText}: ${dashboardUrl}
 
-Pro Tip: Complete your first Drop within 24 hours to unlock a 2x earnings multiplier.
+${contentData.footerNote}
   `.trim();
 
   return sendEmail({
     to: userEmail,
-    subject: 'Welcome to Promorang — Your rewards journey begins',
+    subject: contentData.subject,
     html,
     text,
-    tags: [{ name: 'type', value: 'welcome' }],
+    tags: [{ name: 'type', value: 'welcome' }, { name: 'locale', value: contentData.locale }],
   });
 }
 

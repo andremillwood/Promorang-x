@@ -1,0 +1,48 @@
+{
+  "version": 0.6,
+  "elements": [
+    {
+      "type": "node",
+      "id": 1001,
+      "lat": 18.0179,
+      "lon": -76.8099,
+      "tags": {
+        "name": "Sample Kingston Cafe",
+        "amenity": "cafe",
+        "addr:street": "Hope Road",
+        "addr:city": "Kingston",
+        "website": "https://example.com",
+        "phone": "+1 876 555 0100",
+        "opening_hours": "Mo-Sa 08:00-20:00"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1002,
+      "center": { "lat": 18.0180, "lon": -76.8100 },
+      "tags": {
+        "name": "Sample Kingston Cafe",
+        "amenity": "cafe",
+        "addr:street": "Hope Road"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1003,
+      "lat": 18.0060,
+      "lon": -76.7890,
+      "tags": {
+        "name": "Sample Culture Yard",
+        "tourism": "attraction"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1004,
+      "lat": 18.0200,
+      "lon": -76.8000,
+      "tags": { "amenity": "restaurant" }
+    }
+  ]
+}
+

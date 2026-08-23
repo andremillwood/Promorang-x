@@ -16,6 +16,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import SEO from "@/components/SEO";
+import { useI18n } from "@/i18n/I18nContext";
 
 const audiences = [
   {
@@ -108,14 +109,22 @@ const coreMechanics = [
 ];
 
 export default function WhatIsPromorang() {
+  const { t } = useI18n();
   const [selectedAudience, setSelectedAudience] = useState(audiences[0].id);
-  const activeAudience = audiences.find((a) => a.id === selectedAudience) || audiences[0];
+  const localizedAudiences = audiences.map((audience) => ({
+    ...audience,
+    title: t(`about.${audience.id}Title`),
+    subtitle: t(`about.${audience.id}Subtitle`),
+    badge: t(`about.${audience.id}Badge`),
+    cta: t(`about.${audience.id}Cta`),
+  }));
+  const activeAudience = localizedAudiences.find((a) => a.id === selectedAudience) || localizedAudiences[0];
 
   return (
     <main className="min-h-screen bg-[#070707] text-white">
       <SEO
-        title="What is Promorang? — The Real-World Experiential Commerce Network"
-        description="Promorang turns weekly city buzz and local debates into brand-funded foot traffic, VIP perks for locals, and verified revenue for venues."
+        title={t("about.seoTitle")}
+        description={t("about.seoCopy")}
       />
 
       {/* Hero Section */}
@@ -125,15 +134,15 @@ export default function WhatIsPromorang() {
         
         <div className="relative mx-auto max-w-5xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-primary">
-            <Sparkles className="h-3.5 w-3.5" /> What is Promorang?
+            <Sparkles className="h-3.5 w-3.5" /> {t("about.eyebrow")}
           </div>
           
           <h1 className="mt-6 text-4xl font-black uppercase leading-[0.9] tracking-tight sm:text-6xl md:text-7xl">
-            Where City Buzz Turns Into <span className="bg-gradient-to-r from-orange-400 via-amber-300 to-primary bg-clip-text text-transparent">Real-World Movement</span>
+            {t("about.hero1")} <span className="bg-gradient-to-r from-orange-400 via-amber-300 to-primary bg-clip-text text-transparent">{t("about.hero2")}</span>
           </h1>
           
           <p className="mx-auto mt-7 max-w-3xl text-lg leading-relaxed text-white/70 sm:text-xl">
-            Promorang is the participation network connecting <strong>curious locals</strong>, <strong>thriving venues</strong>, <strong>tastemakers</strong>, and <strong>brands</strong>. We replace passive digital ads with brand-funded real-world experiences, VIP tasting keys, and verified foot traffic.
+            {t("about.heroCopy")}
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -141,19 +150,19 @@ export default function WhatIsPromorang() {
               to="/discover"
               className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-7 py-3.5 text-sm font-black text-primary-foreground shadow-lg shadow-primary/25 transition hover:scale-105"
             >
-              Explore Discoveries <ArrowRight className="h-4 w-4" />
+              {t("about.explore")} <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               to="/how-it-works"
               className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10"
             >
-              How the 7-Day Cycle Works <Compass className="h-4 w-4 text-primary" />
+              {t("about.cycle")} <Compass className="h-4 w-4 text-primary" />
             </Link>
             <Link
               to="/help"
               className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/10 bg-transparent px-5 py-3.5 text-sm font-medium text-white/60 transition hover:text-white"
             >
-              Knowledge Base & FAQs <BookOpen className="h-4 w-4" />
+              {t("about.help")} <BookOpen className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -163,8 +172,8 @@ export default function WhatIsPromorang() {
       <section className="border-b border-white/10 px-5 py-16 md:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <p className="text-xs font-black uppercase tracking-widest text-primary">In 60 Seconds</p>
-            <h2 className="mt-2 text-3xl font-black sm:text-4xl md:text-5xl">How Promorang Connects the City</h2>
+            <p className="text-xs font-black uppercase tracking-widest text-primary">{t("about.seconds")}</p>
+            <h2 className="mt-2 text-3xl font-black sm:text-4xl md:text-5xl">{t("about.connects")}</h2>
           </div>
 
           <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -172,9 +181,9 @@ export default function WhatIsPromorang() {
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 text-xl font-black text-primary">
                 1
               </div>
-              <h3 className="mt-6 text-xl font-black">1. Vote & Shape the City</h3>
+              <h3 className="mt-6 text-xl font-black">{t("about.step1")}</h3>
               <p className="mt-3 text-sm leading-6 text-white/65">
-                Every Monday, locals vote on city debates (e.g. &quot;Best Smash Burger in Town&quot;). Your vote signals real community demand directly to venues and sponsors.
+                {t("about.step1Copy")}
               </p>
             </div>
 
@@ -182,9 +191,9 @@ export default function WhatIsPromorang() {
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-xl font-black text-amber-400">
                 2
               </div>
-              <h3 className="mt-6 text-xl font-black">2. Unlock Brand-Funded Keys</h3>
+              <h3 className="mt-6 text-xl font-black">{t("about.step2")}</h3>
               <p className="mt-3 text-sm leading-6 text-white/65">
-                Corporate sponsors and local brands fund limited <strong>PromoKeys</strong> every Wednesday at 6 PM. Winning voters claim free tastings and VIP passes.
+                {t("about.step2Copy")}
               </p>
             </div>
 
@@ -192,9 +201,9 @@ export default function WhatIsPromorang() {
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10 text-xl font-black text-purple-400">
                 3
               </div>
-              <h3 className="mt-6 text-xl font-black">3. Move, Verify & Earn</h3>
+              <h3 className="mt-6 text-xl font-black">{t("about.step3")}</h3>
               <p className="mt-3 text-sm leading-6 text-white/65">
-                On weekends, patrons show up, scan the venue’s countertop QR code, enjoy their tasting, and earn Gems. Creators earn bounties for driving foot traffic.
+                {t("about.step3Copy")}
               </p>
             </div>
           </div>
@@ -206,11 +215,11 @@ export default function WhatIsPromorang() {
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-primary">Built For Everyone</p>
-              <h2 className="mt-2 text-3xl font-black sm:text-4xl md:text-5xl">Who Is Promorang For?</h2>
+              <p className="text-xs font-black uppercase tracking-widest text-primary">{t("about.everyone")}</p>
+              <h2 className="mt-2 text-3xl font-black sm:text-4xl md:text-5xl">{t("about.who")}</h2>
             </div>
             <div className="flex flex-wrap gap-2">
-              {audiences.map((aud) => (
+              {localizedAudiences.map((aud) => (
                 <button
                   key={aud.id}
                   onClick={() => setSelectedAudience(aud.id)}
@@ -258,10 +267,10 @@ export default function WhatIsPromorang() {
       <section className="border-b border-white/10 px-5 py-16 md:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <p className="text-xs font-black uppercase tracking-widest text-primary">Core Mechanics</p>
-            <h2 className="mt-2 text-3xl font-black sm:text-4xl md:text-5xl">The Engine Behind Promorang</h2>
+            <p className="text-xs font-black uppercase tracking-widest text-primary">{t("about.mechanics")}</p>
+            <h2 className="mt-2 text-3xl font-black sm:text-4xl md:text-5xl">{t("about.engine")}</h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-white/60">
-              Unlike traditional social media or digital advertising networks, Promorang is built on verifiable real-world action.
+              {t("about.engineCopy")}
             </p>
           </div>
 
@@ -281,22 +290,22 @@ export default function WhatIsPromorang() {
       <section className="px-5 py-16 md:py-24">
         <div className="mx-auto max-w-5xl rounded-[2.5rem] border border-primary/30 bg-gradient-to-b from-primary/15 to-transparent p-8 md:p-14 text-center">
           <HelpCircle className="mx-auto h-12 w-12 text-primary" />
-          <h2 className="mt-4 text-3xl font-black uppercase sm:text-4xl md:text-5xl">Got More Questions?</h2>
+          <h2 className="mt-4 text-3xl font-black uppercase sm:text-4xl md:text-5xl">{t("about.questions")}</h2>
           <p className="mx-auto mt-4 max-w-2xl text-base text-white/75">
-            Dive into our step-by-step guides, search our complete knowledge base, or contact our community team directly.
+            {t("about.questionsCopy")}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               to="/help"
               className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-black text-black transition hover:scale-105"
             >
-              Browse How-To Library & FAQs <ArrowRight className="h-4 w-4" />
+              {t("about.library")} <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               to="/contact"
               className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10"
             >
-              Contact Support
+              {t("about.contact")}
             </Link>
           </div>
         </div>

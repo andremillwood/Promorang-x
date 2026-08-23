@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import SEO from "@/components/SEO";
@@ -9,10 +9,19 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Building2, LayoutGrid, MapPin, Search, Star, Users } from "lucide-react";
+import { Building2, ChevronLeft, ChevronRight, LayoutGrid, MapPin, Search, Star, Users } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
+import { useI18n } from "@/i18n/I18nContext";
 
-type PublicVenue = Tables<"view_public_venue_directory">;
+type PublicVenue = Tables<"view_public_venue_directory"> & {
+  listing_status?: "claimed" | "unclaimed" | null;
+  attribution_text?: string | null;
+  parish?: string | null;
+  parish_slug?: string | null;
+};
+
+const jamaicaParishes = ["Kingston", "Saint Andrew", "Saint Thomas", "Portland", "Saint Mary", "Saint Ann", "Trelawny", "Saint James", "Hanover", "Westmoreland", "Saint Elizabeth", "Manchester", "Clarendon", "Saint Catherine"];
+const pageSize = 48;
 
 const venueTypes = [
   { value: "all", label: "All venue types" },
@@ -25,50 +34,48 @@ const venueTypes = [
 ];
 
 const ExploreVenues = () => {
+  const { t, formatNumber } = useI18n();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeVenueType, setActiveVenueType] = useState("all");
+  const [activeParish, setActiveParish] = useState("all");
+  const [page, setPage] = useState(0);
 
   const venuesQuery = useQuery({
-    queryKey: ["explore-venues", activeVenueType],
+    queryKey: ["explore-venues", activeVenueType, activeParish, searchQuery, page],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from("view_public_venue_directory")
-        .select("*")
+        .select("*", { count: "exact" })
         .order("popularity_score", { ascending: false, nullsFirst: false })
-        .limit(48);
+        .range(page * pageSize, page * pageSize + pageSize - 1);
 
       if (activeVenueType !== "all") {
         query = query.eq("venue_type", activeVenueType);
       }
+      if (activeParish !== "all") query = query.eq("parish", activeParish);
+      const search = searchQuery.trim().replace(/[,%()]/g, " ");
+      if (search) query = query.or(`name.ilike.%${search}%,city.ilike.%${search}%,parish.ilike.%${search}%,venue_type.ilike.%${search}%`);
 
-      const { data, error } = await query;
+      const { data, error, count } = await query;
       if (error) throw error;
-      return (data || []) as PublicVenue[];
+      return { venues: (data || []) as PublicVenue[], count: count || 0 };
     },
   });
-
-  const filteredVenues = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return venuesQuery.data || [];
-
-    return (venuesQuery.data || []).filter((venue) =>
-      [venue.name, venue.description, venue.city, venue.country, venue.location, venue.venue_type]
-        .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(query))
-    );
-  }, [venuesQuery.data, searchQuery]);
+  const filteredVenues = venuesQuery.data?.venues || [];
+  const totalVenues = venuesQuery.data?.count || 0;
+  const totalPages = Math.max(1, Math.ceil(totalVenues / pageSize));
 
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Explore Venues"
-        description="Browse venues and local operators hosting moments and reward-bearing activity across Promorang."
+        title={t("venues.seoTitle")}
+        description={t("venues.seoCopy")}
         url={getSiteUrl("/explore/venues")}
         schema={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "Explore Venues",
-          description: "Browse venues and local operators hosting moments and reward-bearing activity across Promorang.",
+          name: t("venues.seoTitle"),
+          description: t("venues.seoCopy"),
         }}
       />
 
@@ -79,21 +86,21 @@ const ExploreVenues = () => {
               <div className="max-w-3xl">
                 <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                   <Building2 className="h-3.5 w-3.5" />
-                  Venue Discovery
+                  {t("venues.eyebrow")}
                 </div>
                 <h1 className="font-serif text-3xl font-bold tracking-tight sm:text-4xl">
-                  Explore venues and operators.
+                  {t("venues.title")}
                 </h1>
                 <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-                  Browse the physical spaces where Promorang activity happens, then trace into the moments and reward loops attached to those places.
+                  {t("venues.copy")}
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
                 <Button asChild variant="outline">
-                  <Link to="/explore/moments">Browse moments</Link>
+                  <Link to="/explore/moments">{t("venues.browseMoments")}</Link>
                 </Button>
                 <Button asChild>
-                  <Link to="/hosts">See hosts</Link>
+                  <Link to="/hosts">{t("venues.seeHosts")}</Link>
                 </Button>
               </div>
             </CardContent>
@@ -134,8 +141,8 @@ const ExploreVenues = () => {
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search venues by name, type, city, or country..."
+                onChange={(event) => { setSearchQuery(event.target.value); setPage(0); }}
+                placeholder={t("venues.search")}
                 className="h-12 pl-11"
               />
             </div>
@@ -144,27 +151,36 @@ const ExploreVenues = () => {
                 <button
                   key={venueType.value}
                   type="button"
-                  onClick={() => setActiveVenueType(venueType.value)}
+                  onClick={() => { setActiveVenueType(venueType.value); setPage(0); }}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                     activeVenueType === venueType.value
                       ? "bg-primary text-primary-foreground"
                       : "bg-secondary hover:bg-secondary/80"
                   }`}
                 >
-                  {venueType.label}
+                  {venueType.value === "all" ? t("venues.allTypes") : venueType.label}
                 </button>
               ))}
+            </div>
+            <div className="mt-4 flex items-center gap-3 border-t border-border pt-4">
+              <MapPin className="h-4 w-4 shrink-0 text-primary" />
+              <label htmlFor="parish-filter" className="sr-only">{t("venues.allParishes")}</label>
+              <select id="parish-filter" value={activeParish} onChange={(event) => { setActiveParish(event.target.value); setPage(0); }} className="h-10 w-full max-w-xs rounded-xl border border-border bg-background px-3 text-sm font-semibold">
+                <option value="all">{t("venues.allParishes")}</option>
+                {jamaicaParishes.map((parish) => <option key={parish} value={parish}>{parish}</option>)}
+              </select>
+              <span className="hidden text-xs text-muted-foreground sm:inline">{t("venues.inventory")}</span>
             </div>
           </div>
 
           <div className="mt-6 flex items-center justify-between">
             <div>
-              <h2 className="font-serif text-2xl font-bold">Browseable venues</h2>
-              <p className="text-sm text-muted-foreground">Places and operators with public discovery context.</p>
+              <h2 className="font-serif text-2xl font-bold">{t("venues.browse")}</h2>
+              <p className="text-sm text-muted-foreground">{t("venues.browseCopy")}</p>
             </div>
             {!venuesQuery.isLoading ? (
               <Badge variant="outline" className="rounded-full">
-                {filteredVenues.length} venues
+                {t("venues.count", { count: formatNumber(totalVenues) })}
               </Badge>
             ) : null}
           </div>
@@ -202,8 +218,12 @@ const ExploreVenues = () => {
                         </div>
                       </div>
                       {venue.verification_status === "verified" ? (
-                        <Badge variant="secondary" className="rounded-full">Verified</Badge>
-                      ) : null}
+                        <Badge variant="secondary" className="rounded-full">{t("venues.verified")}</Badge>
+                      ) : venue.listing_status === "unclaimed" ? (
+                        <Badge variant="outline" className="rounded-full">{t("venues.unclaimed")}</Badge>
+                      ) : (
+                        <Badge variant="outline" className="rounded-full">{t("venues.unverified")}</Badge>
+                      )}
                     </div>
 
                     {venue.description ? (
@@ -221,11 +241,11 @@ const ExploreVenues = () => {
 
                     <div className="mt-5 grid grid-cols-2 gap-3">
                       <div className="rounded-2xl bg-muted/40 p-3">
-                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">Hosted</p>
+                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t("venues.hosted")}</p>
                         <p className="mt-2 text-lg font-semibold text-foreground">{venue.total_moments_hosted || 0}</p>
                       </div>
                       <div className="rounded-2xl bg-muted/40 p-3">
-                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">Check-ins</p>
+                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t("venues.checkins")}</p>
                         <p className="mt-2 text-lg font-semibold text-foreground">{venue.total_checkins || 0}</p>
                       </div>
                     </div>
@@ -242,6 +262,11 @@ const ExploreVenues = () => {
                         </div>
                       ) : null}
                     </div>
+                    {venue.listing_status === "unclaimed" ? (
+                      <p className="mt-4 border-t border-border pt-3 text-xs text-muted-foreground">
+                        Public-source listing · {venue.attribution_text || "ownership not yet verified"}
+                      </p>
+                    ) : null}
                   </Link>
                 );
               })}
@@ -254,6 +279,13 @@ const ExploreVenues = () => {
               </p>
             </div>
           )}
+          {totalPages > 1 ? (
+            <nav aria-label="Venue pages" className="mt-8 flex items-center justify-center gap-3">
+              <Button variant="outline" disabled={page === 0 || venuesQuery.isFetching} onClick={() => setPage((value) => Math.max(0, value - 1))}><ChevronLeft className="mr-1 h-4 w-4" />Previous</Button>
+              <span className="text-sm font-semibold">Page {page + 1} of {totalPages}</span>
+              <Button variant="outline" disabled={page + 1 >= totalPages || venuesQuery.isFetching} onClick={() => setPage((value) => value + 1)}>Next<ChevronRight className="ml-1 h-4 w-4" /></Button>
+            </nav>
+          ) : null}
         </div>
       </section>
     </div>

@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface UserProfile {
     id: string;
@@ -52,6 +53,7 @@ const emptyStats: ProfileStats = {
 };
 
 const UserProfilePage = () => {
+    const { t, formatNumber } = useI18n();
     const { userId } = useParams<{ userId: string }>();
     const { user } = useAuth();
     const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -91,7 +93,7 @@ const UserProfilePage = () => {
                             data.full_name ||
                             (isOwnProfile ? user?.user_metadata?.full_name : null) ||
                             (isOwnProfile ? user?.email?.split("@")[0] : null) ||
-                            "User",
+                            t("profile.user"),
                         avatar_url:
                             data.avatar_url ||
                             (isOwnProfile ? user?.user_metadata?.avatar_url : null) ||
@@ -106,10 +108,10 @@ const UserProfilePage = () => {
                     // Fallback for current user if no profile record exists yet
                     setProfile({
                         id: user.id,
-                        full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "User",
+                        full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || t("profile.user"),
                         avatar_url: user.user_metadata?.avatar_url || null,
-                        bio: "New to the Promorang scene.",
-                        location: "Global",
+                        bio: t("profile.newBio"),
+                        location: t("profile.global"),
                         is_verified: false,
                         is_superhost: false,
                         created_at: user.created_at
@@ -212,9 +214,9 @@ const UserProfilePage = () => {
         return (
             <div className="min-h-screen bg-background">
                 <div className="pt-24 pb-12 px-4 text-center">
-                    <h1 className="font-serif text-2xl font-bold mb-4">User not found</h1>
+                    <h1 className="font-serif text-2xl font-bold mb-4">{t("profile.notFound")}</h1>
                     <Button asChild>
-                        <Link to="/discover">Explore Moments</Link>
+                        <Link to="/discover">{t("saved.explore")}</Link>
                     </Button>
                 </div>
             </div>
@@ -254,13 +256,13 @@ const UserProfilePage = () => {
                                 {profile.is_verified && (
                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/10 text-emerald-600 text-xs font-medium rounded-full">
                                         <Shield className="h-3 w-3" />
-                                        Verified
+                                        {t("profile.verified")}
                                     </span>
                                 )}
                                 {profile.is_superhost && (
                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded-full">
                                         <Star className="h-3 w-3" />
-                                        Superhost
+                                        {t("profile.superhost")}
                                     </span>
                                 )}
                             </div>
@@ -282,7 +284,7 @@ const UserProfilePage = () => {
                                     <Button variant="outline" className="border-white/20 bg-black/30 text-white hover:bg-white/10 hover:text-white" asChild>
                                         <Link to="/dashboard/settings">
                                             <Settings className="h-4 w-4 mr-2" />
-                                            Edit Profile
+                                            {t("profile.edit")}
                                         </Link>
                                     </Button>
                                 ) : (
@@ -296,8 +298,8 @@ const UserProfilePage = () => {
                                         <Button
                                             variant="outline"
                                             size="icon"
-                                            onClick={() => toast.info("Messaging coming soon!", {
-                                                description: "Direct messaging is currently being built."
+                                            onClick={() => toast.info(t("profile.messageSoon"), {
+                                                description: t("profile.messageSoonCopy")
                                             })}
                                         >
                                             <MessageCircle className="h-4 w-4" />
@@ -315,31 +317,31 @@ const UserProfilePage = () => {
                     <div className="mb-10 grid grid-cols-2 border-y border-white/10 md:grid-cols-4">
                         <div className="border-b border-r border-white/10 px-3 py-6 md:border-b-0 md:px-6">
                             <p className="text-2xl font-black text-white">{stats?.momentsHosted}</p>
-                            <p className="text-sm text-white/40">Moments hosted</p>
+                            <p className="text-sm text-white/40">{t("profile.hostedCount")}</p>
                         </div>
                         <div className="border-b border-white/10 px-3 py-6 md:border-b-0 md:border-r md:px-6">
                             <p className="text-2xl font-black text-white">{stats?.momentsAttended}</p>
-                            <p className="text-sm text-white/40">Verified marks</p>
+                            <p className="text-sm text-white/40">{t("profile.verifiedMarks")}</p>
                         </div>
                         <div className="border-r border-white/10 px-3 py-6 md:px-6">
                             <p className="flex items-center justify-center gap-1 text-2xl font-black text-white">
                                 {stats?.rating}
                                 <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
                             </p>
-                            <p className="text-sm text-white/40">{stats?.reviewCount} trust signals</p>
+                            <p className="text-sm text-white/40">{t("profile.trustSignals", { count: formatNumber(stats?.reviewCount || 0) })}</p>
                         </div>
                         <div className="px-3 py-6 md:px-6">
                             <p className="text-2xl font-black text-white">{stats?.followers?.toLocaleString()}</p>
-                            <p className="text-sm text-white/40">People connected</p>
+                            <p className="text-sm text-white/40">{t("profile.connected")}</p>
                         </div>
                     </div>
 
                     {/* Tabs */}
                     <div className="mb-6 flex gap-1 overflow-x-auto border-b border-white/10">
                         {[
-                            { id: "hosted" as const, label: "Hosted", icon: Grid },
-                            { id: "attended" as const, label: "Attended", icon: Calendar },
-                            { id: "saved" as const, label: "Saved", icon: Bookmark },
+                            { id: "hosted" as const, label: t("profile.hosted"), icon: Grid },
+                            { id: "attended" as const, label: t("profile.attended"), icon: Calendar },
+                            { id: "saved" as const, label: t("profile.saved"), icon: Bookmark },
                         ].map(tab => (
                             <button
                                 key={tab.id}
@@ -367,13 +369,13 @@ const UserProfilePage = () => {
                     ) : (
                         <div className="text-center py-16">
                             <Grid className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
-                            <h3 className="font-medium text-lg mb-2">No moments yet</h3>
+                            <h3 className="font-medium text-lg mb-2">{t("profile.empty")}</h3>
                             <p className="text-muted-foreground">
                                 {activeTab === "hosted"
-                                    ? "This user hasn't hosted any moments yet"
+                                    ? t("profile.emptyHosted")
                                     : activeTab === "attended"
-                                        ? "This user hasn't attended any moments yet"
-                                        : "This user hasn't saved any moments yet"}
+                                        ? t("profile.emptyAttended")
+                                        : t("profile.emptySaved")}
                             </p>
                         </div>
                     )}

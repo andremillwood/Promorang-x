@@ -1,0 +1,2679 @@
+{
+  "schema_version": 1,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Saint Thomas, Jamaica",
+    "parish": "Saint Thomas",
+    "iso_code": "JM-03",
+    "collected_at": "2026-08-22T01:47:17.312Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "stats": {
+    "source_elements": 80,
+    "candidates": 68,
+    "pending_review": 1,
+    "needs_research": 67
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/974287171",
+      "source_url": "https://www.openstreetmap.org/node/974287171",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 974287171,
+        "lat": 17.8844092,
+        "lon": -76.270545,
+        "tags": {
+          "amenity": "restaurant",
+          "description": "Best roast fish in Jamaica",
+          "name": "Rocky Point"
+        }
+      },
+      "normalized_data": {
+        "name": "Rocky Point",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8844092,
+        "longitude": -76.270545,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "91d24836d862e4e93a66ef34f7ff51a7e084231b7c180ec0f1ac30d79f5e312f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/974306159",
+      "source_url": "https://www.openstreetmap.org/node/974306159",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 974306159,
+        "lat": 17.9221232,
+        "lon": -76.269521,
+        "tags": {
+          "name": "Stokes Hall Great House",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Stokes Hall Great House",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9221232,
+        "longitude": -76.269521,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "df900e813a67d8f20fafc9638d2c25f4180867d5cb8dd45d511caef41fd7b0ae",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3789508501",
+      "source_url": "https://www.openstreetmap.org/node/3789508501",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3789508501,
+        "lat": 17.9216718,
+        "lon": -76.2592715,
+        "tags": {
+          "addr:city": "Duckendfield",
+          "addr:housenumber": "9",
+          "amenity": "bar",
+          "name": "Saloon",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Saloon",
+        "address": "9, Duckendfield, Jamaica",
+        "city": "Duckendfield",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9216718,
+        "longitude": -76.2592715,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4c3fc4585f4c2b2a92f4a683f24365947f6652b03b15e9cf351be9541832d2f5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4123218388",
+      "source_url": "https://www.openstreetmap.org/node/4123218388",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4123218388,
+        "lat": 17.9703937,
+        "lon": -76.5415364,
+        "tags": {
+          "description": "chill spot",
+          "name": "Logan shed",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Logan shed",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9703937,
+        "longitude": -76.5415364,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "670c827ab6f188833ac548bb03563870a4dd53408cc9b53916d44afde0da7a31",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4129631936",
+      "source_url": "https://www.openstreetmap.org/node/4129631936",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4129631936,
+        "lat": 17.9639025,
+        "lon": -76.5127853,
+        "tags": {
+          "name": "Road sign",
+          "shop": "books"
+        }
+      },
+      "normalized_data": {
+        "name": "Road sign",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9639025,
+        "longitude": -76.5127853,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a24e8920c14cb2c251588edfbba0ec3c3383f68590892080f311c80f54a9b6aa",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4129641490",
+      "source_url": "https://www.openstreetmap.org/node/4129641490",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4129641490,
+        "lat": 17.9651222,
+        "lon": -76.513634,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Blue Diamond restaurant"
+        }
+      },
+      "normalized_data": {
+        "name": "Blue Diamond restaurant",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9651222,
+        "longitude": -76.513634,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "13cdfa1fa86b2ec996a09ba4a2a154a7e96df0459006db6521d4a47a7b864345",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4129641496",
+      "source_url": "https://www.openstreetmap.org/node/4129641496",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4129641496,
+        "lat": 17.963363,
+        "lon": -76.5174253,
+        "tags": {
+          "beds": "4",
+          "description": "Room for 4 persons per night",
+          "name": "Roder bar, shop and guest house",
+          "operator": "Roder",
+          "rooms": "4",
+          "tourism": "guest_house",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Roder bar, shop and guest house",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.963363,
+        "longitude": -76.5174253,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7a5182d4b60009b92a0cb9a9b6d3bceaa6ff8a44082b1874235a16f3b335ac19",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4129641497",
+      "source_url": "https://www.openstreetmap.org/node/4129641497",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4129641497,
+        "lat": 17.9630736,
+        "lon": -76.5180954,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Red X restaurant"
+        }
+      },
+      "normalized_data": {
+        "name": "Red X restaurant",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9630736,
+        "longitude": -76.5180954,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "048b1329dd38f745b8e76952dd96d931e49898df7bf66f7663788649866e1e32",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4129642490",
+      "source_url": "https://www.openstreetmap.org/node/4129642490",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4129642490,
+        "lat": 17.9620187,
+        "lon": -76.5189556,
+        "tags": {
+          "amenity": "bar",
+          "description": "gambling etc",
+          "name": "Daddy T shop and lounge",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Daddy T shop and lounge",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9620187,
+        "longitude": -76.5189556,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "816d1fab7917c4daf0b5ab4b123671a38fed69e1815fc2b48f918b38a8e9e677",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4129642494",
+      "source_url": "https://www.openstreetmap.org/node/4129642494",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4129642494,
+        "lat": 17.960135,
+        "lon": -76.5237101,
+        "tags": {
+          "amenity": "restaurant",
+          "description": "in front of Army of Christ Church",
+          "name": "Cook Shop"
+        }
+      },
+      "normalized_data": {
+        "name": "Cook Shop",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.960135,
+        "longitude": -76.5237101,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "32e334a9902bc01e0d1b1f3dfc950bc07dd23baad7b4adcc7e5252efc69b0ffb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4129642495",
+      "source_url": "https://www.openstreetmap.org/node/4129642495",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4129642495,
+        "lat": 17.9601236,
+        "lon": -76.5242654,
+        "tags": {
+          "amenity": "fast_food",
+          "name": "Jerk centre"
+        }
+      },
+      "normalized_data": {
+        "name": "Jerk centre",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9601236,
+        "longitude": -76.5242654,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "eede2bc76c8789e0ae4337168f7504cade639cbbb556909229bdb5c0c7a0e3a0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4129642497",
+      "source_url": "https://www.openstreetmap.org/node/4129642497",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4129642497,
+        "lat": 17.9625953,
+        "lon": -76.5267018,
+        "tags": {
+          "amenity": "bar",
+          "description": "Gathering spot for entertainment, gambling etc. Sanitary convenience available. Car wash and garage services available .",
+          "name": "Poor man's corner"
+        }
+      },
+      "normalized_data": {
+        "name": "Poor man's corner",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9625953,
+        "longitude": -76.5267018,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a6efa9178fcd642d214451d74fb75fab0df5eef452cb323ded583802ccd1650b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4129642498",
+      "source_url": "https://www.openstreetmap.org/node/4129642498",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4129642498,
+        "lat": 17.9602199,
+        "lon": -76.522897,
+        "tags": {
+          "amenity": "hunting_stand",
+          "leisure": "fitness_centre",
+          "name": "Gym"
+        }
+      },
+      "normalized_data": {
+        "name": "Gym",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9602199,
+        "longitude": -76.522897,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hunting_stand",
+          "fitness_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "28d87f11dee1e3e7fcebe7f34135e00343bb799dbbce64c7f8240b61f9455315",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4129648893",
+      "source_url": "https://www.openstreetmap.org/node/4129648893",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4129648893,
+        "lat": 17.9603001,
+        "lon": -76.522501,
+        "tags": {
+          "amenity": "cafe",
+          "name": "Knet Internet cafe",
+          "phone": "8763727400"
+        }
+      },
+      "normalized_data": {
+        "name": "Knet Internet cafe",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9603001,
+        "longitude": -76.522501,
+        "category": "cafe",
+        "phone": "8763727400",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c571b13587753042eef397bb23eb2915e322d03b24045c519507584b288aa83b",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4129656920",
+      "source_url": "https://www.openstreetmap.org/node/4129656920",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4129656920,
+        "lat": 17.9602349,
+        "lon": -76.5232522,
+        "tags": {
+          "description": "sell cooking gas, bike and bicycle parts, tyre repair & farm and garden",
+          "name": "T&B shop",
+          "shop": "department_store"
+        }
+      },
+      "normalized_data": {
+        "name": "T&B shop",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9602349,
+        "longitude": -76.5232522,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "39f76e64a4c06a7decc698e487ff74cf3d26faac5d3e695befa8414ff6b0d3ac",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4134640406",
+      "source_url": "https://www.openstreetmap.org/node/4134640406",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4134640406,
+        "lat": 17.9526889,
+        "lon": -76.5203501,
+        "tags": {
+          "amenity": "bar",
+          "description": "entertainment loung and snack shop where people also gamble",
+          "name": "Jennifer hang out spot"
+        }
+      },
+      "normalized_data": {
+        "name": "Jennifer hang out spot",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9526889,
+        "longitude": -76.5203501,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e0ad54edff8375b1ccefc19e5fde0c237215369807eb6b01b07117802242a14c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4142156064",
+      "source_url": "https://www.openstreetmap.org/node/4142156064",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4142156064,
+        "lat": 17.9390116,
+        "lon": -76.507299,
+        "tags": {
+          "amenity": "bar",
+          "name": "Santos bar and grill"
+        }
+      },
+      "normalized_data": {
+        "name": "Santos bar and grill",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9390116,
+        "longitude": -76.507299,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9baae2b665931d79c7b0ddbafbb3baee089b3d152acd18bd4b6f560ddebf0ace",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4142157288",
+      "source_url": "https://www.openstreetmap.org/node/4142157288",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4142157288,
+        "lat": 17.9629898,
+        "lon": -76.5267225,
+        "tags": {
+          "name": "Moffat welcome sign correct",
+          "shop": "books"
+        }
+      },
+      "normalized_data": {
+        "name": "Moffat welcome sign correct",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9629898,
+        "longitude": -76.5267225,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "67d36b3142314d140423484b07c65b4824234e0768b9b412595235a93e116ebc",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4142255090",
+      "source_url": "https://www.openstreetmap.org/node/4142255090",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4142255090,
+        "lat": 17.9606674,
+        "lon": -76.5376799,
+        "tags": {
+          "name": "House on breakaway",
+          "tourism": "hostel"
+        }
+      },
+      "normalized_data": {
+        "name": "House on breakaway",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9606674,
+        "longitude": -76.5376799,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hostel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d2ca8e0e1b087645f166926fc888195e657959dd30914d6f8fa08ff64a7c137d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4152530397",
+      "source_url": "https://www.openstreetmap.org/node/4152530397",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4152530397,
+        "lat": 17.9320842,
+        "lon": -76.4764025,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Cherry shop"
+        }
+      },
+      "normalized_data": {
+        "name": "Cherry shop",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9320842,
+        "longitude": -76.4764025,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7d8c17d2d14426c0b72b29c96eb7074945107cb62b106371c7712ff8ca60b6e3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4152530399",
+      "source_url": "https://www.openstreetmap.org/node/4152530399",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4152530399,
+        "lat": 17.9302669,
+        "lon": -76.4747005,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Marion cookshop"
+        }
+      },
+      "normalized_data": {
+        "name": "Marion cookshop",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9302669,
+        "longitude": -76.4747005,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8f1653785a700c1d242f737c090ad5857c7295b9ec6dcd833bdb045ac26f00ed",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4152531228",
+      "source_url": "https://www.openstreetmap.org/node/4152531228",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4152531228,
+        "lat": 17.930588,
+        "lon": -76.4749773,
+        "tags": {
+          "amenity": "bar",
+          "name": "Lorna bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Lorna bar",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.930588,
+        "longitude": -76.4749773,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "827b852c6efaee85fa22b8195e23e9ed23f5dfb673783be98827601c7822ab1d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4152531296",
+      "source_url": "https://www.openstreetmap.org/node/4152531296",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4152531296,
+        "lat": 17.9304708,
+        "lon": -76.4748604,
+        "tags": {
+          "amenity": "bar",
+          "name": "Champ bar and lawn"
+        }
+      },
+      "normalized_data": {
+        "name": "Champ bar and lawn",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9304708,
+        "longitude": -76.4748604,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6cb05ae2df943d259581f84d0062debce6d4d5ebf02765052c6cfc459d784b01",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4155478692",
+      "source_url": "https://www.openstreetmap.org/node/4155478692",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4155478692,
+        "lat": 17.935519,
+        "lon": -76.4843575,
+        "tags": {
+          "amenity": "bar",
+          "name": "Sunrise hq"
+        }
+      },
+      "normalized_data": {
+        "name": "Sunrise hq",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.935519,
+        "longitude": -76.4843575,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ef89fc26a888c306bc6be2c091d6d464d3b2a59b22089716f2a3f92678fe5d8d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4155485412",
+      "source_url": "https://www.openstreetmap.org/node/4155485412",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4155485412,
+        "lat": 17.9368142,
+        "lon": -76.4856053,
+        "tags": {
+          "amenity": "fast_food",
+          "name": "Food head cookshop"
+        }
+      },
+      "normalized_data": {
+        "name": "Food head cookshop",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9368142,
+        "longitude": -76.4856053,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cc77e6a186e83fe4d4170234224864041272aa14b539a37259b776da94c93556",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4155486126",
+      "source_url": "https://www.openstreetmap.org/node/4155486126",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4155486126,
+        "lat": 17.9357732,
+        "lon": -76.4846006,
+        "tags": {
+          "amenity": "bar",
+          "name": "Sevens 7s"
+        }
+      },
+      "normalized_data": {
+        "name": "Sevens 7s",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9357732,
+        "longitude": -76.4846006,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9fd4dc2502d546032327b8ee0a270df535d4356c64a890c5bff1e87326749c17",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4155488153",
+      "source_url": "https://www.openstreetmap.org/node/4155488153",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4155488153,
+        "lat": 17.9395364,
+        "lon": -76.4898794,
+        "tags": {
+          "amenity": "nightclub",
+          "name": "Mount Hope Sports Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Mount Hope Sports Bar",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9395364,
+        "longitude": -76.4898794,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "nightclub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fc8949d1235b40cd4837f2f45a4971217880abdae5912f873dc43b6799fa3257",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4173883918",
+      "source_url": "https://www.openstreetmap.org/node/4173883918",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4173883918,
+        "lat": 17.9283065,
+        "lon": -76.4743035,
+        "tags": {
+          "amenity": "bar",
+          "name": "Morgan's bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Morgan's bar",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9283065,
+        "longitude": -76.4743035,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e6bb345d1757d6f1c52a2a8064b82b577d9ca221fd64817976d0d5e784649cb7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4173885509",
+      "source_url": "https://www.openstreetmap.org/node/4173885509",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4173885509,
+        "lat": 17.9295756,
+        "lon": -76.4751062,
+        "tags": {
+          "amenity": "bar",
+          "name": "Andrenne bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Andrenne bar",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9295756,
+        "longitude": -76.4751062,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ec592a65541ae9c3026f89294e2321b9205604ff03a710cbda1d36eafa23f57d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4173885510",
+      "source_url": "https://www.openstreetmap.org/node/4173885510",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4173885510,
+        "lat": 17.9302958,
+        "lon": -76.4749666,
+        "tags": {
+          "description": "Spot where people, including youth, gather to domino and hold reasoning",
+          "highway": "rest_area",
+          "name": "Chill spot (Tyre or Ackee Tree)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Chill spot (Tyre or Ackee Tree)",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9302958,
+        "longitude": -76.4749666,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2558ef80a463c9731ce2b41ac2df279604e4449154a8fc8a483e7a492249a717",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4173885959",
+      "source_url": "https://www.openstreetmap.org/node/4173885959",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4173885959,
+        "lat": 17.9250055,
+        "lon": -76.4746727,
+        "tags": {
+          "name": "Mr Williams house",
+          "tourism": "hostel"
+        }
+      },
+      "normalized_data": {
+        "name": "Mr Williams house",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9250055,
+        "longitude": -76.4746727,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hostel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2c5d9a7b8592dcc110b806e9ec9fa667816fb23c85393ad36b18d37437097b11",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4202059571",
+      "source_url": "https://www.openstreetmap.org/node/4202059571",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4202059571,
+        "lat": 17.9589971,
+        "lon": -76.4683713,
+        "tags": {
+          "amenity": "nightclub",
+          "building": "yes",
+          "name": "The Club",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "The Club",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9589971,
+        "longitude": -76.4683713,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "nightclub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6f9f349286411972ea3ec489da8ebe0d206ea5736304945cfc6b667664995f4a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4258540296",
+      "source_url": "https://www.openstreetmap.org/node/4258540296",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4258540296,
+        "lat": 17.8746102,
+        "lon": -76.4444024,
+        "tags": {
+          "addr:city": "Rozelle",
+          "addr:street": "Coast Road",
+          "amenity": "bar",
+          "name": "The Longboarder Bar & Grill"
+        }
+      },
+      "normalized_data": {
+        "name": "The Longboarder Bar & Grill",
+        "address": "Coast Road, Rozelle, Jamaica",
+        "city": "Rozelle",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8746102,
+        "longitude": -76.4444024,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e6df57c84e0a26289cc4312fb7bdddfab2bfdf54b4d97765ee4470c0fb937c78",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5248681345",
+      "source_url": "https://www.openstreetmap.org/node/5248681345",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5248681345,
+        "lat": 18.0481011,
+        "lon": -76.6228659,
+        "tags": {
+          "name": "Jah B’s Guesthouse",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Jah B’s Guesthouse",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 18.0481011,
+        "longitude": -76.6228659,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "de35f8c1f4f6f549d3b7898628feb7ad89f4750572ee13d4d764e58f67b7ad8d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6781631285",
+      "source_url": "https://www.openstreetmap.org/node/6781631285",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6781631285,
+        "lat": 17.9355179,
+        "lon": -76.6614496,
+        "tags": {
+          "name": "Black Beach(BM Beach)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Black Beach(BM Beach)",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9355179,
+        "longitude": -76.6614496,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7b0a2c2232e4c0bd83779a14493821fe0dfc140d84afc6578f568bb4b0e83e02",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6978525501",
+      "source_url": "https://www.openstreetmap.org/node/6978525501",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6978525501,
+        "lat": 17.8751199,
+        "lon": -76.3195036,
+        "tags": {
+          "historic": "ruins",
+          "name": "Fort Lindsay, 1790",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Fort Lindsay, 1790",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8751199,
+        "longitude": -76.3195036,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4ed5a4ed2304e3b1f98e3283f534ea87558f1bc95b2c042603f3f439d8c636a1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6978525502",
+      "source_url": "https://www.openstreetmap.org/node/6978525502",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6978525502,
+        "lat": 17.8726667,
+        "lon": -76.3099971,
+        "tags": {
+          "man_made": "windmill",
+          "name": "Old Pera Windmill",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Old Pera Windmill",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8726667,
+        "longitude": -76.3099971,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f116bb2711a1ed19749a1854020a239cb8cf7c4f9b3df98d3ea1757abace1662",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7027506068",
+      "source_url": "https://www.openstreetmap.org/node/7027506068",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7027506068,
+        "lat": 17.8922989,
+        "lon": -76.6017652,
+        "tags": {
+          "name": "Albion Great House Waterwheel",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Albion Great House Waterwheel",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8922989,
+        "longitude": -76.6017652,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e82ab08eeb7a449aa5b5d63310aa54a6b59984dd65ff78a0c4096d3637102784",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7027506085",
+      "source_url": "https://www.openstreetmap.org/node/7027506085",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7027506085,
+        "lat": 17.8928222,
+        "lon": -76.6018617,
+        "tags": {
+          "name": "Albion Great House Aqueduct",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Albion Great House Aqueduct",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8928222,
+        "longitude": -76.6018617,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0fe397f06f940467f5dd4dc43fcfdd8ca4a4e155cbdef426993abef7275eb416",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7036227646",
+      "source_url": "https://www.openstreetmap.org/node/7036227646",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7036227646,
+        "lat": 18.0517651,
+        "lon": -76.605944,
+        "tags": {
+          "name": "Jacob's Ladder",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Jacob's Ladder",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 18.0517651,
+        "longitude": -76.605944,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "29798665423cf87728d4a23df0f4c4ff3a071d0591bd689d8f3b303ed0e430b8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7056742520",
+      "source_url": "https://www.openstreetmap.org/node/7056742520",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7056742520,
+        "lat": 17.9765492,
+        "lon": -76.2333959,
+        "tags": {
+          "name": "Red Cliffs",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Red Cliffs",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9765492,
+        "longitude": -76.2333959,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8e52f4d2e99c1d6e81c4c62a022972c4748bb1ba58d2dd7c75c0f08d24aad6b4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7062047442",
+      "source_url": "https://www.openstreetmap.org/node/7062047442",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7062047442,
+        "lat": 17.8616231,
+        "lon": -76.3457188,
+        "tags": {
+          "name": "Prospect Beach",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Prospect Beach",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8616231,
+        "longitude": -76.3457188,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "feb8f5101d78604dd55804f7e132a0af3ca338dfba22ebebfde36f9e94d6621c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7062086520",
+      "source_url": "https://www.openstreetmap.org/node/7062086520",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7062086520,
+        "lat": 17.951249,
+        "lon": -76.2371135,
+        "tags": {
+          "name": "Holland Bay Beach",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Holland Bay Beach",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.951249,
+        "longitude": -76.2371135,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1f242b46654a2c15e89ded5c5f536ac6994c7bf62b0c216d6391ab6a66f6033c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12539925828",
+      "source_url": "https://www.openstreetmap.org/node/12539925828",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12539925828,
+        "lat": 17.934276,
+        "lon": -76.6600251,
+        "tags": {
+          "addr:city": "Bull Bay",
+          "addr:housenumber": "360",
+          "addr:street": "Bull Bay Road",
+          "amenity": "restaurant",
+          "cuisine": "burger;chicken;seafood;wings;pastry",
+          "diet:chicken": "yes",
+          "diet:meat": "yes",
+          "diet:seafood": "yes",
+          "name": "Blackalicious",
+          "opening_hours": "Mo-Su 10:00-21:00",
+          "phone": "658-731-9277",
+          "website": "https:\\blackalicious.com"
+        }
+      },
+      "normalized_data": {
+        "name": "Blackalicious",
+        "address": "360 Bull Bay Road, Bull Bay, Jamaica",
+        "city": "Bull Bay",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.934276,
+        "longitude": -76.6600251,
+        "category": "restaurant",
+        "phone": "658-731-9277",
+        "website": "https://https/blackalicious.com",
+        "opening_hours": "Mo-Su 10:00-21:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "burger;chicken;seafood;wings;pastry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e347370b352bb001c64f0416664bd6ec3122c8fa295d115faeca20f61468c837",
+      "confidence": 0.95,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/309068455",
+      "source_url": "https://www.openstreetmap.org/way/309068455",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 309068455,
+        "center": {
+          "lat": 17.9613803,
+          "lon": -76.3555076
+        },
+        "tags": {
+          "building": "hotel",
+          "name": "Bath Fountain Hotel & Spa",
+          "phone": "+1-(876)-703-4345",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Bath Fountain Hotel & Spa",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9613803,
+        "longitude": -76.3555076,
+        "category": "attraction",
+        "phone": "+1-(876)-703-4345",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bf103d87222ddcaff56c20ef0d07e39ba758aad4d11713d47e7cc1043e831114",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375562930",
+      "source_url": "https://www.openstreetmap.org/way/375562930",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375562930,
+        "center": {
+          "lat": 17.8743271,
+          "lon": -76.5655653
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Juici Patties",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8743271,
+        "longitude": -76.5655653,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "128a7353c7f8835f1a9fe5fca78b694cefe285c37ff45bf1af3113502fbeeaed",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375562938",
+      "source_url": "https://www.openstreetmap.org/way/375562938",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375562938,
+        "center": {
+          "lat": 17.873415,
+          "lon": -76.5641408
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Links Sports Bar & Club",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Links Sports Bar & Club",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.873415,
+        "longitude": -76.5641408,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9d6de236c70d5592f8345cab330deab1cf15bbb85a41b980f82cd416fd156b18",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375574489",
+      "source_url": "https://www.openstreetmap.org/way/375574489",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375574489,
+        "center": {
+          "lat": 17.8841877,
+          "lon": -76.3344429
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "All Shmarr Play Ground & Food Restaurant",
+          "phone": "521-4966",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "All Shmarr Play Ground & Food Restaurant",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8841877,
+        "longitude": -76.3344429,
+        "category": "restaurant",
+        "phone": "521-4966",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "731bd2a8c813b8c8869388abab220000bdf499e112423b8b659564672b429d12",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375584839",
+      "source_url": "https://www.openstreetmap.org/way/375584839",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375584839,
+        "center": {
+          "lat": 17.8804669,
+          "lon": -76.4123295
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Bay Side Diner",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Bay Side Diner",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8804669,
+        "longitude": -76.4123295,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ea1bd52f7646ec75ffee52fb01d4bf138ddca780762ab23edc5f2b24a47f9010",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375588416",
+      "source_url": "https://www.openstreetmap.org/way/375588416",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375588416,
+        "center": {
+          "lat": 17.9224714,
+          "lon": -76.2591445
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Nice & Nuff Cook Shop and Pastry",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Nice & Nuff Cook Shop and Pastry",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9224714,
+        "longitude": -76.2591445,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4a68e6e161321b1755b532893388ed82ab760f2b581a88a2bcc83bd177861c7e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375588418",
+      "source_url": "https://www.openstreetmap.org/way/375588418",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375588418,
+        "center": {
+          "lat": 17.9217691,
+          "lon": -76.2599127
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Oasis Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Oasis Bar",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9217691,
+        "longitude": -76.2599127,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a95a7d1ee9b44a4e25986f3739e211eeee3b4e87f9855c64d1f3290449ea80b7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375591532",
+      "source_url": "https://www.openstreetmap.org/way/375591532",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375591532,
+        "center": {
+          "lat": 17.8815276,
+          "lon": -76.4085764
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Juici Patties",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8815276,
+        "longitude": -76.4085764,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ff5070219f991367152275d11aef8bc5c7486c40e495f34aaff79033cefd7ba3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375592057",
+      "source_url": "https://www.openstreetmap.org/way/375592057",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375592057,
+        "center": {
+          "lat": 17.8808566,
+          "lon": -76.4095837
+        },
+        "tags": {
+          "amenity": "cafe",
+          "building": "yes",
+          "name": "Chef's Mate",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Chef's Mate",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8808566,
+        "longitude": -76.4095837,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "21635f711afe086a3b008b0f98079513a866011de20b6243d6cf6b931f74bd31",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375592338",
+      "source_url": "https://www.openstreetmap.org/way/375592338",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375592338,
+        "center": {
+          "lat": 17.8810929,
+          "lon": -76.4063499
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Morant Villas",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Morant Villas",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8810929,
+        "longitude": -76.4063499,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "218699ba1b8e88ee0f7dd68b19a9fe1bbd95e75e053d9a0aaeb86831f0728c87",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375592340",
+      "source_url": "https://www.openstreetmap.org/way/375592340",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375592340,
+        "center": {
+          "lat": 17.8810304,
+          "lon": -76.4061525
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Morant Villas",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Morant Villas",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8810304,
+        "longitude": -76.4061525,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "218699ba1b8e88ee0f7dd68b19a9fe1bbd95e75e053d9a0aaeb86831f0728c87",
+      "confidence": 0.6,
+      "review_status": "needs_research",
+      "duplicate_source_record_id": "way/375592338"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375595041",
+      "source_url": "https://www.openstreetmap.org/way/375595041",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375595041,
+        "center": {
+          "lat": 17.888185,
+          "lon": -76.3273691
+        },
+        "tags": {
+          "amenity": "nightclub",
+          "building": "yes",
+          "name": "Ace's Night Club",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Ace's Night Club",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.888185,
+        "longitude": -76.3273691,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "nightclub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c363582925ef43f055b9b1a70323b1724fd4ef0cfda91950d9a591d5dfa1fb1c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375598421",
+      "source_url": "https://www.openstreetmap.org/way/375598421",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375598421,
+        "center": {
+          "lat": 17.8738922,
+          "lon": -76.5647675
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Book Shop",
+          "shop": "books",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Book Shop",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8738922,
+        "longitude": -76.5647675,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "96bcc92f7b25c1ed3939c792fa8d8a2e088a58b3dabbde0bd02e148c7ec48a1c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375600610",
+      "source_url": "https://www.openstreetmap.org/way/375600610",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375600610,
+        "center": {
+          "lat": 17.8916657,
+          "lon": -76.3297224
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "VIP Bar & Chill Spot",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "VIP Bar & Chill Spot",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8916657,
+        "longitude": -76.3297224,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "73e8d0991c4edd8c491c517e3fb0c8d90d8037ed4ad640e9e3551d9e73497525",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375603477",
+      "source_url": "https://www.openstreetmap.org/way/375603477",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375603477,
+        "center": {
+          "lat": 17.8810119,
+          "lon": -76.4100734
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "The Playfield Sports Bar & Grill",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "The Playfield Sports Bar & Grill",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8810119,
+        "longitude": -76.4100734,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4b5d08f3042d41095eb2d4407497e8f84c558690093c0c1e2315ac9cebbe4d2b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375603922",
+      "source_url": "https://www.openstreetmap.org/way/375603922",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375603922,
+        "center": {
+          "lat": 17.9259151,
+          "lon": -76.2832475
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Classique Pub",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Classique Pub",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9259151,
+        "longitude": -76.2832475,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ce822861414f1682ef3bacc5b0c3103912271c29778b1c9249c73715ba411643",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375604707",
+      "source_url": "https://www.openstreetmap.org/way/375604707",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375604707,
+        "center": {
+          "lat": 17.8684322,
+          "lon": -76.3564757
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Brown's Guest House",
+          "source": "KG Ground Survey 2015",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Brown's Guest House",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8684322,
+        "longitude": -76.3564757,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9a27a9cfb2a1f950dd56fe788041ec848fab9dfae77487d4983ea51d4decf088",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/446799255",
+      "source_url": "https://www.openstreetmap.org/way/446799255",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 446799255,
+        "center": {
+          "lat": 17.8617471,
+          "lon": -76.3421563
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Drakes Cove",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Drakes Cove",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8617471,
+        "longitude": -76.3421563,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "492a5519e883983eae3d3c63894e93432253a97b779b553cefef418d4ea28df8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/745765343",
+      "source_url": "https://www.openstreetmap.org/way/745765343",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 745765343,
+        "center": {
+          "lat": 17.8701139,
+          "lon": -76.4751529
+        },
+        "tags": {
+          "name": "The White Horses",
+          "natural": "sand",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "The White Horses",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8701139,
+        "longitude": -76.4751529,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c8c143b3cf9a1f92ce29e02011740849ee2a90ca2a3e323495aa4bb53f2b68ba",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/755037004",
+      "source_url": "https://www.openstreetmap.org/way/755037004",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 755037004,
+        "center": {
+          "lat": 17.9213612,
+          "lon": -76.2837669
+        },
+        "tags": {
+          "historic": "ruins",
+          "name": "Stokes Hall Great House",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Stokes Hall Great House",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9213612,
+        "longitude": -76.2837669,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "030f6b888dd5658766437871114a2b4bfb25120620788e070739a71a8c6ed992",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/758424350",
+      "source_url": "https://www.openstreetmap.org/way/758424350",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 758424350,
+        "center": {
+          "lat": 17.8805646,
+          "lon": -76.4084315
+        },
+        "tags": {
+          "historic": "ruins",
+          "name": "Fort Morant (1758)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Fort Morant (1758)",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8805646,
+        "longitude": -76.4084315,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bd4029a8702adea289afea4d93d1d23e421a21a62bd3d7b34108fed405f08f05",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/831921308",
+      "source_url": "https://www.openstreetmap.org/way/831921308",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 831921308,
+        "center": {
+          "lat": 17.9262411,
+          "lon": -76.6441952
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Three Finger Jack Hotel",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Three Finger Jack Hotel",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9262411,
+        "longitude": -76.6441952,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "182f5987d5b3f33b166f889f89ad3fbaa075b5feb649034030f5e58f9cef896d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1355013519",
+      "source_url": "https://www.openstreetmap.org/way/1355013519",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1355013519,
+        "center": {
+          "lat": 17.9344722,
+          "lon": -76.6597631
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "hut",
+          "cuisine": "burger;seafood;wings;pastry",
+          "diet:chicken": "yes",
+          "diet:dairy": "yes",
+          "diet:meat": "yes",
+          "diet:non-vegetarian": "yes",
+          "name": "Blackalicious"
+        }
+      },
+      "normalized_data": {
+        "name": "Blackalicious",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.9344722,
+        "longitude": -76.6597631,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "burger;seafood;wings;pastry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e347370b352bb001c64f0416664bd6ec3122c8fa295d115faeca20f61468c837",
+      "confidence": 0.6,
+      "review_status": "needs_research",
+      "duplicate_source_record_id": "node/12539925828"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "relation/13517583",
+      "source_url": "https://www.openstreetmap.org/relation/13517583",
+      "source_last_checked_at": "2026-08-22T01:47:17.312Z",
+      "raw_data": {
+        "type": "relation",
+        "id": 13517583,
+        "center": {
+          "lat": 17.8743489,
+          "lon": -76.3771799
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Golden Shore Resort",
+          "tourism": "hotel",
+          "type": "multipolygon",
+          "wikidata": "Q112020255"
+        }
+      },
+      "normalized_data": {
+        "name": "Golden Shore Resort",
+        "address": "Saint Thomas, Jamaica",
+        "city": "Saint Thomas",
+        "parish": "Saint Thomas",
+        "country": "Jamaica",
+        "latitude": 17.8743489,
+        "longitude": -76.3771799,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "93c50d80f22fa052c40dc9061c7a068fbaab65c8cd431fefceb6957b64a10b64",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    }
+  ]
+}

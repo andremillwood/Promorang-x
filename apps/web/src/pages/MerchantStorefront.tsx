@@ -5,11 +5,7 @@ import { ArrowRight, CalendarClock, MapPin, Package, Sparkles, Store, Tag } from
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
-const offerLabel = (item: any) => {
-  if (!item.discount_value) return null;
-  return `${item.discount_value}${item.discount_type === 'percentage' ? '%' : ''} off`;
-};
+import { useI18n } from '@/i18n/I18nContext';
 
 const kindIcon = (item: any) => {
   if (item.discount_value) return Tag;
@@ -18,7 +14,11 @@ const kindIcon = (item: any) => {
 };
 
 export default function MerchantStorefront() {
+  const { t, locale } = useI18n();
   const { merchantId } = useParams();
+  const offerLabel = (item: any) => item.discount_value
+    ? t("storefront.off", { value: `${item.discount_value}${item.discount_type === 'percentage' ? '%' : ''}` })
+    : null;
   const q = useQuery({
     queryKey: ['storefront', merchantId],
     queryFn: async () => {
@@ -49,15 +49,15 @@ export default function MerchantStorefront() {
     <main className="mx-auto max-w-7xl px-4 py-7 sm:px-6">
       <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_80%_0%,rgba(255,106,26,.24),transparent_30%),linear-gradient(135deg,#080808,#15110f)] p-7 text-white sm:p-10">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge className="gap-1 bg-primary text-primary-foreground"><Store className="h-3.5 w-3.5" />Storefront</Badge>
-          {offers.length ? <Badge variant="secondary" className="bg-white/10 text-white">{offers.length} offers</Badge> : null}
-          {services.length ? <Badge variant="secondary" className="bg-white/10 text-white">{services.length} bookable</Badge> : null}
+          <Badge className="gap-1 bg-primary text-primary-foreground"><Store className="h-3.5 w-3.5" />{t("storefront.label")}</Badge>
+          {offers.length ? <Badge variant="secondary" className="bg-white/10 text-white">{t("storefront.offers", { count: offers.length })}</Badge> : null}
+          {services.length ? <Badge variant="secondary" className="bg-white/10 text-white">{t("storefront.bookable", { count: services.length })}</Badge> : null}
         </div>
-        <h1 className="mt-5 max-w-4xl text-5xl font-black tracking-[-.06em] sm:text-7xl">{merchant?.merchant_name || 'Local merchant'}</h1>
-        <p className="mt-4 max-w-2xl text-white/55">Products, services, offers, and Moments connected to this merchant’s place in the network.</p>
+        <h1 className="mt-5 max-w-4xl text-5xl font-black tracking-[-.06em] sm:text-7xl">{merchant?.merchant_name || t("storefront.local")}</h1>
+        <p className="mt-4 max-w-2xl text-white/55">{t("storefront.copy")}</p>
         <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-white/45">
           {merchant?.location ? <span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" />{merchant.location}</span> : null}
-          {merchant?.merchant_website ? <Button asChild size="sm" variant="outline" className="border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"><a href={merchant.merchant_website} target="_blank" rel="noreferrer">Website</a></Button> : null}
+          {merchant?.merchant_website ? <Button asChild size="sm" variant="outline" className="border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"><a href={merchant.merchant_website} target="_blank" rel="noreferrer">{t("storefront.website")}</a></Button> : null}
         </div>
       </section>
 
@@ -68,7 +68,7 @@ export default function MerchantStorefront() {
           </div>
           <div className="flex flex-col justify-between p-6">
             <div>
-              <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary"><Sparkles className="h-4 w-4" />Featured offer</p>
+              <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary"><Sparkles className="h-4 w-4" />{t("storefront.featured")}</p>
               <h2 className="mt-3 text-3xl font-black tracking-[-.04em]">{offers[0].name}</h2>
               <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">{offers[0].description}</p>
             </div>
@@ -81,7 +81,7 @@ export default function MerchantStorefront() {
       ) : null}
 
       <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {q.isLoading ? <p>Loading storefront...</p> : items.map((x: any) => {
+        {q.isLoading ? <p>{t("storefront.loading")}</p> : items.map((x: any) => {
           const Icon = kindIcon(x);
           return (
             <Link key={x.listing_id} to={`/shop/${encodeURIComponent(x.listing_id)}`} className="group overflow-hidden rounded-3xl border border-border bg-card">
@@ -90,13 +90,13 @@ export default function MerchantStorefront() {
               </div>
               <div className="p-5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant={x.discount_value ? 'default' : 'secondary'} className="gap-1 capitalize"><Icon className="h-3 w-3" />{offerLabel(x) || x.listing_kind || 'Product'}</Badge>
-                  <Badge variant="outline" className="capitalize">{x.fulfillment_mode || 'pickup'}</Badge>
+                  <Badge variant={x.discount_value ? 'default' : 'secondary'} className="gap-1 capitalize"><Icon className="h-3 w-3" />{offerLabel(x) || x.listing_kind || t("market.product")}</Badge>
+                  <Badge variant="outline" className="capitalize">{x.fulfillment_mode || t("storefront.pickup")}</Badge>
                 </div>
                 <h2 className="mt-3 text-xl font-black">{x.name}</h2>
                 <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{x.description}</p>
                 <div className="mt-5 flex items-center justify-between">
-                  <b>{typeof x.price === 'number' ? `$${x.price.toFixed(2)}` : x.points_cost ? `${x.points_cost} pts` : 'Open'}</b>
+                  <b>{typeof x.price === 'number' ? new Intl.NumberFormat(locale, { style: 'currency', currency: x.currency || 'USD' }).format(x.price) : x.points_cost ? `${x.points_cost} pts` : t("market.open")}</b>
                   <ArrowRight className="h-4 w-4" />
                 </div>
               </div>

@@ -22,8 +22,10 @@ import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { PioneerBadge } from "@/components/badges/PioneerBadge";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
+import { useI18n } from "@/i18n/I18nContext";
 
 const MomentsApp = () => {
+    const { t, formatNumber } = useI18n();
     const { user, profile } = useAuth();
     const maturityState = profile?.maturity_state || 0;
     const { data: joinedMoments, isLoading: momentsLoading } = useJoinedMoments();
@@ -48,22 +50,22 @@ const MomentsApp = () => {
             <header className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
                 <div>
                     <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-2">
-                        Moments <span className="italic text-primary">App</span>
+                        {t("momentsAppPage.title")} <span className="italic text-primary">{t("momentsAppPage.app")}</span>
                     </h1>
                     <p className="text-muted-foreground font-medium">
-                        Your personalized gathering space. Build your canon, unlock status, and preserve moments.
+                        {t("momentsAppPage.subtitle")}
                     </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <Button variant="outline" className="gap-2 rounded-2xl" asChild>
                         <Link to="/explore/moments">
                             <Search className="w-4 h-4" />
-                            Explore More
+                            {t("momentsAppPage.exploreMore")}
                         </Link>
                     </Button>
                     <Button className="gap-2 rounded-2xl shadow-glow">
                         <Sparkles className="w-4 h-4" />
-                        Find Near Me
+                        {t("momentsAppPage.findNearMe")}
                     </Button>
                 </div>
             </header>
@@ -77,7 +79,7 @@ const MomentsApp = () => {
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="font-serif text-2xl font-bold flex items-center gap-2">
                                 <Calendar className="w-6 h-6 text-primary" />
-                                Your Upcoming Schedule
+                                {t("momentsAppPage.upcomingSchedule")}
                             </h2>
                         </div>
 
@@ -89,10 +91,10 @@ const MomentsApp = () => {
                             </div>
                         ) : upcomingMoments.length === 0 ? (
                             <div className="bg-muted/30 rounded-[2rem] p-10 border border-dashed border-border/60 text-center">
-                                <p className="text-foreground font-bold text-lg mb-2">Ready for something new?</p>
-                                <p className="text-muted-foreground mb-6 text-sm">You don't have any upcoming moments scheduled yet.</p>
+                                <p className="text-foreground font-bold text-lg mb-2">{t("momentsAppPage.readyForSomethingNew")}</p>
+                                <p className="text-muted-foreground mb-6 text-sm">{t("momentsAppPage.noUpcomingMoments")}</p>
                                 <Button variant="default" className="rounded-2xl px-8" asChild>
-                                    <Link to="/for-you">Open For You</Link>
+                                    <Link to="/for-you">{t("momentsAppPage.openForYou")}</Link>
                                 </Button>
                             </div>
                         ) : (
@@ -135,7 +137,7 @@ const MomentsApp = () => {
                                                 disabled={checkIn.isPending}
                                                 className="h-11 w-full rounded-2xl px-6 shadow-soft sm:w-auto"
                                             >
-                                                Check In
+                                                {t("momentsAppPage.checkIn")}
                                             </Button>
                                         </div>
                                     </div>
@@ -150,7 +152,7 @@ const MomentsApp = () => {
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="font-serif text-2xl font-bold flex items-center gap-2">
                                 <Sparkles className="w-6 h-6 text-accent" />
-                                Your Memories
+                                {t("momentsAppPage.yourMemories")}
                             </h2>
                         </div>
 
@@ -165,10 +167,9 @@ const MomentsApp = () => {
                                 <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <Sparkles className="w-8 h-8 text-muted-foreground" />
                                 </div>
-                                <h3 className="font-serif text-xl font-bold mb-2">Your Canon is empty</h3>
+                                <h3 className="font-serif text-xl font-bold mb-2">{t("momentsAppPage.canonEmptyTitle")}</h3>
                                 <p className="text-muted-foreground mb-6">
-                                    Attend moments and upload photos to build your digital passport of experiences. 
-                                    A rich canon unlocks higher Access Ranks.
+                                    {t("momentsAppPage.canonEmptyDesc")}
                                 </p>
                             </div>
                         ) : (
@@ -189,12 +190,12 @@ const MomentsApp = () => {
                             <Sparkles className="w-32 h-32" />
                         </div>
                         <div className="relative z-10">
-                            <h4 className="text-xs font-bold uppercase tracking-widest text-primary mb-6">Digital Passport</h4>
+                            <h4 className="text-xs font-bold uppercase tracking-widest text-primary mb-6">{t("momentsAppPage.digitalPassport")}</h4>
                             <div className="space-y-6">
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-sm font-medium text-muted-foreground">Access Rank</span>
+                                    <span className="text-sm font-medium text-muted-foreground">{t("momentsAppPage.accessRank")}</span>
                                     <div className="flex items-end gap-2">
-                                        <span className="text-3xl font-bold text-foreground">Level {maturityState || 1}</span>
+                                        <span className="text-3xl font-bold text-foreground">{t("momentsAppPage.level", { level: (maturityState || 1).toString() })}</span>
                                     </div>
                                     <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden mt-2">
                                         <div className="h-full bg-gradient-primary" style={{ width: `${(maturityState || 1) * 20}%` }}></div>
@@ -203,21 +204,21 @@ const MomentsApp = () => {
                                 
                                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
                                     <div>
-                                        <span className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Canon Entries</span>
-                                        <span className="text-xl font-bold">{stats?.totalJoined || 0}</span>
+                                        <span className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{t("momentsAppPage.canonEntries")}</span>
+                                        <span className="text-xl font-bold">{formatNumber(stats?.totalJoined || 0)}</span>
                                     </div>
                                     <div>
-                                        <span className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Check-ins</span>
-                                        <span className="text-xl font-bold text-emerald-500">{stats?.checkedIn || 0}</span>
+                                        <span className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{t("momentsAppPage.checkIns")}</span>
+                                        <span className="text-xl font-bold text-emerald-500">{formatNumber(stats?.checkedIn || 0)}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="mt-6 pt-6 border-t border-border/50 flex flex-col gap-3">
                                 <Button variant="hero" className="w-full shadow-lg" asChild>
-                                    <Link to="/explore/moments">Add to Canon +</Link>
+                                    <Link to="/explore/moments">{t("momentsAppPage.addToCanon")}</Link>
                                 </Button>
                                 <Link to="/dashboard/rewards" className="flex items-center justify-center group text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
-                                    View Rewards <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
+                                    {t("momentsAppPage.viewRewards")} <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
                                 </Link>
                             </div>
                         </div>
@@ -226,9 +227,9 @@ const MomentsApp = () => {
                     {/* Hint / Tip */}
                     <div className="bg-card border border-border/40 rounded-[2rem] p-8">
                         <TrendingUp className="w-8 h-8 text-primary mb-4" />
-                        <h4 className="font-serif text-xl font-bold mb-2">Consistency pays off</h4>
+                        <h4 className="font-serif text-xl font-bold mb-2">{t("momentsAppPage.consistencyPaysOffTitle")}</h4>
                         <p className="text-sm text-muted-foreground leading-relaxed">
-                            Participants with a 7-day streak get 2x Priority Access to exclusive drops.
+                            {t("momentsAppPage.consistencyPaysOffDesc")}
                         </p>
                     </div>
 
@@ -240,7 +241,7 @@ const MomentsApp = () => {
                         <div className="relative z-10">
                             <div className="flex items-center gap-2 mb-6">
                                 <Trophy className="w-5 h-5 text-yellow-500" />
-                                <h4 className="font-serif text-xl font-bold">Kingston <span className="text-primary italic">Elite</span></h4>
+                                <h4 className="font-serif text-xl font-bold">{t("momentsAppPage.kingstonElite")}</h4>
                             </div>
                             
                             <div className="space-y-4">
@@ -275,8 +276,8 @@ const MomentsApp = () => {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xs font-black tracking-tighter">{player.score.toLocaleString()}</p>
-                                            <p className="text-[8px] font-bold uppercase tracking-widest text-muted-foreground">Points</p>
+                                            <p className="text-xs font-black tracking-tighter">{formatNumber(player.score)}</p>
+                                            <p className="text-[8px] font-bold uppercase tracking-widest text-muted-foreground">{t("momentsAppPage.points")}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -284,7 +285,7 @@ const MomentsApp = () => {
                             
                             <div className="mt-6 pt-4 border-t border-border/50">
                                 <p className="text-[10px] text-center text-muted-foreground font-bold uppercase tracking-widest">
-                                    Next Drop: 48h 12m
+                                    {t("momentsAppPage.nextDrop")}
                                 </p>
                             </div>
                         </div>

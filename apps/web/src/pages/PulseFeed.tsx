@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Heart, Share2, Zap, Flame, Trophy, Sparkles, MessageCircle, ArrowUp } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 
 const MOCK_PULSE_ITEMS = [
   {
@@ -38,6 +39,7 @@ const MOCK_PULSE_ITEMS = [
 ];
 
 export const PulseFeed: React.FC = () => {
+  const { t, formatNumber } = useI18n();
   const [activeIndex, setActiveIndex] = useState(0);
   const [liked, setLiked] = useState<Record<string, boolean>>({});
 
@@ -81,7 +83,7 @@ export const PulseFeed: React.FC = () => {
           <div className="flex items-center gap-1.5 px-3 py-1 bg-red-500/20 border border-red-500/40 rounded-full backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
             <span className="text-xs font-mono font-bold text-red-400">
-              EXPIRING IN {currentItem.timeLeft}
+              {t("pulseFeedPage.expiringIn", { time: currentItem.timeLeft })}
             </span>
           </div>
         </div>
@@ -128,7 +130,7 @@ export const PulseFeed: React.FC = () => {
           {/* Claim Bar Progress */}
           <div className="mb-4 bg-black/60 border border-zinc-800 rounded-xl p-2.5 backdrop-blur-md">
             <div className="flex justify-between text-xs mb-1 font-medium">
-              <span className="text-zinc-400">Claimed Volume</span>
+              <span className="text-zinc-400">{t("pulseFeedPage.claimedVolume")}</span>
               <span className="text-orange-400 font-bold">{currentItem.claimedPercent}%</span>
             </div>
             <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
@@ -138,15 +140,14 @@ export const PulseFeed: React.FC = () => {
               />
             </div>
             <p className="text-[10px] text-zinc-400 mt-1 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" /> Only {currentItem.piecesRemaining}{' '}
-              Pieces remaining in pool
+              <Sparkles className="w-3 h-3 text-amber-400" /> {t("pulseFeedPage.piecesRemaining", { count: formatNumber(currentItem.piecesRemaining) })}
             </p>
           </div>
 
           {/* Big CTA Button */}
           <button className="w-full py-3.5 px-6 rounded-2xl font-black text-sm bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-black shadow-xl shadow-orange-500/30 flex items-center justify-center gap-2 transition-all active:scale-95 mb-3">
             <Zap className="w-4 h-4" />
-            <span>CLAIM PIECE NOW</span>
+            <span>{t("pulseFeedPage.claimPieceNow")}</span>
           </button>
 
           {/* Swipe Next Gesture Hint */}
@@ -154,7 +155,7 @@ export const PulseFeed: React.FC = () => {
             onClick={handleNext}
             className="w-full py-2 text-center text-xs text-zinc-400 hover:text-white flex items-center justify-center gap-1 transition-colors"
           >
-            <span>Swipe for next deal</span>
+            <span>{t("pulseFeedPage.swipeForNextDeal")}</span>
             <ArrowUp className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -162,3 +163,4 @@ export const PulseFeed: React.FC = () => {
     </div>
   );
 };
+

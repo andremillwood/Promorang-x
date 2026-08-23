@@ -2,8 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function VerifiedPioneerBadge({ beneficiaryType, beneficiaryId }: { beneficiaryType: "user" | "venue"; beneficiaryId?: string | null }) {
+  const { t, formatNumber } = useI18n();
   const query = useQuery({
     queryKey: ["pioneer-public-status", beneficiaryType, beneficiaryId],
     queryFn: async () => {
@@ -14,5 +16,14 @@ export default function VerifiedPioneerBadge({ beneficiaryType, beneficiaryId }:
     enabled: Boolean(beneficiaryId),
   });
   if (!query.data?.verified_points) return null;
-  return <Link to="/pioneers" title="Verified Genesis Season contributor" className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-primary"><Sparkles className="h-3 w-3" />Pioneer contribution · {Number(query.data.verified_points).toLocaleString()}</Link>;
+  return (
+    <Link
+      to="/pioneers"
+      title={t("pioneerBadge.title")}
+      className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-primary"
+    >
+      <Sparkles className="h-3 w-3" />
+      {t("pioneerBadge.label", { points: formatNumber(query.data.verified_points) })}
+    </Link>
+  );
 }

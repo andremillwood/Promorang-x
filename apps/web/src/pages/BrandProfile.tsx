@@ -10,6 +10,7 @@ import { MomentCard } from "@/components/MomentCard";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
 import { ArrowLeft, ExternalLink, ShieldCheck, Sparkles } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface PublicBrandRow {
   id: string;
@@ -44,6 +45,7 @@ interface PublicMomentDirectoryRow {
 }
 
 export default function BrandProfile() {
+  const { t, formatNumber } = useI18n();
   const { slug = "" } = useParams<{ slug: string }>();
 
   const brandQuery = useQuery({
@@ -100,10 +102,10 @@ export default function BrandProfile() {
   if (!isLoading && !brand) {
     return (
       <main className="mx-auto max-w-4xl px-4 py-16 text-center">
-        <h1 className="font-serif text-3xl font-bold text-foreground">Brand not found</h1>
-        <p className="mt-3 text-muted-foreground">This brand page is not available yet.</p>
+        <h1 className="font-serif text-3xl font-bold text-foreground">{t("brandProfilePage.notFoundTitle")}</h1>
+        <p className="mt-3 text-muted-foreground">{t("brandProfilePage.notFoundDesc")}</p>
         <Button asChild variant="hero" className="mt-6">
-          <Link to="/brands">Browse brands</Link>
+          <Link to="/brands">{t("brandProfilePage.browseBrands")}</Link>
         </Button>
       </main>
     );
@@ -141,7 +143,7 @@ export default function BrandProfile() {
             <Button asChild variant="ghost" className="mb-5 w-fit">
               <Link to="/brands">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to brands
+                {t("brandProfilePage.backToBrands")}
               </Link>
             </Button>
 
@@ -156,24 +158,24 @@ export default function BrandProfile() {
                 </div>
                 <div>
                   <Badge variant="outline" className="mb-3 w-fit text-[11px] font-black uppercase tracking-[0.24em]">
-                    Brand profile
+                    {t("brandProfilePage.brandProfileBadge")}
                   </Badge>
-                  {brand.verification_status === "verified" && <Badge className="mb-3 ml-2 w-fit bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/15"><ShieldCheck className="mr-1 h-3.5 w-3.5" />Verified owner</Badge>}
-                  {brand.claim_status === "unclaimed" && <Badge variant="secondary" className="mb-3 ml-2 w-fit">Platform-created · unclaimed</Badge>}
+                  {brand.verification_status === "verified" && <Badge className="mb-3 ml-2 w-fit bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/15"><ShieldCheck className="mr-1 h-3.5 w-3.5" />{t("brandProfilePage.verifiedOwner")}</Badge>}
+                  {brand.claim_status === "unclaimed" && <Badge variant="secondary" className="mb-3 ml-2 w-fit">{t("brandProfilePage.unclaimedBadge")}</Badge>}
                   <h1 className="font-serif text-4xl font-black text-foreground sm:text-5xl">{brand.name}</h1>
                   <p className="mt-3 max-w-3xl text-base text-muted-foreground">
-                    A public page for exploring moments and creator content associated with this brand.
+                    {t("brandProfilePage.publicPageDesc")}
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">{brand.active_campaigns_count || 0} campaigns</Badge>
-                <Badge variant="secondary">{brand.associated_moments_count || 0} associated moments</Badge>
+                <Badge variant="secondary">{t("brandProfilePage.campaignsCount", { count: formatNumber(brand.active_campaigns_count || 0) })}</Badge>
+                <Badge variant="secondary">{t("brandProfilePage.associatedMomentsCount", { count: formatNumber(brand.associated_moments_count || 0) })}</Badge>
                 {brand.website_url && (
                   <Button asChild variant="outline" size="sm">
                     <a href={brand.website_url} target="_blank" rel="noreferrer">
-                      Website
+                      {t("brandProfilePage.website")}
                       <ExternalLink className="ml-2 h-4 w-4" />
                     </a>
                   </Button>
@@ -186,10 +188,10 @@ export default function BrandProfile() {
             <section>
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <h2 className="font-serif text-2xl font-bold text-foreground">Associated moments</h2>
-                  <p className="text-sm text-muted-foreground">Public experiences currently linked to this brand.</p>
+                  <h2 className="font-serif text-2xl font-bold text-foreground">{t("brandProfilePage.associatedMomentsTitle")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("brandProfilePage.associatedMomentsDesc")}</p>
                 </div>
-                <Badge variant="secondary">{moments.length}</Badge>
+                <Badge variant="secondary">{formatNumber(moments.length)}</Badge>
               </div>
               {moments.length > 0 ? (
                 <MasonryGrid columns={{ sm: 1, md: 2, lg: 3 }} gap={24}>
@@ -206,7 +208,7 @@ export default function BrandProfile() {
                 </MasonryGrid>
               ) : (
                 <div className="rounded-3xl border border-dashed border-border bg-muted/20 px-6 py-10 text-center text-muted-foreground">
-                  No active moments are associated with this brand yet.
+                  {t("brandProfilePage.noMomentsAssociated")}
                 </div>
               )}
             </section>
@@ -214,10 +216,10 @@ export default function BrandProfile() {
             <section>
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <h2 className="font-serif text-2xl font-bold text-foreground">Linked content</h2>
-                  <p className="text-sm text-muted-foreground">Creator media connected to this brand’s moments and campaigns.</p>
+                  <h2 className="font-serif text-2xl font-bold text-foreground">{t("brandProfilePage.linkedContentTitle")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("brandProfilePage.linkedContentDesc")}</p>
                 </div>
-                <Badge variant="secondary">{content.length}</Badge>
+                <Badge variant="secondary">{formatNumber(content.length)}</Badge>
               </div>
               {content.length > 0 ? (
                 <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -227,7 +229,7 @@ export default function BrandProfile() {
                 </div>
               ) : (
                 <div className="rounded-3xl border border-dashed border-border bg-muted/20 px-6 py-10 text-center text-muted-foreground">
-                  No linked content is associated with this brand yet.
+                  {t("brandProfilePage.noContentAssociated")}
                 </div>
               )}
             </section>
@@ -235,9 +237,9 @@ export default function BrandProfile() {
             {moments.length === 0 && content.length === 0 && (
               <div className="rounded-3xl border border-primary/15 bg-primary/5 px-6 py-8 text-center">
                 <Sparkles className="mx-auto h-8 w-8 text-primary" />
-                <h3 className="mt-4 font-serif text-2xl font-bold text-foreground">The page is ready before the graph is full</h3>
+                <h3 className="mt-4 font-serif text-2xl font-bold text-foreground">{t("brandProfilePage.emptyGraphTitle")}</h3>
                 <p className="mt-2 text-muted-foreground">
-                  This brand profile is indexed and routable now, and will strengthen as brand associations are added to moments and content.
+                  {t("brandProfilePage.emptyGraphDesc")}
                 </p>
               </div>
             )}

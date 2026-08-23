@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Sparkles, Zap, Clock, ShieldCheck, ShoppingBag, CheckCircle, Flame, AlertCircle } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function GemRushPage() {
+  const { t, formatNumber } = useI18n();
   const [userGems] = useState(350); // 350 Gems = $350 USD
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
@@ -62,31 +64,31 @@ export default function GemRushPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#FFC300]/40 bg-[#FFC300]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#FFC300]">
                 <Zap className="h-4 w-4 text-[#FFC300]" />
-                Daily Dopamine Flash Vault • Live
+                {t("gemRushPage.vaultLiveBadge")}
               </div>
 
               {/* Balance Widget */}
               <div className="flex items-center gap-3 rounded-full border border-[#FFC300]/30 bg-black/60 px-5 py-2 text-sm font-bold">
-                <span className="text-white/70">Your Gems Balance:</span>
-                <span className="font-mono text-[#FFC300] text-lg">{userGems} Gems</span>
-                <span className="text-xs text-emerald-400">($350.00 USD)</span>
+                <span className="text-white/70">{t("gemRushPage.gemsBalance")}</span>
+                <span className="font-mono text-[#FFC300] text-lg">{t("gemRushPage.gemsCount", { count: formatNumber(userGems) })}</span>
+                <span className="text-xs text-emerald-400">{t("gemRushPage.usdEquivalent", { amount: "$350.00" })}</span>
               </div>
             </div>
 
             <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-tight sm:text-6xl text-white">
-              Redeem Withdrawable Gems. <br />
+              {t("gemRushPage.heroTitle1")} <br />
               <span className="bg-gradient-to-r from-[#FFC300] via-[#FF6A00] to-[#FF9000] bg-clip-text text-transparent">
-                Claim Real High-Value Products.
+                {t("gemRushPage.heroTitle2")}
               </span>
             </h1>
 
             <p className="mt-4 max-w-2xl text-base text-white/70">
-              1 Gem = $1.00 USD cash value. Every item in the Dopamine Vault is 100% reserve-backed and shipped directly to your door.
+              {t("gemRushPage.heroSubtitle")}
             </p>
 
             <div className="mt-6 flex flex-wrap gap-4 text-xs font-medium text-white/60">
-              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-emerald-400" /> 1:1 Escrow Cash Solvency Backed</span>
-              <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4 text-[#FFC300]" /> Vault Resets Daily at 12:00 PM EST</span>
+              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-emerald-400" /> {t("gemRushPage.escrowSolvency")}</span>
+              <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4 text-[#FFC300]" /> {t("gemRushPage.vaultResetsDaily")}</span>
             </div>
           </div>
         </header>
@@ -94,8 +96,8 @@ export default function GemRushPage() {
         {/* VAULT ITEMS GRID */}
         <section className="mt-10">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-black text-white">Today's Flash Vault Drops</h2>
-            <span className="text-xs font-bold text-[#FFC300]">3 Items Live Right Now</span>
+            <h2 className="text-2xl font-black text-white">{t("gemRushPage.flashVaultDrops")}</h2>
+            <span className="text-xs font-bold text-[#FFC300]">{t("gemRushPage.itemsLiveNow", { count: formatNumber(3) })}</span>
           </div>
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -104,14 +106,14 @@ export default function GemRushPage() {
                 <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black">
                   <img src={item.image} alt={item.name} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                   <div className="absolute right-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-mono font-bold text-[#FFC300] backdrop-blur-md">
-                    {item.gemPrice} Gems (${item.gemPrice} USD)
+                    {t("gemRushPage.gemsCount", { count: formatNumber(item.gemPrice) })} (${item.gemPrice} USD)
                   </div>
                 </div>
 
                 <div className="mt-6">
                   <div className="flex items-center justify-between text-xs text-white/50">
-                    <span>MSRP: {item.originalMsrp}</span>
-                    <span className="text-[#FF6A00] font-bold">{item.stockLeft} left of {item.initialStock}</span>
+                    <span>{t("gemRushPage.msrpPrefix", { msrp: item.originalMsrp })}</span>
+                    <span className="text-[#FF6A00] font-bold">{t("gemRushPage.stockLeft", { left: formatNumber(item.stockLeft), total: formatNumber(item.initialStock) })}</span>
                   </div>
 
                   <h3 className="mt-2 text-lg font-black text-white">{item.name}</h3>
@@ -129,7 +131,7 @@ export default function GemRushPage() {
                     onClick={() => setSelectedItem(item)}
                     className="mt-6 w-full rounded-xl bg-gradient-to-r from-[#FFC300] to-[#FF6A00] py-3 text-sm font-black text-black shadow-lg transition hover:brightness-110 active:scale-95"
                   >
-                    Claim for {item.gemPrice} Gems
+                    {t("gemRushPage.claimButton", { count: formatNumber(item.gemPrice) })}
                   </button>
                 </div>
               </div>
@@ -144,30 +146,30 @@ export default function GemRushPage() {
               {purchaseSuccess ? (
                 <div className="py-8 text-center">
                   <CheckCircle className="mx-auto h-16 w-16 text-emerald-400" />
-                  <h3 className="mt-4 text-2xl font-black">Vault Drop Claimed!</h3>
+                  <h3 className="mt-4 text-2xl font-black">{t("gemRushPage.dropClaimedSuccess")}</h3>
                   <p className="mt-2 text-xs text-white/60">
-                    {selectedItem.gemPrice} Gems deducted. Your shipping confirmation is in your profile orders.
+                    {t("gemRushPage.dropClaimedDesc", { count: formatNumber(selectedItem.gemPrice) })}
                   </p>
                 </div>
               ) : (
                 <div>
-                  <h3 className="text-xl font-black">Confirm Gem Purchase</h3>
+                  <h3 className="text-xl font-black">{t("gemRushPage.confirmPurchaseTitle")}</h3>
                   <p className="mt-1 text-xs text-white/60">
-                    1 Gem = $1.00 USD cash. This transaction debits your balance atomically.
+                    {t("gemRushPage.confirmPurchaseDesc")}
                   </p>
 
                   <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-white/60">Item Name</span>
+                      <span className="text-white/60">{t("gemRushPage.itemName")}</span>
                       <span className="font-bold text-white">{selectedItem.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/60">Item Price</span>
-                      <span className="font-mono font-bold text-[#FFC300]">{selectedItem.gemPrice} Gems</span>
+                      <span className="text-white/60">{t("gemRushPage.itemPrice")}</span>
+                      <span className="font-mono font-bold text-[#FFC300]">{t("gemRushPage.gemsCount", { count: formatNumber(selectedItem.gemPrice) })}</span>
                     </div>
                     <div className="flex justify-between border-t border-white/10 pt-2">
-                      <span className="text-white/60">Gems Remaining After Purchase</span>
-                      <span className="font-mono font-bold text-emerald-400">{userGems - selectedItem.gemPrice} Gems</span>
+                      <span className="text-white/60">{t("gemRushPage.gemsRemainingAfter")}</span>
+                      <span className="font-mono font-bold text-emerald-400">{t("gemRushPage.gemsCount", { count: formatNumber(userGems - selectedItem.gemPrice) })}</span>
                     </div>
                   </div>
 
@@ -176,13 +178,13 @@ export default function GemRushPage() {
                       onClick={() => setSelectedItem(null)}
                       className="flex-1 rounded-xl border border-white/15 py-3 text-xs font-bold text-white/70 hover:bg-white/5"
                     >
-                      Cancel
+                      {t("gemRushPage.cancel")}
                     </button>
                     <button
                       onClick={handlePurchase}
                       className="flex-1 rounded-xl bg-gradient-to-r from-[#FFC300] to-[#FF6A00] py-3 text-xs font-black text-black hover:brightness-110"
                     >
-                      Confirm Purchase
+                      {t("gemRushPage.confirmPurchase")}
                     </button>
                   </div>
                 </div>
@@ -195,3 +197,4 @@ export default function GemRushPage() {
     </main>
   );
 }
+

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView, View, Text, Image, Pressable, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../contexts/AuthContext';
+import { Colors, Spacing, BorderRadius } from '@/constants/DesignTokens';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 
 export default function MobileMissionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -145,7 +145,7 @@ const s = StyleSheet.create({
   iconBtn: { paddingRight: Spacing.sm },
   hero: { backgroundColor: Colors.gray[900], borderRadius: BorderRadius.xl, padding: Spacing.lg, marginBottom: Spacing.md, borderWidth: 1, borderColor: Colors.border },
   badgeRow: { flexDirection: 'row', gap: Spacing.xs, marginBottom: Spacing.sm, flexWrap: 'wrap' },
-  roleBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.ambientWash, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  roleBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(255,106,26,0.12)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   roleBadgeText: { color: Colors.primary, fontSize: 11, fontWeight: '800' },
   payoutBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(16,185,129,0.12)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   payoutBadgeText: { color: '#10B981', fontSize: 11, fontWeight: '800' },

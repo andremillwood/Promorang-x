@@ -10,9 +10,12 @@ import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
 import { buildLocationPath, formatLocationLabel, getSiteUrl } from "@/lib/discovery";
-import { ArrowLeft, CalendarDays, CheckCircle2, Gem, MapPin, ShoppingBag, Star } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, Gem, MapPin, ShoppingBag, Star, Telescope } from "lucide-react";
 import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
 import { ValueExchangeSummary, type ValueOutcome } from "@/components/economy/ValueOutcomes";
+import { useClaimVenueEnrichment, useVenueEnrichment } from "@/hooks/useVenueEnrichment";
+import { toast } from "sonner";
+import { useI18n } from "@/i18n/I18nContext";
 
 type CommerceListing = Tables<"view_public_commerce_directory">;
 
@@ -31,6 +34,10 @@ interface PublicVenueRow {
   avg_rating: number | null;
   popularity_score: number | null;
   active_moments_count: number | null;
+  verification_status: string | null;
+  listing_status?: "claimed" | "unclaimed" | null;
+  source_url?: string | null;
+  attribution_text?: string | null;
 }
 
 interface PublicMomentDirectoryRow {
@@ -53,6 +60,7 @@ interface PublicMomentDirectoryRow {
 }
 
 export default function VenueProfile() {
+  const { t } = useI18n();
   const { slug = "" } = useParams<{ slug: string }>();
 
   const venueQuery = useQuery({
@@ -117,16 +125,19 @@ export default function VenueProfile() {
     },
     enabled: Boolean(slug),
   });
+  const enrichmentQuery = useVenueEnrichment(slug);
+  const claimEnrichment = useClaimVenueEnrichment(slug);
 
   const venue = venueQuery.data;
   const moments = momentsQuery.data || [];
   const content = contentQuery.data || [];
   const commerceListings = commerceQuery.data || [];
+  const enrichmentOpportunities = enrichmentQuery.data || [];
   const isLoading = venueQuery.isLoading || momentsQuery.isLoading || contentQuery.isLoading || commerceQuery.isLoading;
   const placeRail = [
-    { label: "Arrive", body: "Find a Moment, service, or offer worth showing up for.", icon: MapPin },
-    { label: "Check in", body: "Use GPS, codes, host confirmation, or proof to mark the visit.", icon: CheckCircle2 },
-    { label: "Unlock", body: "Create reward eligibility, Vault memory, status, and future access.", icon: Gem },
+    { label: t("venueProfile.arrive"), body: t("venueProfile.arriveCopy"), icon: MapPin },
+    { label: t("venueProfile.checkIn"), body: t("venueProfile.checkInCopy"), icon: CheckCircle2 },
+    { label: t("venueProfile.unlock"), body: t("venueProfile.unlockCopy"), icon: Gem },
   ];
   const venueOutcomes: ValueOutcome[] = [
     ...(commerceListings.length > 0 ? [{ kind: "reward" as const, label: `${commerceListings.length} offers or services` }] : []),
@@ -137,10 +148,10 @@ export default function VenueProfile() {
   if (!isLoading && !venue) {
     return (
       <main className="mx-auto max-w-4xl px-4 py-16 text-center">
-        <h1 className="text-3xl font-black uppercase tracking-[-0.04em] text-foreground">Place not found</h1>
-        <p className="mt-3 text-muted-foreground">This place profile is not available yet.</p>
+        <h1 className="text-3xl font-black uppercase tracking-[-0.04em] text-foreground">{t("venueProfile.notFound")}</h1>
+        <p className="mt-3 text-muted-foreground">{t("venueProfile.notFoundCopy")}</p>
         <Button asChild variant="hero" className="mt-6">
-          <Link to="/explore/moments">Browse moments</Link>
+          <Link to="/explore/moments">{t("venues.browseMoments")}</Link>
         </Button>
       </main>
     );
@@ -151,7 +162,7 @@ export default function VenueProfile() {
       {venue && (
         <SEO
           title={venue.name}
-          description={venue.description || `View moments and creator content connected to ${venue.name}.`}
+          description={venue.description || t("venueProfile.seoCopy", { name: venue.name })}
           url={getSiteUrl(`/venues/${slug}`)}
           schema={{
             "@context": "https://schema.org",
@@ -183,22 +194,23 @@ export default function VenueProfile() {
             <Button asChild variant="ghost" className="mb-5 w-fit">
               <Link to={venue.country_slug ? buildLocationPath(venue.country_slug, venue.city_slug) : "/explore/moments"}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to location
+                {t("venueProfile.back")}
               </Link>
             </Button>
 
             <div className="grid gap-8 lg:grid-cols-[1fr_340px] lg:items-end">
               <div className="flex flex-col gap-4">
                 <Badge variant="outline" className="w-fit border-primary/35 bg-primary/10 text-[11px] font-black uppercase tracking-[0.24em] text-primary">
-                  Place profile
+                  {t("venueProfile.label")}
                 </Badge>
                 <div>
                   <div className="flex flex-wrap items-center gap-3"><h1 className="max-w-4xl text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] sm:text-7xl">{venue.name}</h1><VerifiedPioneerBadge beneficiaryType="venue" beneficiaryId={venue.id} /></div>
                   <p className="mt-4 max-w-3xl text-base leading-7 text-white/68">
-                    {venue.description || "A public place page for browsing Moments, offers, proof paths, and creator content happening here."}
+                    {venue.description || t("venueProfile.fallback")}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
+                  {venue.listing_status === "unclaimed" ? <Badge variant="outline">{t("venueProfile.unclaimed")}</Badge> : null}
                   {venue.venue_type && <Badge variant="secondary">{venue.venue_type}</Badge>}
                   {venue.avg_rating ? (
                     <Badge variant="secondary">
@@ -206,26 +218,35 @@ export default function VenueProfile() {
                       {venue.avg_rating.toFixed(1)}
                     </Badge>
                   ) : null}
-                  <Badge variant="secondary">{venue.active_moments_count || 0} active Moments</Badge>
+                  <Badge variant="secondary">{t("venueProfile.activeMoments", { count: venue.active_moments_count || 0 })}</Badge>
                 </div>
+                {venue.listing_status === "unclaimed" ? (
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-white/68">
+                    <p>{t("venueProfile.unclaimedCopy")}</p>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <Button asChild size="sm" variant="secondary"><Link to="/join/venue">{t("venueProfile.claim")}</Link></Button>
+                      {venue.source_url ? <a href={venue.source_url} target="_blank" rel="noreferrer" className="text-xs underline">{venue.attribution_text || t("venueProfile.source")}</a> : null}
+                    </div>
+                  </div>
+                ) : null}
                 <div className="flex flex-wrap gap-4 text-sm text-white/62">
                   <span className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
-                    {formatLocationLabel(venue.city, venue.country) || venue.location || "Location pending"}
+                    {formatLocationLabel(venue.city, venue.country) || venue.location || t("venueProfile.locationPending")}
                   </span>
                   {venue.address && <span>{venue.address}</span>}
                 </div>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Proof at this place</p>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{t("venueProfile.proof")}</p>
                 <p className="mt-3 text-sm leading-6 text-white/64">
-                  Places matter when they help people move: attend, check in, redeem, record proof, and return with more status than they arrived with.
+                  {t("venueProfile.proofCopy")}
                 </p>
                 <div className="mt-5 grid grid-cols-3 gap-2">
                   {[
-                    ["Moments", moments.length],
-                    ["Offers", commerceListings.length],
-                    ["Content", content.length],
+                    [t("venueProfile.moments"), moments.length],
+                    [t("venueProfile.offers"), commerceListings.length],
+                    [t("venueProfile.content"), content.length],
                   ].map(([label, value]) => (
                     <div key={label} className="rounded-xl border border-white/10 bg-black/25 p-3 text-center">
                       <p className="text-xl font-black">{value}</p>
@@ -235,15 +256,33 @@ export default function VenueProfile() {
                 </div>
                 <div className="mt-5 grid gap-2 sm:grid-cols-2">
                   <Button asChild>
-                    <Link to="/explore/moments">Find a Moment</Link>
+                    <Link to="/explore/moments">{t("venueProfile.findMoment")}</Link>
                   </Button>
                   <Button asChild variant="outline" className="border-white/15 bg-white/[0.06] text-white hover:bg-white/[0.12] hover:text-white">
-                    <Link to="/marketplace">View offers</Link>
+                    <Link to="/marketplace">{t("venueProfile.viewOffers")}</Link>
                   </Button>
                 </div>
               </div>
             </div>
           </section>
+
+          {venue.listing_status === "unclaimed" && enrichmentOpportunities.length > 0 ? (
+            <section className="mt-8 rounded-[2rem] border border-primary/20 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.14),transparent_40%),rgba(255,255,255,0.025)] p-6 sm:p-8">
+              <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div><p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.24em] text-primary"><Telescope className="h-4 w-4"/>Scout enrichment</p><h2 className="mt-2 font-serif text-3xl font-bold">Help complete this Discovery.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Claim one missing fact, submit local proof, and become part of this place’s verification record. This does not claim ownership of the business.</p></div>
+                <Badge variant="outline" className="w-fit">{enrichmentOpportunities.length} open proofs</Badge>
+              </div>
+              <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {enrichmentOpportunities.map((opportunity) => (
+                  <article key={opportunity.id} className="flex min-h-48 flex-col justify-between rounded-2xl border border-border bg-card/80 p-5">
+                    <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{opportunity.field_key.replace(/_/g, " ")}</p><h3 className="mt-2 text-lg font-bold">{opportunity.title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{opportunity.instructions}</p></div>
+                    <div className="mt-5 flex items-center justify-between gap-3"><span className="text-xs font-bold text-amber-500">Eligible for {opportunity.reward_points} points after approval</span><Button size="sm" disabled={opportunity.status !== "open" || claimEnrichment.isPending} onClick={() => claimEnrichment.mutate(opportunity.id,{onSuccess:()=>toast.success("Scout mission claimed. Open your field desk to submit proof."),onError:(error:any)=>toast.error(error.message)})}>{opportunity.status === "open" ? "Claim proof" : "In progress"}</Button></div>
+                  </article>
+                ))}
+              </div>
+              <Button asChild variant="outline" className="mt-5"><Link to="/scout/enrichment">Open my Scout field desk</Link></Button>
+            </section>
+          ) : null}
 
           <div className="mt-10 space-y-12">
             <ValueExchangeSummary
@@ -264,8 +303,8 @@ export default function VenueProfile() {
             <section>
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Moments at this place</h2>
-                  <p className="text-sm text-muted-foreground">Public experiences where attendance can become proof, memory, and value.</p>
+                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">{t("venueProfile.momentsTitle")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("venueProfile.momentsCopy")}</p>
                 </div>
                 <Badge variant="secondary">{moments.length}</Badge>
               </div>
@@ -284,7 +323,7 @@ export default function VenueProfile() {
                 </MasonryGrid>
               ) : (
                 <div className="rounded-3xl border border-dashed border-border bg-muted/20 px-6 py-10 text-center text-muted-foreground">
-                  No active moments are linked to this venue yet.
+                  {t("venueProfile.noMoments")}
                 </div>
               )}
             </section>
@@ -292,8 +331,8 @@ export default function VenueProfile() {
             <section>
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Offers and services</h2>
-                  <p className="text-sm text-muted-foreground">Public offers, redemptions, and bookable services that can connect Wallet value to real-world action.</p>
+                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">{t("venueProfile.offersTitle")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("venueProfile.offersCopy")}</p>
                 </div>
                 <Badge variant="secondary">{commerceListings.length}</Badge>
               </div>
@@ -351,7 +390,7 @@ export default function VenueProfile() {
                 </div>
               ) : (
                 <div className="rounded-3xl border border-dashed border-border bg-muted/20 px-6 py-10 text-center text-muted-foreground">
-                  No public products or services are attached to this venue yet.
+                  {t("venueProfile.noOffers")}
                 </div>
               )}
             </section>
@@ -359,8 +398,8 @@ export default function VenueProfile() {
             <section>
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Linked content</h2>
-                  <p className="text-sm text-muted-foreground">Content that points people toward this place, a Moment, or a proof path.</p>
+                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">{t("venueProfile.linkedContent")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("venueProfile.linkedContentCopy")}</p>
                 </div>
                 <Badge variant="secondary">{content.length}</Badge>
               </div>
@@ -372,7 +411,7 @@ export default function VenueProfile() {
                 </div>
               ) : (
                 <div className="rounded-3xl border border-dashed border-border bg-muted/20 px-6 py-10 text-center text-muted-foreground">
-                  No linked content is attached to this venue yet.
+                  {t("venueProfile.noContent")}
                 </div>
               )}
             </section>

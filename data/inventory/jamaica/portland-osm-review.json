@@ -1,0 +1,5512 @@
+{
+  "schema_version": 1,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Portland, Jamaica",
+    "parish": "Portland",
+    "iso_code": "JM-04",
+    "collected_at": "2026-08-22T01:46:32.383Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "stats": {
+    "source_elements": 156,
+    "candidates": 137,
+    "pending_review": 10,
+    "needs_research": 127
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/290802032",
+      "source_url": "https://www.openstreetmap.org/node/290802032",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 290802032,
+        "lat": 18.1951187,
+        "lon": -76.5541102,
+        "tags": {
+          "addr:country": "JM",
+          "description": "Waterfall area in steeply walled gorge. Artificially landscape with pools.",
+          "name": "Somerset Falls",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Somerset Falls",
+        "address": "Portland, JM",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1951187,
+        "longitude": -76.5541102,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b0e4c472c223b8ebd54f94753e0c64a78396ed5fc8280a6d4bc3b3d82f7e521e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/812631452",
+      "source_url": "https://www.openstreetmap.org/node/812631452",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 812631452,
+        "lat": 18.1784164,
+        "lon": -76.3935293,
+        "tags": {
+          "name": "Alligator Head",
+          "tourism": "viewpoint"
+        }
+      },
+      "normalized_data": {
+        "name": "Alligator Head",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1784164,
+        "longitude": -76.3935293,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "viewpoint"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c238c2e60388300df6c8a6fa9650af378c77a18cb3572541414cce23e0bb2246",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2529713489",
+      "source_url": "https://www.openstreetmap.org/node/2529713489",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2529713489,
+        "lat": 18.1819532,
+        "lon": -76.4588199,
+        "tags": {
+          "leisure": "marina",
+          "name": "Errol Flynn Marina Boatyard",
+          "seamark:harbour:category": "marina",
+          "seamark:type": "harbour"
+        }
+      },
+      "normalized_data": {
+        "name": "Errol Flynn Marina Boatyard",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1819532,
+        "longitude": -76.4588199,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marina"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "29f988d4cdc68043a3978604e7844e43770072ece00edee93f45c25d0eb9769c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2529716401",
+      "source_url": "https://www.openstreetmap.org/node/2529716401",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2529716401,
+        "lat": 18.180185,
+        "lon": -76.4567495,
+        "tags": {
+          "designation": "wharehouse/wharf",
+          "leisure": "marina",
+          "name": "Boundbrook Wharf",
+          "seamark:harbour:category": "marina",
+          "seamark:type": "harbour"
+        }
+      },
+      "normalized_data": {
+        "name": "Boundbrook Wharf",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.180185,
+        "longitude": -76.4567495,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marina"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "55ca7a874a89c0883e70da85eb3f49dd80b622ebe509e8d4345cbee795aa8f58",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2533653648",
+      "source_url": "https://www.openstreetmap.org/node/2533653648",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2533653648,
+        "lat": 18.1719957,
+        "lon": -76.4541568,
+        "tags": {
+          "name": "Bonnie View Hotel",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Bonnie View Hotel",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1719957,
+        "longitude": -76.4541568,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "940b9bf1750f91f4c2bd6cb5327b7fddf065dfeb52fdd9b3d62abe99c959391e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2761764389",
+      "source_url": "https://www.openstreetmap.org/node/2761764389",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2761764389,
+        "lat": 18.1737364,
+        "lon": -76.4001655,
+        "tags": {
+          "name": "Frenchman's Cove Resort",
+          "tourism": "hotel",
+          "wikidata": "Q5502703"
+        }
+      },
+      "normalized_data": {
+        "name": "Frenchman's Cove Resort",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1737364,
+        "longitude": -76.4001655,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3813f487157f303f420084c840d8df4381fdc053ea83e952717e5be29109189d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2774889821",
+      "source_url": "https://www.openstreetmap.org/node/2774889821",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2774889821,
+        "lat": 18.1440933,
+        "lon": -76.477595,
+        "tags": {
+          "name": "Rafting on the Rio Grande",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Rafting on the Rio Grande",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1440933,
+        "longitude": -76.477595,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e1cbf85da5e15f0a32335316d9715edfa20b81058863d47245c690a8b4986a98",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3005053829",
+      "source_url": "https://www.openstreetmap.org/node/3005053829",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3005053829,
+        "lat": 18.0752255,
+        "lon": -76.2915571,
+        "tags": {
+          "name": "Jamaican Colors",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Jamaican Colors",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.0752255,
+        "longitude": -76.2915571,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fd3ca7c87ec8bee71dfd134e38c5f255be8a882d47c5cf0af853830fe957e276",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3036780683",
+      "source_url": "https://www.openstreetmap.org/node/3036780683",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3036780683,
+        "lat": 18.0305794,
+        "lon": -76.3117493,
+        "tags": {
+          "name": "Reach Falls",
+          "opening_hours": "08:30-16:30",
+          "phone": "+1(876) 276-8663",
+          "source": "KG Ground Survey 2015",
+          "tourism": "attraction",
+          "waterway": "waterfall",
+          "website": "https://www.udcja.com/reach-falls"
+        }
+      },
+      "normalized_data": {
+        "name": "Reach Falls",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.0305794,
+        "longitude": -76.3117493,
+        "category": "attraction",
+        "phone": "+1(876) 276-8663",
+        "website": "https://www.udcja.com/reach-falls",
+        "opening_hours": "08:30-16:30",
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0e3ec1a554d4b37d1afab190828bf9b2fdf06c477445c740d2ce43e5fe20dcfa",
+      "confidence": 0.85,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3202931204",
+      "source_url": "https://www.openstreetmap.org/node/3202931204",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3202931204,
+        "lat": 18.1763962,
+        "lon": -76.4090682,
+        "tags": {
+          "name": "Search-Me-Heart",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Search-Me-Heart",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1763962,
+        "longitude": -76.4090682,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "89f093043ccbb6a55eb751b747c7013222a63b3f6e66edec23fc9c57416bc824",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3208720978",
+      "source_url": "https://www.openstreetmap.org/node/3208720978",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3208720978,
+        "lat": 18.0319951,
+        "lon": -76.276451,
+        "tags": {
+          "name": "Zion Country Beach Cabins",
+          "tourism": "hostel"
+        }
+      },
+      "normalized_data": {
+        "name": "Zion Country Beach Cabins",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.0319951,
+        "longitude": -76.276451,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hostel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "89d19c9496073673d14350d746cceaf74f7299002ca232bbe3e308d3dd2b967b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3419898434",
+      "source_url": "https://www.openstreetmap.org/node/3419898434",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3419898434,
+        "lat": 18.1133155,
+        "lon": -76.3189528,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "chicken",
+          "name": "Y & V Sea View"
+        }
+      },
+      "normalized_data": {
+        "name": "Y & V Sea View",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1133155,
+        "longitude": -76.3189528,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6c88e21a58b4fe4d4912db624ab28f08a40ca84888742a5c4f932e8640daabd0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3464190693",
+      "source_url": "https://www.openstreetmap.org/node/3464190693",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3464190693,
+        "lat": 18.1595691,
+        "lon": -76.3566074,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Boston Jerk Center"
+        }
+      },
+      "normalized_data": {
+        "name": "Boston Jerk Center",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1595691,
+        "longitude": -76.3566074,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "80ff4882cc5405fbf00bffe8ffa7e1991f6171bbc6bdc5d88a6e3213511c3c3d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3583554318",
+      "source_url": "https://www.openstreetmap.org/node/3583554318",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3583554318,
+        "lat": 18.1040021,
+        "lon": -76.3164891,
+        "tags": {
+          "amenity": "bar",
+          "name": "Chill Out Beach Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Chill Out Beach Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1040021,
+        "longitude": -76.3164891,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "54abe8c544f09329e5ced18f91094e394c120096363a691a370baf6b188ef19b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3583568307",
+      "source_url": "https://www.openstreetmap.org/node/3583568307",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3583568307,
+        "lat": 18.1759195,
+        "lon": -76.4074931,
+        "tags": {
+          "name": "Drapers San Guest House",
+          "tourism": "guest_house",
+          "wikidata": "Q111884735"
+        }
+      },
+      "normalized_data": {
+        "name": "Drapers San Guest House",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1759195,
+        "longitude": -76.4074931,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b539bf4d0a5b2d7a5d5e00f65917bf516638bff366550c4cba7f138680713e8b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3793385070",
+      "source_url": "https://www.openstreetmap.org/node/3793385070",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3793385070,
+        "lat": 18.1789015,
+        "lon": -76.4520445,
+        "tags": {
+          "amenity": "bar",
+          "name": "Sports Bar & Lounge",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Sports Bar & Lounge",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1789015,
+        "longitude": -76.4520445,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a2afc5f6f16f6a82c9400eb162531dea3612174cd0d00b4fa203eecfea6e9e72",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3793392031",
+      "source_url": "https://www.openstreetmap.org/node/3793392031",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3793392031,
+        "lat": 18.1778006,
+        "lon": -76.453287,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Heaven's Delight Cafe & Grill",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Heaven's Delight Cafe & Grill",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1778006,
+        "longitude": -76.453287,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "89f9a75e525df6231a26ac63303b8120e05255cc1eed822b4bc732a409c7c5fd",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3793392046",
+      "source_url": "https://www.openstreetmap.org/node/3793392046",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3793392046,
+        "lat": 18.1776943,
+        "lon": -76.455616,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Sunshine Restaurant",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Sunshine Restaurant",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1776943,
+        "longitude": -76.455616,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0665867be0bfadfae46cf64bd1763a70d978a6c7da94b8e9542b85d397b1a947",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4399419389",
+      "source_url": "https://www.openstreetmap.org/node/4399419389",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4399419389,
+        "lat": 18.1783843,
+        "lon": -76.4534232,
+        "tags": {
+          "level": "1",
+          "name": "AJohns",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "AJohns",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1783843,
+        "longitude": -76.4534232,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e4e20d39e078d2bb7e953c85881e210eef2de9f453889893ef65a48e9c35fd88",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4400889336",
+      "source_url": "https://www.openstreetmap.org/node/4400889336",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4400889336,
+        "lat": 18.0139888,
+        "lon": -76.2695619,
+        "tags": {
+          "addr:city": "Portland, Jamaica W.I.",
+          "addr:street": "Muirton Pen P.A. (Long Road)",
+          "name": "Zion Country Eco Beach Cabins",
+          "rooms": "5",
+          "tourism": "hotel",
+          "wikidata": "Q111113477"
+        }
+      },
+      "normalized_data": {
+        "name": "Zion Country Eco Beach Cabins",
+        "address": "Muirton Pen P.A. (Long Road), Portland, Jamaica W.I., Jamaica",
+        "city": "Portland, Jamaica W.I.",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.0139888,
+        "longitude": -76.2695619,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5b7aa1a7da16bf51039cf491fa638055ad1f0606b3c16d1c26606574f6f7bbeb",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4711603789",
+      "source_url": "https://www.openstreetmap.org/node/4711603789",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4711603789,
+        "lat": 18.1794753,
+        "lon": -76.4520072,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Jamaica Brezze Restaurant",
+          "name:en": "Jamaica Brezze Restaurant"
+        }
+      },
+      "normalized_data": {
+        "name": "Jamaica Brezze Restaurant",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1794753,
+        "longitude": -76.4520072,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ce55e9da469148774ab819f4b13e68b0fb7e100e373823bdd5caae34fb2a87d8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5037574557",
+      "source_url": "https://www.openstreetmap.org/node/5037574557",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5037574557,
+        "lat": 18.1720159,
+        "lon": -76.3917267,
+        "tags": {
+          "addr:city": "Port Antonio",
+          "addr:country": "JM",
+          "addr:street": "Goblin Hill",
+          "email": "frontdesk@goblinhill.com",
+          "name": "Goblin Hill Villas at San San",
+          "phone": "+1 876 993 7443",
+          "tourism": "hotel",
+          "website": "https://www.goblinhillvillas.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Goblin Hill Villas at San San",
+        "address": "Goblin Hill, Port Antonio, JM",
+        "city": "Port Antonio",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1720159,
+        "longitude": -76.3917267,
+        "category": "accommodation",
+        "phone": "+1 876 993 7443",
+        "website": "https://www.goblinhillvillas.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "88543fe79d6b51c918b8bedcebf9ec019c5c69e688ba49a8a4c41b992c67e74e",
+      "confidence": 0.9,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5063269521",
+      "source_url": "https://www.openstreetmap.org/node/5063269521",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5063269521,
+        "lat": 18.1757722,
+        "lon": -76.4091385,
+        "tags": {
+          "amenity": "bar",
+          "name": "Natural Mystic",
+          "name:en": "Natural Mystic"
+        }
+      },
+      "normalized_data": {
+        "name": "Natural Mystic",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1757722,
+        "longitude": -76.4091385,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a18cf2e98fdc0fc47c81bab3e1f9a6e01dc43076b61d1d7bb5324ed3029f5eec",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5199200396",
+      "source_url": "https://www.openstreetmap.org/node/5199200396",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5199200396,
+        "lat": 18.1768178,
+        "lon": -76.4501637,
+        "tags": {
+          "addr:housenumber": "4",
+          "addr:street": "Bridge Street",
+          "amenity": "restaurant",
+          "name": "Zillla's Kitchen",
+          "phone": "4536030"
+        }
+      },
+      "normalized_data": {
+        "name": "Zillla's Kitchen",
+        "address": "4 Bridge Street, Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1768178,
+        "longitude": -76.4501637,
+        "category": "restaurant",
+        "phone": "4536030",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1861817525facb3bef08ea803e7efe6a4d4d3af877e654e1941b262cde9675a1",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5229165823",
+      "source_url": "https://www.openstreetmap.org/node/5229165823",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5229165823,
+        "lat": 18.1729807,
+        "lon": -76.4510214,
+        "tags": {
+          "internet_access": "wlan",
+          "name": "Mangoridge Guest House",
+          "operator": "Michael",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Mangoridge Guest House",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1729807,
+        "longitude": -76.4510214,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e693682a8fb33b2555adc3873a8a48bbd912481cd5fb678328f3f6c6db67b2a6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5229175121",
+      "source_url": "https://www.openstreetmap.org/node/5229175121",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5229175121,
+        "lat": 18.1787145,
+        "lon": -76.4410442,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "fish",
+          "name": "Troy's Sea Food"
+        }
+      },
+      "normalized_data": {
+        "name": "Troy's Sea Food",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1787145,
+        "longitude": -76.4410442,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "fish"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9ed87377eda75e54d23c01b73716e9507051d8a3b9105e174b4dc83ce1791742",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5229175221",
+      "source_url": "https://www.openstreetmap.org/node/5229175221",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5229175221,
+        "lat": 18.1793127,
+        "lon": -76.4403288,
+        "tags": {
+          "amenity": "bar",
+          "name": "Ackee Tree Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Ackee Tree Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1793127,
+        "longitude": -76.4403288,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "157b60af338a3f7a6df0c6cb848ed94906e7951aafa3e7b0ca3891b60aecd6da",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5423724227",
+      "source_url": "https://www.openstreetmap.org/node/5423724227",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5423724227,
+        "lat": 18.162754,
+        "lon": -76.3831532,
+        "tags": {
+          "email": "b_zdroik@yahoo.com",
+          "internet_access": "wlan",
+          "name": "Polish Princess Guest House (Correct Location)",
+          "phone": "+876 289 7005",
+          "tourism": "guest_house",
+          "website": "https://www.polishprincessguesthouse.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Polish Princess Guest House (Correct Location)",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.162754,
+        "longitude": -76.3831532,
+        "category": "accommodation",
+        "phone": "+876 289 7005",
+        "website": "https://www.polishprincessguesthouse.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "03e631042c106fe9be87e6f150a6ef01f27347beb6832d4a247afd5c01d7f415",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5636155521",
+      "source_url": "https://www.openstreetmap.org/node/5636155521",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5636155521,
+        "lat": 18.1767603,
+        "lon": -76.4493783,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Veggie Place"
+        }
+      },
+      "normalized_data": {
+        "name": "Veggie Place",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1767603,
+        "longitude": -76.4493783,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4a4e99be5181beb604aadd42616c7c88f75d9d1521da104acc474671c7ca3d80",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5704168429",
+      "source_url": "https://www.openstreetmap.org/node/5704168429",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5704168429,
+        "lat": 18.209047,
+        "lon": -76.6735768,
+        "tags": {
+          "name": "Plum Valley",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Plum Valley",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.209047,
+        "longitude": -76.6735768,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "46aae9a9bea1fc1585a682f41c977c56cf787b6665e53a06e3a6407beeb400e0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5760905921",
+      "source_url": "https://www.openstreetmap.org/node/5760905921",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5760905921,
+        "lat": 18.1783742,
+        "lon": -76.4511249,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Jerk center and burgers"
+        }
+      },
+      "normalized_data": {
+        "name": "Jerk center and burgers",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1783742,
+        "longitude": -76.4511249,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2f877c253ebc319c897eceec2dab3e05d437d172a82bf42afa4690c87c73be9d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5771905753",
+      "source_url": "https://www.openstreetmap.org/node/5771905753",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5771905753,
+        "lat": 18.1035538,
+        "lon": -76.3159625,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "D plug bar and restaurant"
+        }
+      },
+      "normalized_data": {
+        "name": "D plug bar and restaurant",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1035538,
+        "longitude": -76.3159625,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9f31affd02555ba90d407ba35537cbc001bb3609eb5bfe927798e48c5bcef606",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6595307485",
+      "source_url": "https://www.openstreetmap.org/node/6595307485",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6595307485,
+        "lat": 18.1777751,
+        "lon": -76.4023822,
+        "tags": {
+          "name": "Cannon Cliff",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Cannon Cliff",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1777751,
+        "longitude": -76.4023822,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "21b32541821abc8246a33c4487179e84920051264d169f25f776b831eb652fba",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6795232585",
+      "source_url": "https://www.openstreetmap.org/node/6795232585",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6795232585,
+        "lat": 18.1493319,
+        "lon": -76.3758746,
+        "tags": {
+          "name": "Hill side Hostel (real location)",
+          "tourism": "hostel"
+        }
+      },
+      "normalized_data": {
+        "name": "Hill side Hostel (real location)",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1493319,
+        "longitude": -76.3758746,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hostel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0a5db392d42f548d0a273ed89d1244f0402fa0d3ac2e5ca0c75f4e181f95a05d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6951891044",
+      "source_url": "https://www.openstreetmap.org/node/6951891044",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6951891044,
+        "lat": 18.1500063,
+        "lon": -76.7174838,
+        "tags": {
+          "alt_name": "Big Dunn Falls, Avocat Falls, Black Bridge Waterfall",
+          "name": "Fish Dun Falls",
+          "tourism": "attraction",
+          "waterway": "waterfall"
+        }
+      },
+      "normalized_data": {
+        "name": "Fish Dun Falls",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1500063,
+        "longitude": -76.7174838,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "95905d5fe077f16ee901224cb4429240d7740a4ca51ff17d6882e31a1840a817",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6978526280",
+      "source_url": "https://www.openstreetmap.org/node/6978526280",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6978526280,
+        "lat": 18.0742868,
+        "lon": -76.2960577,
+        "tags": {
+          "name": "Devil's Elbow",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Devil's Elbow",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.0742868,
+        "longitude": -76.2960577,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9a7d721f010a0875e3ffb6df07bbd0ee5bb155d43db8237b9edf99fa580dbb06",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7015650239",
+      "source_url": "https://www.openstreetmap.org/node/7015650239",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7015650239,
+        "lat": 18.0964985,
+        "lon": -76.7167662,
+        "tags": {
+          "name": "Waterfall Viewpoint",
+          "tourism": "viewpoint"
+        }
+      },
+      "normalized_data": {
+        "name": "Waterfall Viewpoint",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.0964985,
+        "longitude": -76.7167662,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "viewpoint"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e547fabd976b2bbf756b8b77ae481c0850fdc815706fc975a108c01d9b404635",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7030111794",
+      "source_url": "https://www.openstreetmap.org/node/7030111794",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7030111794,
+        "lat": 18.1645514,
+        "lon": -76.370816,
+        "tags": {
+          "name": "Easyman Guesthouse",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Easyman Guesthouse",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1645514,
+        "longitude": -76.370816,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0b1d173a1f27887f9583b5e6d5a466b1a8f8e5007be4a7ac2d5f57f2b7684fd2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7039232848",
+      "source_url": "https://www.openstreetmap.org/node/7039232848",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7039232848,
+        "lat": 18.1819902,
+        "lon": -76.6542935,
+        "tags": {
+          "name": "Bybrook Valley",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Bybrook Valley",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1819902,
+        "longitude": -76.6542935,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6a8b9c8a13ac2023dab48842c0efe8b5d3d4b1b9605b7be59df4af370af915dd",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7039486344",
+      "source_url": "https://www.openstreetmap.org/node/7039486344",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7039486344,
+        "lat": 18.1290492,
+        "lon": -76.6873813,
+        "tags": {
+          "name": "Bremen Valley",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Bremen Valley",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1290492,
+        "longitude": -76.6873813,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5ba914cc9f8c4e213271aaeff0cbc4de81dfb3fcc1628054f06d70ca0d274066",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7061124030",
+      "source_url": "https://www.openstreetmap.org/node/7061124030",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7061124030,
+        "lat": 18.2119351,
+        "lon": -76.7106253,
+        "tags": {
+          "name": "Prior Park",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Prior Park",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.2119351,
+        "longitude": -76.7106253,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c4265c57f2f9238bf7f9b45f9188a21c63b8e76b31075e5e07d6a6c18f12521b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7061702956",
+      "source_url": "https://www.openstreetmap.org/node/7061702956",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7061702956,
+        "lat": 18.194958,
+        "lon": -76.6765478,
+        "tags": {
+          "historic": "ruins",
+          "name": "Orange Vale Plantation Ruins (18th c.)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Orange Vale Plantation Ruins (18th c.)",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.194958,
+        "longitude": -76.6765478,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d8cb828cf7f66a1ce7e7389cb0c728a6dd5d71e6b89e6efcc3afcbbbdf24cb40",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7061716826",
+      "source_url": "https://www.openstreetmap.org/node/7061716826",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7061716826,
+        "lat": 18.1735756,
+        "lon": -76.434575,
+        "tags": {
+          "name": "Hotel Mockingbird Hill",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Mockingbird Hill",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1735756,
+        "longitude": -76.434575,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "db1f4543f4e23f9ffb2a95bbae0403a3cc873c33acc224bfc82653d04828cc07",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7061815769",
+      "source_url": "https://www.openstreetmap.org/node/7061815769",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7061815769,
+        "lat": 18.2006631,
+        "lon": -76.6745228,
+        "tags": {
+          "name": "Quao’s Village",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Quao’s Village",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.2006631,
+        "longitude": -76.6745228,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "abb48e4d4ce6145b73c8aa53b061eb8fdbedcee75173108ffe545a7eae34e5c8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7200489194",
+      "source_url": "https://www.openstreetmap.org/node/7200489194",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7200489194,
+        "lat": 18.1545218,
+        "lon": -76.3578617,
+        "tags": {
+          "email": "omarevans66@gmail.com",
+          "name": "Hakuna Matata",
+          "phone": "+1 876-559-6206",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Hakuna Matata",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1545218,
+        "longitude": -76.3578617,
+        "category": "accommodation",
+        "phone": "+1 876-559-6206",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "40a90fe7887b02dc0130d717d795242c65c42360afafc4291cad9a8bacfaac3b",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11929535825",
+      "source_url": "https://www.openstreetmap.org/node/11929535825",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11929535825,
+        "lat": 18.1816525,
+        "lon": -76.4605081,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Auhsoj Chill Grill"
+        }
+      },
+      "normalized_data": {
+        "name": "Auhsoj Chill Grill",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1816525,
+        "longitude": -76.4605081,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ef913f5b966a1478caebfb3e3736098e9b900bc668ddd9d787accca125fb951c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11931463853",
+      "source_url": "https://www.openstreetmap.org/node/11931463853",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11931463853,
+        "lat": 18.1781754,
+        "lon": -76.4531674,
+        "tags": {
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "cuisine": "chicken",
+          "name": "KFC",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1781754,
+        "longitude": -76.4531674,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9704b22a914a89f29d68373503c958e11c41a7974dadb00f8b1c4762448576f2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11932186278",
+      "source_url": "https://www.openstreetmap.org/node/11932186278",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11932186278,
+        "lat": 18.1800908,
+        "lon": -76.4515354,
+        "tags": {
+          "amenity": "bar",
+          "name": "Dé Secret's Sports Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Dé Secret's Sports Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1800908,
+        "longitude": -76.4515354,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f721242f80df8d53cb02340ab6a28d7d064d0a2b89f86495dff056881efaee38",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11932186279",
+      "source_url": "https://www.openstreetmap.org/node/11932186279",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11932186279,
+        "lat": 18.1800526,
+        "lon": -76.451298,
+        "tags": {
+          "amenity": "restaurant",
+          "level": "2",
+          "name": "Fusion Bites"
+        }
+      },
+      "normalized_data": {
+        "name": "Fusion Bites",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1800526,
+        "longitude": -76.451298,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c486df6134e071da7dc9b1006a11249885119ea3d0a38d6380bbdd3e52dfe255",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11937031114",
+      "source_url": "https://www.openstreetmap.org/node/11937031114",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11937031114,
+        "lat": 18.1776365,
+        "lon": -76.4536058,
+        "tags": {
+          "name": "Hamilton's Book Store",
+          "shop": "books"
+        }
+      },
+      "normalized_data": {
+        "name": "Hamilton's Book Store",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1776365,
+        "longitude": -76.4536058,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ef77bcdf2a1402cc7bbdb6ab0e49513078e7e0820d37a8525c51afdb9d6df0ba",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11937031125",
+      "source_url": "https://www.openstreetmap.org/node/11937031125",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11937031125,
+        "lat": 18.1777386,
+        "lon": -76.4532409,
+        "tags": {
+          "name": "Essie's Department Store",
+          "shop": "department_store"
+        }
+      },
+      "normalized_data": {
+        "name": "Essie's Department Store",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1777386,
+        "longitude": -76.4532409,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "50d9f1e07adb19e1fbf6e07f1677c03eca97cba7138a67cee35955964001260c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11938638769",
+      "source_url": "https://www.openstreetmap.org/node/11938638769",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11938638769,
+        "lat": 18.1819095,
+        "lon": -76.4679093,
+        "tags": {
+          "amenity": "bar",
+          "name": "Yaad Vybz Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Yaad Vybz Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1819095,
+        "longitude": -76.4679093,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5323f7a2ee4e321d48379ac609b8c164a235850ac23361a9065e1b1948b60a64",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11959449212",
+      "source_url": "https://www.openstreetmap.org/node/11959449212",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11959449212,
+        "lat": 18.1795152,
+        "lon": -76.4600516,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Roots 21 Bar & Kitchen"
+        }
+      },
+      "normalized_data": {
+        "name": "Roots 21 Bar & Kitchen",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1795152,
+        "longitude": -76.4600516,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "04030a69006fc94f448c725e1e12f8cfd155931bb3d893a3935704b7d95a1d86",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11959449213",
+      "source_url": "https://www.openstreetmap.org/node/11959449213",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11959449213,
+        "lat": 18.1792974,
+        "lon": -76.4601495,
+        "tags": {
+          "amenity": "nightclub",
+          "name": "Cristal Nightclub"
+        }
+      },
+      "normalized_data": {
+        "name": "Cristal Nightclub",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1792974,
+        "longitude": -76.4601495,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "nightclub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7d1767edcdca8bd3f4151381cd60b69e5f5d2904ecff769fd769894c02310de8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11973991912",
+      "source_url": "https://www.openstreetmap.org/node/11973991912",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11973991912,
+        "lat": 18.1792809,
+        "lon": -76.4592963,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Savis Cook Shop"
+        }
+      },
+      "normalized_data": {
+        "name": "Savis Cook Shop",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1792809,
+        "longitude": -76.4592963,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b1c098436571bf488e84f46713baa7271097fc9221136cfe10eac43902ceff98",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/11993135180",
+      "source_url": "https://www.openstreetmap.org/node/11993135180",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 11993135180,
+        "lat": 18.1787707,
+        "lon": -76.4505656,
+        "tags": {
+          "amenity": "fast_food",
+          "name": "Patty Express"
+        }
+      },
+      "normalized_data": {
+        "name": "Patty Express",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1787707,
+        "longitude": -76.4505656,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a492db9b7ca4de8e7982f0b36eebe2a0814ac5b75366ea861d4051cd51ce43a7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12001895937",
+      "source_url": "https://www.openstreetmap.org/node/12001895937",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12001895937,
+        "lat": 18.1820021,
+        "lon": -76.464587,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Canery's Restaurant"
+        }
+      },
+      "normalized_data": {
+        "name": "Canery's Restaurant",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1820021,
+        "longitude": -76.464587,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cbc5271587e2ff5d02634ec35c4acd6fa5031a308bbf4f14db729fd891616f16",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12118453522",
+      "source_url": "https://www.openstreetmap.org/node/12118453522",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12118453522,
+        "lat": 18.1809608,
+        "lon": -76.4611685,
+        "tags": {
+          "addr:city": "Port Antonio",
+          "addr:housenumber": "Shop #10",
+          "addr:street": "Boundbrook Plaza",
+          "name": "Auntie Marlene's Books and Supplies",
+          "shop": "books"
+        }
+      },
+      "normalized_data": {
+        "name": "Auntie Marlene's Books and Supplies",
+        "address": "Shop #10 Boundbrook Plaza, Port Antonio, Jamaica",
+        "city": "Port Antonio",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1809608,
+        "longitude": -76.4611685,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0df74b9e4d62dbc549a996b55f75c1e0885ba35bd70603a8818295f034c04b19",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12145993069",
+      "source_url": "https://www.openstreetmap.org/node/12145993069",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12145993069,
+        "lat": 18.1785558,
+        "lon": -76.4535497,
+        "tags": {
+          "amenity": "bar",
+          "name": "Irie Vibes Sports Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Irie Vibes Sports Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1785558,
+        "longitude": -76.4535497,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c9ac31ec82cb1e4abf725b50ce4ffa7e4cd6f0c77a3aba80c2edf6774ee3d665",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12145993070",
+      "source_url": "https://www.openstreetmap.org/node/12145993070",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12145993070,
+        "lat": 18.1794942,
+        "lon": -76.4510607,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Auhsoj Chill Grill"
+        }
+      },
+      "normalized_data": {
+        "name": "Auhsoj Chill Grill",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1794942,
+        "longitude": -76.4510607,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "91ca532f305f2794daecafa60a19fd47dd0237a851772d2c4ae6617855a36b4d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12451415152",
+      "source_url": "https://www.openstreetmap.org/node/12451415152",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12451415152,
+        "lat": 18.1597409,
+        "lon": -76.35544,
+        "tags": {
+          "check_date": "2024-12-25",
+          "name": "Great Huts",
+          "tourism": "hotel",
+          "wikidata": "Q111414719"
+        }
+      },
+      "normalized_data": {
+        "name": "Great Huts",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1597409,
+        "longitude": -76.35544,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bed32e84ca7e0cb8382ab5635f309f9a8f9c3dd0ae702a353a7672f073d23811",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12772948556",
+      "source_url": "https://www.openstreetmap.org/node/12772948556",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12772948556,
+        "lat": 18.0955373,
+        "lon": -76.7168655,
+        "tags": {
+          "name": "Cascade Falls Viewpoint",
+          "tourism": "viewpoint"
+        }
+      },
+      "normalized_data": {
+        "name": "Cascade Falls Viewpoint",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.0955373,
+        "longitude": -76.7168655,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "viewpoint"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "98db4ba3ff13afb838766fa82cb0d929e7436cf50b60b424754f551efe032a47",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/13415897101",
+      "source_url": "https://www.openstreetmap.org/node/13415897101",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 13415897101,
+        "lat": 18.2027354,
+        "lon": -76.5638575,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "breakfast;caribbean;chicken;coffee_shop;fish;grill",
+          "name": "Rolex Restaurant & Pastries"
+        }
+      },
+      "normalized_data": {
+        "name": "Rolex Restaurant & Pastries",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.2027354,
+        "longitude": -76.5638575,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "breakfast;caribbean;chicken;coffee_shop;fish;grill"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0b2b8b8cbda1b9171b5b510d034d9390a5cd57894d62b3ee121597792cb33388",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/13422320401",
+      "source_url": "https://www.openstreetmap.org/node/13422320401",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "node",
+        "id": 13422320401,
+        "lat": 18.1000024,
+        "lon": -76.3141696,
+        "tags": {
+          "name": "Serenity Heights Air BnB",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Serenity Heights Air BnB",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1000024,
+        "longitude": -76.3141696,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9513eb65d3646fd7b0e3fef951a2df02a9388dfdfd227e95bb1f7fda50c477a8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/314245563",
+      "source_url": "https://www.openstreetmap.org/way/314245563",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 314245563,
+        "center": {
+          "lat": 18.1745629,
+          "lon": -76.4169397
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Jamaica Palace",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel",
+          "wikidata": "Q111884734"
+        }
+      },
+      "normalized_data": {
+        "name": "Jamaica Palace",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1745629,
+        "longitude": -76.4169397,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b5abaec0089b0fa218d7e7d45e718065089a5e81515c061cb5ae16140ecd9976",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/335369251",
+      "source_url": "https://www.openstreetmap.org/way/335369251",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 335369251,
+        "center": {
+          "lat": 18.1771215,
+          "lon": -76.4498685
+        },
+        "tags": {
+          "alt_name": "Port Antonio's Anglican Church",
+          "amenity": "place_of_worship",
+          "building": "yes",
+          "name": "Christ Church (1840)",
+          "religion": "christian",
+          "source": "KG Ground Survey 2015",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Christ Church (1840)",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1771215,
+        "longitude": -76.4498685,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "place_of_worship",
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "53c69146fb68e770979cca67a7eb1c88da1b1cd834e8d3c3920016a09266b9a5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/356360332",
+      "source_url": "https://www.openstreetmap.org/way/356360332",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 356360332,
+        "center": {
+          "lat": 18.1746138,
+          "lon": -76.4438785
+        },
+        "tags": {
+          "addr:city": "Fairy Hill",
+          "addr:housenumber": "58",
+          "addr:postcode": "JMBPD05",
+          "addr:street": "Withsum cress",
+          "building": "yes",
+          "guest_house": "hostel",
+          "internet_access": "yes",
+          "internet_access:fee": "yes",
+          "name": "Porty Hostel",
+          "operator": "owner",
+          "rooms": "3",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hostel"
+        }
+      },
+      "normalized_data": {
+        "name": "Porty Hostel",
+        "address": "58 Withsum cress, Fairy Hill, Jamaica",
+        "city": "Fairy Hill",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1746138,
+        "longitude": -76.4438785,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hostel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3380fae1b5a49e681b030f88d51d568edd6ebada48d18058775acc8095f40f6e",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/368224654",
+      "source_url": "https://www.openstreetmap.org/way/368224654",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 368224654,
+        "center": {
+          "lat": 18.1795147,
+          "lon": -76.4403665
+        },
+        "tags": {
+          "addr:city": "Port Antonio",
+          "addr:housenumber": "7",
+          "addr:street": "Folly Road",
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "regional",
+          "name": "Anna Banana",
+          "opening_hours": "Mo-Su 10:00-22:00",
+          "phone": "876 715-6533",
+          "phone2": "876 542-1697",
+          "source": "KG Ground Survey 2015",
+          "website": "https://www.wiyardannabanana.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Anna Banana",
+        "address": "7 Folly Road, Port Antonio, Jamaica",
+        "city": "Port Antonio",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1795147,
+        "longitude": -76.4403665,
+        "category": "restaurant",
+        "phone": "876 715-6533",
+        "website": "https://www.wiyardannabanana.com/",
+        "opening_hours": "Mo-Su 10:00-22:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4a1aa1d146354e58c737aeda4a040341abb47c7f694f622954cc16398531cd30",
+      "confidence": 0.95,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/368225368",
+      "source_url": "https://www.openstreetmap.org/way/368225368",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 368225368,
+        "center": {
+          "lat": 18.180679,
+          "lon": -76.4519626
+        },
+        "tags": {
+          "addr:city": "Port Antonio",
+          "addr:housenumber": "2",
+          "addr:street": "King Street",
+          "building": "yes",
+          "building:levels": "2",
+          "name": "Finjam Cottages Bed & Breakfast",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Finjam Cottages Bed & Breakfast",
+        "address": "2 King Street, Port Antonio, Jamaica",
+        "city": "Port Antonio",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.180679,
+        "longitude": -76.4519626,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "45634f5dfb0b05ddbb8b318a5d8560fbbc0a57767b4da3644b0c32bf90c14d5c",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/369554471",
+      "source_url": "https://www.openstreetmap.org/way/369554471",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 369554471,
+        "center": {
+          "lat": 18.1764928,
+          "lon": -76.4432213
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Hotel Tim Bamboo",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel",
+          "wikidata": "Q111113473"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Tim Bamboo",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1764928,
+        "longitude": -76.4432213,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3f18a54fdcbaa1bf96f51ed5c4ea072fcedbbe663b380cf67f210957d146b595",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/369560770",
+      "source_url": "https://www.openstreetmap.org/way/369560770",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 369560770,
+        "center": {
+          "lat": 18.1839709,
+          "lon": -76.4236628
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Trident Hotel",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel",
+          "wikidata": "Q111884733"
+        }
+      },
+      "normalized_data": {
+        "name": "Trident Hotel",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1839709,
+        "longitude": -76.4236628,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b8ab05cdad836ebc282897cc2e6e0fb52439e9324c15be72205f0df5ac60f8ef",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370073868",
+      "source_url": "https://www.openstreetmap.org/way/370073868",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370073868,
+        "center": {
+          "lat": 18.1787445,
+          "lon": -76.4524802
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Portland Jewelers",
+          "shop": "jewelry",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Portland Jewelers",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1787445,
+        "longitude": -76.4524802,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4d7550dc4d2908a0ede6253e1328e908575c3cc99863bc56e62be2700a982164",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370084986",
+      "source_url": "https://www.openstreetmap.org/way/370084986",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370084986,
+        "center": {
+          "lat": 18.1769247,
+          "lon": -76.444936
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Rum Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Rum Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1769247,
+        "longitude": -76.444936,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c94055eec70fa29941a838e986ae8c8e4cb82d17b741e37285a17550f5087bdf",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370084987",
+      "source_url": "https://www.openstreetmap.org/way/370084987",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370084987,
+        "center": {
+          "lat": 18.1775966,
+          "lon": -76.4427545
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Sports Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Sports Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1775966,
+        "longitude": -76.4427545,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f4ddf5e78ebfe532b58a343a544b4b4e6f3e0b875a48ff8df68b0f1e0ab5c2f6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370084989",
+      "source_url": "https://www.openstreetmap.org/way/370084989",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370084989,
+        "center": {
+          "lat": 18.1783414,
+          "lon": -76.4415346
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "seafood",
+          "name": "Wilkes Cuisine Seafood Restaurant & Bar",
+          "source": "observed"
+        }
+      },
+      "normalized_data": {
+        "name": "Wilkes Cuisine Seafood Restaurant & Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1783414,
+        "longitude": -76.4415346,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "seafood"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "50c71cc7316a16d8dd6336607ddb377ff15c15e69ae829cc4731755c9de31a89",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370087962",
+      "source_url": "https://www.openstreetmap.org/way/370087962",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370087962,
+        "center": {
+          "lat": 18.1797271,
+          "lon": -76.4401762
+        },
+        "tags": {
+          "addr:housenumber": "7",
+          "addr:street": "Folly Road",
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "regional;caribbean",
+          "name": "Survival Beach",
+          "name:en": "Anna Bananas",
+          "opening_hours": "Mo-Su 10:00-21:00",
+          "phone": "+1 876-542-1497",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Survival Beach",
+        "address": "7 Folly Road, Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1797271,
+        "longitude": -76.4401762,
+        "category": "restaurant",
+        "phone": "+1 876-542-1497",
+        "website": null,
+        "opening_hours": "Mo-Su 10:00-21:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional;caribbean"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "57d10172b52a467ff91c3ae3b101c7e54fbeb8331149445f1a5f944f7f9351ee",
+      "confidence": 0.85,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370096161",
+      "source_url": "https://www.openstreetmap.org/way/370096161",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370096161,
+        "center": {
+          "lat": 18.1776847,
+          "lon": -76.4422368
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Restaurant Fastfood & Snack",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Restaurant Fastfood & Snack",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1776847,
+        "longitude": -76.4422368,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c8599616e1d4f20a515c960774a24756ea7c7173856b5db80b689a2e6ee94eca",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370096162",
+      "source_url": "https://www.openstreetmap.org/way/370096162",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370096162,
+        "center": {
+          "lat": 18.1770312,
+          "lon": -76.4433477
+        },
+        "tags": {
+          "amenity": "nightclub",
+          "building": "yes",
+          "name": "The One Stop Hot Spot Club",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "The One Stop Hot Spot Club",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1770312,
+        "longitude": -76.4433477,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "nightclub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "db290b317b7a047201051b37247c968d7f7bc870fc70d7e68a598d7c18731862",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370096164",
+      "source_url": "https://www.openstreetmap.org/way/370096164",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370096164,
+        "center": {
+          "lat": 18.1769032,
+          "lon": -76.4433542
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Juliette's Beauty Shop",
+          "shop": "beauty",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Juliette's Beauty Shop",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1769032,
+        "longitude": -76.4433542,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6a8d04af53178ead4e1b68b97bd542cee278de39a6f15ebcee86701609cd4c0c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370096165",
+      "source_url": "https://www.openstreetmap.org/way/370096165",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370096165,
+        "center": {
+          "lat": 18.1766877,
+          "lon": -76.4433163
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "The Gold Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "The Gold Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1766877,
+        "longitude": -76.4433163,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0decb26efce90ad468565ad2e544b5e85027f0696560c54dd4cd602017828797",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370099367",
+      "source_url": "https://www.openstreetmap.org/way/370099367",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370099367,
+        "center": {
+          "lat": 18.1741328,
+          "lon": -76.4418162
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Universal Beauty Salon",
+          "shop": "beauty",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Universal Beauty Salon",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1741328,
+        "longitude": -76.4418162,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cff9d139c56bdfc8cdd0d8449bc4a254f507e219feb1ccc7cd45897bf3684408",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370099371",
+      "source_url": "https://www.openstreetmap.org/way/370099371",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370099371,
+        "center": {
+          "lat": 18.1730336,
+          "lon": -76.4472132
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Over the Edge Sports Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Over the Edge Sports Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1730336,
+        "longitude": -76.4472132,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d6ba9c158251175c99b037d42ca157e906bd4685688035a9615134e738c26069",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370101030",
+      "source_url": "https://www.openstreetmap.org/way/370101030",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370101030,
+        "center": {
+          "lat": 18.1639628,
+          "lon": -76.4465364
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Touch Sports Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Touch Sports Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1639628,
+        "longitude": -76.4465364,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "56d72c5330c8a39a89789c4b9304e9391e9fad58b44808085a72677ee51dc500",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370101857",
+      "source_url": "https://www.openstreetmap.org/way/370101857",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370101857,
+        "center": {
+          "lat": 18.1728475,
+          "lon": -76.4465626
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Italian Pub",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Italian Pub",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1728475,
+        "longitude": -76.4465626,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "440cf00f68f23f4781497f67fbd8095252330a9092cfede577898ce9dc77bad2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370102828",
+      "source_url": "https://www.openstreetmap.org/way/370102828",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370102828,
+        "center": {
+          "lat": 18.1782389,
+          "lon": -76.4510853
+        },
+        "tags": {
+          "addr:housenumber": "16",
+          "amenity": "cafe",
+          "building": "yes",
+          "name": "Nix Nax Centre",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Nix Nax Centre",
+        "address": "16, Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1782389,
+        "longitude": -76.4510853,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9d400a4a91ff2493a06205e3f1c840a89f27f4a099b4e2f02fa6dad7d781aa77",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370102829",
+      "source_url": "https://www.openstreetmap.org/way/370102829",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370102829,
+        "center": {
+          "lat": 18.1783636,
+          "lon": -76.4511533
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Adventist Book Shop",
+          "shop": "books",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Adventist Book Shop",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1783636,
+        "longitude": -76.4511533,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "38d2327c4b1b910046be28dd56aaa8bb8c19b19c824e63eacf3954d3c474a005",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370102830",
+      "source_url": "https://www.openstreetmap.org/way/370102830",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370102830,
+        "center": {
+          "lat": 18.1784145,
+          "lon": -76.4512692
+        },
+        "tags": {
+          "addr:city": "Port Antonio",
+          "addr:housenumber": "12",
+          "addr:street": "Harbour Street",
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Portland Jerk Centre",
+          "phone": "798-3443",
+          "phone_1": "404-2131",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Portland Jerk Centre",
+        "address": "12 Harbour Street, Port Antonio, Jamaica",
+        "city": "Port Antonio",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1784145,
+        "longitude": -76.4512692,
+        "category": "restaurant",
+        "phone": "798-3443",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "da546b7970fac4a542a937a8cd1b9dc8d578c1bc8edbecc2e7a3c8814d734448",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370103456",
+      "source_url": "https://www.openstreetmap.org/way/370103456",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370103456,
+        "center": {
+          "lat": 18.17848,
+          "lon": -76.4523973
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Portland Jewellers",
+          "shop": "jewelry",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Portland Jewellers",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.17848,
+        "longitude": -76.4523973,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8a4f551081389224bd21a4368f4df893150e7374a5f17458a86e9644781315e5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370103458",
+      "source_url": "https://www.openstreetmap.org/way/370103458",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370103458,
+        "center": {
+          "lat": 18.1783713,
+          "lon": -76.4525378
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Blue Diamond Jewellers",
+          "shop": "jewelry",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Blue Diamond Jewellers",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1783713,
+        "longitude": -76.4525378,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6c8b7f50aa5ccf616b3ab0ac2d5b8a4862cf9939ca9f70c1758d97bd04c394c1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370106018",
+      "source_url": "https://www.openstreetmap.org/way/370106018",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370106018,
+        "center": {
+          "lat": 18.1780923,
+          "lon": -76.4528059
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Shem's Design",
+          "shop": "clothes",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Shem's Design",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1780923,
+        "longitude": -76.4528059,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6ae6052ba9dff25edc88cd650be74427ab7271db7c91ff70312c723e4e7ecd03",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370107369",
+      "source_url": "https://www.openstreetmap.org/way/370107369",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370107369,
+        "center": {
+          "lat": 18.176145,
+          "lon": -76.4524034
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Creamy Island Restaurant",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Creamy Island Restaurant",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.176145,
+        "longitude": -76.4524034,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5e4ae7b93dc6a116d0d033c065bc0b4b0472dd5e0b98b41c32e873542a8d7fd1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370107393",
+      "source_url": "https://www.openstreetmap.org/way/370107393",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370107393,
+        "center": {
+          "lat": 18.1787649,
+          "lon": -76.4518364
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Dress Shop",
+          "shop": "department_store",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Dress Shop",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1787649,
+        "longitude": -76.4518364,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "945fa6c657ff2205a2f03daddcaf758004af0318ca11f83e31628d303714f019",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370130271",
+      "source_url": "https://www.openstreetmap.org/way/370130271",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370130271,
+        "center": {
+          "lat": 18.178218,
+          "lon": -76.455216
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Shadows Restaurant",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Shadows Restaurant",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.178218,
+        "longitude": -76.455216,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "886a9edd04ab0aba8fcd00ef3a59cc9ecf8409f184a59e610495a35cad409f8c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370130441",
+      "source_url": "https://www.openstreetmap.org/way/370130441",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370130441,
+        "center": {
+          "lat": 18.1790059,
+          "lon": -76.4524478
+        },
+        "tags": {
+          "amenity": "marketplace",
+          "building": "yes",
+          "name": "Musgrave Craft & Farmers Market",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Musgrave Craft & Farmers Market",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1790059,
+        "longitude": -76.4524478,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marketplace"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e99ff1279164cc4c4e3c84bb09aac7a99c1c32e72586479715b59c329403c5e6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370256212",
+      "source_url": "https://www.openstreetmap.org/way/370256212",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370256212,
+        "center": {
+          "lat": 18.174517,
+          "lon": -76.4445077
+        },
+        "tags": {
+          "amenity": "pub",
+          "building": "yes",
+          "name": "Royal Palm Pub",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Royal Palm Pub",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.174517,
+        "longitude": -76.4445077,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "pub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "79d9f5db1cb6beb80b017dda2b457d390caef21c80fd6d59e02a0a638e189130",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370256559",
+      "source_url": "https://www.openstreetmap.org/way/370256559",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370256559,
+        "center": {
+          "lat": 18.1737971,
+          "lon": -76.4477052
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "British Sports Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "British Sports Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1737971,
+        "longitude": -76.4477052,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cef8d74c6f01eaabc9cb9128e8755aae396a3ba4b585a6946e08e957057582a2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370256560",
+      "source_url": "https://www.openstreetmap.org/way/370256560",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370256560,
+        "center": {
+          "lat": 18.1738474,
+          "lon": -76.4475784
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Rainbow Country Kitchen",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Rainbow Country Kitchen",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1738474,
+        "longitude": -76.4475784,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6afc4ac74ce6e3756d30d8ffa89baff54fe4949b84d688df7676f4b0271c204c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370257054",
+      "source_url": "https://www.openstreetmap.org/way/370257054",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370257054,
+        "center": {
+          "lat": 18.1731792,
+          "lon": -76.4466834
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Ken Paul's Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Ken Paul's Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1731792,
+        "longitude": -76.4466834,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "38ded1ddcfb64082316b5197ce260ad2e0ee3a5f9b4b8604c6a98d13f0be9ac8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370257145",
+      "source_url": "https://www.openstreetmap.org/way/370257145",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370257145,
+        "center": {
+          "lat": 18.1778313,
+          "lon": -76.4503017
+        },
+        "tags": {
+          "addr:city": "Port Antonio",
+          "addr:street": "Harbour Street",
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "italian",
+          "name": "The Italian Job",
+          "phone": "573-8603",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "The Italian Job",
+        "address": "Harbour Street, Port Antonio, Jamaica",
+        "city": "Port Antonio",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1778313,
+        "longitude": -76.4503017,
+        "category": "restaurant",
+        "phone": "573-8603",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "italian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "05250dd8e22db176b98f10e32518b2507ad4b66a93ef0110cc4ef9d4aa7df36e",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370370329",
+      "source_url": "https://www.openstreetmap.org/way/370370329",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370370329,
+        "center": {
+          "lat": 18.1958316,
+          "lon": -76.517399
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "detached",
+          "name": "Ace of Spades Sports Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Ace of Spades Sports Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1958316,
+        "longitude": -76.517399,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d876c0db6c325dc0df4eaf1812de3229f5cc3959e0e5e5722a517507056a62e8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370581455",
+      "source_url": "https://www.openstreetmap.org/way/370581455",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370581455,
+        "center": {
+          "lat": 18.229371,
+          "lon": -76.6081867
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Force Beach Club & Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Force Beach Club & Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.229371,
+        "longitude": -76.6081867,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5ac5c8853cf3a7f22cc193b33ab057e43f76398ff174bc4c104be4c8d1015564",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370581457",
+      "source_url": "https://www.openstreetmap.org/way/370581457",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370581457,
+        "center": {
+          "lat": 18.2283594,
+          "lon": -76.6101005
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Jaggie's Bar & Lounge",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Jaggie's Bar & Lounge",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.2283594,
+        "longitude": -76.6101005,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "80d87675fac90d79f8929e082d552c967727c06858ba5709f6f61876fd24366b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370584637",
+      "source_url": "https://www.openstreetmap.org/way/370584637",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370584637,
+        "center": {
+          "lat": 18.2355469,
+          "lon": -76.6563975
+        },
+        "tags": {
+          "amenity": "marketplace",
+          "building": "yes",
+          "name": "Buff Bay Market",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Buff Bay Market",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.2355469,
+        "longitude": -76.6563975,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marketplace"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d0604950226dfcf808ba715ad3811dbc2b93f6a95f5d0f8cc7901ba2576ed085",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370584643",
+      "source_url": "https://www.openstreetmap.org/way/370584643",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370584643,
+        "center": {
+          "lat": 18.2338253,
+          "lon": -76.6573123
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Affordable Books & Things",
+          "shop": "books",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Affordable Books & Things",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.2338253,
+        "longitude": -76.6573123,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "67f8ed7e7ea50a19c2ffee80c809235e36a09a50e3110ea1ba27518605290ee0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370589673",
+      "source_url": "https://www.openstreetmap.org/way/370589673",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370589673,
+        "center": {
+          "lat": 18.2334892,
+          "lon": -76.6607196
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Total Beauty Care Salon",
+          "shop": "beauty",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Total Beauty Care Salon",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.2334892,
+        "longitude": -76.6607196,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3f689a09a13d34060941e0c725f5e5c351b65c3be8b18b07c29fa549dcac537f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370601040",
+      "source_url": "https://www.openstreetmap.org/way/370601040",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370601040,
+        "center": {
+          "lat": 18.1900385,
+          "lon": -76.467673
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Dickie's Best Kept Secret",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Dickie's Best Kept Secret",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1900385,
+        "longitude": -76.467673,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9e40ceb14b4d8b177ebe9f829e7a7e48d405bd6326700bac69e07173ac2c63b7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370607097",
+      "source_url": "https://www.openstreetmap.org/way/370607097",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370607097,
+        "center": {
+          "lat": 18.2038151,
+          "lon": -76.4977343
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Paradise Inn",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Paradise Inn",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.2038151,
+        "longitude": -76.4977343,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "22c62188e4d6899114d00c50b141e7143678536ddd79fe0b2d7e0af29c73265f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370612876",
+      "source_url": "https://www.openstreetmap.org/way/370612876",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370612876,
+        "center": {
+          "lat": 18.2358209,
+          "lon": -76.6558625
+        },
+        "tags": {
+          "amenity": "nightclub",
+          "building": "yes",
+          "name": "Sea Waves Night Club",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Sea Waves Night Club",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.2358209,
+        "longitude": -76.6558625,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "nightclub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "781f5b4fe8e906ba6c7ea8a71ddf4d9f1149fbb319491d4574a319e0397ac7f2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373340715",
+      "source_url": "https://www.openstreetmap.org/way/373340715",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373340715,
+        "center": {
+          "lat": 18.1817776,
+          "lon": -76.451076
+        },
+        "tags": {
+          "building": "yes",
+          "name": "DeMontevins Lodge Hotel (1881)",
+          "source": "Bing",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "DeMontevins Lodge Hotel (1881)",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1817776,
+        "longitude": -76.451076,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "40c012f4414945de3112fc5cd31ff25129058c4e58558c7a8c53b2f521322c43",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373340733",
+      "source_url": "https://www.openstreetmap.org/way/373340733",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373340733,
+        "center": {
+          "lat": 18.183002,
+          "lon": -76.4514102
+        },
+        "tags": {
+          "addr:city": "Port Antonio",
+          "addr:housenumber": "7",
+          "addr:postcode": "876",
+          "addr:street": "Queen Street",
+          "building": "yes",
+          "internet_access": "yes",
+          "internet_access:fee": "customers",
+          "name": "Ocean Crest Guest House",
+          "phone": "+18769934024",
+          "rooms": "10",
+          "source": "Bing",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Ocean Crest Guest House",
+        "address": "7 Queen Street, Port Antonio, Jamaica",
+        "city": "Port Antonio",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.183002,
+        "longitude": -76.4514102,
+        "category": "accommodation",
+        "phone": "+18769934024",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a8488f11941c58afc8810875942d74b5cd89db1b84510777b4afbb5ffec9ef62",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375993979",
+      "source_url": "https://www.openstreetmap.org/way/375993979",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375993979,
+        "center": {
+          "lat": 18.1017563,
+          "lon": -76.3144963
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Sports Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Sports Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1017563,
+        "longitude": -76.3144963,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3469563b96dfe304f113d3329d07358d2e63c38ed5fbe8fb794e4106d56b0891",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375993981",
+      "source_url": "https://www.openstreetmap.org/way/375993981",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375993981,
+        "center": {
+          "lat": 18.1018764,
+          "lon": -76.3146948
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Club Skelly Restaurant & Lounge",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Club Skelly Restaurant & Lounge",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1018764,
+        "longitude": -76.3146948,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "62463a7bcbbf97d1065b0328541ec2b003abed072fc3820a1ca2cd69aa2093a4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375996473",
+      "source_url": "https://www.openstreetmap.org/way/375996473",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375996473,
+        "center": {
+          "lat": 18.159614,
+          "lon": -76.3570196
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Shaggy's Jerk Centre",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Shaggy's Jerk Centre",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.159614,
+        "longitude": -76.3570196,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4b3bfed5a02f3a4bb2d24ac2b0cb0d19ae298a6a2fea648256e430c961ec1ec2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/375997180",
+      "source_url": "https://www.openstreetmap.org/way/375997180",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 375997180,
+        "center": {
+          "lat": 18.1779626,
+          "lon": -76.455062
+        },
+        "tags": {
+          "amenity": "nightclub",
+          "building": "yes",
+          "name": "Princess Club",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Princess Club",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1779626,
+        "longitude": -76.455062,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "nightclub"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "307187d2966a553714ed8f9fbb63a916556774ac50c25dc4788c9a80ccd9eec9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/376002985",
+      "source_url": "https://www.openstreetmap.org/way/376002985",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 376002985,
+        "center": {
+          "lat": 18.1774623,
+          "lon": -76.4499404
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Skill Corner Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Skill Corner Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1774623,
+        "longitude": -76.4499404,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7e85d92af1ca89012c95e5240fa533973a57bd391cad07f8ba42130b758e2328",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/751624180",
+      "source_url": "https://www.openstreetmap.org/way/751624180",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 751624180,
+        "center": {
+          "lat": 18.0898237,
+          "lon": -76.7133514
+        },
+        "tags": {
+          "amenity": "cafe",
+          "building": "yes",
+          "name": "Alex Twyman's Old Tavern Coffee Estate"
+        }
+      },
+      "normalized_data": {
+        "name": "Alex Twyman's Old Tavern Coffee Estate",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.0898237,
+        "longitude": -76.7133514,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7912b699734e70cc4e3066e1b0cbebfb2b8b6116cee905f274e74934bddd2cf4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/829678957",
+      "source_url": "https://www.openstreetmap.org/way/829678957",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 829678957,
+        "center": {
+          "lat": 18.1771659,
+          "lon": -76.4507257
+        },
+        "tags": {
+          "addr:housenumber": "7",
+          "addr:street": "Richmond HIll Road",
+          "building": "yes",
+          "building:levels": "3",
+          "guest_house": "bed_and_breakfast",
+          "name": "Ocean Crest Guest House",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Ocean Crest Guest House",
+        "address": "7 Richmond HIll Road, Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1771659,
+        "longitude": -76.4507257,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f0a7df9d2fb12453c29eeac13ec37a9221589a73de8974ce753ecf54877f4ea3",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/829760809",
+      "source_url": "https://www.openstreetmap.org/way/829760809",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 829760809,
+        "center": {
+          "lat": 18.0813233,
+          "lon": -76.2963173
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Sea Cliff Hotel & Spa Ltd",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Sea Cliff Hotel & Spa Ltd",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.0813233,
+        "longitude": -76.2963173,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "05a6249bee535d8fa6a90f71df9431cd1df48cddf9f0db135e13213b7297f848",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/829766400",
+      "source_url": "https://www.openstreetmap.org/way/829766400",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 829766400,
+        "center": {
+          "lat": 18.1713386,
+          "lon": -76.4535466
+        },
+        "tags": {
+          "addr:street": "Richmond Hill Road",
+          "building": "yes",
+          "name": "Tranquility Villa",
+          "tourism": "guest_house",
+          "website": "https://www.tranquility-villa.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Tranquility Villa",
+        "address": "Richmond Hill Road, Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1713386,
+        "longitude": -76.4535466,
+        "category": "accommodation",
+        "phone": null,
+        "website": "https://www.tranquility-villa.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2a657d0dfc59f52891adc8929af9a993e110c2f76769c29c09f5d49780af2208",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/829768898",
+      "source_url": "https://www.openstreetmap.org/way/829768898",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 829768898,
+        "center": {
+          "lat": 18.1741954,
+          "lon": -76.4072293
+        },
+        "tags": {
+          "addr:city": "Port Antonio",
+          "addr:housenumber": "122",
+          "addr:street": "Skippers Boulevard",
+          "building": "yes",
+          "name": "Geejam",
+          "tourism": "hotel",
+          "wikidata": "Q111414716"
+        }
+      },
+      "normalized_data": {
+        "name": "Geejam",
+        "address": "122 Skippers Boulevard, Port Antonio, Jamaica",
+        "city": "Port Antonio",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1741954,
+        "longitude": -76.4072293,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ec7a079d5c12c5ccff957ce6a193d9a9950616c10608d155c642235deabafade",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/829768924",
+      "source_url": "https://www.openstreetmap.org/way/829768924",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 829768924,
+        "center": {
+          "lat": 18.1750812,
+          "lon": -76.4003384
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Frenchman's Cove Resort",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Frenchman's Cove Resort",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1750812,
+        "longitude": -76.4003384,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ebc451284441e3476a9263bc23faebd2eda552d09005bf7377b08ef8857b865a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/829773927",
+      "source_url": "https://www.openstreetmap.org/way/829773927",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 829773927,
+        "center": {
+          "lat": 18.0985232,
+          "lon": -76.315155
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Pimento Lodge Resort",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Pimento Lodge Resort",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.0985232,
+        "longitude": -76.315155,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4ea795e83a8c1de8f22dd0e1f35378063fcc9bdb9faa685ea263c7201d25a848",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/829891914",
+      "source_url": "https://www.openstreetmap.org/way/829891914",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 829891914,
+        "center": {
+          "lat": 18.1846818,
+          "lon": -76.4289959
+        },
+        "tags": {
+          "addr:city": "Port Antonio",
+          "addr:housenumber": "4",
+          "addr:street": "Salt Creek",
+          "building": "yes",
+          "name": "Seaviewvilla",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Seaviewvilla",
+        "address": "4 Salt Creek, Port Antonio, Jamaica",
+        "city": "Port Antonio",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1846818,
+        "longitude": -76.4289959,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dd9e45726920651eb257099a9a5fbf136cb7688ded5d48b34f9780abe2b3183b",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/834608171",
+      "source_url": "https://www.openstreetmap.org/way/834608171",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 834608171,
+        "center": {
+          "lat": 18.1646081,
+          "lon": -76.4452372
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "regional",
+          "name": "Soldier Camp"
+        }
+      },
+      "normalized_data": {
+        "name": "Soldier Camp",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1646081,
+        "longitude": -76.4452372,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b77bc2fa99037615b769c241685441f95083401125a79368f581dea0b730a178",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/835035094",
+      "source_url": "https://www.openstreetmap.org/way/835035094",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 835035094,
+        "center": {
+          "lat": 18.1760512,
+          "lon": -76.4116871
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "burger",
+          "name": "Woody's Snack & Bar",
+          "opening_hours": "Mo-Sa 12:00-21:00; Su 13:00-19:00"
+        }
+      },
+      "normalized_data": {
+        "name": "Woody's Snack & Bar",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1760512,
+        "longitude": -76.4116871,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Sa 12:00-21:00; Su 13:00-19:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e69c0acde51a4a1a6b49d822919bf565833810e1d0804b6a50fb2d583d181ce7",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1008833115",
+      "source_url": "https://www.openstreetmap.org/way/1008833115",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1008833115,
+        "center": {
+          "lat": 18.1716776,
+          "lon": -76.4139691
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Hotel Mockingbird Hill",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Mockingbird Hill",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1716776,
+        "longitude": -76.4139691,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "be722bf72b900949f8024c199a1eae01812bf377e7a7134cfa7b34c7a9430a33",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1009568681",
+      "source_url": "https://www.openstreetmap.org/way/1009568681",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1009568681,
+        "center": {
+          "lat": 18.1734814,
+          "lon": -76.3896058
+        },
+        "tags": {
+          "addr:city": "Drapers",
+          "addr:housenumber": "Lot 36",
+          "addr:street": "San San Estate",
+          "building": "yes",
+          "layer": "1",
+          "name": "San Bar Villa",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "San Bar Villa",
+        "address": "Lot 36 San San Estate, Drapers, Jamaica",
+        "city": "Drapers",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1734814,
+        "longitude": -76.3896058,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9cd7de578a929824cc7cc3f51ba23e5df3aa7159c04fa2c6dd128845887d9e37",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1285266160",
+      "source_url": "https://www.openstreetmap.org/way/1285266160",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1285266160,
+        "center": {
+          "lat": 18.1865832,
+          "lon": -76.4664777
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "The Hitz Bar & Restaurant"
+        }
+      },
+      "normalized_data": {
+        "name": "The Hitz Bar & Restaurant",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1865832,
+        "longitude": -76.4664777,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fc3d0e7f83f0b2e1e6d228e1683cb3368cb0d7f33a233ba6b130da26eb123c98",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1286469570",
+      "source_url": "https://www.openstreetmap.org/way/1286469570",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1286469570,
+        "center": {
+          "lat": 18.1800476,
+          "lon": -76.4514632
+        },
+        "tags": {
+          "addr:city": "Port Antonio",
+          "addr:housenumber": "2-4",
+          "addr:street": "Fort George Street",
+          "building": "yes",
+          "name": "Royal Mall",
+          "not:name": "Fahmi Building",
+          "shop": "mall"
+        }
+      },
+      "normalized_data": {
+        "name": "Royal Mall",
+        "address": "2-4 Fort George Street, Port Antonio, Jamaica",
+        "city": "Port Antonio",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1800476,
+        "longitude": -76.4514632,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d289aa68fe153026c023be67d26604fcb5cb1b5d4c459bd6742c913fc0a5c2b0",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1286469577",
+      "source_url": "https://www.openstreetmap.org/way/1286469577",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1286469577,
+        "center": {
+          "lat": 18.1791856,
+          "lon": -76.4519906
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Tastee"
+        }
+      },
+      "normalized_data": {
+        "name": "Tastee",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1791856,
+        "longitude": -76.4519906,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f520c948d303098faa10b6e374a86ebab6e84846e4bc79600f3eaf2b59795092",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1286573510",
+      "source_url": "https://www.openstreetmap.org/way/1286573510",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1286573510,
+        "center": {
+          "lat": 18.1807062,
+          "lon": -76.4607385
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Tyre Shop Restaurant"
+        }
+      },
+      "normalized_data": {
+        "name": "Tyre Shop Restaurant",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1807062,
+        "longitude": -76.4607385,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3354f0934676e7596654602a8b63e9f11979d18191ef6e0e52ffb8d957a7d048",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1286702610",
+      "source_url": "https://www.openstreetmap.org/way/1286702610",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1286702610,
+        "center": {
+          "lat": 18.1835241,
+          "lon": -76.4645087
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Juici Patties"
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1835241,
+        "longitude": -76.4645087,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c6298146a56a4bcfb0a908c3a16a505f18c4979ff53306ee5c9dd70aa0db0312",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1286947219",
+      "source_url": "https://www.openstreetmap.org/way/1286947219",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1286947219,
+        "center": {
+          "lat": 18.1776569,
+          "lon": -76.4500239
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Piggy's Jerk Centre"
+        }
+      },
+      "normalized_data": {
+        "name": "Piggy's Jerk Centre",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1776569,
+        "longitude": -76.4500239,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "05912e00e1cbb5a186ba606e6b0bcd421518d26383cf9102fdf89171a22b6aa5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1287257739",
+      "source_url": "https://www.openstreetmap.org/way/1287257739",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1287257739,
+        "center": {
+          "lat": 18.1779577,
+          "lon": -76.4535145
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "cuisine": "pizza;chicken",
+          "name": "Chenels Pizza"
+        }
+      },
+      "normalized_data": {
+        "name": "Chenels Pizza",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1779577,
+        "longitude": -76.4535145,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "pizza;chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6c8d142616d1a4454bcdf29c3a87d2dbe980b1bcebcd2e72b35d5c9f0475d7fb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1287533568",
+      "source_url": "https://www.openstreetmap.org/way/1287533568",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1287533568,
+        "center": {
+          "lat": 18.1859431,
+          "lon": -76.4668329
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "First N Last Bar & Lounge"
+        }
+      },
+      "normalized_data": {
+        "name": "First N Last Bar & Lounge",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.1859431,
+        "longitude": -76.4668329,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ee7d010da18112d4eed89308eec1937bfc918822266dbc4cc07129e2ba086353",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "relation/10418212",
+      "source_url": "https://www.openstreetmap.org/relation/10418212",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "relation",
+        "id": 10418212,
+        "center": {
+          "lat": 18.2133818,
+          "lon": -76.6714341
+        },
+        "tags": {
+          "name": "Charles Town Museum and Safu (Asafu) Yard",
+          "tourism": "museum",
+          "type": "multipolygon"
+        }
+      },
+      "normalized_data": {
+        "name": "Charles Town Museum and Safu (Asafu) Yard",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.2133818,
+        "longitude": -76.6714341,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b61f7356188b2c0c5d959b813ab39e05014157f392602baeafa6bfb996f21457",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "relation/13517122",
+      "source_url": "https://www.openstreetmap.org/relation/13517122",
+      "source_last_checked_at": "2026-08-22T01:46:32.383Z",
+      "raw_data": {
+        "type": "relation",
+        "id": 13517122,
+        "center": {
+          "lat": 18.176238,
+          "lon": -76.3959532
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Belmont Villa",
+          "tourism": "hotel",
+          "type": "multipolygon"
+        }
+      },
+      "normalized_data": {
+        "name": "Belmont Villa",
+        "address": "Portland, Jamaica",
+        "city": "Portland",
+        "parish": "Portland",
+        "country": "Jamaica",
+        "latitude": 18.176238,
+        "longitude": -76.3959532,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a1d78f58477504d1e045927abb44ac644edfabe0d29b9d4c74bf7f74614a2a1a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    }
+  ]
+}

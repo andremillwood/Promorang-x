@@ -33,6 +33,7 @@ import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
 import { useHostProofOutcome } from "@/hooks/useProofOutcome";
 import { DashboardWorkspaceNav } from "@/components/dashboard/DashboardWorkspaceNav";
 import { StudioJourneyStory } from "@/components/dashboard/StudioJourneyStory";
+import { useI18n } from "@/i18n/I18nContext";
 
 const HostSponsorshipRequests = lazy(() =>
   import("@/components/host/SponsorshipRequests").then((module) => ({ default: module.HostSponsorshipRequests })),
@@ -55,6 +56,7 @@ const tabFallback = <Skeleton className="h-64 rounded-xl" />;
 // ============================================================================
 
 const HostDashboardV2 = () => {
+  const { t, formatNumber } = useI18n();
   useAuth();
   const { data: hostedMoments, isLoading: momentsLoading } = useHostedMoments();
   const { data: stats, isLoading: statsLoading } = useHostStats();
@@ -82,39 +84,39 @@ const HostDashboardV2 = () => {
   return (
     <div className="space-y-8 pb-20 xl:space-y-10">
       <DashboardHero
-        badge="Hosting studio"
-        title={isNewHost ? "Create the first moment worth showing up for" : "Run live moments people can trust"}
-        description="Hosts create the real-world loop: launch the moment, watch it form, review what happened, then repeat what worked."
+        badge={t("hostDash.badge")}
+        title={isNewHost ? t("hostDash.newTitle") : t("hostDash.title")}
+        description={t("hostDash.copy")}
         actions={[
           isNewHost
-            ? { label: "Create your first Moment", href: "/create/moment", icon: Plus }
+            ? { label: t("hostDash.first"), href: "/create/moment", icon: Plus }
             : upcomingMoments.length > 0
-              ? { label: "Open live operations", onClick: () => setActiveTab("pulse"), icon: Activity }
-              : { label: "Create the next Moment", href: "/create/moment", icon: Plus },
-          { label: "Create a Moment", href: "/create/moment", icon: Plus },
-          { label: "Pulse", onClick: () => setActiveTab("pulse"), icon: Activity },
-          { label: "Review", onClick: () => setActiveTab("review"), icon: ShieldCheck },
+              ? { label: t("hostDash.liveOps"), onClick: () => setActiveTab("pulse"), icon: Activity }
+              : { label: t("hostDash.next"), href: "/create/moment", icon: Plus },
+          { label: t("hostDash.create"), href: "/create/moment", icon: Plus },
+          { label: t("hostDash.pulse"), onClick: () => setActiveTab("pulse"), icon: Activity },
+          { label: t("hostDash.review"), onClick: () => setActiveTab("review"), icon: ShieldCheck },
         ]}
         stats={[
-          { label: "Active moments", value: upcomingMoments.length.toLocaleString(), helper: "Currently on your calendar", icon: Calendar },
-          { label: "Participants", value: totalParticipants.toLocaleString(), helper: "Across hosted moments", icon: Users },
-          { label: "Points generated", value: economy?.pointsGenerated?.toLocaleString() || "0", helper: "Distributed through moments", icon: Coins },
-          { label: "Past moments", value: pastMoments.length.toLocaleString(), helper: "Already completed", icon: TrendingUp },
+          { label: t("hostDash.active"), value: formatNumber(upcomingMoments.length), helper: t("hostDash.activeHelp"), icon: Calendar },
+          { label: t("hostDash.participants"), value: formatNumber(totalParticipants), helper: t("hostDash.participantsHelp"), icon: Users },
+          { label: t("hostDash.points"), value: formatNumber(economy?.pointsGenerated || 0), helper: t("hostDash.pointsHelp"), icon: Coins },
+          { label: t("hostDash.past"), value: formatNumber(pastMoments.length), helper: t("hostDash.pastHelp"), icon: TrendingUp },
         ]}
         isLoading={statsLoading || economyLoading}
       />
 
       <DashboardWorkspaceNav
-        eyebrow="Inside your hosting studio"
-        title="Shape the room, then see what changed"
+        eyebrow={t("hostDash.eyebrow")}
+        title={t("hostDash.workspace")}
         activeValue={activeTab}
         onValueChange={setActiveTab}
         items={[
-          { value: "moments", label: "Moments", icon: Calendar },
-          { value: "pulse", label: "Live pulse", icon: Activity },
-          { value: "review", label: "Proof review", icon: ShieldCheck },
-          { value: "sponsorships", label: "Sponsors", icon: Handshake, hidden: !isEstablishedHost },
-          { value: "impact", label: "Impact", icon: BarChart3, hidden: !isEstablishedHost },
+          { value: "moments", label: t("hostDash.moments"), icon: Calendar },
+          { value: "pulse", label: t("hostDash.livePulse"), icon: Activity },
+          { value: "review", label: t("hostDash.proofReview"), icon: ShieldCheck },
+          { value: "sponsorships", label: t("hostDash.sponsors"), icon: Handshake, hidden: !isEstablishedHost },
+          { value: "impact", label: t("hostDash.impact"), icon: BarChart3, hidden: !isEstablishedHost },
         ]}
       />
 
@@ -129,22 +131,21 @@ const HostDashboardV2 = () => {
                 <Zap className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Create your first moment people can trust</h3>
+                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">{t("hostDash.firstTitle")}</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Your first win: create a live moment with clear venue, timing, 
-                  what counts, and rewards.
+                  {t("hostDash.firstCopy")}
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button asChild>
                     <Link to="/create/moment">
                       <Plus className="w-4 h-4 mr-2" />
-                      Create Moment
+                      {t("hostDash.create")}
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
                     <Link to="/discover">
                       <Eye className="w-4 h-4 mr-2" />
-                      See Examples
+                      {t("hostDash.examples")}
                     </Link>
                   </Button>
                 </div>
@@ -189,14 +190,14 @@ const HostDashboardV2 = () => {
         <section>
           <div className="flex min-w-0 flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-2xl font-black tracking-[-0.04em]">Upcoming Moments</h2>
+              <h2 className="text-2xl font-black tracking-[-0.04em]">{t("hostDash.upcoming")}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                The dashboard should keep your active schedule close, not replace moment detail pages.
+                {t("hostDash.upcomingCopy")}
               </p>
             </div>
             {upcomingMoments.length > 3 && (
               <Button variant="ghost" size="sm" onClick={() => setActiveTab("moments")}>
-                View all
+                {t("hostDash.viewAll")}
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             )}
@@ -212,11 +213,11 @@ const HostDashboardV2 = () => {
             <Card className="border-dashed">
               <CardContent className="p-8 text-center">
                 <Calendar className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
-                <p className="text-muted-foreground mb-4">No upcoming moments</p>
+                <p className="text-muted-foreground mb-4">{t("hostDash.noUpcoming")}</p>
                 <Button asChild>
                   <Link to="/create/moment">
                     <Plus className="w-4 h-4 mr-2" />
-                    Create Moment
+                    {t("hostDash.create")}
                   </Link>
                 </Button>
               </CardContent>
@@ -262,7 +263,7 @@ const HostDashboardV2 = () => {
                               variant={daysUntil <= 3 ? "default" : "outline"}
                               className="flex-shrink-0 text-[10px]"
                             >
-                              {daysUntil === 0 ? "Today" : daysUntil === 1 ? "Tomorrow" : `${daysUntil} days`}
+                              {daysUntil === 0 ? t("hostDash.today") : daysUntil === 1 ? t("hostDash.tomorrow") : t("hostDash.days", { count: daysUntil })}
                             </Badge>
                           </div>
                           

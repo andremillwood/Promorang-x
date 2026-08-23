@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "rules": {
+    "auto_publish": false,
+    "minimum_venue_confidence": 0.8,
+    "moment_expiry_hours": 24,
+    "targets": { "venues": 30, "discoveries": 20, "moments": 10, "polls": 4, "scenes": 3 }
+  },
+  "cities": [
+    {
+      "country_code": "JM", "country_slug": "jamaica", "country": "Jamaica", "city_slug": "kingston", "city": "Kingston", "region": "Kingston / St. Andrew", "currency": "JMD", "timezone": "America/Jamaica", "bbox": "17.9340,-76.8790,18.0720,-76.7040", "launch_stage": "live",
+      "poll_templates": ["Which Kingston food spot deserves the next tasting Moment?", "Where is Kingston's strongest live-music night this week?", "Which independent Kingston venue should more people know?", "What should Promorang activate in Kingston next?"]
+    },
+    {
+      "country_code": "TT", "country_slug": "trinidad-and-tobago", "country": "Trinidad & Tobago", "city_slug": "port-of-spain", "city": "Port of Spain", "region": "Port of Spain", "currency": "TTD", "timezone": "America/Port_of_Spain", "bbox": "10.6200,-61.5600,10.7000,-61.4500", "launch_stage": "pilot",
+      "poll_templates": ["Who serves the doubles Port of Spain locals stand behind?", "Which live-music venue should host a Promorang Moment?", "Which local creative space deserves a wider signal?", "What should Port of Spain activate next?"]
+    },
+    {
+      "country_code": "BB", "country_slug": "barbados", "country": "Barbados", "city_slug": "bridgetown", "city": "Bridgetown", "region": "Saint Michael", "currency": "BBD", "timezone": "America/Barbados", "bbox": "13.0700,-59.6700,13.1400,-59.5400", "launch_stage": "pilot",
+      "poll_templates": ["Which Bridgetown food spot should host the next tasting?", "Where is the best recurring live-music night?", "Which independent Bajan business deserves discovery?", "What should Bridgetown activate next?"]
+    },
+    {
+      "country_code": "BS", "country_slug": "the-bahamas", "country": "The Bahamas", "city_slug": "nassau", "city": "Nassau", "region": "New Providence", "currency": "BSD", "timezone": "America/Nassau", "bbox": "24.9900,-77.4500,25.1000,-77.2500", "launch_stage": "pilot",
+      "poll_templates": ["Which Nassau experience deserves a local spotlight?", "Where should visitors go to experience Nassau beyond the resort map?", "Which independent Bahamian food spot should host a Moment?", "What should Nassau activate next?"]
+    },
+    {
+      "country_code": "GY", "country_slug": "guyana", "country": "Guyana", "city_slug": "georgetown", "city": "Georgetown", "region": "Demerara-Mahaica", "currency": "GYD", "timezone": "America/Guyana", "bbox": "6.7400,-58.2300,6.8600,-58.0800", "launch_stage": "pilot",
+      "poll_templates": ["Which Georgetown food tradition should become a tasting Moment?", "Which cultural space deserves more attention?", "Where is Georgetown's strongest recurring community night?", "What should Georgetown activate first?"]
+    },
+    {
+      "country_code": "GH", "country_slug": "ghana", "country": "Ghana", "city_slug": "accra", "city": "Accra", "region": "Greater Accra", "currency": "GHS", "timezone": "Africa/Accra", "bbox": "5.5000,-0.3000,5.7000,0.0000", "launch_stage": "pilot",
+      "poll_templates": ["Where is Accra's best live-music night?", "Which independent food spot should host a tasting Moment?", "Which creative community deserves a wider signal?", "What should Accra activate next?"]
+    },
+    {
+      "country_code": "DO", "country_slug": "dominican-republic", "country": "Dominican Republic", "city_slug": "santo-domingo", "city": "Santo Domingo", "region": "Distrito Nacional", "currency": "DOP", "timezone": "America/Santo_Domingo", "bbox": "18.4200,-70.0200,18.5500,-69.8000", "launch_stage": "pilot",
+      "poll_templates": ["¿Qué espacio cultural de Santo Domingo merece más atención?", "¿Dónde está la mejor noche de música en vivo?", "¿Qué negocio local debería organizar el próximo Momento?", "¿Qué debería activar Promorang primero en Santo Domingo?"]
+    },
+    {
+      "country_code": "CO", "country_slug": "colombia", "country": "Colombia", "city_slug": "medellin", "city": "Medellín", "region": "Antioquia", "currency": "COP", "timezone": "America/Bogota", "bbox": "6.1500,-75.6500,6.3600,-75.4800", "launch_stage": "pilot",
+      "poll_templates": ["¿Qué barrio de Medellín tiene la escena de fin de semana más fuerte?", "¿Qué espacio creativo merece una señal más amplia?", "¿Qué lugar independiente debería organizar un Momento?", "¿Qué debería activar Promorang en Medellín?"]
+    },
+    {
+      "country_code": "CO", "country_slug": "colombia", "country": "Colombia", "city_slug": "bogota", "city": "Bogotá", "region": "Bogotá D.C.", "currency": "COP", "timezone": "America/Bogota", "bbox": "4.4500,-74.2200,4.8400,-73.9800", "launch_stage": "pilot",
+      "poll_templates": ["¿Qué escena cultural de Bogotá merece más atención?", "¿Dónde está la mejor noche de música en vivo?", "¿Qué espacio gastronómico debería organizar un Momento?", "¿Qué debería activar Promorang en Bogotá?"]
+    },
+    {
+      "country_code": "PA", "country_slug": "panama", "country": "Panama", "city_slug": "panama-city", "city": "Panama City", "region": "Panamá", "currency": "PAB", "timezone": "America/Panama", "bbox": "8.9000,-79.6200,9.1000,-79.4000", "launch_stage": "pilot",
+      "poll_templates": ["¿Qué barrio de Ciudad de Panamá tiene la escena más interesante?", "¿Qué espacio independiente merece más atención?", "¿Qué lugar debería organizar el próximo Momento?", "¿Qué debería activar Promorang primero en Ciudad de Panamá?"]
+    }
+  ]
+}

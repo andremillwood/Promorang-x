@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useI18n } from '@/i18n/I18nContext';
 
 type CouponRedemption = {
   id: string;
@@ -28,6 +29,7 @@ type CouponRedemption = {
 };
 
 export function CouponWalletRail() {
+  const { t, locale } = useI18n();
   const { user, session } = useAuth();
   const [selected, setSelected] = useState<CouponRedemption | null>(null);
   const q = useQuery({
@@ -50,7 +52,7 @@ export function CouponWalletRail() {
       <div className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <TicketCheck className="h-4 w-4 text-primary" />
-          <h2 className="font-black">Claimed offers</h2>
+          <h2 className="font-black">{t("coupon.claimed")}</h2>
         </div>
         <Badge variant="secondary">{q.data.length}</Badge>
       </div>
@@ -60,7 +62,7 @@ export function CouponWalletRail() {
           const claimed = item.status === 'claimed';
           const value = coupon?.discount_value
             ? `${coupon.discount_value}${coupon.discount_type === 'percentage' ? '%' : ''}`
-            : 'Offer';
+            : t("coupon.offer");
 
           return (
             <Card key={item.id} className="min-w-[280px] overflow-hidden border-primary/10">
@@ -74,17 +76,17 @@ export function CouponWalletRail() {
                 <p className="mt-4 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
                   {coupon?.merchant_stores?.store_name || value}
                 </p>
-                <h3 className="mt-1 line-clamp-2 text-lg font-black">{coupon?.name || 'Promorang offer'}</h3>
+                <h3 className="mt-1 line-clamp-2 text-lg font-black">{coupon?.name || t("coupon.default")}</h3>
                 <div className="mt-4 rounded-lg border border-dashed bg-muted/40 p-3">
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Redemption code</p>
-                  <p className="mt-1 font-mono text-sm font-bold">{item.claim_code || 'Code pending'}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("receipt.redemptionCode")}</p>
+                  <p className="mt-1 font-mono text-sm font-bold">{item.claim_code || t("coupon.pending")}</p>
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-2 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
-                    {item.expires_at ? new Date(item.expires_at).toLocaleDateString() : 'No expiry posted'}
+                    {item.expires_at ? new Date(item.expires_at).toLocaleDateString(locale) : t("coupon.noExpiry")}
                   </span>
-                  <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => setSelected(item)}>Show</Button>
+                  <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => setSelected(item)}>{t("coupon.show")}</Button>
                 </div>
               </CardContent>
             </Card>
@@ -94,24 +96,24 @@ export function CouponWalletRail() {
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{selected?.coupons?.name || 'Promorang offer'}</DialogTitle>
+            <DialogTitle>{selected?.coupons?.name || t("coupon.default")}</DialogTitle>
             <DialogDescription>
-              {selected?.coupons?.merchant_stores?.store_name || 'Show this code to the merchant when redeeming.'}
+              {selected?.coupons?.merchant_stores?.store_name || t("coupon.instructions")}
             </DialogDescription>
           </DialogHeader>
           <div className="rounded-2xl border bg-muted/30 p-5 text-center">
             <div className="mx-auto grid h-14 w-14 place-items-center rounded-xl bg-primary text-primary-foreground">
               <QrCode className="h-6 w-6" />
             </div>
-            <p className="mt-5 text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">Redemption code</p>
-            <p className="mt-2 break-all font-mono text-3xl font-black tracking-wider">{selected?.claim_code || 'CODE PENDING'}</p>
+            <p className="mt-5 text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">{t("receipt.redemptionCode")}</p>
+            <p className="mt-2 break-all font-mono text-3xl font-black tracking-wider">{selected?.claim_code || t("coupon.pending")}</p>
             <p className="mt-3 text-xs text-muted-foreground">
-              Status: <span className="capitalize">{selected?.status}</span>
-              {selected?.expires_at ? ` · Expires ${new Date(selected.expires_at).toLocaleDateString()}` : ''}
+              {t("coupon.status")}: <span className="capitalize">{selected?.status}</span>
+              {selected?.expires_at ? ` · ${t("coupon.expires", { date: new Date(selected.expires_at).toLocaleDateString(locale) })}` : ''}
             </p>
           </div>
           <p className="text-sm leading-6 text-muted-foreground">
-            The merchant scans or enters this code from their redemption validator. Keep the code private until you are ready to redeem.
+            {t("coupon.privacy")}
           </p>
         </DialogContent>
       </Dialog>

@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Sparkles, Trophy, Gift, Share2, Copy, CheckCircle, ShieldCheck, Zap, Flame, Clock } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function ReferralSprintPage() {
+  const { t, formatNumber } = useI18n();
   const [copied, setCopied] = useState(false);
   const [referralCode] = useState("VIP-GOLDEN-PASS-998");
   const [referralCount] = useState(32);
@@ -27,25 +29,25 @@ export default function ReferralSprintPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6A00]/50 bg-[#FF6A00]/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#FFC300]">
                 <Flame className="h-4 w-4 text-[#FF6A00]" />
-                VIP Golden Pass Sprint • Active Now
+                {t("referralSprintPage.badge")}
               </div>
 
               {/* Countdown */}
               <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold text-white/80">
                 <Clock className="h-4 w-4 text-[#FF6A00]" />
-                Sprint Closes In: <span className="font-mono text-[#FFC300] font-bold">02d : 14h : 38m</span>
+                {t("referralSprintPage.sprintClosesIn")} <span className="font-mono text-[#FFC300] font-bold">02d : 14h : 38m</span>
               </div>
             </div>
 
             <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-tight sm:text-6xl text-white">
-              Gift VIP Golden Passes. <br />
+              {t("referralSprintPage.heroTitle1")} <br />
               <span className="bg-gradient-to-r from-[#FF6A00] to-[#FFC300] bg-clip-text text-transparent">
-                Unlock Lifetime 10% Cash Split.
+                {t("referralSprintPage.heroTitle2")}
               </span>
             </h1>
 
             <p className="mt-4 max-w-2xl text-base text-white/70">
-              Every Gem your invited friends earn is backed 1:1 by brand advertiser deposits ($1 Gem = $1.00 USD withdrawable cash). Gift your 3 VIP Passes today.
+              {t("referralSprintPage.heroSubtitle")}
             </p>
 
             {/* ONE-CLICK SHARE BOX */}
@@ -59,13 +61,13 @@ export default function ReferralSprintPage() {
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF6A00] to-[#FF9000] px-6 py-3 text-sm font-black text-black shadow-lg shadow-[#FF6A00]/25 transition hover:brightness-110 active:scale-95"
                 >
                   {copied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  {copied ? "Pass Copied!" : "Copy VIP Pass Link"}
+                  {copied ? t("referralSprintPage.passCopied") : t("referralSprintPage.copyPassLink")}
                 </button>
               </div>
 
               <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-white/60">
-                <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-[#10B981]" /> 100% Cash Backed (1 Gem = $1.00 USD)</span>
-                <span className="inline-flex items-center gap-1.5"><Zap className="h-4 w-4 text-[#FFC300]" /> 3 VIP Passes Remaining</span>
+                <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-[#10B981]" /> {t("referralSprintPage.cashBackedNotice")}</span>
+                <span className="inline-flex items-center gap-1.5"><Zap className="h-4 w-4 text-[#FFC300]" /> {t("referralSprintPage.vipPassesRemaining")}</span>
               </div>
             </div>
           </div>
@@ -77,12 +79,12 @@ export default function ReferralSprintPage() {
           {/* TIER PROGRESS CARD */}
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#FF6A00]">Your Sprint Status</span>
-              <span className="rounded-full bg-[#FF6A00]/20 px-3 py-1 text-xs font-bold text-[#FFC300]">SILVER TIER</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-[#FF6A00]">{t("referralSprintPage.sprintStatus")}</span>
+              <span className="rounded-full bg-[#FF6A00]/20 px-3 py-1 text-xs font-bold text-[#FFC300]">{t("referralSprintPage.silverTier")}</span>
             </div>
 
-            <h3 className="mt-4 text-3xl font-black text-white">32 / 50 Invites</h3>
-            <p className="mt-1 text-xs text-white/60">18 more invites to unlock GOLD TIER status.</p>
+            <h3 className="mt-4 text-3xl font-black text-white">{t("referralSprintPage.invitesCount", { current: formatNumber(referralCount), target: formatNumber(targetCount) })}</h3>
+            <p className="mt-1 text-xs text-white/60">{t("referralSprintPage.invitesToGold", { count: formatNumber(targetCount - referralCount) })}</p>
 
             {/* Progress Bar */}
             <div className="mt-6 h-3 w-full overflow-hidden rounded-full bg-white/10">
@@ -94,15 +96,15 @@ export default function ReferralSprintPage() {
 
             <div className="mt-8 space-y-4 border-t border-white/10 pt-6">
               <div className="flex justify-between text-sm">
-                <span className="text-white/70">Withdrawable Cash Earnings</span>
+                <span className="text-white/70">{t("referralSprintPage.withdrawableCashEarnings")}</span>
                 <span className="font-mono font-bold text-[#10B981]">$145.50 USD</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-white/70">Gems Balance (1 Gem = $1 USD)</span>
+                <span className="text-white/70">{t("referralSprintPage.gemsBalanceLabel")}</span>
                 <span className="font-mono font-bold text-[#FFC300]">145.5 Gems</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-white/70">Current Cash Split Rate</span>
+                <span className="text-white/70">{t("referralSprintPage.currentSplitRate")}</span>
                 <span className="font-bold text-white">6.0% (Silver)</span>
               </div>
             </div>
@@ -111,45 +113,45 @@ export default function ReferralSprintPage() {
           {/* GRAND SLAM VALUE STACK */}
           <div className="lg:col-span-2 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-black text-white">Your Unlocked VIP Bonus Stack</h3>
-              <span className="text-xs font-bold text-[#FFC300]">$2,725 Total Perceived Value</span>
+              <h3 className="text-xl font-black text-white">{t("referralSprintPage.unlockedBonusStack")}</h3>
+              <span className="text-xs font-bold text-[#FFC300]">{t("referralSprintPage.totalPerceivedValue")}</span>
             </div>
 
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="flex items-center justify-between text-xs text-white/60">
-                  <span>Fee Waiver</span>
-                  <span className="font-mono font-bold text-[#10B981]">$25 Value</span>
+                  <span>{t("referralSprintPage.feeWaiver")}</span>
+                  <span className="font-mono font-bold text-[#10B981]">{t("referralSprintPage.feeWaiverValue")}</span>
                 </div>
-                <h4 className="mt-2 text-sm font-bold text-white">0% Cash Withdrawal Processing Fee</h4>
-                <p className="mt-1 text-xs text-white/50">Applies to your first $500 in Gem cash-outs.</p>
+                <h4 className="mt-2 text-sm font-bold text-white">{t("referralSprintPage.feeWaiverTitle")}</h4>
+                <p className="mt-1 text-xs text-white/50">{t("referralSprintPage.feeWaiverDesc")}</p>
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="flex items-center justify-between text-xs text-white/60">
-                  <span>Priority Queue</span>
-                  <span className="font-mono font-bold text-[#10B981]">$200 Value</span>
+                  <span>{t("referralSprintPage.priorityQueue")}</span>
+                  <span className="font-mono font-bold text-[#10B981]">{t("referralSprintPage.priorityQueueValue")}</span>
                 </div>
-                <h4 className="mt-2 text-sm font-bold text-white">24-Hour Early Access Pass</h4>
-                <p className="mt-1 text-xs text-white/50">First access to limited $50+ brand drops.</p>
+                <h4 className="mt-2 text-sm font-bold text-white">{t("referralSprintPage.priorityQueueTitle")}</h4>
+                <p className="mt-1 text-xs text-white/50">{t("referralSprintPage.priorityQueueDesc")}</p>
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="flex items-center justify-between text-xs text-white/60">
-                  <span>VIP Vault</span>
-                  <span className="font-mono font-bold text-[#10B981]">$499 Value</span>
+                  <span>{t("referralSprintPage.vipVault")}</span>
+                  <span className="font-mono font-bold text-[#10B981]">{t("referralSprintPage.vipVaultValue")}</span>
                 </div>
-                <h4 className="mt-2 text-sm font-bold text-white">Private Creator Director Mastermind</h4>
-                <p className="mt-1 text-xs text-white/50">Unlocks at Gold Tier (50 invites).</p>
+                <h4 className="mt-2 text-sm font-bold text-white">{t("referralSprintPage.vipVaultTitle")}</h4>
+                <p className="mt-1 text-xs text-white/50">{t("referralSprintPage.vipVaultDesc")}</p>
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="flex items-center justify-between text-xs text-white/60">
-                  <span>Zero Risk Guarantee</span>
-                  <span className="font-mono font-bold text-[#10B981]">Risk-Free</span>
+                  <span>{t("referralSprintPage.zeroRiskGuarantee")}</span>
+                  <span className="font-mono font-bold text-[#10B981]">{t("referralSprintPage.zeroRiskValue")}</span>
                 </div>
-                <h4 className="mt-2 text-sm font-bold text-white">100% Escrow Reserve Backed</h4>
-                <p className="mt-1 text-xs text-white/50">Every Gem is 1:1 cash backed by brand deposits.</p>
+                <h4 className="mt-2 text-sm font-bold text-white">{t("referralSprintPage.zeroRiskTitle")}</h4>
+                <p className="mt-1 text-xs text-white/50">{t("referralSprintPage.zeroRiskDesc")}</p>
               </div>
             </div>
           </div>
@@ -159,21 +161,21 @@ export default function ReferralSprintPage() {
         <section className="mt-12 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-[#FF6A00]">Top Performers</p>
-              <h2 className="text-2xl font-black text-white">Sprint Leaderboard</h2>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#FF6A00]">{t("referralSprintPage.topPerformers")}</p>
+              <h2 className="text-2xl font-black text-white">{t("referralSprintPage.leaderboardTitle")}</h2>
             </div>
-            <span className="text-xs text-white/50">Live updates via Supabase Realtime</span>
+            <span className="text-xs text-white/50">{t("referralSprintPage.liveUpdates")}</span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-white/10 text-xs font-bold uppercase text-white/50">
                 <tr>
-                  <th className="pb-3">Rank</th>
-                  <th className="pb-3">Member</th>
-                  <th className="pb-3">Invites</th>
-                  <th className="pb-3">Current Tier</th>
-                  <th className="pb-3">Withdrawable Cash</th>
+                  <th className="pb-3">{t("referralSprintPage.thRank")}</th>
+                  <th className="pb-3">{t("referralSprintPage.thMember")}</th>
+                  <th className="pb-3">{t("referralSprintPage.thInvites")}</th>
+                  <th className="pb-3">{t("referralSprintPage.thCurrentTier")}</th>
+                  <th className="pb-3">{t("referralSprintPage.thWithdrawableCash")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-white/90">
@@ -207,3 +209,4 @@ export default function ReferralSprintPage() {
     </main>
   );
 }
+

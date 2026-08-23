@@ -1,0 +1,1889 @@
+{
+  "schema_version": 1,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Saint Mary, Jamaica",
+    "parish": "Saint Mary",
+    "iso_code": "JM-05",
+    "collected_at": "2026-08-22T01:47:21.663Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "stats": {
+    "source_elements": 57,
+    "candidates": 47,
+    "pending_review": 2,
+    "needs_research": 45
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1313459124",
+      "source_url": "https://www.openstreetmap.org/node/1313459124",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1313459124,
+        "lat": 18.3269153,
+        "lon": -76.8914407,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "Buccaneers"
+        }
+      },
+      "normalized_data": {
+        "name": "Buccaneers",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3269153,
+        "longitude": -76.8914407,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a0ad2cc2113e77cb6c3d5c0f4494ad80400a47619f0894e24f4b39014e827021",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2393408277",
+      "source_url": "https://www.openstreetmap.org/node/2393408277",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2393408277,
+        "lat": 18.3162465,
+        "lon": -76.808994,
+        "tags": {
+          "name": "Robin's Bay Village & Beach Hotel",
+          "tourism": "hotel",
+          "website": "http://www.robinsbayvillageresort.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Robin's Bay Village & Beach Hotel",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3162465,
+        "longitude": -76.808994,
+        "category": "accommodation",
+        "phone": null,
+        "website": "http://www.robinsbayvillageresort.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bc1ac3813f7a0169b7d144c31fea7e5481de1a8d6c4eff6b96a13a5cb2d871c8",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4320163309",
+      "source_url": "https://www.openstreetmap.org/node/4320163309",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4320163309,
+        "lat": 18.4031097,
+        "lon": -76.9406206,
+        "tags": {
+          "name": "Firefly Guest house",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Firefly Guest house",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4031097,
+        "longitude": -76.9406206,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c7cdbad086570b2674782bb83b72ca6fc5474faa04ca97732571b59db52893c3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4709279989",
+      "source_url": "https://www.openstreetmap.org/node/4709279989",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4709279989,
+        "lat": 18.2718117,
+        "lon": -76.902035,
+        "tags": {
+          "addr:street": "Frazerwood, Paradise Ave",
+          "amenity": "bar",
+          "name": "Flames Bar Frazerwood District",
+          "name:en": "Flames Bar Frazerwood District"
+        }
+      },
+      "normalized_data": {
+        "name": "Flames Bar Frazerwood District",
+        "address": "Frazerwood, Paradise Ave, Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.2718117,
+        "longitude": -76.902035,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "034154cb7fdc1f74c261f0a7d171c7ad2c017702b9c05a5b8ec6f064f3a2890b",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4839294708",
+      "source_url": "https://www.openstreetmap.org/node/4839294708",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4839294708,
+        "lat": 18.4221679,
+        "lon": -77.0458569,
+        "tags": {
+          "addr:city": "tower isle",
+          "amenity": "restaurant",
+          "cuisine": "italian",
+          "name": "Toscanini's",
+          "opening_hours": "12:00-14:00,18:30-22:00",
+          "outdoor_seating": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Toscanini's",
+        "address": "tower isle, Jamaica",
+        "city": "tower isle",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4221679,
+        "longitude": -77.0458569,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "12:00-14:00,18:30-22:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "italian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "46b6955b849dadc38f70868b98fcdad52ba0499e832860e96a9bea22f2502b7e",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4839313785",
+      "source_url": "https://www.openstreetmap.org/node/4839313785",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4839313785,
+        "lat": 18.4220756,
+        "lon": -77.0462106,
+        "tags": {
+          "addr:city": "Ocho Rios",
+          "artwork_type": "painting",
+          "name": "Harmony Hall",
+          "opening_hours": "10:00-17:30",
+          "tourism": "gallery"
+        }
+      },
+      "normalized_data": {
+        "name": "Harmony Hall",
+        "address": "Ocho Rios, Jamaica",
+        "city": "Ocho Rios",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4220756,
+        "longitude": -77.0462106,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": "10:00-17:30",
+        "social_profiles": {},
+        "tags": [
+          "gallery"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6e7c8cb139c9811ef53194c5721040ebca1805751fbd249479e33ef362171143",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4959925717",
+      "source_url": "https://www.openstreetmap.org/node/4959925717",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4959925717,
+        "lat": 18.3631894,
+        "lon": -77.0483901,
+        "tags": {
+          "name": "Blue hole",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Blue hole",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3631894,
+        "longitude": -77.0483901,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "65b4e99deeaf1e464ae556a4d8046b31490e90c9cf7ab54eb21b835db50c2d85",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5448877021",
+      "source_url": "https://www.openstreetmap.org/node/5448877021",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5448877021,
+        "lat": 18.3238619,
+        "lon": -76.8051846,
+        "tags": {
+          "addr:street": "ROBIN’S BAY ROAD, hike Rte, ROBIN’S BAY, ST. MARY JAMAICA W. I",
+          "email": "info@StrawberryFieldsTogether.com",
+          "internet_access": "wlan",
+          "name": "STRAWBERRY FIELDS TOGETHER",
+          "phone": "876-436-6395",
+          "tourism": "hotel",
+          "website": "https://strawberryfieldstogether.com/",
+          "wikidata": "Q111884753"
+        }
+      },
+      "normalized_data": {
+        "name": "STRAWBERRY FIELDS TOGETHER",
+        "address": "ROBIN’S BAY ROAD, hike Rte, ROBIN’S BAY, ST. MARY JAMAICA W. I, Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3238619,
+        "longitude": -76.8051846,
+        "category": "accommodation",
+        "phone": "876-436-6395",
+        "website": "https://strawberryfieldstogether.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2d3b4a7673e87ca377e37cc108658c6fc8dce59665c9f66f91f13e3a7693a5fa",
+      "confidence": 0.9,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5471369522",
+      "source_url": "https://www.openstreetmap.org/node/5471369522",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5471369522,
+        "lat": 18.4069363,
+        "lon": -76.949061,
+        "tags": {
+          "name": "James Bond Beach",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "James Bond Beach",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4069363,
+        "longitude": -76.949061,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b6fb3c9c3625c92b1696cb8e648ded5cbaa20ede0d10b357cb845b635b0c836f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5471388221",
+      "source_url": "https://www.openstreetmap.org/node/5471388221",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5471388221,
+        "lat": 18.4058524,
+        "lon": -76.9495224,
+        "tags": {
+          "amenity": "bar",
+          "name": "Moonraker"
+        }
+      },
+      "normalized_data": {
+        "name": "Moonraker",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4058524,
+        "longitude": -76.9495224,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c2d5a8fc948c3e697ddc4f4627fa4207954326aad1e8253603c950bb92f68b9a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6328749985",
+      "source_url": "https://www.openstreetmap.org/node/6328749985",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6328749985,
+        "lat": 18.402786,
+        "lon": -77.0174321,
+        "tags": {
+          "addr:street": "Rio Nuevo, St. Mary Parish",
+          "internet_access": "wlan",
+          "name": "River Paradise Jamai",
+          "name:en": "River Paradise Jamaica",
+          "phone": "+18763190083",
+          "tourism": "hostel"
+        }
+      },
+      "normalized_data": {
+        "name": "River Paradise Jamai",
+        "address": "Rio Nuevo, St. Mary Parish, Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.402786,
+        "longitude": -77.0174321,
+        "category": "accommodation",
+        "phone": "+18763190083",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hostel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e567493d1cf17d963606cc7244f6bad7ef1a7d042823296b69aea48775fc3a02",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7003465113",
+      "source_url": "https://www.openstreetmap.org/node/7003465113",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7003465113,
+        "lat": 18.3529853,
+        "lon": -77.0425527,
+        "tags": {
+          "name": "Old Spanish Bridge",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Old Spanish Bridge",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3529853,
+        "longitude": -77.0425527,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e94bb706fc7c07f36a29b22305938fb388eeda3fce5dfd553861c707259dc400",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7058924571",
+      "source_url": "https://www.openstreetmap.org/node/7058924571",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7058924571,
+        "lat": 18.4106757,
+        "lon": -76.9444603,
+        "tags": {
+          "name": "Goldeneye Hotel",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Goldeneye Hotel",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4106757,
+        "longitude": -76.9444603,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "015e60fd71128eb3c0e354cec7ed73913efde3e86443722b2177bb9f20e7b55f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7058928999",
+      "source_url": "https://www.openstreetmap.org/node/7058928999",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7058928999,
+        "lat": 18.4079832,
+        "lon": -76.9465229,
+        "tags": {
+          "name": "Fisherman's Beach",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Fisherman's Beach",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4079832,
+        "longitude": -76.9465229,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9016848aa6749bec30bcc9a5171060dd2143df9c2851841d47f76db656f472b6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7058929041",
+      "source_url": "https://www.openstreetmap.org/node/7058929041",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7058929041,
+        "lat": 18.408935,
+        "lon": -76.9472873,
+        "tags": {
+          "name": "Button Beach",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Button Beach",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.408935,
+        "longitude": -76.9472873,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d0c21347a407e909f5da5d284a00df54121ede23fda33975adbd02902dc06371",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7061124162",
+      "source_url": "https://www.openstreetmap.org/node/7061124162",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7061124162,
+        "lat": 18.3694354,
+        "lon": -76.8849367,
+        "tags": {
+          "name": "Pagee Beach",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Pagee Beach",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3694354,
+        "longitude": -76.8849367,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "372198a2bc22d467d680a7ec146cccc2bb42f4911a47d00c83909f93bb997401",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7061124349",
+      "source_url": "https://www.openstreetmap.org/node/7061124349",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7061124349,
+        "lat": 18.1840123,
+        "lon": -76.8347955,
+        "tags": {
+          "name": "Scott's Hall Maroon Museum",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Scott's Hall Maroon Museum",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.1840123,
+        "longitude": -76.8347955,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "11976762ad1e1933884e8ba8e936a7661fa1008df72fce59b4ea65559a4b3408",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7153842421",
+      "source_url": "https://www.openstreetmap.org/node/7153842421",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7153842421,
+        "lat": 18.3717034,
+        "lon": -76.8927386,
+        "tags": {
+          "name": "Street Clock Rotatory",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Street Clock Rotatory",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3717034,
+        "longitude": -76.8927386,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "23a661ab7bc910d2e97e2055d1c540ddf022a460564efbda4393817d51dad52f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9752095177",
+      "source_url": "https://www.openstreetmap.org/node/9752095177",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9752095177,
+        "lat": 18.2740453,
+        "lon": -76.7614958,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Annotto Bay Multi-Purpose Complex"
+        }
+      },
+      "normalized_data": {
+        "name": "Annotto Bay Multi-Purpose Complex",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.2740453,
+        "longitude": -76.7614958,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f185a29c329000ca41559f9e8a42cf1af7e340590944e2d338c359bca9e18a7c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9821319501",
+      "source_url": "https://www.openstreetmap.org/node/9821319501",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9821319501,
+        "lat": 18.2813379,
+        "lon": -77.0071879,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "caribbean",
+          "name": "Gordon's Dutch Pot Cuisine and things"
+        }
+      },
+      "normalized_data": {
+        "name": "Gordon's Dutch Pot Cuisine and things",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.2813379,
+        "longitude": -77.0071879,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "caribbean"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a907ef4a2e48f2497ad8041153ec1111aaa13df74e6e4f09210da1f57aba980e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9821319505",
+      "source_url": "https://www.openstreetmap.org/node/9821319505",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9821319505,
+        "lat": 18.2868892,
+        "lon": -77.0060937,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Alsy's Restaurant and Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Alsy's Restaurant and Bar",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.2868892,
+        "longitude": -77.0060937,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "042ab84bba26fd9689d19ebf536c3e2ab8a7ed5c9352623479b4039b26303c29",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9821319509",
+      "source_url": "https://www.openstreetmap.org/node/9821319509",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9821319509,
+        "lat": 18.2883964,
+        "lon": -77.0053448,
+        "tags": {
+          "amenity": "bar",
+          "name": "Keisha's Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Keisha's Bar",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.2883964,
+        "longitude": -77.0053448,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4abb60d3c5f54443b219e78ffe32c15df946e205709eac0aac1b940d25084aa2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/9821366421",
+      "source_url": "https://www.openstreetmap.org/node/9821366421",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "node",
+        "id": 9821366421,
+        "lat": 18.2954274,
+        "lon": -77.0021163,
+        "tags": {
+          "amenity": "bar",
+          "name": "Pub / Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Pub / Bar",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.2954274,
+        "longitude": -77.0021163,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2dcc3cfe6b338aa2b7dcc28598c9bdfa25354b20dc610c8b2ca742ee3bd90594",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/369026772",
+      "source_url": "https://www.openstreetmap.org/way/369026772",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 369026772,
+        "center": {
+          "lat": 18.4174966,
+          "lon": -77.0673617
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Sans Souci",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Sans Souci",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4174966,
+        "longitude": -77.0673617,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cd62fff8113966a6c74369129b4040e84b05d0792dd1a5abb62da935fdc376c9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370655365",
+      "source_url": "https://www.openstreetmap.org/way/370655365",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370655365,
+        "center": {
+          "lat": 18.2707585,
+          "lon": -76.7701021
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Book Shop",
+          "shop": "books",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Book Shop",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.2707585,
+        "longitude": -76.7701021,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9682463f6d8a6e1a24ee4f559b306dbded018b85e3c1b00a6d1bb6ff74ef58ee",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370655366",
+      "source_url": "https://www.openstreetmap.org/way/370655366",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370655366,
+        "center": {
+          "lat": 18.2707381,
+          "lon": -76.7703193
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Bar & Restaurant",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Bar & Restaurant",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.2707381,
+        "longitude": -76.7703193,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "14c11394782aeea9932ed1e39ecf80d449448cd5ba95cc2f9572fb519fe49704",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370656288",
+      "source_url": "https://www.openstreetmap.org/way/370656288",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370656288,
+        "center": {
+          "lat": 18.2699568,
+          "lon": -76.7748266
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Yasania's",
+          "shop": "beauty",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Yasania's",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.2699568,
+        "longitude": -76.7748266,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2dba3debb2cbaea6e1f515df77c08a6d97aa6585537b01b6e983897154b7c320",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370669482",
+      "source_url": "https://www.openstreetmap.org/way/370669482",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370669482,
+        "center": {
+          "lat": 18.2707618,
+          "lon": -76.7684538
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Annotto Restaurant & Bar",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Annotto Restaurant & Bar",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.2707618,
+        "longitude": -76.7684538,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4820ca692b20e0f010c15a1fe2aea00a1128655421d1e1e6fba04cdd6ad098ae",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370669671",
+      "source_url": "https://www.openstreetmap.org/way/370669671",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370669671,
+        "center": {
+          "lat": 18.270384,
+          "lon": -76.7716561
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Duckie K&N Restaurant & Pastry",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Duckie K&N Restaurant & Pastry",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.270384,
+        "longitude": -76.7716561,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f6d027d9620c6abb8e8927e7f995c669d56714fe0dac5f3e134747a33e412b3c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370753828",
+      "source_url": "https://www.openstreetmap.org/way/370753828",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370753828,
+        "center": {
+          "lat": 18.3693852,
+          "lon": -76.8929718
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Book Store",
+          "shop": "books",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Book Store",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3693852,
+        "longitude": -76.8929718,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f81c777dd80792ea6c3ab7bbc67ae1b5e1a28ac9ef93d709c78a982b8e173173",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370753830",
+      "source_url": "https://www.openstreetmap.org/way/370753830",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370753830,
+        "center": {
+          "lat": 18.3699927,
+          "lon": -76.8932601
+        },
+        "tags": {
+          "amenity": "fast_food",
+          "building": "yes",
+          "name": "Juici Patties",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Juici Patties",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3699927,
+        "longitude": -76.8932601,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c6c6d1aeecc307244b745452c3ba38bd3576bfe65ec6c984aa6aa2c5b63ad415",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370753831",
+      "source_url": "https://www.openstreetmap.org/way/370753831",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370753831,
+        "center": {
+          "lat": 18.3705154,
+          "lon": -76.8931411
+        },
+        "tags": {
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "building": "yes",
+          "cuisine": "chicken",
+          "name": "KFC",
+          "source": "KG Ground Survey 2015",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3705154,
+        "longitude": -76.8931411,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e421f356fe441d2d461a30fbfd73925a7568826f8e7fb7f63c82ec2af1ece218",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370762758",
+      "source_url": "https://www.openstreetmap.org/way/370762758",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370762758,
+        "center": {
+          "lat": 18.3959487,
+          "lon": -76.8921715
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Galina Breeze",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Galina Breeze",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3959487,
+        "longitude": -76.8921715,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "788c76c700d5b5d6fb07be717aa2a5c5fac3340b634e164677b2dbcb0e6da6de",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370767103",
+      "source_url": "https://www.openstreetmap.org/way/370767103",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370767103,
+        "center": {
+          "lat": 18.4118215,
+          "lon": -76.9373341
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Club Tan Jan Bar & Restaurant",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Club Tan Jan Bar & Restaurant",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4118215,
+        "longitude": -76.9373341,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "705311f1640a29ff0fee58afee856fc0b88e0f98b67086003adac7f7da30f7c3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370809871",
+      "source_url": "https://www.openstreetmap.org/way/370809871",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370809871,
+        "center": {
+          "lat": 18.370049,
+          "lon": -76.8935618
+        },
+        "tags": {
+          "building": "yes",
+          "name": "MK Mart",
+          "shop": "department_store",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "MK Mart",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.370049,
+        "longitude": -76.8935618,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0e1c8672b117fe5507d6f75cd7194d636dc67a9b5b80c8af32cf057cc6497fc6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370810300",
+      "source_url": "https://www.openstreetmap.org/way/370810300",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370810300,
+        "center": {
+          "lat": 18.3721931,
+          "lon": -76.8919322
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Youngep Lock Beauty Salon",
+          "shop": "beauty",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Youngep Lock Beauty Salon",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3721931,
+        "longitude": -76.8919322,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c1986397afd26d60b61971a154c362beb36f9e1cae0a41018d918a47cbb4e0e7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370811438",
+      "source_url": "https://www.openstreetmap.org/way/370811438",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370811438,
+        "center": {
+          "lat": 18.3861868,
+          "lon": -76.8962411
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Casa Maria Hotel",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Casa Maria Hotel",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3861868,
+        "longitude": -76.8962411,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "167ede9627949bcce03a8dc7f8e6be32f811d6d5ebcf23702e2f4b09da38d02c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/370910860",
+      "source_url": "https://www.openstreetmap.org/way/370910860",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 370910860,
+        "center": {
+          "lat": 18.4041646,
+          "lon": -76.9799081
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Beaches Resort",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Beaches Resort",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4041646,
+        "longitude": -76.9799081,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7cd957a3be98921fc226637325f6a365eabd53e4eacee4ee188d846a0ffca72d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/743735127",
+      "source_url": "https://www.openstreetmap.org/way/743735127",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 743735127,
+        "center": {
+          "lat": 18.3922479,
+          "lon": -76.9001798
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Firefly Estate, Noel Coward's House",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Firefly Estate, Noel Coward's House",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3922479,
+        "longitude": -76.9001798,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "20fa6592f5870cf59cc298a272457744e6326a6cbe03b6a6cce37230cbf1220d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/745341042",
+      "source_url": "https://www.openstreetmap.org/way/745341042",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 745341042,
+        "center": {
+          "lat": 18.3791456,
+          "lon": -76.8907866
+        },
+        "tags": {
+          "historic": "ruins",
+          "name": "Fort Haldane, 1759",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Fort Haldane, 1759",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.3791456,
+        "longitude": -76.8907866,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f36812a14b36ae5cc61b1ab20209be6b7ea64de4ca4b1c702358930f910c9be7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/834194599",
+      "source_url": "https://www.openstreetmap.org/way/834194599",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 834194599,
+        "center": {
+          "lat": 18.4235496,
+          "lon": -77.0469539
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Villa Viento",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Villa Viento",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4235496,
+        "longitude": -77.0469539,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "eea127f9dd58470634d0b9ffa8f424aab22d999f0d171442a6bc0d81b015f64d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/834243456",
+      "source_url": "https://www.openstreetmap.org/way/834243456",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 834243456,
+        "center": {
+          "lat": 18.4219163,
+          "lon": -77.044219
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Tower Cloisters Apartments",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Tower Cloisters Apartments",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4219163,
+        "longitude": -77.044219,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "76be85b20d7c23986b7adbc1e503153af388cb5b2c007e69282601283d1a92cb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/837374986",
+      "source_url": "https://www.openstreetmap.org/way/837374986",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 837374986,
+        "center": {
+          "lat": 18.4146027,
+          "lon": -77.0651164
+        },
+        "tags": {
+          "addr:city": "Ocho Rios",
+          "addr:housenumber": "30",
+          "addr:street": "Marcliff Drive",
+          "building": "yes",
+          "name": "The Blue House Boutique Bed & Breakfast Inn",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "The Blue House Boutique Bed & Breakfast Inn",
+        "address": "30 Marcliff Drive, Ocho Rios, Jamaica",
+        "city": "Ocho Rios",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4146027,
+        "longitude": -77.0651164,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fa1d9aadd9cae23e6b629d65d2fdcab62242a5a56416cbdf60f6289a51828817",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1008881097",
+      "source_url": "https://www.openstreetmap.org/way/1008881097",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1008881097,
+        "center": {
+          "lat": 18.4075093,
+          "lon": -76.9892058
+        },
+        "tags": {
+          "building": "yes",
+          "layer": "1",
+          "name": "Moxons Beach Club",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Moxons Beach Club",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4075093,
+        "longitude": -76.9892058,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f28992098c88315f4fdcf5c68f5e21ed218b53b148b9173270920b8cac7b5ca3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1009565764",
+      "source_url": "https://www.openstreetmap.org/way/1009565764",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1009565764,
+        "center": {
+          "lat": 18.4187532,
+          "lon": -77.0599412
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Prospect Estate and Villas",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Prospect Estate and Villas",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4187532,
+        "longitude": -77.0599412,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8d05f8f4baf22b04999bbaa102786d511c3df9581d05b8f6a7e6087797bc2f9f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "relation/13516679",
+      "source_url": "https://www.openstreetmap.org/relation/13516679",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "relation",
+        "id": 13516679,
+        "center": {
+          "lat": 18.4224113,
+          "lon": -77.0467489
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Tranquility Cove",
+          "source": "Bing",
+          "tourism": "hotel",
+          "type": "multipolygon"
+        }
+      },
+      "normalized_data": {
+        "name": "Tranquility Cove",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4224113,
+        "longitude": -77.0467489,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e5fe809332ae656aab271771fd797b53bcf6262a30c6019549c2296d2f78fa1c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "relation/13516944",
+      "source_url": "https://www.openstreetmap.org/relation/13516944",
+      "source_last_checked_at": "2026-08-22T01:47:21.663Z",
+      "raw_data": {
+        "type": "relation",
+        "id": 13516944,
+        "center": {
+          "lat": 18.4226746,
+          "lon": -77.0439321
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Reefside Villa",
+          "tourism": "hotel",
+          "type": "multipolygon"
+        }
+      },
+      "normalized_data": {
+        "name": "Reefside Villa",
+        "address": "Saint Mary, Jamaica",
+        "city": "Saint Mary",
+        "parish": "Saint Mary",
+        "country": "Jamaica",
+        "latitude": 18.4226746,
+        "longitude": -77.0439321,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "71289bf42b3139a53d9a59e6c324922a79d2ce94c24c947995e3e6ae7b6317ad",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    }
+  ]
+}

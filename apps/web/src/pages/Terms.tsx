@@ -1,41 +1,15 @@
 import SEO from "@/components/SEO";
+import { useI18n } from "@/i18n/I18nContext";
+import { termsContent } from "@/i18n/legal-content";
 
-const TermsPage = () => {
-    return (
-        <div className="min-h-screen bg-background">
-            <SEO title="Terms of Service | Promorang" description="Our terms and conditions for using the Promorang platform." />
-            <main className="pt-24 pb-20 px-6">
-                <div className="container max-w-3xl mx-auto prose dark:prose-invert">
-                    <h1 className="font-serif">Terms of Service</h1>
-                    <p className="text-muted-foreground italic">Last updated: July 1, 2026</p>
-
-                    <h2>1. Acceptance of Terms</h2>
-                    <p>By accessing and using Promorang, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.</p>
-
-                    <h2>2. Description of Service</h2>
-                    <p>Promorang provides a platform connecting brands, merchants, and community hosts for the creation of brand-funded activations ("Moments").</p>
-
-                    <h2>3. User Accounts</h2>
-                    <p>Users must provide accurate information when creating an account. You are responsible for maintaining the security of your account credentials.</p>
-
-                    <h2>4. Bounties and Payments</h2>
-                    <p>Bounties are paid out upon successful verification of the required activation proof. Promorang reserves the right to withhold payments if proof is found to be fraudulent or non-compliant.</p>
-
-                    <h2 id="conduct">5. Conduct and User-Generated Content</h2>
-                    <p>Users must behave professionally and respectfully in person and on the platform. Promorang prohibits harassment, threats, hate, sexual exploitation, fraud, spam, intellectual-property violations, dangerous or illegal activity, and content that targets or humiliates another person.</p>
-                    <p>By uploading content, you confirm that you have the right to share it and grant Promorang the rights needed to host, display, review, and distribute it within the service. Users can report content and block abusive accounts from mobile content controls. Promorang may filter, restrict, remove, or preserve content for review and may suspend or terminate accounts that violate these rules.</p>
-
-                    <h2>6. Pioneer Points</h2>
-                    <p>Pioneer Points are a non-cash record of eligible, verified contribution during a defined Promorang season. Eligible contribution may include meaningful platform activity, original content, hosting or facilitating completed Moments, verified venue participation, qualified referrals, and community support.</p>
-                    <p>Pioneer Points cannot be purchased, sold, transferred, withdrawn, or exchanged. They are not money, Gems, equity, securities, cryptocurrency, ownership in Promorang, or a promise of payment. Point totals may remain pending while activity is verified and may be rejected or reversed for duplicate identities, self-referrals, bots, coordinated manipulation, cancelled activity, inaccurate proof, or other abuse.</p>
-                    <p>If Promorang later establishes a funded reward pool, Promorang will publish the applicable pool amount, eligibility rules, snapshot date, calculation method, verification requirements, minimum distribution, payment timing, and appeal process. Unless and until those terms are published and a pool is funded, Pioneer Points have no cash value and do not guarantee participation in a future distribution.</p>
-
-                    <h2>7. Program Changes</h2>
-                    <p>Promorang may pause or amend prospective earning rules to protect program integrity. A season snapshot preserves the records and rules applicable to that snapshot, subject to verification, fraud review, legal requirements, and corrections of technical errors.</p>
-                </div>
-            </main>
-        </div>
-    );
-};
-
-export default TermsPage;
+export default function TermsPage() {
+  const { locale } = useI18n();
+  const document = termsContent[locale];
+  return <div className="min-h-screen bg-background">
+    <SEO title={`${document.title} | Promorang`} description={document.seo} />
+    <main className="px-6 pb-20 pt-24"><div className="container mx-auto max-w-3xl prose dark:prose-invert">
+      <h1 className="font-serif">{document.title}</h1><p className="text-muted-foreground italic">{document.updated}</p>
+      {document.sections.map((section) => <section key={section.title}><h2 id={section.id}>{section.title}</h2>{section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</section>)}
+    </div></main>
+  </div>;
+}

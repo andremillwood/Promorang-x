@@ -22,6 +22,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface KYCStatus {
   user_id: string;
@@ -42,6 +43,7 @@ interface KYCStatus {
 const API_BASE = import.meta.env.VITE_API_URL || 'https://api.promorang.co/api';
 
 export function KYCPage() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const { toast } = useToast();
   const [status, setStatus] = useState<KYCStatus | null>(null);
@@ -120,7 +122,7 @@ export function KYCPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Shield className="h-8 w-8 text-violet-500" />
-            Identity Verification
+            {t("kyc.title")}
           </h1>
           <GuidanceDisclosure
             id="kyc:unlock-context"
@@ -131,15 +133,15 @@ export function KYCPage() {
             tone="light"
           >
             <p className="text-sm text-muted-foreground">
-              Complete KYC verification to unlock trading and withdrawals.
+              {t("kyc.summary")}
             </p>
           </GuidanceDisclosure>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <Button asChild variant="outline" size="sm">
-              <Link to="/marketplace">Open Marketplace</Link>
+              <Link to="/marketplace">{t("kyc.openMarketplace")}</Link>
             </Button>
             <Button asChild variant="outline" size="sm">
-              <Link to="/liquidity">Liquidity Dashboard</Link>
+              <Link to="/liquidity">{t("kyc.liquidityDashboard")}</Link>
             </Button>
           </div>
         </div>
@@ -149,9 +151,9 @@ export function KYCPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Verification Status</CardTitle>
+                <CardTitle>{t("kyc.statusTitle")}</CardTitle>
                 <CardDescription>
-                  Your current KYC status and trading limits
+                  {t("kyc.statusDescription")}
                 </CardDescription>
               </div>
               {status && getStatusBadge(status.kyc_status)}
@@ -162,34 +164,34 @@ export function KYCPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-green-600">
                   <CheckCircle className="h-5 w-5" />
-                  <span className="font-medium">You're verified and can trade!</span>
+                  <span className="font-medium">{t("kyc.verifiedBanner")}</span>
                 </div>
                 
                 {status.limits && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-xs text-muted-foreground">Daily Deposit</div>
+                      <div className="text-xs text-muted-foreground">{t("kyc.dailyDeposit")}</div>
                       <div className="font-semibold">${status.limits.daily_deposit.limit}</div>
                       <div className="text-xs text-muted-foreground">
-                        Used: ${status.limits.daily_deposit.used}
+                        {t("kyc.used", { amount: status.limits.daily_deposit.used.toString() })}
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-xs text-muted-foreground">Daily Withdrawal</div>
+                      <div className="text-xs text-muted-foreground">{t("kyc.dailyWithdrawal")}</div>
                       <div className="font-semibold">${status.limits.daily_withdrawal.limit}</div>
                       <div className="text-xs text-muted-foreground">
-                        Used: ${status.limits.daily_withdrawal.used}
+                        {t("kyc.used", { amount: status.limits.daily_withdrawal.used.toString() })}
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-xs text-muted-foreground">Daily Trade</div>
+                      <div className="text-xs text-muted-foreground">{t("kyc.dailyTrade")}</div>
                       <div className="font-semibold">${status.limits.daily_trade.limit}</div>
                       <div className="text-xs text-muted-foreground">
-                        Used: ${status.limits.daily_trade.used}
+                        {t("kyc.used", { amount: status.limits.daily_trade.used.toString() })}
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-xs text-muted-foreground">Max Single Trade</div>
+                      <div className="text-xs text-muted-foreground">{t("kyc.maxSingleTrade")}</div>
                       <div className="font-semibold">${status.limits.max_single_trade}</div>
                     </div>
                   </div>

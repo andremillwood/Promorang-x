@@ -8,10 +8,12 @@ import { useJoinedMoments } from "@/hooks/useMoments";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import { useI18n } from "@/i18n/I18nContext";
 
 type FilterType = "all" | "image" | "video";
 
 const Gallery = () => {
+    const { t, formatNumber } = useI18n();
     const { data: media, isLoading: mediaLoading } = useUserMedia();
     const { data: moments } = useJoinedMoments();
     const [filter, setFilter] = useState<FilterType>("all");
@@ -29,9 +31,9 @@ const Gallery = () => {
     });
 
     const filterOptions: { value: FilterType; label: string; icon: typeof Camera }[] = [
-        { value: "all", label: "All", icon: Image },
-        { value: "image", label: "Photos", icon: Camera },
-        { value: "video", label: "Videos", icon: Film },
+        { value: "all", label: t("galleryPage.filterAll"), icon: Image },
+        { value: "image", label: t("galleryPage.filterPhotos"), icon: Camera },
+        { value: "video", label: t("galleryPage.filterVideos"), icon: Film },
     ];
 
     return (
@@ -46,17 +48,17 @@ const Gallery = () => {
                     </Button>
                     <div>
                         <h1 className="font-serif text-3xl font-bold tracking-tight">
-                            My <span className="italic text-accent">Gallery</span>
+                            {t("galleryPage.myPrefix")} <span className="italic text-accent">{t("galleryPage.title")}</span>
                         </h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            All your captured moments in one place
+                            {t("galleryPage.subtitle")}
                         </p>
                     </div>
                 </div>
                 <div className="text-right">
-                    <p className="text-2xl font-bold">{filteredMedia.length}</p>
+                    <p className="text-2xl font-bold">{formatNumber(filteredMedia.length)}</p>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                        Items
+                        {t("galleryPage.items")}
                     </p>
                 </div>
             </div>
@@ -90,12 +92,12 @@ const Gallery = () => {
                     <div className="h-20 w-20 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
                         <Camera className="w-10 h-10 text-accent/40" />
                     </div>
-                    <h2 className="font-serif text-2xl font-bold mb-2">No media yet</h2>
+                    <h2 className="font-serif text-2xl font-bold mb-2">{t("galleryPage.noMediaTitle")}</h2>
                     <p className="text-muted-foreground max-w-sm mb-6">
-                        Attend moments and capture photos or videos to build your visual story.
+                        {t("galleryPage.noMediaDesc")}
                     </p>
                     <Button variant="default" className="rounded-2xl px-8 shadow-soft" asChild>
-                        <Link to="/explore/moments">Explore Moments</Link>
+                        <Link to="/explore/moments">{t("galleryPage.exploreMoments")}</Link>
                     </Button>
                 </div>
             ) : (
@@ -110,7 +112,7 @@ const Gallery = () => {
                                 <div className="aspect-video bg-charcoal flex items-center justify-center relative">
                                     <Film className="w-12 h-12 text-white/40" />
                                     <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/40 text-white text-[9px] font-bold uppercase tracking-wider backdrop-blur-md">
-                                        Video
+                                        {t("galleryPage.videoBadge")}
                                     </div>
                                 </div>
                             ) : (
@@ -131,7 +133,7 @@ const Gallery = () => {
                                 )}
                                 <div className="flex items-center gap-3 text-white/70 text-[10px] font-bold uppercase tracking-wider">
                                     <span className="flex items-center gap-1">
-                                        <Eye className="w-3 h-3" /> {item.view_count}
+                                        <Eye className="w-3 h-3" /> {formatNumber(item.view_count)}
                                     </span>
                                     <span>{format(new Date(item.created_at), "MMM d, yyyy")}</span>
                                 </div>
@@ -145,12 +147,12 @@ const Gallery = () => {
                             {/* Status badge */}
                             {item.moderation_status === "pending" && (
                                 <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-amber-500/90 text-white text-[9px] font-bold uppercase tracking-wider">
-                                    Pending
+                                    {t("galleryPage.pendingBadge")}
                                 </div>
                             )}
                             {item.is_featured && (
                                 <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-primary/90 text-white text-[9px] font-bold uppercase tracking-wider flex items-center gap-1">
-                                    <Heart className="w-3 h-3 fill-current" /> Featured
+                                    <Heart className="w-3 h-3 fill-current" /> {t("galleryPage.featuredBadge")}
                                 </div>
                             )}
                         </div>
@@ -172,7 +174,7 @@ const Gallery = () => {
                             onClick={() => setSelectedMedia(null)}
                             className="absolute -top-12 right-0 text-white/70 hover:text-white text-sm font-bold uppercase tracking-wider"
                         >
-                            Close ✕
+                            {t("galleryPage.close")}
                         </button>
                         {selectedMedia.media_type === "video" ? (
                             <video

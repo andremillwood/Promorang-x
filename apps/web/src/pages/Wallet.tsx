@@ -34,6 +34,8 @@ import { CouponWalletRail } from "@/components/commerce/CouponWalletRail";
 import { PersonalValueNav } from "@/components/value/PersonalValueNav";
 import { DigitalWalletPass3D } from "@/components/wallet/DigitalWalletPass3D";
 import { PARTICIPANT_ECONOMY } from "@promorang/shared";
+import { useMarket } from "@/contexts/MarketContext";
+import { useI18n } from "@/i18n/I18nContext";
 
 type GemsTransaction = {
   id: string;
@@ -75,8 +77,12 @@ const formatSignedValue = (value: number) => `${value >= 0 ? "+" : ""}${Number(v
 const errorMessage = (error: unknown) => error instanceof Error ? error.message : "Something went wrong";
 
 const Wallet = () => {
+  const { t, locale, formatNumber } = useI18n();
   const { user, session } = useAuth();
   const { toast } = useToast();
+  const { country, isFeatureEnabled } = useMarket();
+  const canBuyGems = isFeatureEnabled("gemPurchases");
+  const canWithdrawGems = isFeatureEnabled("gemWithdrawals");
   const { data: walletBalance, isLoading: walletLoading, refetch: refetchWalletBalance } = useUserBalance();
   const { refetch: refetchEconomyHistory } = useEconomyHistory();
   const { data: gemWithdrawals = [], isLoading: withdrawalsLoading, refetch: refetchGemWithdrawals } = useGemWithdrawals();
@@ -259,10 +265,10 @@ const Wallet = () => {
         <Card>
           <CardContent className="py-12 text-center">
             <WalletCards className="mx-auto h-10 w-10 text-primary" />
-            <h1 className="mt-4 text-2xl font-bold">Wallet</h1>
-            <p className="mt-2 text-muted-foreground">Sign in to view balances and manage Gems.</p>
+            <h1 className="mt-4 text-2xl font-bold">{t("wallet.title")}</h1>
+            <p className="mt-2 text-muted-foreground">{t("wallet.signInCopy")}</p>
             <Button asChild className="mt-6">
-              <Link to="/auth">Sign In</Link>
+              <Link to="/auth">{t("wallet.signIn")}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -279,13 +285,13 @@ const Wallet = () => {
           <div className="text-white">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">
               <WalletCards className="h-3.5 w-3.5" />
-              Value Layer
+              {t("wallet.eyebrow")}
             </div>
             <h1 className="max-w-3xl font-sans text-5xl font-black uppercase leading-[0.84] tracking-[-0.07em] text-white md:text-7xl">
-              Value you can<br /><span className="text-primary">actually use.</span>
+              {t("wallet.hero1")}<br /><span className="text-primary">{t("wallet.hero2")}</span>
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/68 md:text-base">
-              See what your participation created, what is ready to use, and the shortest path to your next funded opportunity.
+              {t("wallet.heroCopy")}
             </p>
           </div>
 
@@ -300,9 +306,9 @@ const Wallet = () => {
             />
             <div className="flex w-full max-w-[420px] gap-2">
               <Button className="flex-1 rounded-xl shadow-lg" asChild>
-                <Link to="/discover"><Sparkles className="mr-2 h-4 w-4" />Earn Next Unlock</Link>
+                <Link to="/discover"><Sparkles className="mr-2 h-4 w-4" />{t("wallet.earn")}</Link>
               </Button>
-              <Button variant="outline" size="icon" className="rounded-xl border-white/20 bg-black/40 text-white hover:bg-white/10 hover:text-white" onClick={refreshWallet} title="Refresh Balance">
+              <Button variant="outline" size="icon" className="rounded-xl border-white/20 bg-black/40 text-white hover:bg-white/10 hover:text-white" onClick={refreshWallet} title={t("wallet.refresh")}>
                 <RefreshCw className="h-4 w-4" />
               </Button>
             </div>
@@ -347,7 +353,7 @@ const Wallet = () => {
                 <Coins className="h-4 w-4 text-amber-500" />
                 Points
               </CardTitle>
-              <CardDescription>Activity and proof accumulation</CardDescription>
+              <CardDescription>{t("wallet.pointsCopy")}</CardDescription>
             </CardHeader>
             <CardContent>
               {walletLoading ? (
@@ -355,9 +361,9 @@ const Wallet = () => {
               ) : (
                 <div className="text-3xl font-bold">{walletBalance?.points?.toLocaleString() || 0}</div>
               )}
-              <p className="mt-3 text-sm text-muted-foreground">Points are your participation signal for status, access, and reward eligibility.</p>
+              <p className="mt-3 text-sm text-muted-foreground">{t("wallet.pointsBody")}</p>
               <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-amber-500" style={{ width: `${nextKeyProgress}%` }} /></div>
-              <p className="mt-2 text-xs text-muted-foreground">{Math.max(0, pointsPerKey - (points % pointsPerKey))} Points to the next PromoKey</p>
+              <p className="mt-2 text-xs text-muted-foreground">{t("wallet.nextKey", { count: formatNumber(Math.max(0, pointsPerKey - (points % pointsPerKey))) })}</p>
             </CardContent>
           </Card>
 
@@ -367,7 +373,7 @@ const Wallet = () => {
                 <KeyRound className="h-4 w-4 text-primary" />
                 PromoKeys
               </CardTitle>
-              <CardDescription>Access currency for gated action</CardDescription>
+              <CardDescription>{t("wallet.keysCopy")}</CardDescription>
             </CardHeader>
             <CardContent>
               {walletLoading ? (
@@ -375,9 +381,9 @@ const Wallet = () => {
               ) : (
                 <div className="text-3xl font-bold">{walletBalance?.promokeys || 0}</div>
               )}
-              <p className="mt-3 text-sm text-muted-foreground">Use PromoKeys on funded Moments, gated drops, and proof-backed surfaces.</p>
+              <p className="mt-3 text-sm text-muted-foreground">{t("wallet.keysBody")}</p>
               <Button className="mt-4 w-full" size="sm" onClick={() => setConvertDialogOpen(true)} disabled={availableConversions < 1}>
-                Convert Points
+                {t("wallet.convert")}
               </Button>
             </CardContent>
           </Card>
@@ -388,7 +394,7 @@ const Wallet = () => {
                 <Gem className="h-4 w-4 text-violet-500" />
                 Gems
               </CardTitle>
-              <CardDescription>Spendable balance tied to Pieces</CardDescription>
+              <CardDescription>{t("wallet.gemsCopy")}</CardDescription>
             </CardHeader>
             <CardContent>
               {gemsLoading ? (
@@ -396,10 +402,10 @@ const Wallet = () => {
               ) : (
                 <>
                   <div className="text-3xl font-bold">{gems.toLocaleString()}</div>
-                  <p className="mt-2 text-sm text-muted-foreground">1 Gem = US$1 of platform value. Use Gems for access, funding, rewards, and creator/host earnings.</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{t("wallet.gemsBody")}</p>
                   <div className="mt-4 space-y-1 text-xs text-muted-foreground">
-                    <div>Available in wallet: {gems.toLocaleString()} Gems</div>
-                    <div>Pending withdrawal: {pendingWithdrawalGems.toLocaleString()} Gems</div>
+                    <div>{t("wallet.available")}: {formatNumber(gems)} Gems</div>
+                    <div>{t("wallet.pending")}: {formatNumber(pendingWithdrawalGems)} Gems</div>
                     <div>Older hold data: {Number(gemsSnapshot.pending_purchase_redemption_balance || 0).toLocaleString()} Gems</div>
                     {gemsSnapshot.next_purchase_redemption_at ? (
                       <div>Next purchase batch unlocks: {new Date(gemsSnapshot.next_purchase_redemption_at).toLocaleString()}</div>
@@ -408,13 +414,13 @@ const Wallet = () => {
                 </>
               )}
               <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                <Button size="sm" onClick={() => { setCheckoutActive(false); setBuyDialogOpen(true); }}>
+                <Button size="sm" disabled={!canBuyGems} onClick={() => { setCheckoutActive(false); setBuyDialogOpen(true); }}>
                   <CreditCard className="mr-2 h-4 w-4" />
-                  Buy Gems
+                  {canBuyGems ? t("wallet.buy") : `Purchases unavailable in ${country.name}`}
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => setWithdrawDialogOpen(true)}>
+                <Button size="sm" variant="outline" disabled={!canWithdrawGems} onClick={() => setWithdrawDialogOpen(true)}>
                   <ArrowDownLeft className="mr-2 h-4 w-4" />
-                  Withdraw
+                  {t("wallet.withdraw")}
                 </Button>
               </div>
             </CardContent>
@@ -422,13 +428,13 @@ const Wallet = () => {
 
           <Card className="border-emerald-500/20 bg-emerald-500/5">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base"><DollarSign className="h-4 w-4 text-emerald-500" />Withdrawal Queue</CardTitle>
-              <CardDescription>Earned Gems waiting to leave the platform</CardDescription>
+              <CardTitle className="flex items-center gap-2 text-base"><DollarSign className="h-4 w-4 text-emerald-500" />{t("wallet.queue")}</CardTitle>
+              <CardDescription>{t("wallet.queueCopy")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{pendingWithdrawalGems.toLocaleString()} Gems</div>
               <p className="mt-3 text-sm text-muted-foreground">Requests are reviewed before settlement. 1 Gem withdraws as US$1 before any external provider fees.</p>
-              <Button className="mt-4 w-full" size="sm" variant="outline" onClick={() => setWithdrawDialogOpen(true)}><ShieldCheck className="mr-2 h-4 w-4" />Request withdrawal</Button>
+              <Button className="mt-4 w-full" size="sm" variant="outline" disabled={!canWithdrawGems} onClick={() => setWithdrawDialogOpen(true)}><ShieldCheck className="mr-2 h-4 w-4" />{canWithdrawGems ? t("wallet.request") : `Withdrawals unavailable in ${country.name}`}</Button>
             </CardContent>
           </Card>
         </div>
@@ -436,8 +442,8 @@ const Wallet = () => {
         <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Gems Movement</CardTitle>
-              <CardDescription>Purchases, trades, holds, unlocks, and Gems becoming usable.</CardDescription>
+              <CardTitle>{t("wallet.history")}</CardTitle>
+              <CardDescription>{t("wallet.historyCopy")}</CardDescription>
             </CardHeader>
             <CardContent>
               {transactionsLoading ? (
@@ -449,20 +455,18 @@ const Wallet = () => {
               ) : gemsTransactions.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border p-6 text-center">
                   <Gem className="mx-auto h-8 w-8 text-violet-500" />
-                  <h3 className="mt-3 font-semibold">No Gems activity yet</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Buy Gems here, then use them across marketplace, Pieces, and liquidity flows.
-                  </p>
+                  <h3 className="mt-3 font-semibold">{t("wallet.noActivity")}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{t("wallet.noActivityCopy")}</p>
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Redemption</TableHead>
-                      <TableHead>Balance After</TableHead>
-                      <TableHead>When</TableHead>
+                      <TableHead>{t("wallet.type")}</TableHead>
+                      <TableHead>{t("wallet.amount")}</TableHead>
+                      <TableHead>{t("wallet.redemption")}</TableHead>
+                      <TableHead>{t("wallet.balanceAfter")}</TableHead>
+                      <TableHead>{t("wallet.when")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -491,16 +495,16 @@ const Wallet = () => {
                             <>
                               <div className="capitalize">{transaction.effective_redemption_status.replace(/_/g, " ")}</div>
                               {transaction.redeemable_after ? (
-                                <div>After {new Date(transaction.redeemable_after).toLocaleDateString()}</div>
+                                <div>{t("wallet.after", { date: new Date(transaction.redeemable_after).toLocaleDateString(locale) })}</div>
                               ) : null}
                             </>
                           ) : (
-                            "Not applicable"
+                            t("wallet.notApplicable")
                           )}
                         </TableCell>
                         <TableCell>{Number(transaction.balance_after || 0).toLocaleString()}</TableCell>
                         <TableCell className="text-muted-foreground">
-                          {new Date(transaction.created_at).toLocaleString()}
+                          {new Date(transaction.created_at).toLocaleString(locale)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -513,8 +517,8 @@ const Wallet = () => {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Gem Requests</CardTitle>
-                <CardDescription>Withdrawals and reviews connected to your wallet.</CardDescription>
+                <CardTitle>{t("wallet.requests")}</CardTitle>
+                <CardDescription>{t("wallet.requestsCopy")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {withdrawalsLoading ? <Skeleton className="h-20 w-full" /> : gemWithdrawals.length ? gemWithdrawals.slice(0, 5).map((request) => (
@@ -527,26 +531,26 @@ const Wallet = () => {
                       <Badge variant={request.status === "requested" ? "secondary" : "outline"} className="capitalize">{request.status}</Badge>
                     </div>
                     {["requested", "reviewing"].includes(request.status) && (
-                      <button className="mt-2 text-xs font-semibold text-primary" disabled={gemActions.cancelWithdrawal.isPending} onClick={async () => { try { await gemActions.cancelWithdrawal.mutateAsync(request.id); toast({ title: "Withdrawal cancelled", description: "The Gems returned to your wallet." }); await refreshWallet(); } catch (error: unknown) { toast({ title: "Could not cancel request", description: errorMessage(error), variant: "destructive" }); } }}>Cancel request</button>
+                      <button className="mt-2 text-xs font-semibold text-primary" disabled={gemActions.cancelWithdrawal.isPending} onClick={async () => { try { await gemActions.cancelWithdrawal.mutateAsync(request.id); toast({ title: "Withdrawal cancelled", description: "The Gems returned to your wallet." }); await refreshWallet(); } catch (error: unknown) { toast({ title: "Could not cancel request", description: errorMessage(error), variant: "destructive" }); } }}>{t("wallet.cancelRequest")}</button>
                     )}
                   </div>
-                )) : <p className="text-sm text-muted-foreground">No Gem withdrawal requests yet.</p>}
+                )) : <p className="text-sm text-muted-foreground">{t("wallet.noRequests")}</p>}
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Recent Proof Receipts</CardTitle>
+                <CardTitle>{t("wallet.proofReceipts")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <GuidanceDisclosure
                   id="wallet:proof-receipts"
-                  title="What proof receipts mean"
-                  summary="Backend-issued proof of what was recorded, why, and when it became available."
+                  title={t("wallet.proofMeaning")}
+                  summary={t("wallet.proofSummary")}
                   className="mb-4 mt-0"
                 >
                   <p className="text-sm text-muted-foreground">
-                    Proof receipts are the record behind wallet movement: what action was accepted, what value was attached, and whether that value is available, pending, or locked.
+                    {t("wallet.proofCopy")}
                   </p>
                 </GuidanceDisclosure>
                 {receiptsLoading ? (
@@ -556,7 +560,7 @@ const Wallet = () => {
                     ))}
                   </div>
                 ) : receipts.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No proof receipts yet. Join a Moment or complete an action to start building value.</p>
+                  <p className="text-sm text-muted-foreground">{t("wallet.noProof")}</p>
                 ) : (
                   <div className="space-y-3">
                     {receipts.slice(0, 6).map((receipt) => (
@@ -587,25 +591,24 @@ const Wallet = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Today’s contribution limits</CardTitle>
+                <CardTitle>{t("wallet.limits")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <GuidanceDisclosure
                   id="wallet:contribution-limits"
-                  title="Why contribution limits exist"
-                  summary={`Daily limits protect genuine participation from automated farming.${resetsAt ? ` Resets ${new Date(resetsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.` : ""}`}
+                  title={t("wallet.limitsWhy")}
+                  summary={t("wallet.limitsSummary")}
                   className="mt-0"
                 >
                   <p className="text-sm text-muted-foreground">
-                    Genuine participation earns value. Daily limits keep automated farming from diluting everyone else.
-                    {resetsAt ? ` Your current limits reset ${new Date(resetsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.` : ""}
+                    {t("wallet.limitsCopy")}
                   </p>
                 </GuidanceDisclosure>
                 {caps.map((cap) => (
                   <div key={cap.action_type}>
                     <div className="mb-1.5 flex items-center justify-between text-sm">
                       <span className="capitalize">{cap.action_type}s</span>
-                      <span className="text-muted-foreground">{cap.used} / {cap.daily_limit} rewarded</span>
+                      <span className="text-muted-foreground">{t("wallet.rewarded", { used: cap.used, limit: cap.daily_limit })}</span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-muted">
                       <div
@@ -616,7 +619,7 @@ const Wallet = () => {
                   </div>
                 ))}
                 {!receiptsLoading && caps.length === 0 && (
-                  <p className="text-sm text-muted-foreground">Contribution limits will appear after the economy receipt migration is active.</p>
+                  <p className="text-sm text-muted-foreground">{t("wallet.noLimits")}</p>
                 )}
               </CardContent>
             </Card>
@@ -627,23 +630,23 @@ const Wallet = () => {
       <Dialog open={convertDialogOpen} onOpenChange={setConvertDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Turn Points into access</DialogTitle>
+            <DialogTitle>{t("wallet.convertTitle")}</DialogTitle>
             <DialogDescription>
               Convert {pointsPerKey} Points into 1 PromoKey. PromoKeys enter funded drops and gated opportunities once today's Master Key is active. Maximum {PARTICIPANT_ECONOMY.maxDailyPromoKeyConversions} conversions per day.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-5">
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
-              <div className="flex items-center justify-between"><span className="text-sm text-muted-foreground">Available Points</span><strong>{points.toLocaleString()}</strong></div>
-              <div className="mt-2 flex items-center justify-between"><span className="text-sm text-muted-foreground">Conversion</span><strong>{(convertQuantity * pointsPerKey).toLocaleString()} Points → {convertQuantity} Key{convertQuantity > 1 ? "s" : ""}</strong></div>
+              <div className="flex items-center justify-between"><span className="text-sm text-muted-foreground">{t("wallet.availablePoints")}</span><strong>{formatNumber(points)}</strong></div>
+              <div className="mt-2 flex items-center justify-between"><span className="text-sm text-muted-foreground">{t("wallet.conversion")}</span><strong>{formatNumber(convertQuantity * pointsPerKey)} Points → {formatNumber(convertQuantity)} PromoKeys</strong></div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="promokey-quantity">PromoKeys to unlock</Label>
+              <Label htmlFor="promokey-quantity">{t("wallet.keysToUnlock")}</Label>
               <Input id="promokey-quantity" type="number" min={1} max={availableConversions} value={convertQuantity} onChange={(event) => setConvertQuantity(Math.max(1, Math.min(availableConversions || 1, Number(event.target.value || 1))))} />
-              <p className="text-xs text-muted-foreground">You can convert up to {availableConversions} with your current balance today.</p>
+              <p className="text-xs text-muted-foreground">{t("wallet.convertAvailable", { count: formatNumber(availableConversions) })}</p>
             </div>
             <Button className="w-full" onClick={convertPoints} disabled={converting || availableConversions < 1}>
-              {converting ? "Converting…" : `Unlock ${convertQuantity} PromoKey${convertQuantity > 1 ? "s" : ""}`}
+              {converting ? t("wallet.converting") : t("wallet.unlockKeys", { count: formatNumber(convertQuantity) })}
             </Button>
           </div>
         </DialogContent>
@@ -657,9 +660,9 @@ const Wallet = () => {
       >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Buy Gems</DialogTitle>
+            <DialogTitle>{t("wallet.buyTitle")}</DialogTitle>
             <DialogDescription>
-              Gems are purchased by the unit in USD and credited only after Stripe confirms payment. Purchased and promotional Gems remain separately traceable. Purchases above $100 require KYC.
+              This market settles Gem purchases in USD through Stripe. Your local currency is {country.currency}; your bank may apply conversion fees. Purchased and promotional Gems remain separately traceable. Purchases above US$100 require KYC.
             </DialogDescription>
           </DialogHeader>
 
@@ -686,7 +689,7 @@ const Wallet = () => {
                         : "border-border hover:border-violet-500/40"
                     }`}
                   >
-                    <div className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Pack</div>
+                    <div className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("wallet.pack")}</div>
                     <div className="mt-2 text-2xl font-bold">${amount}</div>
                     <div className="mt-1 text-sm text-muted-foreground">{amount} Gems</div>
                   </button>
@@ -694,7 +697,7 @@ const Wallet = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="wallet-gems-amount">Custom USD amount</Label>
+                <Label htmlFor="wallet-gems-amount">{t("wallet.customAmount")}</Label>
                 <Input
                   id="wallet-gems-amount"
                   type="number"
@@ -711,21 +714,21 @@ const Wallet = () => {
 
               <div className="rounded-2xl border border-border bg-muted/20 p-4">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm text-muted-foreground">You will receive</span>
+                  <span className="text-sm text-muted-foreground">{t("wallet.receive")}</span>
                   <span className="text-lg font-semibold">{Number(purchaseAmount || 0).toLocaleString()} Gems</span>
                 </div>
               </div>
 
               <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
                 <Button variant="outline" onClick={() => setBuyDialogOpen(false)}>
-                  Cancel
+                  {t("wallet.cancel")}
                 </Button>
                 <Button
                   onClick={() => setCheckoutActive(true)}
                   disabled={!purchaseAmount || purchaseAmount < 5 || purchaseAmount > 1000}
                 >
                   <CreditCard className="mr-2 h-4 w-4" />
-                  Continue to Payment
+                  {t("wallet.continuePayment")}
                 </Button>
               </div>
             </div>
@@ -736,27 +739,27 @@ const Wallet = () => {
       <Dialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Request Gem withdrawal</DialogTitle>
+            <DialogTitle>{t("wallet.withdrawTitle")}</DialogTitle>
             <DialogDescription>
               Earned Gems can be reviewed for payout at 1 Gem = US$1. Minimum request is 250 Gems.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="rounded-2xl border border-border bg-muted/20 p-4">
-              <div className="flex items-center justify-between text-sm"><span className="text-muted-foreground">Wallet Gems</span><strong>{gems.toLocaleString()}</strong></div>
-              <div className="mt-2 flex items-center justify-between text-sm"><span className="text-muted-foreground">Already pending</span><strong>{pendingWithdrawalGems.toLocaleString()}</strong></div>
+              <div className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{t("wallet.walletGems")}</span><strong>{formatNumber(gems)}</strong></div>
+              <div className="mt-2 flex items-center justify-between text-sm"><span className="text-muted-foreground">{t("wallet.alreadyPending")}</span><strong>{formatNumber(pendingWithdrawalGems)}</strong></div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="gem-withdraw-amount">Gems to withdraw</Label>
+              <Label htmlFor="gem-withdraw-amount">{t("wallet.gemsToWithdraw")}</Label>
               <Input id="gem-withdraw-amount" type="number" min={250} value={withdrawAmount} onChange={(event) => setWithdrawAmount(event.target.value)} />
-              <p className="text-xs text-muted-foreground">This will hold the Gems immediately while the request is reviewed.</p>
+              <p className="text-xs text-muted-foreground">{t("wallet.withdrawHold")}</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="gem-withdraw-note">Payout note</Label>
-              <Textarea id="gem-withdraw-note" value={withdrawNote} onChange={(event) => setWithdrawNote(event.target.value)} placeholder="Bank, PayPal, or preferred payout details for review." />
+              <Label htmlFor="gem-withdraw-note">{t("wallet.payoutNote")}</Label>
+              <Textarea id="gem-withdraw-note" value={withdrawNote} onChange={(event) => setWithdrawNote(event.target.value)} placeholder={t("wallet.payoutPlaceholder")} />
             </div>
             <Button className="w-full" disabled={gemActions.requestWithdrawal.isPending || Number(withdrawAmount) < 250 || Number(withdrawAmount) > gems} onClick={submitGemWithdrawal}>
-              {gemActions.requestWithdrawal.isPending ? "Requesting..." : "Request withdrawal"}
+              {gemActions.requestWithdrawal.isPending ? t("wallet.requesting") : t("wallet.request")}
             </Button>
           </div>
         </DialogContent>

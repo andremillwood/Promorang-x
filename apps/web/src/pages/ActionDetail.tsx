@@ -16,8 +16,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function ActionDetail() {
+  const { t } = useI18n();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [isVerifying, setIsVerifying] = useState(false);
@@ -64,7 +66,7 @@ export default function ActionDetail() {
           className="inline-flex items-center gap-1.5 text-xs font-mono text-slate-400 hover:text-amber-400 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to {action.scene_title}
+          {t("actionDetail.backToScene", { scene: action.scene_title })}
         </Link>
 
         {/* MAIN CARD */}
@@ -75,7 +77,7 @@ export default function ActionDetail() {
                 {action.verification_type}
               </Badge>
               <Badge variant="outline" className="border-emerald-500/40 text-emerald-400 font-mono text-xs">
-                Requires: {action.required_key}
+                {t("actionDetail.requiresKey", { key: action.required_key })}
               </Badge>
             </div>
             
@@ -123,9 +125,9 @@ export default function ActionDetail() {
                   <QrCode className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Verify Your Action</h3>
+                  <h3 className="text-lg font-bold text-white">{t("actionDetail.verifyAction")}</h3>
                   <p className="text-xs text-slate-400 max-w-md mx-auto mt-1">
-                    Present your location or scan the official QR code at the venue to verify completion and claim your rewards.
+                    {t("actionDetail.verifyInstructions")}
                   </p>
                 </div>
 
@@ -134,7 +136,7 @@ export default function ActionDetail() {
                   disabled={isVerifying}
                   className="w-full max-w-sm bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-600 hover:to-emerald-600 text-slate-950 font-bold text-base py-6 shadow-lg shadow-amber-500/10"
                 >
-                  {isVerifying ? "Verifying Proof..." : "Verify Action & Claim"}
+                  {isVerifying ? t("actionDetail.verifying") : t("actionDetail.verifyButton")}
                 </Button>
               </div>
             ) : (
@@ -143,9 +145,12 @@ export default function ActionDetail() {
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-emerald-300">Action Verified!</h3>
+                  <h3 className="text-xl font-black text-emerald-300">{t("actionDetail.verifiedTitle")}</h3>
                   <p className="text-xs text-slate-300 max-w-md mx-auto mt-1">
-                    Your completion was recorded in the auditable Gem Ledger. You earned <span className="text-emerald-400 font-bold">${verificationResult?.gems_awarded.toFixed(2)} Gems</span> and <span className="text-amber-400 font-bold">+{verificationResult?.points_awarded} PromoPoints</span>.
+                    {t("actionDetail.verifiedDescription", {
+                      gems: verificationResult?.gems_awarded?.toFixed(2) || "0.00",
+                      points: (verificationResult?.points_awarded || 0).toString(),
+                    })}
                   </p>
                 </div>
 
@@ -154,7 +159,7 @@ export default function ActionDetail() {
                     onClick={() => navigate(`/scene/${action.scene_slug}`)}
                     className="bg-slate-800 hover:bg-slate-700 text-white font-bold"
                   >
-                    Return to Scene
+                    {t("actionDetail.returnToScene")}
                   </Button>
                 </div>
               </div>

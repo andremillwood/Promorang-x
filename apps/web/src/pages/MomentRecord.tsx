@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import type { Tables } from "@/integrations/supabase/types";
+import { useI18n } from "@/i18n/I18nContext";
 
 type Moment = Tables<"moments">;
 
@@ -32,6 +33,7 @@ interface RecordStats {
 }
 
 const MomentRecord = () => {
+  const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -152,8 +154,8 @@ const MomentRecord = () => {
     link.click();
 
     toast({
-      title: "Record Exported",
-      description: "CSV file downloaded successfully",
+      title: t("momentRecord.exportedToast"),
+      description: t("momentRecord.exportedToastCopy"),
     });
   };
 
@@ -174,9 +176,9 @@ const MomentRecord = () => {
     return (
       <div className="min-h-screen bg-background">
         <div className="pt-24 pb-12 px-4 text-center">
-          <h1 className="font-serif text-2xl font-bold mb-4">Record not found</h1>
+          <h1 className="font-serif text-2xl font-bold mb-4">{t("momentRecord.notFound")}</h1>
           <Button asChild>
-            <Link to="/explore/moments">Browse Moments</Link>
+            <Link to="/explore/moments">{t("momentRecord.browseMoments")}</Link>
           </Button>
         </div>
       </div>
@@ -194,12 +196,12 @@ const MomentRecord = () => {
           <div className="flex items-center justify-between mb-6">
             <Button variant="ghost" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              {t("momentRecord.back")}
             </Button>
             {isHost && (
               <Button variant="outline" onClick={handleExportCSV}>
                 <Download className="w-4 h-4 mr-2" />
-                Export Record
+                {t("momentRecord.export")}
               </Button>
             )}
           </div>
@@ -211,7 +213,7 @@ const MomentRecord = () => {
                 <div className="flex items-center gap-3 mb-2">
                   <FileText className="w-6 h-6 text-primary" />
                   <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                    Moment Record
+                    {t("momentRecord.badge")}
                   </span>
                 </div>
                 <h1 className="font-serif text-3xl font-bold text-foreground mb-2">

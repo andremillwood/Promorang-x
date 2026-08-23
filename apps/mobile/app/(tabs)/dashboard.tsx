@@ -398,7 +398,7 @@ function AdminDashboardView({ isDark }: RoleViewProps) {
                     <Text style={[styles.actionButtonText, { color: isDark ? 'white' : DesignColors.gray[900] }]}>Asset Catalog</Text>
                 </Pressable>
             </View>
-            <MobileReturnCard role="admin" isDark={isDark} />
+            <MobileReturnCard role="agency" isDark={isDark} />
             <Pressable onPress={() => router.push('/studio')} style={styles.roleNextMove}>
                 <View style={[styles.roleNextIcon, { backgroundColor: '#6B7280' }]}><Ionicons name="analytics" size={20} color={DesignColors.black} /></View>
                 <View style={styles.roleNextCopy}>
@@ -475,7 +475,7 @@ function HostDashboardView({ isDark }: RoleViewProps) {
     );
 }
 
-function MobileReturnCard({ role, isDark }: { role: Extract<StakeholderReturnRole, 'participant' | 'brand' | 'merchant' | 'host'>; isDark: boolean }) {
+function MobileReturnCard({ role, isDark }: { role: StakeholderReturnRole; isDark: boolean }) {
     const { data, loading } = useStakeholderReturn();
     const blueprint = STAKEHOLDER_RETURN_BLUEPRINTS[role];
     const metricValue: Record<StakeholderReturnMetricId, number> = {

@@ -25,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
 import { PromoPilotExecutionPanel } from "@/components/campaigns/PromoPilotExecutionPanel";
 import { DemandFlightPath } from "@/components/campaigns/DemandFlightPath";
+import { useI18n } from "@/i18n/I18nContext";
 
 type CampaignPlanMetadata = {
   original_prompt?: string;
@@ -56,6 +57,7 @@ function descriptionValue(campaign: Campaign | undefined, prefix: string) {
 }
 
 const CampaignDetail = () => {
+  const { t } = useI18n();
   const { id = "" } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -102,20 +104,20 @@ const CampaignDetail = () => {
     <main className="min-h-screen bg-[#f2eee5] pb-24 text-[#191816]">
       <section className="bg-[#151412] px-5 pb-12 pt-8 text-white sm:px-10 lg:px-16 xl:px-24">
         <div className="mx-auto max-w-7xl">
-          <Link to="/dashboard?tab=campaigns" className="flex w-fit items-center gap-2 text-sm font-semibold text-white/50 transition hover:text-white"><ArrowLeft className="h-4 w-4" /> Your activations</Link>
+          <Link to="/dashboard?tab=campaigns" className="flex w-fit items-center gap-2 text-sm font-semibold text-white/50 transition hover:text-white"><ArrowLeft className="h-4 w-4" /> {t("campaignDetail.yourActivations")}</Link>
           <div className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1fr)_350px] lg:items-end">
             <div>
               <div className="flex flex-wrap items-center gap-3">
-                <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${isDraft ? "bg-amber-300 text-black" : "bg-emerald-400 text-black"}`}>{isDraft ? "Plan · not live" : "Live activation"}</span>
+                <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${isDraft ? "bg-amber-300 text-black" : "bg-emerald-400 text-black"}`}>{isDraft ? t("campaignDetail.planNotLive") : t("campaignDetail.liveActivation")}</span>
                 {campaign.geo_label && <span className="flex items-center gap-1.5 text-xs text-white/45"><MapPin className="h-3.5 w-3.5" />{campaign.geo_label}</span>}
               </div>
               <h1 className="mt-5 max-w-4xl text-5xl font-black leading-[0.9] tracking-[-0.055em] sm:text-7xl">{campaign.title}</h1>
               <p className="mt-6 max-w-3xl text-lg leading-8 text-white/55">{desiredOutcome}</p>
             </div>
             <div className="border-l border-white/15 pl-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">The honest next move</p>
-              <p className="mt-3 text-2xl font-black leading-tight">{isDraft ? "Shape the Scene, people, and reserve." : "See what people actually changed."}</p>
-              <p className="mt-3 text-sm leading-6 text-white/45">{isDraft ? "No Gems are secured and no invitation is open yet." : "Review accepted proof, participant value, and the return to the Scene."}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">{t("campaignDetail.nextMoveEyebrow")}</p>
+              <p className="mt-3 text-2xl font-black leading-tight">{isDraft ? t("campaignDetail.draftNextMove") : t("campaignDetail.activeNextMove")}</p>
+              <p className="mt-3 text-sm leading-6 text-white/45">{isDraft ? t("campaignDetail.draftNextDetail") : t("campaignDetail.activeNextDetail")}</p>
             </div>
           </div>
         </div>
@@ -126,10 +128,10 @@ const CampaignDetail = () => {
           <>
             <section className="grid gap-x-10 gap-y-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { number: "01", label: "People", value: "Choose the Scene and contributors", icon: Users },
-                { number: "02", label: "What they do", value: peopleWill, icon: Rocket },
-                { number: "03", label: "What counts", value: whatCounts, icon: ShieldCheck },
-                { number: "04", label: "What follows", value: campaign.reward_value || "Participant value to be agreed", icon: Gift },
+                { number: "01", label: t("campaignDetail.people"), value: "Choose the Scene and contributors", icon: Users },
+                { number: "02", label: t("campaignDetail.whatTheyDo"), value: peopleWill, icon: Rocket },
+                { number: "03", label: t("campaignDetail.whatCounts"), value: whatCounts, icon: ShieldCheck },
+                { number: "04", label: t("campaignDetail.whatFollows"), value: campaign.reward_value || "Participant value to be agreed", icon: Gift },
               ].map((item) => (
                 <article key={item.number} className="border-t border-black/20 pt-5">
                   <div className="flex items-center justify-between"><span className="text-xs font-black text-[#d85b24]">{item.number}</span><item.icon className="h-5 w-5 text-black/30" /></div>
@@ -141,8 +143,8 @@ const CampaignDetail = () => {
 
             <section className="grid overflow-hidden border border-black/15 bg-[#faf7f0] lg:grid-cols-[minmax(0,1fr)_400px]">
               <div className="p-7 sm:p-10 lg:p-12">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#d85b24]">Activation readiness</p>
-                <h2 className="mt-3 max-w-2xl text-4xl font-black leading-[0.95] tracking-[-0.045em]">A promising plan still needs relationships, terms, and secured value.</h2>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#d85b24]">{t("campaignDetail.activationReadiness")}</p>
+                <h2 className="mt-3 max-w-2xl text-4xl font-black leading-[0.95] tracking-[-0.045em]">{t("campaignDetail.readinessHeading")}</h2>
                 <div className="mt-9 grid gap-5 sm:grid-cols-2">
                   {[
                     ["Outcome shaped", true, expectedMovement],
@@ -159,11 +161,11 @@ const CampaignDetail = () => {
               </div>
               <aside className="bg-[#d85b24] p-7 text-white sm:p-10 lg:p-12">
                 <CircleDollarSign className="h-8 w-8" />
-                <p className="mt-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/70">Continue in Activation Studio</p>
+                <p className="mt-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/70">{t("campaignDetail.continueInStudio")}</p>
                 <h2 className="mt-3 text-3xl font-black leading-tight">Turn the draft into something people can trust.</h2>
                 <p className="mt-4 text-sm leading-6 text-white/75">Connect a Scene and Moment, invite contributors, define the participant limit, then secure Gems through the canonical activation reserve.</p>
                 <Button onClick={() => enterStudio.mutate()} disabled={enterStudio.isPending} className="mt-8 h-14 w-full rounded-full bg-[#191816] text-base font-black text-white hover:bg-black">
-                  {enterStudio.isPending ? "Opening the studio…" : campaign.activation_proposal_id ? "Return to Activation Studio" : "Continue shaping"}<ArrowRight className="ml-2 h-4 w-4" />
+                  {enterStudio.isPending ? "Opening the studio…" : campaign.activation_proposal_id ? t("campaignDetail.openStudioButton") : t("campaignDetail.continueShaping")}<ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
                 <p className="mt-4 text-center text-xs text-white/65">This still does not publish or move Gems.</p>
               </aside>

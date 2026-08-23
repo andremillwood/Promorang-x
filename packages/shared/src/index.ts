@@ -1153,4 +1153,5 @@ export function resolveParticipantEconomyTier(tier?: string | null) {
 }
 
 export * from "./context/Web3VaultContext";
+export * from "./markets";
 

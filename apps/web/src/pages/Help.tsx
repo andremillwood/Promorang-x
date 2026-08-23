@@ -23,6 +23,9 @@ import {
   Compass,
 } from "lucide-react";
 import SEO from "@/components/SEO";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
+import { helpFaqTranslations, helpGuideTranslations } from "@/i18n/help-content";
 
 type CategoryId = "all" | "members" | "venues" | "creators" | "brands" | "safety";
 
@@ -214,14 +217,31 @@ const categories: Array<{ id: CategoryId; label: string; icon: typeof Users }> =
 ];
 
 export default function HelpCenter() {
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const localizedGuides = useMemo(() => guides.map((guide) => {
+    const translated = helpGuideTranslations[locale]?.[guide.id];
+    if (!translated) return guide;
+    return {
+      ...guide,
+      categoryLabel: translated.categoryLabel,
+      title: translated.title,
+      summary: translated.summary,
+      steps: translated.steps,
+      actionLink: guide.actionLink ? { ...guide.actionLink, label: translated.actionLabel } : undefined,
+    };
+  }), [locale]);
+  const localizedFaqs = useMemo(() => {
+    const translated = helpFaqTranslations[locale];
+    return translated?.map((item, index) => ({ ...faqs[index], ...item })) || faqs;
+  }, [locale]);
 
   // Filtered guides based on search & category
   const filteredGuides = useMemo(() => {
-    return guides.filter((g) => {
+    return localizedGuides.filter((g) => {
       const matchesCategory = activeCategory === "all" || g.category === activeCategory;
       const matchesSearch =
         searchQuery.trim() === "" ||
@@ -230,11 +250,11 @@ export default function HelpCenter() {
         g.steps.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, localizedGuides, searchQuery]);
 
   // Filtered FAQs based on search & category
   const filteredFaqs = useMemo(() => {
-    return faqs.filter((f) => {
+    return localizedFaqs.filter((f) => {
       const matchesCategory = activeCategory === "all" || f.category === activeCategory;
       const matchesSearch =
         searchQuery.trim() === "" ||
@@ -242,13 +262,13 @@ export default function HelpCenter() {
         f.a.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, localizedFaqs, searchQuery]);
 
   return (
     <div className="min-h-screen bg-[#070707] text-white">
       <SEO
-        title="Knowledge Base & FAQ Library | Promorang"
-        description="Search our complete How-To library, step-by-step guides, and frequently asked questions for locals, venues, creators, and brands."
+        title={t("help.title")}
+        description={t("help.copy")}
       />
 
       <main className="pt-24 pb-20 px-5">
@@ -259,17 +279,17 @@ export default function HelpCenter() {
               to="/what-is-promorang"
               className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition"
             >
-              <Sparkles className="h-3.5 w-3.5" /> New to Promorang? Read &quot;What is Promorang?&quot; in 60 seconds <ArrowRight className="h-3.5 w-3.5" />
+              <Sparkles className="h-3.5 w-3.5" /> {t("help.new")} <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
           {/* Hero */}
           <div className="text-center max-w-3xl mx-auto mb-10">
             <h1 className="font-serif text-4xl md:text-5xl font-black uppercase tracking-tight mb-4">
-              Knowledge Base & How-To Library
+              {t("help.title")}
             </h1>
             <p className="text-base md:text-lg text-white/70">
-              Find instant answers, step-by-step walkthroughs, and operational guides for every role.
+              {t("help.copy")}
             </p>
 
             {/* Live Search Input */}
@@ -277,7 +297,7 @@ export default function HelpCenter() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
               <Input
                 type="text"
-                placeholder="Search guides, topics, keywords (e.g. PromoKey, QR scan, bounty)..."
+                placeholder={t("help.search")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-12 pr-4 py-6 bg-white/[0.05] border-white/15 rounded-2xl text-white placeholder:text-white/40 focus:border-primary text-base"
@@ -287,7 +307,7 @@ export default function HelpCenter() {
                   onClick={() => setSearchQuery("")}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-xs uppercase font-bold text-white/40 hover:text-white"
                 >
-                  Clear
+                  {t("help.clear")}
                 </button>
               )}
             </div>
@@ -308,7 +328,7 @@ export default function HelpCenter() {
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
-                  {cat.label}
+                  {t(`help.${cat.id}` as TranslationKey)}
                 </button>
               );
             })}
@@ -357,8 +377,8 @@ export default function HelpCenter() {
           <section className="mb-20">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <p className="text-xs font-black uppercase tracking-widest text-primary">Step-by-Step</p>
-                <h2 className="text-2xl md:text-3xl font-black">How-To Library</h2>
+                <p className="text-xs font-black uppercase tracking-widest text-primary">{t("help.step")}</p>
+                <h2 className="text-2xl md:text-3xl font-black">{t("help.library")}</h2>
               </div>
               <span className="text-xs text-white/40">
                 Showing {filteredGuides.length} {filteredGuides.length === 1 ? "guide" : "guides"}
@@ -419,8 +439,8 @@ export default function HelpCenter() {
           <section className="mb-20">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <p className="text-xs font-black uppercase tracking-widest text-primary">Quick Answers</p>
-                <h2 className="text-2xl md:text-3xl font-black">Frequently Asked Questions</h2>
+                <p className="text-xs font-black uppercase tracking-widest text-primary">{t("help.answers")}</p>
+                <h2 className="text-2xl md:text-3xl font-black">{t("help.faq")}</h2>
               </div>
               <span className="text-xs text-white/40">
                 Showing {filteredFaqs.length} {filteredFaqs.length === 1 ? "question" : "questions"}
@@ -465,9 +485,9 @@ export default function HelpCenter() {
 
           {/* Still Need Help Box */}
           <div className="p-8 md:p-12 bg-gradient-to-b from-primary/10 to-white/[0.02] border border-primary/20 rounded-[2.5rem] text-center">
-            <h3 className="text-2xl font-black mb-2">Still Have Questions?</h3>
+            <h3 className="text-2xl font-black mb-2">{t("help.still")}</h3>
             <p className="text-sm text-white/70 max-w-md mx-auto mb-6">
-              Our team is ready to help you set up activations, troubleshoot check-ins, or manage your wallet.
+              {t("help.stillCopy")}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Button
@@ -475,13 +495,13 @@ export default function HelpCenter() {
                 onClick={() => navigate('/contact')}
                 className="bg-primary text-black font-black"
               >
-                <Mail className="w-4 h-4 mr-2" /> Email Support
+                <Mail className="w-4 h-4 mr-2" /> {t("help.email")}
               </Button>
               <Link
                 to="/what-is-promorang"
                 className="inline-flex items-center px-4 py-2 rounded-xl border border-white/15 bg-white/[0.05] text-xs font-bold hover:bg-white/10 transition"
               >
-                Learn More About Promorang
+                {t("help.learn")}
               </Link>
             </div>
           </div>

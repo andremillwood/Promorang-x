@@ -42,6 +42,7 @@ import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { TeamSlashModal } from "@/components/TeamSlashModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
+import { useI18n } from "@/i18n/I18nContext";
 
 type PublicMomentRow = Tables<"view_public_moment_directory">;
 
@@ -52,6 +53,7 @@ type PublicMomentRow = Tables<"view_public_moment_directory">;
 
 const MerchantDashboardV2 = () => {
   const { user } = useAuth();
+  const { t, formatNumber } = useI18n();
   const { data: venues, isLoading: venuesLoading } = useMerchantVenues();
   const { data: stats, isLoading: statsLoading } = useMerchantEconomy();
   const { data: economy, isLoading: economyLoading } = useMerchantEconomy();
@@ -110,39 +112,39 @@ const MerchantDashboardV2 = () => {
         onOpenStreak={() => setStreakOpen(true)}
       />
       <DashboardHero
-        badge="Venue studio"
-        title={isNewMerchant ? "Make your venue a place people want to return to" : "Keep your venue connected to the Scenes around it"}
-        description="Welcome Moments, creators, and offers; recognize arrivals and redemptions; then give people a reason to come back through the door."
+        badge={t("merchantDash.badge")}
+        title={t(isNewMerchant ? "merchantDash.newTitle" : "merchantDash.title")}
+        description={t("merchantDash.copy")}
         actions={[
           isNewMerchant
-            ? { label: "Add your first venue", href: "/dashboard/venues/add", icon: Store }
-            : { label: "Open orders and arrivals", onClick: () => setActiveTab("commerce"), icon: ShoppingBag },
-          { label: "View storefront", href: user?.id ? `/storefront/${user.id}` : "/shop", icon: ExternalLink },
-          { label: "Add product", onClick: () => setActiveTab("products"), icon: Package },
-          { label: "Add venue", href: "/dashboard/venues/add", icon: Store },
+            ? { label: t("merchantDash.addFirst"), href: "/dashboard/venues/add", icon: Store }
+            : { label: t("merchantDash.ordersArrivals"), onClick: () => setActiveTab("commerce"), icon: ShoppingBag },
+          { label: t("merchantDash.viewStorefront"), href: user?.id ? `/storefront/${user.id}` : "/shop", icon: ExternalLink },
+          { label: t("merchantDash.addProduct"), onClick: () => setActiveTab("products"), icon: Package },
+          { label: t("merchantDash.addVenue"), href: "/dashboard/venues/add", icon: Store },
         ]}
         stats={[
-          { label: "Venues", value: (venues?.length || 0).toLocaleString(), helper: "Registered locations", icon: Store, accentClass: "text-emerald-300" },
-          { label: "Verified arrivals", value: weeklyTraffic.toLocaleString(), helper: "Last seven days", icon: Users, accentClass: "text-emerald-300" },
-          { label: "Open orders", value: (stats?.openOrders || 0).toLocaleString(), helper: "Need merchant attention", icon: ShoppingBag, accentClass: "text-amber-300" },
-          { label: "Repeat visitors", value: (stats?.repeatVisitors || 0).toLocaleString(), helper: "People who came back", icon: TrendingUp, accentClass: "text-emerald-300" },
+          { label: t("merchantDash.venues"), value: formatNumber(venues?.length || 0), helper: t("merchantDash.registered"), icon: Store, accentClass: "text-emerald-300" },
+          { label: t("merchantDash.arrivals"), value: formatNumber(weeklyTraffic), helper: t("merchantDash.lastSeven"), icon: Users, accentClass: "text-emerald-300" },
+          { label: t("merchantDash.openOrders"), value: formatNumber(stats?.openOrders || 0), helper: t("merchantDash.needAttention"), icon: ShoppingBag, accentClass: "text-amber-300" },
+          { label: t("merchantDash.repeatVisitors"), value: formatNumber(stats?.repeatVisitors || 0), helper: t("merchantDash.cameBack"), icon: TrendingUp, accentClass: "text-emerald-300" },
         ]}
         isLoading={statsLoading || economyLoading}
         glowClassName="bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_38%),radial-gradient(circle_at_bottom_right,_rgba(255,167,38,0.14),_transparent_34%)]"
       />
 
       <DashboardWorkspaceNav
-        eyebrow="Inside your venue studio"
-        title="Welcome people well, then understand why they returned"
+        eyebrow={t("merchantDash.eyebrow")}
+        title={t("merchantDash.workspace")}
         activeValue={activeTab}
         onValueChange={setActiveTab}
         items={[
-          { value: "storefront", label: "Storefront", icon: Store },
-          { value: "products", label: "Products & inventory", icon: Package },
-          { value: "commerce", label: "Orders", icon: ShoppingBag },
-          { value: "redemptions", label: "Redemptions", icon: QrCode },
-          { value: "venues", label: "Venues", icon: Store },
-          { value: "analytics", label: "Analytics", icon: BarChart3 },
+          { value: "storefront", label: t("merchantDash.storefront"), icon: Store },
+          { value: "products", label: t("merchantDash.products"), icon: Package },
+          { value: "commerce", label: t("merchantDash.orders"), icon: ShoppingBag },
+          { value: "redemptions", label: t("merchantDash.redemptions"), icon: QrCode },
+          { value: "venues", label: t("merchantDash.venues"), icon: Store },
+          { value: "analytics", label: t("merchantDash.analytics"), icon: BarChart3 },
         ]}
       />
 
@@ -157,21 +159,21 @@ const MerchantDashboardV2 = () => {
                 <Zap className="w-6 h-6 text-emerald-600" />
               </div>
               <div className="flex-1">
-                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Put your first venue on the Scene</h3>
+                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">{t("merchantDash.firstTitle")}</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  The first merchant success is simple: register the place, welcome a live Moment, then recognize the first person who arrives through Promorang.
+                  {t("merchantDash.firstCopy")}
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
                     <Link to="/dashboard/venues/add">
                       <Plus className="w-4 h-4 mr-2" />
-                      Add Venue
+                      {t("merchantDash.addVenueCta")}
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
                     <Link to="/discover/venues">
                       <MapPin className="w-4 h-4 mr-2" />
-                      See Venues
+                      {t("merchantDash.seeVenues")}
                     </Link>
                   </Button>
                 </div>
@@ -200,26 +202,26 @@ const MerchantDashboardV2 = () => {
       <div className="grid gap-6 2xl:grid-cols-[minmax(0,2fr)_360px]">
         <div className="min-w-0 space-y-6">
           <DashboardNextStepsSection
-            description="Keep venue operations clear: register the place, support the offer, then validate what happened there."
-            ctaLabel="Open venues"
+            description={t("merchantDash.nextCopy")}
+            ctaLabel={t("merchantDash.openVenues")}
             ctaOnClick={() => setActiveTab("venues")}
             items={[
               {
-                title: "Register location",
-                description: "Add or update the place where activity happens.",
-                cta: "Manage venues",
+                title: t("merchantDash.register"),
+                description: t("merchantDash.registerCopy"),
+                cta: t("merchantDash.manageVenues"),
                 href: "/dashboard/venues/add",
               },
               {
-                title: "Validate activity",
-                description: "Confirm check-ins, scans, and redemptions while the guest is present.",
-                cta: "Open console",
+                title: t("merchantDash.validate"),
+                description: t("merchantDash.validateCopy"),
+                cta: t("merchantDash.openConsole"),
                 onClick: () => setActiveTab("commerce"),
               },
               {
-                title: "Tune the offer",
-                description: "Adjust products, perks, and visit rituals based on what people actually did.",
-                cta: isEstablishedMerchant ? "Open analytics" : "Open products",
+                title: t("merchantDash.tune"),
+                description: t("merchantDash.tuneCopy"),
+                cta: t(isEstablishedMerchant ? "merchantDash.openAnalytics" : "merchantDash.openProducts"),
                 onClick: () => setActiveTab(isEstablishedMerchant ? "analytics" : "products"),
               },
             ]}

@@ -2,9 +2,12 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Sparkles, MapPin, Heart, Clock, User, Gamepad2, Store, Users, PlayCircle, CheckCircle2, CircleDot, Briefcase } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, MapPin, Heart, Clock, User, Gamepad2, Store, Users, PlayCircle, CheckCircle2, CircleDot, Briefcase, Bell, Smartphone } from "lucide-react";
 import { useCreateUserPreferences, UserPreferencesInput } from "@/hooks/useUserPreferences";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/i18n/I18nContext";
+import { DeviceNotificationStep } from "./DeviceNotificationStep";
+import type { TranslationKey } from "@/i18n/translations";
 
 const CATEGORIES = [
   { value: "social", label: "Social Gatherings", emoji: "🎉" },
@@ -48,6 +51,7 @@ interface OnboardingSurveyProps {
 }
 
 const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
+  const { t } = useI18n();
   const [step, setStep] = useState(0);
   const [preferences, setPreferences] = useState<UserPreferencesInput>({
     preferred_categories: [],
@@ -65,62 +69,67 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
 
   const steps = [
     {
-        title: "Choose Your Path",
-        subtitle: "How will you use Promorang?",
+        title: t("onboarding.pathTitle"),
+        subtitle: t("onboarding.pathSubtitle"),
         icon: <User className="w-6 h-6" />,
     },
     {
-      title: "What moments interest you?",
-      subtitle: "Select categories you'd like to explore",
+      title: t("onboarding.interestsTitle"),
+      subtitle: t("onboarding.interestsSubtitle"),
       icon: <Heart className="w-6 h-6" />,
     },
     {
-      title: "Tell us about yourself",
-      subtitle: "Help us personalize your experience",
+      title: t("onboarding.aboutTitle"),
+      subtitle: t("onboarding.aboutSubtitle"),
       icon: <Sparkles className="w-6 h-6" />,
     },
     {
-      title: "When do you like to connect?",
-      subtitle: "Choose your preferred times for moments",
+      title: t("onboarding.timeTitle"),
+      subtitle: t("onboarding.timeSubtitle"),
       icon: <Clock className="w-6 h-6" />,
     },
     {
-      title: "Where are you located?",
-      subtitle: "Find moments near you",
+      title: t("onboarding.locationTitle"),
+      subtitle: t("onboarding.locationSubtitle"),
       icon: <MapPin className="w-6 h-6" />,
+    },
+    {
+      title: "Activate Alerts",
+      subtitle: "Live door passes, nearby deals & Gem rewards",
+      icon: <Bell className="w-6 h-6" />,
     },
   ];
 
   const roleGuides = {
     explorer: {
-      nextTitle: "You’ll start as a participant.",
-      nextSubtitle: "First join a moment, then check in, then open your vault for the first memory.",
-      checklist: ["Join your first moment", "Check in on location", "Unlock your first memory"],
+      nextTitle: t("guide.explorerTitle"),
+      nextSubtitle: t("guide.explorerSubtitle"),
+      checklist: [t("guide.explorer1"), t("guide.explorer2"), t("guide.explorer3")],
     },
     creator: {
-      nextTitle: "You’ll start as a creator.",
-      nextSubtitle: "Publish one story, link it to one mission, then watch for the first real conversion.",
-      checklist: ["Publish your first content drop", "Attach it to a real mission", "View your first conversion"],
+      nextTitle: t("guide.creatorTitle"),
+      nextSubtitle: t("guide.creatorSubtitle"),
+      checklist: [t("guide.creator1"), t("guide.creator2"), t("guide.creator3")],
     },
     mayor: {
-      nextTitle: "You’ll start as a host.",
-      nextSubtitle: "Create a moment, monitor whether it is forming, then review proof so the loop closes.",
-      checklist: ["Create your first moment", "Monitor pulse formation", "Review your first proof"],
+      nextTitle: t("guide.mayorTitle"),
+      nextSubtitle: t("guide.mayorSubtitle"),
+      checklist: [t("guide.mayor1"), t("guide.mayor2"), t("guide.mayor3")],
     },
     merchant: {
-      nextTitle: "You’ll start as a merchant.",
-      nextSubtitle: "Register one place, make it ready for moments or offers, then validate the first visit that comes through the door.",
-      checklist: ["Register your first venue", "Enable a moment or offer", "Validate the first check-in"],
+      nextTitle: t("guide.merchantTitle"),
+      nextSubtitle: t("guide.merchantSubtitle"),
+      checklist: [t("guide.merchant1"), t("guide.merchant2"), t("guide.merchant3")],
     },
     brand: {
-      nextTitle: "You’ll start as a brand.",
-      nextSubtitle: "Fund one clear action, connect the right creators or places, then read the proof before you scale.",
-      checklist: ["Create your first campaign", "Connect creators or venues", "Review the first outcome"],
+      nextTitle: t("guide.brandTitle"),
+      nextSubtitle: t("guide.brandSubtitle"),
+      checklist: [t("guide.brand1"), t("guide.brand2"), t("guide.brand3")],
     },
     agency: {
-      nextTitle: "You’ll start as an agency operator.",
-      nextSubtitle: "Connect the first client, launch the first activation, then report the first outcome.",
-      checklist: ["Add your first client", "Launch your first activation", "Review the first impact result"],
+      nextTitle: t("guide.agencyTitle"),
+      nextSubtitle: t("guide.agencySubtitle"),
+      checklist: [t("guide.agency1"), t("guide.agency2"), t("guide.agency3")],
     },
   } as const;
 
@@ -139,15 +148,23 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   const handleNext = async () => {
     if (step < steps.length - 1) {
       if (step === 0 && persona === "agency") {
-          // Agencies go straight to city/location or direct to dashboard? 
-          // Let's at least get their location then finish.
           setStep(4); 
+      } else if (step === 4) {
+        try {
+          await createPreferences.mutateAsync(preferences);
+        } catch {
+          // ignore save error
+        }
+        setStep(5);
       } else {
         setStep(step + 1);
       }
     } else {
-      // Complete onboarding
-      await createPreferences.mutateAsync(preferences);
+      try {
+        await createPreferences.mutateAsync(preferences);
+      } catch {
+        // ignore save error
+      }
       onComplete(persona || undefined);
     }
   };
@@ -244,8 +261,8 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             <Gamepad2 className="w-8 h-8" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg">The Explorer</h3>
-                            <p className="text-sm text-muted-foreground">Find gatherings, retail drops, service rituals, and local unlocks that turn everyday movement into rewards.</p>
+                            <h3 className="font-bold text-lg">{t("onboarding.explorer")}</h3>
+                            <p className="text-sm text-muted-foreground">{t("persona.explorerDesc")}</p>
                         </div>
                       </button>
 
@@ -264,8 +281,8 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             <PlayCircle className="w-8 h-8" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg">The Creator</h3>
-                            <p className="text-sm text-muted-foreground">Publish story-led missions for stores, salons, studios, cafes, and local spaces, then earn from verified movement.</p>
+                            <h3 className="font-bold text-lg">{t("onboarding.creator")}</h3>
+                            <p className="text-sm text-muted-foreground">{t("persona.creatorDesc")}</p>
                         </div>
                       </button>
 
@@ -284,8 +301,8 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             <Users className="w-8 h-8" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg">The Mayor</h3>
-                            <p className="text-sm text-muted-foreground">Own your local niche. Run gatherings, drops, rituals, and founder moments that make places feel alive.</p>
+                            <h3 className="font-bold text-lg">{t("onboarding.mayor")}</h3>
+                            <p className="text-sm text-muted-foreground">{t("persona.mayorDesc")}</p>
                         </div>
                       </button>
 
@@ -304,8 +321,8 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             <Store className="w-8 h-8" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg">The Merchant</h3>
-                            <p className="text-sm text-muted-foreground">Bring verified visits, redemptions, and repeat movement into a real place people already care about.</p>
+                            <h3 className="font-bold text-lg">{t("onboarding.merchant")}</h3>
+                            <p className="text-sm text-muted-foreground">{t("persona.merchantDesc")}</p>
                         </div>
                       </button>
 
@@ -324,8 +341,8 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             <Briefcase className="w-8 h-8" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg">The Brand</h3>
-                            <p className="text-sm text-muted-foreground">Fund moments, creator missions, and local offers that people can join, prove, remember, and return from.</p>
+                            <h3 className="font-bold text-lg">{t("onboarding.brand")}</h3>
+                            <p className="text-sm text-muted-foreground">{t("persona.brandDesc")}</p>
                         </div>
                       </button>
 
@@ -344,8 +361,8 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             <Briefcase className="w-8 h-8" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg">The Agency</h3>
-                            <p className="text-sm text-muted-foreground">Manage client ROI across retail, grocery, service, and creator-driven campaigns with verified real-world outcomes.</p>
+                            <h3 className="font-bold text-lg">{t("onboarding.agency")}</h3>
+                            <p className="text-sm text-muted-foreground">{t("persona.agencyDesc")}</p>
                         </div>
                       </button>
                     </div>
@@ -357,7 +374,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             <CircleDot className="h-4 w-4" />
                           </div>
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary/80">First Session Plan</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary/80">{t("onboarding.firstPlan")}</p>
                             <h3 className="mt-2 font-serif text-xl font-bold text-foreground">
                               {roleGuides[persona].nextTitle}
                             </h3>
@@ -373,7 +390,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                               <div className="mb-2 flex items-center gap-2 text-primary">
                                 {index === 0 ? <CircleDot className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4 opacity-60" />}
                                 <span className="text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">
-                                  {index === 0 ? "Start here" : "Then"}
+                                  {index === 0 ? t("onboarding.startHere") : t("onboarding.then")}
                                 </span>
                               </div>
                               <p className="text-sm font-medium text-foreground">{item}</p>
@@ -398,7 +415,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                       }`}
                     >
                       <span className="text-2xl block mb-2">{category.emoji}</span>
-                      <span className="text-sm font-medium">{category.label}</span>
+                      <span className="text-sm font-medium">{t(`category.${category.value}` as TranslationKey)}</span>
                     </button>
                   ))}
                 </div>
@@ -409,7 +426,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                   {/* Lifestyle Tags */}
                   <div>
                     <label className="text-sm font-medium text-muted-foreground mb-3 block">
-                      What describes you?
+                      {t("onboarding.describe")}
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {LIFESTYLE_TAGS.map((tag) => (
@@ -423,7 +440,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                           }`}
                         >
                           <span className="text-xl block mb-1">{tag.emoji}</span>
-                          <span className="text-xs font-medium">{tag.label}</span>
+                          <span className="text-xs font-medium">{t(`lifestyle.${tag.value}` as TranslationKey)}</span>
                         </button>
                       ))}
                     </div>
@@ -432,7 +449,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                   {/* Age Range */}
                   <div>
                     <label className="text-sm font-medium text-muted-foreground mb-3 block">
-                      Age range (optional)
+                      {t("onboarding.age")}
                     </label>
                     <div className="flex flex-wrap gap-2">
                       {AGE_RANGES.map((age) => (
@@ -471,7 +488,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                       }`}
                     >
                       <span className="text-3xl block mb-2">{time.icon}</span>
-                      <span className="font-medium">{time.label}</span>
+                      <span className="font-medium">{t(`time.${time.value}` as TranslationKey)}</span>
                     </button>
                   ))}
                 </div>
@@ -489,18 +506,18 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                     >
                       <MapPin className="w-4 h-4 mr-2" />
                       {preferences.location_sharing_enabled
-                        ? "Location enabled ✓"
-                        : "Enable location"}
+                        ? t("onboarding.locationEnabled")
+                        : t("onboarding.enableLocation")}
                     </Button>
                     <p className="text-sm text-muted-foreground">
-                      Or enter your city manually below
+                      {t("onboarding.manualLocation")}
                     </p>
                   </div>
 
                   {/* Manual city/state */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium mb-2 block">City</label>
+                      <label className="text-sm font-medium mb-2 block">{t("onboarding.city")}</label>
                       <input
                         type="text"
                         placeholder="e.g., Austin"
@@ -512,7 +529,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium mb-2 block">State</label>
+                      <label className="text-sm font-medium mb-2 block">{t("onboarding.state")}</label>
                       <input
                         type="text"
                         placeholder="e.g., TX"
@@ -526,43 +543,53 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                   </div>
                 </div>
               )}
+
+              {/* Step 5: Device Notification & QR Bridge */}
+              {step === 5 && (
+                <DeviceNotificationStep
+                  onComplete={() => onComplete(persona || undefined)}
+                  personaChoice={persona || undefined}
+                />
+              )}
             </motion.div>
           </AnimatePresence>
 
-          {/* Navigation */}
-          <div className="flex justify-between mt-10">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              disabled={step === 0}
-              className={step === 0 ? "invisible" : ""}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
+          {/* Navigation (Only show for steps 0 to 4) */}
+          {step < 5 && (
+            <div className="flex justify-between mt-10">
+              <Button
+                variant="ghost"
+                onClick={handleBack}
+                disabled={step === 0}
+                className={step === 0 ? "invisible" : ""}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                {t("onboarding.back")}
+              </Button>
 
-            <Button
-              variant="hero"
-              onClick={handleNext}
-              disabled={!canProceed() || createPreferences.isPending}
-            >
-              {step === steps.length - 1 ? (
-                createPreferences.isPending ? (
-                  "Saving..."
+              <Button
+                variant="hero"
+                onClick={handleNext}
+                disabled={!canProceed() || createPreferences.isPending}
+              >
+                {step === 4 ? (
+                  createPreferences.isPending ? (
+                    t("onboarding.saving")
+                  ) : (
+                    <>
+                      <span>Continue to Alerts</span>
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </>
+                  )
                 ) : (
                   <>
-                    Get Started
-                    <Sparkles className="w-4 h-4 ml-2" />
+                    {t("onboarding.next")}
+                    <ArrowRight className="w-4 h-4 ml-2" />
                   </>
-                )
-              ) : (
-                <>
-                  Next
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </>
-              )}
-            </Button>
-          </div>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Skip option */}
@@ -571,7 +598,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
             onClick={onComplete}
             className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
           >
-            Skip for now
+            {t("onboarding.skip")}
           </button>
         </div>
       </div>

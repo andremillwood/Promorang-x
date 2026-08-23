@@ -18,8 +18,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function StewardDashboard() {
+  const { t, formatNumber } = useI18n();
   const [showCreateActionModal, setShowCreateActionModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -92,16 +94,16 @@ export default function StewardDashboard() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 font-mono text-xs uppercase">
-                Steward Control Plane
+                {t("stewardDashboard.controlPlane")}
               </Badge>
               <span className="text-xs text-slate-400 font-mono flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 Kingston After Dark
               </span>
             </div>
-            <h1 className="text-2xl md:text-4xl font-black text-white">Scene Steward Command</h1>
+            <h1 className="text-2xl md:text-4xl font-black text-white">{t("stewardDashboard.title")}</h1>
             <p className="text-slate-400 text-xs md:text-sm mt-1">
-              Manage your Scene actions, track activated member growth, and distribute your Scene link to acquire users.
+              {t("stewardDashboard.subtitle")}
             </p>
           </div>
 
@@ -112,14 +114,14 @@ export default function StewardDashboard() {
               className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 gap-2"
             >
               <QrCode className="w-4 h-4 text-emerald-400" />
-              Recruitment Kit
+              {t("stewardDashboard.recruitmentKit")}
             </Button>
             <Button 
               onClick={() => setShowCreateActionModal(true)}
               className="bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-600 hover:to-emerald-600 text-slate-950 font-bold gap-2"
             >
               <Plus className="w-4 h-4" />
-              Create Scene Action
+              {t("stewardDashboard.createAction")}
             </Button>
           </div>
         </div>
@@ -129,13 +131,13 @@ export default function StewardDashboard() {
           <Card className="bg-slate-900 border-slate-800">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400">Activated Members</span>
+                <span className="text-xs font-mono text-slate-400">{t("stewardDashboard.activatedMembers")}</span>
                 <Users className="w-4 h-4 text-emerald-400" />
               </div>
               <div className="text-3xl font-black text-white mt-2">1,420</div>
               <div className="text-[10px] text-emerald-400 flex items-center gap-1 mt-1 font-mono">
                 <TrendingUp className="w-3 h-3" />
-                +14% this week
+                {t("stewardDashboard.growthWeek")}
               </div>
             </CardContent>
           </Card>
@@ -143,13 +145,13 @@ export default function StewardDashboard() {
           <Card className="bg-slate-900 border-slate-800">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400">Actions Completed</span>
+                <span className="text-xs font-mono text-slate-400">{t("stewardDashboard.actionsCompleted")}</span>
                 <Zap className="w-4 h-4 text-amber-400" />
               </div>
               <div className="text-3xl font-black text-white mt-2">6,840</div>
               <div className="text-[10px] text-amber-400 flex items-center gap-1 mt-1 font-mono">
                 <Sparkles className="w-3 h-3" />
-                Verified completions
+                {t("stewardDashboard.verifiedCompletions")}
               </div>
             </CardContent>
           </Card>
@@ -157,22 +159,22 @@ export default function StewardDashboard() {
           <Card className="bg-slate-900 border-slate-800">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400">Steward Gem Share</span>
+                <span className="text-xs font-mono text-slate-400">{t("stewardDashboard.gemShare")}</span>
                 <Gem className="w-4 h-4 text-emerald-400" />
               </div>
               <div className="text-3xl font-black text-white mt-2">$340.00</div>
-              <div className="text-[10px] text-slate-500 font-mono">Auditable Gem Ledger balance</div>
+              <div className="text-[10px] text-slate-500 font-mono">{t("stewardDashboard.gemBalanceDesc")}</div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-900 border-slate-800">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400">Action Power Rank</span>
+                <span className="text-xs font-mono text-slate-400">{t("stewardDashboard.powerRank")}</span>
                 <Award className="w-4 h-4 text-purple-400" />
               </div>
               <div className="text-3xl font-black text-white mt-2">#3 Kingston</div>
-              <div className="text-[10px] text-purple-400 font-mono">Top Scene Steward</div>
+              <div className="text-[10px] text-purple-400 font-mono">{t("stewardDashboard.powerRankDesc")}</div>
             </CardContent>
           </Card>
         </div>
@@ -181,8 +183,8 @@ export default function StewardDashboard() {
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <div>
-              <CardTitle className="text-lg font-bold text-white">Scene Actions ({actions.length})</CardTitle>
-              <CardDescription className="text-xs text-slate-400">Manage opportunities active within your Scene.</CardDescription>
+              <CardTitle className="text-lg font-bold text-white">{t("stewardDashboard.actionsTitle", { count: actions.length.toString() })}</CardTitle>
+              <CardDescription className="text-xs text-slate-400">{t("stewardDashboard.actionsDesc")}</CardDescription>
             </div>
             <Button 
               size="sm"
@@ -190,7 +192,7 @@ export default function StewardDashboard() {
               className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" />
-              Add Action
+              {t("stewardDashboard.addAction")}
             </Button>
           </CardHeader>
           <CardContent className="p-0">
@@ -215,10 +217,10 @@ export default function StewardDashboard() {
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <div className="text-sm font-black text-white">{act.completions}</div>
-                      <div className="text-[10px] text-slate-500 font-mono">Completions</div>
+                      <div className="text-[10px] text-slate-500 font-mono">{t("stewardDashboard.completions")}</div>
                     </div>
                     <Button variant="outline" size="sm" className="border-slate-700 text-slate-300">
-                      Edit
+                      {t("stewardDashboard.edit")}
                     </Button>
                   </div>
                 </div>
@@ -232,20 +234,20 @@ export default function StewardDashboard() {
       <Dialog open={showCreateActionModal} onOpenChange={setShowCreateActionModal}>
         <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Create Scene Action</DialogTitle>
+            <DialogTitle className="text-xl font-bold">{t("stewardDashboard.modalCreateTitle")}</DialogTitle>
             <DialogDescription className="text-slate-400 text-xs">
-              Add a new actionable opportunity to Kingston After Dark.
+              {t("stewardDashboard.modalCreateDesc")}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleCreateAction} className="space-y-4 my-2">
             <div>
-              <label className="text-xs font-mono text-slate-400 block mb-1">Action Title</label>
+              <label className="text-xs font-mono text-slate-400 block mb-1">{t("stewardDashboard.labelActionTitle")}</label>
               <input 
                 type="text" 
                 value={actionTitle} 
                 onChange={(e) => setActionTitle(e.target.value)}
-                placeholder="e.g. Visit Night Market Check-in"
+                placeholder={t("stewardDashboard.placeholderActionTitle")}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-amber-500"
                 required
               />
@@ -253,21 +255,21 @@ export default function StewardDashboard() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-mono text-slate-400 block mb-1">Action Type</label>
+                <label className="text-xs font-mono text-slate-400 block mb-1">{t("stewardDashboard.labelActionType")}</label>
                 <select 
                   value={actionType}
                   onChange={(e) => setActionType(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-amber-500"
                 >
-                  <option value="visit_venue">Visit Venue</option>
-                  <option value="attend_event">Attend Event</option>
-                  <option value="create_content">Create Content</option>
-                  <option value="discover_location">Discover Location</option>
+                  <option value="visit_venue">{t("stewardDashboard.typeVisitVenue")}</option>
+                  <option value="attend_event">{t("stewardDashboard.typeAttendEvent")}</option>
+                  <option value="create_content">{t("stewardDashboard.typeCreateContent")}</option>
+                  <option value="discover_location">{t("stewardDashboard.typeDiscoverLocation")}</option>
                 </select>
               </div>
 
               <div>
-                <label className="text-xs font-mono text-slate-400 block mb-1">Gem Reward ($ USD)</label>
+                <label className="text-xs font-mono text-slate-400 block mb-1">{t("stewardDashboard.labelGemReward")}</label>
                 <input 
                   type="number" 
                   step="0.50"
@@ -280,7 +282,7 @@ export default function StewardDashboard() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-mono text-slate-400 block mb-1">PromoPoints</label>
+                <label className="text-xs font-mono text-slate-400 block mb-1">{t("stewardDashboard.labelPoints")}</label>
                 <input 
                   type="number" 
                   value={pointsReward} 
@@ -290,7 +292,7 @@ export default function StewardDashboard() {
               </div>
 
               <div>
-                <label className="text-xs font-mono text-slate-400 block mb-1">PromoShare Entries</label>
+                <label className="text-xs font-mono text-slate-400 block mb-1">{t("stewardDashboard.labelEntries")}</label>
                 <input 
                   type="number" 
                   value={ticketsReward} 
@@ -301,7 +303,7 @@ export default function StewardDashboard() {
             </div>
 
             <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 mt-2">
-              Publish Action to Scene
+              {t("stewardDashboard.publishAction")}
             </Button>
           </form>
         </DialogContent>
@@ -311,9 +313,9 @@ export default function StewardDashboard() {
       <Dialog open={showQRModal} onOpenChange={setShowQRModal}>
         <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-md text-center">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold">Steward Distribution Kit</DialogTitle>
+            <DialogTitle className="text-lg font-bold">{t("stewardDashboard.kitTitle")}</DialogTitle>
             <DialogDescription className="text-slate-400 text-xs">
-              Recruit users to Kingston After Dark. Every activated signup advances your Steward rank and revenue share.
+              {t("stewardDashboard.kitDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -333,7 +335,7 @@ export default function StewardDashboard() {
             className="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold gap-2"
           >
             {copiedLink ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copiedLink ? "Copied Link!" : "Copy Direct Scene Link"}
+            {copiedLink ? t("stewardDashboard.copiedLink") : t("stewardDashboard.copyLink")}
           </Button>
         </DialogContent>
       </Dialog>

@@ -1,0 +1,69 @@
+# Promorang — Full LLM Semantic Directory & Schema Specification
+
+> Full semantic inventory specification for AI search engines, answer engines (Perplexity, ChatGPT, Gemini, Claude), and autonomous agents querying Promorang.
+
+Canonical Domain: https://www.promorang.co
+Sitemap: https://www.promorang.co/sitemap.xml
+Robots: https://www.promorang.co/robots.txt
+
+---
+
+## 1. Structured Taxonomy & Categories
+
+### Moment & Experience Categories
+- `music` — Live concerts, sound systems, DJ sets, jazz sessions, vinyl nights.
+- `food` — Food festivals, tasting crawls, restaurant pop-ups, cooking classes, culinary showcases.
+- `arts` — Gallery openings, street art tours, pottery workshops, film screenings, theater.
+- `social` — Nightlife, mixers, cocktail hours, lounges, rooftop gatherings.
+- `networking` — Founder meetups, creator roundtables, tech talks, panel discussions.
+- `fitness` — Group yoga, wellness retreats, outdoor running clubs, fitness classes.
+- `outdoor` — Mountain hikes, beach meetups, cultural excursions, eco-tours.
+
+---
+
+## 2. Programmatic Landing Page Routing Matrix
+
+For answering location and category specific inquiries, use these indexable canonical paths:
+
+- **Moments by Category**: `https://www.promorang.co/discover/moments?category={category}`
+- **Moments by City**: `https://www.promorang.co/locations/{city}`
+- **Venues & Merchants**: `https://www.promorang.co/explore/venues`
+- **Merchant Deals & Passes**: `https://www.promorang.co/shop`
+- **Cultural Scenes**: `https://www.promorang.co/scenes`
+- **Creator Network**: `https://www.promorang.co/creators`
+- **Digital Media & Drops**: `https://www.promorang.co/content-drops`
+- **National Directory**: `https://www.promorang.co/national-parish-directory`
+
+---
+
+## 3. Schema.org JSON-LD Entities Emitted
+
+All public entity pages on Promorang output standard Schema.org JSON-LD markup:
+
+### Event Markup (`schema.org/Event`)
+- `@type`: "Event"
+- `name`: Moment title
+- `startDate`: ISO 8601 UTC timestamp
+- `endDate`: ISO 8601 UTC timestamp
+- `location`: `@type: "Place"`, with `name`, `address`, and `geo` coordinates
+- `organizer`: `@type: "Person"` or `"Organization"`, with name and profile URL
+- `offers`: `@type: "Offer"`, with `price`, `priceCurrency`, `availability`, and `validFrom`
+- `eventAttendanceMode`: "https://schema.org/OfflineEventAttendanceMode"
+- `eventStatus`: "https://schema.org/EventScheduled"
+
+### Local Business Markup (`schema.org/LocalBusiness` / `schema.org/FoodEstablishment`)
+- `@type`: "LocalBusiness" / "FoodEstablishment"
+- `name`: Venue / Merchant name
+- `address`: PostalAddress object
+- `geo`: GeoCoordinates (`latitude`, `longitude`)
+- `hasOfferCatalog`: List of active passes and discounts
+
+---
+
+## 4. Verification & Attributable Proof Standard
+
+Promorang listings are verified through:
+1. **Stakeholder Identity Verification (KYC)**.
+2. **Door QR Code Check-Ins**: Cryptographically signed proof of attendance.
+3. **Geo-Location Fencing**: Radius verification for attendee check-in eligibility.
+4. **Merchant Validation Receipts**: Transactional proof of claimed passes and redeemed discounts.

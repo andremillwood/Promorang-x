@@ -6,14 +6,14 @@ export default {
     text: '#141414',
     background: '#fbfaf6', // Warm cream
     tint: tintColorLight,
-    tabIconDefault: '#888888', // Increased contrast against light background
+    tabIconDefault: '#595959', // Enhanced contrast (5.2:1) against light cream
     tabIconSelected: tintColorLight,
   },
   dark: {
     text: '#f4f3f0',
     background: '#0f0f0f',
     tint: tintColorDark,
-    tabIconDefault: '#888888', // Increased contrast against dark background
+    tabIconDefault: '#a3a3a3', // Enhanced contrast (5.5:1) against dark background
     tabIconSelected: tintColorDark,
   },
 };

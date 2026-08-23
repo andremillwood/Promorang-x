@@ -21,6 +21,28 @@ const escapeHtml = (value = "") => String(value).replace(/[&<>"']/g, (character)
 const escapeXml = escapeHtml;
 const slugify = (value = "") => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const absolute = (url) => !url ? `${site}/og-image.png` : url.startsWith("http") ? url : `${site}${url.startsWith("/") ? "" : "/"}${url}`;
+const locales = {
+  en: { prefix: "", hreflang: "en", view: "View on Promorang" },
+  es: { prefix: "/es", hreflang: "es-419", view: "Ver en Promorang" },
+  pt: { prefix: "/pt-br", hreflang: "pt-BR", view: "Ver na Promorang" },
+};
+const localizedPath = (path, locale) => `${locales[locale].prefix}${path === "/" ? "/" : path}`;
+const localizedMetadata = {
+  es: {
+    "/discover": ["Descubre qué sucede a tu alrededor", "Explora Momentos, Escenas, lugares y relatos de creadores locales en Promorang."],
+    "/discover/moments": ["Descubre Momentos locales", "Encuentra próximos eventos y experiencias reales en Promorang."],
+    "/discover/venues": ["Descubre lugares locales", "Explora lugares y los Momentos que suceden en ellos."],
+    "/discover/content": ["Descubre historias locales", "Explora historias de creadores conectadas con Momentos y lugares reales."],
+    "/scenes": ["Escenas de Promorang — Encuentra tu gente", "Encuentra las personas, lugares y rituales que se sienten como tu mundo."],
+  },
+  pt: {
+    "/discover": ["Descubra o que acontece ao seu redor", "Explore Momentos, Cenas, lugares e histórias de criadores locais na Promorang."],
+    "/discover/moments": ["Descubra Momentos locais", "Encontre próximos eventos e experiências reais na Promorang."],
+    "/discover/venues": ["Descubra locais próximos", "Explore locais e os Momentos que acontecem neles."],
+    "/discover/content": ["Descubra histórias locais", "Explore histórias de criadores conectadas a Momentos e lugares reais."],
+    "/scenes": ["Cenas da Promorang — Encontre sua comunidade", "Encontre pessoas, lugares e rituais que combinam com o seu mundo."],
+  },
+};
 
 async function fetchRows(table, query) {
   if (!supabaseUrl || !supabaseKey) return [];
@@ -29,25 +51,30 @@ async function fetchRows(table, query) {
   return response.json();
 }
 
-function inject(page) {
-  const title = `${page.title} | Promorang`;
-  const description = (page.description || "Discover real-world Moments, Scenes, places, and local culture on Promorang.").slice(0, 200);
+function inject(page, locale) {
+  const localized = localizedMetadata[locale]?.[page.path];
+  const pageTitle = localized?.[0] || page.title;
+  const title = `${pageTitle} | Promorang`;
+  const description = (localized?.[1] || page.description || "Discover real-world Moments, Scenes, places, and local culture on Promorang.").slice(0, 200);
   const image = absolute(page.image);
-  const canonical = `${site}${page.path}`;
+  const canonical = `${site}${localizedPath(page.path, locale)}`;
+  const alternates = Object.values(locales).map((entry) => `    <link rel="alternate" hreflang="${entry.hreflang}" href="${escapeHtml(`${site}${entry.prefix}${page.path === "/" ? "/" : page.path}`)}">`).join("\n");
   const meta = `
     <!-- public-seo:start -->
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="${escapeHtml(canonical)}">
+${alternates}
+    <link rel="alternate" hreflang="x-default" href="${escapeHtml(`${site}${page.path}`)}">
     <meta property="og:type" content="${page.type === "Event" ? "event" : "website"}">
     <meta property="og:site_name" content="Promorang">
     <meta property="og:url" content="${escapeHtml(canonical)}">
-    <meta property="og:title" content="${escapeHtml(page.title)}">
+    <meta property="og:title" content="${escapeHtml(pageTitle)}">
     <meta property="og:description" content="${escapeHtml(description)}">
     <meta property="og:image" content="${escapeHtml(image)}">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${escapeHtml(page.title)}">
+    <meta name="twitter:title" content="${escapeHtml(pageTitle)}">
     <meta name="twitter:description" content="${escapeHtml(description)}">
     <meta name="twitter:image" content="${escapeHtml(image)}">
     <script type="application/ld+json">${JSON.stringify(page.schema).replace(/</g, "\\u003c")}</script>
@@ -59,14 +86,15 @@ function inject(page) {
     .replace(/\s*<meta property="og:(?:type|site_name|url|title|description|image|image:alt)"[^>]*>/gi, "")
     .replace(/\s*<meta name="twitter:(?:card|site|title|description|image|image:alt)"[^>]*>/gi, "")
     .replace("</head>", `${meta}\n</head>`);
-  const visible = `<main data-public-seo-snapshot><article><h1>${escapeHtml(page.title)}</h1><p>${escapeHtml(description)}</p>${page.location ? `<p>${escapeHtml(page.location)}</p>` : ""}<p><a href="${escapeHtml(canonical)}">View on Promorang</a></p></article></main>`;
+  const visible = `<main data-public-seo-snapshot><article><h1>${escapeHtml(pageTitle)}</h1><p>${escapeHtml(description)}</p>${page.location ? `<p>${escapeHtml(page.location)}</p>` : ""}<p><a href="${escapeHtml(canonical)}">${locales[locale].view}</a></p></article></main>`;
   return cleaned.replace('<div id="root"></div>', `<div id="root">${visible}</div>`);
 }
 
-async function emit(page) {
-  const destination = join(dist, page.path.replace(/^\//, ""), "index.html");
+async function emit(page, locale) {
+  const path = localizedPath(page.path, locale);
+  const destination = join(dist, path.replace(/^\//, ""), "index.html");
   await mkdir(dirname(destination), { recursive: true });
-  await writeFile(destination, inject(page));
+  await writeFile(destination, inject(page, locale));
 }
 
 const staticUrls = ["/", "/discover", "/discover/moments", "/discover/venues", "/discover/content", "/scenes", "/brands", "/creators", "/merchants", "/for-communities", "/for-brands", "/for-creators", "/how-it-works", "/campaigns/arla-whip-and-cook", "/proposals/arla-pro"];
@@ -118,8 +146,8 @@ try {
   console.warn(`[public-seo] Dynamic pages were skipped: ${error.message}`);
 }
 
-await Promise.all(pages.map(emit));
+await Promise.all(pages.flatMap((page) => Object.keys(locales).map((locale) => emit(page, locale))));
 const uniqueUrls = [...new Set([...staticUrls, ...pages.map((page) => page.path)])];
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${uniqueUrls.map((path) => `  <url><loc>${escapeXml(`${site}${path}`)}</loc><changefreq>${path === "/" ? "weekly" : "daily"}</changefreq><priority>${path === "/" ? "1.0" : path.split("/").length > 3 ? "0.7" : "0.8"}</priority></url>`).join("\n")}\n</urlset>\n`;
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${uniqueUrls.flatMap((path) => Object.values(locales).map((locale) => `  <url><loc>${escapeXml(`${site}${locale.prefix}${path === "/" ? "/" : path}`)}</loc>${Object.values(locales).map((alternate) => `<xhtml:link rel="alternate" hreflang="${alternate.hreflang}" href="${escapeXml(`${site}${alternate.prefix}${path === "/" ? "/" : path}`)}"/>`).join("")}<xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(`${site}${path}`)}"/><changefreq>${path === "/" ? "weekly" : "daily"}</changefreq><priority>${path === "/" ? "1.0" : path.split("/").length > 3 ? "0.7" : "0.8"}</priority></url>`)).join("\n")}\n</urlset>\n`;
 await writeFile(join(dist, "sitemap.xml"), sitemap);
-console.log(`[public-seo] Generated ${pages.length} public snapshots and ${uniqueUrls.length} sitemap URLs.`);
+console.log(`[public-seo] Generated ${pages.length * Object.keys(locales).length} localized snapshots and ${uniqueUrls.length * Object.keys(locales).length} sitemap URLs.`);

@@ -19,21 +19,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { cultureImages } from "@/data/culture-demo";
 import { PromoPilotWorkspace } from "@/components/campaigns/PromoPilotWorkspace";
 import type { DemandPlan } from "@promorang/shared";
+import { useI18n } from "@/i18n/I18nContext";
 
 type ActivationPlan = CompiledCampaign & { metadata: CompilerMetadata };
 
-const proofLanguage = {
-  LINK: "A submitted link confirms the action",
-  OCR: "A receipt confirms the purchase",
-  UPLOAD: "A photo confirms the visit",
-} as const;
-
 const CreateCampaign = () => {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const createCampaign = useCreateCampaign();
   const { compile, isCompiling } = useCampaignCompiler();
   const [prompt, setPrompt] = useState("");
   const [plan, setPlan] = useState<ActivationPlan | null>(null);
+
+  const proofLanguage = {
+    LINK: t("createCampaign.proofLink"),
+    OCR: t("createCampaign.proofOcr"),
+    UPLOAD: t("createCampaign.proofUpload"),
+  } as const;
 
   const handleCompile = async () => {
     if (!prompt.trim()) return;
@@ -110,25 +112,25 @@ const CreateCampaign = () => {
           >
             <div className="flex flex-col px-5 py-7 sm:px-10 lg:px-16 lg:py-12 xl:px-24">
               <button onClick={() => navigate(-1)} className="flex w-fit items-center gap-2 text-sm font-semibold text-black/55 transition hover:text-black">
-                <ArrowLeft className="h-4 w-4" /> Back
+                <ArrowLeft className="h-4 w-4" /> {t("createCampaign.back")}
               </button>
 
               <div className="my-auto max-w-3xl py-16">
-                <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#d85b24]">PromoPilot</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#d85b24]">{t("createCampaign.eyebrow")}</p>
                 <h1 className="mt-5 text-5xl font-black leading-[0.92] tracking-[-0.055em] sm:text-6xl xl:text-7xl">
-                  What should change because your brand showed up?
+                  {t("createCampaign.heroTitle")}
                 </h1>
                 <p className="mt-7 max-w-2xl text-lg leading-8 text-black/58">
-                  Start with the human outcome. We’ll shape the people, action, proof, and shared value into a plan you can review before anything goes live.
+                  {t("createCampaign.heroSubtitle")}
                 </p>
 
                 <div className="mt-10 border-y border-black/15 py-6">
-                  <label htmlFor="activation-intent" className="text-sm font-black">Describe the change you want to create</label>
+                  <label htmlFor="activation-intent" className="text-sm font-black">{t("createCampaign.intentLabel")}</label>
                   <Textarea
                     id="activation-intent"
                     value={prompt}
                     onChange={(event) => setPrompt(event.target.value)}
-                    placeholder="Bring new people into our Friday night food scene, invite them to share their first-bite reaction, and give them a reason to return."
+                    placeholder={t("createCampaign.intentPlaceholder")}
                     className="mt-4 min-h-[150px] resize-none rounded-none border-0 bg-transparent p-0 text-xl leading-8 shadow-none placeholder:text-black/25 focus-visible:ring-0 sm:text-2xl"
                     autoFocus
                   />
@@ -141,9 +143,9 @@ const CreateCampaign = () => {
                     className="h-14 rounded-full bg-[#191816] px-7 text-base font-black text-white hover:bg-[#d85b24]"
                   >
                     <Sparkles className={`mr-2 h-5 w-5 ${isCompiling ? "animate-spin" : ""}`} />
-                    {isCompiling ? "PromoPilot is shaping the route…" : "Plan it with PromoPilot"}
+                    {isCompiling ? t("createCampaign.compilingButton") : t("createCampaign.planButton")}
                   </Button>
-                  <p className="max-w-xs text-xs leading-5 text-black/45">This creates a draft plan. It does not publish, charge, or secure Gems.</p>
+                  <p className="max-w-xs text-xs leading-5 text-black/45">{t("createCampaign.draftNotice")}</p>
                 </div>
               </div>
             </div>
@@ -152,10 +154,10 @@ const CreateCampaign = () => {
               <img src={cultureImages.openMic} alt="A live cultural gathering" className="absolute inset-0 h-full w-full object-cover opacity-75" />
               <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/25 to-black/90" />
               <div className="absolute inset-x-0 bottom-0 p-12 text-white xl:p-16">
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-orange-300">A good activation feels reciprocal</p>
-                <p className="mt-4 max-w-md text-3xl font-black leading-tight tracking-tight">People know why they belong, what they’re adding, and what they leave with.</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-orange-300">{t("createCampaign.sidebarEyebrow")}</p>
+                <p className="mt-4 max-w-md text-3xl font-black leading-tight tracking-tight">{t("createCampaign.sidebarHeading")}</p>
                 <div className="mt-8 flex items-center gap-3 border-t border-white/25 pt-5 text-sm text-white/70">
-                  <Users className="h-5 w-5 text-orange-300" /> Built around a real scene—not an audience segment.
+                  <Users className="h-5 w-5 text-orange-300" /> {t("createCampaign.sidebarFooter")}
                 </div>
               </div>
             </aside>
@@ -164,21 +166,21 @@ const CreateCampaign = () => {
           <motion.section key="plan" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-[1480px] px-5 py-7 sm:px-10 lg:px-16 lg:py-12 xl:px-24">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <button onClick={() => setPlan(null)} className="flex items-center gap-2 text-sm font-semibold text-black/55 transition hover:text-black">
-                <ArrowLeft className="h-4 w-4" /> Change the outcome
+                <ArrowLeft className="h-4 w-4" /> {t("createCampaign.changeOutcome")}
               </button>
-              <p className="rounded-full border border-black/15 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-black/55">Draft · not live</p>
+              <p className="rounded-full border border-black/15 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-black/55">{t("createCampaign.draftBadge")}</p>
             </div>
 
             <header className="mt-12 grid gap-7 border-b border-black/15 pb-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-end">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#d85b24]">Your activation story</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#d85b24]">{t("createCampaign.storyEyebrow")}</p>
                 <h1 className="mt-4 max-w-4xl text-5xl font-black leading-[0.92] tracking-[-0.055em] sm:text-6xl">{plan.moment.name}</h1>
                 <p className="mt-5 max-w-3xl text-lg leading-8 text-black/58">{prompt}</p>
               </div>
               <div className="border-l-2 border-[#d85b24] pl-5">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-black/45">Expected movement</p>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-black/45">{t("createCampaign.movementEyebrow")}</p>
                 <p className="mt-2 text-2xl font-black">{plan.outcome.volume}</p>
-                <p className="mt-1 text-sm text-black/50">Estimated {plan.outcome.reach.toLowerCase()} reach—not a guarantee.</p>
+                <p className="mt-1 text-sm text-black/50">{t("createCampaign.reachEstimate", { reach: plan.outcome.reach.toLowerCase() })}</p>
               </div>
             </header>
 
@@ -186,10 +188,10 @@ const CreateCampaign = () => {
               <div>
                 <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
                   {[
-                    { number: "01", label: "People", title: "Invite the right participants", copy: "People who are a natural fit for this place, product, or cultural moment.", icon: Users },
-                    { number: "02", label: "What they do", title: plan.drop, copy: plan.moves.join(" → "), icon: MapPin },
-                    { number: "03", label: "What counts", title: proofLanguage[plan.proof], copy: "Explain this before anyone commits, then review it consistently.", icon: ShieldCheck },
-                    { number: "04", label: "What follows", title: `${plan.reward.baseGems} Gems proposed`, copy: "For each accepted action, once the full activation reserve is secured.", icon: Gift },
+                    { number: "01", label: t("createCampaign.card1Label"), title: t("createCampaign.card1Title"), copy: t("createCampaign.card1Copy"), icon: Users },
+                    { number: "02", label: t("createCampaign.card2Label"), title: plan.drop, copy: plan.moves.join(" → "), icon: MapPin },
+                    { number: "03", label: t("createCampaign.card3Label"), title: proofLanguage[plan.proof], copy: t("createCampaign.card3Copy"), icon: ShieldCheck },
+                    { number: "04", label: t("createCampaign.card4Label"), title: t("createCampaign.card4Title", { gems: plan.reward.baseGems.toString() }), copy: t("createCampaign.card4Copy"), icon: Gift },
                   ].map((item) => (
                     <article key={item.number} className="border-t border-black/20 pt-5">
                       <div className="flex items-center justify-between">
@@ -204,7 +206,7 @@ const CreateCampaign = () => {
                 </div>
 
                 <div className="mt-12 bg-[#191816] p-7 text-white sm:p-9">
-                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-orange-300">The experience in one line</p>
+                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-orange-300">{t("createCampaign.experienceInOneLine")}</p>
                   <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
                     {plan.moves.map((move, index) => (
                       <div key={move} className="flex flex-1 items-center gap-3">
@@ -219,19 +221,19 @@ const CreateCampaign = () => {
 
               <aside className="h-fit border border-black/15 bg-[#faf7f0] p-6 sm:p-8 lg:sticky lg:top-8">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-100 text-amber-800"><CircleDollarSign className="h-5 w-5" /></div>
-                <p className="mt-6 text-[11px] font-black uppercase tracking-[0.2em] text-amber-800">Funding decision remains</p>
-                <h2 className="mt-2 text-2xl font-black tracking-tight">No Gems are secured yet.</h2>
-                <p className="mt-3 text-sm leading-6 text-black/55">Saving keeps this as an inactive plan. Before people can join, you’ll choose a participant limit and secure enough Gems for every promised reward.</p>
+                <p className="mt-6 text-[11px] font-black uppercase tracking-[0.2em] text-amber-800">{t("createCampaign.fundingDecisionEyebrow")}</p>
+                <h2 className="mt-2 text-2xl font-black tracking-tight">{t("createCampaign.fundingDecisionTitle")}</h2>
+                <p className="mt-3 text-sm leading-6 text-black/55">{t("createCampaign.fundingDecisionCopy")}</p>
                 <div className="mt-6 space-y-3 border-y border-black/10 py-5 text-sm">
-                  <p className="flex items-center gap-3"><Check className="h-4 w-4 text-emerald-700" /> Outcome and action shaped</p>
-                  <p className="flex items-center gap-3"><Check className="h-4 w-4 text-emerald-700" /> Proof requirement stated</p>
-                  <p className="flex items-center gap-3 text-black/45"><span className="h-4 w-4 rounded-full border border-black/25" /> Scene and partners to confirm</p>
-                  <p className="flex items-center gap-3 text-black/45"><span className="h-4 w-4 rounded-full border border-black/25" /> Gem reserve to secure</p>
+                  <p className="flex items-center gap-3"><Check className="h-4 w-4 text-emerald-700" /> {t("createCampaign.checklist1")}</p>
+                  <p className="flex items-center gap-3"><Check className="h-4 w-4 text-emerald-700" /> {t("createCampaign.checklist2")}</p>
+                  <p className="flex items-center gap-3 text-black/45"><span className="h-4 w-4 rounded-full border border-black/25" /> {t("createCampaign.checklist3")}</p>
+                  <p className="flex items-center gap-3 text-black/45"><span className="h-4 w-4 rounded-full border border-black/25" /> {t("createCampaign.checklist4")}</p>
                 </div>
                 <Button onClick={handleSave} disabled={createCampaign.isPending} className="mt-6 h-14 w-full rounded-full bg-[#d85b24] text-base font-black text-white hover:bg-[#ba4618]">
-                  {createCampaign.isPending ? "Saving plan…" : "Save activation plan"}
+                  {createCampaign.isPending ? t("createCampaign.savingButton") : t("createCampaign.saveButton")}
                 </Button>
-                <p className="mt-4 text-center text-xs leading-5 text-black/42">Nothing will be published or charged.</p>
+                <p className="mt-4 text-center text-xs leading-5 text-black/42">{t("createCampaign.noChargeNotice")}</p>
               </aside>
             </div>
           </motion.section>

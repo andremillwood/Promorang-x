@@ -1,0 +1,2220 @@
+{
+  "schema_version": 2,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Bridgetown, Barbados",
+    "country_code": "BB",
+    "country_slug": "barbados",
+    "city_slug": "bridgetown",
+    "collected_at": "2026-08-22T04:04:39.961Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "rules": {
+    "auto_publish": false,
+    "minimum_venue_confidence": 0.8,
+    "moment_expiry_hours": 24,
+    "targets": {
+      "venues": 30,
+      "discoveries": 20,
+      "moments": 10,
+      "polls": 4,
+      "scenes": 3
+    }
+  },
+  "city": {
+    "country_code": "BB",
+    "country_slug": "barbados",
+    "country": "Barbados",
+    "city_slug": "bridgetown",
+    "city": "Bridgetown",
+    "region": "Saint Michael",
+    "currency": "BBD",
+    "timezone": "America/Barbados",
+    "bbox": "13.0700,-59.6700,13.1400,-59.5400",
+    "launch_stage": "pilot",
+    "poll_templates": [
+      "Which Bridgetown food spot should host the next tasting?",
+      "Where is the best recurring live-music night?",
+      "Which independent Bajan business deserves discovery?",
+      "What should Bridgetown activate next?"
+    ]
+  },
+  "poll_templates": [
+    {
+      "key": "bb-bridgetown-1",
+      "question": "Which Bridgetown food spot should host the next tasting?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "bb-bridgetown-2",
+      "question": "Where is the best recurring live-music night?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "bb-bridgetown-3",
+      "question": "Which independent Bajan business deserves discovery?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "bb-bridgetown-4",
+      "question": "What should Bridgetown activate next?",
+      "status": "draft",
+      "category": "City Direction",
+      "threshold_for_moment": 25
+    }
+  ],
+  "stats": {
+    "source_elements": 501,
+    "candidates": 50,
+    "pending_review": 10,
+    "needs_research": 40
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/441995622",
+      "source_url": "https://www.openstreetmap.org/node/441995622",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 441995622,
+        "lat": 13.1240891,
+        "lon": -59.6325424,
+        "tags": {
+          "name": "Malibu Visitor Center",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Malibu Visitor Center",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.1240891,
+        "longitude": -59.6325424,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6a8fda60198345682e8f99bc0a23490400c9d8bb38ff8f1f777f3b09a79b1e40",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/447593935",
+      "source_url": "https://www.openstreetmap.org/node/447593935",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 447593935,
+        "lat": 13.0909915,
+        "lon": -59.5771072,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Barbados Tennis Centre"
+        }
+      },
+      "normalized_data": {
+        "name": "Barbados Tennis Centre",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0909915,
+        "longitude": -59.5771072,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ee5044617ef948c51a7dc129e459e037b78b7698528a969f3852b0cb8c7feb22",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1763149543",
+      "source_url": "https://www.openstreetmap.org/node/1763149543",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1763149543,
+        "lat": 13.1392091,
+        "lon": -59.6352728,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "designation": "Ribs & Fish. Kareoke Fridays",
+          "name": "Wendy's Bar & Grill"
+        }
+      },
+      "normalized_data": {
+        "name": "Wendy's Bar & Grill",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.1392091,
+        "longitude": -59.6352728,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3db4e926a429b01aeaee13bab4c15349d74e3ad91b66b3271a5e9c509fea4bf9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2143366707",
+      "source_url": "https://www.openstreetmap.org/node/2143366707",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2143366707,
+        "lat": 13.1057942,
+        "lon": -59.5788518,
+        "tags": {
+          "addr:housename": "Sky Mall",
+          "amenity": "restaurant",
+          "cuisine": "asian",
+          "name": "Wild East Wok"
+        }
+      },
+      "normalized_data": {
+        "name": "Wild East Wok",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.1057942,
+        "longitude": -59.5788518,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "asian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b8010d39b04c46b58a49e58e25faf5fe34d2c1d78db7014f4e85ff41f54338e3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2397309723",
+      "source_url": "https://www.openstreetmap.org/node/2397309723",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2397309723,
+        "lat": 13.0959842,
+        "lon": -59.6158855,
+        "tags": {
+          "leisure": "marina",
+          "name": "The Careenage",
+          "seamark:harbour:category": "marina",
+          "seamark:type": "harbour"
+        }
+      },
+      "normalized_data": {
+        "name": "The Careenage",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0959842,
+        "longitude": -59.6158855,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marina"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fb96e7b13ac964b08bc526f04d9418b9acfd12a50b3421ab945188feb34bf492",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2397309843",
+      "source_url": "https://www.openstreetmap.org/node/2397309843",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2397309843,
+        "lat": 13.1068792,
+        "lon": -59.6259851,
+        "tags": {
+          "leisure": "marina",
+          "name": "Shallow Draft"
+        }
+      },
+      "normalized_data": {
+        "name": "Shallow Draft",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.1068792,
+        "longitude": -59.6259851,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marina"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "26010ea66a1995eafc41104fe8af92236d8ec8e6540c4dc35ab2621764be208e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2611288553",
+      "source_url": "https://www.openstreetmap.org/node/2611288553",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2611288553,
+        "lat": 13.0820493,
+        "lon": -59.6095577,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "seafood",
+          "name": "Cuzz's Fish Shack",
+          "takeaway": "only"
+        }
+      },
+      "normalized_data": {
+        "name": "Cuzz's Fish Shack",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0820493,
+        "longitude": -59.6095577,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "seafood"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d3553fef28873a8df7626dadbbcf1d822b0eef1fc37b69a7c26321077e0948cb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2611288559",
+      "source_url": "https://www.openstreetmap.org/node/2611288559",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2611288559,
+        "lat": 13.0802357,
+        "lon": -59.6069759,
+        "tags": {
+          "name": "Garrison District World Heritage Site",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Garrison District World Heritage Site",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0802357,
+        "longitude": -59.6069759,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f165e9492b8489483a8c408448a81fd7e3cda8298dc41a8d913f0d9c63fda927",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2611288570",
+      "source_url": "https://www.openstreetmap.org/node/2611288570",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2611288570,
+        "lat": 13.1223303,
+        "lon": -59.6305714,
+        "tags": {
+          "name": "Malibu Beach Club (Cockspur)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Malibu Beach Club (Cockspur)",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.1223303,
+        "longitude": -59.6305714,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f571b4ed2c3cc5b907fdc8a58997611a3d8724b9790fc3a7bc92bbb00f2aca33",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2611288587",
+      "source_url": "https://www.openstreetmap.org/node/2611288587",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2611288587,
+        "lat": 13.0910979,
+        "lon": -59.6097257,
+        "tags": {
+          "leisure": "water_park",
+          "name": "Rogers Scuba Shack",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Rogers Scuba Shack",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0910979,
+        "longitude": -59.6097257,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "water_park",
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9ce6228cb96068436951512a089c3f98246424480a488a98d438ad62e007125d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2611288590",
+      "source_url": "https://www.openstreetmap.org/node/2611288590",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2611288590,
+        "lat": 13.0747354,
+        "lon": -59.5944241,
+        "tags": {
+          "amenity": "cafe",
+          "cuisine": "ice_cream",
+          "name": "Something Sweet - Bico Ice Cream"
+        }
+      },
+      "normalized_data": {
+        "name": "Something Sweet - Bico Ice Cream",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0747354,
+        "longitude": -59.5944241,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe",
+          "ice_cream"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "489bd91e6efdf6e2db2d0fa93dcca09509c29c90e7f39e044151bb7461ec5010",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2611288595",
+      "source_url": "https://www.openstreetmap.org/node/2611288595",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2611288595,
+        "lat": 13.0750593,
+        "lon": -59.5895332,
+        "tags": {
+          "addr:place": "Rockley",
+          "amenity": "restaurant",
+          "cuisine": "Bajan",
+          "name": "Surfside Grill",
+          "outdoor_seating": "yes",
+          "smoking": "outside",
+          "takeaway": "yes",
+          "wheelchair": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Surfside Grill",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0750593,
+        "longitude": -59.5895332,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "Bajan"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9aa75216a0aeb9a9700b0a3b0fe38554982e5e9e26ce9999323414d7d3d4287c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2611288601",
+      "source_url": "https://www.openstreetmap.org/node/2611288601",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2611288601,
+        "lat": 13.1251934,
+        "lon": -59.6072092,
+        "tags": {
+          "addr:city": "Spooners Hill",
+          "addr:street": "Spooners Hill Main Road",
+          "name": "Tyrol Cot (Home of Grantley Adams)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Tyrol Cot (Home of Grantley Adams)",
+        "address": "Spooners Hill Main Road, Spooners Hill, Barbados",
+        "city": "Spooners Hill",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.1251934,
+        "longitude": -59.6072092,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e9c0ea7b156b2179511f8a8215724bf40dffd56b7af80005e3f03b2ed20d86f9",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2611288751",
+      "source_url": "https://www.openstreetmap.org/node/2611288751",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2611288751,
+        "lat": 13.0772531,
+        "lon": -59.604386,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "Bajan",
+          "name": "39 Steps"
+        }
+      },
+      "normalized_data": {
+        "name": "39 Steps",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0772531,
+        "longitude": -59.604386,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "Bajan"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5d3fb326bc1547eca02c8d329a7cc5e1640f1fed5d99eff9ff5f17dbbef5636a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2698339140",
+      "source_url": "https://www.openstreetmap.org/node/2698339140",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2698339140,
+        "lat": 13.1003957,
+        "lon": -59.6242065,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Fontabelle",
+          "amenity": "restaurant",
+          "cuisine": "fish;chicken;burger;pizza;ice_cream",
+          "name": "Chefette Restaurants - Fontabelle",
+          "phone": "+1 246 430 3385",
+          "website": "https://www.chefette.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Chefette Restaurants - Fontabelle",
+        "address": "Fontabelle, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.1003957,
+        "longitude": -59.6242065,
+        "category": "restaurant",
+        "phone": "+1 246 430 3385",
+        "website": "https://www.chefette.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "fish;chicken;burger;pizza;ice_cream"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dda274e7ac78de02e486dc92776f00ecb99038e9a6886ca0b39a08e41106b8bb",
+      "confidence": 0.9,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2698424867",
+      "source_url": "https://www.openstreetmap.org/node/2698424867",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2698424867,
+        "lat": 13.0931618,
+        "lon": -59.5869146,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Surfside"
+        }
+      },
+      "normalized_data": {
+        "name": "Surfside",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0931618,
+        "longitude": -59.5869146,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "080ed5d12f93ad30d4ab2d714f03bcc1978c81917ac4755589f79323c05ceb83",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2698561193",
+      "source_url": "https://www.openstreetmap.org/node/2698561193",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2698561193,
+        "lat": 13.1075696,
+        "lon": -59.6254001,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "The Shallow Draft",
+          "name": "Atlantis Submarines Barbados Inc",
+          "phone": "+1 246-436-8929",
+          "tourism": "attraction",
+          "website": "https://www.barbados.atlantissubmarines.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Atlantis Submarines Barbados Inc",
+        "address": "The Shallow Draft, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.1075696,
+        "longitude": -59.6254001,
+        "category": "attraction",
+        "phone": "+1 246-436-8929",
+        "website": "https://www.barbados.atlantissubmarines.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0311f23ec36a1c2b5be46dde350885afc3b58ec236e9929bbeaff675aef8c126",
+      "confidence": 0.9,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2698568342",
+      "source_url": "https://www.openstreetmap.org/node/2698568342",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2698568342,
+        "lat": 13.1165749,
+        "lon": -59.6272898,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Brandons Beach",
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "Rascals of the Caribbean Restaurant",
+          "phone": "+1 246-425-6450",
+          "website": "https://rascalswaterpark.com/menu/"
+        }
+      },
+      "normalized_data": {
+        "name": "Rascals of the Caribbean Restaurant",
+        "address": "Brandons Beach, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.1165749,
+        "longitude": -59.6272898,
+        "category": "restaurant",
+        "phone": "+1 246-425-6450",
+        "website": "https://rascalswaterpark.com/menu/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "869c274a3dd3745ee9394d3b59412271254c8209548ced7bed0680475264b08e",
+      "confidence": 0.9,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702667818",
+      "source_url": "https://www.openstreetmap.org/node/2702667818",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702667818,
+        "lat": 13.0977656,
+        "lon": -59.6189966,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Jubilee Gardens",
+          "amenity": "bar",
+          "name": "Sarge's Sports Bar & Restaurant",
+          "phone": "+1 246-436-2451"
+        }
+      },
+      "normalized_data": {
+        "name": "Sarge's Sports Bar & Restaurant",
+        "address": "Jubilee Gardens, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0977656,
+        "longitude": -59.6189966,
+        "category": "nightlife",
+        "phone": "+1 246-436-2451",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "55756b1a27d823d71149c215bd1465139fe962050660d3fc29879b71356972d4",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702682458",
+      "source_url": "https://www.openstreetmap.org/node/2702682458",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702682458,
+        "lat": 13.0971957,
+        "lon": -59.6176305,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Prince Alfred Street",
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "brand:wikipedia": "en:KFC",
+          "cuisine": "chicken",
+          "name": "KFC",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "Prince Alfred Street, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0971957,
+        "longitude": -59.6176305,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d53e92a1c9f7f8a0165469361deef6aa0d0aed63812ea1f7fc1106176a7de3a9",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702693311",
+      "source_url": "https://www.openstreetmap.org/node/2702693311",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702693311,
+        "lat": 13.0980161,
+        "lon": -59.6168696,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:postcode": "BB 11009",
+          "addr:street": "Lower Broad Street",
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "brand:wikipedia": "en:KFC",
+          "cuisine": "chicken",
+          "name": "KFC",
+          "opening_hours": "Mo-Sa 11:00-18:00",
+          "phone": "+12465371500",
+          "takeaway": "yes",
+          "website": "https://www.ordermykfc.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "Lower Broad Street, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0980161,
+        "longitude": -59.6168696,
+        "category": "restaurant",
+        "phone": "+12465371500",
+        "website": "https://www.ordermykfc.com/",
+        "opening_hours": "Mo-Sa 11:00-18:00",
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "731b0b5ae62eb94d9852c9d53594d6a4a1ff160129717e0649b9e0d190375dcf",
+      "confidence": 0.95,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702694299",
+      "source_url": "https://www.openstreetmap.org/node/2702694299",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702694299,
+        "lat": 13.0979628,
+        "lon": -59.616869,
+        "tags": {
+          "name": "Galaxy Fashions",
+          "phone": "+1 246-436-7555",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Galaxy Fashions",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0979628,
+        "longitude": -59.616869,
+        "category": "shopping",
+        "phone": "+1 246-436-7555",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ee365a597e3e37c65824b5ab7f83f5925cb99997df529d93bb6f03c3ec3ac31c",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702699780",
+      "source_url": "https://www.openstreetmap.org/node/2702699780",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702699780,
+        "lat": 13.0980107,
+        "lon": -59.6172688,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Prince Alfred Street",
+          "amenity": "fast_food",
+          "brand": "Subway",
+          "brand:wikidata": "Q244457",
+          "brand:wikipedia": "en:Subway (restaurant)",
+          "cuisine": "sandwich",
+          "name": "Subway",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Subway",
+        "address": "Prince Alfred Street, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0980107,
+        "longitude": -59.6172688,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "sandwich"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "156605d13b99362ac6ba7200bf9a4e43ba08573e6077d089b65b77e3225ad9b0",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702711504",
+      "source_url": "https://www.openstreetmap.org/node/2702711504",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702711504,
+        "lat": 13.0976405,
+        "lon": -59.618027,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Lower Broad Street",
+          "name": "Jenn Health & Beauty Supplies",
+          "phone": "+1 246-426-1276",
+          "shop": "beauty"
+        }
+      },
+      "normalized_data": {
+        "name": "Jenn Health & Beauty Supplies",
+        "address": "Lower Broad Street, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0976405,
+        "longitude": -59.618027,
+        "category": "other",
+        "phone": "+1 246-426-1276",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a345b3c6cced1c5ec439af3c837cdf5e0dd083eb6660eec3353aa0eafe9d78eb",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702725286",
+      "source_url": "https://www.openstreetmap.org/node/2702725286",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702725286,
+        "lat": 13.0977056,
+        "lon": -59.6172792,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:postcode": "BB 11009",
+          "addr:street": "Lower Broad Street",
+          "name": "The Bionic Shop",
+          "opening_hours": "Mo-Sa 09:00-18:00",
+          "phone": "+14340513",
+          "shop": "clothes",
+          "website": "https://m.facebook.com/thebionicshop/"
+        }
+      },
+      "normalized_data": {
+        "name": "The Bionic Shop",
+        "address": "Lower Broad Street, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0977056,
+        "longitude": -59.6172792,
+        "category": "shopping",
+        "phone": "+14340513",
+        "website": "https://m.facebook.com/thebionicshop/",
+        "opening_hours": "Mo-Sa 09:00-18:00",
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d7a0dc3bd4b0d0f783598ebb25eb0756b55ab750eff02703744e5e99eda55433",
+      "confidence": 0.95,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702738611",
+      "source_url": "https://www.openstreetmap.org/node/2702738611",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702738611,
+        "lat": 13.09706,
+        "lon": -59.6150777,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:housenumber": "8A Norman Centre",
+          "addr:street": "Broad Street",
+          "branch": "Broad Street",
+          "brand": "Pandora",
+          "brand:wikidata": "Q2241604",
+          "brand:wikipedia": "en:Converse (shoe company)",
+          "name": "Pandora",
+          "shop": "jewelry"
+        }
+      },
+      "normalized_data": {
+        "name": "Pandora",
+        "address": "8A Norman Centre Broad Street, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.09706,
+        "longitude": -59.6150777,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7629a9c6b88e1eea365ce0be4da4d667f6e8a131a57551f5de6745f76f00e61a",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702826906",
+      "source_url": "https://www.openstreetmap.org/node/2702826906",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702826906,
+        "lat": 13.0982366,
+        "lon": -59.6176568,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Chapel Streeet",
+          "name": "Men's Room",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Men's Room",
+        "address": "Chapel Streeet, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0982366,
+        "longitude": -59.6176568,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "be7fd56ee85d38f78c3ec22116eb266ba5c97b17e05b79800bfcb26ec402cda4",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702827184",
+      "source_url": "https://www.openstreetmap.org/node/2702827184",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702827184,
+        "lat": 13.0983688,
+        "lon": -59.61785,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Chapel Streeet",
+          "name": "Beauty Essentials",
+          "shop": "beauty"
+        }
+      },
+      "normalized_data": {
+        "name": "Beauty Essentials",
+        "address": "Chapel Streeet, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0983688,
+        "longitude": -59.61785,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5012ec5054e1ee2ff50fe31644a6c7b9cbe60beac1e1cdbe35aa7647caebcf19",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702827762",
+      "source_url": "https://www.openstreetmap.org/node/2702827762",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702827762,
+        "lat": 13.0983442,
+        "lon": -59.617711,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Chapel Streeet",
+          "name": "Imperial Gifts & Balloons",
+          "shop": "gift"
+        }
+      },
+      "normalized_data": {
+        "name": "Imperial Gifts & Balloons",
+        "address": "Chapel Streeet, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0983442,
+        "longitude": -59.617711,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "gift"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0ea6d8e7bafa8cc96256e13510f40f16e581d6d444b88e43c8eb0894e526d2a3",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702827807",
+      "source_url": "https://www.openstreetmap.org/node/2702827807",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702827807,
+        "lat": 13.0983283,
+        "lon": -59.6177415,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Chapel Streeet",
+          "name": "City Jewellery & Accessories",
+          "shop": "jewelry"
+        }
+      },
+      "normalized_data": {
+        "name": "City Jewellery & Accessories",
+        "address": "Chapel Streeet, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0983283,
+        "longitude": -59.6177415,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2640d8823488de99c8a63ac8eee2576e750c0fca251ed48fe9479ba48c1a8ba3",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702830633",
+      "source_url": "https://www.openstreetmap.org/node/2702830633",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702830633,
+        "lat": 13.0980992,
+        "lon": -59.6160387,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Prince William Henry St.",
+          "alt_name": "Kentucky Fried Chicken",
+          "amenity": "fast_food",
+          "brand": "KFC",
+          "brand:wikidata": "Q524757",
+          "brand:wikipedia": "en:KFC",
+          "cuisine": "chicken",
+          "name": "KFC",
+          "note": "Located on the first floor of the mall.",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "KFC",
+        "address": "Prince William Henry St., Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0980992,
+        "longitude": -59.6160387,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "27a017865999338071c4dbb05da57c971f2884bac841cc497d874e1a21805fb0",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2702832073",
+      "source_url": "https://www.openstreetmap.org/node/2702832073",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2702832073,
+        "lat": 13.0975165,
+        "lon": -59.6162653,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Broad Street",
+          "name": "Little Switzerland",
+          "shop": "jewelry"
+        }
+      },
+      "normalized_data": {
+        "name": "Little Switzerland",
+        "address": "Broad Street, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0975165,
+        "longitude": -59.6162653,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "jewelry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7396af6f7092fd832dfa393cc6c06c7fbddbc95d05e6bb387de37d6ce380f97c",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2717241284",
+      "source_url": "https://www.openstreetmap.org/node/2717241284",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2717241284,
+        "lat": 13.0961086,
+        "lon": -59.617235,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Wharf Road",
+          "name": "The House of Cuban Cigars",
+          "shop": "gift"
+        }
+      },
+      "normalized_data": {
+        "name": "The House of Cuban Cigars",
+        "address": "Wharf Road, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0961086,
+        "longitude": -59.617235,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "gift"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "03696455bb65fde27da245dcf2c39291276a02836a6b40e7be26684cea951480",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2725512316",
+      "source_url": "https://www.openstreetmap.org/node/2725512316",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2725512316,
+        "lat": 13.097648,
+        "lon": -59.6169677,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Lower Broad Street",
+          "name": "The Voyager Gift Shop",
+          "shop": "gift"
+        }
+      },
+      "normalized_data": {
+        "name": "The Voyager Gift Shop",
+        "address": "Lower Broad Street, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.097648,
+        "longitude": -59.6169677,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "gift"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "711e3a8ec75a429b3631ec3b9202ada1bb1ce42444e438d6c3036dc399b140ab",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2725517380",
+      "source_url": "https://www.openstreetmap.org/node/2725517380",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2725517380,
+        "lat": 13.0972657,
+        "lon": -59.6174236,
+        "tags": {
+          "addr:city": "Bridgetown",
+          "addr:street": "Lower Broad Street",
+          "amenity": "fast_food",
+          "branch": "Broad Street",
+          "brand": "Chefette",
+          "brand:wikidata": "Q5089525",
+          "brand:wikipedia": "en:Chefette",
+          "cuisine": "chicken",
+          "name": "Chefette",
+          "opening_hours": "Mo-Sa 10:00-19:00",
+          "phone": "+12466293420",
+          "takeaway": "yes",
+          "website": "https://www.chefette.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Chefette",
+        "address": "Lower Broad Street, Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0972657,
+        "longitude": -59.6174236,
+        "category": "restaurant",
+        "phone": "+12466293420",
+        "website": "https://www.chefette.com/",
+        "opening_hours": "Mo-Sa 10:00-19:00",
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4c54da29c7edd6f948488ce4480dfc9015258aad46f706d3e00f7c7bb0ec1153",
+      "confidence": 0.95,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3428723145",
+      "source_url": "https://www.openstreetmap.org/node/3428723145",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3428723145,
+        "lat": 13.0773105,
+        "lon": -59.6043193,
+        "tags": {
+          "amenity": "cafe",
+          "cuisine": "coffee_shop",
+          "internet_access": "wlan",
+          "name": "The Coffee Bean",
+          "opening_hours": "Mo-Fr 07:00-16:30, Sa 08:00-16:00"
+        }
+      },
+      "normalized_data": {
+        "name": "The Coffee Bean",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0773105,
+        "longitude": -59.6043193,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Fr 07:00-16:30, Sa 08:00-16:00",
+        "social_profiles": {},
+        "tags": [
+          "cafe",
+          "coffee_shop"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7c706f4b7446f26c5dd7bcc0bd2268a9e9e646eb9d5dfa28fd05d76d91cb61dc",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3430963077",
+      "source_url": "https://www.openstreetmap.org/node/3430963077",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3430963077,
+        "lat": 13.0747688,
+        "lon": -59.5941845,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Subway",
+          "brand:wikidata": "Q244457",
+          "brand:wikipedia": "en:Subway (restaurant)",
+          "cuisine": "sandwich",
+          "name": "Subway",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Subway",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0747688,
+        "longitude": -59.5941845,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "sandwich"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3186681372002cdfc44ee33a4ece3a611dc74564654f046f232611d59408b481",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3430963078",
+      "source_url": "https://www.openstreetmap.org/node/3430963078",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3430963078,
+        "lat": 13.074817,
+        "lon": -59.5943557,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "chicken",
+          "name": "RB's Rotisserie Chicken"
+        }
+      },
+      "normalized_data": {
+        "name": "RB's Rotisserie Chicken",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.074817,
+        "longitude": -59.5943557,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "857ab3b33a3c190d64ea6f8c25ab54719ba3012ba60317815e443736312a4bfe",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3430964252",
+      "source_url": "https://www.openstreetmap.org/node/3430964252",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3430964252,
+        "lat": 13.0746799,
+        "lon": -59.594348,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "burger",
+          "name": "Eat Street & Co"
+        }
+      },
+      "normalized_data": {
+        "name": "Eat Street & Co",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0746799,
+        "longitude": -59.594348,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "116aa8778e398dfa0b408122d01801c5669da099a299bdf7fc5226a70d563284",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3430966168",
+      "source_url": "https://www.openstreetmap.org/node/3430966168",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3430966168,
+        "lat": 13.0753347,
+        "lon": -59.5890245,
+        "tags": {
+          "amenity": "cafe",
+          "contact:facebook": "https://www.facebook.com/thegoodlifebarbados",
+          "diet:vegan": "yes",
+          "diet:vegetarian": "yes",
+          "internet_access": "wlan",
+          "internet_access:fee": "no",
+          "name": "The Good Life Cafe"
+        }
+      },
+      "normalized_data": {
+        "name": "The Good Life Cafe",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0753347,
+        "longitude": -59.5890245,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {
+          "facebook": "https://www.facebook.com/thegoodlifebarbados"
+        },
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "39b039a74d5ff50d7ee4b6a1ec61b0940657ba2e9f0edfa1e213b6dbb3f21d97",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3459460576",
+      "source_url": "https://www.openstreetmap.org/node/3459460576",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3459460576,
+        "lat": 13.0816272,
+        "lon": -59.6065636,
+        "tags": {
+          "amenity": "cafe",
+          "contact:instagram": "https://www.instagram.com/georgewashingtoncafebarbados",
+          "contact:phone": "+1 246 622 2365",
+          "name": "George Washington Coffee House",
+          "opening_hours": "Mo-Su 07:00-16:00"
+        }
+      },
+      "normalized_data": {
+        "name": "George Washington Coffee House",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0816272,
+        "longitude": -59.6065636,
+        "category": "cafe",
+        "phone": "+1 246 622 2365",
+        "website": null,
+        "opening_hours": "Mo-Su 07:00-16:00",
+        "social_profiles": {
+          "instagram": "https://www.instagram.com/georgewashingtoncafebarbados"
+        },
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7190f804d1d371c71fce2224a72d482edbaf3a4c31a147b21765d3c92e606bc2",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3459461895",
+      "source_url": "https://www.openstreetmap.org/node/3459461895",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3459461895,
+        "lat": 13.0823613,
+        "lon": -59.6094904,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Paddle Barbados",
+          "sport": "SUP and surf",
+          "website": "https://paddlebarbados.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Paddle Barbados",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0823613,
+        "longitude": -59.6094904,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": "https://paddlebarbados.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cb6866bc066e5e5581c48f0b40c500317d5109bde919100c5b3a9b0e155424e2",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3474842225",
+      "source_url": "https://www.openstreetmap.org/node/3474842225",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3474842225,
+        "lat": 13.0967366,
+        "lon": -59.6137108,
+        "tags": {
+          "amenity": "fountain",
+          "name": "Trafalgar Fountain",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Trafalgar Fountain",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0967366,
+        "longitude": -59.6137108,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fountain",
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6dce4f66ca2102792e563e269e4fffd4554ea97a1aa7c082d6813b9fb48c57fe",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3647767408",
+      "source_url": "https://www.openstreetmap.org/node/3647767408",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3647767408,
+        "lat": 13.0774562,
+        "lon": -59.5968036,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Shotokan",
+          "sport": "karate"
+        }
+      },
+      "normalized_data": {
+        "name": "Shotokan",
+        "address": "Bridgetown, Barbados",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0774562,
+        "longitude": -59.5968036,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e7c15fe6b35480316437b5692678761d8425423c27b5f6851de5bd55bb9cdfd3",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3669057826",
+      "source_url": "https://www.openstreetmap.org/node/3669057826",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3669057826,
+        "lat": 13.0752969,
+        "lon": -59.589583,
+        "tags": {
+          "addr:country": "BB",
+          "addr:place": "Rockley",
+          "amenity": "restaurant",
+          "cuisine": "ice_cream",
+          "name": "Chilly Moo's Ice Cream Treatery",
+          "opening_hours": "Mo-Th 11:00-22:00; Fr-Su 11:00-23:00; PH 11:00-22:00"
+        }
+      },
+      "normalized_data": {
+        "name": "Chilly Moo's Ice Cream Treatery",
+        "address": "Bridgetown, BB",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0752969,
+        "longitude": -59.589583,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Th 11:00-22:00; Fr-Su 11:00-23:00; PH 11:00-22:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "ice_cream"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cc4610c36dc66f291183d8289a8e25a65e72a6012ef1a0813be3edb7e7e9ae22",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3875210433",
+      "source_url": "https://www.openstreetmap.org/node/3875210433",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3875210433,
+        "lat": 13.0720257,
+        "lon": -59.5845951,
+        "tags": {
+          "addr:country": "BB",
+          "addr:place": "Worthing",
+          "addr:street": "Worthing Main Road",
+          "name": "Book Den",
+          "shop": "books",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Book Den",
+        "address": "Worthing Main Road, Bridgetown, BB",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0720257,
+        "longitude": -59.5845951,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "books"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f9326312170372c3dc87a87dd402ee7629353380ea0c2a9aa66c3a4b83eefa6a",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3875222511",
+      "source_url": "https://www.openstreetmap.org/node/3875222511",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3875222511,
+        "lat": 13.0717187,
+        "lon": -59.5853547,
+        "tags": {
+          "addr:country": "BB",
+          "addr:place": "Worthing",
+          "addr:street": "Worthing Main Road",
+          "amenity": "restaurant",
+          "name": "Coral Blue",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Coral Blue",
+        "address": "Worthing Main Road, Bridgetown, BB",
+        "city": "Bridgetown",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0717187,
+        "longitude": -59.5853547,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6a2450c91c62a8e07722750173da299301e3200b50741516b9d77e1456428747",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3875288323",
+      "source_url": "https://www.openstreetmap.org/node/3875288323",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3875288323,
+        "lat": 13.0737718,
+        "lon": -59.5926914,
+        "tags": {
+          "addr:street": "Hastings Road",
+          "addr:suburb": "Hastings",
+          "amenity": "restaurant",
+          "cuisine": "pan_asian_caribbean",
+          "name": "Naru",
+          "phone": "228 6278",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Naru",
+        "address": "Hastings Road, Hastings, Bridgetown, Barbados",
+        "city": "Hastings",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.0737718,
+        "longitude": -59.5926914,
+        "category": "restaurant",
+        "phone": "228 6278",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "pan_asian_caribbean"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8d4500bd23f0235f4654e77a8450f91198259ba20cc8b281f4e9e9d72cccc82e",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3875306921",
+      "source_url": "https://www.openstreetmap.org/node/3875306921",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3875306921,
+        "lat": 13.074276,
+        "lon": -59.5967736,
+        "tags": {
+          "addr:street": "Hastings Road",
+          "addr:suburb": "Hastings",
+          "amenity": "arts_centre",
+          "name": "The Artsplash Centre",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "The Artsplash Centre",
+        "address": "Hastings Road, Hastings, Bridgetown, Barbados",
+        "city": "Hastings",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.074276,
+        "longitude": -59.5967736,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "arts_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "becfd705ecee680f3b9e526f76c20baaed39c96d3015412932e0eed9eac4c4d2",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3875347663",
+      "source_url": "https://www.openstreetmap.org/node/3875347663",
+      "source_last_checked_at": "2026-08-22T04:04:39.961Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3875347663,
+        "lat": 13.077308,
+        "lon": -59.6044733,
+        "tags": {
+          "addr:street": "Hastings Road",
+          "addr:suburb": "Hastings",
+          "name": "Chateau de Beaute",
+          "shop": "beauty",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Chateau de Beaute",
+        "address": "Hastings Road, Hastings, Bridgetown, Barbados",
+        "city": "Hastings",
+        "region": "Saint Michael",
+        "parish": "Saint Michael",
+        "country": "Barbados",
+        "country_code": "BB",
+        "latitude": 13.077308,
+        "longitude": -59.6044733,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "beauty"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3fb9ca872b542bb185516b7f18d0b1b34f08ef41123031550b7675f05ba5fb2e",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    }
+  ]
+}

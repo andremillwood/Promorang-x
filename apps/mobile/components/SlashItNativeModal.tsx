@@ -46,7 +46,7 @@ export const SlashItNativeModal: React.FC<SlashItNativeModalProps> = ({
           </TouchableOpacity>
 
           <View style={styles.header}>
-            <Ionicons name="scissors" size={28} color="#f43f5e" />
+            <Ionicons name="cut" size={28} color="#f43f5e" />
             <Text style={styles.headerTitle}>Pinduoduo Social Slash</Text>
           </View>
 

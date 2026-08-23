@@ -1,0 +1,2071 @@
+{
+  "schema_version": 1,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Trelawny, Jamaica",
+    "parish": "Trelawny",
+    "iso_code": "JM-07",
+    "collected_at": "2026-08-22T01:47:51.536Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "stats": {
+    "source_elements": 55,
+    "candidates": 51,
+    "pending_review": 3,
+    "needs_research": 48
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3045058519",
+      "source_url": "https://www.openstreetmap.org/node/3045058519",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3045058519,
+        "lat": 18.4518682,
+        "lon": -77.6473978,
+        "tags": {
+          "name": "Martha Brae Rafting Village",
+          "tourism": "viewpoint"
+        }
+      },
+      "normalized_data": {
+        "name": "Martha Brae Rafting Village",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4518682,
+        "longitude": -77.6473978,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "viewpoint"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c39dda0b0ab502b5bae0faa7261f26bb5a034a720eb0d59c4acebc002cdce849",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4870128521",
+      "source_url": "https://www.openstreetmap.org/node/4870128521",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4870128521,
+        "lat": 18.4927283,
+        "lon": -77.6561888,
+        "tags": {
+          "addr:housenumber": "18",
+          "addr:street": "Newton Street",
+          "internet_access": "wlan",
+          "name": "G&R Guesthouse",
+          "name:cs": "G&R Guesthouse",
+          "name:en": "G&R Guesthouse",
+          "opening_hours": "24/7",
+          "tourism": "hotel",
+          "website": "https://www.booking.com/Share-Ydy8mm"
+        }
+      },
+      "normalized_data": {
+        "name": "G&R Guesthouse",
+        "address": "18 Newton Street, Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4927283,
+        "longitude": -77.6561888,
+        "category": "accommodation",
+        "phone": null,
+        "website": "https://www.booking.com/Share-Ydy8mm",
+        "opening_hours": "24/7",
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1c18720b9de9ced6583a7c8bf31170ebec3b4e673f6d663ad14944a0340ca77d",
+      "confidence": 0.85,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5771905754",
+      "source_url": "https://www.openstreetmap.org/node/5771905754",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5771905754,
+        "lat": 18.4910628,
+        "lon": -77.6514277,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Divine food"
+        }
+      },
+      "normalized_data": {
+        "name": "Divine food",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4910628,
+        "longitude": -77.6514277,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "30d6543d6e0c55da34b3a99c645245aa8100a6ce896ef11088c887be8dd6c601",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/5771905853",
+      "source_url": "https://www.openstreetmap.org/node/5771905853",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 5771905853,
+        "lat": 18.4968862,
+        "lon": -77.6546197,
+        "tags": {
+          "amenity": "bar",
+          "name": "Sangy reggae bar on the beach"
+        }
+      },
+      "normalized_data": {
+        "name": "Sangy reggae bar on the beach",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4968862,
+        "longitude": -77.6546197,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bb7e2735a3e00f9ce4abce6554cd301939925aad6dfa33cdcf05f405998c310a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6341854385",
+      "source_url": "https://www.openstreetmap.org/node/6341854385",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6341854385,
+        "lat": 18.4855364,
+        "lon": -77.5320194,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "american",
+          "name": "Tulet's"
+        }
+      },
+      "normalized_data": {
+        "name": "Tulet's",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4855364,
+        "longitude": -77.5320194,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "american"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cbe02a0b25cbcb52c5b1c3aeff2ac0f15f22371a79d4d684b3d95904fd937ce9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6355367287",
+      "source_url": "https://www.openstreetmap.org/node/6355367287",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6355367287,
+        "lat": 18.4839441,
+        "lon": -77.5271184,
+        "tags": {
+          "amenity": "bar",
+          "name": "Mysilversand"
+        }
+      },
+      "normalized_data": {
+        "name": "Mysilversand",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4839441,
+        "longitude": -77.5271184,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "194c269ef6cc92ce18429611c3c770bdd6a4699203c9dfd900dc55065573d433",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6355372586",
+      "source_url": "https://www.openstreetmap.org/node/6355372586",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6355372586,
+        "lat": 18.4685521,
+        "lon": -77.5369416,
+        "tags": {
+          "amenity": "bar",
+          "name": "Rainbow Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Rainbow Bar",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4685521,
+        "longitude": -77.5369416,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "843ef87d7256282939f84f0a4a16fcbd5c5c2659d1b4ce2b03777e4bf24994ff",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6983234673",
+      "source_url": "https://www.openstreetmap.org/node/6983234673",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6983234673,
+        "lat": 18.4910664,
+        "lon": -77.5558269,
+        "tags": {
+          "name": "Carrion Crow Cliffs",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Carrion Crow Cliffs",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4910664,
+        "longitude": -77.5558269,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6007c43eab60015e5caca08e5d226e47b74b04d913c9d4be6a8852f11a76f64b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/6983234674",
+      "source_url": "https://www.openstreetmap.org/node/6983234674",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 6983234674,
+        "lat": 18.4894308,
+        "lon": -77.5407878,
+        "tags": {
+          "name": "Duncan Cliff",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Duncan Cliff",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4894308,
+        "longitude": -77.5407878,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7b20c97683f8b85266f45a379bf491f5cd86af14304b09b3e4f056cf1bd30233",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7042635684",
+      "source_url": "https://www.openstreetmap.org/node/7042635684",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7042635684,
+        "lat": 18.4697359,
+        "lon": -77.6560691,
+        "tags": {
+          "name": "The Waterwheel at Martha Brae",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "The Waterwheel at Martha Brae",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4697359,
+        "longitude": -77.6560691,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "037ee92bdb806e3460d4b264f66d3b75f8e39452cdccf00e1d926e37630de688",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7045277528",
+      "source_url": "https://www.openstreetmap.org/node/7045277528",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7045277528,
+        "lat": 18.4832888,
+        "lon": -77.6284356,
+        "tags": {
+          "amenity": "bar",
+          "name": "Glistening Waters Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Glistening Waters Bar",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4832888,
+        "longitude": -77.6284356,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5249c42225b2263785f5d99ff22a7fffdfebd39d9b0c68075d1774c8c4bcb820",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7045277565",
+      "source_url": "https://www.openstreetmap.org/node/7045277565",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7045277565,
+        "lat": 18.4829797,
+        "lon": -77.6283713,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "fish",
+          "name": "Glistening Waters Restaurant"
+        }
+      },
+      "normalized_data": {
+        "name": "Glistening Waters Restaurant",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4829797,
+        "longitude": -77.6283713,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "fish"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fd0aa253a6f539993a25df8036e006ca8fb6899a0b8a4b94c52fd36274f91f71",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7064180364",
+      "source_url": "https://www.openstreetmap.org/node/7064180364",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7064180364,
+        "lat": 18.3760409,
+        "lon": -77.7008915,
+        "tags": {
+          "name": "Mountain Park",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Mountain Park",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.3760409,
+        "longitude": -77.7008915,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "16f7063633095e635d06ddfb430cd2c701a9ad4123cc9cad69be7c55452497c4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/7080206220",
+      "source_url": "https://www.openstreetmap.org/node/7080206220",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 7080206220,
+        "lat": 18.4400799,
+        "lon": -77.743839,
+        "tags": {
+          "name": "Hampden Estate (1753)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Hampden Estate (1753)",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4400799,
+        "longitude": -77.743839,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "eb2dd697d76ab4ba83761c8ef4503cd17fbdc9f1c6264f56d33b445f39deeaf9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/8440534617",
+      "source_url": "https://www.openstreetmap.org/node/8440534617",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 8440534617,
+        "lat": 18.4870063,
+        "lon": -77.5737674,
+        "tags": {
+          "brand": "Hotels By H10",
+          "name": "Ocean Coral Spring",
+          "tourism": "hotel",
+          "wikidata": "Q111414737"
+        }
+      },
+      "normalized_data": {
+        "name": "Ocean Coral Spring",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4870063,
+        "longitude": -77.5737674,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "22adbfa2a3e1d29269178cf31a604a8ffbb4d9ac112623240ec28723d5d09d10",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/10274572709",
+      "source_url": "https://www.openstreetmap.org/node/10274572709",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 10274572709,
+        "lat": 18.4946682,
+        "lon": -77.6477851,
+        "tags": {
+          "name": "Falmouth Cruise Pier/Shops",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Falmouth Cruise Pier/Shops",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4946682,
+        "longitude": -77.6477851,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f60d402e162b64ca58dd9296c696c9c35ae7f15cccf933d6a8adfa48866545d2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/10276832009",
+      "source_url": "https://www.openstreetmap.org/node/10276832009",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 10276832009,
+        "lat": 18.4924833,
+        "lon": -77.6542349,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Pepper's Jerk Center"
+        }
+      },
+      "normalized_data": {
+        "name": "Pepper's Jerk Center",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4924833,
+        "longitude": -77.6542349,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2acaa8e9221f24439345fb8cbb4790b7a2daf1352409b120f85d3af8303a2705",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/10293983373",
+      "source_url": "https://www.openstreetmap.org/node/10293983373",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 10293983373,
+        "lat": 18.4681773,
+        "lon": -77.656885,
+        "tags": {
+          "amenity": "restaurant",
+          "check_date": "2022-12-29",
+          "name": "Martha Brae Cafe & Jerk"
+        }
+      },
+      "normalized_data": {
+        "name": "Martha Brae Cafe & Jerk",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4681773,
+        "longitude": -77.656885,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8e6be4895a0086b78003a4b13a3ae47705cddbece48865be2786e4edf9d0fa5c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/10297417809",
+      "source_url": "https://www.openstreetmap.org/node/10297417809",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 10297417809,
+        "lat": 18.5108648,
+        "lon": -77.7349081,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Father Bull Jerk"
+        }
+      },
+      "normalized_data": {
+        "name": "Father Bull Jerk",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.5108648,
+        "longitude": -77.7349081,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6b0a1ee0740e07858832a7f37fedf10af31ad864591744b91455f8c51d511ad8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/10602900306",
+      "source_url": "https://www.openstreetmap.org/node/10602900306",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 10602900306,
+        "lat": 18.4935071,
+        "lon": -77.6573531,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Kimbo Pot Cafe"
+        }
+      },
+      "normalized_data": {
+        "name": "Kimbo Pot Cafe",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4935071,
+        "longitude": -77.6573531,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "55192d41eaaf7327182c6e10a9bec4480efbc5bb6a6953d1e21832e9aa249683",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12875547920",
+      "source_url": "https://www.openstreetmap.org/node/12875547920",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12875547920,
+        "lat": 18.4934046,
+        "lon": -77.6495671,
+        "tags": {
+          "name": "Pirate Ship",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Pirate Ship",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4934046,
+        "longitude": -77.6495671,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b27d7f1a857fb6750be11f6eb8aa61947ea39be9fbcad7e78cf73cb1b576b570",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12875547947",
+      "source_url": "https://www.openstreetmap.org/node/12875547947",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12875547947,
+        "lat": 18.4937788,
+        "lon": -77.6490459,
+        "tags": {
+          "name": "Jamaica Wings photo spot",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Jamaica Wings photo spot",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4937788,
+        "longitude": -77.6490459,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "16f10ef581bef38780f9b15364dda6bb44ce7861246225b43b54f920f0e8a4af",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/12875547948",
+      "source_url": "https://www.openstreetmap.org/node/12875547948",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "node",
+        "id": 12875547948,
+        "lat": 18.4935867,
+        "lon": -77.6491107,
+        "tags": {
+          "name": "One Love sign",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "One Love sign",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4935867,
+        "longitude": -77.6491107,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6c85434bf2f9c4c6dc91f6e6c1d028178e31aad033af96c7d6943da96bb0f575",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371357341",
+      "source_url": "https://www.openstreetmap.org/way/371357341",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371357341,
+        "center": {
+          "lat": 18.4677821,
+          "lon": -77.5364886
+        },
+        "tags": {
+          "amenity": "bar",
+          "building": "yes",
+          "name": "Dirk's Sports Bar & Restaurant",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Dirk's Sports Bar & Restaurant",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4677821,
+        "longitude": -77.5364886,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4068c5a3d5a67617adcccc2f001d1982a0ceef862c6688ffeb9bcc3e65f87f35",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371358771",
+      "source_url": "https://www.openstreetmap.org/way/371358771",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371358771,
+        "center": {
+          "lat": 18.4688932,
+          "lon": -77.5368058
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Kiki Rouge Bar & Restaurant",
+          "source": "KG Ground Survey 2015"
+        }
+      },
+      "normalized_data": {
+        "name": "Kiki Rouge Bar & Restaurant",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4688932,
+        "longitude": -77.5368058,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fd79a3533867e05940d3c7845719c6dbffe5447a1520062f7b24a68509335d8b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/371358777",
+      "source_url": "https://www.openstreetmap.org/way/371358777",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 371358777,
+        "center": {
+          "lat": 18.4840249,
+          "lon": -77.5272748
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Silver Sands Villa Resort",
+          "source": "KG Ground Survey 2015",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Silver Sands Villa Resort",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4840249,
+        "longitude": -77.5272748,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "da88e1f3a3634eb41d034d93a3cd0122642954116d6c40015d4e57d3196a135f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/373509207",
+      "source_url": "https://www.openstreetmap.org/way/373509207",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 373509207,
+        "center": {
+          "lat": 18.4838378,
+          "lon": -77.5276411
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Dreamin Villa",
+          "source": "Bing",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Dreamin Villa",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4838378,
+        "longitude": -77.5276411,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "894ddf15fdce410b2d145914b5e96f6f2cabeaf050d18cb883b77953fd76aaf2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/374194631",
+      "source_url": "https://www.openstreetmap.org/way/374194631",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 374194631,
+        "center": {
+          "lat": 18.4929976,
+          "lon": -77.6500336
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "cuisine": "burger",
+          "name": "Jimmy Buffett's Margaritaville",
+          "source": "https://www.margaritavillecaribbean.com/locations/falmouth/",
+          "website": "https://www.margaritavillecaribbean.com/locations/falmouth/"
+        }
+      },
+      "normalized_data": {
+        "name": "Jimmy Buffett's Margaritaville",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4929976,
+        "longitude": -77.6500336,
+        "category": "restaurant",
+        "phone": null,
+        "website": "https://www.margaritavillecaribbean.com/locations/falmouth/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1cd4517c12998361c8933c408a7d7891dc0bc892c87e6b4a2037a3a4f3ffad7f",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/412578418",
+      "source_url": "https://www.openstreetmap.org/way/412578418",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 412578418,
+        "center": {
+          "lat": 18.4830854,
+          "lon": -77.6282584
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Glistening Waters",
+          "phone": "+1 876 954-3229",
+          "tourism": "attraction",
+          "website": "https://www.glisteningwaters.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Glistening Waters",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4830854,
+        "longitude": -77.6282584,
+        "category": "attraction",
+        "phone": "+1 876 954-3229",
+        "website": "https://www.glisteningwaters.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "03c95e794c5ea09683e4ce4570fa2a8a0045580638ebae4e93c252a585720a4f",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/543524071",
+      "source_url": "https://www.openstreetmap.org/way/543524071",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 543524071,
+        "center": {
+          "lat": 18.4929232,
+          "lon": -77.6570443
+        },
+        "tags": {
+          "amenity": "place_of_worship",
+          "building": "yes",
+          "damage:Melissa": "yes",
+          "damage:Melissa:assessment": "2025-10-31",
+          "name": "St. Peters Anglican Church (1796)",
+          "religion": "christian",
+          "source:damage:Melissa": "NOAA",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "St. Peters Anglican Church (1796)",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4929232,
+        "longitude": -77.6570443,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "place_of_worship",
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "44f6863bf3e1d6439b1939eb0286cf7cb39f0a0436a5c65044e6b31d5d34add6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/665580141",
+      "source_url": "https://www.openstreetmap.org/way/665580141",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 665580141,
+        "center": {
+          "lat": 18.4829952,
+          "lon": -77.6278453
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Glistening Waters Hotel",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Glistening Waters Hotel",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4829952,
+        "longitude": -77.6278453,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3c0bec0ea456494d4abc20bc5e41b44d712f50eaec8dfc799c0229f1a588bb89",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/750787804",
+      "source_url": "https://www.openstreetmap.org/way/750787804",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 750787804,
+        "center": {
+          "lat": 18.3582482,
+          "lon": -77.6586033
+        },
+        "tags": {
+          "name": "The Last Resort",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "The Last Resort",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.3582482,
+        "longitude": -77.6586033,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c7d3e80f26658e48fe96ca4002b8e86d6dbc7eee775047e7f3d90f1efb88351c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/751709180",
+      "source_url": "https://www.openstreetmap.org/way/751709180",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 751709180,
+        "center": {
+          "lat": 18.4175622,
+          "lon": -77.6772214
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Good Hope Great House (1755)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Good Hope Great House (1755)",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4175622,
+        "longitude": -77.6772214,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "82cebabfafe646fb335f07a56cca503897e7a977243e16fe3027e3789c28212f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/753778575",
+      "source_url": "https://www.openstreetmap.org/way/753778575",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 753778575,
+        "center": {
+          "lat": 18.4700107,
+          "lon": -77.6558047
+        },
+        "tags": {
+          "man_made": "water_works",
+          "name": "Falmouth Waterwheel (1797)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Falmouth Waterwheel (1797)",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4700107,
+        "longitude": -77.6558047,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "811f227eecbec7921bc2cba142dee465f32d46697d4269b28f412f0c50ec8139",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/753779803",
+      "source_url": "https://www.openstreetmap.org/way/753779803",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 753779803,
+        "center": {
+          "lat": 18.4923853,
+          "lon": -77.6526195
+        },
+        "tags": {
+          "name": "Water Square",
+          "place": "square",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Water Square",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4923853,
+        "longitude": -77.6526195,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a8e65da53f6bab6080264d71b5a615b7f6fa84ad7be85ff2524c4a564f94c032",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/753782443",
+      "source_url": "https://www.openstreetmap.org/way/753782443",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 753782443,
+        "center": {
+          "lat": 18.4919023,
+          "lon": -77.6545037
+        },
+        "tags": {
+          "amenity": "place_of_worship",
+          "building": "yes",
+          "damage:Melissa": "yes",
+          "damage:Melissa:assessment": "2025-10-31",
+          "name": "William Knibb Memorial Baptist Church (1944)",
+          "religion": "christian",
+          "source:damage:Melissa": "NOAA",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "William Knibb Memorial Baptist Church (1944)",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4919023,
+        "longitude": -77.6545037,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "place_of_worship",
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ade60f54f001d99b83245e8ef0639ef7595c4773f8c0abb36c7ab1dca55a7627",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/754031040",
+      "source_url": "https://www.openstreetmap.org/way/754031040",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 754031040,
+        "center": {
+          "lat": 18.4913168,
+          "lon": -77.6511914
+        },
+        "tags": {
+          "man_made": "kiln",
+          "name": "Phoenix Foundry Dome (1810)",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Phoenix Foundry Dome (1810)",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4913168,
+        "longitude": -77.6511914,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "de82aa020ae001baa69c409a057b251a8641bdf65fd784963443c8264594e1a1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/754031044",
+      "source_url": "https://www.openstreetmap.org/way/754031044",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 754031044,
+        "center": {
+          "lat": 18.4920162,
+          "lon": -77.6524272
+        },
+        "tags": {
+          "damage:Melissa": "yes",
+          "damage:Melissa:assessment": "2025-10-31",
+          "name": "Albert George Market",
+          "shop": "mall",
+          "source:damage:Melissa": "NOAA"
+        }
+      },
+      "normalized_data": {
+        "name": "Albert George Market",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4920162,
+        "longitude": -77.6524272,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "mall"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "934b6a84c13c48b6ab87e4baafa066d8e87e5a7653d064455e10073ab8c3c8a6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/755761716",
+      "source_url": "https://www.openstreetmap.org/way/755761716",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 755761716,
+        "center": {
+          "lat": 18.4805905,
+          "lon": -77.5711889
+        },
+        "tags": {
+          "historic": "ruins",
+          "name": "Stewart Castle Ruins",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Stewart Castle Ruins",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4805905,
+        "longitude": -77.5711889,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "97963f603b7b58ebaa13580f6945ecd1ecbd51e47327573999705db59674c9e5",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/756333604",
+      "source_url": "https://www.openstreetmap.org/way/756333604",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 756333604,
+        "center": {
+          "lat": 18.3753988,
+          "lon": -77.700693
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "Culture Market Jamaica"
+        }
+      },
+      "normalized_data": {
+        "name": "Culture Market Jamaica",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.3753988,
+        "longitude": -77.700693,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3a2483d9df42e19803c24c849e1dae6414c7d948d86610aa9dbbac8d72103823",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/756333611",
+      "source_url": "https://www.openstreetmap.org/way/756333611",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 756333611,
+        "center": {
+          "lat": 18.3775322,
+          "lon": -77.7144814
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Bunkers Hill Cultural Xperience and River Tours",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Bunkers Hill Cultural Xperience and River Tours",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.3775322,
+        "longitude": -77.7144814,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6ba1d69bd3906568577c91c1cbe6938c6bb1d0d8ab321b381cb21a406e6c95ea",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/756339873",
+      "source_url": "https://www.openstreetmap.org/way/756339873",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 756339873,
+        "center": {
+          "lat": 18.4309883,
+          "lon": -77.5694283
+        },
+        "tags": {
+          "building": "yes",
+          "historic": "ruins",
+          "name": "Hyde Hall Estate House",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Hyde Hall Estate House",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4309883,
+        "longitude": -77.5694283,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c54564ef0ad15ab844901dcba67d1b4069ea107efdfe28aab74c1c078ff55036",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/826303590",
+      "source_url": "https://www.openstreetmap.org/way/826303590",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 826303590,
+        "center": {
+          "lat": 18.4728976,
+          "lon": -77.458547
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Lobster Bowl",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Lobster Bowl",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4728976,
+        "longitude": -77.458547,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3a27e36b98851151ba31c1120320f965bb6fbcd088e99b5ffa7a3e530e699c35",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/834898724",
+      "source_url": "https://www.openstreetmap.org/way/834898724",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 834898724,
+        "center": {
+          "lat": 18.4620655,
+          "lon": -77.6799152
+        },
+        "tags": {
+          "addr:city": "Falmouth",
+          "addr:street": "Granville",
+          "building": "yes",
+          "name": "Reggae Moon Guest House",
+          "tourism": "guest_house"
+        }
+      },
+      "normalized_data": {
+        "name": "Reggae Moon Guest House",
+        "address": "Granville, Falmouth, Jamaica",
+        "city": "Falmouth",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4620655,
+        "longitude": -77.6799152,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "guest_house"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "841d06683c00a2b48b72f0e98334209f21bc75462305556476c64cf3b0e510f8",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/835118030",
+      "source_url": "https://www.openstreetmap.org/way/835118030",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 835118030,
+        "center": {
+          "lat": 18.482584,
+          "lon": -77.5317184
+        },
+        "tags": {
+          "addr:city": "Duncans",
+          "addr:housenumber": "294",
+          "addr:street": "Silver Sands Road",
+          "building": "yes",
+          "name": "Castaways Villa",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Castaways Villa",
+        "address": "294 Silver Sands Road, Duncans, Jamaica",
+        "city": "Duncans",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.482584,
+        "longitude": -77.5317184,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a7d409e3685be6ef242d2b85cd32292d6e906157165666e8f2815ec67276156a",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/835118502",
+      "source_url": "https://www.openstreetmap.org/way/835118502",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 835118502,
+        "center": {
+          "lat": 18.4833098,
+          "lon": -77.5308692
+        },
+        "tags": {
+          "building": "yes",
+          "name": "Crystal Villa Silver Sands Trelawny",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Crystal Villa Silver Sands Trelawny",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4833098,
+        "longitude": -77.5308692,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7459f5cd359580926565ff219ec08a8d67c8c4c04251107f3adbc3933faa8144",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/835481635",
+      "source_url": "https://www.openstreetmap.org/way/835481635",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 835481635,
+        "center": {
+          "lat": 18.4826611,
+          "lon": -77.5265311
+        },
+        "tags": {
+          "addr:housenumber": "168",
+          "addr:street": "Rockcliffe Drive",
+          "building": "yes",
+          "name": "Summertime Villa",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Summertime Villa",
+        "address": "168 Rockcliffe Drive, Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4826611,
+        "longitude": -77.5265311,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4e4970e9e3564afcffa3433a07a00fb6583739da89068f6a55788645f43dca07",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/835481642",
+      "source_url": "https://www.openstreetmap.org/way/835481642",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 835481642,
+        "center": {
+          "lat": 18.4822756,
+          "lon": -77.5253375
+        },
+        "tags": {
+          "addr:city": "Silver Sands",
+          "addr:housenumber": "177",
+          "addr:street": "Bamaboo Avenue",
+          "building": "yes",
+          "name": "Beach Haven Villa",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Beach Haven Villa",
+        "address": "177 Bamaboo Avenue, Silver Sands, Jamaica",
+        "city": "Silver Sands",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4822756,
+        "longitude": -77.5253375,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d1a733e6e23051216eee93dcaa3d69c93be2a6bdd94cb5b821e1a2d8b68c06e9",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/853753937",
+      "source_url": "https://www.openstreetmap.org/way/853753937",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 853753937,
+        "center": {
+          "lat": 18.4928997,
+          "lon": -77.6564939
+        },
+        "tags": {
+          "building": "yes",
+          "damage:Melissa": "yes",
+          "damage:Melissa:assessment": "2025-10-31",
+          "name": "Fisherman's Inn",
+          "source:damage:Melissa": "NOAA",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Fisherman's Inn",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4928997,
+        "longitude": -77.6564939,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "61488494c554692d1341c771b6eddcb46c5b4bba55441df92a39fc53d29ef15f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1010197434",
+      "source_url": "https://www.openstreetmap.org/way/1010197434",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1010197434,
+        "center": {
+          "lat": 18.4814469,
+          "lon": -77.4797299
+        },
+        "tags": {
+          "amenity": "restaurant",
+          "building": "yes",
+          "name": "Bamboo Beach Club"
+        }
+      },
+      "normalized_data": {
+        "name": "Bamboo Beach Club",
+        "address": "Trelawny, Jamaica",
+        "city": "Trelawny",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4814469,
+        "longitude": -77.4797299,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "566fe8f40e6b639a341a6c780eaecc85d21d6ab27b41c31cb014e670b190bf1c",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "way/1428974590",
+      "source_url": "https://www.openstreetmap.org/way/1428974590",
+      "source_last_checked_at": "2026-08-22T01:47:51.536Z",
+      "raw_data": {
+        "type": "way",
+        "id": 1428974590,
+        "center": {
+          "lat": 18.4851366,
+          "lon": -77.6126984
+        },
+        "tags": {
+          "addr:city": "Falmouth",
+          "addr:housenumber": "1220",
+          "addr:street": "Coopers Pen Road",
+          "air_conditioning": "yes",
+          "bar": "yes",
+          "brand": "RIU",
+          "brand:wikidata": "Q2005557",
+          "internet_access": "yes",
+          "internet_access:fee": "no",
+          "name": "Hotel Riu Palace Aquarelle",
+          "opening_hours": "24/7",
+          "operator": "RIU Hotels & Resorts",
+          "payment:cash": "yes",
+          "payment:credit_cards": "yes",
+          "payment:maestro": "yes",
+          "payment:mastercard": "yes",
+          "payment:visa": "yes",
+          "phone": "+18766766431",
+          "reservation": "yes",
+          "smoking": "outside",
+          "source:damage:Melissa": "NOAA",
+          "stars": "5",
+          "tourism": "hotel",
+          "website": "https://www.riu.com/en/hotel/jamaica/falmouth/hotel-riu-palace-aquarelle",
+          "wheelchair": "yes",
+          "wikidata": "Q136216089"
+        }
+      },
+      "normalized_data": {
+        "name": "Hotel Riu Palace Aquarelle",
+        "address": "1220 Coopers Pen Road, Falmouth, Jamaica",
+        "city": "Falmouth",
+        "parish": "Trelawny",
+        "country": "Jamaica",
+        "latitude": 18.4851366,
+        "longitude": -77.6126984,
+        "category": "accommodation",
+        "phone": "+18766766431",
+        "website": "https://www.riu.com/en/hotel/jamaica/falmouth/hotel-riu-palace-aquarelle",
+        "opening_hours": "24/7",
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "15f088082e3cb2557ae80dabdec2c1df1d5b07d8ad7f1e4b658decc1a02afbb9",
+      "confidence": 0.95,
+      "review_status": "pending"
+    }
+  ]
+}

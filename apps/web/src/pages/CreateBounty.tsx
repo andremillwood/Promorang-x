@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft, Target, DollarSign, Users, Calendar, ShieldCheck, ArrowRight, Sparkles } from "lucide-react";
 import { cultureImages } from "@/data/culture-demo";
+import { useI18n } from "@/i18n/I18nContext";
 
 const categories = [
     { value: "social", label: "Social" },
@@ -28,6 +29,7 @@ const categories = [
 ];
 
 const CreateBounty = () => {
+    const { t } = useI18n();
     const { user, roles } = useAuth();
     const navigate = useNavigate();
     const createBounty = useCreateBounty();
@@ -80,11 +82,11 @@ const CreateBounty = () => {
                     className="mb-8 text-white/55 hover:bg-white/10 hover:text-white"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Dashboard
+                    {t("createBounty.backToDashboard")}
                 </Button>
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400"><Target className="h-3.5 w-3.5" /> Open brief</div>
-                <h1 className="max-w-3xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">Put a clear outcome into the market.</h1>
-                <p className="mt-5 max-w-2xl text-base leading-7 text-white/55">Tell capable hosts what should happen, what success looks like, and what the approved result is worth.</p>
+                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400"><Target className="h-3.5 w-3.5" /> {t("createBounty.heroEyebrow")}</div>
+                <h1 className="max-w-3xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">{t("createBounty.heroTitle")}</h1>
+                <p className="mt-5 max-w-2xl text-base leading-7 text-white/55">{t("createBounty.heroSubtitle")}</p>
                 </div>
             </section>
 

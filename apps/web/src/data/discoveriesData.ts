@@ -22,6 +22,7 @@ export interface SquadRewardGoal {
 export interface DiscoveryPoll {
   id: string;
   slug: string;
+  detailUrl?: string;
   question: string;
   category: string;
   categorySlug: string;

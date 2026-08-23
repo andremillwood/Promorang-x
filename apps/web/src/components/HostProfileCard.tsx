@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Star, Shield, MessageCircle, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface HostProfileCardProps {
     hostId: string;
@@ -34,6 +35,7 @@ export function HostProfileCard({
     responseRate,
     className,
 }: HostProfileCardProps) {
+    const { t, formatNumber } = useI18n();
     const joinYear = memberSince
         ? new Date(memberSince).getFullYear()
         : new Date().getFullYear();
@@ -67,7 +69,7 @@ export function HostProfileCard({
                         <h3 className="font-serif text-xl font-semibold text-foreground">{name}</h3>
                     </Link>
                     <p className="text-sm text-muted-foreground">
-                        Hosting since {joinYear}
+                        {t("hostCard.hostingSince", { year: joinYear.toString() })}
                     </p>
 
                     {/* Badges */}
@@ -75,13 +77,13 @@ export function HostProfileCard({
                         {isSuperhost && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded-full">
                                 <Star className="h-3 w-3" />
-                                Superhost
+                                {t("hostCard.superhost")}
                             </span>
                         )}
                         {isVerified && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/10 text-emerald-600 text-xs font-medium rounded-full">
                                 <Shield className="h-3 w-3" />
-                                Verified
+                                {t("hostCard.verified")}
                             </span>
                         )}
                     </div>
@@ -91,8 +93,8 @@ export function HostProfileCard({
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 py-4 border-t border-b border-border">
                 <div className="text-center">
-                    <p className="font-semibold text-lg text-foreground">{momentsHosted}</p>
-                    <p className="text-xs text-muted-foreground">Moments</p>
+                    <p className="font-semibold text-lg text-foreground">{formatNumber(momentsHosted)}</p>
+                    <p className="text-xs text-muted-foreground">{t("hostCard.moments")}</p>
                 </div>
                 <div className="text-center border-x border-border">
                     {rating ? (
@@ -101,12 +103,16 @@ export function HostProfileCard({
                                 {rating.toFixed(1)}
                                 <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
                             </p>
-                            <p className="text-xs text-muted-foreground">{reviewCount} reviews</p>
+                            <p className="text-xs text-muted-foreground">
+                                {reviewCount === 1
+                                    ? t("hostCard.reviews", { count: formatNumber(reviewCount) })
+                                    : t("hostCard.reviewsPlural", { count: formatNumber(reviewCount) })}
+                            </p>
                         </>
                     ) : (
                         <>
-                            <p className="font-semibold text-lg text-foreground">New</p>
-                            <p className="text-xs text-muted-foreground">Host</p>
+                            <p className="font-semibold text-lg text-foreground">{t("hostCard.new")}</p>
+                            <p className="text-xs text-muted-foreground">{t("hostCard.host")}</p>
                         </>
                     )}
                 </div>
@@ -114,12 +120,12 @@ export function HostProfileCard({
                     {responseRate ? (
                         <>
                             <p className="font-semibold text-lg text-foreground">{responseRate}%</p>
-                            <p className="text-xs text-muted-foreground">Response</p>
+                            <p className="text-xs text-muted-foreground">{t("hostCard.response")}</p>
                         </>
                     ) : (
                         <>
                             <p className="font-semibold text-lg text-foreground">—</p>
-                            <p className="text-xs text-muted-foreground">Response</p>
+                            <p className="text-xs text-muted-foreground">{t("hostCard.response")}</p>
                         </>
                     )}
                 </div>
@@ -138,7 +144,7 @@ export function HostProfileCard({
             {/* Actions */}
             <div className="mt-4 flex gap-2">
                 <Button variant="outline" className="flex-1" asChild>
-                    <Link to={`/profile/${hostId}`}>View Profile</Link>
+                    <Link to={`/profile/${hostId}`}>{t("hostCard.viewProfile")}</Link>
                 </Button>
                 <Button variant="secondary" size="icon">
                     <MessageCircle className="h-4 w-4" />
@@ -148,7 +154,7 @@ export function HostProfileCard({
             {/* Response time */}
             {responseRate && responseRate >= 90 && (
                 <p className="mt-4 text-xs text-muted-foreground text-center">
-                    Typically responds within an hour
+                    {t("hostCard.respondsPromptly")}
                 </p>
             )}
         </div>

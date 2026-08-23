@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Compass,
@@ -15,6 +15,7 @@ import {
   ChevronRight,
   ShieldCheck,
   Zap,
+  CalendarCheck,
 } from "lucide-react";
 import { formatDiscoveryCategory, discoveryLocation } from "@promorang/shared";
 import { useDiscoveries } from "@/hooks/useDiscoveries";
@@ -26,14 +27,21 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserBalance } from "@/hooks/useEconomy";
 import { DISCOVERY_POLLS, type DiscoveryPoll } from "@/data/discoveriesData";
 import { toast } from "sonner";
+import { castListingDiscoveryVote, useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
 
 export function DiscoveriesFeedSection() {
   const { user } = useAuth();
   const { data: balance } = useUserBalance();
   const { data: discoveries, isLoading: isDiscoveriesLoading } = useDiscoveries({ limit: 6 });
+  const { data: listingPolls = [] } = useListingDiscoveryPolls(6);
 
   const [activeTab, setActiveTab] = useState<"polls" | "discoveries" | "my_scout">("polls");
   const [polls, setPolls] = useState<DiscoveryPoll[]>(DISCOVERY_POLLS);
+  useEffect(() => {
+    if (listingPolls.length) {
+      setPolls([...listingPolls, ...DISCOVERY_POLLS].slice(0, 9));
+    }
+  }, [listingPolls]);
   const [userVotes, setUserVotes] = useState<Record<string, string>>({
     "disc-arla-price-003": "opt-p2", // default sample vote state
   });
@@ -42,10 +50,24 @@ export function DiscoveriesFeedSection() {
   const userPoints = balance?.points || 420;
   const userKeys = balance?.promokeys || 3;
 
-  const handleVote = (pollId: string, optionId: string, pointsReward: number) => {
+  const handleVote = async (pollId: string, optionId: string, pointsReward: number) => {
     if (userVotes[pollId]) {
       toast.info("You have already cast your vote on this ballot.");
       return;
+    }
+
+    const targetPoll = polls.find((poll) => poll.id === pollId);
+    if (targetPoll?.detailUrl) {
+      if (!user) {
+        toast.info("Sign in to verify local place information.");
+        return;
+      }
+      try {
+        await castListingDiscoveryVote(pollId, optionId);
+      } catch (error: any) {
+        toast.error(error?.message?.includes("duplicate") ? "You already voted on this place." : "We couldn't record that vote.");
+        return;
+      }
     }
 
     setUserVotes((prev) => ({ ...prev, [pollId]: optionId }));
@@ -64,8 +86,8 @@ export function DiscoveriesFeedSection() {
       })
     );
 
-    toast.success(`Vote cast! +${pointsReward} PromoPoints added to your account.`, {
-      description: "Community unlock threshold updated in real-time.",
+    toast.success(targetPoll?.detailUrl ? "Place signal recorded." : `Vote cast! +${pointsReward} PromoPoints added to your account.`, {
+      description: targetPoll?.detailUrl ? "Your vote now guides the linked Scout proof missions." : "Community unlock threshold updated in real-time.",
     });
   };
 
@@ -87,6 +109,7 @@ export function DiscoveriesFeedSection() {
           <h2 className="mt-1 font-serif text-xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">
             Community Polls & Fresh Discoveries
           </h2>
+          <Link to="/scout/events" className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline">Verify upcoming Jamaica events <CalendarCheck className="h-4 w-4" /></Link>
           <p className="mt-1 max-w-2xl text-xs sm:text-sm text-white/60 leading-relaxed">
             Vote on real-time demand signals to unlock vouchers and pop-up experiences, or explore curated hidden gems logged by local scouts.
           </p>
@@ -265,9 +288,9 @@ export function DiscoveriesFeedSection() {
                     <Badge className="border-amber-400/30 bg-amber-400/10 text-[10px] font-black uppercase tracking-wider text-amber-300">
                       {poll.category}
                     </Badge>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-black text-primary">
+                    {poll.pointsReward > 0 ? <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-black text-primary">
                       <Sparkles className="h-3 w-3" /> +{poll.pointsReward} PTS
-                    </span>
+                    </span> : null}
                   </div>
 
                   {/* Question */}
@@ -353,7 +376,7 @@ export function DiscoveriesFeedSection() {
                         <Sparkles className="w-3 h-3 shrink-0" /> Matched deals & squad link ready
                       </span>
                       <Link
-                        to={`/discoveries/${poll.slug}`}
+                        to={poll.detailUrl || `/discoveries/${poll.slug}`}
                         className="text-white font-bold hover:text-primary transition shrink-0 underline decoration-primary/50"
                       >
                         Explore →
@@ -370,7 +393,7 @@ export function DiscoveriesFeedSection() {
                   </span>
 
                   <Link
-                    to={`/discoveries/${poll.slug}`}
+                    to={poll.detailUrl || `/discoveries/${poll.slug}`}
                     className="flex items-center gap-1 font-bold text-primary hover:underline"
                   >
                     <span>{hasVoted ? "View Hub & Squad" : "View Discussion"}</span>

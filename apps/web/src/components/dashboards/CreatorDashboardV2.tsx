@@ -27,6 +27,7 @@ import { useQuery } from "@tanstack/react-query";
 import { RoleActivationPanel } from "@/components/activation/RoleActivationPanel";
 import { DashboardWorkspaceNav } from "@/components/dashboard/DashboardWorkspaceNav";
 import { StudioJourneyStory } from "@/components/dashboard/StudioJourneyStory";
+import { useI18n } from "@/i18n/I18nContext";
 
 // ============================================================================
 // CREATOR DASHBOARD V2
@@ -48,6 +49,7 @@ type CreatorStory = {
 
 const CreatorDashboardV2 = () => {
   const { user, session } = useAuth();
+  const { t, formatNumber } = useI18n();
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get("tab") || "studio";
   const [activeTab, setActiveTab] = useState(defaultTab);
@@ -132,9 +134,9 @@ const CreatorDashboardV2 = () => {
   };
 
   const nextRecommendedStep = !hasPublished
-    ? "Publish your first story"
+    ? t("creatorDash.firstStory")
     : !hasLinkedMission
-      ? "Turn one story into a mission"
+      ? t("creatorDash.connect")
       : totalEarnings <= 0
         ? "Drive the first verified conversion"
         : "Scale the loop across more stories";
@@ -142,39 +144,39 @@ const CreatorDashboardV2 = () => {
   return (
     <div className="space-y-8 pb-20 xl:space-y-10">
       <DashboardHero
-        badge="Creator studio"
-        title={isNewCreator ? "Turn your first story into movement" : "Create stories that move people"}
-        description="Publish stories that can stand alone, launch a moment, support a scene, or become a mission. Then track whether attention becomes joins, visits, unlocks, rewards, and real-world proof."
+        badge={t("creatorDash.badge")}
+        title={t(isNewCreator ? "creatorDash.newTitle" : "creatorDash.title")}
+        description={t("creatorDash.copy")}
         actions={[
           !hasPublished
-            ? { label: "Publish your first story", icon: Film, onClick: () => setActiveTab("publish") }
+            ? { label: t("creatorDash.firstStory"), icon: Film, onClick: () => setActiveTab("publish") }
             : !hasLinkedMission
-              ? { label: "Connect a story to a mission", icon: Link2, onClick: () => setActiveTab("missions") }
-              : { label: "Review supporter movement", icon: BarChart3, onClick: () => setActiveTab("earnings") },
-          { label: "Publish another story", icon: Film, onClick: () => setActiveTab("publish") },
-          { label: "Manage mission links", icon: Link2, onClick: () => setActiveTab("missions") },
-          { label: "Missions", icon: Eye, href: "/missions" },
+              ? { label: t("creatorDash.connect"), icon: Link2, onClick: () => setActiveTab("missions") }
+              : { label: t("creatorDash.review"), icon: BarChart3, onClick: () => setActiveTab("earnings") },
+          { label: t("creatorDash.another"), icon: Film, onClick: () => setActiveTab("publish") },
+          { label: t("creatorDash.manage"), icon: Link2, onClick: () => setActiveTab("missions") },
+          { label: t("creatorDash.missions"), icon: Eye, href: "/missions" },
         ]}
         stats={[
-          { label: "Stories", value: creatorStats?.contentCount?.toLocaleString() || "0", helper: isNewCreator ? "Start by publishing one" : "Published so far", icon: Film },
-          { label: "Views", value: creatorStats?.totalViews?.toLocaleString() || "0", helper: "Audience attention", icon: Eye },
-          { label: "Missions", value: creatorStats?.missionCount?.toLocaleString() || "0", helper: "Connected experiences", icon: Link2 },
-          { label: "Earnings", value: `$${creatorStats?.earnings?.toLocaleString() || "0"}`, helper: "Measured outcome", icon: DollarSign },
+          { label: t("creatorDash.stories"), value: formatNumber(creatorStats?.contentCount || 0), helper: t(isNewCreator ? "creatorDash.startPublishing" : "creatorDash.published"), icon: Film },
+          { label: t("creatorDash.views"), value: formatNumber(creatorStats?.totalViews || 0), helper: t("creatorDash.attention"), icon: Eye },
+          { label: t("creatorDash.missions"), value: formatNumber(creatorStats?.missionCount || 0), helper: t("creatorDash.connected"), icon: Link2 },
+          { label: t("creatorDash.earnings"), value: `$${formatNumber(creatorStats?.earnings || 0)}`, helper: t("creatorDash.outcome"), icon: DollarSign },
         ]}
         isLoading={statsLoading}
       />
 
       <DashboardWorkspaceNav
-        eyebrow="Inside your studio"
-        title="Choose the work you came here to do"
+        eyebrow={t("creatorDash.eyebrow")}
+        title={t("creatorDash.workspace")}
         activeValue={activeTab}
         onValueChange={setActiveTab}
         items={[
-          { value: "studio", label: "Studio", icon: Sparkles },
-          { value: "publish", label: "Publish", icon: Film },
-          { value: "content", label: "My content", icon: PlayCircle },
-          { value: "missions", label: "Missions", icon: Link2 },
-          { value: "earnings", label: "Analytics", icon: BarChart3 },
+          { value: "studio", label: t("creatorDash.studio"), icon: Sparkles },
+          { value: "publish", label: t("creatorDash.publish"), icon: Film },
+          { value: "content", label: t("creatorDash.myContent"), icon: PlayCircle },
+          { value: "missions", label: t("creatorDash.missions"), icon: Link2 },
+          { value: "earnings", label: t("creatorDash.analytics"), icon: BarChart3 },
         ]}
       />
 
@@ -189,20 +191,19 @@ const CreatorDashboardV2 = () => {
                 <Zap className="w-6 h-6 text-primary" />
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Start with one story that can move people</h3>
+                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">{t("creatorDash.firstTitle")}</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Your first win is simple: publish a story, attach it to a mission or moment,
-                  then watch for the first person who moves because of it.
+                  {t("creatorDash.firstCopy")}
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button onClick={() => setActiveTab("publish")}>
                     <Film className="w-4 h-4 mr-2" />
-                    Publish Story
+                    {t("creatorDash.publishStory")}
                   </Button>
                   <Button variant="outline" asChild>
                     <Link to="/create/moment">
                       <Calendar className="w-4 h-4 mr-2" />
-                      Launch Moment
+                      {t("creatorDash.launchMoment")}
                     </Link>
                   </Button>
                 </div>
@@ -234,26 +235,26 @@ const CreatorDashboardV2 = () => {
       <div className="grid gap-6 2xl:grid-cols-[minmax(0,2fr)_360px]">
         <div className="min-w-0 space-y-6">
           <DashboardNextStepsSection
-            description={`Next best move: ${nextRecommendedStep.toLowerCase()}. Your studio keeps the full creator journey close without putting every tool in front of you at once.`}
-            ctaLabel="Browse missions"
+            description={t("creatorDash.nextMove", { step: nextRecommendedStep.toLowerCase() })}
+            ctaLabel={t("creatorDash.browseMissions")}
             ctaHref="/missions"
             items={[
               {
-                title: "Publish a story",
-                description: "Create the content object that starts the loop.",
-                cta: "Open publisher",
+                title: t("creatorDash.publishStep"),
+                description: t("creatorDash.publishStepCopy"),
+                cta: t("creatorDash.openPublisher"),
                 onClick: () => setActiveTab("publish"),
               },
               {
-                title: "Connect to a mission",
-                description: "Attach your content to a real-world destination.",
-                cta: "Link mission",
+                title: t("creatorDash.connectStep"),
+                description: t("creatorDash.connectStepCopy"),
+                cta: t("creatorDash.linkMission"),
                 onClick: () => setActiveTab("missions"),
               },
               {
-                title: "Track outcomes",
-                description: "Review whether audience attention turned into action.",
-                cta: "Open analytics",
+                title: t("creatorDash.track"),
+                description: t("creatorDash.trackCopy"),
+                cta: t("creatorDash.openAnalytics"),
                 onClick: () => setActiveTab("earnings"),
               },
             ]}
@@ -263,23 +264,23 @@ const CreatorDashboardV2 = () => {
         <TabsList className="sr-only">
           <TabsTrigger value="studio" className="gap-2">
             <Sparkles className="w-4 h-4" />
-            Studio
+            {t("creatorDash.studio")}
           </TabsTrigger>
           <TabsTrigger value="publish" className="gap-2">
             <Film className="w-4 h-4" />
-            Publish
+            {t("creatorDash.publish")}
           </TabsTrigger>
           <TabsTrigger value="content" className="gap-2">
             <PlayCircle className="w-4 h-4" />
-            My Content
+            {t("creatorDash.myContent")}
           </TabsTrigger>
           <TabsTrigger value="missions" className="gap-2">
             <Link2 className="w-4 h-4" />
-            Create Mission
+            {t("creatorDash.missions")}
           </TabsTrigger>
           <TabsTrigger value="earnings" className="gap-2">
             <BarChart3 className="w-4 h-4" />
-            Analytics
+            {t("creatorDash.analytics")}
           </TabsTrigger>
         </TabsList>
 
@@ -308,13 +309,13 @@ const CreatorDashboardV2 = () => {
             <div className="p-6 sm:p-8">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Your published work</p>
-                  <h3 className="mt-3 font-serif text-4xl font-semibold leading-none tracking-[-0.04em] text-foreground">Story library</h3>
+                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("creatorDash.libraryEyebrow")}</p>
+                  <h3 className="mt-3 font-serif text-4xl font-semibold leading-none tracking-[-0.04em] text-foreground">{t("creatorDash.library")}</h3>
                   <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-                    Return to a story, give it a real-world destination, or see what it moved.
+                    {t("creatorDash.libraryCopy")}
                   </p>
                 </div>
-                <Badge variant="outline" className="rounded-full">{contentCount} stories</Badge>
+                <Badge variant="outline" className="rounded-full">{t("creatorDash.storyCount", { count: formatNumber(contentCount) })}</Badge>
               </div>
               <div className="mt-7 border-t border-border/60">
                 {creatorContentQuery.isLoading ? (

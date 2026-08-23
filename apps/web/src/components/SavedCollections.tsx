@@ -6,6 +6,7 @@ import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
+import { useI18n } from "@/i18n/I18nContext";
 
 type Moment = Tables<"moments">;
 
@@ -36,6 +37,7 @@ export function SavedCollections({
     onRemoveMoment,
     className,
 }: SavedCollectionsProps) {
+    const { t, formatNumber } = useI18n();
     const [collections, setCollections] = useState(initialCollections);
     const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -68,10 +70,10 @@ export function SavedCollections({
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">Your collections</p>
-                    <h2 className="text-3xl font-black tracking-tight">Worth returning to</h2>
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">{t("saved.collections")}</p>
+                    <h2 className="text-3xl font-black tracking-tight">{t("saved.returning")}</h2>
                     <p className="mt-1 text-sm text-white/45">
-                        {totalSaved} moment{totalSaved !== 1 ? "s" : ""} in {collections.length} collection{collections.length !== 1 ? "s" : ""}
+                        {t("saved.summary", { moments: formatNumber(totalSaved), collections: formatNumber(collections.length) })}
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -85,7 +87,7 @@ export function SavedCollections({
                     </Button>
                     <Button variant="outline" size="sm" className="border-white/15 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white" onClick={() => setIsCreating(true)}>
                         <Plus className="h-4 w-4 mr-2" />
-                        New Collection
+                        {t("saved.new")}
                     </Button>
                 </div>
             </div>
@@ -95,7 +97,7 @@ export function SavedCollections({
                 <div className="mb-6 rounded-lg border border-orange-500/30 bg-white/[0.04] p-4">
                     <input
                         type="text"
-                        placeholder="Collection name..."
+                        placeholder={t("saved.name")}
                         value={newCollectionName}
                         onChange={(e) => setNewCollectionName(e.target.value)}
                         className="mb-3 w-full rounded-md border border-white/15 bg-black px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -103,10 +105,10 @@ export function SavedCollections({
                     />
                     <div className="flex gap-2">
                         <Button size="sm" onClick={handleCreateCollection}>
-                            Create
+                            {t("saved.create")}
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => setIsCreating(false)}>
-                            Cancel
+                            {t("saved.cancel")}
                         </Button>
                     </div>
                 </div>
@@ -123,7 +125,7 @@ export function SavedCollections({
                             : "border border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/10"
                     )}
                 >
-                    All Saved
+                    {t("saved.all")}
                 </button>
                 {collections.map(collection => (
                     <button
@@ -170,9 +172,9 @@ export function SavedCollections({
 
                             {/* Info */}
                             <div className="absolute bottom-0 left-0 right-0 p-4">
-                                <h3 className="text-xl font-black text-white">{collection.name}</h3>
+                                <h3 className="text-xl font-black text-white">{collection.isDefault ? t("saved.all") : collection.name}</h3>
                                 <p className="text-white/70 text-sm">
-                                    {collection.moments.length} moment{collection.moments.length !== 1 ? "s" : ""}
+                                    {formatNumber(collection.moments.length)} {t("venueProfile.moments")}
                                 </p>
                             </div>
 
@@ -199,7 +201,7 @@ export function SavedCollections({
                         onClick={() => setSelectedCollection(null)}
                         className="mb-4 text-sm text-muted-foreground hover:text-foreground"
                     >
-                        ← Back to collections
+                        {t("saved.back")}
                     </button>
 
                     {activeCollection && activeCollection.moments.length > 0 ? (
@@ -214,9 +216,9 @@ export function SavedCollections({
                     ) : (
                         <div className="text-center py-12">
                             <Bookmark className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                            <p className="text-muted-foreground">No moments in this collection yet</p>
+                            <p className="text-muted-foreground">{t("saved.emptyCollection")}</p>
                             <Button variant="outline" asChild className="mt-4">
-                                <Link to="/discover">Explore Moments</Link>
+                                <Link to="/discover">{t("saved.explore")}</Link>
                             </Button>
                         </div>
                     )}
@@ -227,12 +229,12 @@ export function SavedCollections({
             {collections.length === 0 && (
                 <div className="text-center py-12">
                     <Bookmark className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
-                    <h3 className="font-medium text-lg mb-2">No saved moments yet</h3>
+                    <h3 className="font-medium text-lg mb-2">{t("saved.empty")}</h3>
                     <p className="text-muted-foreground mb-4">
-                        Save moments you're interested in and organize them into collections
+                        {t("saved.emptyCopy")}
                     </p>
                     <Button asChild>
-                        <Link to="/discover">Explore Moments</Link>
+                        <Link to="/discover">{t("saved.explore")}</Link>
                     </Button>
                 </div>
             )}

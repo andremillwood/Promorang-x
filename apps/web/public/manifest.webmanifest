@@ -1,14 +1,16 @@
 {
+  "id": "/?source=pwa",
   "name": "Promorang Platform",
   "short_name": "Promorang",
-  "description": "Discover, host, and fund moments that matter.",
-  "start_url": "/",
+  "description": "Discover live moments, claim member perks, host events, and earn rewards.",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0d0d0d",
+  "display_override": ["standalone", "minimal-ui", "window-controls-overlay"],
+  "background_color": "#080808",
   "theme_color": "#ff6a00",
   "orientation": "portrait-primary",
-  "categories": ["social", "entertainment", "finance", "productivity"],
+  "categories": ["lifestyle", "social", "entertainment", "travel"],
   "icons": [
     {
       "src": "/favicon.png",
@@ -21,6 +23,36 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Explore Moments",
+      "short_name": "Explore",
+      "description": "Discover live events and cultural gatherings near you",
+      "url": "/discover",
+      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Rewards Hub",
+      "short_name": "Rewards",
+      "description": "Claim member perks, discounts and Gems",
+      "url": "/rewards",
+      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Host a Moment",
+      "short_name": "Host",
+      "description": "Create a moment and sell ticket passes",
+      "url": "/hosting",
+      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Wallet",
+      "short_name": "Wallet",
+      "description": "View balance, gems, and digital passes",
+      "url": "/wallet",
+      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
     }
   ]
 }

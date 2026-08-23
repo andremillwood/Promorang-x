@@ -28,6 +28,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProofSubmissionAuditDialog } from "@/components/proof/ProofSubmissionAuditDialog";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 const API_URL = import.meta.env.VITE_API_URL || "https://api.promorang.co";
 
 interface KYCRequest {
@@ -310,36 +312,44 @@ export function AdminModerationTab() {
       value: moderationOverview?.summary.active_moments || 0,
       helper: `${moderationOverview?.summary.total_moments || 0} tracked`,
       icon: Calendar,
+      color: "text-primary",
+      bg: "bg-primary/10",
     },
     {
       label: "Pending Content",
       value: moderationOverview?.summary.pending_content || 0,
       helper: `${moderationOverview?.summary.rejected_content || 0} rejected`,
       icon: MessageSquare,
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
     },
     {
       label: "Pending Proofs",
       value: moderationOverview?.summary.pending_proofs || 0,
       helper: `${moderationOverview?.summary.total_check_ins || 0} check-ins`,
       icon: Sparkles,
+      color: "text-emerald-500",
+      bg: "bg-emerald-500/10",
     },
     {
       label: "KYC Queue",
       value: kycRequests.length,
       helper: `${proofs.length} mission proofs`,
       icon: Landmark,
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
     },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="rounded-lg bg-primary/10 p-2">
+    <div className="space-y-8">
+      <div className="flex items-center gap-3.5">
+        <div className="rounded-xl bg-primary/10 p-2.5 shadow-soft">
           <Scale className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold">Moderation & Trust Center</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-2xl font-bold text-foreground">Moderation & Trust Center</h2>
+          <p className="text-sm text-muted-foreground font-medium">
             See what is happening across moments, content, identity, and proof.
           </p>
         </div>
@@ -347,16 +357,18 @@ export function AdminModerationTab() {
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {summaryCards.map((card) => (
-          <Card key={card.label}>
+          <Card key={card.label} className="border-border/80 bg-card shadow-soft transition-colors hover:border-primary/40">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardDescription>{card.label}</CardDescription>
-                <card.icon className="h-4 w-4 text-primary" />
+                <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{card.label}</CardDescription>
+                <div className={cn("h-7 w-7 rounded-lg flex items-center justify-center", card.bg)}>
+                  <card.icon className={cn("h-4 w-4", card.color)} />
+                </div>
               </div>
-              <CardTitle className="text-3xl">{card.value}</CardTitle>
+              <CardTitle className="text-3xl font-black text-foreground">{card.value}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">{card.helper}</p>
+              <p className="text-xs font-medium text-muted-foreground">{card.helper}</p>
             </CardContent>
           </Card>
         ))}
@@ -364,31 +376,31 @@ export function AdminModerationTab() {
 
       <Tabs defaultValue="moments" className="space-y-6">
         <div className="-mx-1 overflow-x-auto px-1 touch-pan-x snap-x-mandatory scrollbar-none">
-          <TabsList className="min-w-max bg-muted/50 p-1">
-            <TabsTrigger value="moments" className="gap-2">
+          <TabsList className="min-w-max bg-muted/60 p-1 rounded-xl">
+            <TabsTrigger value="moments" className="gap-2 rounded-lg font-semibold">
               <Calendar className="h-4 w-4" />
               Moments
             </TabsTrigger>
-            <TabsTrigger value="content" className="gap-2">
+            <TabsTrigger value="content" className="gap-2 rounded-lg font-semibold">
               <MessageSquare className="h-4 w-4" />
               Content
             </TabsTrigger>
-            <TabsTrigger value="kyc" className="gap-2">
+            <TabsTrigger value="kyc" className="gap-2 rounded-lg font-semibold">
               <Landmark className="h-4 w-4" />
               KYC Queue
               {kycRequests.length > 0 && <Badge variant="destructive" className="ml-1">{kycRequests.length}</Badge>}
             </TabsTrigger>
-            <TabsTrigger value="proofs" className="gap-2">
+            <TabsTrigger value="proofs" className="gap-2 rounded-lg font-semibold">
               <FileText className="h-4 w-4" />
               Submission Proofs
               {proofs.length > 0 && <Badge variant="destructive" className="ml-1">{proofs.length}</Badge>}
             </TabsTrigger>
-            <TabsTrigger value="momentum-proofs" className="gap-2">
+            <TabsTrigger value="momentum-proofs" className="gap-2 rounded-lg font-semibold">
               <Sparkles className="h-4 w-4" />
               Momentum Proofs
               {momentumProofs.length > 0 && <Badge variant="destructive" className="ml-1">{momentumProofs.length}</Badge>}
             </TabsTrigger>
-            <TabsTrigger value="momentum-history" className="gap-2">
+            <TabsTrigger value="momentum-history" className="gap-2 rounded-lg font-semibold">
               <ShieldCheck className="h-4 w-4" />
               Momentum History
             </TabsTrigger>
@@ -402,10 +414,16 @@ export function AdminModerationTab() {
                 <Skeleton key={index} className="h-52 rounded-2xl" />
               ))}
             </div>
+          ) : (moderationOverview?.moments || []).length === 0 ? (
+            <EmptyState
+              icon={Calendar}
+              title="No tracked moments yet"
+              description="Moments hosted or created across the platform will appear here for moderation and check-in tracking."
+            />
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
               {(moderationOverview?.moments || []).map((moment) => (
-                <Card key={moment.id} className="border-border/60">
+                <Card key={moment.id} className="border-border/80 bg-card shadow-soft">
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -479,9 +497,11 @@ export function AdminModerationTab() {
               ))}
             </div>
           ) : moderationOverview?.content?.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-muted/20 py-20 text-center text-muted-foreground">
-              No pending or rejected content right now.
-            </div>
+            <EmptyState
+              icon={MessageSquare}
+              title="Content queue is clear"
+              description="No pending or rejected content submissions require review right now."
+            />
           ) : (
             <div className="space-y-3">
               {moderationOverview.content.map((item) => (
@@ -566,10 +586,11 @@ export function AdminModerationTab() {
               {Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-80 rounded-2xl" />)}
             </div>
           ) : kycRequests.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-muted/20 py-20 text-center">
-              <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-muted-foreground opacity-20" />
-              <p className="text-muted-foreground">The KYC queue is empty.</p>
-            </div>
+            <EmptyState
+              icon={Landmark}
+              title="KYC verification queue is clear"
+              description="All user identity verification requests have been processed."
+            />
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {kycRequests.map((request) => (
@@ -615,9 +636,11 @@ export function AdminModerationTab() {
               {Array.from({ length: 2 }).map((_, index) => <Skeleton key={index} className="h-64 rounded-2xl" />)}
             </div>
           ) : proofs.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-muted/20 py-20 text-center text-muted-foreground">
-              No mission proof submissions are waiting.
-            </div>
+            <EmptyState
+              icon={FileText}
+              title="No mission proofs pending"
+              description="Participant proof submissions will show up here as missions are completed."
+            />
           ) : (
             <div className="grid gap-6 lg:grid-cols-2">
               {proofs.map((proof) => (
@@ -663,9 +686,11 @@ export function AdminModerationTab() {
               {Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-40 rounded-2xl" />)}
             </div>
           ) : momentumProofs.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-muted/20 py-20 text-center text-muted-foreground">
-              No momentum proof submissions are waiting.
-            </div>
+            <EmptyState
+              icon={Sparkles}
+              title="No momentum proofs in queue"
+              description="Proof-of-attendance and check-in verification records will be listed here."
+            />
           ) : (
             <div className="space-y-3">
               {momentumProofs.map((submission) => (
@@ -726,9 +751,11 @@ export function AdminModerationTab() {
           {isLoading ? (
             Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-28 rounded-2xl" />)
           ) : momentumProofHistory.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-muted/20 py-20 text-center text-muted-foreground">
-              No reviewed proof submissions yet.
-            </div>
+            <EmptyState
+              icon={ShieldCheck}
+              title="No reviewed proof submissions"
+              description="Reviewed momentum and check-in proof history will appear here."
+            />
           ) : (
             momentumProofHistory.map((submission) => (
               <Card key={submission.id}>

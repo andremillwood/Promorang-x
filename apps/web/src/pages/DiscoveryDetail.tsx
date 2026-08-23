@@ -54,8 +54,10 @@ import {
   DiscoveryOption,
   DiscoveryComment 
 } from "@/data/discoveriesData";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function DiscoveryDetail() {
+  const { t } = useI18n();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -72,6 +74,8 @@ export default function DiscoveryDetail() {
   const [comments, setComments] = useState<DiscoveryComment[]>(pollConfig?.comments || []);
   const [commentLikes, setCommentLikes] = useState<Record<string, number>>({});
   const [isSavedPoll, setIsSavedPoll] = useState(false);
+
+  const [squadInvites, setSquadInvites] = useState(0);
 
   // Fallback to database query if not a static poll
   const query = useDiscovery(!pollConfig ? slug : undefined);
@@ -111,7 +115,6 @@ export default function DiscoveryDetail() {
 
     // Referral / Squad mechanics
     const userReferralCode = user?.id ? user.id.slice(0, 8) : "scout-ja";
-    const [squadInvites, setSquadInvites] = useState(0);
     const targetSquadInvites = poll.squadGoal?.targetInvites || 2;
     const isSquadUnlocked = squadInvites >= targetSquadInvites;
 

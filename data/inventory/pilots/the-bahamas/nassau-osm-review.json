@@ -1,0 +1,2197 @@
+{
+  "schema_version": 2,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Nassau, The Bahamas",
+    "country_code": "BS",
+    "country_slug": "the-bahamas",
+    "city_slug": "nassau",
+    "collected_at": "2026-08-22T04:04:37.543Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "rules": {
+    "auto_publish": false,
+    "minimum_venue_confidence": 0.8,
+    "moment_expiry_hours": 24,
+    "targets": {
+      "venues": 30,
+      "discoveries": 20,
+      "moments": 10,
+      "polls": 4,
+      "scenes": 3
+    }
+  },
+  "city": {
+    "country_code": "BS",
+    "country_slug": "the-bahamas",
+    "country": "The Bahamas",
+    "city_slug": "nassau",
+    "city": "Nassau",
+    "region": "New Providence",
+    "currency": "BSD",
+    "timezone": "America/Nassau",
+    "bbox": "24.9900,-77.4500,25.1000,-77.2500",
+    "launch_stage": "pilot",
+    "poll_templates": [
+      "Which Nassau experience deserves a local spotlight?",
+      "Where should visitors go to experience Nassau beyond the resort map?",
+      "Which independent Bahamian food spot should host a Moment?",
+      "What should Nassau activate next?"
+    ]
+  },
+  "poll_templates": [
+    {
+      "key": "bs-nassau-1",
+      "question": "Which Nassau experience deserves a local spotlight?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "bs-nassau-2",
+      "question": "Where should visitors go to experience Nassau beyond the resort map?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "bs-nassau-3",
+      "question": "Which independent Bahamian food spot should host a Moment?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "bs-nassau-4",
+      "question": "What should Nassau activate next?",
+      "status": "draft",
+      "category": "City Direction",
+      "threshold_for_moment": 25
+    }
+  ],
+  "stats": {
+    "source_elements": 512,
+    "candidates": 50,
+    "pending_review": 1,
+    "needs_research": 49
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/672913121",
+      "source_url": "https://www.openstreetmap.org/node/672913121",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 672913121,
+        "lat": 25.075059,
+        "lon": -77.3251483,
+        "tags": {
+          "amenity": "bar",
+          "name": "Atlantic Shipwreck"
+        }
+      },
+      "normalized_data": {
+        "name": "Atlantic Shipwreck",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.075059,
+        "longitude": -77.3251483,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "06256939d7c8a27b674afab3aafe3e3143faf4d6402a201a46187055e9de4c22",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/672920027",
+      "source_url": "https://www.openstreetmap.org/node/672920027",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 672920027,
+        "lat": 25.0737119,
+        "lon": -77.3133768,
+        "tags": {
+          "amenity": "cafe",
+          "brand": "Starbucks",
+          "brand:wikidata": "Q37158",
+          "brand:wikipedia": "en:Starbucks",
+          "cuisine": "coffee_shop",
+          "name": "Starbucks",
+          "official_name": "Starbucks Coffee",
+          "source": "KG Ground Survey 2016",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Starbucks",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0737119,
+        "longitude": -77.3133768,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe",
+          "coffee_shop"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cc3dd21c20616fe40ca7db9413d00bc48deb64a618872730c3670e6195223d81",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/711325214",
+      "source_url": "https://www.openstreetmap.org/node/711325214",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 711325214,
+        "lat": 25.0209369,
+        "lon": -77.342445,
+        "tags": {
+          "amenity": "fast_food",
+          "brand:wikidata": "Q524757",
+          "cuisine": "chicken",
+          "name": "Kentucky Fried Chicken",
+          "short_name": "KFC",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Kentucky Fried Chicken",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0209369,
+        "longitude": -77.342445,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "916bdc798991af2c84f9e8d58dc04ac15da68058e9096fcdc4a427d34091acf6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/719100659",
+      "source_url": "https://www.openstreetmap.org/node/719100659",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 719100659,
+        "lat": 25.0789494,
+        "lon": -77.3448168,
+        "tags": {
+          "addr:city": "Nassau",
+          "addr:street": "Woodes Rodgers Walk",
+          "amenity": "restaurant",
+          "cuisine": "mexican",
+          "indoor_seating": "yes",
+          "name": "Señor Frog's",
+          "outdoor_seating": "yes",
+          "website": "https://senorfrogs.com/"
+        }
+      },
+      "normalized_data": {
+        "name": "Señor Frog's",
+        "address": "Woodes Rodgers Walk, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0789494,
+        "longitude": -77.3448168,
+        "category": "restaurant",
+        "phone": null,
+        "website": "https://senorfrogs.com/",
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "mexican"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dabe41a2ce69d620c1c777dd53bd1088b0459d684b0cc125d312f681d8da1d33",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1342208369",
+      "source_url": "https://www.openstreetmap.org/node/1342208369",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1342208369,
+        "lat": 25.08138,
+        "lon": -77.3201578,
+        "tags": {
+          "amenity": "restaurant",
+          "brand": "Johnny Rockets",
+          "brand:wikidata": "Q1051593",
+          "cuisine": "burger",
+          "name": "Johnny Rockets"
+        }
+      },
+      "normalized_data": {
+        "name": "Johnny Rockets",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.08138,
+        "longitude": -77.3201578,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6e16d29527b22b3c02ac1f498bebbc161f6bb2f83ea0d5d08c0de756f2bdc0a4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1342208372",
+      "source_url": "https://www.openstreetmap.org/node/1342208372",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1342208372,
+        "lat": 25.0817444,
+        "lon": -77.31857,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Anthony's"
+        }
+      },
+      "normalized_data": {
+        "name": "Anthony's",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0817444,
+        "longitude": -77.31857,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "061b3fad54f10201f462a4999d10303e68462012bec565d55ecb5b1d9f69c1ee",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1342225051",
+      "source_url": "https://www.openstreetmap.org/node/1342225051",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1342225051,
+        "lat": 25.0816988,
+        "lon": -77.3203785,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "italian",
+          "name": "Carmine's"
+        }
+      },
+      "normalized_data": {
+        "name": "Carmine's",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0816988,
+        "longitude": -77.3203785,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "italian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "95fb6f6beffa0ae9f8bd33ab2c96ca5b0c98f9850e4a1c3b7112e007b1b87aeb",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1342225083",
+      "source_url": "https://www.openstreetmap.org/node/1342225083",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1342225083,
+        "lat": 25.0819727,
+        "lon": -77.3194336,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Bimini Road"
+        }
+      },
+      "normalized_data": {
+        "name": "Bimini Road",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0819727,
+        "longitude": -77.3194336,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dcace8af8033bab85d6b74f175b48d9a0ba2fd0184f42ea2065b5d0a3da0662b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2415285868",
+      "source_url": "https://www.openstreetmap.org/node/2415285868",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2415285868,
+        "lat": 25.0857104,
+        "lon": -77.3198159,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Cleito's"
+        }
+      },
+      "normalized_data": {
+        "name": "Cleito's",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0857104,
+        "longitude": -77.3198159,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5e04c9d6193674f56074adc7d40b65d16845c39fb7c2b31d8eb92fc3e23fb432",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2415285913",
+      "source_url": "https://www.openstreetmap.org/node/2415285913",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2415285913,
+        "lat": 25.0829725,
+        "lon": -77.320937,
+        "tags": {
+          "leisure": "marina",
+          "name": "Atlantis Marina",
+          "seamark:harbour:category": "marina",
+          "seamark:type": "harbour"
+        }
+      },
+      "normalized_data": {
+        "name": "Atlantis Marina",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0829725,
+        "longitude": -77.320937,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marina"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a02d663a5a818bb20cb76f11cb09f51a4b25b7542cb56f759b8f633b8ca7e85d",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2415286228",
+      "source_url": "https://www.openstreetmap.org/node/2415286228",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2415286228,
+        "lat": 25.0857622,
+        "lon": -77.3182271,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Beach Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Beach Bar",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0857622,
+        "longitude": -77.3182271,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7dd867dc2e8b9bedb13218d5788caa5ea3c80cef981402ac4ec0c5f2b4e9b456",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2916562353",
+      "source_url": "https://www.openstreetmap.org/node/2916562353",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2916562353,
+        "lat": 25.0769207,
+        "lon": -77.3446504,
+        "tags": {
+          "name": "Towne Hotel",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Towne Hotel",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0769207,
+        "longitude": -77.3446504,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "cacf7e8e9cef663917fa80c7ee7ae8d83f391d1789e77ce989f2b40561d57072",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2989604765",
+      "source_url": "https://www.openstreetmap.org/node/2989604765",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2989604765,
+        "lat": 25.0437516,
+        "lon": -77.3560088,
+        "tags": {
+          "addr:city": "Nassau",
+          "addr:street": "Tonique Darling Highway",
+          "amenity": "restaurant",
+          "cuisine": "Jamaican",
+          "name": "Original Patties Bakery",
+          "opening_hours": "08:00-20:00"
+        }
+      },
+      "normalized_data": {
+        "name": "Original Patties Bakery",
+        "address": "Tonique Darling Highway, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0437516,
+        "longitude": -77.3560088,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "08:00-20:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "Jamaican"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6cc4c09d44c24911c51ac7a218733ce864e98d246fca6867a7e1fe59970d9e33",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3447249295",
+      "source_url": "https://www.openstreetmap.org/node/3447249295",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3447249295,
+        "lat": 25.0776329,
+        "lon": -77.3453367,
+        "tags": {
+          "alt_name": "Dunkin' Donuts",
+          "amenity": "fast_food",
+          "brand": "Dunkin'",
+          "brand:wikidata": "Q847743",
+          "cuisine": "donut;coffee_shop",
+          "internet_access": "yes",
+          "internet_access:fee": "no",
+          "name": "Dunkin'",
+          "source": "KG Ground Survey 2016",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Dunkin'",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0776329,
+        "longitude": -77.3453367,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "donut;coffee_shop"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "49248ee5657d59293cf8f2f01cb37cc2f78e87863f11feccc64d1ee2c8842207",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3447268699",
+      "source_url": "https://www.openstreetmap.org/node/3447268699",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3447268699,
+        "lat": 25.0776774,
+        "lon": -77.3454834,
+        "tags": {
+          "amenity": "restaurant",
+          "internet_access": "wlan",
+          "microbrewery": "no",
+          "name": "Conch Fritters Bar & Grill",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Conch Fritters Bar & Grill",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0776774,
+        "longitude": -77.3454834,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "133f2122e11f6445239b7c6eb0ac3b4bc1df995dd5302e91dad81624329f77e0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3447268701",
+      "source_url": "https://www.openstreetmap.org/node/3447268701",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3447268701,
+        "lat": 25.0716414,
+        "lon": -77.3132011,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Dairy Queen",
+          "brand:wikidata": "Q1141226",
+          "brand:wikipedia": "en:Dairy Queen",
+          "cuisine": "ice_cream;burger;chicken",
+          "name": "Dairy Queen",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Dairy Queen",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0716414,
+        "longitude": -77.3132011,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "ice_cream;burger;chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c3fa570cb3edf33d5a307e0aa134a180eee40d05e14af139c92d6a0b7bd99309",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3447268702",
+      "source_url": "https://www.openstreetmap.org/node/3447268702",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3447268702,
+        "lat": 25.0716456,
+        "lon": -77.3132665,
+        "tags": {
+          "amenity": "fast_food",
+          "brand": "Domino's",
+          "brand:wikidata": "Q839466",
+          "brand:wikipedia": "en:Domino's Pizza",
+          "cuisine": "pizza",
+          "name": "Domino's",
+          "source": "KG Ground Survey 2016",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Domino's",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0716456,
+        "longitude": -77.3132665,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0ee30e88d630d7da0f06328d6e4cc1f9b99a456bbd9cc1cc3e7aa26775718e86",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3447268994",
+      "source_url": "https://www.openstreetmap.org/node/3447268994",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3447268994,
+        "lat": 25.072192,
+        "lon": -77.3138605,
+        "tags": {
+          "amenity": "fast_food",
+          "name": "Bahama Subs & Salads"
+        }
+      },
+      "normalized_data": {
+        "name": "Bahama Subs & Salads",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.072192,
+        "longitude": -77.3138605,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0e7d4b16daf359ea5c997d0ec90a1e59ad2063a6744201a3975578bd5edb66b1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3447269395",
+      "source_url": "https://www.openstreetmap.org/node/3447269395",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3447269395,
+        "lat": 25.0767592,
+        "lon": -77.3285261,
+        "tags": {
+          "amenity": "restaurant",
+          "microbrewery": "no",
+          "name": "The Green Parrot"
+        }
+      },
+      "normalized_data": {
+        "name": "The Green Parrot",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0767592,
+        "longitude": -77.3285261,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c63fce96de88998bba293b14f157e9678e4287334ed12e9407bd8442b336c288",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3447269396",
+      "source_url": "https://www.openstreetmap.org/node/3447269396",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3447269396,
+        "lat": 25.0766269,
+        "lon": -77.3282158,
+        "tags": {
+          "email": "info@baystreetmarina.com",
+          "leisure": "marina",
+          "name": "Bay Street Marina",
+          "phone": "242-676-7000",
+          "seamark:harbour:category": "marina",
+          "seamark:type": "harbour"
+        }
+      },
+      "normalized_data": {
+        "name": "Bay Street Marina",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0766269,
+        "longitude": -77.3282158,
+        "category": "other",
+        "phone": "242-676-7000",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "marina"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "08be78e6442fbac4e05c1255856c7725e5f60abf4bfbff457ee57467994752ba",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3711179254",
+      "source_url": "https://www.openstreetmap.org/node/3711179254",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3711179254,
+        "lat": 25.0834803,
+        "lon": -77.3213828,
+        "tags": {
+          "amenity": "restaurant",
+          "brand": "Nobu",
+          "brand:wikidata": "Q104840749",
+          "cuisine": "sushi",
+          "name": "Nobu"
+        }
+      },
+      "normalized_data": {
+        "name": "Nobu",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0834803,
+        "longitude": -77.3213828,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "sushi"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8b55a25b40ffe4d92f8c7b3becd665ceda404ccaa012dad97c92968243008a32",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3711179255",
+      "source_url": "https://www.openstreetmap.org/node/3711179255",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3711179255,
+        "lat": 25.0852066,
+        "lon": -77.3280926,
+        "tags": {
+          "amenity": "cafe",
+          "brand": "Starbucks",
+          "brand:wikidata": "Q37158",
+          "cuisine": "coffee_shop",
+          "drive_through": "no",
+          "name": "Starbucks",
+          "official_name": "Starbucks Coffee",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Starbucks",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0852066,
+        "longitude": -77.3280926,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe",
+          "coffee_shop"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "66c0ce8e958aba405d8bc16b92b7c5407527ce3170732f018df40d4eb5984290",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3746583369",
+      "source_url": "https://www.openstreetmap.org/node/3746583369",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3746583369,
+        "lat": 25.0837005,
+        "lon": -77.3203141,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Olives"
+        }
+      },
+      "normalized_data": {
+        "name": "Olives",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0837005,
+        "longitude": -77.3203141,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dc43eb7e4d261793340d608eea714e92f86409bf6c02478dfa0e388c59dc4a90",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3746583370",
+      "source_url": "https://www.openstreetmap.org/node/3746583370",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3746583370,
+        "lat": 25.0816575,
+        "lon": -77.3186404,
+        "tags": {
+          "alt_name": "Dunkin' Donuts",
+          "amenity": "fast_food",
+          "brand": "Dunkin'",
+          "brand:wikidata": "Q847743",
+          "brand:wikipedia": "en:Dunkin' Donuts",
+          "cuisine": "donut;coffee_shop",
+          "name": "Dunkin'",
+          "phone": "+1-242-363-3339",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Dunkin'",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0816575,
+        "longitude": -77.3186404,
+        "category": "restaurant",
+        "phone": "+1-242-363-3339",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "donut;coffee_shop"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "36627ee3b0b7bb278580568e5256a3a0c6e72bd3f6f4dc72df80cba26e99a2fa",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3746595250",
+      "source_url": "https://www.openstreetmap.org/node/3746595250",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3746595250,
+        "lat": 25.0854738,
+        "lon": -77.3275561,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Fish by José Andrés"
+        }
+      },
+      "normalized_data": {
+        "name": "Fish by José Andrés",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0854738,
+        "longitude": -77.3275561,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "894e4631442eb28535bc4412d6c318c4678e5a28b64d907ac2e0edfeacbc1fa8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3746595251",
+      "source_url": "https://www.openstreetmap.org/node/3746595251",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3746595251,
+        "lat": 25.0856925,
+        "lon": -77.326494,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Paranza"
+        }
+      },
+      "normalized_data": {
+        "name": "Paranza",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0856925,
+        "longitude": -77.326494,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b7857f57e104ef17bb3bc6b64caf2e8670a493f1b0eeef9bff3f2cb349adab39",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3748676680",
+      "source_url": "https://www.openstreetmap.org/node/3748676680",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3748676680,
+        "lat": 25.0844876,
+        "lon": -77.3200406,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Virgil's BBQ"
+        }
+      },
+      "normalized_data": {
+        "name": "Virgil's BBQ",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0844876,
+        "longitude": -77.3200406,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f80afe5c1f8ccc15299cfc7afdfc2ca82abb74098e9e25b3c908b69cecb395c7",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3748676716",
+      "source_url": "https://www.openstreetmap.org/node/3748676716",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3748676716,
+        "lat": 25.0766177,
+        "lon": -77.3465569,
+        "tags": {
+          "name": "Heritage Museum",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Heritage Museum",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0766177,
+        "longitude": -77.3465569,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8fd9946e364a3be329433470bc67e3dd246b85713b277b0253f75eb3e9b7d1a0",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3748676883",
+      "source_url": "https://www.openstreetmap.org/node/3748676883",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3748676883,
+        "lat": 25.0794043,
+        "lon": -77.3478765,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Fat Tuesday"
+        }
+      },
+      "normalized_data": {
+        "name": "Fat Tuesday",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0794043,
+        "longitude": -77.3478765,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d248b30d4e15ec8ec538e8c9386a1f13c94fa9c5783f9025c9c779546c3887bd",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3748676918",
+      "source_url": "https://www.openstreetmap.org/node/3748676918",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3748676918,
+        "lat": 25.078984,
+        "lon": -77.3442099,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "Lukka Kairi"
+        }
+      },
+      "normalized_data": {
+        "name": "Lukka Kairi",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.078984,
+        "longitude": -77.3442099,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "3d9177a14c7a177b66ba6dc312b63708b6031c061b264b6d7d62cd1052382741",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3809500249",
+      "source_url": "https://www.openstreetmap.org/node/3809500249",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3809500249,
+        "lat": 25.0451505,
+        "lon": -77.3421518,
+        "tags": {
+          "name": "Bargain Wholesaler",
+          "shop": "clothes"
+        }
+      },
+      "normalized_data": {
+        "name": "Bargain Wholesaler",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0451505,
+        "longitude": -77.3421518,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6cdce416712619e2297c2e38cc99004741fbcf55f9185a3c81cc9da0295444d4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3809500250",
+      "source_url": "https://www.openstreetmap.org/node/3809500250",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3809500250,
+        "lat": 25.0444303,
+        "lon": -77.3421591,
+        "tags": {
+          "leisure": "fitness_centre",
+          "name": "Mac Fit 360"
+        }
+      },
+      "normalized_data": {
+        "name": "Mac Fit 360",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0444303,
+        "longitude": -77.3421591,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fitness_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "5c445e78489188fea025cb5f23aec3a0d14899628747f79ddf12dcfe87379717",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3809500251",
+      "source_url": "https://www.openstreetmap.org/node/3809500251",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3809500251,
+        "lat": 25.043706,
+        "lon": -77.3421738,
+        "tags": {
+          "alt_name": "Dunkin' Donuts",
+          "amenity": "fast_food",
+          "brand": "Dunkin'",
+          "brand:wikidata": "Q847743",
+          "brand:wikipedia": "en:Dunkin' Donuts",
+          "cuisine": "donut;coffee_shop",
+          "name": "Dunkin'",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Dunkin'",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.043706,
+        "longitude": -77.3421738,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "donut;coffee_shop"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "031980503563db908adcdfc41e38740b4e17224bb4eaf323d13b31b33e7e84ff",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3810810749",
+      "source_url": "https://www.openstreetmap.org/node/3810810749",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3810810749,
+        "lat": 25.0502925,
+        "lon": -77.3288632,
+        "tags": {
+          "name": "Kelly's Home Centre Limited",
+          "shop": "department_store"
+        }
+      },
+      "normalized_data": {
+        "name": "Kelly's Home Centre Limited",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0502925,
+        "longitude": -77.3288632,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "93f2e5e2f62e7a85784685ae36d9973edb36ce05527e56487a70bcef07daba5f",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3812888029",
+      "source_url": "https://www.openstreetmap.org/node/3812888029",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3812888029,
+        "lat": 25.0598917,
+        "lon": -77.3398509,
+        "tags": {
+          "craft": "sewing_machine",
+          "name": "Phil's Sewing Machine Centre",
+          "shop": "craft"
+        }
+      },
+      "normalized_data": {
+        "name": "Phil's Sewing Machine Centre",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0598917,
+        "longitude": -77.3398509,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "craft"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b501b750a6a7f3108ed06fc4ca1c29519d1f32802a6b996a4f36b2625e119057",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4098753291",
+      "source_url": "https://www.openstreetmap.org/node/4098753291",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4098753291,
+        "lat": 25.0754978,
+        "lon": -77.4213821,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "pizza",
+          "name": "Marco's Pizza",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Marco's Pizza",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0754978,
+        "longitude": -77.4213821,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "fc40cae0ab5bd48e4fcd9287ae27b126398d8f0cae65b7123907034230333436",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100007897",
+      "source_url": "https://www.openstreetmap.org/node/4100007897",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100007897,
+        "lat": 25.076439,
+        "lon": -77.4275282,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Club One",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Club One",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.076439,
+        "longitude": -77.4275282,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b7096bafe67a6f404ae70798f5495f6d0e318e4beab4f31b6bdd5ccd80919f36",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100039740",
+      "source_url": "https://www.openstreetmap.org/node/4100039740",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100039740,
+        "lat": 25.0755234,
+        "lon": -77.4109212,
+        "tags": {
+          "addr:street": "West Bay Street",
+          "amenity": "cafe",
+          "brand": "Starbucks",
+          "brand:wikidata": "Q37158",
+          "cuisine": "coffee_shop",
+          "name": "Starbucks",
+          "official_name": "Starbucks Coffee",
+          "source": "KG Ground Survey 2016",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Starbucks",
+        "address": "West Bay Street, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0755234,
+        "longitude": -77.4109212,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe",
+          "coffee_shop"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7b03363434f9d41c98b6f57937a5fa3c03cd8dda74d5a8142efab1b9ac146626",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100044007",
+      "source_url": "https://www.openstreetmap.org/node/4100044007",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100044007,
+        "lat": 25.0758089,
+        "lon": -77.4091348,
+        "tags": {
+          "addr:street": "West Bay Street",
+          "amenity": "fast_food",
+          "brand": "Burger King",
+          "brand:wikidata": "Q177054",
+          "brand:wikipedia": "en:Burger King",
+          "cuisine": "burger",
+          "name": "Burger King",
+          "source": "KG Ground Survey 2016",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Burger King",
+        "address": "West Bay Street, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0758089,
+        "longitude": -77.4091348,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8fdba64f43f06dc02ed94907e5ca7bb924f0e408bdc676efdaf7de310eca8ed8",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100044008",
+      "source_url": "https://www.openstreetmap.org/node/4100044008",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100044008,
+        "lat": 25.075804,
+        "lon": -77.4093306,
+        "tags": {
+          "addr:street": "West Bay Street",
+          "amenity": "fast_food",
+          "brand": "Subway",
+          "brand:wikidata": "Q244457",
+          "brand:wikipedia": "en:Subway (restaurant)",
+          "cuisine": "sandwich",
+          "name": "Subway",
+          "source": "KG Ground Survey 2016",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Subway",
+        "address": "West Bay Street, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.075804,
+        "longitude": -77.4093306,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "sandwich"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "45380be89b02e15f40bd0ff30efa3521b2970336aae138f3ab9f0800ea41a3b5",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100044009",
+      "source_url": "https://www.openstreetmap.org/node/4100044009",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100044009,
+        "lat": 25.0757773,
+        "lon": -77.409513,
+        "tags": {
+          "addr:street": "West Bay Street",
+          "name": "Better Sport",
+          "shop": "clothes",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Better Sport",
+        "address": "West Bay Street, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0757773,
+        "longitude": -77.409513,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "clothes"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "12dffb477d6b93ec5d4f690bd6825e7efbd15ef168b9a78cbcff96bde58f93a5",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100044010",
+      "source_url": "https://www.openstreetmap.org/node/4100044010",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100044010,
+        "lat": 25.0757506,
+        "lon": -77.4098108,
+        "tags": {
+          "addr:street": "West Bay Street",
+          "amenity": "fast_food",
+          "brand": "Domino's",
+          "brand:wikidata": "Q839466",
+          "brand:wikipedia": "en:Domino's Pizza",
+          "cuisine": "pizza",
+          "name": "Domino's",
+          "source": "KG Ground Survey 2016",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Domino's",
+        "address": "West Bay Street, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0757506,
+        "longitude": -77.4098108,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "691828e324e4656f94db9c36f61d946dd8b66618f8d5980bcc0253b88ca18753",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100044011",
+      "source_url": "https://www.openstreetmap.org/node/4100044011",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100044011,
+        "lat": 25.0757336,
+        "lon": -77.4099046,
+        "tags": {
+          "addr:street": "West Bay Street",
+          "amenity": "fast_food",
+          "brand": "Dairy Queen",
+          "brand:wikidata": "Q1141226",
+          "brand:wikipedia": "en:Dairy Queen",
+          "cuisine": "ice_cream;burger",
+          "name": "Dairy Queen",
+          "source": "KG Ground Survey 2016",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Dairy Queen",
+        "address": "West Bay Street, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0757336,
+        "longitude": -77.4099046,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "ice_cream;burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b9d021e10195fd90ba73767199260c3ffe2c1c7dd804db8b2f5d210e60217345",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100049748",
+      "source_url": "https://www.openstreetmap.org/node/4100049748",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100049748,
+        "lat": 25.0753882,
+        "lon": -77.4114185,
+        "tags": {
+          "addr:street": "West Bay Street",
+          "amenity": "restaurant",
+          "name": "Many's Restaurant & Pub",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Many's Restaurant & Pub",
+        "address": "West Bay Street, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0753882,
+        "longitude": -77.4114185,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6278ec4a4ad0b9fe063d5b2af5bfae58c7ebad5eadf6ea364187ef17b6169b76",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100056649",
+      "source_url": "https://www.openstreetmap.org/node/4100056649",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100056649,
+        "lat": 25.0755972,
+        "lon": -77.4116762,
+        "tags": {
+          "addr:street": "West Bay Street",
+          "amenity": "restaurant",
+          "cuisine": "italian",
+          "name": "Capriccio",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Capriccio",
+        "address": "West Bay Street, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0755972,
+        "longitude": -77.4116762,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "italian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f71ca013e768af2c1e601645ab6f15d39dfbc7125a386ee17987bcbd97042f96",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100071846",
+      "source_url": "https://www.openstreetmap.org/node/4100071846",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100071846,
+        "lat": 25.0762954,
+        "lon": -77.4087284,
+        "tags": {
+          "addr:street": "West Bay Street",
+          "amenity": "restaurant",
+          "name": "Island Bistro",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Island Bistro",
+        "address": "West Bay Street, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0762954,
+        "longitude": -77.4087284,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "15f553510e1af388a2c6f139011f51dd48b31e06c92918501f08ba2c57ab58e7",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100557880",
+      "source_url": "https://www.openstreetmap.org/node/4100557880",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100557880,
+        "lat": 25.0754251,
+        "lon": -77.4123507,
+        "tags": {
+          "addr:street": "West Bay Street",
+          "amenity": "fast_food",
+          "cuisine": "pizza",
+          "name": "Sbaro",
+          "source": "mapillary"
+        }
+      },
+      "normalized_data": {
+        "name": "Sbaro",
+        "address": "West Bay Street, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0754251,
+        "longitude": -77.4123507,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "342f86dcce04954daf68af1fda77c6e8224ded41d7c797bcaedc5f55f7a52af5",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100605806",
+      "source_url": "https://www.openstreetmap.org/node/4100605806",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100605806,
+        "lat": 25.0781527,
+        "lon": -77.3448629,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "internet_access": "wlan",
+          "name": "Summer Palace",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Summer Palace",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0781527,
+        "longitude": -77.3448629,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "dfdbe858c14459f2b576a9fe66e4680312003bef0ba8c6ae1a6640a830167843",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4100704345",
+      "source_url": "https://www.openstreetmap.org/node/4100704345",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4100704345,
+        "lat": 25.0772909,
+        "lon": -77.3336485,
+        "tags": {
+          "addr:street": "Bay Street",
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "Vip",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Vip",
+        "address": "Bay Street, Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0772909,
+        "longitude": -77.3336485,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7b7c537e815fa2c1d99488ddf17d940c196d9ed1b523e976ffdeaf5cfa41f776",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/4102559658",
+      "source_url": "https://www.openstreetmap.org/node/4102559658",
+      "source_last_checked_at": "2026-08-22T04:04:37.543Z",
+      "raw_data": {
+        "type": "node",
+        "id": 4102559658,
+        "lat": 25.0781026,
+        "lon": -77.3475351,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "indian",
+          "name": "Clay Oven",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Clay Oven",
+        "address": "Nassau, The Bahamas",
+        "city": "Nassau",
+        "region": "New Providence",
+        "parish": "New Providence",
+        "country": "The Bahamas",
+        "country_code": "BS",
+        "latitude": 25.0781026,
+        "longitude": -77.3475351,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "indian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "253c7e151691436cfd39a3d767df9aa1c444a6ec4a898e66988f63e730708190",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    }
+  ]
+}

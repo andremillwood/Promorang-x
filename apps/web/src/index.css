@@ -31,9 +31,9 @@
     --secondary: 35 25% 93%;
     --secondary-foreground: 0 0% 15%;
 
-    /* Muted - Soft warm gray */
+    /* Muted - Soft warm gray with enhanced WCAG AA contrast */
     --muted: 35 15% 92%;
-    --muted-foreground: 30 8% 45%;
+    --muted-foreground: 30 10% 36%;
 
     /* Accent - Golden yellow */
     --accent: 45 100% 55%;
@@ -100,7 +100,7 @@
     --secondary-foreground: 40 20% 90%;
 
     --muted: 0 0% 15%;
-    --muted-foreground: 35 12% 68%;
+    --muted-foreground: 40 15% 78%;
 
     --accent: 45 100% 50%;
     --accent-foreground: 0 0% 8%;
@@ -108,8 +108,8 @@
     --destructive: 0 70% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
     --ring: 24 100% 55%;
 
     --orange-glow: 24 100% 60%;
@@ -130,7 +130,7 @@
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 15%;
     --sidebar-accent-foreground: 40 20% 90%;
-    --sidebar-border: 0 0% 18%;
+    --sidebar-border: 0 0% 22%;
     --sidebar-ring: 24 100% 55%;
   }
 }
@@ -138,6 +138,11 @@
 @layer base {
   * {
     @apply border-border;
+  }
+
+  *:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
   }
 
   html {
@@ -235,6 +240,48 @@
       linear-gradient(hsl(var(--foreground)) 1px, transparent 1px),
       linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px);
     background-size: 42px 42px;
+  }
+
+  .font-display {
+    font-family: 'Fraunces', Georgia, serif;
+  }
+
+  .font-body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+
+  .smooth-ring {
+    box-shadow: 0 0 0 1px hsl(var(--border) / 0.7);
+  }
+
+  .surface-card {
+    @apply rounded-2xl bg-card/90 text-card-foreground backdrop-blur-sm;
+    box-shadow: 0 0 0 1px hsl(var(--border) / 0.6), var(--shadow-card);
+  }
+
+  .surface-elevated {
+    @apply rounded-2xl bg-card/95 text-card-foreground backdrop-blur-md;
+    box-shadow: 0 0 0 1px hsl(var(--border) / 0.7), var(--shadow-elevated);
+  }
+
+  /* Mobile Safe Area and PWA Standalone Support */
+  .safe-area-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-area-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  @supports (padding-top: env(safe-area-inset-top)) {
+    @media all and (display-mode: standalone) {
+      .standalone-pt {
+        padding-top: env(safe-area-inset-top);
+      }
+      .standalone-pb {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+    }
   }
 
   .pr-feed-surface {
@@ -424,14 +471,18 @@
     *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
 
     [class*="slide-in-"],
     [class*="slide-out-"],
     [class*="animate-bounce"],
-    [class*="animate-pulse"] {
+    [class*="animate-pulse"],
+    [class*="animate-float"],
+    [class*="animate-shimmer"] {
       transform: none !important;
+      animation: none !important;
     }
   }
 

@@ -44,6 +44,7 @@ import {
 } from "@/lib/moment-taxonomy";
 import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo, toMomentProofEnum } from "@/lib/jamaica-geo";
 import type { Tables } from "@/integrations/supabase/types";
+import { useI18n } from "@/i18n/I18nContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const recurrenceWeekdayOptions = [
@@ -59,6 +60,7 @@ const recurrenceWeekdayOptions = [
 type RecurrenceFrequency = "daily" | "weekly" | "monthly";
 
 const EditMoment = () => {
+  const { t } = useI18n();
   const [activeSection, setActiveSection] = useState("story");
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
@@ -134,8 +136,8 @@ const EditMoment = () => {
       // Check ownership. Platform admins can edit any moment.
       if (!isAdmin && data.host_id !== user?.id && data.organizer_id !== user?.id) {
         toast({
-          title: "Unauthorized",
-          description: "You can only edit your own moments.",
+          title: t("editMoment.unauthorized"),
+          description: t("editMoment.unauthorizedDesc"),
           variant: "destructive",
         });
         navigate("/dashboard");
@@ -266,8 +268,8 @@ const EditMoment = () => {
     },
     onSuccess: () => {
       toast({
-        title: "Moment updated! ✨",
-        description: "Your changes have been saved.",
+        title: t("editMoment.toastUpdated"),
+        description: t("editMoment.toastUpdatedDesc"),
       });
       queryClient.invalidateQueries({ queryKey: ["moment", id] });
       queryClient.invalidateQueries({ queryKey: ["hosted-moments"] });
@@ -276,7 +278,7 @@ const EditMoment = () => {
     onError: (error: unknown) => {
       const message = error instanceof Error ? error.message : "Unknown error";
       toast({
-        title: "Update failed",
+        title: t("editMoment.toastUpdateFailed"),
         description: message,
         variant: "destructive",
       });
@@ -295,8 +297,8 @@ const EditMoment = () => {
     },
     onSuccess: () => {
       toast({
-        title: "Moment deleted",
-        description: "Your moment has been removed.",
+        title: t("editMoment.toastDeleted"),
+        description: t("editMoment.toastDeletedDesc"),
       });
       queryClient.invalidateQueries({ queryKey: ["hosted-moments"] });
       navigate("/dashboard");
@@ -304,7 +306,7 @@ const EditMoment = () => {
     onError: (error: unknown) => {
       const message = error instanceof Error ? error.message : "Unknown error";
       toast({
-        title: "Delete failed",
+        title: t("editMoment.toastDeleteFailed"),
         description: message,
         variant: "destructive",
       });
@@ -346,29 +348,29 @@ const EditMoment = () => {
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
+          {t("editMoment.back")}
         </Button>
-        <p className="mb-3 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Moment Control</p>
+        <p className="mb-3 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{t("editMoment.badge")}</p>
         <h1 className="text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] text-foreground">
-          Keep the moment sharp.
+          {t("editMoment.title")}
         </h1>
         <GuidanceDisclosure
           id="edit-moment:control-context"
-          eyebrow="Edit guide"
-          title="What to keep sharp when editing"
-          summary="Update the promise, place, schedule, proof signal, and reward without muddying why people should show up."
+          eyebrow={t("editMoment.guideEyebrow")}
+          title={t("editMoment.guideTitle")}
+          summary={t("editMoment.guideSummary")}
           className="mt-4 max-w-2xl"
           tone="light"
         >
           <p className="text-base leading-7 text-muted-foreground">
-            Update the promise, place, schedule, proof signal, and reward so participants know exactly why to show up and what their action unlocks.
+            {t("editMoment.guideCopy")}
           </p>
         </GuidanceDisclosure>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {[
-            { icon: Calendar, label: "Timing", copy: "Keep the room current" },
-            { icon: ShieldCheck, label: "Proof", copy: "Protect verified value" },
-            { icon: Sparkles, label: "Unlock", copy: "Clarify the reward path" },
+            { icon: Calendar, label: t("editMoment.timingLabel"), copy: t("editMoment.timingCopy") },
+            { icon: ShieldCheck, label: t("editMoment.proofLabel"), copy: t("editMoment.proofCopy") },
+            { icon: Sparkles, label: t("editMoment.unlockLabel"), copy: t("editMoment.unlockCopy") },
           ].map((item) => (
             <div key={item.label} className="rounded-2xl border border-border/60 bg-background/70 p-4">
               <item.icon className="h-5 w-5 text-primary" />
@@ -380,16 +382,16 @@ const EditMoment = () => {
       </div>
 
       <DashboardWorkspaceNav
-        eyebrow="Edit moment"
-        title="Change one part without losing your place"
+        eyebrow={t("editMoment.navEyebrow")}
+        title={t("editMoment.navTitle")}
         activeValue={activeSection}
         onValueChange={setActiveSection}
         anchorId="edit-moment-workspace"
         items={[
-          { value: "story", label: "Promise", icon: Sparkles },
-          { value: "place", label: "Place & timing", icon: MapPin },
-          { value: "proof", label: "Proof & unlock", icon: ShieldCheck },
-          { value: "media", label: "Media", icon: ImageIcon },
+          { value: "story", label: t("editMoment.tabPromise"), icon: Sparkles },
+          { value: "place", label: t("editMoment.tabPlace"), icon: MapPin },
+          { value: "proof", label: t("editMoment.tabProof"), icon: ShieldCheck },
+          { value: "media", label: t("editMoment.tabMedia"), icon: ImageIcon },
         ]}
       />
 
@@ -403,7 +405,7 @@ const EditMoment = () => {
         <form id="edit-moment-workspace" onSubmit={handleSubmit} className="scroll-mt-28 space-y-6">
           {/* Cover Image */}
           <div className={`${activeSection === "media" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6`}>
-            <Label className="mb-3 block">Display Picture</Label>
+            <Label className="mb-3 block">{t("editMoment.displayPictureLabel")}</Label>
             <ImageUpload
               value={formData.imageUrl}
               onChange={(url) => setFormData({ ...formData, imageUrl: url || "" })}
@@ -411,11 +413,11 @@ const EditMoment = () => {
               uploading={uploading}
               aspectRatio="video"
             />
-            <p className="mt-2 text-sm text-muted-foreground">Used on cards, compact previews, and public listings.</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("editMoment.displayPictureCopy")}</p>
           </div>
 
           <div className={`${activeSection === "media" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6`}>
-            <Label className="mb-3 block">Banner Image</Label>
+            <Label className="mb-3 block">{t("editMoment.bannerImageLabel")}</Label>
             <ImageUpload
               value={formData.bannerImageUrl}
               onChange={(url) => setFormData({ ...formData, bannerImageUrl: url || "" })}
@@ -423,11 +425,11 @@ const EditMoment = () => {
               uploading={uploading}
               aspectRatio="banner"
             />
-            <p className="mt-2 text-sm text-muted-foreground">Wide image for the moment page hero and featured banners.</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("editMoment.bannerImageCopy")}</p>
           </div>
 
           <div className={`${activeSection === "media" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6`}>
-            <Label className="mb-3 block">Supporting Moment Images</Label>
+            <Label className="mb-3 block">{t("editMoment.supportingImagesLabel")}</Label>
             <MediaGalleryUpload
               value={formData.galleryImages}
               onChange={(images) => setFormData({ ...formData, galleryImages: images })}
@@ -438,10 +440,10 @@ const EditMoment = () => {
 
           {/* Basic Info */}
           <div className={`${activeSection === "story" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6 space-y-4`}>
-            <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Promise</h2>
+            <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">{t("editMoment.promiseHeading")}</h2>
 
             <div>
-              <Label htmlFor="title">Title *</Label>
+              <Label htmlFor="title">{t("editMoment.titleLabel")}</Label>
               <Input
                 id="title"
                 value={formData.title}
@@ -451,7 +453,7 @@ const EditMoment = () => {
             </div>
 
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t("editMoment.descLabel")}</Label>
               <Textarea
                 id="description"
                 value={formData.description}
@@ -461,7 +463,7 @@ const EditMoment = () => {
             </div>
 
             <div>
-              <Label htmlFor="category">Category *</Label>
+              <Label htmlFor="category">{t("editMoment.categoryLabel")}</Label>
               <Select
                 value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
@@ -481,13 +483,13 @@ const EditMoment = () => {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="venueCategory">Venue Category</Label>
+                <Label htmlFor="venueCategory">{t("editMoment.venueCategoryLabel")}</Label>
                 <Select
                   value={formData.venueCategory}
                   onValueChange={(value) => setFormData({ ...formData, venueCategory: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select venue type" />
+                    <SelectValue placeholder={t("editMoment.venueCategoryPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {venueCategories.map((item) => (
@@ -500,13 +502,13 @@ const EditMoment = () => {
               </div>
 
               <div>
-                <Label htmlFor="momentArchetype">Moment Archetype</Label>
+                <Label htmlFor="momentArchetype">{t("editMoment.archetypeLabel")}</Label>
                 <Select
                   value={formData.momentArchetype}
                   onValueChange={(value) => setFormData({ ...formData, momentArchetype: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select archetype" />
+                    <SelectValue placeholder={t("editMoment.archetypePlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {momentArchetypes.map((item) => (
@@ -520,13 +522,13 @@ const EditMoment = () => {
             </div>
 
             <div>
-              <Label htmlFor="conversionType">Success Action</Label>
+              <Label htmlFor="conversionType">{t("editMoment.conversionTypeLabel")}</Label>
               <Select
                 value={formData.conversionType}
                 onValueChange={(value) => setFormData({ ...formData, conversionType: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select success action" />
+                  <SelectValue placeholder={t("editMoment.conversionTypePlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {conversionTypes.map((item) => (
@@ -541,10 +543,10 @@ const EditMoment = () => {
 
           {/* Location */}
           <div className={`${activeSection === "place" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6 space-y-4`}>
-            <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Place</h2>
+            <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">{t("editMoment.placeHeading")}</h2>
 
             <div>
-              <Label htmlFor="venueName">Venue Name</Label>
+              <Label htmlFor="venueName">{t("editMoment.venueNameLabel")}</Label>
               <Input
                 id="venueName"
                 value={formData.venueName}
@@ -553,7 +555,7 @@ const EditMoment = () => {
             </div>
 
             <div>
-              <Label htmlFor="location">Address *</Label>
+              <Label htmlFor="location">{t("editMoment.addressLabel")}</Label>
               <Input
                 id="location"
                 value={formData.location}
@@ -565,11 +567,11 @@ const EditMoment = () => {
 
           {/* Date & Time */}
           <div className={`${activeSection === "place" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6 space-y-4`}>
-            <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Timing</h2>
+            <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">{t("editMoment.timingHeading")}</h2>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="startsAt">Start *</Label>
+                <Label htmlFor="startsAt">{t("editMoment.startLabel")}</Label>
                 <Input
                   id="startsAt"
                   type="datetime-local"
@@ -579,7 +581,7 @@ const EditMoment = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="endsAt">End</Label>
+                <Label htmlFor="endsAt">{t("editMoment.endLabel")}</Label>
                 <Input
                   id="endsAt"
                   type="datetime-local"
@@ -592,9 +594,9 @@ const EditMoment = () => {
             <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="font-semibold text-foreground">Recurring Schedule</h3>
+                  <h3 className="font-semibold text-foreground">{t("editMoment.recurringScheduleTitle")}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Convert this moment into a repeatable rhythm and adjust the schedule after creation.
+                    {t("editMoment.recurringScheduleCopy")}
                   </p>
                 </div>
                 <Switch
@@ -607,7 +609,7 @@ const EditMoment = () => {
                 <div className="mt-4 space-y-4">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                      <Label>Frequency</Label>
+                      <Label>{t("editMoment.frequencyLabel")}</Label>
                       <Select
                         value={formData.recurrenceFrequency}
                         onValueChange={(value) => setFormData({ ...formData, recurrenceFrequency: value as RecurrenceFrequency })}
@@ -616,14 +618,14 @@ const EditMoment = () => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="daily">Daily</SelectItem>
-                          <SelectItem value="weekly">Weekly</SelectItem>
-                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="daily">{t("editMoment.freqDaily")}</SelectItem>
+                          <SelectItem value="weekly">{t("editMoment.freqWeekly")}</SelectItem>
+                          <SelectItem value="monthly">{t("editMoment.freqMonthly")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label htmlFor="editRecurrenceInterval">Repeat Every</Label>
+                      <Label htmlFor="editRecurrenceInterval">{t("editMoment.repeatEveryLabel")}</Label>
                       <Input
                         id="editRecurrenceInterval"
                         type="number"
@@ -636,7 +638,7 @@ const EditMoment = () => {
 
                   {formData.recurrenceFrequency === "weekly" && (
                     <div>
-                      <Label className="mb-3 block">Weekdays</Label>
+                      <Label className="mb-3 block">{t("editMoment.weekdaysLabel")}</Label>
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-7">
                         {recurrenceWeekdayOptions.map((day) => {
                           const checked = formData.recurrenceByWeekday.includes(day.value);
@@ -663,7 +665,7 @@ const EditMoment = () => {
 
                   {formData.recurrenceFrequency === "monthly" && (
                     <div>
-                      <Label htmlFor="editRecurrenceDayOfMonth">Day of Month</Label>
+                      <Label htmlFor="editRecurrenceDayOfMonth">{t("editMoment.dayOfMonthLabel")}</Label>
                       <Input
                         id="editRecurrenceDayOfMonth"
                         type="number"
@@ -677,7 +679,7 @@ const EditMoment = () => {
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                      <Label htmlFor="editRecurrenceUntil">Repeat Until</Label>
+                      <Label htmlFor="editRecurrenceUntil">{t("editMoment.repeatUntilLabel")}</Label>
                       <Input
                         id="editRecurrenceUntil"
                         type="datetime-local"
@@ -686,14 +688,14 @@ const EditMoment = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="editRecurrenceCount">Occurrence Cap</Label>
+                      <Label htmlFor="editRecurrenceCount">{t("editMoment.occurrenceCapLabel")}</Label>
                       <Input
                         id="editRecurrenceCount"
                         type="number"
                         min={1}
                         value={formData.recurrenceCount}
                         onChange={(e) => setFormData({ ...formData, recurrenceCount: e.target.value })}
-                        placeholder="Optional"
+                        placeholder={t("editMoment.occurrenceCapPlaceholder")}
                       />
                     </div>
                   </div>
@@ -704,16 +706,16 @@ const EditMoment = () => {
 
           {/* Additional Details */}
           <div className={`${activeSection === "proof" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6 space-y-4`}>
-            <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Proof, Capacity, Unlock</h2>
+            <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">{t("editMoment.proofHeading")}</h2>
 
             <div>
-              <Label htmlFor="proofType">Proof type</Label>
+              <Label htmlFor="proofType">{t("editMoment.proofTypeLabel")}</Label>
               <Select
                 value={formData.proofType}
                 onValueChange={(value) => setFormData({ ...formData, proofType: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select proof type" />
+                  <SelectValue placeholder={t("editMoment.proofTypePlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {LOCAL_DROP_PROOF_OPTIONS.map((option) => (
@@ -724,28 +726,28 @@ const EditMoment = () => {
                 </SelectContent>
               </Select>
               <p className="mt-1 text-sm text-muted-foreground">
-                Local Drops use screenshot, share, or link. QR remains available as a secondary option.
+                {t("editMoment.proofTypeCopy")}
               </p>
             </div>
 
             <div>
-              <Label htmlFor="maxParticipants">Max Participants</Label>
+              <Label htmlFor="maxParticipants">{t("editMoment.maxParticipantsLabel")}</Label>
               <Input
                 id="maxParticipants"
                 type="number"
                 value={formData.maxParticipants}
                 onChange={(e) => setFormData({ ...formData, maxParticipants: e.target.value })}
-                placeholder="Leave empty for unlimited"
+                placeholder={t("editMoment.maxParticipantsPlaceholder")}
               />
             </div>
 
             <div>
-              <Label htmlFor="reward">Reward</Label>
+              <Label htmlFor="reward">{t("editMoment.rewardLabel")}</Label>
               <Input
                 id="reward"
                 value={formData.reward}
                 onChange={(e) => setFormData({ ...formData, reward: e.target.value })}
-                placeholder="e.g., Free coffee, 10% discount"
+                placeholder={t("editMoment.rewardPlaceholder")}
               />
             </div>
           </div>
@@ -756,23 +758,23 @@ const EditMoment = () => {
               <AlertDialogTrigger asChild>
                 <Button type="button" variant="destructive">
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
+                  {t("editMoment.deleteButton")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Delete this moment?</AlertDialogTitle>
+                  <AlertDialogTitle>{t("editMoment.deleteConfirmTitle")}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete the moment and all associated data. This action cannot be undone.
+                    {t("editMoment.deleteConfirmDesc")}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{t("editMoment.cancel")}</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() => deleteMutation.mutate()}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
-                    {deleteMutation.isPending ? "Deleting..." : "Delete Moment"}
+                    {deleteMutation.isPending ? t("editMoment.deleting") : t("editMoment.deleteAction")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -787,12 +789,12 @@ const EditMoment = () => {
               {updateMutation.isPending || uploading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
+                  {t("editMoment.saving")}
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  Save Changes
+                  {t("editMoment.saveChanges")}
                 </>
               )}
             </Button>

@@ -38,13 +38,17 @@ import {
   Compass,
   Check,
   ArrowRight,
-  LockKeyhole
+  LockKeyhole,
+  Smartphone,
+  Send
 } from "lucide-react";
 import { z } from "zod";
 import { useUserPreferences, useUpdateUserPreferences } from "@/hooks/useUserPreferences";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { GuidanceDensity, useGuidancePreferences } from "@/hooks/useGuidancePreferences";
 import { cultureImages } from "@/data/culture-demo";
 import { Link } from "react-router-dom";
+import { useI18n } from "@/i18n/I18nContext";
 
 const discoveryCategories = ["Music", "Food", "Nightlife", "Fitness", "Arts", "Fashion", "Wellness", "Community"];
 const preferredTimes = ["Weekday mornings", "Weekday evenings", "Friday nights", "Weekends"];
@@ -63,6 +67,9 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 const Settings = () => {
+  const { t, formatNumber } = useI18n();
+  const categoryLabels: Record<string, string> = { Music: t("settings.catMusic"), Food: t("settings.catFood"), Nightlife: t("settings.catNightlife"), Fitness: t("settings.catFitness"), Arts: t("settings.catArts"), Fashion: t("settings.catFashion"), Wellness: t("settings.catWellness"), Community: t("settings.catCommunity") };
+  const timeLabels: Record<string, string> = { "Weekday mornings": t("settings.timeMornings"), "Weekday evenings": t("settings.timeEvenings"), "Friday nights": t("settings.timeFriday"), Weekends: t("settings.timeWeekends") };
   const { user, roles, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -70,6 +77,7 @@ const Settings = () => {
   const { data: preferences } = useUserPreferences();
   const updatePreferences = useUpdateUserPreferences();
   const { density: guidanceDensity, setDensity: setGuidanceDensity } = useGuidancePreferences();
+  const pushState = usePushNotifications();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -159,13 +167,13 @@ const Settings = () => {
       if (error) throw error;
 
       toast({
-        title: "Preferences saved",
-        description: `Notification for ${key.replace('_', ' ')} updated.`,
+        title: t("settings.saved"),
+        description: t("settings.savedCopy"),
       });
     } catch (error: any) {
       console.error("Error saving notification preference:", error);
       toast({
-        title: "Error saving preference",
+        title: t("settings.saveError"),
         description: error.message,
         variant: "destructive",
       });
@@ -309,12 +317,12 @@ const Settings = () => {
       }
 
       toast({
-        title: "Profile updated! ✨",
-        description: "Your changes have been saved successfully.",
+        title: t("settings.profileSaved"),
+        description: t("settings.profileSavedCopy"),
       });
     } catch (error: any) {
       toast({
-        title: "Error saving profile",
+        title: t("settings.profileError"),
         description: error.message,
         variant: "destructive",
       });
@@ -330,8 +338,8 @@ const Settings = () => {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     toast({
-      title: "Payment Info Saved",
-      description: "We will use this information to process your earnings.",
+      title: t("settings.paymentSaved"),
+      description: t("settings.paymentSavedCopy"),
     });
     setSaving(false);
   }
@@ -362,13 +370,13 @@ const Settings = () => {
 
       await signOut();
       toast({
-        title: "Account deleted",
-        description: "Your account has been removed.",
+        title: t("settings.accountDeleted"),
+        description: t("settings.accountDeletedCopy"),
       });
       navigate("/");
     } catch (error: any) {
       toast({
-        title: "Error deleting account",
+        title: t("settings.accountDeleteError"),
         description: error.message,
         variant: "destructive",
       });
@@ -390,15 +398,15 @@ const Settings = () => {
         <div className="relative mx-auto grid min-h-[330px] max-w-6xl items-end gap-8 px-5 pb-10 pt-20 sm:px-8 lg:grid-cols-[1fr_320px]">
           <div>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400 backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5" /> Shape your Promorang
+              <Sparkles className="h-3.5 w-3.5" /> {t("settings.eyebrow")}
             </div>
-            <h1 className="max-w-2xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">Make the platform know what moves you.</h1>
-            <p className="mt-5 max-w-xl text-base leading-7 text-white/55">Your identity and preferences sharpen discovery, make proof recognizable, and help the right opportunities find you.</p>
+            <h1 className="max-w-2xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">{t("settings.title")}</h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-white/55">{t("settings.copy")}</p>
           </div>
           <div className="rounded-lg border border-white/10 bg-black/55 p-5 backdrop-blur">
-            <div className="flex items-end justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-orange-400">Profile signal</p><p className="mt-2 text-3xl font-black">{completion}%</p></div><span className="text-xs text-white/40">{completionItems.filter(Boolean).length} of 5 complete</span></div>
+            <div className="flex items-end justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-orange-400">{t("settings.signal")}</p><p className="mt-2 text-3xl font-black">{completion}%</p></div><span className="text-xs text-white/40">{t("settings.complete", { count: completionItems.filter(Boolean).length })}</span></div>
             <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-orange-500 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]" style={{ width: `${completion}%` }} /></div>
-            <p className="mt-4 text-xs leading-5 text-white/45">{completion === 100 ? "Your signal is strong. Keep it current as your scene changes." : "Add the missing details to improve recommendations and recognition."}</p>
+            <p className="mt-4 text-xs leading-5 text-white/45">{completion === 100 ? t("settings.strong") : t("settings.missing")}</p>
           </div>
         </div>
       </section>
@@ -414,12 +422,12 @@ const Settings = () => {
         <Tabs defaultValue="profile" className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8">
           <div className="overflow-x-auto pb-2">
           <TabsList className="mb-8 h-auto min-w-max justify-start gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-1">
-            <TabsTrigger value="profile">Identity</TabsTrigger>
-            <TabsTrigger value="preferences">Discovery</TabsTrigger>
-            <TabsTrigger value="access-rank">Status</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="payouts">Payouts</TabsTrigger>
-            <TabsTrigger value="account">Privacy & account</TabsTrigger>
+            <TabsTrigger value="profile">{t("settings.identity")}</TabsTrigger>
+            <TabsTrigger value="preferences">{t("settings.discovery")}</TabsTrigger>
+            <TabsTrigger value="access-rank">{t("settings.status")}</TabsTrigger>
+            <TabsTrigger value="notifications">{t("settings.notifications")}</TabsTrigger>
+            <TabsTrigger value="payouts">{t("settings.payouts")}</TabsTrigger>
+            <TabsTrigger value="account">{t("settings.account")}</TabsTrigger>
           </TabsList>
           </div>
 
@@ -430,7 +438,7 @@ const Settings = () => {
               <div className="bg-card border border-border rounded-2xl p-6">
                 <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                   <Camera className="w-5 h-5 text-primary" />
-                  Profile Photo
+                  {t("settings.photo")}
                 </h2>
                 <div className="flex items-center gap-6">
                   <AvatarUpload
@@ -446,7 +454,7 @@ const Settings = () => {
                       {formData.fullName || user.email?.split("@")[0]}
                     </p>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Click the avatar to upload a new photo
+                      {t("settings.photoHelp")}
                     </p>
                   </div>
                 </div>
@@ -456,16 +464,16 @@ const Settings = () => {
               <div className="bg-card border border-border rounded-2xl p-6">
                 <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                   <User className="w-5 h-5 text-primary" />
-                  Basic Information
+                  {t("settings.basic")}
                 </h2>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="fullName">Full Name *</Label>
+                    <Label htmlFor="fullName">{t("settings.fullName")}</Label>
                     <Input
                       id="fullName"
                       value={formData.fullName}
                       onChange={(e) => updateField("fullName", e.target.value)}
-                      placeholder="Your full name"
+                      placeholder={t("settings.fullNamePlaceholder")}
                       className={errors.fullName ? "border-destructive" : ""}
                     />
                   </div>
@@ -476,15 +484,15 @@ const Settings = () => {
               <div className="bg-card border border-border rounded-2xl p-6">
                 <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-primary" />
-                  Location
+                  {t("settings.location")}
                 </h2>
                 <div>
-                  <Label htmlFor="location">City / Region</Label>
+                  <Label htmlFor="location">{t("settings.region")}</Label>
                   <Input
                     id="location"
                     value={formData.location}
                     onChange={(e) => updateField("location", e.target.value)}
-                    placeholder="e.g., New York, NY"
+                    placeholder={t("settings.regionPlaceholder")}
                     className={errors.location ? "border-destructive" : ""}
                   />
                 </div>
@@ -494,20 +502,20 @@ const Settings = () => {
               <div className="bg-card border border-border rounded-2xl p-6">
                 <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                   <FileText className="w-5 h-5 text-primary" />
-                  About You
+                  {t("settings.about")}
                 </h2>
                 <div>
-                  <Label htmlFor="bio">Bio</Label>
+                  <Label htmlFor="bio">{t("settings.bio")}</Label>
                   <Textarea
                     id="bio"
                     value={formData.bio}
                     onChange={(e) => updateField("bio", e.target.value)}
-                    placeholder="Tell others a bit about yourself..."
+                    placeholder={t("settings.bioPlaceholder")}
                     rows={4}
                     className={errors.bio ? "border-destructive" : ""}
                   />
                   <p className="text-muted-foreground text-sm mt-1">
-                    {formData.bio?.length || 0}/500 characters
+                    {t("settings.characters", { count: formatNumber(formData.bio?.length || 0) })}
                   </p>
                 </div>
               </div>
@@ -517,12 +525,12 @@ const Settings = () => {
                   {saving ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Saving...
+                      {t("settings.saving")}
                     </>
                   ) : (
                     <>
                       <Save className="w-4 h-4 mr-2" />
-                      Save Profile
+                      {t("settings.saveProfile")}
                     </>
                   )}
                 </Button>
@@ -533,38 +541,36 @@ const Settings = () => {
           <TabsContent value="preferences">
             <div className="grid max-w-4xl gap-5 lg:grid-cols-[1fr_300px]">
               <div className="rounded-lg border border-white/10 bg-[#111] p-6 sm:p-8">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">Tune your discovery</p>
-                <h2 className="mt-3 text-2xl font-black">What deserves a place in your feed?</h2>
-                <p className="mt-2 text-sm leading-6 text-white/45">Choose broadly enough to discover, narrowly enough that Promorang learns your taste.</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">{t("settings.tune")}</p>
+                <h2 className="mt-3 text-2xl font-black">{t("settings.feedTitle")}</h2>
+                <p className="mt-2 text-sm leading-6 text-white/45">{t("settings.feedCopy")}</p>
                 <div className="mt-7 flex flex-wrap gap-2">
                   {discoveryCategories.map((category) => {
                     const active = selectedCategories.includes(category);
-                    return <button type="button" key={category} onClick={() => toggleChoice(category, selectedCategories, setSelectedCategories)} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? "border-orange-500 bg-orange-500 text-black" : "border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/10"}`}>{active && <Check className="mr-1.5 inline h-3.5 w-3.5" />}{category}</button>;
+                    return <button type="button" key={category} onClick={() => toggleChoice(category, selectedCategories, setSelectedCategories)} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? "border-orange-500 bg-orange-500 text-black" : "border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/10"}`}>{active && <Check className="mr-1.5 inline h-3.5 w-3.5" />}{categoryLabels[category]}</button>;
                   })}
                 </div>
                 <div className="mt-9 border-t border-white/10 pt-7">
-                  <h3 className="font-bold">When are you usually open to something?</h3>
+                  <h3 className="font-bold">{t("settings.when")}</h3>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {preferredTimes.map((time) => <button type="button" key={time} onClick={() => toggleChoice(time, selectedTimes, setSelectedTimes)} className={`rounded-md border px-3 py-2 text-sm transition ${selectedTimes.includes(time) ? "border-orange-500/60 bg-orange-500/15 text-orange-300" : "border-white/10 text-white/55 hover:bg-white/[0.05]"}`}>{time}</button>)}
+                    {preferredTimes.map((time) => <button type="button" key={time} onClick={() => toggleChoice(time, selectedTimes, setSelectedTimes)} className={`rounded-md border px-3 py-2 text-sm transition ${selectedTimes.includes(time) ? "border-orange-500/60 bg-orange-500/15 text-orange-300" : "border-white/10 text-white/55 hover:bg-white/[0.05]"}`}>{timeLabels[time]}</button>)}
                   </div>
                 </div>
                 <div className="mt-8 flex items-center justify-between gap-5 rounded-lg border border-white/10 bg-black/40 p-4">
-                  <div><p className="font-semibold">Use my location for nearby moments</p><p className="mt-1 text-xs leading-5 text-white/40">Promorang can prioritize moments and scenes within reach.</p></div>
+                  <div><p className="font-semibold">{t("settings.nearby")}</p><p className="mt-1 text-xs leading-5 text-white/40">{t("settings.nearbyCopy")}</p></div>
                   <Switch checked={locationSharing} onCheckedChange={setLocationSharing} />
                 </div>
                 <Button onClick={handlePreferenceSubmit} disabled={updatePreferences.isPending || selectedCategories.length === 0} className="mt-7 bg-orange-500 font-bold text-black hover:bg-orange-400">
-                  {updatePreferences.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} Save discovery preferences
+                  {updatePreferences.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} {t("settings.saveDiscovery")}
                 </Button>
               </div>
               <aside className="rounded-lg border border-orange-500/25 bg-gradient-to-b from-orange-500/10 to-transparent p-6">
                 <Compass className="h-7 w-7 text-orange-400" />
-                <h3 className="mt-8 text-xl font-black">This changes what comes forward.</h3>
+                <h3 className="mt-8 text-xl font-black">{t("settings.discoveryEffect")}</h3>
                 <div className="mt-6 space-y-5 text-sm text-white/50">
-                  <p>Discover ranks moments closer to your interests and location.</p>
-                  <p>Pulse brings forward activity from scenes you are more likely to value.</p>
-                  <p>Creator and host suggestions become more relevant over time.</p>
+                  <p>{t("settings.discoveryEffect1")}</p><p>{t("settings.discoveryEffect2")}</p><p>{t("settings.discoveryEffect3")}</p>
                 </div>
-                <Link to="/discover" className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-orange-400">See your discovery <ArrowRight className="h-4 w-4" /></Link>
+                <Link to="/discover" className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-orange-400">{t("settings.seeDiscovery")} <ArrowRight className="h-4 w-4" /></Link>
               </aside>
             </div>
           </TabsContent>
@@ -572,12 +578,12 @@ const Settings = () => {
           <TabsContent value="access-rank">
             <div className="grid max-w-4xl gap-5 md:grid-cols-[1fr_320px]">
               <div className="rounded-lg border border-white/10 bg-[#111] p-7">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">Your standing</p>
-                <h2 className="mt-3 text-3xl font-black">Status is earned in public, controlled by you.</h2>
-                <p className="mt-4 max-w-xl text-sm leading-6 text-white/50">Verified attendance, completed missions, repeat scenes, and trusted contributions build a proof trail. That trail can unlock earlier access, stronger placement, and better opportunities.</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">{t("settings.standing")}</p>
+                <h2 className="mt-3 text-3xl font-black">{t("settings.statusTitle")}</h2>
+                <p className="mt-4 max-w-xl text-sm leading-6 text-white/50">{t("settings.statusCopy")}</p>
                 <div className="mt-8 grid gap-3 sm:grid-cols-3">{[["Explorer", "Current level"], ["Contributor", "Next unlock"], ["Host", "Mastery path"]].map(([title, copy], index) => <div key={title} className={`rounded-lg border p-4 ${index === 0 ? "border-orange-500/50 bg-orange-500/10" : "border-white/10 bg-black/30"}`}><p className="text-xs text-white/35">0{index + 1}</p><p className="mt-5 font-bold">{title}</p><p className="mt-1 text-xs text-white/40">{copy}</p></div>)}</div>
               </div>
-              <div className="rounded-lg border border-white/10 bg-[#111] p-6"><LockKeyhole className="h-6 w-6 text-orange-400" /><h3 className="mt-6 text-xl font-black">Proof visibility</h3><p className="mt-3 text-sm leading-6 text-white/45">Your public profile can show earned status without exposing private receipts or sensitive account details.</p><Button asChild variant="outline" className="mt-7 w-full border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white"><Link to="/profile">View public profile</Link></Button></div>
+              <div className="rounded-lg border border-white/10 bg-[#111] p-6"><LockKeyhole className="h-6 w-6 text-orange-400" /><h3 className="mt-6 text-xl font-black">{t("settings.proofVisibility")}</h3><p className="mt-3 text-sm leading-6 text-white/45">{t("settings.proofVisibilityCopy")}</p><Button asChild variant="outline" className="mt-7 w-full border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white"><Link to="/profile">{t("settings.viewProfile")}</Link></Button></div>
             </div>
           </TabsContent>
 
@@ -587,15 +593,15 @@ const Settings = () => {
               <div className="bg-card border border-border rounded-2xl p-6">
                 <h2 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                   <CreditCard className="w-5 h-5 text-primary" />
-                  Payment Instructions
+                  {t("settings.paymentInstructions")}
                 </h2>
                 <p className="text-sm text-muted-foreground mb-6">
-                  Where should we send your earnings? Please provide details for your preferred payment method (e.g., Zelle, PayPal, Venmo, or Bank Wire).
+                  {t("settings.paymentCopy")}
                 </p>
 
                 <form onSubmit={handlePayoutSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="payoutInfo">Payment Details</Label>
+                    <Label htmlFor="payoutInfo">{t("settings.paymentDetails")}</Label>
                     <Textarea
                       id="payoutInfo"
                       value={payoutInfo}
@@ -606,12 +612,12 @@ const Settings = () => {
                     />
                     <p className="text-xs text-muted-foreground mt-2">
                       <Shield className="w-3 h-3 inline mr-1" />
-                      This information is encrypted and only visible to admin staff processing payments.
+                      {t("settings.paymentPrivate")}
                     </p>
                   </div>
                   <div className="flex justify-end">
                     <Button type="submit" disabled={saving}>
-                      {saving ? "Saving..." : "Save Payment Info"}
+                      {saving ? t("settings.saving") : t("settings.savePayment")}
                     </Button>
                   </div>
                 </form>
@@ -622,17 +628,66 @@ const Settings = () => {
           {/* --- NOTIFICATIONS TAB --- */}
           <TabsContent value="notifications">
             <div className="max-w-2xl space-y-6">
+              {/* Device Push Notifications Card */}
+              <div className="bg-gradient-to-br from-primary/10 via-card to-card border border-primary/30 rounded-2xl p-6 shadow-sm">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0">
+                      <Smartphone className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h2 className="font-bold text-foreground">Phone & Lock Screen Notifications</h2>
+                        <span
+                          className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                            pushState.isSubscribed
+                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                              : "bg-white/10 text-white/50"
+                          }`}
+                        >
+                          {pushState.isSubscribed ? "Active on this device" : "Disabled"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Receive real-time alerts for RSVP countdowns, Moment start times, and Gem payouts.
+                      </p>
+                    </div>
+                  </div>
+
+                  <Switch
+                    checked={pushState.isSubscribed}
+                    disabled={pushState.loading || !pushState.isSupported}
+                    onCheckedChange={(checked) => (checked ? pushState.subscribe() : pushState.unsubscribe())}
+                  />
+                </div>
+
+                {pushState.isSubscribed && (
+                  <div className="mt-4 pt-4 border-t border-border/60 flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground">Verify your phone lock screen delivery:</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={pushState.sendTestNotification}
+                      className="rounded-xl text-xs font-bold gap-1.5 border-primary/40 hover:bg-primary/10 text-primary"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      Send Test Alert
+                    </Button>
+                  </div>
+                )}
+              </div>
+
               <div className="bg-card border border-border rounded-2xl p-6">
                 <h2 className="font-semibold text-foreground mb-6 flex items-center gap-2">
                   <Bell className="w-5 h-5 text-primary" />
-                  Preferences
+                  {t("settings.preferences")}
                 </h2>
 
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label className="text-base">Moment Updates</Label>
-                      <p className="text-sm text-muted-foreground">Receive updates about moments you've joined or created.</p>
+                      <Label className="text-base">{t("settings.momentUpdates")}</Label>
+                      <p className="text-sm text-muted-foreground">{t("settings.momentUpdatesCopy")}</p>
                     </div>
                     <Switch
                       checked={notifications.moment_updates ?? true}
@@ -642,8 +697,8 @@ const Settings = () => {
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label className="text-base">Payout Notifications</Label>
-                      <p className="text-sm text-muted-foreground">Get notified when a payout is processed.</p>
+                      <Label className="text-base">{t("settings.payoutNotifications")}</Label>
+                      <p className="text-sm text-muted-foreground">{t("settings.payoutNotificationsCopy")}</p>
                     </div>
                     <Switch
                       checked={notifications.payouts ?? true}
@@ -654,8 +709,8 @@ const Settings = () => {
                   {(primaryRole === 'merchant' || roles.includes('merchant')) && (
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label className="text-base">Low Stock Alerts</Label>
-                        <p className="text-sm text-muted-foreground">Alerts when your products are running low.</p>
+                        <Label className="text-base">{t("settings.lowStock")}</Label>
+                        <p className="text-sm text-muted-foreground">{t("settings.lowStockCopy")}</p>
                       </div>
                       <Switch
                         checked={notifications.low_stock ?? true}
@@ -667,8 +722,8 @@ const Settings = () => {
                   {(primaryRole === 'brand' || roles.includes('brand')) && (
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label className="text-base">Budget Alerts</Label>
-                        <p className="text-sm text-muted-foreground">Alerts when your campaign budgets are running low.</p>
+                        <Label className="text-base">{t("settings.budgetAlerts")}</Label>
+                        <p className="text-sm text-muted-foreground">{t("settings.budgetAlertsCopy")}</p>
                       </div>
                       <Switch
                         checked={notifications.budget_alerts ?? true}
@@ -679,8 +734,8 @@ const Settings = () => {
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label className="text-base">Marketing & News</Label>
-                      <p className="text-sm text-muted-foreground">Stay updated on new features and platform news.</p>
+                      <Label className="text-base">{t("settings.marketing")}</Label>
+                      <p className="text-sm text-muted-foreground">{t("settings.marketingCopy")}</p>
                     </div>
                     <Switch
                       checked={notifications.marketing ?? false}
@@ -698,10 +753,10 @@ const Settings = () => {
               <div className="bg-card border border-border rounded-2xl p-6">
                 <h2 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-primary" />
-                  Guidance Density
+                  {t("settings.guidance")}
                 </h2>
                 <p className="mb-5 text-sm text-muted-foreground">
-                  Choose how much guide content Promorang shows while you work.
+                  {t("settings.guidanceCopy")}
                 </p>
                 <div className="grid gap-3 sm:grid-cols-3">
                   {guidanceDensityOptions.map((option) => {
@@ -723,17 +778,17 @@ const Settings = () => {
               </div>
 
               <div className="bg-card border border-border rounded-2xl p-6">
-                <h2 className="font-semibold text-foreground mb-4">Account Security</h2>
+                <h2 className="font-semibold text-foreground mb-4">{t("settings.security")}</h2>
                 <div className="grid gap-4">
                   <div>
-                    <Label>Email Address</Label>
+                    <Label>{t("settings.email")}</Label>
                     <Input value={user.email || ""} disabled className="bg-muted mt-1.5" />
-                    <p className="text-xs text-muted-foreground mt-1">Managed via authentication provider.</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t("settings.emailManaged")}</p>
                   </div>
 
                   <div className="pt-4">
                     <Button variant="outline" className="w-full sm:w-auto">
-                      Reset Password
+                      {t("settings.resetPassword")}
                     </Button>
                   </div>
                 </div>
@@ -742,33 +797,32 @@ const Settings = () => {
               <div className="border border-destructive/20 bg-destructive/5 rounded-2xl p-6">
                 <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                   <Trash2 className="w-5 h-5 text-destructive" />
-                  Danger Zone
+                  {t("settings.danger")}
                 </h2>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Once you delete your account, there is no going back. Please be certain.
+                  {t("settings.dangerCopy")}
                 </p>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive">
-                      Delete Account
+                      {t("settings.delete")}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogTitle>{t("settings.deleteConfirm")}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete your
-                        account and remove all your data from our servers.
+                        {t("settings.deleteConfirmCopy")}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>{t("wallet.cancel")}</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={handleDeleteAccount}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         disabled={deleting}
                       >
-                        {deleting ? "Deleting..." : "Delete Account"}
+                        {deleting ? t("settings.deleting") : t("settings.delete")}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>

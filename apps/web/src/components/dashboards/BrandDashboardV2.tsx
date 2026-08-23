@@ -47,6 +47,7 @@ import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { TeamSlashModal } from "@/components/TeamSlashModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
+import { useI18n } from "@/i18n/I18nContext";
 
 const BrandSponsorshipTab = lazy(() =>
   import("@/components/brand/BrandSponsorshipTab").then((module) => ({ default: module.BrandSponsorshipTab })),
@@ -77,6 +78,7 @@ type CorrelationRow = {
 
 const BrandDashboardV2 = () => {
   const { user, organizations, activeOrgId, profile, refreshWorkspaceContext } = useAuth();
+  const { t, formatNumber } = useI18n();
   const { toast } = useToast();
   const { data: campaigns, isLoading: campaignsLoading } = useBrandCampaigns();
   const { isLoading: statsLoading } = useBrandStats();
@@ -249,40 +251,40 @@ const BrandDashboardV2 = () => {
       />
 
       <DashboardHero
-        badge="Brand studio"
-        title={isNewBrand ? "Launch the first campaign people can feel and you can trust" : "Turn campaign attention into verified movement"}
-        description="Fund a moment, drop, or reward people actually want, see who acted, understand what happened, then scale the scenes that moved."
+        badge={t("brandDash.badge")}
+        title={t(isNewBrand ? "brandDash.newTitle" : "brandDash.title")}
+        description={t("brandDash.copy")}
         actions={[
           isNewBrand
-            ? { label: "Create your first activation", icon: Plus, href: "/create/campaign" }
+            ? { label: t("brandDash.firstActivation"), icon: Plus, href: "/create/campaign" }
             : activeCampaigns.length > 0
-              ? { label: "Review live campaign performance", icon: BarChart3, onClick: () => setActiveTab("campaigns") }
-              : { label: "Activate the next campaign", icon: Calendar, onClick: () => setActiveTab("planner") },
-          { label: "Create activation", icon: Plus, href: "/create/campaign" },
-          { label: "Create offer", icon: Gift, href: "/dashboard/offers" },
-          { label: isEstablishedBrand ? "Insights" : "Planner", icon: BarChart3, onClick: () => setActiveTab(isEstablishedBrand ? "insights" : "planner") },
+              ? { label: t("brandDash.reviewLive"), icon: BarChart3, onClick: () => setActiveTab("campaigns") }
+              : { label: t("brandDash.activateNext"), icon: Calendar, onClick: () => setActiveTab("planner") },
+          { label: t("brandDash.createActivation"), icon: Plus, href: "/create/campaign" },
+          { label: t("brandDash.createOffer"), icon: Gift, href: "/dashboard/offers" },
+          { label: t(isEstablishedBrand ? "brandDash.insights" : "brandDash.planner"), icon: BarChart3, onClick: () => setActiveTab(isEstablishedBrand ? "insights" : "planner") },
         ]}
         stats={[
-          { label: "Active campaigns", value: activeCampaigns.length.toLocaleString(), helper: "Live movement loops", icon: Target },
-          { label: "Recorded attention", value: totalImpressions.toLocaleString(), helper: "Campaign impressions", icon: Users },
-          { label: "Verified actions", value: totalRedemptions.toLocaleString(), helper: "Campaign redemptions", icon: Gift },
-          { label: "Planned budget", value: totalBudget.toLocaleString(), helper: "Across current activations", icon: Coins },
+          { label: t("brandDash.activeCampaigns"), value: formatNumber(activeCampaigns.length), helper: t("brandDash.liveLoops"), icon: Target },
+          { label: t("brandDash.attention"), value: formatNumber(totalImpressions), helper: t("brandDash.impressions"), icon: Users },
+          { label: t("brandDash.actions"), value: formatNumber(totalRedemptions), helper: t("brandDash.redemptions"), icon: Gift },
+          { label: t("brandDash.budget"), value: formatNumber(totalBudget), helper: t("brandDash.activations"), icon: Coins },
         ]}
         isLoading={statsLoading}
       />
 
       <DashboardWorkspaceNav
-        eyebrow="Inside your brand studio"
-        title="Choose the culture to support, then see what truly moved"
+        eyebrow={t("brandDash.eyebrow")}
+        title={t("brandDash.workspace")}
         activeValue={activeTab}
         onValueChange={setActiveTab}
         items={[
-          { value: "opportunities", label: "Opportunities", icon: Target },
-          { value: "correlation", label: "Signals", icon: Link2 },
-          { value: "campaigns", label: "Campaigns", icon: Megaphone },
-          { value: "planner", label: "Planner", icon: Calendar },
-          { value: "sponsorships", label: "Sponsorships", icon: Handshake, hidden: !isEstablishedBrand },
-          { value: "insights", label: "Insights", icon: BarChart3, hidden: !isEstablishedBrand },
+          { value: "opportunities", label: t("brandDash.opportunities"), icon: Target },
+          { value: "correlation", label: t("brandDash.signals"), icon: Link2 },
+          { value: "campaigns", label: t("brandDash.campaigns"), icon: Megaphone },
+          { value: "planner", label: t("brandDash.planner"), icon: Calendar },
+          { value: "sponsorships", label: t("brandDash.sponsorships"), icon: Handshake, hidden: !isEstablishedBrand },
+          { value: "insights", label: t("brandDash.insights"), icon: BarChart3, hidden: !isEstablishedBrand },
         ]}
       />
 
@@ -292,10 +294,10 @@ const BrandDashboardV2 = () => {
 
       <Tabs id="role-workspace" value={activeTab} onValueChange={setActiveTab} className="scroll-mt-28 space-y-6">
         <TabsList className="sr-only">
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="opportunities">Opportunities</TabsTrigger>
-          <TabsTrigger value="correlation">Signals</TabsTrigger>
-          <TabsTrigger value="insights">Analytics & Agency</TabsTrigger>
+          <TabsTrigger value="campaigns">{t("brandDash.campaigns")}</TabsTrigger>
+          <TabsTrigger value="opportunities">{t("brandDash.opportunities")}</TabsTrigger>
+          <TabsTrigger value="correlation">{t("brandDash.signals")}</TabsTrigger>
+          <TabsTrigger value="insights">{t("brandDash.analyticsAgency")}</TabsTrigger>
         </TabsList>
 
         {/* TAB 1: CAMPAIGNS & OVERVIEW */}
@@ -309,20 +311,20 @@ const BrandDashboardV2 = () => {
                     <Target className="w-6 h-6 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Launch your first movement-backed PromoPush</h3>
+                    <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">{t("brandDash.launchTitle")}</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Start with one live Moment, one clear participant action, and one distribution zone. Then review joins, redemptions, content, and counted outcomes.
+                      {t("brandDash.launchCopy")}
                     </p>
                     <div className="flex flex-wrap gap-3">
                       <Button asChild>
                         <Link to="/create/campaign">
                           <Plus className="w-4 h-4 mr-2" />
-                          Create PromoPush
+                          {t("brandDash.createPromoPush")}
                         </Link>
                       </Button>
                       <Button variant="outline" onClick={() => setActiveTab("planner")}>
                         <BarChart3 className="w-4 h-4 mr-2" />
-                        Plan First
+                        {t("brandDash.planFirst")}
                       </Button>
                     </div>
                   </div>
@@ -336,16 +338,16 @@ const BrandDashboardV2 = () => {
             <div className="flex min-w-0 flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-2xl font-black tracking-[-0.04em]">
-                  {activeCampaigns.length > 0 ? "Active Campaigns" : "Your Campaigns"}
+                  {t(activeCampaigns.length > 0 ? "brandDash.activeCampaigns" : "brandDash.yourCampaigns")}
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Track live movement loops and measure real participant redemptions.
+                  {t("brandDash.campaignListCopy")}
                 </p>
               </div>
               <Button asChild size="sm">
                 <Link to="/create/campaign">
                   <Plus className="w-4 h-4 mr-1.5" />
-                  New Campaign
+                  {t("brandDash.newCampaign")}
                 </Link>
               </Button>
             </div>
@@ -360,11 +362,11 @@ const BrandDashboardV2 = () => {
               <Card className="border-dashed shadow-none">
                 <CardContent className="p-8 text-center">
                   <Building2 className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
-                  <p className="text-muted-foreground mb-4">No campaigns created yet</p>
+                  <p className="text-muted-foreground mb-4">{t("brandDash.none")}</p>
                   <Button asChild>
                     <Link to="/create/campaign">
                       <Plus className="w-4 h-4 mr-2" />
-                      Create Proof Loop
+                      {t("brandDash.createProofLoop")}
                     </Link>
                   </Button>
                 </CardContent>
@@ -380,10 +382,10 @@ const BrandDashboardV2 = () => {
                             variant={campaign.is_active ? "default" : "outline"}
                             className="text-[10px]"
                           >
-                            {campaign.is_active ? "Live" : "Draft"}
+                            {t(campaign.is_active ? "brandDash.live" : "brandDash.draft")}
                           </Badge>
                           <span className="text-xs text-muted-foreground font-mono">
-                            ${Number(campaign.budget || 0).toLocaleString()}
+                            ${formatNumber(Number(campaign.budget || 0))}
                           </span>
                         </div>
                         <h3 className="font-bold text-base group-hover:text-primary transition-colors line-clamp-1">
@@ -400,16 +402,16 @@ const BrandDashboardV2 = () => {
                         <div className="flex items-center gap-3">
                           <span className="flex items-center gap-1">
                             <Eye className="w-3.5 h-3.5 text-primary" />
-                            {campaign.impressions.toLocaleString()}
+                            {formatNumber(campaign.impressions)}
                           </span>
                           <span className="flex items-center gap-1">
                             <Gift className="w-3.5 h-3.5 text-emerald-500" />
-                            {campaign.redemptions.toLocaleString()}
+                            {formatNumber(campaign.redemptions)}
                           </span>
                         </div>
                         <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" asChild>
                           <Link to={`/dashboard/campaigns/${campaign.id}`}>
-                            Manage <ArrowRight className="w-3 h-3 ml-1" />
+                            {t("brandDash.manage")} <ArrowRight className="w-3 h-3 ml-1" />
                           </Link>
                         </Button>
                       </div>
@@ -421,32 +423,32 @@ const BrandDashboardV2 = () => {
           </section>
 
           <DashboardNextStepsSection
-            description="Keep brand work focused on one provable operating loop before broadening the surface area."
-            ctaLabel="Open planner"
+            description={t("brandDash.nextCopy")}
+            ctaLabel={t("brandDash.openPlanner")}
             ctaOnClick={() => setActiveTab("planner")}
             items={[
               {
-                title: "Launch activation",
-                description: "Create the next campaign with one clear human outcome.",
-                cta: "Create campaign",
+                title: t("brandDash.launchActivation"),
+                description: t("brandDash.launchActivationCopy"),
+                cta: t("brandDash.createCampaign"),
                 href: "/create/campaign",
               },
               {
-                title: "Connect operators",
-                description: "Match creators, venues, hosts, and participants to the campaign loop.",
-                cta: "Open sponsors",
+                title: t("brandDash.connectOperators"),
+                description: t("brandDash.connectOperatorsCopy"),
+                cta: t("brandDash.openSponsors"),
                 onClick: () => setActiveTab("sponsorships"),
               },
               {
-                title: "Review outcomes",
-                description: "Use joins, redemptions, content, and proof data to decide what deserves more budget.",
-                cta: isEstablishedBrand ? "Open insights" : "Open planner",
+                title: t("brandDash.reviewOutcomes"),
+                description: t("brandDash.reviewOutcomesCopy"),
+                cta: t(isEstablishedBrand ? "brandDash.openInsights" : "brandDash.openPlanner"),
                 onClick: () => setActiveTab(isEstablishedBrand ? "insights" : "planner"),
               },
               {
-                title: "Review content + moments",
-                description: "See which creator media and physical moments align with your brand intent.",
-                cta: "Open opportunities",
+                title: t("brandDash.reviewContent"),
+                description: t("brandDash.reviewContentCopy"),
+                cta: t("brandDash.openOpportunities"),
                 onClick: () => setActiveTab("opportunities"),
               },
             ]}

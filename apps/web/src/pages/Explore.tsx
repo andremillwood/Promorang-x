@@ -5,50 +5,53 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { ArrowRight, Compass, Film, Gift, MapPin, Sparkles } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
-
-const exploreSections = [
-  {
-    title: "Moments",
-    description: "Find rooms, rituals, drops, and activations where your action can create proof.",
-    href: "/explore/moments",
-    icon: Compass,
-    cta: "Browse moments",
-  },
-  {
-    title: "Places",
-    description: "See the venues and operators hosting movement across nightlife, retail, wellness, and everyday commerce.",
-    href: "/explore/venues",
-    icon: MapPin,
-    cta: "Browse venues",
-  },
-  {
-    title: "Rewards",
-    description: "See offers, claims, and reward loops connected to proof, Wallet value, and status.",
-    href: "/explore/rewards",
-    icon: Gift,
-    cta: "Browse rewards",
-  },
-  {
-    title: "Content",
-    description: "Browse creator media tied to Moments, places, Scenes, and public stories worth moving.",
-    href: "/explore/content",
-    icon: Film,
-    cta: "Browse content",
-  },
-];
+import { useI18n } from "@/i18n/I18nContext";
 
 const Explore = () => {
+  const { t } = useI18n();
+
+  const exploreSections = [
+    {
+      title: t("explorePage.secMomentsTitle"),
+      description: t("explorePage.secMomentsDesc"),
+      href: "/explore/moments",
+      icon: Compass,
+      cta: t("explorePage.secMomentsCta"),
+    },
+    {
+      title: t("explorePage.secPlacesTitle"),
+      description: t("explorePage.secPlacesDesc"),
+      href: "/explore/venues",
+      icon: MapPin,
+      cta: t("explorePage.secPlacesCta"),
+    },
+    {
+      title: t("explorePage.secRewardsTitle"),
+      description: t("explorePage.secRewardsDesc"),
+      href: "/explore/rewards",
+      icon: Gift,
+      cta: t("explorePage.secRewardsCta"),
+    },
+    {
+      title: t("explorePage.secContentTitle"),
+      description: t("explorePage.secContentDesc"),
+      href: "/explore/content",
+      icon: Film,
+      cta: t("explorePage.secContentCta"),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Explore Promorang"
-        description="Browse moments, venues, and reward paths across Promorang."
+        title={t("explorePage.seoTitle")}
+        description={t("explorePage.seoDesc")}
         url={getSiteUrl("/explore")}
         schema={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "Explore Promorang",
-          description: "Browse moments, venues, and reward paths across Promorang.",
+          name: t("explorePage.seoTitle"),
+          description: t("explorePage.seoDesc"),
         }}
       />
 
@@ -59,28 +62,28 @@ const Explore = () => {
               <div className="max-w-3xl">
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-black uppercase tracking-[0.22em] text-primary">
                   <Sparkles className="h-3.5 w-3.5" />
-                  Explore Promorang
+                  {t("explorePage.heroBadge")}
                 </div>
                 <h1 className="text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white sm:text-6xl">
-                  Choose your way into the culture market.
+                  {t("explorePage.heroTitle")}
                 </h1>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
-                  Explore is the deliberate path: choose a Moment, place, reward, creator signal, or Scene when you know the kind of value you want to move toward.
+                  {t("explorePage.heroSubtitle")}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <Button asChild size="lg">
-                    <Link to="/for-you">Open For You</Link>
+                    <Link to="/for-you">{t("explorePage.openForYou")}</Link>
                   </Button>
                   <Button asChild size="lg" variant="outline">
-                    <Link to="/explore/moments">Start with moments</Link>
+                    <Link to="/explore/moments">{t("explorePage.startMoments")}</Link>
                   </Button>
                 </div>
               </div>
               <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
                 {[
-                  ["Orientation", "Pick the category that matches your intent."],
-                  ["First value", "Open one listing with a clear action path."],
-                  ["Unlock", "Save, join, claim, prove, or share into future upside."],
+                  [t("explorePage.orientationLabel"), t("explorePage.orientationBody")],
+                  [t("explorePage.firstValueLabel"), t("explorePage.firstValueBody")],
+                  [t("explorePage.unlockLabel"), t("explorePage.unlockBody")],
                 ].map(([label, body]) => (
                   <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
                     <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">{label}</p>
@@ -118,48 +121,48 @@ const Explore = () => {
           <div className="mt-8 grid gap-5 lg:grid-cols-[1.3fr,0.7fr]">
             <GuidanceDisclosure
               id="explore:how-to-choose"
-              eyebrow="Discovery guide"
-              title="How to choose where to browse"
-              summary="For You, Explore, and Rewards each answer a different discovery need."
+              eyebrow={t("explorePage.guideEyebrow")}
+              title={t("explorePage.guideTitle")}
+              summary={t("explorePage.guideSummary")}
               className="mt-0"
               tone="light"
             >
               <div className="grid gap-4 text-sm text-muted-foreground sm:grid-cols-3">
                 <div className="rounded-2xl border border-border/60 bg-card p-4">
-                  <p className="font-semibold text-foreground">For You</p>
-                  <p className="mt-2">Personalized, ranked, and scroll-first. Best when you want the system to surface what matters now.</p>
+                  <p className="font-semibold text-foreground">{t("explorePage.guideForYouTitle")}</p>
+                  <p className="mt-2">{t("explorePage.guideForYouDesc")}</p>
                 </div>
                 <div className="rounded-2xl border border-border/60 bg-card p-4">
-                  <p className="font-semibold text-foreground">Explore</p>
-                  <p className="mt-2">Intent-first and compare-friendly. Best when you know the category, place, or format you want.</p>
+                  <p className="font-semibold text-foreground">{t("explorePage.guideExploreTitle")}</p>
+                  <p className="mt-2">{t("explorePage.guideExploreDesc")}</p>
                 </div>
                 <div className="rounded-2xl border border-border/60 bg-card p-4">
-                  <p className="font-semibold text-foreground">Rewards</p>
-                  <p className="mt-2">See which actions unlock value and where proof, offers, claims, and Wallet signals fit.</p>
+                  <p className="font-semibold text-foreground">{t("explorePage.guideRewardsTitle")}</p>
+                  <p className="mt-2">{t("explorePage.guideRewardsDesc")}</p>
                 </div>
               </div>
             </GuidanceDisclosure>
 
             <Card className="shadow-soft">
               <CardHeader>
-                <CardTitle className="text-2xl font-black tracking-[-0.03em]">Also browse</CardTitle>
+                <CardTitle className="text-2xl font-black tracking-[-0.03em]">{t("explorePage.alsoBrowseTitle")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button asChild variant="outline" className="w-full justify-between">
                   <Link to="/brands">
-                    Brands
+                    {t("explorePage.browseBrands")}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="w-full justify-between">
                   <Link to="/hosts">
-                    Hosts
+                    {t("explorePage.browseHosts")}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="w-full justify-between">
                   <Link to="/search">
-                    Global Search
+                    {t("explorePage.browseSearch")}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>

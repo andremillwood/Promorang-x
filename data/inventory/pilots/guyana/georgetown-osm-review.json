@@ -1,0 +1,2157 @@
+{
+  "schema_version": 2,
+  "source": {
+    "key": "openstreetmap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "license_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "batch": {
+    "region": "Georgetown, Guyana",
+    "country_code": "GY",
+    "country_slug": "guyana",
+    "city_slug": "georgetown",
+    "collected_at": "2026-08-22T04:04:38.709Z",
+    "collection_mode": "live",
+    "publish_ready": false
+  },
+  "rules": {
+    "auto_publish": false,
+    "minimum_venue_confidence": 0.8,
+    "moment_expiry_hours": 24,
+    "targets": {
+      "venues": 30,
+      "discoveries": 20,
+      "moments": 10,
+      "polls": 4,
+      "scenes": 3
+    }
+  },
+  "city": {
+    "country_code": "GY",
+    "country_slug": "guyana",
+    "country": "Guyana",
+    "city_slug": "georgetown",
+    "city": "Georgetown",
+    "region": "Demerara-Mahaica",
+    "currency": "GYD",
+    "timezone": "America/Guyana",
+    "bbox": "6.7400,-58.2300,6.8600,-58.0800",
+    "launch_stage": "pilot",
+    "poll_templates": [
+      "Which Georgetown food tradition should become a tasting Moment?",
+      "Which cultural space deserves more attention?",
+      "Where is Georgetown's strongest recurring community night?",
+      "What should Georgetown activate first?"
+    ]
+  },
+  "poll_templates": [
+    {
+      "key": "gy-georgetown-1",
+      "question": "Which Georgetown food tradition should become a tasting Moment?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "gy-georgetown-2",
+      "question": "Which cultural space deserves more attention?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "gy-georgetown-3",
+      "question": "Where is Georgetown's strongest recurring community night?",
+      "status": "draft",
+      "category": "Local Discovery",
+      "threshold_for_moment": 25
+    },
+    {
+      "key": "gy-georgetown-4",
+      "question": "What should Georgetown activate first?",
+      "status": "draft",
+      "category": "City Direction",
+      "threshold_for_moment": 25
+    }
+  ],
+  "stats": {
+    "source_elements": 617,
+    "candidates": 50,
+    "pending_review": 2,
+    "needs_research": 48
+  },
+  "candidates": [
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/345051496",
+      "source_url": "https://www.openstreetmap.org/node/345051496",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 345051496,
+        "lat": 6.7666646,
+        "lon": -58.1768574,
+        "tags": {
+          "amenity": "fast_food",
+          "name": "M&M"
+        }
+      },
+      "normalized_data": {
+        "name": "M&M",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.7666646,
+        "longitude": -58.1768574,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bd37fdd6e45402ca863e49ced6613725fcbe3ee2cfe50f2230f375c507da4117",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/345053278",
+      "source_url": "https://www.openstreetmap.org/node/345053278",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 345053278,
+        "lat": 6.8150762,
+        "lon": -58.1627794,
+        "tags": {
+          "amenity": "cafe",
+          "name": "Oasis",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Oasis",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8150762,
+        "longitude": -58.1627794,
+        "category": "cafe",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "cafe"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "bd13ab9a0f24856643b0242a4a31df5f07d5a7b0cf0a3e8c3072593ca4146199",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/347425000",
+      "source_url": "https://www.openstreetmap.org/node/347425000",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 347425000,
+        "lat": 6.7680374,
+        "lon": -58.1764047,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "chicken",
+          "name": "Chicka D"
+        }
+      },
+      "normalized_data": {
+        "name": "Chicka D",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.7680374,
+        "longitude": -58.1764047,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c08b7de7bbffc57e3d2446aea7123dac4e8cfd5775cb87a6694bc47732690532",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/359662974",
+      "source_url": "https://www.openstreetmap.org/node/359662974",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 359662974,
+        "lat": 6.7930369,
+        "lon": -58.1429256,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "chicken",
+          "name": "Chicka D",
+          "name:en": "kfc",
+          "operator": "Friendship Hotel & Restaurant Holdings Limited"
+        }
+      },
+      "normalized_data": {
+        "name": "Chicka D",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.7930369,
+        "longitude": -58.1429256,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "587b28decfbfda24fea59c5593dfb0a2e3868daf39eadab68e136cf36f927862",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/364121189",
+      "source_url": "https://www.openstreetmap.org/node/364121189",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 364121189,
+        "lat": 6.809627,
+        "lon": -58.1535329,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "indian",
+          "name": "Roti Hut"
+        }
+      },
+      "normalized_data": {
+        "name": "Roti Hut",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.809627,
+        "longitude": -58.1535329,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "indian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "254cd48c59d077379eaad5b60ef0cb551809f5e3554dfbd45f028a4ab71a3010",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/364121347",
+      "source_url": "https://www.openstreetmap.org/node/364121347",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 364121347,
+        "lat": 6.8080912,
+        "lon": -58.1629468,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "Sleepin International Hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Sleepin International Hotel",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8080912,
+        "longitude": -58.1629468,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9052a377a8ce76c0ba34f8364cc0f387573e68cc9f5ea80f8aaa75dde8c80650",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/364121397",
+      "source_url": "https://www.openstreetmap.org/node/364121397",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 364121397,
+        "lat": 6.8251624,
+        "lon": -58.1404766,
+        "tags": {
+          "name": "Glow",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Glow",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8251624,
+        "longitude": -58.1404766,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6d88065cfe6daf2f009dcdf66dbefad18ff3047ed59fd5e4be362e72ebe63d60",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/392013787",
+      "source_url": "https://www.openstreetmap.org/node/392013787",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 392013787,
+        "lat": 6.8138121,
+        "lon": -58.1365648,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Eastern King"
+        }
+      },
+      "normalized_data": {
+        "name": "Eastern King",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8138121,
+        "longitude": -58.1365648,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9e77842cf464aac4f0abe7d2f75e9f37bf0906efe3b93c073af1f80abf118fed",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/392013788",
+      "source_url": "https://www.openstreetmap.org/node/392013788",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 392013788,
+        "lat": 6.8191784,
+        "lon": -58.1423388,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "New Thriving Restaurant"
+        }
+      },
+      "normalized_data": {
+        "name": "New Thriving Restaurant",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8191784,
+        "longitude": -58.1423388,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e81c36a9b0a0506589fb96950fc95bb87973ac44ad277af59af54c9765f3a68b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/392013789",
+      "source_url": "https://www.openstreetmap.org/node/392013789",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 392013789,
+        "lat": 6.8202526,
+        "lon": -58.141683,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "Sheraton"
+        }
+      },
+      "normalized_data": {
+        "name": "Sheraton",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8202526,
+        "longitude": -58.141683,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b92d721e90ae7ff6b554f94b2d865d26384136a85887bfce7e1e958fb70bbb32",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/392013802",
+      "source_url": "https://www.openstreetmap.org/node/392013802",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 392013802,
+        "lat": 6.8087945,
+        "lon": -58.1611421,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "burger",
+          "name": "Demico"
+        }
+      },
+      "normalized_data": {
+        "name": "Demico",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8087945,
+        "longitude": -58.1611421,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e27acd318cd284b662e5d49f42c0b3a0f8fc9d3d46fd04ce172c3a7d3dc321da",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/406389534",
+      "source_url": "https://www.openstreetmap.org/node/406389534",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 406389534,
+        "lat": 6.8070593,
+        "lon": -58.1585266,
+        "tags": {
+          "addr:city": "Georgetown",
+          "addr:housenumber": "50",
+          "addr:street": "Brickdam",
+          "amenity": "restaurant",
+          "capacity": "40",
+          "cuisine": "Jamaican,_Guyanesse,_Caribbean,_Fusion",
+          "delivery": "yes",
+          "name": "Island Style Cafe and Juice Bar",
+          "opening_hours": "07:00-20:00",
+          "smoking": "outside",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Island Style Cafe and Juice Bar",
+        "address": "50 Brickdam, Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8070593,
+        "longitude": -58.1585266,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "07:00-20:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "Jamaican,_Guyanesse,_Caribbean,_Fusion"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c084a226bdf5532be05ca910f4e865af20b0f8d2527e0bf16d6fc1e056a2193a",
+      "confidence": 0.75,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/595783183",
+      "source_url": "https://www.openstreetmap.org/node/595783183",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 595783183,
+        "lat": 6.8103131,
+        "lon": -58.1375076,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "Roti Plus"
+        }
+      },
+      "normalized_data": {
+        "name": "Roti Plus",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8103131,
+        "longitude": -58.1375076,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e6017e72e42660e0d4faf5860639adfb0078c512c07a531fc7a18d32f6bfc276",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/595783184",
+      "source_url": "https://www.openstreetmap.org/node/595783184",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 595783184,
+        "lat": 6.8102058,
+        "lon": -58.1371942,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "Kam Boat",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Kam Boat",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8102058,
+        "longitude": -58.1371942,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0d6ff4b48339f29e04556d47959f9143fb6699a5eac709181427ba61ff4f63c1",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/599686738",
+      "source_url": "https://www.openstreetmap.org/node/599686738",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 599686738,
+        "lat": 6.8160202,
+        "lon": -58.1648289,
+        "tags": {
+          "addr:housenumber": "32",
+          "addr:street": "Main Street",
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "New Thriving",
+          "name:ja": "２階は美味しそう、１階はテークアウト",
+          "phone": "+5922250038"
+        }
+      },
+      "normalized_data": {
+        "name": "New Thriving",
+        "address": "32 Main Street, Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8160202,
+        "longitude": -58.1648289,
+        "category": "restaurant",
+        "phone": "+5922250038",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "34e0902867485cf1a184fa420da163db75e3a1253296ae23254c4a412faec117",
+      "confidence": 0.8,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/599686741",
+      "source_url": "https://www.openstreetmap.org/node/599686741",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 599686741,
+        "lat": 6.8164852,
+        "lon": -58.1633616,
+        "tags": {
+          "amenity": "bar",
+          "name": "Windies Sports Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Windies Sports Bar",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8164852,
+        "longitude": -58.1633616,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9e79a76943d7bae88107431e5afc63801efed61057693498b26dbb3c04484910",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/599686744",
+      "source_url": "https://www.openstreetmap.org/node/599686744",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 599686744,
+        "lat": 6.8151956,
+        "lon": -58.1591813,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "pizza",
+          "name": "Mario's Pizza",
+          "source": "Edits in Guyana. KG Ground Survey 2016",
+          "url": "www.facebook.com/mariosguyana"
+        }
+      },
+      "normalized_data": {
+        "name": "Mario's Pizza",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8151956,
+        "longitude": -58.1591813,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "pizza"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c81b9d200f01fb3dfcce16c6d18938f81a61c8f106069800383c7a51bf8b35f2",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/599686746",
+      "source_url": "https://www.openstreetmap.org/node/599686746",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 599686746,
+        "lat": 6.8154231,
+        "lon": -58.1591366,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "chicken",
+          "name": "Church's Chicken",
+          "source": "Edits in Guyana. KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Church's Chicken",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8154231,
+        "longitude": -58.1591366,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "d839a3fd70fd6f533a3cdf1d013d9490ec7d3c882a14e01e9503a0dbd7efdefa",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/600469628",
+      "source_url": "https://www.openstreetmap.org/node/600469628",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 600469628,
+        "lat": 6.810935,
+        "lon": -58.1652156,
+        "tags": {
+          "name": "Locomotive",
+          "tourism": "attraction"
+        }
+      },
+      "normalized_data": {
+        "name": "Locomotive",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.810935,
+        "longitude": -58.1652156,
+        "category": "attraction",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "attraction"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "373fc33b7a76aae1c69a4f0abebaa00ba03d179c22d48b27d3abbd2dfd410daa",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/663310099",
+      "source_url": "https://www.openstreetmap.org/node/663310099",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 663310099,
+        "lat": 6.8122647,
+        "lon": -58.1654875,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "burger",
+          "name": "JR Burgers"
+        }
+      },
+      "normalized_data": {
+        "name": "JR Burgers",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8122647,
+        "longitude": -58.1654875,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0ee610c83ce2a0a13c658e45c7e4d22e746e0444ca1c85165a873acde3b7d152",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/663418582",
+      "source_url": "https://www.openstreetmap.org/node/663418582",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 663418582,
+        "lat": 6.8258609,
+        "lon": -58.1425977,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "Selena's"
+        }
+      },
+      "normalized_data": {
+        "name": "Selena's",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8258609,
+        "longitude": -58.1425977,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "11da684f942354e21dc93b700df514a2246c510b5f3c4327be5f6a3bcac233a6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/672498906",
+      "source_url": "https://www.openstreetmap.org/node/672498906",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 672498906,
+        "lat": 6.8155287,
+        "lon": -58.1609018,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Jerrie's"
+        }
+      },
+      "normalized_data": {
+        "name": "Jerrie's",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8155287,
+        "longitude": -58.1609018,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c7e8a664353fac280ad25ad5d86df4a2117f373b0262e922113877df126d0c37",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/682420317",
+      "source_url": "https://www.openstreetmap.org/node/682420317",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 682420317,
+        "lat": 6.8040828,
+        "lon": -58.1623865,
+        "tags": {
+          "amenity": "fast_food",
+          "name": "Nicky's Juices"
+        }
+      },
+      "normalized_data": {
+        "name": "Nicky's Juices",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8040828,
+        "longitude": -58.1623865,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f4c7362e63a685f0ef43f589c7e80fa16cc77d9046c4830b03852e8a5be701a9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/683576563",
+      "source_url": "https://www.openstreetmap.org/node/683576563",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 683576563,
+        "lat": 6.8025204,
+        "lon": -58.1230773,
+        "tags": {
+          "amenity": "public_building",
+          "name": "Open Doors"
+        }
+      },
+      "normalized_data": {
+        "name": "Open Doors",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8025204,
+        "longitude": -58.1230773,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "public_building"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "62717c9a15a95ffc27c36bf1ddf20a73b32e748fdc20befdb974d9e61d48c4be",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/689685808",
+      "source_url": "https://www.openstreetmap.org/node/689685808",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 689685808,
+        "lat": 6.7899511,
+        "lon": -58.1879449,
+        "tags": {
+          "leisure": "fitness_centre",
+          "name": "Interline Fitness Gym"
+        }
+      },
+      "normalized_data": {
+        "name": "Interline Fitness Gym",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.7899511,
+        "longitude": -58.1879449,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fitness_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "80e6c3e8c33facddfe27e402a6015c52052c8747a53d31786ab0a9316df211e8",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/704984945",
+      "source_url": "https://www.openstreetmap.org/node/704984945",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 704984945,
+        "lat": 6.806636,
+        "lon": -58.161345,
+        "tags": {
+          "addr:city": "Georgetown",
+          "addr:street": "Hadfield Street",
+          "amenity": "fast_food",
+          "cuisine": "regional",
+          "name": "White Castle",
+          "smoking": "outside"
+        }
+      },
+      "normalized_data": {
+        "name": "White Castle",
+        "address": "Hadfield Street, Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.806636,
+        "longitude": -58.161345,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2429d01713b3619e1dc4aba0a19509b018917bfb80c78d18d41559a9e2821b7d",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/738008777",
+      "source_url": "https://www.openstreetmap.org/node/738008777",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 738008777,
+        "lat": 6.8133589,
+        "lon": -58.1573912,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "curry",
+          "internet_access": "wlan",
+          "name": "Cara Lodge",
+          "smoking": "separated"
+        }
+      },
+      "normalized_data": {
+        "name": "Cara Lodge",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8133589,
+        "longitude": -58.1573912,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "curry"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "7ce552f70ca861fcab8f3dd40d9b012eead82ddc249c162303e66416d62b4e56",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/753962177",
+      "source_url": "https://www.openstreetmap.org/node/753962177",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 753962177,
+        "lat": 6.8180487,
+        "lon": -58.08516,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "Kam Boat"
+        }
+      },
+      "normalized_data": {
+        "name": "Kam Boat",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8180487,
+        "longitude": -58.08516,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "4615a041ba745c089e3192b68c7ca31f5d9c6e1f9cd5188e1be510da82379a2b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/753962216",
+      "source_url": "https://www.openstreetmap.org/node/753962216",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 753962216,
+        "lat": 6.8080506,
+        "lon": -58.1521915,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "Seiko Garden",
+          "source": "KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Seiko Garden",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8080506,
+        "longitude": -58.1521915,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "aca44c1510757aaa78ce56a64f0893e864f8759eb9d88164def992855a00af92",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/754281659",
+      "source_url": "https://www.openstreetmap.org/node/754281659",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 754281659,
+        "lat": 6.7924783,
+        "lon": -58.187476,
+        "tags": {
+          "name": "Aracari Resort",
+          "tourism": "hotel"
+        }
+      },
+      "normalized_data": {
+        "name": "Aracari Resort",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.7924783,
+        "longitude": -58.187476,
+        "category": "accommodation",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "hotel"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "1e84dd90a7a68959ad07b24fe848040b966c5bac1c035a643edb211a6a6f2a26",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/774171561",
+      "source_url": "https://www.openstreetmap.org/node/774171561",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 774171561,
+        "lat": 6.7728187,
+        "lon": -58.1730299,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Georgie's Restaurant & Beer Garden"
+        }
+      },
+      "normalized_data": {
+        "name": "Georgie's Restaurant & Beer Garden",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.7728187,
+        "longitude": -58.1730299,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "2ce455f303f7574b3dc66c5908dd6ee640b287373feabd6232142da9defb572b",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/774171571",
+      "source_url": "https://www.openstreetmap.org/node/774171571",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 774171571,
+        "lat": 6.7839582,
+        "lon": -58.1691786,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "regional",
+          "name": "M&M"
+        }
+      },
+      "normalized_data": {
+        "name": "M&M",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.7839582,
+        "longitude": -58.1691786,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "43149f8f3d56cd5d9db37785432165b21704d69cda4545fc576d0fb527c659f6",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/831796645",
+      "source_url": "https://www.openstreetmap.org/node/831796645",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 831796645,
+        "lat": 6.8153019,
+        "lon": -58.1596511,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "chinese",
+          "name": "Golden King"
+        }
+      },
+      "normalized_data": {
+        "name": "Golden King",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8153019,
+        "longitude": -58.1596511,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chinese"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c7a0505a28e5c915853aebb966166395630630dc9030352f1fb31130c8b61e6e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/919843226",
+      "source_url": "https://www.openstreetmap.org/node/919843226",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 919843226,
+        "lat": 6.8086824,
+        "lon": -58.1882705,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "chicken",
+          "name": "Chesters"
+        }
+      },
+      "normalized_data": {
+        "name": "Chesters",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8086824,
+        "longitude": -58.1882705,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "009b9f058389fb9425c627f19d754155af7581863c79b37e53743d1b229f0fb9",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/974275566",
+      "source_url": "https://www.openstreetmap.org/node/974275566",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 974275566,
+        "lat": 6.7872134,
+        "lon": -58.1914959,
+        "tags": {
+          "amenity": "public_building",
+          "name": "Guyana Micro-Projects Programme"
+        }
+      },
+      "normalized_data": {
+        "name": "Guyana Micro-Projects Programme",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.7872134,
+        "longitude": -58.1914959,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "public_building"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "0a6bea8d5ba87ec8c3364ce2ab73d5e88ca02a6ffa1e456c2f78925d803628f4",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1003218466",
+      "source_url": "https://www.openstreetmap.org/node/1003218466",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1003218466,
+        "lat": 6.8124204,
+        "lon": -58.1660763,
+        "tags": {
+          "amenity": "public_building",
+          "name": "Hand In Hand Insurance"
+        }
+      },
+      "normalized_data": {
+        "name": "Hand In Hand Insurance",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8124204,
+        "longitude": -58.1660763,
+        "category": "other",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "public_building"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "f6233a813035798e27d3936947f8e04e0712516732ffd3eb9cc549690028937a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1015303921",
+      "source_url": "https://www.openstreetmap.org/node/1015303921",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1015303921,
+        "lat": 6.8029573,
+        "lon": -58.1419155,
+        "tags": {
+          "leisure": "sports_centre",
+          "name": "Cliff Anderson Sports Hall",
+          "sport": "multi",
+          "url": "http://roger.ugnotesonline.com/mcys/cliff_anderson_sports_hall.php"
+        }
+      },
+      "normalized_data": {
+        "name": "Cliff Anderson Sports Hall",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8029573,
+        "longitude": -58.1419155,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c09b3d47c1cc6fd7efc0029317e31f9a5b1ae8138afbe1b5e63576bc54093439",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1438359943",
+      "source_url": "https://www.openstreetmap.org/node/1438359943",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1438359943,
+        "lat": 6.8075301,
+        "lon": -58.1795012,
+        "tags": {
+          "name": "Fatboy's Discount Store",
+          "shop": "department_store"
+        }
+      },
+      "normalized_data": {
+        "name": "Fatboy's Discount Store",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8075301,
+        "longitude": -58.1795012,
+        "category": "shopping",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "department_store"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "8914c89d1ddfa897fdd35c72e8d0de2b4b68e95be93a141cb77dca38193f4876",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1599112976",
+      "source_url": "https://www.openstreetmap.org/node/1599112976",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1599112976,
+        "lat": 6.8146508,
+        "lon": -58.1561806,
+        "tags": {
+          "amenity": "bar",
+          "name": "Backreedy's Shop"
+        }
+      },
+      "normalized_data": {
+        "name": "Backreedy's Shop",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8146508,
+        "longitude": -58.1561806,
+        "category": "nightlife",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "ca4b51968ef16984cf23d54de11b796c29a8d76a5f56413c8a3a6937ca6d7aef",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1866945310",
+      "source_url": "https://www.openstreetmap.org/node/1866945310",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1866945310,
+        "lat": 6.8167906,
+        "lon": -58.1587415,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "indian",
+          "name": "Shanta's Puri Shop",
+          "opening_hours": "Mo-Sa 07:30-18:00",
+          "source": "Edits in Guyana. KG Ground Survey 2016"
+        }
+      },
+      "normalized_data": {
+        "name": "Shanta's Puri Shop",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8167906,
+        "longitude": -58.1587415,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": "Mo-Sa 07:30-18:00",
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "indian"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "586f301d9abd2d3898c3779cd7db1c5a24561fa8114d5289e4b996d2d9be737c",
+      "confidence": 0.65,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/1866945342",
+      "source_url": "https://www.openstreetmap.org/node/1866945342",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 1866945342,
+        "lat": 6.8168798,
+        "lon": -58.1583047,
+        "tags": {
+          "amenity": "restaurant",
+          "cuisine": "international",
+          "name": "Maggie's"
+        }
+      },
+      "normalized_data": {
+        "name": "Maggie's",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8168798,
+        "longitude": -58.1583047,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "international"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "9427c31c020dd603c64619ed15aebeaf6fe760589912718ec8316c2057b86958",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2008230634",
+      "source_url": "https://www.openstreetmap.org/node/2008230634",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2008230634,
+        "lat": 6.8175393,
+        "lon": -58.1639463,
+        "tags": {
+          "name": "Walter Roth Museum",
+          "tourism": "museum"
+        }
+      },
+      "normalized_data": {
+        "name": "Walter Roth Museum",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8175393,
+        "longitude": -58.1639463,
+        "category": "arts_culture",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "museum"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "b6791cac3f8841c2ce313fad89bd915cdc0e37be5aa64571432b9ef40440f29a",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2317525133",
+      "source_url": "https://www.openstreetmap.org/node/2317525133",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2317525133,
+        "lat": 6.8080343,
+        "lon": -58.1600769,
+        "tags": {
+          "addr:city": "Georgetown",
+          "addr:street": "Croal Street",
+          "leisure": "sports_centre",
+          "name": "Body Max Gym",
+          "sport": "athletics"
+        }
+      },
+      "normalized_data": {
+        "name": "Body Max Gym",
+        "address": "Croal Street, Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8080343,
+        "longitude": -58.1600769,
+        "category": "fitness_wellness",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "sports_centre"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "c2c7e63f1fff7fa6ad643e3171fb951079dc3390fd4d288a58337a26390f2533",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2580794107",
+      "source_url": "https://www.openstreetmap.org/node/2580794107",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2580794107,
+        "lat": 6.8113727,
+        "lon": -58.1662703,
+        "tags": {
+          "addr:housenumber": "32-33",
+          "addr:street": "Regent & Hinck Streets",
+          "amenity": "restaurant",
+          "name": "Upscale Restaurant & Sports Bar"
+        }
+      },
+      "normalized_data": {
+        "name": "Upscale Restaurant & Sports Bar",
+        "address": "32-33 Regent & Hinck Streets, Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8113727,
+        "longitude": -58.1662703,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "a13ed304f8a3f2a6e73787a9b6737f5c3a825ada56eb8fec8f2e51ce0959665a",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/2580801389",
+      "source_url": "https://www.openstreetmap.org/node/2580801389",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 2580801389,
+        "lat": 6.8113281,
+        "lon": -58.16625,
+        "tags": {
+          "addr:city": "Georgetown",
+          "addr:housenumber": "32-33",
+          "addr:street": "Hincks Street",
+          "amenity": "fast_food",
+          "cuisine": "regional",
+          "name": "Fast Foods & Bakery",
+          "smoking": "no"
+        }
+      },
+      "normalized_data": {
+        "name": "Fast Foods & Bakery",
+        "address": "32-33 Hincks Street, Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8113281,
+        "longitude": -58.16625,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "06516174d41784f98efa824f54bf224cb3b2bcb9cd0a77dbe10ae2f6b8316eae",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3528559296",
+      "source_url": "https://www.openstreetmap.org/node/3528559296",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3528559296,
+        "lat": 6.8072223,
+        "lon": -58.1794716,
+        "tags": {
+          "addr:city": "Vreed-en-Hoop",
+          "addr:street": "Stelling Road",
+          "amenity": "restaurant",
+          "cuisine": "chicken",
+          "delivery": "yes",
+          "name": "Church's Chicken",
+          "smoking": "no",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Church's Chicken",
+        "address": "Stelling Road, Vreed-en-Hoop, Guyana",
+        "city": "Vreed-en-Hoop",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8072223,
+        "longitude": -58.1794716,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chicken"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "64d786eac0e1f7cf777cf772eefbccbdd8dd61cee396c04eff08a975d5da48fc",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3528565552",
+      "source_url": "https://www.openstreetmap.org/node/3528565552",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3528565552,
+        "lat": 6.8067547,
+        "lon": -58.1823265,
+        "tags": {
+          "addr:city": "Vreed-En-Hoop",
+          "amenity": "restaurant",
+          "cuisine": "chicken;indian;seafood",
+          "name": "the locals restaurant",
+          "phone": "+5926597917",
+          "smoking": "no",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "the locals restaurant",
+        "address": "Vreed-En-Hoop, Guyana",
+        "city": "Vreed-En-Hoop",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8067547,
+        "longitude": -58.1823265,
+        "category": "restaurant",
+        "phone": "+5926597917",
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "chicken;indian;seafood"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "24398680421ca13a6cd2c38ac59759ba534465124d4a3d02f467a586a53e2b62",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3528612990",
+      "source_url": "https://www.openstreetmap.org/node/3528612990",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3528612990,
+        "lat": 6.8052356,
+        "lon": -58.1620706,
+        "tags": {
+          "addr:city": "Werk-En-Rust",
+          "addr:street": "Durban & Russel Streets",
+          "amenity": "restaurant",
+          "cuisine": "regional",
+          "name": "Kiskar Natural Way",
+          "smoking": "outside",
+          "source": "KG Ground Survey 2016",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Kiskar Natural Way",
+        "address": "Durban & Russel Streets, Werk-En-Rust, Guyana",
+        "city": "Werk-En-Rust",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8052356,
+        "longitude": -58.1620706,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "restaurant",
+          "regional"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "543c4fb15f775f0274f8ae53ab400ac7680d7cfe4317a13883a842e20b24b6fd",
+      "confidence": 0.7,
+      "review_status": "needs_research"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3617556802",
+      "source_url": "https://www.openstreetmap.org/node/3617556802",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3617556802,
+        "lat": 6.7960361,
+        "lon": -58.1398614,
+        "tags": {
+          "addr:city": "Georgetown",
+          "addr:housenumber": "89",
+          "addr:postcode": "413622",
+          "addr:street": "Wallaba Road, Meadow Brook Gardens",
+          "amenity": "bar",
+          "name": "Strikers Sports Club",
+          "opening_hours": "17:00-01:00",
+          "phone": "+15922236500",
+          "smoking": "outside",
+          "website": "www.strikersgy.com"
+        }
+      },
+      "normalized_data": {
+        "name": "Strikers Sports Club",
+        "address": "89 Wallaba Road, Meadow Brook Gardens, Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.7960361,
+        "longitude": -58.1398614,
+        "category": "nightlife",
+        "phone": "+15922236500",
+        "website": "https://www.strikersgy.com/",
+        "opening_hours": "17:00-01:00",
+        "social_profiles": {},
+        "tags": [
+          "bar"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "6ca7634870c64d95abd9af540e6a0dcb58f94e2ebbbbba64e70f1ad40d5d6be9",
+      "confidence": 0.95,
+      "review_status": "pending"
+    },
+    {
+      "entity_type": "venue",
+      "source_record_id": "node/3627538418",
+      "source_url": "https://www.openstreetmap.org/node/3627538418",
+      "source_last_checked_at": "2026-08-22T04:04:38.709Z",
+      "raw_data": {
+        "type": "node",
+        "id": 3627538418,
+        "lat": 6.8164437,
+        "lon": -58.1513356,
+        "tags": {
+          "amenity": "fast_food",
+          "cuisine": "burger",
+          "drive_through": "no",
+          "name": "Miami Subs & Grill",
+          "smoking": "no",
+          "takeaway": "yes"
+        }
+      },
+      "normalized_data": {
+        "name": "Miami Subs & Grill",
+        "address": "Georgetown, Guyana",
+        "city": "Georgetown",
+        "region": "Demerara-Mahaica",
+        "parish": "Demerara-Mahaica",
+        "country": "Guyana",
+        "country_code": "GY",
+        "latitude": 6.8164437,
+        "longitude": -58.1513356,
+        "category": "restaurant",
+        "phone": null,
+        "website": null,
+        "opening_hours": null,
+        "social_profiles": {},
+        "tags": [
+          "fast_food",
+          "burger"
+        ],
+        "listing_status": "unclaimed"
+      },
+      "fingerprint": "e0be350edb7530fe87881fe0f5a674f4ca119a3bed701465cf68a9fece8b8e7e",
+      "confidence": 0.6,
+      "review_status": "needs_research"
+    }
+  ]
+}

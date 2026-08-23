@@ -4,6 +4,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import logo from "@/assets/promorang-logo-full.png";
 import { HeaderSearchPreview } from "@/components/HeaderSearchPreview";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { CityQuickSwitcher } from "@/components/location/CityQuickSwitcher";
+import { useI18n } from "@/i18n/I18nContext";
 import {
   Menu,
   X,
@@ -36,6 +39,7 @@ import {
   Settings,
   LogOut,
   ArrowUpRight,
+  Target,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -48,6 +52,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Header = () => {
+  const { t } = useI18n();
   const {
     user,
     signOut,
@@ -127,29 +132,30 @@ const Header = () => {
             </span>
           </Link>
 
-          {/* Desktop Navigation Links - Floating Glass Bar */}
-          <div className="hidden lg:flex items-center gap-1 rounded-full p-1 border border-white/[0.08] bg-white/[0.03] backdrop-blur-md shadow-inner">
-            {/* Explore Dropdown */}
+          {/* Desktop Navigation Links - Humanized Floating Glass Bar */}
+          <div className="hidden lg:flex items-center gap-1.5 rounded-full p-1.5 border border-white/[0.08] bg-white/[0.03] backdrop-blur-md shadow-inner">
+            {/* 1. Explore Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger
-                className={`flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all outline-none cursor-pointer ${
-                  isActive(["/discover", "/live", "/scenes", "/creators", "/economy/moments", "/pioneers"])
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all outline-none cursor-pointer ${
+                  isActive(["/discover", "/live", "/scenes", "/creators", "/economy/moments"])
                     ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
                     : hasDarkHeader
-                    ? "text-white/75 hover:text-white hover:bg-white/[0.06]"
+                    ? "text-white/80 hover:text-white hover:bg-white/[0.08]"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
-                <span>Explore</span>
+                <Compass className="w-3.5 h-3.5" />
+                <span>{t("nav.explore")}</span>
                 <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-[32rem] p-3 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/95 backdrop-blur-xl text-white grid grid-cols-2 gap-1.5 animate-in fade-in-50 zoom-in-95 duration-150"
+                className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/95 backdrop-blur-xl text-white space-y-1 animate-in fade-in-50 zoom-in-95 duration-150"
               >
-                <div className="col-span-2 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1 flex items-center justify-between">
-                  <span>Culture & Discovery</span>
-                  <span className="text-primary text-[10px] font-normal">Real-time pulse</span>
+                <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1 flex items-center justify-between">
+                  <span>Explore Experiences</span>
+                  <span className="text-primary text-[10px] font-normal">What's happening</span>
                 </div>
 
                 <DropdownMenuItem asChild>
@@ -161,8 +167,8 @@ const Header = () => {
                       <Compass className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">Discover Hub</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Trending drops, hot zones & local buzz</p>
+                      <p className="text-xs font-bold text-white">Discover Moments</p>
+                      <p className="text-[10px] text-white/50 leading-tight">Trending events, meetups & gatherings</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -177,9 +183,9 @@ const Header = () => {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                        Live Stream <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+                        Live Now <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
                       </p>
-                      <p className="text-[10px] text-white/50 leading-tight">Real-time events happening right now</p>
+                      <p className="text-[10px] text-white/50 leading-tight">Real-time activities happening today</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -193,8 +199,8 @@ const Header = () => {
                       <Layers className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">Cultural Scenes</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Micro-communities, rooms & venues</p>
+                      <p className="text-xs font-bold text-white">Local Scenes & Spots</p>
+                      <p className="text-[10px] text-white/50 leading-tight">Neighborhood hubs & community rooms</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -208,302 +214,188 @@ const Header = () => {
                       <PlayCircle className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">Creator Network</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Spotlight storytellers & tastemakers</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/economy/moments"
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
-                      <Ticket className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">Moments</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Where participation & rewards ignite</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/pioneers"
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer bg-gradient-to-r from-amber-500/10 to-transparent"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
-                      <Sparkles className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-amber-300">Genesis Pioneers</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Claim founding rank & early badges</p>
+                      <p className="text-xs font-bold text-white">Creators & Hosts</p>
+                      <p className="text-[10px] text-white/50 leading-tight">Local tastemakers and curators</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* PromoShare Direct Pill Link */}
-            <Link
-              to="/promoshare"
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all ${
-                isActive(["/promoshare"])
-                  ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
-                  : hasDarkHeader
-                  ? "text-white/75 hover:text-white hover:bg-white/[0.06]"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              }`}
-            >
-              <Gem className="w-3.5 h-3.5 text-primary" />
-              <span>PromoShare</span>
-            </Link>
-
-            {/* Tools & AI Intelligence Dropdown */}
+            {/* 2. Deals & Rewards Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger
-                className={`flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all outline-none cursor-pointer ${
-                  isActive(["/free/", "/growth", "/campaign-intelligence", "/organizer", "/how-it-works"])
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all outline-none cursor-pointer ${
+                  isActive(["/rewards", "/shop", "/promoshare", "/wallet"])
                     ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
                     : hasDarkHeader
-                    ? "text-white/75 hover:text-white hover:bg-white/[0.06]"
+                    ? "text-white/80 hover:text-white hover:bg-white/[0.08]"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
-                <span>Tools & AI</span>
-                <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="w-[36rem] p-3 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/95 backdrop-blur-xl text-white grid grid-cols-2 gap-2 animate-in fade-in-50 zoom-in-95 duration-150"
-              >
-                {/* Column 1: Free Assessment Tools */}
-                <div className="space-y-1 pr-2 border-r border-white/10">
-                  <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
-                    <Sparkles className="w-3 h-3" /> Free Instant Tools
-                  </div>
-                  {[
-                    ["/free/scene", Compass, "Find Your Scene", "Find the room that fits your style"],
-                    ["/free/moment", Users, "Score Your Moment", "Test attendance and repeat potential"],
-                    ["/free/demand", Store, "Reveal Nearby Demand", "Find high-value foot traffic openings"],
-                    ["/free/creator", PlayCircle, "Audit Your Influence", "Calculate your real market reach"],
-                    ["/free/sponsor", Building2, "Activation Brief", "Turn budget into action"],
-                  ].map(([href, Icon, title, description]) => {
-                    const ToolIcon = Icon as typeof Compass;
-                    return (
-                      <DropdownMenuItem asChild key={href as string}>
-                        <Link
-                          to={href as string}
-                          className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                        >
-                          <div className="h-7 w-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                            <ToolIcon className="w-3.5 h-3.5" />
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold text-white">{title as string}</p>
-                            <p className="text-[10px] text-white/50 truncate max-w-[170px]">{description as string}</p>
-                          </div>
-                        </Link>
-                      </DropdownMenuItem>
-                    );
-                  })}
-                </div>
-
-                {/* Column 2: Growth, AI & Economy Hubs */}
-                <div className="space-y-1">
-                  <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
-                    <Bot className="w-3 h-3" /> Intelligence & Growth
-                  </div>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to="/campaign-intelligence"
-                      className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer bg-purple-500/10 border border-purple-500/20"
-                    >
-                      <div className="h-7 w-7 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center shrink-0">
-                        <Bot className="w-3.5 h-3.5" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-purple-200 flex items-center gap-1">
-                          Campaign AI <span className="text-[9px] bg-purple-500/30 px-1 rounded text-purple-300 font-mono">PRO</span>
-                        </p>
-                        <p className="text-[10px] text-white/60">Autonomous marketing drafts & strategies</p>
-                      </div>
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to="/growth"
-                      className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                    >
-                      <div className="h-7 w-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
-                        <TrendingUp className="w-3.5 h-3.5" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-white">Growth Engine</p>
-                        <p className="text-[10px] text-white/50">Promote, earn, and prove conversion</p>
-                      </div>
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to="/organizer"
-                      className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                    >
-                      <div className="h-7 w-7 rounded-lg bg-orange-500/15 text-orange-400 flex items-center justify-center shrink-0">
-                        <Building className="w-3.5 h-3.5" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-white">Organizer Workspace</p>
-                        <p className="text-[10px] text-white/50">Manage moments, revenue & check-ins</p>
-                      </div>
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to="/how-it-works"
-                      className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                    >
-                      <div className="h-7 w-7 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0">
-                        <Compass className="w-3.5 h-3.5" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-white">How Promorang Works</p>
-                        <p className="text-[10px] text-white/50">The complete ecosystem value loop</p>
-                      </div>
-                    </Link>
-                  </DropdownMenuItem>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Economy & Ownership Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className={`flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all outline-none cursor-pointer ${
-                  isActive(["/economy/", "/portfolio"])
-                    ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
-                    : hasDarkHeader
-                    ? "text-white/75 hover:text-white hover:bg-white/[0.06]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                <span>Economy</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Rewards & Deals</span>
                 <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
                 className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/95 backdrop-blur-xl text-white space-y-1 animate-in fade-in-50 zoom-in-95 duration-150"
               >
-                <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1">
-                  Rewards & Ownership
+                <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1 flex items-center justify-between">
+                  <span>Perks & Member Value</span>
+                  <span className="text-amber-400 text-[10px] font-normal">Earn & Save</span>
                 </div>
+
                 <DropdownMenuItem asChild>
-                  <Link to="/portfolio" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
-                    <div className="h-7 w-7 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
-                      <Sparkles className="w-3.5 h-3.5" />
+                  <Link
+                    to="/rewards"
+                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
+                      <Sparkles className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-white">Co-Ownership Pieces</p>
-                      <p className="text-[10px] text-white/50">Own a stake in viral drops</p>
+                      <p className="text-xs font-bold text-white">Rewards Hub</p>
+                      <p className="text-[10px] text-white/50 leading-tight">Claim points, gems & attendance badges</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
+
                 <DropdownMenuItem asChild>
-                  <Link to="/economy/keys" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
-                    <div className="h-7 w-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
-                      <KeyRound className="w-3.5 h-3.5" />
+                  <Link
+                    to="/shop"
+                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                      <Store className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-white">PromoKeys</p>
-                      <p className="text-[10px] text-white/50">Per-opportunity bounty access</p>
+                      <p className="text-xs font-bold text-white">Local Deals & Shop</p>
+                      <p className="text-[10px] text-white/50 leading-tight">Exclusive discounts from neighborhood merchants</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
+
                 <DropdownMenuItem asChild>
-                  <Link to="/economy/master-key" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
-                    <div className="h-7 w-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
-                      <ShieldCheck className="w-3.5 h-3.5" />
+                  <Link
+                    to="/promoshare"
+                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
+                      <Gem className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-white">Master Key</p>
-                      <p className="text-[10px] text-white/50">Daily contribution gate</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/economy/points" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
-                    <div className="h-7 w-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
-                      <Coins className="w-3.5 h-3.5" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-white">Points & Reputation</p>
-                      <p className="text-[10px] text-white/50">Organic progress and conversion</p>
+                      <p className="text-xs font-bold text-white">Share & Earn (PromoShare)</p>
+                      <p className="text-[10px] text-white/50 leading-tight">Get cash rewards for bringing people together</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Partners Dropdown */}
+            {/* 3. How It Works (Direct Link) */}
+            <Link
+              to="/how-it-works"
+              className={`px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all ${
+                isActive(["/how-it-works"])
+                  ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
+                  : hasDarkHeader
+                  ? "text-white/80 hover:text-white hover:bg-white/[0.08]"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              }`}
+            >
+              How It Works
+            </Link>
+
+            {/* 4. For Business & Hosts Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger
-                className={`flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all outline-none cursor-pointer ${
-                  isActive(["/for-"])
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all outline-none cursor-pointer ${
+                  isActive(["/for-", "/hosting", "/pricing", "/organizer"])
                     ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
                     : hasDarkHeader
-                    ? "text-white/75 hover:text-white hover:bg-white/[0.06]"
+                    ? "text-white/80 hover:text-white hover:bg-white/[0.08]"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
-                <span>Partners</span>
+                <Building2 className="w-3.5 h-3.5" />
+                <span>For Business & Hosts</span>
                 <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
                 className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/95 backdrop-blur-xl text-white space-y-1 animate-in fade-in-50 zoom-in-95 duration-150"
               >
-                <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1">
-                  Ecosystem Solutions
+                <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1 flex items-center justify-between">
+                  <span>Host & Merchant Tools</span>
+                  <span className="text-primary text-[10px] font-normal">Grow Foot Traffic</span>
                 </div>
-                {[
-                  ["/for-brands", Building2, "For Brands", "Fund moments people remember", "text-blue-400 bg-blue-500/15"],
-                  ["/for-creators", PlayCircle, "For Creators", "Turn stories into movement", "text-rose-400 bg-rose-500/15"],
-                  ["/for-merchants", Store, "For Merchants", "Welcome verified visits", "text-emerald-400 bg-emerald-500/15"],
-                  ["/for-communities", Users, "For Hosts & Rooms", "Build places people return to", "text-orange-400 bg-orange-500/15"],
-                  ["/for-enterprise", Globe2, "Enterprise", "Scaled brand activation", "text-purple-400 bg-purple-500/15"],
-                  ["/for-causes", Heart, "For Causes", "Action-backed impact", "text-pink-400 bg-pink-500/15"],
-                ].map(([href, Icon, title, desc, colorClass]) => {
-                  const PartnerIcon = Icon as typeof Building2;
-                  return (
-                    <DropdownMenuItem asChild key={href as string}>
-                      <Link
-                        to={href as string}
-                        className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                      >
-                        <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${colorClass as string}`}>
-                          <PartnerIcon className="w-3.5 h-3.5" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-white">{title as string}</p>
-                          <p className="text-[10px] text-white/50 leading-tight">{desc as string}</p>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
-                  );
-                })}
+
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/hosting"
+                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-orange-500/15 text-orange-400 flex items-center justify-center shrink-0">
+                      <Users className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white">Host a Moment</p>
+                      <p className="text-[10px] text-white/50 leading-tight">Create events, sell passes, verify attendance</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/for-brands"
+                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0">
+                      <Building2 className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white">For Brands & Merchants</p>
+                      <p className="text-[10px] text-white/50 leading-tight">Fund customer actions with zero ad waste</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/pricing"
+                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                      <Tag className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white">Pricing & Plans</p>
+                      <p className="text-[10px] text-white/50 leading-tight">Flexible tiers for venues, brands & hosts</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
           {/* Right Action Cluster */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* City / Location Quick Switcher */}
+            <CityQuickSwitcher className="hidden md:inline-flex" />
+
             {/* Global Search Command-K Trigger */}
             <HeaderSearchPreview />
+
+            {/* Quick Intent Goal Trigger */}
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('promorang:open-intent-modal'))}
+              title="What do you want to accomplish? (Cmd+K)"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all shadow-sm cursor-pointer"
+            >
+              <Target className="w-3.5 h-3.5" />
+              <span>{t("nav.goals")}</span>
+            </button>
 
             {/* Authenticated User Controls */}
             {user && (
@@ -722,6 +614,8 @@ const Header = () => {
               <ThemeToggle />
             </div>
 
+            <LanguageSelector />
+
             {/* Public Auth Buttons */}
             {!user && (
               <div className="hidden sm:flex items-center gap-2">
@@ -731,14 +625,14 @@ const Header = () => {
                   onClick={() => navigate("/auth")}
                   className="rounded-full text-xs font-semibold text-white/80 hover:text-white hover:bg-white/[0.08]"
                 >
-                  Log in
+                  {t("nav.login")}
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => navigate("/auth")}
                   className="rounded-full text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transition-all hover:scale-[1.02] active:scale-[0.98] px-4"
                 >
-                  Get Started
+                  {t("nav.getStarted")}
                 </Button>
               </div>
             )}
@@ -746,7 +640,7 @@ const Header = () => {
             {/* Mobile Menu Hamburger Button */}
             <button
               type="button"
-              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-label={mobileMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
               aria-expanded={mobileMenuOpen}
               className="rounded-xl p-2 text-white/80 hover:text-white hover:bg-white/[0.08] transition lg:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -781,10 +675,15 @@ const Header = () => {
                     onClick={closeMobileMenu}
                     className="px-3 py-1.5 rounded-full bg-primary/20 text-primary text-xs font-bold border border-primary/30 shrink-0"
                   >
-                    Dashboard
+                    {t("nav.dashboard")}
                   </Link>
                 </div>
               )}
+
+              {/* Mobile City Quick Switcher */}
+              <div className="px-1">
+                <CityQuickSwitcher className="w-full justify-between py-2.5 px-4" />
+              </div>
 
               {/* Quick Action Pill Row */}
               <div className="grid grid-cols-2 gap-2">
@@ -794,7 +693,7 @@ const Header = () => {
                   className="flex items-center gap-2 p-3 rounded-2xl bg-white/[0.05] border border-white/10 hover:border-primary/40 text-xs font-bold"
                 >
                   <Compass className="w-4 h-4 text-primary" />
-                  <span>Discover Hub</span>
+                  <span>{t("nav.discoverHub")}</span>
                 </Link>
                 <Link
                   to="/promoshare"
@@ -806,17 +705,15 @@ const Header = () => {
                 </Link>
               </div>
 
-              {/* Section 1: Explore */}
+              {/* Section 1: Explore Experiences */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">Explore Culture</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">Explore Experiences</p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs">
                   {[
-                    ["/live", Radio, "Live Stream"],
-                    ["/scenes", Layers, "Scenes"],
-                    ["/creators", PlayCircle, "Creators"],
-                    ["/economy/moments", Ticket, "Moments"],
-                    ["/pioneers", Sparkles, "Genesis Pioneers"],
-                    ["/portfolio", Gem, "Co-Ownership"],
+                    ["/discover", Compass, "Discover Moments"],
+                    ["/live", Radio, "Live Now"],
+                    ["/scenes", Layers, "Local Scenes"],
+                    ["/creators", PlayCircle, "Creators & Hosts"],
                   ].map(([href, Icon, label]) => {
                     const ItemIcon = Icon as typeof Radio;
                     return (
@@ -834,69 +731,61 @@ const Header = () => {
                 </div>
               </div>
 
-              {/* Section 2: Tools & AI */}
+              {/* Section 2: Rewards & Deals */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">Tools & Intelligence</p>
-                <div className="flex flex-col gap-1 text-xs">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">Rewards & Deals</p>
+                <div className="grid grid-cols-2 gap-1.5 text-xs">
                   <Link
-                    to="/campaign-intelligence"
+                    to="/rewards"
                     onClick={closeMobileMenu}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-200 font-semibold"
+                    className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
                   >
-                    <div className="flex items-center gap-2">
-                      <Bot className="w-4 h-4 text-purple-400" />
-                      <span>Campaign AI Operator</span>
-                    </div>
-                    <span className="text-[9px] bg-purple-500/30 px-1.5 py-0.5 rounded font-mono">PRO</span>
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Rewards Hub</span>
                   </Link>
                   <Link
-                    to="/growth"
+                    to="/shop"
                     onClick={closeMobileMenu}
-                    className="flex items-center gap-2 p-2.5 rounded-xl hover:bg-white/[0.06] text-white/80 font-medium"
+                    className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
                   >
-                    <TrendingUp className="w-4 h-4 text-emerald-400" />
-                    <span>Growth Engine</span>
-                  </Link>
-                  <Link
-                    to="/organizer"
-                    onClick={closeMobileMenu}
-                    className="flex items-center gap-2 p-2.5 rounded-xl hover:bg-white/[0.06] text-white/80 font-medium"
-                  >
-                    <Building className="w-4 h-4 text-orange-400" />
-                    <span>Organizer Workspace</span>
-                  </Link>
-                  <Link
-                    to="/how-it-works"
-                    onClick={closeMobileMenu}
-                    className="flex items-center gap-2 p-2.5 rounded-xl hover:bg-white/[0.06] text-white/80 font-medium"
-                  >
-                    <Compass className="w-4 h-4 text-blue-400" />
-                    <span>How Promorang Works</span>
+                    <Store className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Local Deals</span>
                   </Link>
                 </div>
               </div>
 
-              {/* Section 3: Partners */}
+              {/* Section 3: For Business & Hosts */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">Partners & Ecosystem</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">For Business & Hosts</p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs">
-                  {[
-                    ["/for-brands", "For Brands"],
-                    ["/for-creators", "For Creators"],
-                    ["/for-merchants", "For Merchants"],
-                    ["/for-communities", "For Hosts"],
-                    ["/for-enterprise", "Enterprise"],
-                    ["/for-causes", "For Causes"],
-                  ].map(([href, label]) => (
-                    <Link
-                      key={href}
-                      to={href}
-                      onClick={closeMobileMenu}
-                      className="p-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] text-white/70 font-medium transition text-center"
-                    >
-                      {label}
-                    </Link>
-                  ))}
+                  <Link
+                    to="/hosting"
+                    onClick={closeMobileMenu}
+                    className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
+                  >
+                    Host a Moment
+                  </Link>
+                  <Link
+                    to="/for-brands"
+                    onClick={closeMobileMenu}
+                    className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
+                  >
+                    Brands & Merchants
+                  </Link>
+                  <Link
+                    to="/how-it-works"
+                    onClick={closeMobileMenu}
+                    className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
+                  >
+                    How It Works
+                  </Link>
+                  <Link
+                    to="/pricing"
+                    onClick={closeMobileMenu}
+                    className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
+                  >
+                    Pricing & Plans
+                  </Link>
                 </div>
               </div>
 
@@ -937,7 +826,7 @@ const Header = () => {
                       }}
                       className="w-full rounded-xl border-white/10 text-xs text-white/70"
                     >
-                      Sign Out
+                      {t("nav.signOut")}
                     </Button>
                   </>
                 ) : (
@@ -951,7 +840,7 @@ const Header = () => {
                       }}
                       className="flex-1 rounded-xl border-white/15 text-xs text-white hover:bg-white/10"
                     >
-                      Log in
+                      {t("nav.login")}
                     </Button>
                     <Button
                       size="sm"
@@ -961,7 +850,7 @@ const Header = () => {
                       }}
                       className="flex-1 rounded-xl bg-primary text-xs font-bold shadow-[0_0_15px_rgba(249,115,22,0.4)]"
                     >
-                      Get Started
+                      {t("nav.getStarted")}
                     </Button>
                   </div>
                 )}

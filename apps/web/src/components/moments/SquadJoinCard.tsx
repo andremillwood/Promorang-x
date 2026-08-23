@@ -3,6 +3,7 @@ import { Users, Share2, Copy, Check, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface SquadJoinCardProps {
   momentId: string;
@@ -12,6 +13,7 @@ interface SquadJoinCardProps {
 }
 
 export function SquadJoinCard({ momentId, momentTitle, inviterId, participantCount = 0 }: SquadJoinCardProps) {
+  const { t, formatNumber } = useI18n();
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
@@ -25,8 +27,8 @@ export function SquadJoinCard({ momentId, momentTitle, inviterId, participantCou
     await navigator.clipboard.writeText(squadLink);
     setCopied(true);
     toast({
-      title: "Moment invitation copied",
-      description: inviterId ? "When a friend joins from this link, Promorang can credit your invitation." : "Share it with someone you want there.",
+      title: t("squadJoin.copiedToast"),
+      description: inviterId ? t("squadJoin.copiedToastCredited") : t("squadJoin.copiedToastGeneric"),
     });
     setTimeout(() => setCopied(false), 2000);
   };
@@ -35,8 +37,8 @@ export function SquadJoinCard({ momentId, momentTitle, inviterId, participantCou
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Join me at ${momentTitle}`,
-          text: `I'm interested in ${momentTitle} on Promorang. Come experience it with me.`,
+          title: t("squadJoin.inviteTitle", { title: momentTitle }),
+          text: t("squadJoin.inviteText", { title: momentTitle }),
           url: squadLink,
         });
       } catch (err) {
@@ -56,15 +58,15 @@ export function SquadJoinCard({ momentId, momentTitle, inviterId, participantCou
           </div>
           <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-600">
             <Link2 className="w-3 h-3" />
-            {inviterId ? "Your invite link" : "Ready to share"}
+            {inviterId ? t("squadJoin.yourInviteLink") : t("squadJoin.readyToShare")}
           </div>
         </div>
 
-        <h3 className="text-xl font-bold mb-2">Bring someone with you</h3>
+        <h3 className="text-xl font-bold mb-2">{t("squadJoin.bringSomeone")}</h3>
         <p className="text-sm text-muted-foreground mb-6">
           {inviterId
-            ? `Send ${momentTitle} to someone you want beside you. Their completed join will be connected to your invitation.`
-            : `Send ${momentTitle} to someone you want beside you.`}
+            ? t("squadJoin.sendConnected", { title: momentTitle })
+            : t("squadJoin.sendGeneric", { title: momentTitle })}
         </p>
 
         <div className="flex gap-2">
@@ -74,7 +76,7 @@ export function SquadJoinCard({ momentId, momentTitle, inviterId, participantCou
             onClick={handleShare}
           >
             <Share2 className="w-4 h-4 mr-2" />
-            Invite someone
+            {t("squadJoin.inviteButton")}
           </Button>
           <Button 
             variant="outline" 
@@ -89,9 +91,16 @@ export function SquadJoinCard({ momentId, momentTitle, inviterId, participantCou
         <div className="mt-6 border-t border-primary/10 pt-6">
           <p className="text-xs font-medium text-muted-foreground">
             {participantCount > 0 ? (
-              <><span className="font-bold text-foreground">{participantCount} {participantCount === 1 ? "person is" : "people are"} joining.</span>{" "}Invite someone who would add to the room.</>
+              <>
+                <span className="font-bold text-foreground">
+                  {participantCount === 1
+                    ? t("squadJoin.personJoining", { count: formatNumber(participantCount) })
+                    : t("squadJoin.peopleJoining", { count: formatNumber(participantCount) })}{" "}
+                </span>
+                {t("squadJoin.inviteRecommendation")}
+              </>
             ) : (
-              "Be the first to bring someone into the room."
+              t("squadJoin.firstToBring")
             )}
           </p>
         </div>

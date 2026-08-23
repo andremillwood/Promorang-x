@@ -18,17 +18,17 @@ import {
   Clock,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
 import { LiquidityVaultDashboard } from "@/components/LiquidityVaultDashboard";
+import { useI18n } from "@/i18n/I18nContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 type VaultTab = "perks" | "memories" | "liquidity";
 
 const Vault = () => {
+  const { t, formatNumber } = useI18n();
   const { user, session } = useAuth();
   const [activeTab, setActiveTab] = useState<VaultTab>("perks");
-
 
   const vaultQuery = useQuery({
     queryKey: ["vault-data", user?.id],
@@ -72,10 +72,10 @@ const Vault = () => {
     return (
       <div className="min-h-screen bg-[#0a0a0b] text-white flex items-center justify-center p-6 text-center">
         <div className="max-w-md space-y-4">
-          <h1 className="text-3xl font-extrabold">Sign in to View Your Vault</h1>
-          <p className="text-white/60 text-sm">Your unlocked perks, drinks, free items, and event badges stay here.</p>
+          <h1 className="text-3xl font-extrabold">{t("vaultPage.signInTitle")}</h1>
+          <p className="text-white/60 text-sm">{t("vaultPage.signInDesc")}</p>
           <Button asChild className="rounded-full bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold px-8 py-6">
-            <Link to="/auth">Sign In</Link>
+            <Link to="/auth">{t("vaultPage.signInButton")}</Link>
           </Button>
         </div>
       </div>
@@ -92,34 +92,34 @@ const Vault = () => {
         <div className="space-y-6 border-b border-white/10 pb-8">
           <div className="space-y-2">
             <Badge className="rounded-full bg-[#ff5500] text-white font-bold text-xs px-3.5 py-1 uppercase tracking-wider border-none">
-              Digital Rewards Wallet
+              {t("vaultPage.badgeWallet")}
             </Badge>
             <h1 className="text-4xl font-extrabold text-white tracking-tight sm:text-5xl">
-              My Perk Vault
+              {t("vaultPage.title")}
             </h1>
             <p className="text-white/60 text-base max-w-xl">
-              All your verified event attendance badges, free drink vouchers, and unlocked perks in one place.
+              {t("vaultPage.subtitle")}
             </p>
           </div>
 
           {/* Stat Summary Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
-              <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Active Perks</span>
-              <p className="text-2xl font-black text-amber-400">{activePerks.length}</p>
+              <span className="text-xs text-white/50 font-bold uppercase tracking-wider">{t("vaultPage.statActivePerks")}</span>
+              <p className="text-2xl font-black text-amber-400">{formatNumber(activePerks.length)}</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
-              <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Events Attended</span>
-              <p className="text-2xl font-black text-white">{memories.length}</p>
+              <span className="text-xs text-white/50 font-bold uppercase tracking-wider">{t("vaultPage.statEventsAttended")}</span>
+              <p className="text-2xl font-black text-white">{formatNumber(memories.length)}</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
-              <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Culture Score</span>
+              <span className="text-xs text-white/50 font-bold uppercase tracking-wider">{t("vaultPage.statCultureScore")}</span>
               <p className="text-2xl font-black text-[#a855f7]">
-                {vaultData?.summary?.total_legacy_score || (memories.length * 75 || 150)} pts
+                {formatNumber(vaultData?.summary?.total_legacy_score || (memories.length * 75 || 150))} pts
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1 col-span-2 sm:col-span-1">
-              <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Culture Rank</span>
+              <span className="text-xs text-white/50 font-bold uppercase tracking-wider">{t("vaultPage.statCultureRank")}</span>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#ff5500] animate-pulse" />
                 <p className="text-xl font-black text-[#ff5500]">
@@ -141,20 +141,20 @@ const Vault = () => {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <Badge className="bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold text-xs uppercase">
-                    ⭐ Prestige Loyalty Status
+                    {t("vaultPage.prestigeLoyalty")}
                   </Badge>
-                  <span className="text-xs font-mono text-white/40">Verified On-Chain & In-App</span>
+                  <span className="text-xs font-mono text-white/40">{t("vaultPage.verifiedOnChain")}</span>
                 </div>
                 <h2 className="text-2xl font-extrabold text-white">
-                  Tier 2: Scene Regular — Unlocking VIP Doors
+                  {t("vaultPage.prestigeHeading")}
                 </h2>
                 <p className="text-xs text-white/70 max-w-2xl leading-relaxed">
-                  Every verified event check-in and Moment Piece in your Vault increases your status across all Promorang hosts, unlocking presales, free drinks, and backstage upgrades.
+                  {t("vaultPage.prestigeDesc")}
                 </p>
               </div>
               <div className="text-left sm:text-right shrink-0 bg-black/40 p-3 rounded-2xl border border-white/10">
-                <span className="text-[10px] font-mono text-stone-400 block uppercase">Next Rank Progression</span>
-                <strong className="text-sm font-mono text-purple-300">150 / 300 Pts to Tier 3</strong>
+                <span className="text-[10px] font-mono text-stone-400 block uppercase">{t("vaultPage.nextRankProgression")}</span>
+                <strong className="text-sm font-mono text-purple-300">{t("vaultPage.ptsToTier", { current: formatNumber(150), target: formatNumber(300) })}</strong>
               </div>
             </div>
 
@@ -164,10 +164,10 @@ const Vault = () => {
                 <div className="bg-gradient-to-r from-[#ff5500] to-purple-500 h-full rounded-full w-[50%] transition-all duration-500 shadow-[0_0_12px_#a855f7]" />
               </div>
               <div className="flex justify-between text-[10px] font-mono text-white/50">
-                <span>Tier 1: Scout (0 pts)</span>
-                <span className="text-amber-400 font-bold">Tier 2: Regular (100 pts) ✓ Current</span>
-                <span>Tier 3: Insider (300 pts)</span>
-                <span>Tier 4: VIP Icon (700+ pts)</span>
+                <span>{t("vaultPage.tier1Scout")}</span>
+                <span className="text-amber-400 font-bold">{t("vaultPage.tier2Regular")}</span>
+                <span>{t("vaultPage.tier3Insider")}</span>
+                <span>{t("vaultPage.tier4VipIcon")}</span>
               </div>
             </div>
 
@@ -206,7 +206,7 @@ const Vault = () => {
                 : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <Gift className="h-4 w-4" /> Active Perks & Vouchers ({activePerks.length})
+            <Gift className="h-4 w-4" /> {t("vaultPage.tabActivePerks", { count: formatNumber(activePerks.length) })}
           </button>
           <button
             onClick={() => setActiveTab("memories")}
@@ -216,7 +216,7 @@ const Vault = () => {
                 : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <Trophy className="h-4 w-4" /> Attendance Badges ({memories.length})
+            <Trophy className="h-4 w-4" /> {t("vaultPage.tabAttendanceBadges", { count: formatNumber(memories.length) })}
           </button>
           <button
             onClick={() => setActiveTab("liquidity")}
@@ -226,7 +226,7 @@ const Vault = () => {
                 : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <Sparkles className="h-4 w-4 text-indigo-400" /> Protocol Liquidity Pools
+            <Sparkles className="h-4 w-4 text-indigo-400" /> {t("vaultPage.tabLiquidityPools")}
           </button>
         </div>
 
@@ -236,7 +236,6 @@ const Vault = () => {
             <LiquidityVaultDashboard />
           </div>
         )}
-
 
         {/* Tab Content */}
         {activeTab === "perks" && (
@@ -249,12 +248,12 @@ const Vault = () => {
             ) : activePerks.length === 0 ? (
               <div className="rounded-3xl border border-white/10 bg-[#121214] p-12 text-center space-y-4">
                 <Gift className="h-12 w-12 text-white/20 mx-auto" />
-                <h3 className="text-xl font-bold text-white">No Active Perks Yet</h3>
+                <h3 className="text-xl font-bold text-white">{t("vaultPage.noPerksTitle")}</h3>
                 <p className="text-white/60 text-sm max-w-md mx-auto">
-                  RSVP for upcoming events or complete check-ins to unlock free items, drink passes, and discount vouchers.
+                  {t("vaultPage.noPerksDesc")}
                 </p>
                 <Button asChild className="rounded-full bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold px-6">
-                  <Link to="/discover">Browse Events & Perks</Link>
+                  <Link to="/discover">{t("vaultPage.browseEvents")}</Link>
                 </Button>
               </div>
             ) : (
@@ -267,7 +266,7 @@ const Vault = () => {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Badge className="bg-amber-500 text-black font-bold text-xs uppercase border-none">
-                          Ready to Redeem
+                          {t("vaultPage.readyToRedeem")}
                         </Badge>
                         <span className="text-xs text-white/50 font-medium">{perk.expires_at || "Active"}</span>
                       </div>
@@ -282,7 +281,7 @@ const Vault = () => {
                     </div>
 
                     <Button className="w-full rounded-2xl bg-amber-500 text-black hover:bg-amber-400 font-bold py-6 shadow-lg shadow-amber-500/20">
-                      <QrCode className="mr-2 h-5 w-5" /> Show Voucher to Door Manager
+                      <QrCode className="mr-2 h-5 w-5" /> {t("vaultPage.showVoucher")}
                     </Button>
                   </div>
                 ))}
@@ -296,9 +295,9 @@ const Vault = () => {
             {memories.length === 0 ? (
               <div className="rounded-3xl border border-white/10 bg-[#121214] p-12 text-center space-y-4">
                 <Trophy className="h-12 w-12 text-white/20 mx-auto" />
-                <h3 className="text-xl font-bold text-white">No Verified Badges Yet</h3>
+                <h3 className="text-xl font-bold text-white">{t("vaultPage.noBadgesTitle")}</h3>
                 <p className="text-white/60 text-sm max-w-md mx-auto">
-                  Check in at your first event to start collecting verified attendance badges.
+                  {t("vaultPage.noBadgesDesc")}
                 </p>
               </div>
             ) : (
@@ -329,3 +328,4 @@ const Vault = () => {
 };
 
 export default Vault;
+

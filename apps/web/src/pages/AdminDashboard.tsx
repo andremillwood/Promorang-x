@@ -30,6 +30,7 @@ import {
   ChevronDown,
   UserPlus,
   ContactRound,
+  ClipboardCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
@@ -55,7 +56,10 @@ import { AdminGrowthTab } from "@/components/admin/AdminGrowthTab";
 import { AdminClaimablePagesTab } from "@/components/admin/AdminClaimablePagesTab";
 import { AdminLeadsCRM } from "@/components/admin/AdminLeadsCRM";
 import { AdminPresentsPanel } from "@/components/admin/AdminPresentsPanel";
+import { AdminEnrichmentReviewTab } from "@/components/admin/AdminEnrichmentReviewTab";
+import { AdminEventVerificationReviewTab } from "@/components/admin/AdminEventVerificationReviewTab";
 import { PromoPilotCompiler } from "@/components/campaigns/PromoPilotCompiler";
+import { useI18n } from "@/i18n/I18nContext";
 
 const ADMIN_TABS = new Set([
   "command",
@@ -65,6 +69,8 @@ const ADMIN_TABS = new Set([
   "proof-builder",
   "pioneer",
   "operations",
+  "enrichment-review",
+  "event-review",
   "promopush",
   "catalog",
   "commerce",
@@ -107,6 +113,8 @@ const ADMIN_NAV_GROUPS: Array<{ label: string; items: AdminNavItem[] }> = [
       { value: "users", label: "Users", icon: Users },
       { value: "applications", label: "Host Applications", icon: Sparkles },
       { value: "pioneer", label: "Pioneer Review", icon: Target },
+      { value: "enrichment-review", label: "Scout Proof Review", icon: ClipboardCheck },
+      { value: "event-review", label: "Event Evidence", icon: Calendar },
       { value: "operations", label: "Platform Operations", icon: Activity },
     ],
   },
@@ -132,13 +140,14 @@ const ADMIN_NAV_GROUPS: Array<{ label: string; items: AdminNavItem[] }> = [
   {
     label: "System",
     items: [
-      { value: "proof-builder", label: "Contribution Rules", icon: Target },
-      { value: "config", label: "Configuration", icon: Settings },
+      { value: "proof-builder", label: "Proof Builder", icon: CheckCircle },
+      { value: "config", label: "Config", icon: Settings },
     ],
   },
 ];
 
 const AdminDashboard = () => {
+  const { t, formatNumber } = useI18n();
   const { user, loading: authLoading } = useAuth();
   const isAdmin = useIsAdmin();
   const { data: stats, isLoading: statsLoading } = usePlatformStats();
@@ -169,84 +178,100 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-4 pb-12 pt-20 sm:pt-24">
-        <div className="max-w-7xl mx-auto">
+      <div className="px-4 pb-12 pt-4 sm:pt-6">
+        <div className="max-w-7xl mx-auto space-y-8">
           {/* Header */}
-          <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="mb-2 flex items-center gap-3">
-                <div className="rounded-lg bg-primary/10 p-2">
+                <div className="rounded-xl bg-primary/10 p-2.5 shadow-soft">
                   <Shield className="h-6 w-6 text-primary" />
                 </div>
-                <h1 className="font-serif text-3xl font-bold text-foreground">
+                <h1 className="font-serif text-3xl font-bold text-foreground sm:text-4xl">
                   Admin Dashboard
                 </h1>
               </div>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground font-medium sm:text-base">
                 Platform management and moderation tools
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2.5">
               <button
                 type="button"
                 onClick={() => handleTabChange("compiler")}
-                className="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="inline-flex h-10 items-center gap-2 rounded-xl border border-border/80 bg-card px-4 text-sm font-semibold text-foreground transition-all hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-soft"
               >
                 <Zap className="h-4 w-4 text-primary" />
-                Campaign Compiler
+                {t("adminDash.compiler")}
               </button>
               <button
                 type="button"
                 onClick={() => handleTabChange("claimable-pages")}
-                className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground shadow-sm transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 <Sparkles className="h-4 w-4" />
-                Create for Owner
+                {t("adminDash.createOwner")}
               </button>
             </div>
           </div>
 
           {/* Stats Overview */}
-          <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-4">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-4">
             {statsLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <Skeleton key={i} className="h-28 rounded-xl" />
               ))
             ) : (
               [
-                { label: "Total Users", value: stats?.totalUsers || 0, icon: Users, color: "text-primary" },
-                { label: "Total Moments", value: stats?.totalMoments || 0, icon: Calendar, color: "text-blue-500" },
-                { label: "Participations", value: stats?.totalParticipations || 0, icon: CheckCircle, color: "text-emerald-500" },
-                { label: "Rewards Issued", value: stats?.totalRewards || 0, icon: Gift, color: "text-accent" },
-                { label: "Activations", value: stats?.totalCampaigns || 0, icon: Building2, color: "text-purple-500" },
+                { label: t("adminDash.totalUsers"), value: stats?.totalUsers || 0, icon: Users, color: "text-primary", bg: "bg-primary/10" },
+                { label: t("adminDash.totalMoments"), value: stats?.totalMoments || 0, icon: Calendar, color: "text-blue-500", bg: "bg-blue-500/10" },
+                { label: t("adminDash.participations"), value: stats?.totalParticipations || 0, icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+                { label: t("adminDash.rewardsIssued"), value: stats?.totalRewards || 0, icon: Gift, color: "text-amber-500", bg: "bg-amber-500/10" },
+                { label: t("adminDash.activations"), value: stats?.totalCampaigns || 0, icon: Building2, color: "text-purple-500", bg: "bg-purple-500/10" },
               ].map((stat, index) => (
-                <div key={index} className="rounded-xl border border-border bg-card p-4 sm:p-5">
-                  <stat.icon className={`w-5 h-5 ${stat.color} mb-3`} />
-                  <p className="text-xl font-bold text-foreground sm:text-2xl">{stat.value.toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground sm:text-sm">{stat.label}</p>
+                <div
+                  key={index}
+                  role="region"
+                  aria-label={`${stat.label}: ${formatNumber(stat.value)}`}
+                  className="rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-soft transition-colors hover:border-primary/40"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-semibold text-muted-foreground sm:text-sm">{stat.label}</span>
+                    <div className={cn("h-7 w-7 rounded-lg flex items-center justify-center", stat.bg)}>
+                      <stat.icon className={cn("w-4 h-4", stat.color)} />
+                    </div>
+                  </div>
+                  <p className="text-2xl font-black text-foreground sm:text-3xl">{formatNumber(stat.value)}</p>
                 </div>
               ))
             )}
           </div>
 
           {/* Secondary Stats */}
-          <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
             {statsLoading ? (
-              Array.from({ length: 4 }).map((_, i) => (
+              Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-20 rounded-xl" />
               ))
             ) : (
               [
-                { label: "Active This Week", value: stats?.activeUsersThisWeek || 0, icon: Users, color: "text-emerald-500" },
-                { label: "Total Venues", value: stats?.totalVenues || 0, icon: MapPin, color: "text-orange-500" },
-                { label: "User Growth", value: `${stats?.userGrowth || 0}%`, icon: TrendingUp, color: "text-primary" },
+                { label: t("adminDash.activeWeek"), value: stats?.activeUsersThisWeek || 0, icon: Users, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+                { label: t("adminDash.totalVenues"), value: stats?.totalVenues || 0, icon: MapPin, color: "text-orange-500", bg: "bg-orange-500/10" },
+                { label: t("adminDash.userGrowth"), value: `${stats?.userGrowth || 0}%`, icon: TrendingUp, color: "text-primary", bg: "bg-primary/10" },
               ].map((stat, index) => (
-                <div key={index} className="rounded-xl border border-border bg-secondary/30 p-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                    <p className="text-xs text-muted-foreground sm:text-sm">{stat.label}</p>
+                <div
+                  key={index}
+                  role="region"
+                  aria-label={`${stat.label}: ${stat.value}`}
+                  className="rounded-xl border border-border/80 bg-card/60 p-4 shadow-soft transition-colors hover:border-primary/40"
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-xs font-semibold text-muted-foreground sm:text-sm">{stat.label}</p>
+                    <div className={cn("h-6 w-6 rounded-md flex items-center justify-center", stat.bg)}>
+                      <stat.icon className={cn("w-3.5 h-3.5", stat.color)} />
+                    </div>
                   </div>
-                  <p className="text-lg font-bold text-foreground sm:text-xl">{stat.value}</p>
+                  <p className="text-lg font-black text-foreground sm:text-2xl">{stat.value}</p>
                 </div>
               ))
             )}
@@ -331,6 +356,13 @@ const AdminDashboard = () => {
 
             <TabsContent value="operations">
               <AdminOperationsTab />
+            </TabsContent>
+
+            <TabsContent value="enrichment-review">
+              <AdminEnrichmentReviewTab />
+            </TabsContent>
+            <TabsContent value="event-review">
+              <AdminEventVerificationReviewTab />
             </TabsContent>
 
             <TabsContent value="promopush">
