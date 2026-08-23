@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import { Compass } from "lucide-react";
+import { Compass, MapPin, ExternalLink } from "lucide-react";
 
 export interface MapMarkerItem {
   id: string;
@@ -26,187 +24,233 @@ interface PromorangMapProps {
 
 const DEFAULT_CENTER = { lat: 18.0179, lng: -76.8099 }; // Kingston, Jamaica
 
-const createPinIcon = (isSelected: boolean) => {
-  const bg = isSelected ? "#22c55e" : "#ff5500";
-  const glow = isSelected ? "rgba(34, 197, 94, 0.7)" : "rgba(255, 85, 0, 0.7)";
-  
-  return L.divIcon({
-    className: "promorang-map-pin",
-    html: `
-      <div style="
-        position: relative;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-      ">
-        <div style="
-          position: absolute;
-          width: 28px;
-          height: 28px;
-          background: ${bg};
-          border: 2.5px solid #ffffff;
-          border-radius: 50% 50% 50% 0;
-          transform: rotate(-45deg);
-          box-shadow: 0 0 16px ${glow}, 0 4px 10px rgba(0,0,0,0.6);
-        "></div>
-        <div style="
-          position: absolute;
-          width: 8px;
-          height: 8px;
-          background: #ffffff;
-          border-radius: 50%;
-          z-index: 2;
-        "></div>
-      </div>
-    `,
-    iconSize: [32, 32],
-    iconAnchor: [16, 30],
-    popupAnchor: [0, -30],
+const GOOGLE_DARK_STYLES: google.maps.MapTypeStyle[] = [
+  { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+  {
+    featureType: "administrative.locality",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "geometry",
+    stylers: [{ color: "#263c3f" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#6b9a76" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#38414e" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#212a37" }],
+  },
+  {
+    featureType: "road",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#9ca5b3" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [{ color: "#746855" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#1f2835" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#f3d19c" }],
+  },
+  {
+    featureType: "transit",
+    elementType: "geometry",
+    stylers: [{ color: "#2f3948" }],
+  },
+  {
+    featureType: "transit.station",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#17263c" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#515c6d" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#17263c" }],
+  },
+];
+
+const loadGoogleMapsScript = (apiKey: string): Promise<typeof google.maps> => {
+  if (window.google?.maps) {
+    return Promise.resolve(window.google.maps);
+  }
+
+  const existingScript = document.getElementById("google-maps-script") as HTMLScriptElement | null;
+  if (existingScript) {
+    return new Promise((resolve) => {
+      if (window.google?.maps) {
+        resolve(window.google.maps);
+      } else {
+        existingScript.addEventListener("load", () => resolve(window.google.maps));
+      }
+    });
+  }
+
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.id = "google-maps-script";
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry&v=weekly`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      if (window.google?.maps) {
+        resolve(window.google.maps);
+      } else {
+        reject(new Error("Google Maps SDK not found on window"));
+      }
+    };
+    script.onerror = (err) => reject(err);
+    document.head.appendChild(script);
   });
 };
 
 export const PromorangMap: React.FC<PromorangMapProps> = ({
   center = DEFAULT_CENTER,
-  zoom = 11,
+  zoom = 12,
   markers = [],
   className = "w-full h-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative bg-[#09090b]",
   height = "600px",
   interactive = true,
   showCurrentLocationBtn = true,
 }) => {
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
-  const tileLayerRef = useRef<L.TileLayer | null>(null);
-  const markersLayerRef = useRef<L.LayerGroup | null>(null);
-  const [mapType, setMapType] = useState<"dark" | "satellite">("dark");
+  const mapInstanceRef = useRef<google.maps.Map | null>(null);
+  const activeMarkersRef = useRef<google.maps.Marker[]>([]);
+  const activeInfoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
 
-  // 1. Initialize Leaflet Map instance
+  // 1. Initialize Google Map
   useEffect(() => {
-    if (!mapContainerRef.current || mapInstanceRef.current) return;
+    if (!mapContainerRef.current || !apiKey) return;
 
-    const initialCenter: [number, number] = [
-      center?.lat ?? DEFAULT_CENTER.lat,
-      center?.lng ?? DEFAULT_CENTER.lng,
-    ];
+    let isMounted = true;
 
-    const map = L.map(mapContainerRef.current, {
-      center: initialCenter,
-      zoom: zoom,
-      zoomControl: false,
-      dragging: interactive,
-      touchZoom: interactive,
-      scrollWheelZoom: interactive,
-      doubleClickZoom: interactive,
-      attributionControl: false,
-    });
+    loadGoogleMapsScript(apiKey)
+      .then((gMaps) => {
+        if (!isMounted || !mapContainerRef.current) return;
 
-    // High-resolution global street map layer with dark CSS filter
-    const tileLayer = L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
-      {
-        maxZoom: 18,
-        className: "promorang-map-tiles",
-        attribution: "Esri",
-      }
-    ).addTo(map);
+        const map = new gMaps.Map(mapContainerRef.current, {
+          center: { lat: center?.lat ?? DEFAULT_CENTER.lat, lng: center?.lng ?? DEFAULT_CENTER.lng },
+          zoom: zoom,
+          styles: GOOGLE_DARK_STYLES,
+          disableDefaultUI: !interactive,
+          zoomControl: interactive,
+          mapTypeControl: true,
+          mapTypeControlOptions: {
+            position: gMaps.ControlPosition.TOP_LEFT,
+            style: gMaps.MapTypeControlStyle.HORIZONTAL_BAR,
+          },
+          streetViewControl: false,
+          fullscreenControl: interactive,
+          gestureHandling: interactive ? "greedy" : "none",
+        });
 
-    tileLayerRef.current = tileLayer;
-
-    if (interactive) {
-      L.control.zoom({ position: "bottomright" }).addTo(map);
-    }
-
-    const markersLayer = L.layerGroup().addTo(map);
-    markersLayerRef.current = markersLayer;
-    mapInstanceRef.current = map;
-
-    // Trigger multiple invalidates to ensure tiles load during initial layout/transitions
-    const t1 = setTimeout(() => map.invalidateSize(), 50);
-    const t2 = setTimeout(() => map.invalidateSize(), 200);
-    const t3 = setTimeout(() => map.invalidateSize(), 500);
-
-    const resizeObserver = new ResizeObserver(() => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.invalidateSize();
-      }
-    });
-
-    if (mapContainerRef.current) {
-      resizeObserver.observe(mapContainerRef.current);
-    }
+        mapInstanceRef.current = map;
+        setMapLoaded(true);
+      })
+      .catch((err) => {
+        console.error("Google Maps load error:", err);
+      });
 
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      resizeObserver.disconnect();
-      map.remove();
-      mapInstanceRef.current = null;
-      markersLayerRef.current = null;
-      tileLayerRef.current = null;
+      isMounted = false;
     };
-  }, []);
+  }, [apiKey]);
 
-  // 2. Toggle Tile Layer (Dark Street vs Satellite)
-  useEffect(() => {
-    if (!mapInstanceRef.current || !tileLayerRef.current) return;
-
-    mapInstanceRef.current.removeLayer(tileLayerRef.current);
-
-    const url =
-      mapType === "satellite"
-        ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-        : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}";
-
-    const newTileLayer = L.tileLayer(url, {
-      maxZoom: 18,
-      className: mapType === "satellite" ? "promorang-satellite-tiles" : "promorang-map-tiles",
-      attribution: "Esri",
-    }).addTo(mapInstanceRef.current);
-
-    tileLayerRef.current = newTileLayer;
-  }, [mapType]);
-
-  // 3. Sync center and zoom when props change
+  // 2. Sync Map Center and Zoom
   useEffect(() => {
     if (!mapInstanceRef.current || !center?.lat || !center?.lng) return;
-    mapInstanceRef.current.setView([center.lat, center.lng], zoom, {
-      animate: true,
-    });
-  }, [center?.lat, center?.lng, zoom]);
+    mapInstanceRef.current.panTo({ lat: center.lat, lng: center.lng });
+  }, [center?.lat, center?.lng]);
 
-  // 4. Render dynamic markers
+  // 3. Render Google Maps Markers
   useEffect(() => {
-    if (!mapInstanceRef.current || !markersLayerRef.current) return;
+    if (!mapInstanceRef.current || !mapLoaded || !window.google?.maps) return;
 
-    markersLayerRef.current.clearLayers();
+    const map = mapInstanceRef.current;
+
+    // Clear previous markers
+    activeMarkersRef.current.forEach((m) => m.setMap(null));
+    activeMarkersRef.current = [];
+
+    const pinSvg = (color: string) =>
+      `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="${color}" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+          <circle cx="12" cy="10" r="3" fill="#ffffff"/>
+        </svg>
+      `)}`;
 
     if (markers.length === 0 && center) {
-      const fallbackMarker = L.marker([center.lat, center.lng], {
-        icon: createPinIcon(false),
+      const fallbackMarker = new google.maps.Marker({
+        position: { lat: center.lat, lng: center.lng },
+        map: map,
+        icon: {
+          url: pinSvg("#ff5500"),
+          scaledSize: new google.maps.Size(34, 34),
+          anchor: new google.maps.Point(17, 34),
+        },
       });
-      markersLayerRef.current.addLayer(fallbackMarker);
+      activeMarkersRef.current.push(fallbackMarker);
       return;
     }
 
     markers.forEach((m) => {
-      const marker = L.marker([m.lat, m.lng], {
-        icon: createPinIcon(false),
+      const marker = new google.maps.Marker({
+        position: { lat: m.lat, lng: m.lng },
+        map: map,
         title: m.title,
+        icon: {
+          url: pinSvg("#ff5500"),
+          scaledSize: new google.maps.Size(34, 34),
+          anchor: new google.maps.Point(17, 34),
+        },
       });
 
       const popupContent = `
         <div style="
-          padding: 14px 16px;
+          padding: 12px;
           min-width: 220px;
           max-width: 280px;
-          background: #18181b;
-          color: #ffffff;
-          border-radius: 1.25rem;
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          color: #18181b;
         ">
           ${m.category ? `
             <span style="
@@ -217,30 +261,29 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
               letter-spacing: 0.05em;
               padding: 2px 8px;
               border-radius: 9999px;
-              background: rgba(255, 85, 0, 0.15);
-              color: #ff6a00;
-              border: 1px solid rgba(255, 85, 0, 0.3);
-              margin-bottom: 8px;
+              background: #ffedd5;
+              color: #c2410c;
+              margin-bottom: 6px;
             ">${m.category}</span>
           ` : ''}
-          <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 800; line-height: 1.25; color: #ffffff;">
+          <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 800; line-height: 1.25; color: #09090b;">
             ${m.title}
           </h4>
           ${m.subtitle ? `
-            <p style="margin: 0 0 6px 0; font-size: 11px; color: rgba(255,255,255,0.6); line-height: 1.3;">
+            <p style="margin: 0 0 6px 0; font-size: 11px; color: #52525b; line-height: 1.3;">
               ${m.subtitle}
             </p>
           ` : ''}
           ${m.reward ? `
-            <p style="margin: 0 0 10px 0; font-size: 11px; font-weight: 700; color: #34d399;">
+            <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: 700; color: #059669;">
               🏆 ${m.reward}
             </p>
           ` : ''}
-          <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-top: 6px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #e4e4e7; padding-top: 8px; margin-top: 6px;">
             <a href="/moments/${m.id}" style="
               font-size: 11px;
               font-weight: 800;
-              color: #ff6a00;
+              color: #ff5500;
               text-decoration: none;
             ">
               View & RSVP →
@@ -248,7 +291,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
             <a href="https://maps.google.com/?q=${m.lat},${m.lng}" target="_blank" rel="noopener noreferrer" style="
               font-size: 10px;
               font-weight: 600;
-              color: rgba(255,255,255,0.5);
+              color: #71717a;
               text-decoration: none;
             ">
               Directions ↗
@@ -257,25 +300,32 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
         </div>
       `;
 
-      marker.bindPopup(popupContent, {
-        className: "promorang-custom-leaflet-popup",
-        closeButton: true,
+      const infoWindow = new google.maps.InfoWindow({
+        content: popupContent,
       });
 
-      markersLayerRef.current?.addLayer(marker);
+      marker.addListener("click", () => {
+        if (activeInfoWindowRef.current) {
+          activeInfoWindowRef.current.close();
+        }
+        infoWindow.open(map, marker);
+        activeInfoWindowRef.current = infoWindow;
+      });
+
+      activeMarkersRef.current.push(marker);
     });
-  }, [markers, center]);
+  }, [markers, mapLoaded, center]);
 
   const handleGeolocate = () => {
     if (navigator.geolocation && mapInstanceRef.current) {
       setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          mapInstanceRef.current?.flyTo(
-            [pos.coords.latitude, pos.coords.longitude],
-            14,
-            { duration: 1.2 }
-          );
+          mapInstanceRef.current?.panTo({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          });
+          mapInstanceRef.current?.setZoom(14);
           setIsLocating(false);
         },
         (err) => {
@@ -286,47 +336,40 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
     }
   };
 
+  if (!apiKey) {
+    return (
+      <div 
+        style={{ height, minHeight: "450px" }}
+        className="flex flex-col items-center justify-center p-6 bg-zinc-900/80 rounded-3xl border border-white/10 text-center space-y-3"
+      >
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 text-[#ff5500]">
+          <MapPin className="h-6 w-6" />
+        </div>
+        <p className="text-sm font-semibold text-white">Google Maps API key not configured</p>
+        <p className="text-xs text-white/50 max-w-xs">Add VITE_GOOGLE_MAPS_API_KEY to your environment settings to enable live interactive maps.</p>
+      </div>
+    );
+  }
+
   return (
     <div className={className} style={{ height, minHeight: "450px" }}>
-      {/* Map / Satellite Layer Switcher Overlay */}
-      <div className="absolute top-4 left-4 z-[400] flex items-center rounded-xl border border-white/15 bg-black/80 backdrop-blur-md p-1 shadow-xl">
-        <button
-          type="button"
-          onClick={() => setMapType("dark")}
-          className={`rounded-lg px-3 py-1 text-xs font-bold transition ${
-            mapType === "dark" ? "bg-primary text-white shadow-md" : "text-white/60 hover:text-white"
-          }`}
-        >
-          Map
-        </button>
-        <button
-          type="button"
-          onClick={() => setMapType("satellite")}
-          className={`rounded-lg px-3 py-1 text-xs font-bold transition ${
-            mapType === "satellite" ? "bg-primary text-white shadow-md" : "text-white/60 hover:text-white"
-          }`}
-        >
-          Satellite
-        </button>
-      </div>
-
       {/* Geolocation Button Overlay */}
       {showCurrentLocationBtn && (
         <button
           onClick={handleGeolocate}
           disabled={isLocating}
           type="button"
-          className="absolute top-4 right-4 z-[400] flex h-10 w-10 items-center justify-center rounded-xl bg-black/80 backdrop-blur-md border border-white/15 text-white hover:bg-black hover:text-primary transition shadow-xl disabled:opacity-50"
+          className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-xl bg-black/80 backdrop-blur-md border border-white/15 text-white hover:bg-black hover:text-primary transition shadow-xl disabled:opacity-50"
           title="Center on my location"
         >
           <Compass className={`h-5 w-5 ${isLocating ? "animate-spin text-primary" : ""}`} />
         </button>
       )}
 
-      {/* Leaflet DOM container */}
+      {/* Google Maps DOM container */}
       <div 
         ref={mapContainerRef} 
-        className="w-full h-full relative z-0" 
+        className="w-full h-full relative" 
         style={{ width: "100%", height: "100%", minHeight: "450px" }}
       />
     </div>
