@@ -63,6 +63,8 @@ import type { Tables } from "@/integrations/supabase/types";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import { useI18n } from "@/i18n/I18nContext";
+import { OpsTheatreStatusPill } from "@/components/theater/OpsTheatreStatusPill";
+import { OpsTheatreOrientationModal } from "@/components/onboarding/OpsTheatreOrientationModal";
 
 type PublicMoment = Tables<"moments"> & { participant_count?: number | null };
 type PublicCommerceListing = Tables<"view_public_commerce_directory">;
@@ -311,6 +313,7 @@ export default function CinematicCultureHome() {
   const [heroInteractionPaused, setHeroInteractionPaused] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
   const [shouldReduceMotion, setShouldReduceMotion] = useState(false);
+  const [orientationOpen, setOrientationOpen] = useState(false);
   const visitorLocation = useVisitorLocation();
   const discoveryQuery = useQuery({
     queryKey: ["homepage-public-discovery"],
@@ -483,12 +486,15 @@ export default function CinematicCultureHome() {
             style={{ y: shouldReduceMotion ? 0 : contentY, opacity: shouldReduceMotion ? 1 : contentOpacity }}
             className="w-full max-w-[calc(100vw-3rem)] md:max-w-4xl space-y-4 will-change-transform"
           >
-            <div className="inline-flex items-center space-x-2 bg-orange-500/20 border border-orange-500/40 px-3.5 py-1.5 rounded-full text-xs font-black text-orange-400">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-              </span>
-              <span>{t("home.pulse")}</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center space-x-2 bg-orange-500/20 border border-orange-500/40 px-3.5 py-1.5 rounded-full text-xs font-black text-orange-400">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                </span>
+                <span>{t("home.pulse")}</span>
+              </div>
+              <OpsTheatreStatusPill onOpenOrientation={() => setOrientationOpen(true)} showDetails />
             </div>
 
             <h1 className="max-w-4xl font-sans text-[clamp(2.8rem,9vw,7.5rem)] font-black uppercase leading-[0.82] tracking-[-0.075em] text-white">
@@ -1139,6 +1145,12 @@ export default function CinematicCultureHome() {
       </section>
 
       <MobileBottomNav />
+
+      {/* Ops Theatre Stakeholder Orientation Modal */}
+      <OpsTheatreOrientationModal
+        isOpen={orientationOpen}
+        onClose={() => setOrientationOpen(false)}
+      />
     </main>
   );
 }

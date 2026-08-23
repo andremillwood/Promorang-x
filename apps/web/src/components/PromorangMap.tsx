@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
 import { MapPin, Navigation, ExternalLink, Compass } from 'lucide-react';
 
@@ -14,7 +14,7 @@ export interface MapMarkerItem {
 }
 
 interface PromorangMapProps {
-  center: { lat: number; lng: number };
+  center?: { lat: number; lng: number };
   zoom?: number;
   markers?: MapMarkerItem[];
   className?: string;
@@ -24,7 +24,7 @@ interface PromorangMapProps {
 }
 
 // Dark style map ID or custom styles
-const DEFAULT_CENTER = { lat: 40.7128, lng: -74.0060 }; // NYC fallback
+const DEFAULT_CENTER = { lat: 18.0179, lng: -76.8099 }; // Kingston fallback
 
 export const PromorangMap: React.FC<PromorangMapProps> = ({
   center = DEFAULT_CENTER,
@@ -40,6 +40,12 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
   const [selectedMarker, setSelectedMarker] = useState<MapMarkerItem | null>(null);
   const [mapCenter, setMapCenter] = useState(center);
   const [isLocating, setIsLocating] = useState(false);
+
+  useEffect(() => {
+    if (center?.lat && center?.lng) {
+      setMapCenter(center);
+    }
+  }, [center?.lat, center?.lng]);
 
   const handleGeolocate = () => {
     if (navigator.geolocation) {
@@ -143,14 +149,22 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
                 {selectedMarker.reward && (
                   <p className="text-xs font-bold text-emerald-600">🏆 {selectedMarker.reward}</p>
                 )}
-                <a
-                  href={`https://maps.google.com/?q=${selectedMarker.lat},${selectedMarker.lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-orange-600 hover:underline pt-1"
-                >
-                  Get Directions <ExternalLink className="h-3 w-3" />
-                </a>
+                <div className="flex items-center gap-3 pt-1">
+                  <a
+                    href={`/moments/${selectedMarker.id}`}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-orange-600 hover:underline"
+                  >
+                    View Details & RSVP →
+                  </a>
+                  <a
+                    href={`https://maps.google.com/?q=${selectedMarker.lat},${selectedMarker.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-500 hover:underline"
+                  >
+                    Directions <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
               </div>
             </InfoWindow>
           )}

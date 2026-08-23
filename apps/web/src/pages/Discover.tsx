@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
 import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModal";
-import { PromorangMap } from "@/components/PromorangMap";
+import { PromorangMap, MapMarkerItem } from "@/components/PromorangMap";
 import { StoryGamificationRail } from "@/components/StoryGamificationRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
@@ -44,6 +44,26 @@ const categoryFilters = [
   { id: "food", label: "Food & Drinks", icon: Gift },
   { id: "community", label: "Gatherings & Culture", icon: Users },
 ];
+
+const CURATED_COORDINATES: Record<string, { lat: number; lng: number }> = {
+  "00000000-0000-0000-0002-000000000060": { lat: 18.0435, lng: -76.8123 }, // PriceSmart Red Hills
+  "00000000-0000-0000-0002-000000000051": { lat: 18.4554, lng: -77.2023 }, // Plantation Cove
+  "00000000-0000-0000-0002-000000000052": { lat: 18.4554, lng: -77.2023 }, // Plantation Cove
+  "00000000-0000-0000-0002-000000000001": { lat: 18.0267, lng: -76.7924 }, // Fiction Nightclub
+  "00000000-0000-0000-0002-000000000002": { lat: 18.0267, lng: -76.7924 }, // Fiction Nightclub
+  "00000000-0000-0000-0002-000000000025": { lat: 18.0270, lng: -76.7925 }, // Tracks & Records
+  "00000000-0000-0000-0002-000000000026": { lat: 18.0163, lng: -76.7915 }, // Steakhouse Verandah Devon House
+  "00000000-0000-0000-0002-000000000022": { lat: 18.0163, lng: -76.7915 }, // Tacbar Devon House
+  "00000000-0000-0000-0002-000000000023": { lat: 18.0065, lng: -76.7865 }, // Pegasus
+  "00000000-0000-0000-0002-000000000017": { lat: 18.0210, lng: -76.7725 }, // Chilitos JaMexican
+  "00000000-0000-0000-0002-000000000018": { lat: 18.0145, lng: -76.7842 }, // AC Lounge
+  "00000000-0000-0000-0002-000000000004": { lat: 18.0465, lng: -76.7582 }, // Kingston Dub Club
+  "00000000-0000-0000-0002-000000000005": { lat: 18.0163, lng: -76.7915 }, // Devon House Gourmet
+  "00000000-0000-0000-0002-000000000006": { lat: 18.0080, lng: -76.7890 }, // Janga's Soundbar
+  "00000000-0000-0000-0002-000000000015": { lat: 17.9678, lng: -76.7910 }, // Downtown Art District
+};
+
+const DEFAULT_DISCOVER_CENTER = { lat: 18.0179, lng: -76.8099 };
 
 const DISCOVERY_QUESTIONS_FEED: DiscoveryProps[] = [...DISCOVERY_POLLS];
 
@@ -81,24 +101,34 @@ const Discover = () => {
         .order("starts_at", { ascending: true })
         .limit(20);
 
-      const dbMoments = momentsData || [];
-      const curatedAsMoments = CURATED_KINGSTON_MOMENTS.map((cm) => ({
-        id: cm.id,
-        host_id: "editorial",
-        title: cm.title,
-        description: cm.description,
-        category: cm.intentType === "ATTEND" ? "Music & Parties" : cm.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
-        location: cm.location,
-        venue_name: cm.venueName,
-        starts_at: new Date(Date.now() + 86400000).toISOString(),
-        ends_at: null,
-        max_participants: 50,
-        reward: `${cm.pointsReward} Points + PromoKey`,
-        image_url: cm.image,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+      const dbMoments = (momentsData || []).map((m) => ({
+        ...m,
+        latitude: m.latitude ?? null,
+        longitude: m.longitude ?? null,
       }));
+
+      const curatedAsMoments = CURATED_KINGSTON_MOMENTS.map((cm) => {
+        const coords = CURATED_COORDINATES[cm.id] || DEFAULT_DISCOVER_CENTER;
+        return {
+          id: cm.id,
+          host_id: "editorial",
+          title: cm.title,
+          description: cm.description,
+          category: cm.intentType === "ATTEND" ? "Music & Parties" : cm.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
+          location: cm.location,
+          venue_name: cm.venueName,
+          latitude: coords.lat,
+          longitude: coords.lng,
+          starts_at: new Date(Date.now() + 86400000).toISOString(),
+          ends_at: null,
+          max_participants: 50,
+          reward: `${cm.pointsReward} Points + PromoKey`,
+          image_url: cm.image,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+      });
 
       const seenTitles = new Set(dbMoments.map((m) => m.title.toLowerCase()));
       const filteredCurated = curatedAsMoments.filter((cm) => !seenTitles.has(cm.title.toLowerCase()));
@@ -118,6 +148,38 @@ const Discover = () => {
   });
 
   const featuredMoment = moments[0] || null;
+
+  const mapMarkers = useMemo<MapMarkerItem[]>(() => {
+    return filteredMoments
+      .map((m) => {
+        const lat = Number(m.latitude);
+        const lng = Number(m.longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+        return {
+          id: m.id,
+          lat,
+          lng,
+          title: m.title,
+          subtitle: m.venue_name || m.location || undefined,
+          category: m.category || undefined,
+          reward: m.reward || undefined,
+          imageUrl: m.image_url || undefined,
+        };
+      })
+      .filter((m): m is MapMarkerItem => m !== null);
+  }, [filteredMoments]);
+
+  const mapCenter = useMemo(() => {
+    if (mapMarkers.length > 0) {
+      const sumLat = mapMarkers.reduce((sum, m) => sum + m.lat, 0);
+      const sumLng = mapMarkers.reduce((sum, m) => sum + m.lng, 0);
+      return {
+        lat: sumLat / mapMarkers.length,
+        lng: sumLng / mapMarkers.length,
+      };
+    }
+    return DEFAULT_DISCOVER_CENTER;
+  }, [mapMarkers]);
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
@@ -314,8 +376,22 @@ const Discover = () => {
 
                 {/* Events Grid or Map View */}
                 {viewMode === "map" ? (
-                  <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-white/10">
-                    <PromorangMap />
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <h3 className="text-lg sm:text-xl font-bold text-white">Live Discovery Map</h3>
+                      </div>
+                      <span className="text-xs font-semibold text-white/50">{mapMarkers.length} locations mapped</span>
+                    </div>
+                    <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+                      <PromorangMap
+                        center={mapCenter}
+                        zoom={13}
+                        markers={mapMarkers}
+                        height="100%"
+                      />
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-4">

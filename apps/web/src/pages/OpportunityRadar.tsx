@@ -25,6 +25,9 @@ import { MomentDetailModal } from '@/components/radar/MomentDetailModal';
 import { AskQuestionModal } from '@/components/discovery/AskQuestionModal';
 import { CityRhythmTracker } from '@/components/radar/CityRhythmTracker';
 import { RadarLeaderboards } from '@/components/radar/RadarLeaderboards';
+import { OpsTheatreStatusPill } from '@/components/theater/OpsTheatreStatusPill';
+import { SlotScarcityBanner } from '@/components/theater/SlotScarcityBanner';
+import { OpsTheatreOrientationModal } from '@/components/onboarding/OpsTheatreOrientationModal';
 import { DISCOVERY_POLLS } from '@/data/discoveriesData';
 
 // Sample Seed Data for Demonstration & Verification
@@ -503,6 +506,7 @@ export default function OpportunityRadar() {
   // Sub-Moments & Mission Detail Modal State
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [activeDetailMoment, setActiveDetailMoment] = useState<MomentProps | null>(null);
+  const [orientationOpen, setOrientationOpen] = useState(false);
 
   const handleClaimKey = (momentId: string) => {
     const target = SAMPLE_MOMENTS.find(m => m.id === momentId) || SAMPLE_MOMENTS[0];
@@ -527,13 +531,14 @@ export default function OpportunityRadar() {
       <div className="bg-gradient-to-b from-gray-950 via-gray-900 to-gray-900 text-white pt-8 pb-12 px-4 border-b border-gray-800">
         <div className="max-w-6xl mx-auto">
           
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
             <div>
-              <div className="flex items-center space-x-2 mb-2">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
                 <span className="px-2.5 py-0.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-full text-xs font-black uppercase tracking-wider">
                   {t("radar.participationNetwork")}
                 </span>
                 <span className="text-xs text-gray-400 font-medium">Kingston, Jamaica</span>
+                <OpsTheatreStatusPill onOpenOrientation={() => setOrientationOpen(true)} showDetails />
               </div>
               <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
                 {t("radar.title")}
@@ -561,9 +566,17 @@ export default function OpportunityRadar() {
             </div>
           </div>
 
+          {/* Slot Scarcity Banner */}
+          <SlotScarcityBanner
+            windowName="Campaign Window B"
+            remainingSlots={3}
+            totalSlots={10}
+            closesInHours={16}
+            onBookSlot={() => setOrientationOpen(true)}
+          />
+
           {/* 7-Day Economic Operating Rhythm & Theater Tracker */}
           <CityRhythmTracker
-            currentStage="DISCOVER"
             city="Kingston"
             activeDebateTitle="Jerk King of Kingston Debate"
             keysCount={15}
@@ -785,6 +798,12 @@ export default function OpportunityRadar() {
           keysRemaining={activeKeyMoment.promoKeysAvailable}
         />
       )}
+
+      {/* Ops Theatre Stakeholder Orientation Modal */}
+      <OpsTheatreOrientationModal
+        isOpen={orientationOpen}
+        onClose={() => setOrientationOpen(false)}
+      />
     </div>
   );
 }

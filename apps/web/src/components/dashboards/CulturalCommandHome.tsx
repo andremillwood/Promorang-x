@@ -9,11 +9,14 @@ import {
   Flame,
   Gem,
   Gift,
+  HelpCircle,
   KeyRound,
   MapPin,
   Plus,
+  Radio,
   Share2,
   Sparkles,
+  Target,
   Ticket,
   Trophy,
   Zap,
@@ -27,6 +30,20 @@ import { ShareButton } from "@/components/ShareButton";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 
+const getOpsTheatreStage = () => {
+  const day = new Date().getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  const schedule = [
+    { day: "Sunday", phase: "Digest & Vault Teasers", tag: "Weekly Reflection", icon: Sparkles, color: "text-purple-400 bg-purple-500/10 border-purple-500/30" },
+    { day: "Monday", phase: "Radar & Missions Drop", tag: "New Moments Live", icon: Zap, color: "text-amber-400 bg-amber-500/10 border-amber-500/30" },
+    { day: "Tuesday", phase: "Verification & Leaderboards", tag: "Proof Credited", icon: Trophy, color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30" },
+    { day: "Wednesday", phase: "Mid-Week Freeze", tag: "Odds & Polls Locked", icon: Flame, color: "text-blue-400 bg-blue-500/10 border-blue-500/30" },
+    { day: "Thursday", phase: "Campaign Window Launch", tag: "Sub-Moments Open", icon: Sparkles, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" },
+    { day: "Friday", phase: "Gem Payouts & Proof Showcase", tag: "Escrows Disbursed", icon: Gem, color: "text-primary bg-primary/10 border-primary/30" },
+    { day: "Saturday", phase: "Live Moments & Piece Drops", tag: "Real-World Execution", icon: Ticket, color: "text-amber-400 bg-amber-500/10 border-amber-500/30" },
+  ];
+  return schedule[day];
+};
+
 export function CulturalCommandHome() {
   const { t } = useI18n();
   const { user } = useAuth();
@@ -37,6 +54,7 @@ export function CulturalCommandHome() {
   const [showDailyRewards, setShowDailyRewards] = useState(false);
 
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || "Explorer";
+  const opsStage = useMemo(() => getOpsTheatreStage(), []);
 
   // Prioritize joined upcoming moment or top curated moment
   const upcomingMoment = useMemo(() => {
@@ -53,7 +71,7 @@ export function CulturalCommandHome() {
       starts_at: new Date().toISOString(),
       image_url: curated.image,
       reward: `${curated.pointsReward} Points`,
-      category: "Featured Tonight",
+      category: "Featured Stage",
     };
   }, [joinedMoments]);
 
@@ -70,29 +88,30 @@ export function CulturalCommandHome() {
 
   return (
     <div className="space-y-6 text-white pb-12 animate-in fade-in-50 duration-300">
-      {/* 1. Header Greeting & Live Status Bar */}
+      {/* 1. Header Greeting, Ops Theatre Stage & Live Status */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl border border-white/10 bg-gradient-to-r from-white/[0.04] via-white/[0.02] to-transparent backdrop-blur-xl">
         <div className="flex items-center gap-3.5">
           <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center text-black font-black shadow-lg shadow-primary/20 shrink-0">
             <Zap className="h-6 w-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">
                 Welcome back, {firstName}
               </h1>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-400 text-[11px] font-bold">
-                <Flame className="h-3 w-3 fill-amber-400 text-amber-400" />
-                <span>3-Day Streak</span>
+              {/* Ops Theatre Showbeat Badge */}
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[10px] font-black uppercase tracking-wider ${opsStage.color}`}>
+                <opsStage.icon className="h-3 w-3" />
+                <span>{opsStage.day}: {opsStage.phase}</span>
               </span>
             </div>
-            <p className="text-xs text-white/60">
-              Here is your cultural command center for today.
+            <p className="text-xs text-white/60 mt-0.5">
+              Ops Theatre Stage • Synchronized weekly community momentum
             </p>
           </div>
         </div>
 
-        {/* Quick Balance Pills & Action */}
+        {/* Quick Balance Pills */}
         <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
           <Link
             to="/wallet"
@@ -114,7 +133,164 @@ export function CulturalCommandHome() {
         </div>
       </div>
 
-      {/* 2. Hero Focus: Featured Moment / Next Pass */}
+      {/* 2. Personal Success Journey Runway (Compact Guided Milestone Bar) */}
+      <div className="p-4 sm:p-5 rounded-3xl border border-primary/25 bg-gradient-to-r from-primary/10 via-black to-black text-xs text-white/80 space-y-3 shadow-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded-full bg-primary text-black font-black text-[10px] uppercase tracking-wider">
+              Level 1 Explorer
+            </span>
+            <span className="font-bold text-white text-xs sm:text-sm">
+              Your Path to Level 2 Scout Status
+            </span>
+          </div>
+          <span className="text-[11px] text-white/50 font-medium">
+            Notice &rarr; Move &rarr; Prove &rarr; Unlock
+          </span>
+        </div>
+
+        {/* 3 Clickable Action Runway Chips */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+          <Link
+            to="/discover"
+            className="p-2.5 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-primary/40 hover:bg-white/[0.06] transition flex items-center justify-between group"
+          >
+            <div className="flex items-center gap-2">
+              <span className="h-5 w-5 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-[10px]">1</span>
+              <div>
+                <p className="font-bold text-white text-[11px]">Cast 1st Poll Vote</p>
+                <p className="text-[10px] text-emerald-400 font-semibold">+50 Points</p>
+              </div>
+            </div>
+            <ChevronRight className="h-3.5 w-3.5 text-white/30 group-hover:text-primary transition" />
+          </Link>
+
+          <Link
+            to="/missions"
+            className="p-2.5 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-amber-400/40 hover:bg-white/[0.06] transition flex items-center justify-between group"
+          >
+            <div className="flex items-center gap-2">
+              <span className="h-5 w-5 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-[10px]">2</span>
+              <div>
+                <p className="font-bold text-white text-[11px]">Start a Mission</p>
+                <p className="text-[10px] text-amber-300 font-semibold">+100 Points & Proof</p>
+              </div>
+            </div>
+            <ChevronRight className="h-3.5 w-3.5 text-white/30 group-hover:text-amber-400 transition" />
+          </Link>
+
+          <Link
+            to="/discover"
+            className="p-2.5 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-cyan-400/40 hover:bg-white/[0.06] transition flex items-center justify-between group"
+          >
+            <div className="flex items-center gap-2">
+              <span className="h-5 w-5 rounded-full bg-cyan-400/20 text-cyan-400 flex items-center justify-center font-bold text-[10px]">3</span>
+              <div>
+                <p className="font-bold text-white text-[11px]">RSVP to Tonight's Pass</p>
+                <p className="text-[10px] text-cyan-300 font-semibold">+1 PromoKey</p>
+              </div>
+            </div>
+            <ChevronRight className="h-3.5 w-3.5 text-white/30 group-hover:text-cyan-400 transition" />
+          </Link>
+        </div>
+      </div>
+
+      {/* 3. The 4 Operational Arenas (Balanced 4-Card Hub) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Arena 1: Ops Theatre / Live Moments */}
+        <Link
+          to="/discover"
+          className="group p-5 rounded-3xl border border-white/10 bg-white/[0.03] hover:border-primary/40 hover:bg-white/[0.06] transition duration-200 flex flex-col justify-between min-h-[145px]"
+        >
+          <div className="flex items-center justify-between">
+            <div className="p-2.5 rounded-2xl bg-primary/10 border border-primary/20 text-primary group-hover:scale-105 transition">
+              <Ticket className="h-5 w-5" />
+            </div>
+            <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold text-[10px]">
+              Live
+            </span>
+          </div>
+          <div>
+            <h3 className="font-bold text-sm text-white group-hover:text-primary transition">
+              Live Moments & Passes
+            </h3>
+            <p className="text-xs text-white/50 mt-0.5">
+              Active stages, food pop-ups & door QR check-ins.
+            </p>
+          </div>
+        </Link>
+
+        {/* Arena 2: Community Polls & Discoveries */}
+        <Link
+          to="/discover"
+          className="group p-5 rounded-3xl border border-white/10 bg-white/[0.03] hover:border-amber-400/40 hover:bg-white/[0.06] transition duration-200 flex flex-col justify-between min-h-[145px]"
+        >
+          <div className="flex items-center justify-between">
+            <div className="p-2.5 rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-400 group-hover:scale-105 transition">
+              <HelpCircle className="h-5 w-5" />
+            </div>
+            <span className="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400 font-bold text-[10px]">
+              Vote
+            </span>
+          </div>
+          <div>
+            <h3 className="font-bold text-sm text-white group-hover:text-amber-400 transition">
+              Polls & City Drops
+            </h3>
+            <p className="text-xs text-white/50 mt-0.5">
+              Vote on city demand signals & unlock secret drops.
+            </p>
+          </div>
+        </Link>
+
+        {/* Arena 3: Missions & Proof Runway */}
+        <Link
+          to="/missions"
+          className="group p-5 rounded-3xl border border-white/10 bg-white/[0.03] hover:border-cyan-400/40 hover:bg-white/[0.06] transition duration-200 flex flex-col justify-between min-h-[145px]"
+        >
+          <div className="flex items-center justify-between">
+            <div className="p-2.5 rounded-2xl bg-cyan-400/10 border border-cyan-400/20 text-cyan-400 group-hover:scale-105 transition">
+              <Target className="h-5 w-5" />
+            </div>
+            <span className="px-2 py-0.5 rounded-full bg-cyan-400/20 text-cyan-400 font-bold text-[10px]">
+              Bounties
+            </span>
+          </div>
+          <div>
+            <h3 className="font-bold text-sm text-white group-hover:text-cyan-400 transition">
+              Missions & Proof
+            </h3>
+            <p className="text-xs text-white/50 mt-0.5">
+              Clip, check-in, and referral challenge tasks.
+            </p>
+          </div>
+        </Link>
+
+        {/* Arena 4: PromoShare & The Vault */}
+        <Link
+          to="/wallet"
+          className="group p-5 rounded-3xl border border-white/10 bg-white/[0.03] hover:border-emerald-400/40 hover:bg-white/[0.06] transition duration-200 flex flex-col justify-between min-h-[145px]"
+        >
+          <div className="flex items-center justify-between">
+            <div className="p-2.5 rounded-2xl bg-emerald-400/10 border border-emerald-400/20 text-emerald-400 group-hover:scale-105 transition">
+              <Gem className="h-5 w-5" />
+            </div>
+            <span className="px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-400 font-bold text-[10px]">
+              Earnings
+            </span>
+          </div>
+          <div>
+            <h3 className="font-bold text-sm text-white group-hover:text-emerald-400 transition">
+              PromoShare & Vault
+            </h3>
+            <p className="text-xs text-white/50 mt-0.5">
+              Cash payouts, Gem commissions & retained Pieces.
+            </p>
+          </div>
+        </Link>
+      </div>
+
+      {/* 4. Hero Focus: Today's Stage Spotlight */}
       <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-[#111216] shadow-2xl">
         <div className="grid lg:grid-cols-12 min-h-[300px]">
           {/* Image preview banner */}
@@ -136,7 +312,7 @@ export function CulturalCommandHome() {
           <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between space-y-6">
             <div className="space-y-2">
               <p className="text-[11px] font-bold uppercase tracking-widest text-primary">
-                Your Next Cultural Move
+                Tonight's Stage & Sub-Moments
               </p>
               <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">
                 {upcomingMoment.title}
@@ -169,7 +345,7 @@ export function CulturalCommandHome() {
                 className="h-12 px-6 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-sm shadow-[0_0_20px_rgba(255,106,0,0.35)]"
               >
                 <Link to={`/moments/${upcomingMoment.id}`}>
-                  <span>View Pass Details</span>
+                  <span>Enter Stage & RSVP</span>
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
               </Button>
@@ -184,83 +360,14 @@ export function CulturalCommandHome() {
         </div>
       </div>
 
-      {/* 3. Three Primary Quick Action Hub */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Action 1: Explore Tonight */}
-        <Link
-          to="/discover"
-          className="group p-5 rounded-3xl border border-white/10 bg-white/[0.03] hover:border-primary/40 hover:bg-white/[0.06] transition duration-200 flex flex-col justify-between min-h-[140px]"
-        >
-          <div className="flex items-center justify-between">
-            <div className="p-2.5 rounded-2xl bg-primary/10 border border-primary/20 text-primary group-hover:scale-105 transition">
-              <Compass className="h-5 w-5" />
-            </div>
-            <ChevronRight className="h-4 w-4 text-white/30 group-hover:translate-x-1 group-hover:text-primary transition" />
-          </div>
-          <div>
-            <h3 className="font-bold text-sm text-white group-hover:text-primary transition">
-              Explore Tonight
-            </h3>
-            <p className="text-xs text-white/50 mt-0.5">
-              Live events, food pop-ups & cultural venues in your city.
-            </p>
-          </div>
-        </Link>
-
-        {/* Action 2: Daily Streak & Gems */}
-        <button
-          type="button"
-          onClick={() => setShowDailyRewards(true)}
-          className="group p-5 rounded-3xl border border-white/10 bg-white/[0.03] hover:border-amber-400/40 hover:bg-white/[0.06] transition duration-200 flex flex-col justify-between min-h-[140px] text-left"
-        >
-          <div className="flex items-center justify-between">
-            <div className="p-2.5 rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-400 group-hover:scale-105 transition">
-              <Gift className="h-5 w-5" />
-            </div>
-            <span className="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400 font-bold text-[10px]">
-              Ready
-            </span>
-          </div>
-          <div>
-            <h3 className="font-bold text-sm text-white group-hover:text-amber-400 transition">
-              Claim Daily Gems
-            </h3>
-            <p className="text-xs text-white/50 mt-0.5">
-              Roll your daily multiplier and keep your streak alive.
-            </p>
-          </div>
-        </button>
-
-        {/* Action 3: Share & Earn */}
-        <Link
-          to="/promoshare"
-          className="group p-5 rounded-3xl border border-white/10 bg-white/[0.03] hover:border-sky-400/40 hover:bg-white/[0.06] transition duration-200 flex flex-col justify-between min-h-[140px]"
-        >
-          <div className="flex items-center justify-between">
-            <div className="p-2.5 rounded-2xl bg-sky-400/10 border border-sky-400/20 text-sky-400 group-hover:scale-105 transition">
-              <Share2 className="h-5 w-5" />
-            </div>
-            <ChevronRight className="h-4 w-4 text-white/30 group-hover:translate-x-1 group-hover:text-sky-400 transition" />
-          </div>
-          <div>
-            <h3 className="font-bold text-sm text-white group-hover:text-sky-400 transition">
-              Share & Earn Cash
-            </h3>
-            <p className="text-xs text-white/50 mt-0.5">
-              Earn 50 Gems ($0.50) + 10% commission per referral.
-            </p>
-          </div>
-        </Link>
-      </div>
-
-      {/* 4. Activity & Value Metrics */}
+      {/* 5. Value Canon & Activity Metrics */}
       <div className="p-6 rounded-3xl border border-white/10 bg-black/40 backdrop-blur-md space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-[10px] font-black uppercase tracking-widest text-white/50">
-            Your Activity & Reputation
+            My Cultural Canon & Value Summary
           </p>
           <Link to="/wallet" className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
-            <span>View Full Wallet</span>
+            <span>Open The Vault</span>
             <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -290,12 +397,12 @@ export function CulturalCommandHome() {
         </div>
       </div>
 
-      {/* 5. Recommended Experiences Near You (Top 3) */}
+      {/* 6. Recommended Moments for Tonight */}
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-black text-white">Recommended Tonight</h2>
-            <p className="text-xs text-white/50">Curated moments and food pop-ups in your area</p>
+            <p className="text-xs text-white/50">Curated stages and pop-ups in your area</p>
           </div>
           <Button
             asChild
@@ -326,7 +433,7 @@ export function CulturalCommandHome() {
 
               <div className="relative z-10 flex items-center justify-between">
                 <span className="px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-bold text-white">
-                  {moment.intentType === "ATTEND" ? "Music & Event" : "Food & Drink"}
+                  {moment.intentType === "ATTEND" ? "Music & Stage" : "Food & Drink"}
                 </span>
                 <span className="h-7 w-7 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white group-hover:bg-primary group-hover:text-black transition">
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -350,41 +457,6 @@ export function CulturalCommandHome() {
             </Link>
           ))}
         </div>
-      </div>
-
-      {/* 6. Clean Navigation Footprint: Missions & Host Hub */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-        <Link
-          to="/missions"
-          className="p-4 rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] transition flex items-center justify-between group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-              <Trophy className="h-4 w-4" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-white">Role Archetypes & Missions</p>
-              <p className="text-[11px] text-white/50">Explore Scout, Catalyst, and Hype tasks</p>
-            </div>
-          </div>
-          <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-purple-400 group-hover:translate-x-0.5 transition" />
-        </Link>
-
-        <Link
-          to="/create/moment"
-          className="p-4 rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] transition flex items-center justify-between group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
-              <Plus className="h-4 w-4" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-white">Host a Moment or Deal</p>
-              <p className="text-[11px] text-white/50">Create an event or list your venue perk</p>
-            </div>
-          </div>
-          <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-primary group-hover:translate-x-0.5 transition" />
-        </Link>
       </div>
 
       {/* Daily Rewards Modal */}
