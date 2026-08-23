@@ -88,8 +88,28 @@ export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
     formatDate: (val, options) => new Intl.DateTimeFormat(locale, options).format(new Date(val)),
   }), [locale, setLocale]);
 
+  useEffect(() => {
+    if (typeof globalThis !== "undefined") {
+      (globalThis as any).t = value.t;
+    }
+  }, [value.t]);
+
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 };
+
+export const translate = (key: TranslationKey | string, variables?: Record<string, string | number>, localeOverride?: Locale): string => {
+  const currentLocale = localeOverride || (typeof window !== "undefined" ? getInitialLocale() : "en");
+  const loc = translations[currentLocale] ? currentLocale : "en";
+  const template = (translations[loc] as any)?.[key] ?? (translations.en as any)?.[key] ?? String(key);
+  return Object.entries(variables ?? {}).reduce(
+    (result, [name, val]) => result.replaceAll(`{{${name}}}`, String(val)),
+    template,
+  );
+};
+
+if (typeof globalThis !== "undefined" && !(globalThis as any).t) {
+  (globalThis as any).t = translate;
+}
 
 export const useI18n = () => {
   const context = useContext(I18nContext);

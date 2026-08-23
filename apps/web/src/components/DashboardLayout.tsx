@@ -290,6 +290,7 @@ const safeRoleInfo = (role: string | undefined | null) => {
 };
 
 const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
+  const { t } = useI18n();
   const { user, roles, organizations, activeOrgId, setActiveOrgId, agencyClients, setActiveRole, signOut, profile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
