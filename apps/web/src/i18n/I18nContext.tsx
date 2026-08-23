@@ -31,6 +31,7 @@ type I18nValue = {
   t: (key: TranslationKey, variables?: Record<string, string | number>) => string;
   formatNumber: (value: number, options?: Intl.NumberFormatOptions) => string;
   formatDate: (value: Date | string | number, options?: Intl.DateTimeFormatOptions) => string;
+  formatTime: (value: Date | string | number, options?: Intl.DateTimeFormatOptions) => string;
 };
 
 const I18nContext = createContext<I18nValue | null>(null);
@@ -85,7 +86,24 @@ export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
       );
     },
     formatNumber: (val, options) => new Intl.NumberFormat(locale, options).format(val),
-    formatDate: (val, options) => new Intl.DateTimeFormat(locale, options).format(new Date(val)),
+    formatDate: (val, options) => {
+      try {
+        const d = new Date(val);
+        if (isNaN(d.getTime())) return "";
+        return new Intl.DateTimeFormat(locale, options).format(d);
+      } catch {
+        return "";
+      }
+    },
+    formatTime: (val, options) => {
+      try {
+        const d = new Date(val);
+        if (isNaN(d.getTime())) return "";
+        return new Intl.DateTimeFormat(locale, options ?? { hour: "numeric", minute: "2-digit" }).format(d);
+      } catch {
+        return "";
+      }
+    },
   }), [locale, setLocale]);
 
   useEffect(() => {

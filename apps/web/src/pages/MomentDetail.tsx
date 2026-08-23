@@ -25,6 +25,7 @@ import { MomentReviewsList } from '@/components/sentiment/MomentReviewsList';
 import { CalendarButton } from "@/components/CalendarButton";
 import { useI18n } from "@/i18n/I18nContext";
 import { demoMoments } from "@/data/demo-moments";
+import { cultureEvents } from "@/data/culture-demo";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getSubMomentsForMoment } from "@/components/radar/MomentDetailModal";
 import type { MomentProps } from "@/components/radar/MomentCard";
@@ -149,12 +150,14 @@ const MomentDetail = () => {
 
   const [moment, setMoment] = useState<Moment | null>(null);
   const [isJoined, setIsJoined] = useState(false);
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [participantCount, setParticipantCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeMomentTab, setActiveMomentTab] = useState<MomentTab>("overview");
   const [accessQuote, setAccessQuote] = useState<AccessQuote | null>(null);
   const [economy, setEconomy] = useState<MomentEconomy | null>(null);
+  const [proofRequirements, setProofRequirements] = useState<ProofRequirement[]>([]);
   const [showEntryPayment, setShowEntryPayment] = useState(false);
   const [scene, setScene] = useState<Scene | null>(null);
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
@@ -602,19 +605,32 @@ const MomentDetail = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return i18nFormatDate(dateString, {
-      weekday: "long",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    if (!dateString) return "";
+    try {
+      return i18nFormatDate(dateString, {
+        weekday: "long",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return "";
+    }
   };
 
   const formatTime = (dateString: string) => {
-    return i18nFormatTime(dateString, {
-      hour: "numeric",
-      minute: "2-digit",
-    });
+    if (!dateString) return "";
+    try {
+      return i18nFormatTime ? i18nFormatTime(dateString, {
+        hour: "numeric",
+        minute: "2-digit",
+      }) : new Intl.DateTimeFormat("en", {
+        hour: "numeric",
+        minute: "2-digit",
+      }).format(new Date(dateString));
+    } catch {
+      return "";
+    }
   };
 
   const isFull = moment?.max_participants ? participantCount >= moment.max_participants : false;
