@@ -40,6 +40,7 @@ import {
   LogOut,
   ArrowUpRight,
   Target,
+  Tag,
 } from "lucide-react";
 import { useState } from "react";
 import {

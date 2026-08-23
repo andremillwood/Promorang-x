@@ -30,6 +30,7 @@ export interface ActiveDraftItem {
 
 const LOCAL_STORAGE_INTENT_KEY = 'promorang_last_intent_state';
 const LOCAL_STORAGE_DRAFT_PREFIX = 'promorang_draft_';
+let isDbIntentTableAvailable = true;
 
 export const SYSTEM_GOALS: UserGoalOption[] = [
   {
@@ -174,15 +175,19 @@ export function useUserIntentContinuity() {
         }
 
         // If user is authenticated, also sync with database state
-        if (user?.id) {
+        if (user?.id && isDbIntentTableAvailable) {
           try {
-            const { data: dbIntent } = await (supabase as any)
+            const { data: dbIntent, error } = await (supabase as any)
               .from('user_intent_states')
               .select('*')
               .eq('user_id', user.id)
               .maybeSingle();
 
-            if (dbIntent) {
+            if (error) {
+              if (error.code === 'PGRST204' || error.code === '42P01' || error.message?.includes('404') || error.message?.includes('does not exist')) {
+                isDbIntentTableAvailable = false;
+              }
+            } else if (dbIntent) {
               if (dbIntent.last_intent_key) {
                 setLastIntent(dbIntent.last_intent_key);
               }
@@ -207,9 +212,8 @@ export function useUserIntentContinuity() {
                 };
               }
             }
-          } catch (err) {
-            // Non-blocking if table not migrated yet
-            console.warn('Intent DB state check fallback to local storage', err);
+          } catch (err: any) {
+            isDbIntentTableAvailable = false;
           }
         }
 
@@ -228,15 +232,18 @@ export function useUserIntentContinuity() {
     setLastIntent(intentKey);
     localStorage.setItem(LOCAL_STORAGE_INTENT_KEY, intentKey);
 
-    if (user?.id) {
+    if (user?.id && isDbIntentTableAvailable) {
       try {
-        await (supabase as any).from('user_intent_states').upsert({
+        const { error } = await (supabase as any).from('user_intent_states').upsert({
           user_id: user.id,
           last_intent_key: intentKey,
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
+        if (error) {
+          if (error.code === 'PGRST204' || error.code === '42P01') isDbIntentTableAvailable = false;
+        }
       } catch (err) {
-        console.warn('Could not sync intent to DB', err);
+        isDbIntentTableAvailable = false;
       }
     }
   }, [user]);
@@ -274,9 +281,9 @@ export function useUserIntentContinuity() {
       payload
     });
 
-    if (user?.id) {
+    if (user?.id && isDbIntentTableAvailable) {
       try {
-        await (supabase as any).from('user_intent_states').upsert({
+        const { error } = await (supabase as any).from('user_intent_states').upsert({
           user_id: user.id,
           active_draft_type: type,
           active_draft_id: draftId,
@@ -286,8 +293,11 @@ export function useUserIntentContinuity() {
           draft_step_total: totalSteps,
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
+        if (error) {
+          if (error.code === 'PGRST204' || error.code === '42P01') isDbIntentTableAvailable = false;
+        }
       } catch (err) {
-        console.warn('Could not persist draft to DB', err);
+        isDbIntentTableAvailable = false;
       }
     }
   }, [user]);
@@ -301,17 +311,20 @@ export function useUserIntentContinuity() {
       localStorage.removeItem(`${LOCAL_STORAGE_DRAFT_PREFIX}${activeDraft.type}`);
     }
 
-    if (user?.id) {
+    if (user?.id && isDbIntentTableAvailable) {
       try {
-        await (supabase as any).from('user_intent_states').upsert({
+        const { error } = await (supabase as any).from('user_intent_states').upsert({
           user_id: user.id,
           active_draft_title: null,
           active_draft_payload: {},
           dismissed_draft_ids: [...dismissedDraftIds, draftId],
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
+        if (error) {
+          if (error.code === 'PGRST204' || error.code === '42P01') isDbIntentTableAvailable = false;
+        }
       } catch (err) {
-        console.warn('Could not dismiss draft in DB', err);
+        isDbIntentTableAvailable = false;
       }
     }
   }, [user, activeDraft, dismissedDraftIds]);
