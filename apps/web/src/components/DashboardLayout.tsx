@@ -2,6 +2,7 @@ import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import logo from "@/assets/promorang-logo.png";
 import { HeaderSearchPreview } from "@/components/HeaderSearchPreview";
 import {
@@ -721,65 +722,47 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             </nav>
           </div>
 
-          {/* User Profile Card - Premium Redesign */}
-          <div className={cn("mt-auto p-4", sidebarCollapsed && "lg:hidden")}>
-            <div className="rounded-2xl border border-border/70 bg-background/80 p-4 shadow-card backdrop-blur-md">
-              <Link to="/profile" className="flex items-center gap-3 mb-4 group/profile">
-                <div className="relative">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-soft group-hover/profile:rotate-3 transition-transform overflow-hidden">
-                    {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
-                      <img src={profile?.avatar_url || user?.user_metadata?.avatar_url} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      user?.email?.charAt(0)?.toUpperCase() || "?"
-                    )}
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-background rounded-full" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-foreground truncate group-hover/profile:text-primary transition-colors">
-                    {profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0]}
-                  </p>
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{roleInfo.label} Home</p>
-                </div>
+          {/* Clean Sidebar Footer */}
+          <div className={cn("mt-auto p-4 border-t border-border/50", sidebarCollapsed && "lg:hidden")}>
+            <div className="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                <PanelLeftClose className="w-4 h-4" />
+                <span>Collapse</span>
+              </button>
+
+              <Link
+                to="/how-it-works"
+                className="p-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                title="Help & Guides"
+              >
+                <CircleHelp className="w-4 h-4" />
               </Link>
-
-              {safeRole !== "participant" ? <div className="mb-4 rounded-2xl border border-border/70 bg-muted/40 p-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">{t("dashboard.yourHub")}</p>
-                <p className="mt-2 text-sm font-semibold text-foreground truncate">
-                  {activeOrg?.name || "My Hub"}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {safeRole === "participant"
-                    ? t("dashboard.yourHubParticipantDesc")
-                    : t("dashboard.yourHubBusinessDesc")}
-                </p>
-              </div> : <div className="mb-4 grid grid-cols-2 gap-2"><Link to="/saved" className="rounded-xl border border-border/70 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors">{t("common.saved")}</Link><Link to="/dashboard/settings" className="rounded-xl border border-border/70 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors">{t("common.settings")}</Link></div>}
-
-              <div className="flex items-center gap-2">
-                <ThemeToggle />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex-1 rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  <span className="text-xs font-bold uppercase tracking-wider">{t("common.signOut")}</span>
-                </Button>
-              </div>
             </div>
           </div>
+
           <div className={cn("mt-auto hidden flex-col items-center gap-2 border-t border-border/70 py-4", sidebarCollapsed && "lg:flex")}>
-            <Link to="/profile" aria-label="Open profile" title={profile?.full_name || user?.user_metadata?.full_name || user?.email || "Profile"} className="relative grid h-11 w-11 place-items-center rounded-2xl bg-gradient-primary text-sm font-black text-primary-foreground shadow-soft transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary overflow-hidden">
-              {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
-                <img src={profile?.avatar_url || user?.user_metadata?.avatar_url} alt="" className="h-full w-full object-cover" />
-              ) : (
-                user?.email?.charAt(0)?.toUpperCase() || "?"
-              )}
-              <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-background bg-emerald-500" />
+            <button
+              type="button"
+              onClick={() => setSidebarCollapsed(false)}
+              aria-label="Expand sidebar"
+              title="Expand sidebar"
+              className="grid h-10 w-10 place-items-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
+            >
+              <PanelLeftOpen className="h-4 w-4" />
+            </button>
+            <Link
+              to="/how-it-works"
+              aria-label="How Promorang works"
+              title="How Promorang works"
+              className="grid h-10 w-10 place-items-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <CircleHelp className="h-4 w-4" />
             </Link>
-            <ThemeToggle />
-            <button type="button" onClick={handleSignOut} aria-label="Sign out" title="Sign out" className="grid h-10 w-10 place-items-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><LogOut className="h-4 w-4" /></button>
           </div>
         </div>
       </aside>
@@ -951,6 +934,9 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               </DropdownMenuContent>
             </DropdownMenu>
 
+            {/* Language Selector */}
+            <LanguageSelector />
+
             {/* Theme Toggle */}
             <ThemeToggle />
 
@@ -966,9 +952,10 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                   <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full border border-background bg-emerald-500" />
                 </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-2xl border-border/60 bg-popover text-popover-foreground space-y-1">
-                <div className="p-2.5 rounded-xl bg-muted/40 border border-border/40 flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-gradient-primary flex items-center justify-center text-white text-sm font-black shrink-0 overflow-hidden">
+              <DropdownMenuContent align="end" className="w-72 p-2 rounded-2xl shadow-2xl border-border/60 bg-popover text-popover-foreground space-y-1.5 animate-in fade-in-50 zoom-in-95 duration-150">
+                {/* Profile Identity Card */}
+                <div className="p-3 rounded-xl bg-muted/40 border border-border/40 flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-gradient-primary flex items-center justify-center text-white text-sm font-black shrink-0 overflow-hidden">
                     {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
                       <img src={profile?.avatar_url || user?.user_metadata?.avatar_url} alt="" className="h-full w-full object-cover" />
                     ) : (
@@ -976,30 +963,67 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold truncate text-foreground">{profile?.full_name || user?.user_metadata?.full_name || "Member"}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-xs font-bold truncate text-foreground">{profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Member"}</p>
+                      <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary font-mono font-bold shrink-0">
+                        {roleInfo.label}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground truncate mt-0.5">{user?.email}</p>
                   </div>
                 </div>
+
+                {/* Quick Balance / Rewards Pill */}
+                <Link
+                  to="/wallet"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-primary/10 via-amber-500/10 to-transparent border border-primary/20 hover:border-primary/40 transition group"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
+                      <Coins className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase font-bold text-muted-foreground leading-none">Wallet Balance</p>
+                      <p className="text-xs font-black text-foreground mt-0.5">
+                        {profile?.points ? `${profile.points.toLocaleString()} Points` : "0 Points"}
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </Link>
+
                 <DropdownMenuSeparator className="bg-border/50" />
+
                 <DropdownMenuItem asChild>
                   <Link to="/profile" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
                     <Users className="w-4 h-4 text-muted-foreground" />
                     <span className="text-xs font-medium">Public Profile</span>
                   </Link>
                 </DropdownMenuItem>
+
                 <DropdownMenuItem asChild>
-                  <Link to="/wallet" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
-                    <WalletCards className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs font-medium">Wallet & Rewards</span>
+                  <Link to="/vault" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
+                    <Archive className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs font-medium">Vault & Memories</span>
                   </Link>
                 </DropdownMenuItem>
+
+                <DropdownMenuItem asChild>
+                  <Link to="/saved" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
+                    <Bookmark className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs font-medium">Saved Items</span>
+                  </Link>
+                </DropdownMenuItem>
+
                 <DropdownMenuItem asChild>
                   <Link to="/dashboard/settings" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
                     <Settings className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs font-medium">Settings</span>
+                    <span className="text-xs font-medium">Account Settings</span>
                   </Link>
                 </DropdownMenuItem>
+
                 <DropdownMenuSeparator className="bg-border/50" />
+
                 <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2.5 p-2 rounded-xl text-rose-500 hover:bg-rose-500/10 cursor-pointer">
                   <LogOut className="w-4 h-4" />
                   <span className="text-xs font-medium">Sign Out</span>
