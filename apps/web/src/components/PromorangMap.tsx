@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { MapPin, Navigation, ExternalLink, Compass } from "lucide-react";
+import { Compass } from "lucide-react";
 
 export interface MapMarkerItem {
   id: string;
@@ -103,7 +103,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
       attributionControl: false,
     });
 
-    // Dark Matter high-contrast tiles (fast, beautiful, zero CORS, zero API key)
+    // Dark Matter high-contrast tiles
     L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png", {
       maxZoom: 19,
       subdomains: "abcd",
@@ -117,12 +117,27 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
     markersLayerRef.current = markersLayer;
     mapInstanceRef.current = map;
 
-    // Fix possible container sizing issues
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 150);
+    // Trigger multiple invalidates to ensure tiles load during flex/transition rendering
+    const t1 = setTimeout(() => map.invalidateSize(), 50);
+    const t2 = setTimeout(() => map.invalidateSize(), 200);
+    const t3 = setTimeout(() => map.invalidateSize(), 500);
+
+    // ResizeObserver catches all container dimension changes
+    const resizeObserver = new ResizeObserver(() => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    });
+
+    if (mapContainerRef.current) {
+      resizeObserver.observe(mapContainerRef.current);
+    }
 
     return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      resizeObserver.disconnect();
       map.remove();
       mapInstanceRef.current = null;
       markersLayerRef.current = null;
@@ -159,11 +174,12 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
 
       const popupContent = `
         <div style="
-          font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          padding: 8px 4px 4px 4px;
-          min-width: 200px;
-          max-width: 260px;
-          color: #18181b;
+          padding: 14px 16px;
+          min-width: 220px;
+          max-width: 280px;
+          background: #18181b;
+          color: #ffffff;
+          border-radius: 1.25rem;
         ">
           ${m.category ? `
             <span style="
@@ -174,29 +190,30 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
               letter-spacing: 0.05em;
               padding: 2px 8px;
               border-radius: 9999px;
-              background: #ffedd5;
-              color: #c2410c;
-              margin-bottom: 6px;
+              background: rgba(255, 85, 0, 0.15);
+              color: #ff6a00;
+              border: 1px solid rgba(255, 85, 0, 0.3);
+              margin-bottom: 8px;
             ">${m.category}</span>
           ` : ''}
-          <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 800; line-height: 1.25; color: #09090b;">
+          <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 800; line-height: 1.25; color: #ffffff;">
             ${m.title}
           </h4>
           ${m.subtitle ? `
-            <p style="margin: 0 0 6px 0; font-size: 11px; color: #52525b; line-height: 1.3;">
+            <p style="margin: 0 0 6px 0; font-size: 11px; color: rgba(255,255,255,0.6); line-height: 1.3;">
               ${m.subtitle}
             </p>
           ` : ''}
           ${m.reward ? `
-            <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: 700; color: #059669;">
+            <p style="margin: 0 0 10px 0; font-size: 11px; font-weight: 700; color: #34d399;">
               🏆 ${m.reward}
             </p>
           ` : ''}
-          <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #e4e4e7; padding-top: 8px; margin-top: 4px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-top: 6px;">
             <a href="/moments/${m.id}" style="
               font-size: 11px;
               font-weight: 800;
-              color: #ff5500;
+              color: #ff6a00;
               text-decoration: none;
             ">
               View & RSVP →
@@ -204,7 +221,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
             <a href="https://maps.google.com/?q=${m.lat},${m.lng}" target="_blank" rel="noopener noreferrer" style="
               font-size: 10px;
               font-weight: 600;
-              color: #71717a;
+              color: rgba(255,255,255,0.5);
               text-decoration: none;
             ">
               Directions ↗
@@ -258,7 +275,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
       )}
 
       {/* Leaflet DOM container */}
-      <div ref={mapContainerRef} className="w-full h-full z-0" />
+      <div ref={mapContainerRef} className="w-full h-full relative z-0" />
     </div>
   );
 };
