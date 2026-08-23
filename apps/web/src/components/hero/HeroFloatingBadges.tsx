@@ -1,5 +1,6 @@
 import { motion, type MotionValue, useTransform } from "framer-motion";
 import { CheckCircle2, Gem, KeyRound, Sparkles } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface HeroFloatingBadgesProps {
   scrollYProgress?: MotionValue<number>;
@@ -7,6 +8,7 @@ interface HeroFloatingBadgesProps {
 }
 
 export function HeroFloatingBadges({ scrollYProgress, reducedMotion = false }: HeroFloatingBadgesProps) {
+  const { t } = useI18n();
   // Use scroll transforms if progress is supplied, otherwise fallback to static values
   const yFast = useTransform(scrollYProgress || { get: () => 0 } as any, [0, 1], [0, -120]);
   const ySlow = useTransform(scrollYProgress || { get: () => 0 } as any, [0, 1], [0, -50]);
@@ -38,8 +40,8 @@ export function HeroFloatingBadges({ scrollYProgress, reducedMotion = false }: H
           <Gem className="h-4 w-4" />
         </div>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Gems Unlocked</p>
-          <p className="text-xs font-black text-white">+50 Community Gems</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-primary">{t("hero.gemsUnlocked")}</p>
+          <p className="text-xs font-black text-white">{t("hero.communityGems")}</p>
         </div>
         <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
       </motion.div>
@@ -66,8 +68,8 @@ export function HeroFloatingBadges({ scrollYProgress, reducedMotion = false }: H
           <KeyRound className="h-4 w-4" />
         </div>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">VIP Access</p>
-          <p className="text-xs font-black text-white">Backstage Key Active</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">{t("hero.vipAccess")}</p>
+          <p className="text-xs font-black text-white">{t("hero.backstageKeyActive")}</p>
         </div>
       </motion.div>
 
@@ -91,8 +93,8 @@ export function HeroFloatingBadges({ scrollYProgress, reducedMotion = false }: H
           <CheckCircle2 className="h-3.5 w-3.5" />
         </div>
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-wider text-sky-400">Verified Action</p>
-          <p className="text-[11px] font-black text-white">Downtown Artwalk Visit</p>
+          <p className="text-[9px] font-bold uppercase tracking-wider text-sky-400">{t("hero.verifiedAction")}</p>
+          <p className="text-[11px] font-black text-white">{t("hero.artwalkVisit")}</p>
         </div>
       </motion.div>
     </div>

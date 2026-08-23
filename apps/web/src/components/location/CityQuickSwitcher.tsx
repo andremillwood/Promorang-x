@@ -53,11 +53,11 @@ export function CityQuickSwitcher({ className = "" }: { className?: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/90 text-xs font-bold transition-all outline-none cursor-pointer shadow-sm ${className}`}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/80 hover:text-white text-xs font-semibold transition-all outline-none cursor-pointer shadow-sm shrink-0 ${className}`}
       >
-        <MapPin className="w-3.5 h-3.5 text-primary" />
-        <span className="max-w-[100px] truncate">{selectedCity.name}</span>
-        <ChevronDown className="w-3 h-3 text-white/40" />
+        <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+        <span className="max-w-[110px] truncate">{selectedCity.name}</span>
+        <ChevronDown className="w-3 h-3 text-white/40 shrink-0" />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"

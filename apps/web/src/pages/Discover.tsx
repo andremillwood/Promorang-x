@@ -191,14 +191,14 @@ const Discover = () => {
 
         <div className="mb-6 grid gap-3 rounded-3xl border border-white/10 bg-white/[0.035] p-3.5 sm:p-5 sm:grid-cols-2">
           <div className="rounded-2xl border border-[#ff5500]/25 bg-[#ff5500]/[0.07] p-3.5 sm:p-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff8a50]">Moment</p>
-            <p className="mt-1 text-sm font-bold text-white">Something happening at a set time.</p>
-            <p className="mt-1 text-xs text-white/50">Reserve a spot, attend, complete missions, and unlock perks.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff8a50]">{t("discover.momentBadge")}</p>
+            <p className="mt-1 text-sm font-bold text-white">{t("discover.momentDesc")}</p>
+            <p className="mt-1 text-xs text-white/50">{t("discover.momentSub")}</p>
           </div>
           <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] p-3.5 sm:p-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">Discovery</p>
-            <p className="mt-1 text-sm font-bold text-white">A place or cultural find worth knowing.</p>
-            <p className="mt-1 text-xs text-white/50">Save it, visit it, log your check-in—or submit a find of your own.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">{t("discover.discoveryBadge")}</p>
+            <p className="mt-1 text-sm font-bold text-white">{t("discover.discoveryDesc")}</p>
+            <p className="mt-1 text-xs text-white/50">{t("discover.discoverySub")}</p>
           </div>
         </div>
 
@@ -210,7 +210,13 @@ const Discover = () => {
 
         {/* Category Pills Bar */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-          {categoryFilters.map((cat) => {
+          {[
+            { id: "all", label: t("discover.filterAll"), icon: Sparkles },
+            { id: "questions", label: t("discover.filterPolls"), icon: HelpCircle },
+            { id: "music", label: t("discover.filterMusic"), icon: Radio },
+            { id: "food", label: t("discover.filterFood"), icon: Gift },
+            { id: "community", label: t("discover.filterCommunity"), icon: Users },
+          ].map((cat) => {
             const isActive = activeCategory === cat.id;
             return (
               <button

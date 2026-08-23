@@ -29,7 +29,10 @@ import { DISCOVERY_POLLS, type DiscoveryPoll } from "@/data/discoveriesData";
 import { toast } from "sonner";
 import { castListingDiscoveryVote, useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
 
+import { useI18n } from "@/i18n/I18nContext";
+
 export function DiscoveriesFeedSection() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const { data: balance } = useUserBalance();
   const { data: discoveries, isLoading: isDiscoveriesLoading } = useDiscoveries({ limit: 6 });
@@ -104,14 +107,14 @@ export function DiscoveriesFeedSection() {
       <div className="flex flex-col gap-4 sm:gap-6 border-b border-white/10 pb-5 sm:pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary">
-            <Compass className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Scout Network & Demand Signals
+            <Compass className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t("home.scoutNetworkEyebrow")}
           </div>
           <h2 className="mt-1 font-serif text-xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">
-            Community Polls & Fresh Discoveries
+            {t("home.scoutNetworkTitle")}
           </h2>
-          <Link to="/scout/events" className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline">Verify upcoming Jamaica events <CalendarCheck className="h-4 w-4" /></Link>
+          <Link to="/scout/events" className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline">{t("home.scoutNetworkVerify")} <CalendarCheck className="h-4 w-4" /></Link>
           <p className="mt-1 max-w-2xl text-xs sm:text-sm text-white/60 leading-relaxed">
-            Vote on real-time demand signals to unlock vouchers and pop-up experiences, or explore curated hidden gems logged by local scouts.
+            {t("home.scoutNetworkCopy")}
           </p>
         </div>
 
@@ -125,7 +128,7 @@ export function DiscoveriesFeedSection() {
                 className="gap-1.5 rounded-full border-white/20 bg-white/5 text-[11px] sm:text-xs font-bold text-white hover:border-primary/50 hover:bg-primary/10 h-9 px-3.5"
               >
                 <HelpCircle className="h-3.5 w-3.5 text-primary" />
-                <span>Propose Ballot</span>
+                <span>{t("home.proposeBallot")}</span>
                 <span className="text-amber-400 font-mono text-[10px]">(+50)</span>
               </Button>
             }
@@ -137,7 +140,7 @@ export function DiscoveriesFeedSection() {
                 className="gap-1.5 rounded-full bg-primary px-3.5 sm:px-4 font-bold text-black hover:bg-orange-400 transition-transform active:scale-95 shadow-lg shadow-primary/20 h-9 text-[11px] sm:text-xs"
               >
                 <Plus className="h-3.5 w-3.5" />
-                <span>Submit Find</span>
+                <span>{t("home.submitFind")}</span>
                 <span className="font-mono text-[10px]">(+100)</span>
               </Button>
             }

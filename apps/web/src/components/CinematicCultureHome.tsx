@@ -509,7 +509,7 @@ export default function CinematicCultureHome() {
                 className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl bg-primary px-7 py-4 text-sm font-black uppercase tracking-wider text-white shadow-[0_20px_60px_rgba(255,85,0,0.35)] transition-all hover:bg-orange-600 active:scale-[0.98]"
               >
                 <Compass className="h-5 w-5" />
-                <span>Explore Moments</span>
+                <span>{t("home.exploreMoments")}</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
@@ -518,7 +518,7 @@ export default function CinematicCultureHome() {
                 className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/[0.06] backdrop-blur-md px-7 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98]"
               >
                 <Store className="h-5 w-5 text-amber-400" />
-                <span>Host or Offer a Deal</span>
+                <span>{t("home.hostOrDeal")}</span>
               </Link>
             </div>
             <p className="mt-3 text-xs text-white/50">{t("home.heroNote")}</p>
@@ -593,16 +593,16 @@ export default function CinematicCultureHome() {
             </div>
             <nav aria-label="Homepage discovery shortcuts" className="flex flex-wrap gap-2">
               {[
-                [CalendarDays, "Moments", "/discover/moments"],
-                [Flame, "Demand Polls", "/discover"],
-                [Compass, "Scout Spots", "/discover"],
-                [Tag, "Perks & Rewards", "/rewards"],
-                [Store, "Merchants", "/merchants"],
-                [ShoppingBag, "Products", "/shop"],
+                [CalendarDays, t("home.shortcutMoments"), "/discover/moments"],
+                [Flame, t("home.shortcutPolls"), "/discover"],
+                [Compass, t("home.shortcutSpots"), "/discover"],
+                [Tag, t("home.shortcutRewards"), "/rewards"],
+                [Store, t("home.shortcutMerchants"), "/merchants"],
+                [ShoppingBag, t("home.shortcutProducts"), "/shop"],
               ].map(([Icon, label, href]) => {
                 const ShortcutIcon = Icon as typeof CalendarDays;
                 return (
-                  <Link key={label as string} to={href as string} className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.045] px-4 py-2.5 text-xs font-black text-white/72 transition hover:border-primary/60 hover:bg-primary/10 hover:text-white">
+                  <Link key={href as string} to={href as string} className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.045] px-4 py-2.5 text-xs font-black text-white/72 transition hover:border-primary/60 hover:bg-primary/10 hover:text-white">
                     <ShortcutIcon className="h-4 w-4 text-primary" />
                     {label as string}
                   </Link>
@@ -614,7 +614,7 @@ export default function CinematicCultureHome() {
           <DiscoveriesFeedSection />
 
           <div className="pt-9">
-            <SectionHeader eyebrow="Upcoming and active" title="Moments worth" accent="showing up for" action="Explore all moments" actionHref="/discover/moments" />
+            <SectionHeader eyebrow={t("home.secMomentsEyebrow")} title={t("home.secMomentsTitle")} accent={t("home.secMomentsAccent")} action={t("home.secMomentsAction")} actionHref="/discover/moments" />
             {homepageMoments.length ? <div className="grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 scrollbar-none sm:auto-cols-[45%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
               {homepageMoments.map((moment) => (
                 <Link key={moment.id} to={moment.href} className="group">
@@ -635,7 +635,7 @@ export default function CinematicCultureHome() {
           </div>
 
           <div className="pt-12">
-            <SectionHeader eyebrow="Local value" title="Deals, products &" accent="merchant perks" action="Shop all" actionHref="/shop" />
+            <SectionHeader eyebrow={t("home.secDealsEyebrow")} title={t("home.secDealsTitle")} accent={t("home.secDealsAccent")} action={t("home.secDealsAction")} actionHref="/shop" />
             {homepageCommerce.length ? <div className="grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 scrollbar-none sm:auto-cols-[45%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
               {homepageCommerce.map((listing) => (
                 <Link key={listing.id} to={listing.href} className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] transition hover:-translate-y-1 hover:border-primary/45">
@@ -658,11 +658,11 @@ export default function CinematicCultureHome() {
             </div> : <SampleOptIn onShow={() => setShowSamples(true)} noun="merchant offers" loading={discoveryQuery.isLoading} />}
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <Link to="/merchants" className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-primary/45">
-                <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Store className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">Meet local merchants</strong><span className="text-xs text-white/45">Browse shops, venues, and service providers</span></span></span>
+                <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Store className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">{t("home.meetMerchantsTitle")}</strong><span className="text-xs text-white/45">{t("home.meetMerchantsDesc")}</span></span></span>
                 <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
               </Link>
               <Link to="/rewards" className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-primary/45">
-                <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Gift className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">Claim Member Perks & Deals</strong><span className="text-xs text-white/45">Unlock exclusive discounts, member passes, and VIP perks</span></span></span>
+                <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Gift className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">{t("home.claimPerksTitle")}</strong><span className="text-xs text-white/45">{t("home.claimPerksDesc")}</span></span></span>
                 <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
               </Link>
             </div>
@@ -675,17 +675,17 @@ export default function CinematicCultureHome() {
         <div className="container relative px-6 py-16 md:py-24">
           <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-end">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">The Participation Economy</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.economyEyebrow")}</p>
               <h2 className="mt-4 max-w-xl text-4xl font-black uppercase leading-[0.88] tracking-[-0.06em] md:text-6xl">
-                You already help things grow. <span className="text-primary">Keep the receipt.</span>
+                {t("home.economyTitle")} <span className="text-primary">{t("home.economyAccent")}</span>
               </h2>
             </div>
             <div className="max-w-2xl lg:justify-self-end">
               <p className="text-lg leading-8 text-white/72">
-                A recommendation fills a table. A share sells a ticket. A customer video moves a product. Promorang connects the person who caused the action to the outcome they helped create.
+                {t("home.economyCopy")}
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
-                {["Social discovery", "Creator content", "Commerce", "IRL proof", "Funded rewards"].map((item) => (
+                {[t("home.chipSocial"), t("home.chipCreator"), t("home.chipCommerce"), t("home.chipProof"), t("home.chipRewards")].map((item) => (
                   <span key={item} className="rounded-full border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/55">{item}</span>
                 ))}
               </div>
@@ -693,11 +693,16 @@ export default function CinematicCultureHome() {
           </div>
 
           <div className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-white/10 bg-white/10 md:grid-cols-4">
-            {participationTrail.map((step, index) => (
+            {[
+              { number: "01", label: t("home.trail01Label"), title: t("home.trail01Title"), text: t("home.trail01Text") },
+              { number: "02", label: t("home.trail02Label"), title: t("home.trail02Title"), text: t("home.trail02Text") },
+              { number: "03", label: t("home.trail03Label"), title: t("home.trail03Title"), text: t("home.trail03Text") },
+              { number: "04", label: t("home.trail04Label"), title: t("home.trail04Title"), text: t("home.trail04Text") },
+            ].map((step, index) => (
               <article key={step.number} className="group relative bg-[#0c0c0c] p-6 md:min-h-[280px]">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black text-primary">{step.number}</span>
-                  {index < participationTrail.length - 1 ? <ArrowRight className="h-4 w-4 text-white/20" /> : <Gem className="h-5 w-5 text-primary" />}
+                  {index < 3 ? <ArrowRight className="h-4 w-4 text-white/20" /> : <Gem className="h-5 w-5 text-primary" />}
                 </div>
                 <p className="mt-14 text-[10px] font-black uppercase tracking-[0.22em] text-white/35">{step.label}</p>
                 <h3 className="mt-3 text-xl font-black leading-tight text-white">{step.title}</h3>
@@ -709,23 +714,23 @@ export default function CinematicCultureHome() {
 
           <div className="mt-12 grid gap-6 rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/12 via-white/[0.035] to-transparent p-5 md:grid-cols-[0.9fr_1.1fr] md:p-8">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">An illustrative value receipt</p>
-              <h3 className="mt-3 text-3xl font-black tracking-[-0.04em]">One share. Four arrivals. A contribution someone can see.</h3>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{t("home.receiptEyebrow")}</p>
+              <h3 className="mt-3 text-3xl font-black tracking-[-0.04em]">{t("home.receiptTitle")}</h3>
               <p className="mt-4 max-w-lg text-sm leading-6 text-white/55">
-                Imagine Tia shares a live event through PromoShare. Four friends reserve, three check in, and the host records the result. Promorang can connect her distribution to a real outcome instead of losing it inside a like count.
+                {t("home.receiptCopy")}
               </p>
-              <p className="mt-4 text-xs text-white/35">Illustrative flow. Rewards depend on campaign funding, eligibility, and verified action.</p>
+              <p className="mt-4 text-xs text-white/35">{t("home.receiptFootnote")}</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/50 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.35)]">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">Contribution receipt</p>
-                  <p className="mt-1 font-black">@tia moved Joyride Friday</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">{t("home.receiptBadge")}</p>
+                  <p className="mt-1 font-black">{t("home.receiptTia")}</p>
                 </div>
                 <ShieldCheck className="h-7 w-7 text-emerald-400" />
               </div>
               <div className="grid grid-cols-3 gap-3 py-5 text-center">
-                {[["12", "link visits"], ["4", "reservations"], ["3", "verified arrivals"]].map(([value, label]) => (
+                {[["12", t("home.receiptVisits")], ["4", t("home.receiptReservations")], ["3", t("home.receiptArrivals")]].map(([value, label]) => (
                   <div key={label} className="rounded-xl bg-white/[0.045] px-2 py-4">
                     <p className="text-2xl font-black text-white">{value}</p>
                     <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-white/35">{label}</p>
@@ -734,8 +739,8 @@ export default function CinematicCultureHome() {
               </div>
               <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/10 p-4">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">What Tia keeps</p>
-                  <p className="mt-1 text-sm font-bold">Proof, contributor status, funded eligibility</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{t("home.receiptKeeps")}</p>
+                  <p className="mt-1 text-sm font-bold">{t("home.receiptKeepsValue")}</p>
                 </div>
                 <ArrowRight className="h-5 w-5 text-primary" />
               </div>
@@ -747,11 +752,11 @@ export default function CinematicCultureHome() {
       <section className="border-b border-primary/20 bg-[#0b0907]">
         <Link to="/pioneers" className="container group grid gap-5 px-6 py-8 md:grid-cols-[1fr_auto] md:items-center">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Genesis Season · Now recording</p>
-            <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] md:text-3xl">Your early contribution should not disappear.</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/48">Create, host, welcome, participate, or bring the right people. Pioneer Contribution keeps the founding receipt.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.genesisEyebrow")}</p>
+            <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] md:text-3xl">{t("home.genesisTitle")}</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/48">{t("home.genesisCopy")}</p>
           </div>
-          <span className="inline-flex items-center gap-2 text-sm font-black text-primary">Enter Genesis Season<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+          <span className="inline-flex items-center gap-2 text-sm font-black text-primary">{t("home.genesisCta")}<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
         </Link>
       </section>
 
@@ -760,28 +765,28 @@ export default function CinematicCultureHome() {
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/95 to-black/50" />
         <div className="container relative z-10 grid gap-10 px-6 py-16 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:py-24">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Actions · a reason to move</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.actionsEyebrow")}</p>
             <h2 className="mt-4 max-w-xl text-4xl font-black uppercase leading-[0.88] tracking-[-0.06em] md:text-6xl">
-              Don’t just watch culture. <span className="text-primary">Help move it.</span>
+              {t("home.actionsTitle")} <span className="text-primary">{t("home.actionsAccent")}</span>
             </h2>
             <p className="mt-5 max-w-lg text-sm leading-7 text-white/60 md:text-base">
-              Each opportunity gives you one clear action, a proof requirement, and a possible outcome. Start free, build Points through verified contribution, and earn Keys for limited opportunities.
+              {t("home.actionsCopy")}
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Link to="/missions" className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 text-sm font-black uppercase text-white transition hover:bg-primary/90">
-                Browse open actions <ArrowRight className="h-4 w-4" />
+                {t("home.actionsBrowse")} <ArrowRight className="h-4 w-4" />
               </Link>
               <Link to="/auth" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-6 py-4 text-sm font-black uppercase text-white transition hover:border-primary">
-                Join Promorang
+                {t("home.actionsJoin")}
               </Link>
             </div>
           </div>
 
           <div className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-2">
             {[
-              { icon: CheckCircle2, eyebrow: "01 · Act", title: "Choose an action", text: "See the task, proof, deadline, and reward before you commit." },
-              { icon: Coins, eyebrow: "02 · Prove", title: "Build Points", text: "Verified participation turns into visible progress—not empty engagement." },
-              { icon: KeyRound, eyebrow: "03 · Unlock", title: "Use Keys", text: "Reserve access to limited drops, experiences, and backed opportunities." },
+              { icon: CheckCircle2, eyebrow: t("home.act01Eyebrow"), title: t("home.act01Title"), text: t("home.act01Text") },
+              { icon: Coins, eyebrow: t("home.act02Eyebrow"), title: t("home.act02Title"), text: t("home.act02Text") },
+              { icon: KeyRound, eyebrow: t("home.act03Eyebrow"), title: t("home.act03Title"), text: t("home.act03Text") },
             ].map((step, index) => (
               <div className="contents" key={step.title}>
                 <div className={`min-w-0 rounded-2xl border p-4 backdrop-blur md:p-5 ${index === 2 ? "border-primary/35 bg-primary/10" : "border-white/10 bg-black/45"}`}>
@@ -798,7 +803,7 @@ export default function CinematicCultureHome() {
           <div className="lg:col-start-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-4 py-2 text-xs text-white/55">
               <Gift className="h-4 w-4 text-primary" />
-              Open actions are always free to begin.
+              {t("home.actionsFreeNotice")}
             </div>
           </div>
         </div>
@@ -807,17 +812,58 @@ export default function CinematicCultureHome() {
       <section className="border-b border-white/10 bg-[#0a0908]">
         <div className="container px-6 py-16 md:py-24">
           <div className="max-w-3xl">
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Choose the outcome you want</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.outcomesEyebrow")}</p>
             <h2 className="mt-4 text-4xl font-black uppercase leading-[0.9] tracking-[-0.06em] md:text-6xl">
-              Start with one useful win.
+              {t("home.outcomesTitle")}
             </h2>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/58">
-              Promorang gets easier once you choose what you want to move. Each path begins with a small action and shows you the value before asking for a larger commitment.
+              {t("home.outcomesCopy")}
             </p>
           </div>
 
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {roleOffers.map((offer, index) => (
+            {[
+              {
+                icon: Users,
+                eyebrow: t("home.roleMemberEyebrow"),
+                title: t("home.roleMemberTitle"),
+                promise: t("home.roleMemberPromise"),
+                value: ["Free to begin", "Build a visible record", "Unlock better opportunities"],
+                cta: t("home.roleMemberCta"),
+                href: "/missions",
+                footnote: t("home.roleMemberFootnote"),
+              },
+              {
+                icon: PlayCircle,
+                eyebrow: t("home.roleCreatorEyebrow"),
+                title: t("home.roleCreatorTitle"),
+                promise: t("home.roleCreatorPromise"),
+                value: ["Publish creator prompts", "Reward useful supporters", "Show brands what moved"],
+                cta: t("home.roleCreatorCta"),
+                href: "/auth?mode=signup&role=creator&next=%2Fdashboard%3Ftab%3Dpublish",
+                footnote: t("home.roleCreatorFootnote"),
+              },
+              {
+                icon: Store,
+                eyebrow: t("home.roleHostEyebrow"),
+                title: t("home.roleHostTitle"),
+                promise: t("home.roleHostPromise"),
+                value: ["Verify visits", "Prompt customer content", "Give people a reason to return"],
+                cta: t("home.roleHostCta"),
+                href: "/auth?mode=signup&role=merchant&next=/create/moment",
+                footnote: t("home.roleHostFootnote"),
+              },
+              {
+                icon: Building2,
+                eyebrow: t("home.roleBrandEyebrow"),
+                title: t("home.roleBrandTitle"),
+                promise: t("home.roleBrandPromise"),
+                value: ["Choose one outcome", "Set a clear budget", "Pay around verified activity"],
+                cta: t("home.roleBrandCta"),
+                href: "/auth?mode=signup&role=brand&next=%2Foffers%3Ftemplate%3Dpromoshare-funded-cycle",
+                footnote: t("home.roleBrandFootnote"),
+              },
+            ].map((offer, index) => (
               <article
                 key={offer.title}
                 className={`flex min-h-[430px] flex-col rounded-3xl border p-5 ${
@@ -861,9 +907,9 @@ export default function CinematicCultureHome() {
 
       <section className="border-b border-white/10 bg-black">
         <div className="container px-6 py-12 md:py-16">
-          <SectionHeader eyebrow="Choose your role" title="How do you move a" accent="Moment?" />
+          <SectionHeader eyebrow={t("home.archetypeEyebrow")} title={t("home.archetypeTitle")} accent={t("home.archetypeAccent")} />
           <p className="-mt-2 mb-7 max-w-2xl text-sm leading-6 text-white/50">
-            You do not need to perform the same way as everyone else. Find what is forming, bring the people, catch the energy, remix it, or keep the story.
+            {t("home.archetypeCopy")}
           </p>
           <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3 scrollbar-none">
             {Object.entries(MISSION_ARCHETYPES).map(([id, role]) => {
@@ -1020,27 +1066,27 @@ export default function CinematicCultureHome() {
       <section className="container px-6 py-16 md:py-24">
         <div className="grid overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b] lg:grid-cols-[1.05fr_0.95fr]">
           <div className="p-6 md:p-10 lg:p-14">
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">The questions worth asking</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.faqEyebrow")}</p>
             <h2 className="mt-4 max-w-xl text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-6xl">
-              Know what counts before you move.
+              {t("home.faqTitle")}
             </h2>
             <p className="mt-5 max-w-lg text-sm leading-7 text-white/52">
-              Promorang shows the action, proof requirement, funding source, and possible outcome before you commit. Participation should feel legible.
+              {t("home.faqCopy")}
             </p>
             <Link
               to="/economy"
               onClick={() => rememberMarketingIntent("objection_economy_explainer", "/economy")}
               className="mt-8 inline-flex items-center gap-2 rounded-xl border border-white/18 px-5 py-3 text-sm font-black transition hover:border-primary hover:text-primary"
             >
-              Read the economy guide <ArrowRight className="h-4 w-4" />
+              {t("home.faqReadGuide")} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
           <div className="divide-y divide-white/10 border-t border-white/10 bg-white/[0.025] lg:border-l lg:border-t-0">
             {[
-              ["Do I have to pay to participate?", "No. Open actions are free to begin. Paid memberships can add defined allowances and access, but they do not guarantee earnings."],
-              ["Are Gems an investment?", "No. Gems provide utility inside Promorang. Holding them does not promise a return, ownership, or cash appreciation."],
-              ["Who pays for rewards?", "A reward can come from a disclosed brand, host, merchant, creator, or Promorang-funded pool. Unfunded activity cannot become a cash-equivalent promise."],
-              ["How does Promorang know I helped?", "Tracked links, joins, check-ins, submissions, referrals, and reviewable proof connect your contribution to an outcome."],
+              [t("home.faq1Q"), t("home.faq1A")],
+              [t("home.faq2Q"), t("home.faq2A")],
+              [t("home.faq3Q"), t("home.faq3A")],
+              [t("home.faq4Q"), t("home.faq4A")],
             ].map(([question, answer]) => (
               <details key={question} className="group p-5 open:bg-white/[0.025] md:p-7">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-black">
@@ -1059,14 +1105,19 @@ export default function CinematicCultureHome() {
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/30" />
         <div className="container relative z-10 grid gap-10 px-6 py-16 md:grid-cols-[0.8fr_1.2fr] md:items-center">
           <div>
-            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.22em] text-white/45">For organizers</p>
+            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.22em] text-white/45">{t("home.orgEyebrow")}</p>
             <h2 className="max-w-md text-4xl font-black leading-[0.9] tracking-[-0.06em] md:text-6xl">
-              Name the outcome. <br />Give people a reason to <span className="text-primary">make it happen.</span>
+              {t("home.orgTitle")} <br />{t("home.orgLine2")} <span className="text-primary">{t("home.orgAccent")}</span>
             </h2>
-            <p className="mt-5 max-w-sm text-sm leading-6 text-white/65">Start with one Moment, one action, and one result you can verify. Scale the format after it works.</p>
+            <p className="mt-5 max-w-sm text-sm leading-6 text-white/65">{t("home.orgCopy")}</p>
           </div>
           <div className="grid gap-4 md:grid-cols-4">
-            {organizerTools.map((tool) => (
+            {[
+              { icon: CalendarDays, title: t("home.orgTool1Title"), text: t("home.orgTool1Text") },
+              { icon: Heart, title: t("home.orgTool2Title"), text: t("home.orgTool2Text") },
+              { icon: Users, title: t("home.orgTool3Title"), text: t("home.orgTool3Text") },
+              { icon: Zap, title: t("home.orgTool4Title"), text: t("home.orgTool4Text") },
+            ].map((tool) => (
               <div key={tool.title} className="rounded-2xl border border-white/10 bg-black/35 p-4 backdrop-blur">
                 <tool.icon className="mb-4 h-7 w-7 text-white" />
                 <h3 className="text-sm font-black">{tool.title}</h3>
@@ -1080,7 +1131,7 @@ export default function CinematicCultureHome() {
               onClick={() => rememberMarketingIntent("organizer_create_moment", "/create/moment", "host")}
               className="inline-flex items-center gap-3 rounded-xl bg-primary px-7 py-4 text-sm font-black uppercase text-white transition hover:bg-primary/90"
             >
-              Create the first Moment
+              {t("home.orgCta")}
               <ArrowRight className="h-5 w-5" />
             </Link>
           </div>

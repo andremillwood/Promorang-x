@@ -18,28 +18,19 @@ import {
   Check,
   Building,
   PlayCircle,
-  KeyRound,
   Sparkles,
   Compass,
   Coins,
-  Ticket,
-  ShieldCheck,
   UserRoundPlus,
-  Globe2,
-  Heart,
-  Bot,
   Radio,
   Layers,
-  TrendingUp,
   Gem,
   User as UserIcon,
-  WalletCards,
   Archive,
   Bookmark,
   Settings,
   LogOut,
   ArrowUpRight,
-  Target,
   Tag,
 } from "lucide-react";
 import { useState } from "react";
@@ -47,7 +38,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -112,364 +102,288 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl transition-all duration-300 ${
         hasDarkHeader
-          ? "border-b border-white/[0.08] bg-black/40 text-white shadow-[0_4px_30px_rgba(0,0,0,0.4)]"
+          ? "border-b border-white/[0.08] bg-[#09090b]/80 text-white shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
           : "border-b border-border/60 bg-background/85 text-foreground shadow-sm"
       }`}
     >
-      <div className="container mx-auto px-3 sm:px-6">
-        <nav className="flex items-center justify-between h-16 md:h-18 gap-2 md:gap-4">
-          {/* Brand Logo */}
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 shrink-0 active:scale-95 transition-all group focus:outline-none"
-          >
-            <div className="h-9 w-9 md:h-10 md:w-10 rounded-xl p-1 flex items-center justify-center transition-transform group-hover:scale-105">
-              <img src={logo} alt="Promorang" className="h-full w-full object-contain drop-shadow-md" />
-            </div>
-            <span className="font-black tracking-tight text-base sm:text-lg hidden xs:inline bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent">
-              Promorang
-            </span>
-          </Link>
-
-          {/* Desktop Navigation Links - Humanized Floating Glass Bar */}
-          <div className="hidden lg:flex items-center gap-1.5 rounded-full p-1.5 border border-white/[0.08] bg-white/[0.03] backdrop-blur-md shadow-inner">
-            {/* 1. Explore Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all outline-none cursor-pointer ${
-                  isActive(["/discover", "/live", "/scenes", "/creators", "/economy/moments"])
-                    ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
-                    : hasDarkHeader
-                    ? "text-white/80 hover:text-white hover:bg-white/[0.08]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                <Compass className="w-3.5 h-3.5" />
-                <span>{t("nav.explore")}</span>
-                <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/95 backdrop-blur-xl text-white space-y-1 animate-in fade-in-50 zoom-in-95 duration-150"
-              >
-                <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1 flex items-center justify-between">
-                  <span>Explore Experiences</span>
-                  <span className="text-primary text-[10px] font-normal">What's happening</span>
-                </div>
-
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/discover"
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-orange-500/15 text-orange-400 flex items-center justify-center shrink-0">
-                      <Compass className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">Discover Moments</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Trending events, meetups & gatherings</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/live"
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
-                      <Radio className="w-4 h-4 animate-pulse" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                        Live Now <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
-                      </p>
-                      <p className="text-[10px] text-white/50 leading-tight">Real-time activities happening today</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/scenes"
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-violet-500/15 text-violet-400 flex items-center justify-center shrink-0">
-                      <Layers className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">Local Scenes & Spots</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Neighborhood hubs & community rooms</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/creators"
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
-                      <PlayCircle className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">Creators & Hosts</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Local tastemakers and curators</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* 2. Deals & Rewards Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all outline-none cursor-pointer ${
-                  isActive(["/rewards", "/shop", "/promoshare", "/wallet"])
-                    ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
-                    : hasDarkHeader
-                    ? "text-white/80 hover:text-white hover:bg-white/[0.08]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>Rewards & Deals</span>
-                <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/95 backdrop-blur-xl text-white space-y-1 animate-in fade-in-50 zoom-in-95 duration-150"
-              >
-                <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1 flex items-center justify-between">
-                  <span>Perks & Member Value</span>
-                  <span className="text-amber-400 text-[10px] font-normal">Earn & Save</span>
-                </div>
-
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/rewards"
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
-                      <Sparkles className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">Rewards Hub</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Claim points, gems & attendance badges</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/shop"
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
-                      <Store className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">Local Deals & Shop</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Exclusive discounts from neighborhood merchants</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/promoshare"
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
-                      <Gem className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">Share & Earn (PromoShare)</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Get cash rewards for bringing people together</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* 3. How It Works (Direct Link) */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6">
+        <nav className="flex items-center justify-between h-16 gap-3 lg:gap-6">
+          {/* 1. Left Zone: Brand Logo & Desktop Nav */}
+          <div className="flex items-center gap-3 xl:gap-6 shrink-0">
             <Link
-              to="/how-it-works"
-              className={`px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all ${
-                isActive(["/how-it-works"])
-                  ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
-                  : hasDarkHeader
-                  ? "text-white/80 hover:text-white hover:bg-white/[0.08]"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              }`}
+              to="/"
+              className="flex items-center gap-2 shrink-0 active:scale-95 transition-all group focus:outline-none"
             >
-              How It Works
+              <div className="h-9 w-9 rounded-xl p-0.5 flex items-center justify-center transition-transform group-hover:scale-105">
+                <img src={logo} alt="Promorang" className="h-full w-full object-contain drop-shadow-md" />
+              </div>
+              <span className="font-black tracking-tight text-lg hidden sm:inline bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent">
+                Promorang
+              </span>
             </Link>
 
-            {/* 4. For Business & Hosts Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all outline-none cursor-pointer ${
-                  isActive(["/for-", "/hosting", "/pricing", "/organizer"])
+            {/* Desktop Navigation Links */}
+            <div className="hidden lg:flex items-center gap-1 bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-full px-1.5 py-1 shadow-inner">
+              {/* 1. Explore Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all outline-none cursor-pointer ${
+                    isActive(["/discover", "/live", "/scenes", "/creators", "/economy/moments"])
+                      ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
+                      : "text-white/80 hover:text-white hover:bg-white/[0.08]"
+                  }`}
+                >
+                  <Compass className="w-3.5 h-3.5 text-primary" />
+                  <span>{t("nav.explore")}</span>
+                  <ChevronDown className="w-3 h-3 opacity-60 transition-transform duration-200" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="start"
+                  className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/98 backdrop-blur-xl text-white space-y-1 animate-in fade-in-50 zoom-in-95 duration-150"
+                >
+                  <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1 flex items-center justify-between">
+                    <span>{t("nav.exploreExperiences")}</span>
+                    <span className="text-primary text-[10px] font-normal">{t("nav.whatsHappening")}</span>
+                  </div>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/discover"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-orange-500/15 text-orange-400 flex items-center justify-center shrink-0">
+                        <Compass className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{t("nav.discoverMoments")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.discoverMomentsDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/live"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+                        <Radio className="w-4 h-4 animate-pulse" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                          {t("nav.liveNow")} <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+                        </p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.liveNowDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/scenes"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-violet-500/15 text-violet-400 flex items-center justify-center shrink-0">
+                        <Layers className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{t("nav.scenesSpots")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.scenesSpotsDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/creators"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
+                        <PlayCircle className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{t("nav.creatorsHosts")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.creatorsHostsDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* 2. Deals & Rewards Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all outline-none cursor-pointer ${
+                    isActive(["/rewards", "/shop", "/promoshare", "/wallet"])
+                      ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
+                      : "text-white/80 hover:text-white hover:bg-white/[0.08]"
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{t("nav.rewardsDeals")}</span>
+                  <ChevronDown className="w-3 h-3 opacity-60 transition-transform duration-200" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="start"
+                  className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/98 backdrop-blur-xl text-white space-y-1 animate-in fade-in-50 zoom-in-95 duration-150"
+                >
+                  <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1 flex items-center justify-between">
+                    <span>{t("nav.perksValue")}</span>
+                    <span className="text-amber-400 text-[10px] font-normal">{t("nav.earnSave")}</span>
+                  </div>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/rewards"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{t("nav.rewardsHub")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.rewardsHubDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/shop"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                        <Store className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{t("nav.localDealsShop")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.localDealsShopDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/promoshare"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
+                        <Gem className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{t("nav.shareEarn")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.shareEarnDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* 3. How It Works Direct Link */}
+              <Link
+                to="/how-it-works"
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all ${
+                  isActive(["/how-it-works"])
                     ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
-                    : hasDarkHeader
-                    ? "text-white/80 hover:text-white hover:bg-white/[0.08]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    : "text-white/80 hover:text-white hover:bg-white/[0.08]"
                 }`}
               >
-                <Building2 className="w-3.5 h-3.5" />
-                <span>For Business & Hosts</span>
-                <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/95 backdrop-blur-xl text-white space-y-1 animate-in fade-in-50 zoom-in-95 duration-150"
-              >
-                <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1 flex items-center justify-between">
-                  <span>Host & Merchant Tools</span>
-                  <span className="text-primary text-[10px] font-normal">Grow Foot Traffic</span>
-                </div>
+                {t("nav.howItWorks")}
+              </Link>
 
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/hosting"
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-orange-500/15 text-orange-400 flex items-center justify-center shrink-0">
-                      <Users className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">Host a Moment</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Create events, sell passes, verify attendance</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
+              {/* 4. For Business & Hosts Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all outline-none cursor-pointer ${
+                    isActive(["/for-", "/hosting", "/pricing", "/organizer"])
+                      ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
+                      : "text-white/80 hover:text-white hover:bg-white/[0.08]"
+                  }`}
+                >
+                  <Building2 className="w-3.5 h-3.5" />
+                  <span>{t("nav.forBusinessHosts")}</span>
+                  <ChevronDown className="w-3 h-3 opacity-60 transition-transform duration-200" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/98 backdrop-blur-xl text-white space-y-1 animate-in fade-in-50 zoom-in-95 duration-150"
+                >
+                  <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1 flex items-center justify-between">
+                    <span>{t("nav.hostMerchantTools")}</span>
+                    <span className="text-primary text-[10px] font-normal">{t("nav.growTraffic")}</span>
+                  </div>
 
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/for-brands"
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0">
-                      <Building2 className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">For Brands & Merchants</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Fund customer actions with zero ad waste</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/hosting"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-orange-500/15 text-orange-400 flex items-center justify-center shrink-0">
+                        <Users className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{t("nav.hostMoment")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.hostMomentDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
 
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/pricing"
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
-                      <Tag className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">Pricing & Plans</p>
-                      <p className="text-[10px] text-white/50 leading-tight">Flexible tiers for venues, brands & hosts</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/for-brands"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0">
+                        <Building2 className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{t("nav.brandsMerchants")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.brandsMerchantsDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/pricing"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                        <Tag className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{t("nav.pricingPlans")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.pricingPlansDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
-          {/* Right Action Cluster */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* City / Location Quick Switcher */}
+          {/* 2. Center/Right Zone: Search & Location */}
+          <div className="flex items-center gap-2.5 flex-1 justify-end max-w-lg">
+            {/* City Quick Switcher */}
             <CityQuickSwitcher className="hidden md:inline-flex" />
 
-            {/* Global Search Command-K Trigger */}
-            <HeaderSearchPreview />
+            {/* Global Search Trigger */}
+            <div className="w-full max-w-[200px] sm:max-w-[260px]">
+              <HeaderSearchPreview />
+            </div>
+          </div>
 
-            {/* Quick Intent Goal Trigger */}
-            <button
-              onClick={() => window.dispatchEvent(new CustomEvent('promorang:open-intent-modal'))}
-              title="What do you want to accomplish? (Cmd+K)"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all shadow-sm cursor-pointer"
-            >
-              <Target className="w-3.5 h-3.5" />
-              <span>{t("nav.goals")}</span>
-            </button>
-
-            {/* Authenticated User Controls */}
-            {user && (
+          {/* 3. Right Zone: Utilities & Unified User Dropdown */}
+          <div className="flex items-center gap-2 shrink-0">
+            {user ? (
               <>
-                {/* Agency Switcher (for agencies/brands) */}
-                {isAgencyMode && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.05] hover:bg-white/[0.1] transition-all outline-none cursor-pointer text-xs font-medium text-white/90">
-                      <div className="h-4 w-4 rounded bg-primary/20 flex items-center justify-center text-primary">
-                        <Building className="w-2.5 h-2.5" />
-                      </div>
-                      <span className="max-w-[90px] truncate">{activeOrg?.name || "Account"}</span>
-                      <ChevronDown className="w-3 h-3 text-white/40" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11] text-white">
-                      <div className="p-2 pb-2 border-b border-white/10">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-white/40">My Accounts</p>
-                      </div>
-                      {organizations?.map((org) => (
-                        <DropdownMenuItem
-                          key={org.id}
-                          onClick={() => {
-                            setActiveOrgId(org.id);
-                            navigate("/dashboard");
-                          }}
-                          className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer hover:bg-white/[0.08] ${
-                            activeOrgId === org.id ? "bg-primary/10 font-bold text-primary" : "text-white/80"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <Building className="w-3.5 h-3.5" />
-                            <span className="text-xs">{org.name}</span>
-                          </div>
-                          {activeOrgId === org.id && <Check className="w-3.5 h-3.5" />}
-                        </DropdownMenuItem>
-                      ))}
-
-                      {agencyClients && agencyClients.length > 0 && (
-                        <>
-                          <div className="p-2 pb-2 mt-2 pt-2 border-t border-white/10">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Agency Clients</p>
-                          </div>
-                          {agencyClients.map((client) => (
-                            <DropdownMenuItem
-                              key={client.id}
-                              onClick={() => {
-                                setActiveOrgId(client.id);
-                                if (client.type === "brand") setActiveRole("brand");
-                                if (client.type === "merchant") setActiveRole("merchant");
-                                navigate("/dashboard");
-                              }}
-                              className="flex items-center gap-2.5 p-2.5 rounded-xl cursor-pointer hover:bg-white/[0.08] text-white/80"
-                            >
-                              <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-primary">
-                                <Building2 className="w-3 h-3" />
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-xs">{client.name}</span>
-                                <span className="text-[9px] uppercase tracking-wider text-white/40">{client.type}</span>
-                              </div>
-                            </DropdownMenuItem>
-                          ))}
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-
                 {/* Activity Pulse Notifications */}
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="relative p-2 rounded-full hover:bg-white/[0.08] transition-colors outline-none cursor-pointer">
-                    <Bell className="w-4 h-4 text-white/70 hover:text-white transition-colors" />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-background animate-pulse" />
+                  <DropdownMenuTrigger className="relative p-2 rounded-full text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors outline-none cursor-pointer">
+                    <Bell className="w-4 h-4" />
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-[#09090b] animate-pulse" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-80 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11] text-white">
                     <div className="p-2 pb-2 border-b border-white/10 flex items-center justify-between">
@@ -501,10 +415,10 @@ const Header = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* User Profile Avatar Dropdown Menu */}
+                {/* Unified User Profile & Workspace Dropdown */}
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full border border-white/10 bg-white/[0.05] hover:bg-white/[0.1] transition-all outline-none cursor-pointer group">
-                    <div className="relative h-7 w-7 rounded-full bg-gradient-primary flex items-center justify-center text-white text-xs font-bold shadow-sm overflow-hidden ring-1 ring-white/20">
+                  <DropdownMenuTrigger className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/20 transition-all outline-none cursor-pointer group">
+                    <div className="relative h-7 w-7 rounded-full bg-gradient-primary flex items-center justify-center text-white text-xs font-bold shadow-sm overflow-hidden ring-1 ring-white/20 shrink-0">
                       {userAvatarUrl ? (
                         <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
                       ) : (
@@ -512,12 +426,13 @@ const Header = () => {
                       )}
                       <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full border border-background bg-emerald-500" />
                     </div>
-                    <span className="text-xs font-bold text-white/90 hidden sm:inline max-w-[100px] truncate">
+                    <span className="text-xs font-semibold text-white/90 hidden sm:inline max-w-[100px] truncate">
                       {userDisplayName}
                     </span>
-                    <ChevronDown className="w-3 h-3 text-white/40 group-hover:text-white/80 transition-colors" />
+                    <ChevronDown className="w-3.5 h-3.5 text-white/40 group-hover:text-white/80 transition-colors shrink-0" />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11] text-white space-y-1 animate-in fade-in-50 zoom-in-95 duration-150">
+
+                  <DropdownMenuContent align="end" className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/98 backdrop-blur-2xl text-white space-y-1.5 animate-in fade-in-50 zoom-in-95 duration-150">
                     {/* User Identity Header Card */}
                     <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5 flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-gradient-primary flex items-center justify-center text-white text-sm font-black shrink-0 overflow-hidden shadow-inner">
@@ -530,13 +445,66 @@ const Header = () => {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
                           <p className="text-xs font-bold text-white truncate">{userDisplayName}</p>
-                          <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/20 text-primary font-mono font-bold">
+                          <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/20 text-primary font-mono font-bold shrink-0">
                             {activeRole || "Member"}
                           </span>
                         </div>
                         <p className="text-[10px] text-white/50 truncate mt-0.5">{user?.email}</p>
                       </div>
                     </div>
+
+                    {/* Integrated Workspace / Accounts Switcher for Agencies & Brands */}
+                    {isAgencyMode && (
+                      <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
+                        <div className="flex items-center justify-between px-1 text-[10px] font-bold uppercase tracking-wider text-white/40">
+                          <span>Workspaces</span>
+                          {activeOrg && <span className="text-primary truncate max-w-[120px] font-normal">{activeOrg.name}</span>}
+                        </div>
+                        {organizations?.map((org) => (
+                          <button
+                            key={org.id}
+                            type="button"
+                            onClick={() => {
+                              setActiveOrgId(org.id);
+                              navigate("/dashboard");
+                            }}
+                            className={`w-full flex items-center justify-between p-2 rounded-lg text-left transition cursor-pointer text-xs ${
+                              activeOrgId === org.id
+                                ? "bg-primary/20 text-primary font-bold"
+                                : "text-white/70 hover:bg-white/[0.06] hover:text-white"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 truncate">
+                              <Building className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate">{org.name}</span>
+                            </div>
+                            {activeOrgId === org.id && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                          </button>
+                        ))}
+
+                        {agencyClients && agencyClients.length > 0 && (
+                          <div className="pt-1 mt-1 border-t border-white/5 space-y-0.5">
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-primary/70 px-1">Agency Clients</p>
+                            {agencyClients.map((client) => (
+                              <button
+                                key={client.id}
+                                type="button"
+                                onClick={() => {
+                                  setActiveOrgId(client.id);
+                                  if (client.type === "brand") setActiveRole("brand");
+                                  if (client.type === "merchant") setActiveRole("merchant");
+                                  navigate("/dashboard");
+                                }}
+                                className="w-full flex items-center justify-between p-1.5 rounded-lg text-left text-white/70 hover:bg-white/[0.06] hover:text-white transition cursor-pointer text-xs"
+                              >
+                                <span className="truncate">{client.name}</span>
+                                <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/10 text-white/60">{client.type}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* Quick Balance / Rewards Pill */}
                     <Link
@@ -575,9 +543,9 @@ const Header = () => {
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild>
-                      <Link to="/vault" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
-                        <Archive className="w-4 h-4 text-white/60" />
-                        <span className="text-xs font-medium">Vault & Memories</span>
+                      <Link to="/hosting" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
+                        <Sparkles className="w-4 h-4 text-amber-400" />
+                        <span className="text-xs font-medium">Host a Moment</span>
                       </Link>
                     </DropdownMenuItem>
 
@@ -597,6 +565,17 @@ const Header = () => {
 
                     <DropdownMenuSeparator className="bg-white/10" />
 
+                    {/* Preferences Row inside dropdown */}
+                    <div className="flex items-center justify-between px-2 py-1">
+                      <span className="text-[11px] text-white/50 font-medium">Preferences</span>
+                      <div className="flex items-center gap-1.5">
+                        <LanguageSelector />
+                        <ThemeToggle />
+                      </div>
+                    </div>
+
+                    <DropdownMenuSeparator className="bg-white/10" />
+
                     {/* Sign Out */}
                     <DropdownMenuItem
                       onClick={handleSignOut}
@@ -608,18 +587,13 @@ const Header = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
-            )}
-
-            {/* Theme Toggle */}
-            <div className="shrink-0">
-              <ThemeToggle />
-            </div>
-
-            <LanguageSelector />
-
-            {/* Public Auth Buttons */}
-            {!user && (
-              <div className="hidden sm:flex items-center gap-2">
+            ) : (
+              /* Public / Logged Out Controls */
+              <div className="flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-1.5">
+                  <LanguageSelector />
+                  <ThemeToggle />
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -643,7 +617,7 @@ const Header = () => {
               type="button"
               aria-label={mobileMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
               aria-expanded={mobileMenuOpen}
-              className="rounded-xl p-2 text-white/80 hover:text-white hover:bg-white/[0.08] transition lg:hidden"
+              className="rounded-xl p-2 text-white/80 hover:text-white hover:bg-white/[0.08] transition lg:hidden cursor-pointer"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -708,13 +682,13 @@ const Header = () => {
 
               {/* Section 1: Explore Experiences */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">Explore Experiences</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">{t("nav.exploreExperiences")}</p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs">
                   {[
-                    ["/discover", Compass, "Discover Moments"],
-                    ["/live", Radio, "Live Now"],
-                    ["/scenes", Layers, "Local Scenes"],
-                    ["/creators", PlayCircle, "Creators & Hosts"],
+                    ["/discover", Compass, t("nav.discoverMoments")],
+                    ["/live", Radio, t("nav.liveNow")],
+                    ["/scenes", Layers, t("nav.scenesSpots")],
+                    ["/creators", PlayCircle, t("nav.creatorsHosts")],
                   ].map(([href, Icon, label]) => {
                     const ItemIcon = Icon as typeof Radio;
                     return (
@@ -734,7 +708,7 @@ const Header = () => {
 
               {/* Section 2: Rewards & Deals */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">Rewards & Deals</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">{t("nav.rewardsDeals")}</p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs">
                   <Link
                     to="/rewards"
@@ -742,7 +716,7 @@ const Header = () => {
                     className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Rewards Hub</span>
+                    <span>{t("nav.rewardsHub")}</span>
                   </Link>
                   <Link
                     to="/shop"
@@ -750,43 +724,52 @@ const Header = () => {
                     className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
                   >
                     <Store className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Local Deals</span>
+                    <span>{t("nav.localDealsShop")}</span>
                   </Link>
                 </div>
               </div>
 
               {/* Section 3: For Business & Hosts */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">For Business & Hosts</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">{t("nav.forBusinessHosts")}</p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs">
                   <Link
                     to="/hosting"
                     onClick={closeMobileMenu}
                     className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
                   >
-                    Host a Moment
+                    {t("nav.hostMoment")}
                   </Link>
                   <Link
                     to="/for-brands"
                     onClick={closeMobileMenu}
                     className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
                   >
-                    Brands & Merchants
+                    {t("nav.brandsMerchants")}
                   </Link>
                   <Link
                     to="/how-it-works"
                     onClick={closeMobileMenu}
                     className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
                   >
-                    How It Works
+                    {t("nav.howItWorks")}
                   </Link>
                   <Link
                     to="/pricing"
                     onClick={closeMobileMenu}
                     className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
                   >
-                    Pricing & Plans
+                    {t("nav.pricingPlans")}
                   </Link>
+                </div>
+              </div>
+
+              {/* Mobile Preferences (Language + Theme) */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/10">
+                <span className="text-xs text-white/60 font-medium">Preferences</span>
+                <div className="flex items-center gap-2">
+                  <LanguageSelector />
+                  <ThemeToggle />
                 </div>
               </div>
 
@@ -816,7 +799,7 @@ const Header = () => {
                       }}
                       className="w-full rounded-xl bg-primary text-xs font-bold"
                     >
-                      Open Dashboard
+                      {t("nav.dashboard")}
                     </Button>
                     <Button
                       variant="outline"
@@ -865,3 +848,4 @@ const Header = () => {
 };
 
 export default Header;
+

@@ -16,7 +16,7 @@ interface SearchResult {
   relevance_score: number;
 }
 
-export const HeaderSearchPreview: React.FC = () => {
+export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ className = "" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
@@ -79,12 +79,16 @@ export const HeaderSearchPreview: React.FC = () => {
       <button
         onClick={() => setIsOpen(true)}
         type="button"
-        className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs text-white/70 hover:border-primary/40 hover:bg-white/[0.08] hover:text-white transition-all shadow-sm group focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
+        className={`w-full flex items-center justify-between gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/70 hover:border-white/20 hover:bg-white/[0.08] hover:text-white transition-all shadow-sm group focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer ${className}`}
       >
-        <Search className="h-3.5 w-3.5 text-primary/80 group-hover:text-primary group-hover:scale-110 transition-transform" />
-        <span className="hidden sm:inline">Search moments...</span>
-        <span className="inline sm:hidden">Search</span>
-        <kbd className="hidden md:inline-flex h-4 items-center gap-0.5 rounded border border-white/15 bg-white/10 px-1.5 font-mono text-[9px] font-medium text-white/50">
+        <div className="flex items-center gap-2 truncate">
+          <Search className="h-3.5 w-3.5 text-primary shrink-0 group-hover:scale-110 transition-transform" />
+          <span className="hidden sm:inline text-white/60 group-hover:text-white/80 transition-colors truncate">
+            Search moments, deals...
+          </span>
+          <span className="inline sm:hidden text-white/60">Search</span>
+        </div>
+        <kbd className="hidden md:inline-flex h-4 items-center gap-0.5 rounded border border-white/15 bg-white/10 px-1.5 font-mono text-[9px] font-medium text-white/50 shrink-0">
           ⌘K
         </kbd>
       </button>
