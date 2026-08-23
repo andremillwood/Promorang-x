@@ -103,10 +103,12 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
       attributionControl: false,
     });
 
-    // Dark Matter high-contrast tiles
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png", {
+    // OpenStreetMap high-reliability tiles with dark contrast theme
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      subdomains: "abcd",
+      subdomains: ["a", "b", "c"],
+      className: "promorang-dark-tiles",
+      attribution: "&copy; OpenStreetMap",
     }).addTo(map);
 
     if (interactive) {
