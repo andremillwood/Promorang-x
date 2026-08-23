@@ -107,6 +107,10 @@ export function PWAInstallPrompt() {
           onClick={handleDismiss}
           className="rounded-full p-1 text-white/40 hover:bg-white/10 hover:text-white transition"
         >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
       <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2">
         {showIOSPrompt ? (
           <p className="text-[11px] text-white/90 flex items-center gap-1.5 font-medium">
@@ -122,6 +126,7 @@ export function PWAInstallPrompt() {
 
         {!showIOSPrompt && deferredPrompt && (
           <button
+            type="button"
             onClick={handleInstall}
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary text-black font-black text-xs hover:bg-orange-400 transition-all shadow-[0_0_15px_rgba(255,106,0,0.4)] active:scale-95"
           >

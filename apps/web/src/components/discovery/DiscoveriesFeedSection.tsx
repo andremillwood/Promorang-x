@@ -162,29 +162,29 @@ export function DiscoveriesFeedSection() {
               <div className="flex items-center gap-2">
                 <span className="text-xs sm:text-sm font-bold text-white truncate">Scout {firstName}</span>
                 <Badge className="border-amber-400/30 bg-amber-500/20 text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-amber-300 shrink-0">
-                  Pioneer Tier
+                  {t("scout.pioneerTier")}
                 </Badge>
               </div>
               <p className="text-[11px] sm:text-xs text-white/50 truncate">
-                <span className="font-bold text-primary">{votedCount} ballots</span> • <span className="font-bold text-amber-300">+{votedCount * 35} pts</span> rewards
+                <span className="font-bold text-primary">{votedCount} {t("scout.ballots")}</span> • <span className="font-bold text-amber-300">+{votedCount * 35} pts</span> {t("scout.rewards")}
               </p>
             </div>
           </div>
 
           <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4 text-xs">
             <div className="flex-1 sm:flex-initial rounded-xl border border-white/10 bg-black/40 px-2.5 sm:px-3 py-1.5 text-center">
-              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-white/40 block">Points</span>
+              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-white/40 block">{t("scout.points")}</span>
               <span className="font-mono font-bold text-amber-400 text-xs sm:text-sm">{userPoints} PTS</span>
             </div>
             <div className="flex-1 sm:flex-initial rounded-xl border border-white/10 bg-black/40 px-2.5 sm:px-3 py-1.5 text-center">
-              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-white/40 block">Keys</span>
+              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-white/40 block">{t("scout.keys")}</span>
               <span className="font-mono font-bold text-cyan-400 text-xs sm:text-sm">{userKeys} KEYS</span>
             </div>
             <Link
               to="/growth"
               className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-2.5 sm:px-3 py-2 font-bold text-white/80 hover:border-primary/40 hover:text-white transition text-xs shrink-0"
             >
-              <span>Rank</span> <ArrowRight className="h-3 w-3 text-primary" />
+              <span>{t("scout.rank")}</span> <ArrowRight className="h-3 w-3 text-primary" />
             </Link>
           </div>
         </div>
@@ -195,15 +195,15 @@ export function DiscoveriesFeedSection() {
               <Zap className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             <div>
-              <p className="text-xs font-bold text-white">Join the Community Demand Engine</p>
-              <p className="text-[10px] sm:text-[11px] text-white/60">Cast votes on active radar polls to unlock partner perks and earn instant PromoPoints.</p>
+              <p className="text-xs font-bold text-white">{t("scout.demandEngineTitle")}</p>
+              <p className="text-[10px] sm:text-[11px] text-white/60">{t("scout.demandEngineCopy")}</p>
             </div>
           </div>
           <Link
             to="/auth"
             className="w-full sm:w-auto text-center rounded-full bg-white/10 px-4 py-2 sm:py-1.5 text-xs font-bold text-white hover:bg-primary hover:text-black transition shrink-0"
           >
-            Sign In to Vote & Earn
+            {t("scout.signInToVote")}
           </Link>
         </div>
       )}
@@ -220,7 +220,7 @@ export function DiscoveriesFeedSection() {
             }`}
           >
             <Flame className="h-3.5 w-3.5" />
-            <span>Demand Signals</span>
+            <span>{t("scout.demandSignals")}</span>
             <span className={`ml-0.5 rounded-full px-1.5 py-0.2 text-[9px] font-black ${
               activeTab === "polls" ? "bg-black text-primary" : "bg-white/10 text-white/60"
             }`}>
@@ -237,7 +237,7 @@ export function DiscoveriesFeedSection() {
             }`}
           >
             <Compass className="h-3.5 w-3.5" />
-            <span>Scout Finds</span>
+            <span>{t("scout.scoutFinds")}</span>
             <span className={`ml-0.5 rounded-full px-1.5 py-0.2 text-[9px] font-black ${
               activeTab === "discoveries" ? "bg-black text-primary" : "bg-white/10 text-white/60"
             }`}>
@@ -251,11 +251,11 @@ export function DiscoveriesFeedSection() {
               className={`flex items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold transition shrink-0 ${
                 activeTab === "my_scout"
                   ? "bg-primary text-black shadow-lg shadow-primary/20"
-                  : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
               }`}
             >
               <Award className="h-3.5 w-3.5" />
-              <span>My Scout Log</span>
+              <span>{t("scout.myScoutLog")}</span>
             </button>
           )}
         </div>
@@ -264,7 +264,7 @@ export function DiscoveriesFeedSection() {
           to="/discover"
           className="hidden md:inline-flex text-xs font-bold text-white/50 hover:text-primary transition items-center gap-1 shrink-0"
         >
-          View Full Radar <ChevronRight className="h-3.5 w-3.5" />
+          {t("scout.viewFullRadar")} <ChevronRight className="h-3.5 w-3.5" />
         </Link>
       </div>
 
@@ -305,10 +305,10 @@ export function DiscoveriesFeedSection() {
                   <div className="mt-3 rounded-xl border border-white/10 bg-black/40 p-2.5">
                     <div className="flex items-center justify-between text-[10px] font-bold text-white/50">
                       <span className="flex items-center gap-1 text-primary">
-                        <Gift className="h-3 w-3" /> Target Perk Unlock
+                        <Gift className="h-3 w-3" /> {t("scout.targetPerkUnlock")}
                       </span>
                       <span>
-                        {votesRemaining === 0 ? "🎉 UNLOCKED" : `${votesRemaining} votes to go`}
+                        {votesRemaining === 0 ? t("scout.unlocked") : t("scout.votesToGo", { count: votesRemaining })}
                       </span>
                     </div>
                     <p className="mt-1 text-xs font-semibold text-white truncate">
@@ -376,13 +376,13 @@ export function DiscoveriesFeedSection() {
                   {hasVoted && (
                     <div className="mt-3 p-2.5 rounded-xl bg-gradient-to-r from-primary/10 to-transparent border border-primary/20 flex items-center justify-between gap-2 text-[11px]">
                       <span className="text-primary font-bold flex items-center gap-1 truncate">
-                        <Sparkles className="w-3 h-3 shrink-0" /> Matched deals & squad link ready
+                        <Sparkles className="w-3 h-3 shrink-0" /> {t("scout.matchedDealsReady")}
                       </span>
                       <Link
                         to={poll.detailUrl || `/discoveries/${poll.slug}`}
                         className="text-white font-bold hover:text-primary transition shrink-0 underline decoration-primary/50"
                       >
-                        Explore →
+                        {t("scout.exploreLink")}
                       </Link>
                     </div>
                   )}
@@ -392,7 +392,7 @@ export function DiscoveriesFeedSection() {
                 <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3 text-[11px] text-white/40">
                   <span className="flex items-center gap-1">
                     <Users className="h-3 w-3 text-white/50" />
-                    {totalVotes} total votes
+                    {totalVotes} {t("scout.totalVotes")}
                   </span>
 
                   <Link
