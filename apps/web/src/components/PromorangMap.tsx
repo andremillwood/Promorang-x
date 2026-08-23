@@ -25,93 +25,96 @@ interface PromorangMapProps {
 
 const DEFAULT_CENTER = { lat: 18.0179, lng: -76.8099 }; // Kingston fallback
 
-// High-contrast, CORS-safe dark map style for raster tiles
+// High-contrast, vibrant dark map style
 const DARK_MAP_STYLES = [
-  { elementType: "geometry", stylers: [{ color: "#18181b" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#18181b" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#a1a1aa" }] },
+  { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
   {
     featureType: "administrative.locality",
     elementType: "labels.text.fill",
-    stylers: [{ color: "#f97316" }],
+    stylers: [{ color: "#d59563" }]
   },
   {
     featureType: "poi",
     elementType: "labels.text.fill",
-    stylers: [{ color: "#d4d4d8" }],
+    stylers: [{ color: "#d59563" }]
   },
   {
     featureType: "poi.park",
     elementType: "geometry",
-    stylers: [{ color: "#1c2421" }],
+    stylers: [{ color: "#263c3f" }]
   },
   {
     featureType: "poi.park",
     elementType: "labels.text.fill",
-    stylers: [{ color: "#4ade80" }],
+    stylers: [{ color: "#6b9a76" }]
   },
   {
     featureType: "road",
     elementType: "geometry",
-    stylers: [{ color: "#27272a" }],
+    stylers: [{ color: "#38414e" }]
   },
   {
     featureType: "road",
     elementType: "geometry.stroke",
-    stylers: [{ color: "#18181b" }],
+    stylers: [{ color: "#212a37" }]
   },
   {
     featureType: "road",
     elementType: "labels.text.fill",
-    stylers: [{ color: "#71717a" }],
+    stylers: [{ color: "#9ca5b3" }]
   },
   {
     featureType: "road.highway",
     elementType: "geometry",
-    stylers: [{ color: "#3f3f46" }],
+    stylers: [{ color: "#746855" }]
   },
   {
     featureType: "road.highway",
     elementType: "geometry.stroke",
-    stylers: [{ color: "#27272a" }],
+    stylers: [{ color: "#1f2835" }]
   },
   {
     featureType: "road.highway",
     elementType: "labels.text.fill",
-    stylers: [{ color: "#fdba74" }],
+    stylers: [{ color: "#f3d19c" }]
   },
   {
     featureType: "transit",
     elementType: "geometry",
-    stylers: [{ color: "#27272a" }],
+    stylers: [{ color: "#2f3948" }]
   },
   {
     featureType: "transit.station",
     elementType: "labels.text.fill",
-    stylers: [{ color: "#fb923c" }],
+    stylers: [{ color: "#d59563" }]
   },
   {
     featureType: "water",
     elementType: "geometry",
-    stylers: [{ color: "#090d16" }],
+    stylers: [{ color: "#17263c" }]
   },
   {
     featureType: "water",
     elementType: "labels.text.fill",
-    stylers: [{ color: "#38bdf8" }],
+    stylers: [{ color: "#515c6d" }]
   },
   {
     featureType: "water",
     elementType: "labels.text.stroke",
-    stylers: [{ color: "#090d16" }],
-  },
+    stylers: [{ color: "#17263c" }]
+  }
 ];
 
-const PIN_PATH = "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z";
+const createSvgPinUrl = (color: string, size: number) => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3" fill="#ffffff"/></svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+};
 
 export const PromorangMap: React.FC<PromorangMapProps> = ({
   center = DEFAULT_CENTER,
-  zoom = 13,
+  zoom = 12,
   markers = [],
   className = "w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative bg-[#09090b]",
   height = "320px",
@@ -194,13 +197,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
             <Marker
               position={mapCenter}
               icon={{
-                path: PIN_PATH,
-                fillColor: "#ff5500",
-                fillOpacity: 1,
-                strokeColor: "#ffffff",
-                strokeWeight: 1.5,
-                scale: 1.6,
-                anchor: { x: 12, y: 22 } as google.maps.Point,
+                url: createSvgPinUrl("#ff5500", 34),
               }}
             />
           )}
@@ -215,13 +212,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
                 onClick={() => setSelectedMarker(marker)}
                 title={marker.title}
                 icon={{
-                  path: PIN_PATH,
-                  fillColor: isSelected ? "#22c55e" : "#ff5500",
-                  fillOpacity: 1,
-                  strokeColor: "#ffffff",
-                  strokeWeight: 1.5,
-                  scale: isSelected ? 1.9 : 1.6,
-                  anchor: { x: 12, y: 22 } as google.maps.Point,
+                  url: createSvgPinUrl(isSelected ? "#22c55e" : "#ff5500", isSelected ? 40 : 32),
                 }}
               />
             );

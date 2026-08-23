@@ -399,7 +399,7 @@ const Discover = () => {
                     <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
                       <PromorangMap
                         center={mapCenter}
-                        zoom={13}
+                        zoom={11}
                         markers={mapMarkers}
                         height="100%"
                       />
