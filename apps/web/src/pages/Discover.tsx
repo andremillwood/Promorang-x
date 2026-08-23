@@ -138,7 +138,7 @@ const Discover = () => {
     },
   });
 
-  const moments = discoveryQuery.data || [];
+  const moments = useMemo(() => discoveryQuery.data || [], [discoveryQuery.data]);
   const filteredMoments = useMemo(() => {
     const matched = moments.filter((m) => {
       const matchesCategory = activeCategory === "all" || (m.category || "").toLowerCase().includes(activeCategory);
