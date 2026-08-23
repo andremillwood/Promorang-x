@@ -34,6 +34,7 @@ import { DiscoverRightRail } from "@/components/discovery/DiscoverRightRail";
 import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
 import { useI18n } from "@/i18n/I18nContext";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
+import { getMomentStatus } from "@/lib/moment-recurrence";
 import { DiscoveryWidget, DiscoveryProps } from "@/components/radar/DiscoveryWidget";
 import { AskQuestionModal } from "@/components/discovery/AskQuestionModal";
 import { DISCOVERY_POLLS } from "@/data/discoveriesData";
@@ -138,14 +139,25 @@ const Discover = () => {
   });
 
   const moments = discoveryQuery.data || [];
-  const filteredMoments = moments.filter((m) => {
-    const matchesCategory = activeCategory === "all" || (m.category || "").toLowerCase().includes(activeCategory);
-    const matchesSearch =
-      !searchQuery ||
-      (m.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (m.location || "").toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const filteredMoments = useMemo(() => {
+    const matched = moments.filter((m) => {
+      const matchesCategory = activeCategory === "all" || (m.category || "").toLowerCase().includes(activeCategory);
+      const matchesSearch =
+        !searchQuery ||
+        (m.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (m.location || "").toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+
+    return [...matched].sort((a, b) => {
+      const statusA = getMomentStatus(a);
+      const statusB = getMomentStatus(b);
+      if (statusA.isPast !== statusB.isPast) {
+        return statusA.isPast ? 1 : -1;
+      }
+      return new Date(statusA.displayStartsAt).getTime() - new Date(statusB.displayStartsAt).getTime();
+    });
+  }, [moments, activeCategory, searchQuery]);
 
   const featuredMoment = moments[0] || null;
 
@@ -414,60 +426,73 @@ const Discover = () => {
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        {filteredMoments.map((item) => (
-                          <div
-                            key={item.id}
-                            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-white/5 transition-all hover:border-primary/40 hover:bg-white/10 hover:shadow-xl"
-                          >
-                            <div className="relative h-44 w-full overflow-hidden bg-black">
-                              {item.image_url ? (
-                                <img
-                                  src={item.image_url}
-                                  alt={item.title}
-                                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                />
-                              ) : (
-                                <div className="h-full w-full bg-gradient-to-tr from-primary/20 via-[#121214] to-black" />
-                              )}
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                              <Badge className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white border border-white/10 text-[10px] font-bold uppercase">
-                                {item.category || "Social"}
-                              </Badge>
-                            </div>
-
-                            <div className="p-4 space-y-2.5 flex-1 flex flex-col justify-between">
-                              <div className="space-y-1.5">
-                                <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                                  <Calendar className="h-3.5 w-3.5" />
-                                  <span>{formatMomentDate(item.starts_at)}</span>
-                                </div>
-
-                                <h3 className="text-base font-bold text-white group-hover:text-primary transition-colors line-clamp-1">
-                                  {item.title}
-                                </h3>
-
-                                <p className="text-xs text-white/60 flex items-center gap-1.5 line-clamp-1">
-                                  <MapPin className="h-3.5 w-3.5 text-white/40 shrink-0" />
-                                  <span>{item.venue_name || item.location}</span>
-                                </p>
-
-                                {item.reward && (
-                                  <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-bold text-emerald-400">
-                                    <Gift className="h-3 w-3" /> <span>{item.reward}</span>
-                                  </div>
+                        {filteredMoments.map((item) => {
+                          const status = getMomentStatus(item);
+                          return (
+                            <div
+                              key={item.id}
+                              className={`group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-white/5 transition-all hover:border-primary/40 hover:bg-white/10 hover:shadow-xl ${
+                                status.isPast ? "opacity-85 hover:opacity-100" : ""
+                              }`}
+                            >
+                              <div className="relative h-44 w-full overflow-hidden bg-black">
+                                {item.image_url ? (
+                                  <img
+                                    src={item.image_url}
+                                    alt={item.title}
+                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                  />
+                                ) : (
+                                  <div className="h-full w-full bg-gradient-to-tr from-primary/20 via-[#121214] to-black" />
                                 )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                                {status.isPast ? (
+                                  <Badge className="absolute top-3 left-3 bg-red-500/80 backdrop-blur-md text-white border border-red-500/30 text-[10px] font-black uppercase">
+                                    Concluded
+                                  </Badge>
+                                ) : (
+                                  <Badge className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white border border-white/10 text-[10px] font-bold uppercase">
+                                    {item.category || "Social"}
+                                  </Badge>
+                                )}
+                              </div>
 
-                                <SocialGraphFacepile claimedCount={18} />
+                              <div className="p-4 space-y-2.5 flex-1 flex flex-col justify-between">
+                                <div className="space-y-1.5">
+                                  <div className={`flex items-center gap-1.5 text-xs font-semibold ${status.isPast ? "text-white/40" : "text-primary"}`}>
+                                    <Calendar className="h-3.5 w-3.5" />
+                                    <span>{status.isPast ? `Concluded • ${formatMomentDate(status.displayStartsAt)}` : formatMomentDate(status.displayStartsAt)}</span>
+                                  </div>
+
+                                  <h3 className="text-base font-bold text-white group-hover:text-primary transition-colors line-clamp-1">
+                                    {item.title}
+                                  </h3>
+
+                                  <p className="text-xs text-white/60 flex items-center gap-1.5 line-clamp-1">
+                                    <MapPin className="h-3.5 w-3.5 text-white/40 shrink-0" />
+                                    <span>{item.venue_name || item.location}</span>
+                                  </p>
+
+                                  {item.reward && (
+                                    <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-bold text-emerald-400">
+                                      <Gift className="h-3 w-3" /> <span>{item.reward}</span>
+                                    </div>
+                                  )}
+
+                                  <SocialGraphFacepile claimedCount={18} />
+                                </div>
+                              </div>
+
+                              <div className="p-4 pt-0">
+                                <Button asChild variant="outline" className={`w-full rounded-2xl border-white/15 bg-white/5 font-bold text-xs transition-all ${
+                                  status.isPast ? "text-white/60 hover:text-white hover:bg-white/10" : "text-white hover:bg-primary hover:border-primary"
+                                }`}>
+                                  <Link to={`/moments/${item.id}`}>{status.actionLabel}</Link>
+                                </Button>
                               </div>
                             </div>
-
-                            <div className="p-4 pt-0">
-                              <Button asChild variant="outline" className="w-full rounded-2xl border-white/15 bg-white/5 text-white hover:bg-primary hover:border-primary font-bold text-xs transition-all">
-                                <Link to={`/moments/${item.id}`}>View Event & RSVP</Link>
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>

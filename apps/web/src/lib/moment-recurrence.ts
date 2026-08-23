@@ -19,8 +19,6 @@ export type ResolvedMomentOccurrence = {
   hasFutureOccurrence: boolean;
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
 function zonedParts(date: Date, timeZone: string) {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,
@@ -109,5 +107,21 @@ export function resolveMomentOccurrence(moment: RecurringMomentLike, referenceDa
     occurrenceNumber,
     isProjected: candidate.getTime() !== originalStart.getTime(),
     hasFutureOccurrence: true,
+  };
+}
+
+export function getMomentStatus(moment: RecurringMomentLike, referenceDate = new Date()) {
+  const occurrence = resolveMomentOccurrence(moment, referenceDate);
+  const isPast = !occurrence.hasFutureOccurrence && new Date(moment.starts_at).getTime() < referenceDate.getTime();
+  const isRecurring = Boolean(moment.recurrence_enabled && moment.recurrence_frequency);
+
+  return {
+    isPast,
+    isRecurring,
+    occurrence,
+    displayStartsAt: occurrence.startsAt,
+    displayEndsAt: occurrence.endsAt,
+    statusBadge: isPast ? "Concluded" : isRecurring ? "Weekly Series" : "Upcoming Pass",
+    actionLabel: isPast ? "View Recap & Proof" : "View Event & RSVP",
   };
 }

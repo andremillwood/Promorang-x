@@ -8,7 +8,7 @@ import { getTaxonomyLabel, momentArchetypes, venueCategories, conversionTypes } 
 import { buildMomentPath } from "@/lib/discovery";
 import { MomentValuePath } from "@/components/moments/MomentValuePath";
 import { ContentProvenanceBadge } from "@/components/content/ContentProvenance";
-import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
+import { resolveMomentOccurrence, getMomentStatus } from "@/lib/moment-recurrence";
 import { useI18n } from "@/i18n/I18nContext";
 
 type Moment = Tables<"moments"> & {
@@ -161,7 +161,9 @@ export function MomentCard({
   const conversionLabel = getTaxonomyLabel(conversionTypes, moment.conversion_type);
   const originLabel = getOriginLabel(moment);
   const recurrenceLabel = getRecurrenceLabel(moment);
-  const occurrence = resolveMomentOccurrence(moment);
+  const momentStatus = getMomentStatus(moment);
+  const occurrence = momentStatus.occurrence;
+  const isPast = momentStatus.isPast;
   const isExampleMoment = Boolean(moment.isExample || moment.content_origin === "demo" || moment.content_origin === "platform_seed");
   const actionLabel = conversionLabel || formActionLabel(moment.conversion_type) || "Check-in";
   const unlockLabel = moment.reward ? "Reward available" : recurrenceLabel ? "Build standing" : "Earn a Mark";
@@ -173,6 +175,7 @@ export function MomentCard({
         "group relative block overflow-hidden rounded-2xl border border-border/50 bg-card touch-manipulation",
         "transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 ease-out",
         "hover:-translate-y-1 hover:border-primary/30 hover:shadow-elevated active:scale-[0.99]",
+        isPast && "opacity-85 hover:opacity-100",
         className
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -229,9 +232,15 @@ export function MomentCard({
         </div>
 
         <div className="absolute top-3 left-3 flex flex-col gap-2">
-          <span className="w-fit rounded-full border border-white/15 bg-black/70 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-md backdrop-blur-sm">
-            {t("momentCard.badge")}
-          </span>
+          {isPast ? (
+            <span className="w-fit rounded-full border border-red-500/40 bg-red-500/80 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-md backdrop-blur-sm">
+              Concluded
+            </span>
+          ) : (
+            <span className="w-fit rounded-full border border-white/15 bg-black/70 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-md backdrop-blur-sm">
+              {t("momentCard.badge")}
+            </span>
+          )}
           {originLabel && (
             <span className={cn("px-2.5 py-1 backdrop-blur-sm text-xs font-semibold rounded-full shadow-md flex items-center gap-1", originLabel.tone)}>
               <originLabel.Icon className="h-3 w-3" />
@@ -368,8 +377,13 @@ export function MomentCard({
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-              {t("momentCard.viewDetails")}
+            <span className={cn(
+              "rounded-full px-2.5 py-1 text-[11px] font-bold transition-colors",
+              isPast
+                ? "bg-zinc-800 text-zinc-300 group-hover:bg-zinc-700 group-hover:text-white"
+                : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"
+            )}>
+              {isPast ? "View Recap & Proof" : t("momentCard.viewDetails")}
             </span>
           </div>
         </div>
