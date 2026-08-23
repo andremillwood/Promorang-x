@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, Calendar, Store, Users, Building2, ArrowRight, Loader2, Compass, X, Sparkles } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface SearchResult {
   id: string;
@@ -17,6 +18,7 @@ interface SearchResult {
 }
 
 export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ className = "" }) => {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
@@ -84,9 +86,9 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
         <div className="flex items-center gap-2 truncate">
           <Search className="h-3.5 w-3.5 text-primary shrink-0 group-hover:scale-110 transition-transform" />
           <span className="hidden sm:inline text-white/60 group-hover:text-white/80 transition-colors truncate">
-            Search moments, deals...
+            {t("headerSearch.triggerPlaceholder")}
           </span>
-          <span className="inline sm:hidden text-white/60">Search</span>
+          <span className="inline sm:hidden text-white/60">{t("headerSearch.triggerShort")}</span>
         </div>
         <kbd className="hidden md:inline-flex h-4 items-center gap-0.5 rounded border border-white/15 bg-white/10 px-1.5 font-mono text-[9px] font-medium text-white/50 shrink-0">
           ⌘K
@@ -104,7 +106,7 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Type to search moments, merchants, creators, rewards..."
+              placeholder={t("headerSearch.inputPlaceholder")}
               className="w-full bg-transparent text-sm sm:text-base text-white placeholder:text-white/40 focus:outline-none"
             />
             {searchTerm && (
@@ -121,7 +123,7 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
           {searchTerm.length < 2 && (
             <div className="p-6 space-y-4">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50">
-                <Sparkles className="h-3.5 w-3.5 text-primary" /> Popular Searches
+                <Sparkles className="h-3.5 w-3.5 text-primary" /> {t("headerSearch.popularSearches")}
               </div>
               <div className="flex flex-wrap gap-2">
                 {["Kingston Moments", "Sponsor Perks", "Local Merchant Deals", "Live Creators", "Proof Rewards"].map((term) => (
@@ -142,7 +144,7 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
             <div className="max-h-[380px] overflow-y-auto p-3 space-y-1 divide-y divide-white/5">
               {isLoading ? (
                 <div className="flex items-center justify-center py-10 text-white/50 text-xs">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" /> Searching Promorang signal...
+                  <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" /> {t("headerSearch.searching")}
                 </div>
               ) : results && results.length > 0 ? (
                 results.map((item) => (
@@ -178,12 +180,12 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
                 ))
               ) : (
                 <div className="text-center py-10 space-y-2">
-                  <p className="text-sm text-white/70">No results found for "{searchTerm}"</p>
+                  <p className="text-sm text-white/70">{t("headerSearch.noResults")} "{searchTerm}"</p>
                   <button
                     onClick={() => handleSelectResult(`/search?q=${encodeURIComponent(searchTerm)}`)}
                     className="text-xs font-bold text-primary hover:underline"
                   >
-                    Perform full market search →
+                    {t("search.startCopy")} →
                   </button>
                 </div>
               )}

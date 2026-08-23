@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useMarket } from "@/contexts/MarketContext";
+import { useI18n } from "@/i18n/I18nContext";
 
 export interface CityOption {
   id: string;
@@ -28,6 +29,7 @@ export const POPULAR_CITIES: CityOption[] = [
 ];
 
 export function CityQuickSwitcher({ className = "" }: { className?: string }) {
+  const { t } = useI18n();
   const { country, setCountry } = useMarket();
   const [selectedCity, setSelectedCity] = useState<CityOption>(() => {
     if (typeof window !== "undefined") {
@@ -64,8 +66,8 @@ export function CityQuickSwitcher({ className = "" }: { className?: string }) {
         className="w-56 p-1.5 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/95 backdrop-blur-xl text-white space-y-0.5 animate-in fade-in-50 zoom-in-95 duration-150"
       >
         <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 mb-1 flex items-center justify-between">
-          <span>Active City Hubs</span>
-          <span className="text-primary text-[10px] font-normal">Switch</span>
+          <span>{t("citySwitcher.title")}</span>
+          <span className="text-primary text-[10px] font-normal">{t("citySwitcher.switch")}</span>
         </div>
         {POPULAR_CITIES.map((city) => {
           const isSelected = selectedCity.id === city.id;
@@ -86,7 +88,7 @@ export function CityQuickSwitcher({ className = "" }: { className?: string }) {
               </div>
               {city.badge && (
                 <span className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-primary/20 text-primary">
-                  {city.badge}
+                  {city.badge === "Live Pulse" ? t("citySwitcher.livePulse") : city.badge}
                 </span>
               )}
               {isSelected && !city.badge && <Check className="w-3.5 h-3.5 text-primary" />}
