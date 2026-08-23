@@ -1,9 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
-import { RoleSuccessProgram } from "@/components/dashboard/RoleSuccessProgram";
 import { ResumeMomentumBanner } from "@/components/intent/ResumeMomentumBanner";
-import { IntentCommandHub } from "@/components/intent/IntentCommandHub";
 import { useUserIntentContinuity } from "@/hooks/useUserIntentContinuity";
 import { MobileNotificationBridgeBanner } from "@/components/notifications/MobileNotificationBridgeBanner";
 
@@ -49,12 +47,10 @@ const Dashboard = () => {
   const ResolvedDashboard = dashboardByRole[resolvedRole] || ParticipantDashboardV2;
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-7xl space-y-4">
+    <div className="container mx-auto px-4 py-4 max-w-7xl space-y-4">
       <MobileNotificationBridgeBanner />
-      <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />
-      <IntentCommandHub />
+      {activeDraft && <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />}
       <Suspense fallback={dashboardFallback}>
-        <RoleSuccessProgram role={resolvedRole} />
         <ResolvedDashboard />
       </Suspense>
     </div>
