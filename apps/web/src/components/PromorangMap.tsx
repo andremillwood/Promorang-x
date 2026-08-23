@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { APIProvider, Map, Marker, InfoWindow } from '@vis.gl/react-google-maps';
-import { MapPin, Navigation, ExternalLink, Compass } from 'lucide-react';
+import React, { useEffect, useRef, useState } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { MapPin, Navigation, ExternalLink, Compass } from "lucide-react";
 
 export interface MapMarkerItem {
   id: string;
@@ -23,93 +24,49 @@ interface PromorangMapProps {
   showCurrentLocationBtn?: boolean;
 }
 
-const DEFAULT_CENTER = { lat: 18.0179, lng: -76.8099 }; // Kingston fallback
+const DEFAULT_CENTER = { lat: 18.0179, lng: -76.8099 }; // Kingston, Jamaica
 
-// High-contrast, vibrant dark map style
-const DARK_MAP_STYLES = [
-  { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-  {
-    featureType: "administrative.locality",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }]
-  },
-  {
-    featureType: "poi",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }]
-  },
-  {
-    featureType: "poi.park",
-    elementType: "geometry",
-    stylers: [{ color: "#263c3f" }]
-  },
-  {
-    featureType: "poi.park",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#6b9a76" }]
-  },
-  {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [{ color: "#38414e" }]
-  },
-  {
-    featureType: "road",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#212a37" }]
-  },
-  {
-    featureType: "road",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#9ca5b3" }]
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry",
-    stylers: [{ color: "#746855" }]
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#1f2835" }]
-  },
-  {
-    featureType: "road.highway",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#f3d19c" }]
-  },
-  {
-    featureType: "transit",
-    elementType: "geometry",
-    stylers: [{ color: "#2f3948" }]
-  },
-  {
-    featureType: "transit.station",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }]
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [{ color: "#17263c" }]
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#515c6d" }]
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.stroke",
-    stylers: [{ color: "#17263c" }]
-  }
-];
-
-const createSvgPinUrl = (color: string, size: number) => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3" fill="#ffffff"/></svg>`;
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+const createPinIcon = (isSelected: boolean) => {
+  const bg = isSelected ? "#22c55e" : "#ff5500";
+  const glow = isSelected ? "rgba(34, 197, 94, 0.6)" : "rgba(255, 85, 0, 0.6)";
+  
+  return L.divIcon({
+    className: "promorang-map-pin",
+    html: `
+      <div style="
+        position: relative;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      ">
+        <div style="
+          position: absolute;
+          width: 28px;
+          height: 28px;
+          background: ${bg};
+          border: 2.5px solid #ffffff;
+          border-radius: 50% 50% 50% 0;
+          transform: rotate(-45deg);
+          box-shadow: 0 0 16px ${glow}, 0 4px 10px rgba(0,0,0,0.6);
+          transition: transform 0.2s ease;
+        "></div>
+        <div style="
+          position: absolute;
+          width: 8px;
+          height: 8px;
+          background: #ffffff;
+          border-radius: 50%;
+          z-index: 2;
+        "></div>
+      </div>
+    `,
+    iconSize: [32, 32],
+    iconAnchor: [16, 30],
+    popupAnchor: [0, -30],
+  });
 };
 
 export const PromorangMap: React.FC<PromorangMapProps> = ({
@@ -121,26 +78,160 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
   interactive = true,
   showCurrentLocationBtn = true,
 }) => {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
-  const [selectedMarker, setSelectedMarker] = useState<MapMarkerItem | null>(null);
-  const [mapCenter, setMapCenter] = useState(center);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const markersLayerRef = useRef<L.LayerGroup | null>(null);
   const [isLocating, setIsLocating] = useState(false);
 
+  // 1. Initialize Leaflet Map instance
   useEffect(() => {
-    if (center?.lat && center?.lng) {
-      setMapCenter(center);
+    if (!mapContainerRef.current || mapInstanceRef.current) return;
+
+    const initialCenter: [number, number] = [
+      center?.lat ?? DEFAULT_CENTER.lat,
+      center?.lng ?? DEFAULT_CENTER.lng,
+    ];
+
+    const map = L.map(mapContainerRef.current, {
+      center: initialCenter,
+      zoom: zoom,
+      zoomControl: false,
+      dragging: interactive,
+      touchZoom: interactive,
+      scrollWheelZoom: interactive,
+      doubleClickZoom: interactive,
+      attributionControl: false,
+    });
+
+    // Dark Matter high-contrast tiles (fast, beautiful, zero CORS, zero API key)
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png", {
+      maxZoom: 19,
+      subdomains: "abcd",
+    }).addTo(map);
+
+    if (interactive) {
+      L.control.zoom({ position: "bottomright" }).addTo(map);
     }
-  }, [center?.lat, center?.lng]);
+
+    const markersLayer = L.layerGroup().addTo(map);
+    markersLayerRef.current = markersLayer;
+    mapInstanceRef.current = map;
+
+    // Fix possible container sizing issues
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+      markersLayerRef.current = null;
+    };
+  }, []);
+
+  // 2. Sync center and zoom when props change
+  useEffect(() => {
+    if (!mapInstanceRef.current || !center?.lat || !center?.lng) return;
+    mapInstanceRef.current.setView([center.lat, center.lng], zoom, {
+      animate: true,
+    });
+  }, [center?.lat, center?.lng, zoom]);
+
+  // 3. Render dynamic markers
+  useEffect(() => {
+    if (!mapInstanceRef.current || !markersLayerRef.current) return;
+
+    markersLayerRef.current.clearLayers();
+
+    if (markers.length === 0 && center) {
+      const fallbackMarker = L.marker([center.lat, center.lng], {
+        icon: createPinIcon(false),
+      });
+      markersLayerRef.current.addLayer(fallbackMarker);
+      return;
+    }
+
+    markers.forEach((m) => {
+      const marker = L.marker([m.lat, m.lng], {
+        icon: createPinIcon(false),
+        title: m.title,
+      });
+
+      const popupContent = `
+        <div style="
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          padding: 8px 4px 4px 4px;
+          min-width: 200px;
+          max-width: 260px;
+          color: #18181b;
+        ">
+          ${m.category ? `
+            <span style="
+              display: inline-block;
+              font-size: 9px;
+              font-weight: 800;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+              padding: 2px 8px;
+              border-radius: 9999px;
+              background: #ffedd5;
+              color: #c2410c;
+              margin-bottom: 6px;
+            ">${m.category}</span>
+          ` : ''}
+          <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 800; line-height: 1.25; color: #09090b;">
+            ${m.title}
+          </h4>
+          ${m.subtitle ? `
+            <p style="margin: 0 0 6px 0; font-size: 11px; color: #52525b; line-height: 1.3;">
+              ${m.subtitle}
+            </p>
+          ` : ''}
+          ${m.reward ? `
+            <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: 700; color: #059669;">
+              🏆 ${m.reward}
+            </p>
+          ` : ''}
+          <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #e4e4e7; padding-top: 8px; margin-top: 4px;">
+            <a href="/moments/${m.id}" style="
+              font-size: 11px;
+              font-weight: 800;
+              color: #ff5500;
+              text-decoration: none;
+            ">
+              View & RSVP →
+            </a>
+            <a href="https://maps.google.com/?q=${m.lat},${m.lng}" target="_blank" rel="noopener noreferrer" style="
+              font-size: 10px;
+              font-weight: 600;
+              color: #71717a;
+              text-decoration: none;
+            ">
+              Directions ↗
+            </a>
+          </div>
+        </div>
+      `;
+
+      marker.bindPopup(popupContent, {
+        className: "promorang-custom-leaflet-popup",
+        closeButton: true,
+      });
+
+      markersLayerRef.current?.addLayer(marker);
+    });
+  }, [markers, center]);
 
   const handleGeolocate = () => {
-    if (navigator.geolocation) {
+    if (navigator.geolocation && mapInstanceRef.current) {
       setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setMapCenter({
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          });
+          mapInstanceRef.current?.flyTo(
+            [pos.coords.latitude, pos.coords.longitude],
+            14,
+            { duration: 1.2 }
+          );
           setIsLocating(false);
         },
         (err) => {
@@ -151,113 +242,23 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
     }
   };
 
-  if (!apiKey) {
-    return (
-      <div 
-        style={{ height }}
-        className="flex flex-col items-center justify-center p-6 bg-zinc-900/80 rounded-3xl border border-white/10 text-center space-y-3"
-      >
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 text-[#ff5500]">
-          <MapPin className="h-6 w-6" />
-        </div>
-        <p className="text-sm font-semibold text-white">Google Maps API key not configured</p>
-        <p className="text-xs text-white/50 max-w-xs">Add VITE_GOOGLE_MAPS_API_KEY to your environment settings to enable live interactive maps.</p>
-      </div>
-    );
-  }
-
   return (
     <div className={className} style={{ height }}>
-      <APIProvider apiKey={apiKey}>
-        <Map
-          defaultCenter={mapCenter}
-          center={mapCenter}
-          defaultZoom={zoom}
-          gestureHandling={interactive ? "greedy" : "none"}
-          disableDefaultUI={!interactive}
-          zoomControl={interactive}
-          styles={DARK_MAP_STYLES}
-          className="w-full h-full"
+      {/* Geolocation Button Overlay */}
+      {showCurrentLocationBtn && (
+        <button
+          onClick={handleGeolocate}
+          disabled={isLocating}
+          type="button"
+          className="absolute top-4 right-4 z-[400] flex h-10 w-10 items-center justify-center rounded-xl bg-black/80 backdrop-blur-md border border-white/15 text-white hover:bg-black hover:text-primary transition shadow-xl disabled:opacity-50"
+          title="Center on my location"
         >
-          {/* User Location Button Overlay */}
-          {showCurrentLocationBtn && (
-            <button
-              onClick={handleGeolocate}
-              disabled={isLocating}
-              type="button"
-              className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-xl bg-black/80 backdrop-blur-md border border-white/15 text-white hover:bg-black hover:text-[#ff5500] transition shadow-lg disabled:opacity-50"
-              title="Center on my location"
-            >
-              <Compass className={`h-5 w-5 ${isLocating ? 'animate-spin text-[#ff5500]' : ''}`} />
-            </button>
-          )}
+          <Compass className={`h-5 w-5 ${isLocating ? "animate-spin text-primary" : ""}`} />
+        </button>
+      )}
 
-          {/* Primary Center Marker if no specific markers passed */}
-          {markers.length === 0 && (
-            <Marker
-              position={mapCenter}
-              icon={{
-                url: createSvgPinUrl("#ff5500", 34),
-              }}
-            />
-          )}
-
-          {/* Dynamic Markers */}
-          {markers.map((marker) => {
-            const isSelected = selectedMarker?.id === marker.id;
-            return (
-              <Marker
-                key={marker.id}
-                position={{ lat: marker.lat, lng: marker.lng }}
-                onClick={() => setSelectedMarker(marker)}
-                title={marker.title}
-                icon={{
-                  url: createSvgPinUrl(isSelected ? "#22c55e" : "#ff5500", isSelected ? 40 : 32),
-                }}
-              />
-            );
-          })}
-
-          {/* Info Window */}
-          {selectedMarker && (
-            <InfoWindow
-              position={{ lat: selectedMarker.lat, lng: selectedMarker.lng }}
-              onCloseClick={() => setSelectedMarker(null)}
-            >
-              <div className="p-2.5 max-w-xs space-y-2 text-zinc-900">
-                {selectedMarker.category && (
-                  <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-orange-100 text-orange-700">
-                    {selectedMarker.category}
-                  </span>
-                )}
-                <h4 className="font-bold text-sm text-zinc-900 leading-tight">{selectedMarker.title}</h4>
-                {selectedMarker.subtitle && (
-                  <p className="text-xs text-zinc-600">{selectedMarker.subtitle}</p>
-                )}
-                {selectedMarker.reward && (
-                  <p className="text-xs font-bold text-emerald-600">🏆 {selectedMarker.reward}</p>
-                )}
-                <div className="flex items-center gap-3 pt-1 border-t border-zinc-200">
-                  <a
-                    href={`/moments/${selectedMarker.id}`}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-orange-600 hover:underline"
-                  >
-                    View Details & RSVP →
-                  </a>
-                  <a
-                    href={`https://maps.google.com/?q=${selectedMarker.lat},${selectedMarker.lng}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-500 hover:underline"
-                  >
-                    Directions <ExternalLink className="h-3 w-3" />
-                  </a>
-                </div>
-              </div>
-            </InfoWindow>
-          )}
-        </Map>
-      </APIProvider>
+      {/* Leaflet DOM container */}
+      <div ref={mapContainerRef} className="w-full h-full z-0" />
     </div>
   );
 };
