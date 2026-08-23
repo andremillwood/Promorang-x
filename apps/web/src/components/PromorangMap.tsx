@@ -28,7 +28,7 @@ const DEFAULT_CENTER = { lat: 18.0179, lng: -76.8099 }; // Kingston, Jamaica
 
 const createPinIcon = (isSelected: boolean) => {
   const bg = isSelected ? "#22c55e" : "#ff5500";
-  const glow = isSelected ? "rgba(34, 197, 94, 0.6)" : "rgba(255, 85, 0, 0.6)";
+  const glow = isSelected ? "rgba(34, 197, 94, 0.7)" : "rgba(255, 85, 0, 0.7)";
   
   return L.divIcon({
     className: "promorang-map-pin",
@@ -51,7 +51,6 @@ const createPinIcon = (isSelected: boolean) => {
           border-radius: 50% 50% 50% 0;
           transform: rotate(-45deg);
           box-shadow: 0 0 16px ${glow}, 0 4px 10px rgba(0,0,0,0.6);
-          transition: transform 0.2s ease;
         "></div>
         <div style="
           position: absolute;
@@ -71,10 +70,10 @@ const createPinIcon = (isSelected: boolean) => {
 
 export const PromorangMap: React.FC<PromorangMapProps> = ({
   center = DEFAULT_CENTER,
-  zoom = 12,
+  zoom = 11,
   markers = [],
-  className = "w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative bg-[#09090b]",
-  height = "320px",
+  className = "w-full h-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative bg-[#09090b]",
+  height = "600px",
   interactive = true,
   showCurrentLocationBtn = true,
 }) => {
@@ -103,13 +102,22 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
       attributionControl: false,
     });
 
-    // OpenStreetMap high-reliability tiles with dark contrast theme
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      subdomains: ["a", "b", "c"],
-      className: "promorang-dark-tiles",
-      attribution: "&copy; OpenStreetMap",
-    }).addTo(map);
+    // 1. Esri Dark Gray Base Map Layer (Fast CloudFront CDN, zero CORS, zero referer blocks)
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      {
+        maxZoom: 16,
+        attribution: "Esri",
+      }
+    ).addTo(map);
+
+    // 2. Esri Dark Gray Street & City Labels Overlay
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+      {
+        maxZoom: 16,
+      }
+    ).addTo(map);
 
     if (interactive) {
       L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -119,12 +127,11 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
     markersLayerRef.current = markersLayer;
     mapInstanceRef.current = map;
 
-    // Trigger multiple invalidates to ensure tiles load during flex/transition rendering
+    // Trigger multiple invalidates to ensure tiles load during initial layout/transitions
     const t1 = setTimeout(() => map.invalidateSize(), 50);
     const t2 = setTimeout(() => map.invalidateSize(), 200);
     const t3 = setTimeout(() => map.invalidateSize(), 500);
 
-    // ResizeObserver catches all container dimension changes
     const resizeObserver = new ResizeObserver(() => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.invalidateSize();
@@ -262,7 +269,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
   };
 
   return (
-    <div className={className} style={{ height }}>
+    <div className={className} style={{ height, minHeight: "450px" }}>
       {/* Geolocation Button Overlay */}
       {showCurrentLocationBtn && (
         <button
@@ -277,7 +284,11 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
       )}
 
       {/* Leaflet DOM container */}
-      <div ref={mapContainerRef} className="w-full h-full relative z-0" />
+      <div 
+        ref={mapContainerRef} 
+        className="w-full h-full relative z-0" 
+        style={{ width: "100%", height: "100%", minHeight: "450px" }}
+      />
     </div>
   );
 };

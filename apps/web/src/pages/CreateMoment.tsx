@@ -28,6 +28,7 @@ import {
   Zap,
 } from "lucide-react";
 import { MomentLineupBuilder, Collaborator } from "@/components/moments/MomentLineupBuilder";
+import { SmartVenuePicker } from "@/components/venues/SmartVenuePicker";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { useMarket } from "@/contexts/MarketContext";
@@ -535,49 +536,20 @@ export function CreateMoment() {
                   </div>
                 </div>
 
-                {/* Partner Venues Picker */}
-                {registeredVenues && registeredVenues.length > 0 && (
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-white/80">Pick a Verified Kingston Venue</Label>
-                    <select
-                      value={selectedVenueId}
-                      onChange={(e) => handleSelectRegisteredVenue(e.target.value)}
-                      className="w-full rounded-2xl bg-white/5 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary h-11"
-                    >
-                      <option value="" className="bg-[#111216] text-white">
-                        -- Select or enter custom venue below --
-                      </option>
-                      {registeredVenues.map((v) => (
-                        <option key={v.id} value={v.id} className="bg-[#111216] text-white">
-                          {v.name} ({v.city || "Kingston"})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-white/80">Venue Name *</Label>
-                    <Input
-                      placeholder="e.g. Kingston Dub Club"
-                      value={venueName}
-                      onChange={(e) => setVenueName(e.target.value)}
-                      className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-11"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-white/80">Address / Location *</Label>
-                    <Input
-                      placeholder="e.g. Skyline Dr, Jack's Hill, Kingston"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-11"
-                      required
-                    />
-                  </div>
-                </div>
+                {/* Smart Venue Picker with Instant Autosuggest & Vibe Explorer */}
+                <SmartVenuePicker
+                  selectedVenueName={venueName}
+                  selectedAddress={location}
+                  onSelectVenue={(v) => {
+                    setVenueName(v.name);
+                    setLocation(v.location);
+                    setLatitude(v.latitude);
+                    setLongitude(v.longitude);
+                    if (v.capacity) setMaxParticipants(v.capacity);
+                  }}
+                  onManualNameChange={(name) => setVenueName(name)}
+                  onManualAddressChange={(addr) => setLocation(addr)}
+                />
 
                 <div className="flex gap-3">
                   <Button variant="outline" onClick={() => setStep(1)} className="rounded-2xl border-white/10 h-11 px-5 text-xs">

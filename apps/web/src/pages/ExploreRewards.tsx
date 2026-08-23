@@ -31,6 +31,7 @@ import {
 import { getSiteUrl } from "@/lib/discovery";
 import { useToast } from "@/hooks/use-toast";
 import { INITIAL_DEAL_REQUESTS, CommunityDealRequest } from "@/data/rewardsData";
+import { SmartVenuePicker } from "@/components/venues/SmartVenuePicker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export function ExploreRewards() {
@@ -441,40 +442,28 @@ export function ExploreRewards() {
           </DialogHeader>
 
           <form onSubmit={handleCreateRequest} className="space-y-4 pt-2">
+            <SmartVenuePicker
+              selectedVenueName={newVenue}
+              selectedAddress={newLocation}
+              onSelectVenue={(v) => {
+                setNewVenue(v.name);
+                setNewLocation(v.location);
+              }}
+              onManualNameChange={(name) => setNewVenue(name)}
+              onManualAddressChange={(addr) => setNewLocation(addr)}
+            />
+
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-white/80">Venue or Spot Name</Label>
-              <Input
-                placeholder="e.g. Chilitos Jamexican, Usain Bolt Tracks & Records"
-                value={newVenue}
-                onChange={(e) => setNewVenue(e.target.value)}
-                className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-10"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-white/80">Location / Neighborhood</Label>
-                <Input
-                  placeholder="e.g. New Kingston, Hope Rd"
-                  value={newLocation}
-                  onChange={(e) => setNewLocation(e.target.value)}
-                  className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-10"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-white/80">Category</Label>
-                <select
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value as any)}
-                  className="w-full rounded-2xl bg-white/5 border border-white/10 px-3 py-2 text-xs text-white focus:outline-none focus:border-primary h-10"
-                >
-                  <option value="food" className="bg-[#111216] text-white">Food & Dining</option>
-                  <option value="nightlife" className="bg-[#111216] text-white">Nightlife & Music</option>
-                  <option value="retail" className="bg-[#111216] text-white">Retail & Merch</option>
-                </select>
-              </div>
+              <Label className="text-xs font-bold text-white/80">Category</Label>
+              <select
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value as any)}
+                className="w-full rounded-2xl bg-white/5 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary h-11"
+              >
+                <option value="food" className="bg-[#111216] text-white">Food & Dining</option>
+                <option value="nightlife" className="bg-[#111216] text-white">Nightlife & Music</option>
+                <option value="retail" className="bg-[#111216] text-white">Retail & Merch</option>
+              </select>
             </div>
 
             <div className="space-y-1.5">

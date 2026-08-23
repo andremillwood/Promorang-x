@@ -1,0 +1,138 @@
+export interface VenueItem {
+  id: string;
+  name: string;
+  location: string;
+  address: string;
+  neighborhood: string;
+  city: string;
+  venue_type: "soundstage" | "culinary" | "rooftop" | "beach" | "lounge";
+  venue_type_label: string;
+  capacity: number;
+  latitude: number;
+  longitude: number;
+  image_url: string;
+  vibe: string;
+}
+
+export const VERIFIED_VENUES: VenueItem[] = [
+  {
+    id: "venue-dubclub",
+    name: "Kingston Dub Club",
+    location: "Skyline Dr, Jack's Hill, Kingston",
+    address: "7 Skyline Dr, Jack's Hill",
+    neighborhood: "Jack's Hill / Skyline",
+    city: "Kingston",
+    venue_type: "soundstage",
+    venue_type_label: "Soundstage & Open Air",
+    capacity: 400,
+    latitude: 18.0489,
+    longitude: -76.7587,
+    image_url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
+    vibe: "Roots, Dub & Panoramic City Skyline",
+  },
+  {
+    id: "venue-pricesmart",
+    name: "PriceSmart Culinary Studio",
+    location: "111 Red Hills Rd, Kingston",
+    address: "111 Red Hills Rd",
+    neighborhood: "Red Hills",
+    city: "Kingston",
+    venue_type: "culinary",
+    venue_type_label: "Culinary & Tasting Lab",
+    capacity: 150,
+    latitude: 18.0333,
+    longitude: -76.8167,
+    image_url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80",
+    vibe: "Chef Demos, Tasting Stations & Live Cooking",
+  },
+  {
+    id: "venue-sweetwood",
+    name: "Sweetwood Jerk Courtyard",
+    location: "7 Drumblair Cres, Kingston",
+    address: "7 Drumblair Cres",
+    neighborhood: "Drumblair / New Kingston",
+    city: "Kingston",
+    venue_type: "culinary",
+    venue_type_label: "Open-Air Grill & Bar",
+    capacity: 250,
+    latitude: 18.0179,
+    longitude: -76.7845,
+    image_url: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80",
+    vibe: "Authentic Smokehouse, Cocktails & Friday Evenings",
+  },
+  {
+    id: "venue-sovereign",
+    name: "Sovereign Cultural Centre & Lounge",
+    location: "Sovereign Centre, Liguanea, Kingston",
+    address: "106 Hope Rd",
+    neighborhood: "Liguanea",
+    city: "Kingston",
+    venue_type: "rooftop",
+    venue_type_label: "Rooftop & Cultural Lounge",
+    capacity: 200,
+    latitude: 18.0211,
+    longitude: -76.7699,
+    image_url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80",
+    vibe: "VIP Networking, Masterclasses & Intimate Shows",
+  },
+  {
+    id: "venue-plantation",
+    name: "Plantation Cove Beach & Stage",
+    location: "Priory, St. Ann / Ocho Rios",
+    address: "Plantation Cove Highway 2000",
+    neighborhood: "Ocho Rios Coast",
+    city: "Ocho Rios",
+    venue_type: "beach",
+    venue_type_label: "Beachfront & Concert Grounds",
+    capacity: 2500,
+    latitude: 18.4356,
+    longitude: -77.1645,
+    image_url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+    vibe: "Major Festivals, Beach Fetes & Ocean Breeze",
+  },
+  {
+    id: "venue-tracks",
+    name: "Tracks & Records Marketplace",
+    location: "67 Constant Spring Rd, Kingston",
+    address: "Marketplace, Constant Spring Rd",
+    neighborhood: "Marketplace / Constant Spring",
+    city: "Kingston",
+    venue_type: "lounge",
+    venue_type_label: "Sports & Music Lounge",
+    capacity: 350,
+    latitude: 18.0315,
+    longitude: -76.7925,
+    image_url: "https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=600&q=80",
+    vibe: "High-Energy Watch Parties, Draft Beers & DJ Sets",
+  },
+  {
+    id: "venue-chilitos",
+    name: "Chilitos Jamexican Garden",
+    location: "88 Hope Rd, Kingston",
+    address: "88 Hope Rd",
+    neighborhood: "Hope Road / Liguanea",
+    city: "Kingston",
+    venue_type: "culinary",
+    venue_type_label: "Garden Patio & Bar",
+    capacity: 180,
+    latitude: 18.0205,
+    longitude: -76.7725,
+    image_url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80",
+    vibe: "Tropical Garden Vibes, Tacos, Tequila & Acoustic Acts",
+  },
+  {
+    id: "venue-devon",
+    name: "Devon House Courtyard & Grounds",
+    location: "26 Hope Rd, Kingston",
+    address: "26 Hope Rd",
+    neighborhood: "Half Way Tree",
+    city: "Kingston",
+    venue_type: "rooftop",
+    venue_type_label: "Heritage Courtyard",
+    capacity: 500,
+    latitude: 18.0163,
+    longitude: -76.7937,
+    image_url: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=600&q=80",
+    vibe: "Historic Landmark, Gourmet Ice Cream & Evening Markets",
+  },
+];
