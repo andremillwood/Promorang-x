@@ -146,124 +146,72 @@ const isNavItemActive = (pathname: string, href: string, search: string) => {
 const roleNavItems: Record<UserRole, NavItem[]> = {
   participant: [
     { icon: Home, label: "Today", href: "/dashboard", group: "primary" },
-    { icon: Sparkles, label: "Radar", href: "/radar", group: "primary" },
-    { icon: Compass, label: "For You", href: "/for-you", group: "primary" },
-    { icon: Search, label: "Discover", href: "/discover", group: "primary" },
-    { icon: PlayCircle, label: "Missions", href: "/missions", group: "primary" },
-    { icon: Gift, label: "PromoShare Draws", href: "/promoshare", group: "primary" },
-    { icon: Users, label: "Scenes", href: "/scenes", group: "primary" },
-    { icon: Plus, label: "Create", href: "/create/moment", group: "primary" },
-    { icon: Archive, label: "Vault", href: "/vault", group: "utility" },
-    { icon: Bookmark, label: "Saved", href: "/saved", group: "utility" },
-    { icon: Bell, label: "Inbox", href: "/activity", group: "utility" },
-    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
+    { icon: Compass, label: "Explore & Discover", href: "/discover", group: "primary" },
+    { icon: Gift, label: "Rewards & Deals", href: "/rewards", group: "primary" },
+    { icon: Plus, label: "Host a Moment", href: "/create/moment", group: "primary" },
+    { icon: WalletCards, label: "My Passes & Wallet", href: "/wallet", group: "utility" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   creator: [
-    { icon: Home, label: "Studio", href: "/dashboard", group: "primary" },
-    { icon: Sparkles, label: "Radar", href: "/radar", group: "primary" },
-    { icon: Search, label: "Discover", href: "/discover", group: "primary" },
-    { icon: Gift, label: "PromoShare Draws", href: "/promoshare", group: "growth" },
-    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "growth" },
-    { icon: Plus, label: "Publish", href: "/dashboard?tab=publish", group: "growth" },
-    { icon: Sparkles, label: "Create Mission", href: "/dashboard?tab=missions", group: "growth" },
-    { icon: Megaphone, label: "PromoPush", href: "/promopush/creator", group: "primary" },
-    { icon: PlayCircle, label: "Missions", href: "/missions", group: "growth" },
-    { icon: Layers, label: "Co-Ownership", href: "/portfolio", group: "utility" },
-    { icon: BarChart3, label: "Growth Pools", href: "/liquidity", group: "utility" },
-    { icon: Archive, label: "Vault", href: "/vault", group: "utility" },
-    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
-    { icon: Film, label: "My Content", href: "/dashboard?tab=content", group: "utility" },
-    { icon: Bookmark, label: "Saved", href: "/saved", group: "utility" },
-    { icon: Bell, label: "Activity", href: "/activity", group: "utility" },
-    { icon: BarChart3, label: "Analytics", href: "/dashboard?tab=earnings", group: "utility" },
+    { icon: Home, label: "Creator Studio", href: "/dashboard", group: "primary" },
+    { icon: Compass, label: "Explore & Scenes", href: "/discover", group: "primary" },
+    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
+    { icon: Gift, label: "PromoShare & Earnings", href: "/promoshare", group: "primary" },
+    { icon: WalletCards, label: "Wallet & Payouts", href: "/wallet", group: "utility" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   host: [
-    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
-    { icon: Search, label: "Discover", href: "/discover", group: "primary" },
-    { icon: Gift, label: "PromoShare Draws", href: "/promoshare", group: "utility" },
-    { icon: Plus, label: "Create", href: "/create/moment", group: "primary" },
-    { icon: PlayCircle, label: "Missions", href: "/missions", group: "primary" },
-    { icon: Building2, label: "Organizer Dashboard", href: "/organizer", group: "manage" },
-    { icon: Calendar, label: "Events", href: "/organizer/events", group: "manage" },
-    { icon: CheckCircle, label: "Check-ins", href: "/organizer/check-ins", group: "manage" },
-    { icon: Ticket, label: "Tickets & Sales", href: "/organizer/tickets", group: "manage" },
-    { icon: Layers, label: "Co-Ownership", href: "/portfolio", group: "utility" },
-    { icon: BarChart3, label: "Growth Pools", href: "/liquidity", group: "utility" },
-    { icon: Archive, label: "Vault", href: "/vault", group: "utility" },
-    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
-    { icon: Bookmark, label: "Saved", href: "/saved", group: "utility" },
-    { icon: Bell, label: "Activity", href: "/activity", group: "utility" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
-  ],
-  brand: [
-    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
-    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
-    { icon: Plus, label: "Create Campaign", href: "/create/campaign", group: "primary" },
-    { icon: Megaphone, label: "PromoPush Agency", href: "/promopush", group: "primary" },
-    { icon: Gift, label: "PromoShare Pools", href: "/promoshare", group: "utility" },
-    { icon: Building2, label: "Campaigns", href: "/dashboard/campaigns", group: "primary" },
-    { icon: Archive, label: "Vault", href: "/vault", group: "utility" },
-    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
-    { icon: Layers, label: "Co-Ownership", href: "/portfolio", group: "utility" },
-    { icon: BarChart3, label: "Growth Pools", href: "/liquidity", group: "utility" },
-    { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics", group: "utility" },
+    { icon: Home, label: "Host Overview", href: "/dashboard", group: "primary" },
+    { icon: Plus, label: "Create Moment", href: "/create/moment", group: "primary" },
+    { icon: CheckCircle, label: "Door Check-Ins", href: "/organizer/check-ins", group: "primary" },
+    { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
+    { icon: WalletCards, label: "Revenue & Wallet", href: "/wallet", group: "utility" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   merchant: [
-    { icon: Route, label: "Momentum", href: "/momentum", group: "primary" },
-    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
-    { icon: Store, label: "Storefront", href: "/dashboard?tab=storefront", group: "primary" },
-    { icon: Package, label: "Products & Inventory", href: "/dashboard?tab=products", group: "primary" },
-    { icon: ShoppingBag, label: "Orders & Reservations", href: "/dashboard?tab=commerce", group: "primary" },
-    { icon: QrCode, label: "Redemptions", href: "/dashboard?tab=redemptions", group: "primary" },
-    { icon: MapPin, label: "Venues", href: "/dashboard?tab=venues", group: "manage" },
-    { icon: Sparkles, label: "Create Moment", href: "/create/moment", group: "manage" },
-    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "manage" },
-    { icon: Search, label: "Discover", href: "/discover", group: "manage" },
-    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
-    { icon: Layers, label: "Pieces", href: "/portfolio", group: "utility" },
-    { icon: BarChart3, label: "Liquidity", href: "/liquidity", group: "utility" },
-    { icon: Sparkles, label: "PromoShare", href: "/promoshare", group: "utility" },
-    { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics", group: "utility" },
+    { icon: Home, label: "Storefront Overview", href: "/dashboard", group: "primary" },
+    { icon: Package, label: "Products & Deals", href: "/dashboard?tab=products", group: "primary" },
+    { icon: QrCode, label: "QR Redemptions", href: "/dashboard?tab=redemptions", group: "primary" },
+    { icon: Compass, label: "Explore Market", href: "/discover", group: "primary" },
+    { icon: WalletCards, label: "Earnings & Wallet", href: "/wallet", group: "utility" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
+  ],
+  brand: [
+    { icon: Home, label: "Campaign Command", href: "/dashboard", group: "primary" },
+    { icon: Plus, label: "New Campaign", href: "/create/campaign", group: "primary" },
+    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
+    { icon: Compass, label: "Explore & Venues", href: "/discover", group: "primary" },
+    { icon: WalletCards, label: "Budget & Wallet", href: "/wallet", group: "utility" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   agency: [
-    { icon: Route, label: "Momentum", href: "/momentum", group: "primary" },
-    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
-    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
-    { icon: Briefcase, label: "Clients", href: "/dashboard", group: "primary" },
-    { icon: Sparkles, label: "Create Activation", href: "/create/campaign", group: "primary" },
-    { icon: Megaphone, label: "PromoPush", href: "/promopush", group: "primary" },
-    { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics", group: "utility" },
-    { icon: Sparkles, label: "PromoShare", href: "/promoshare", group: "utility" },
+    { icon: Home, label: "Agency Overview", href: "/dashboard", group: "primary" },
+    { icon: Briefcase, label: "Client Accounts", href: "/dashboard?tab=clients", group: "primary" },
+    { icon: Plus, label: "New Activation", href: "/create/campaign", group: "primary" },
+    { icon: Compass, label: "Explore & Venues", href: "/discover", group: "primary" },
+    { icon: WalletCards, label: "Treasury & Wallet", href: "/wallet", group: "utility" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   promoter: [
-    { icon: Route, label: "Momentum", href: "/momentum", group: "primary" },
-    { icon: Megaphone, label: "PromoPush", href: "/promopush/promoter", group: "primary" },
-    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
-    { icon: Search, label: "Discover", href: "/discover", group: "primary" },
-    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
-    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
-    { icon: Bell, label: "Activity", href: "/activity", group: "utility" },
+    { icon: Home, label: "Promo Command", href: "/dashboard", group: "primary" },
+    { icon: Gift, label: "PromoShare Links", href: "/promoshare", group: "primary" },
+    { icon: Compass, label: "Discover Moments", href: "/discover", group: "primary" },
+    { icon: WalletCards, label: "Commissions & Wallet", href: "/wallet", group: "utility" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   marketing: [
-    { icon: Route, label: "Momentum", href: "/momentum", group: "primary" },
-    { icon: Megaphone, label: "PromoPush", href: "/promopush", group: "primary" },
+    { icon: Home, label: "Growth Command", href: "/dashboard", group: "primary" },
     { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
-    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
-    { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics", group: "utility" },
+    { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
+    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   admin: [
     { icon: Home, label: "Command Center", href: "/admin?tab=command", group: "primary" },
-    { icon: Search, label: "Search", href: "/search", group: "primary" },
-    { icon: Users, label: "Users", href: "/admin?tab=users", group: "primary" },
-    { icon: Calendar, label: "Moments", href: "/admin?tab=moments", group: "primary" },
-    { icon: BarChart3, label: "Analytics", href: "/admin?tab=analytics", group: "utility" },
+    { icon: Users, label: "Users & KYC", href: "/admin?tab=users", group: "primary" },
+    { icon: Calendar, label: "Moments & Venues", href: "/admin?tab=moments", group: "primary" },
+    { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
+    { icon: WalletCards, label: "Platform Wallet", href: "/wallet", group: "utility" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
 };
@@ -312,10 +260,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   // Safe role resolution — never crashes, always falls back to participant
   const safeRole = currentRole && roleNavItems[currentRole] ? currentRole : 'participant';
   const roleItems = roleNavItems[safeRole] || FALLBACK_NAV;
-  const navItems = filterReleaseNav([
-    ...roleItems,
-    ...(roleItems.some((item) => item.href === "/shop") ? [] : [{ icon: ShoppingBag, label: "Shop", href: "/shop", group: "utility" as const }]),
-  ]);
+  const navItems = filterReleaseNav(roleItems);
   const primaryNavItems = navItems.filter((item) => !item.group || item.group === "primary");
   const growthNavItems = navItems.filter((item) => item.group === "growth");
   const manageNavItems = navItems.filter((item) => item.group === "manage");
@@ -477,10 +422,10 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               <p className="px-3 pt-2 text-[10px] leading-4 text-muted-foreground">{t("dashboard.workspaceHelp")}</p>
             </div>
             <div>
-              <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#FF5500] mb-4">
+              <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#FF5500] mb-3">
                 {safeRole === "participant" ? t("dashboard.exploreAndDo") : t("dashboard.explore")}
               </p>
-              <nav className="space-y-1.5">
+              <nav className="space-y-1">
                 {primaryNavItems.map((item) => (
                   (() => {
                     const active = isNavItemActive(location.pathname, item.href, location.search);
@@ -489,21 +434,21 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                         key={item.href}
                         to={item.href}
                         className={cn(
-                          safeRole === "participant" ? "flex items-center gap-3 border-b border-border/50 px-3 py-3.5 transition group" : "flex items-center gap-3 rounded-xl border px-4 py-3 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200 group",
+                          "flex items-center gap-3 rounded-xl border px-3.5 py-2.5 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200 group text-sm",
                           active
-                            ? safeRole === "participant" ? "border-primary/50 text-primary font-bold" : "border-primary/40 bg-primary/15 text-primary shadow-[inset_3px_0_0_hsl(var(--primary)),0_12px_30px_rgba(0,0,0,0.18)]"
+                            ? "border-primary/40 bg-primary/15 text-primary font-bold shadow-[inset_3px_0_0_hsl(var(--primary)),0_12px_30px_rgba(0,0,0,0.18)]"
                             : "border-transparent text-foreground/75 hover:border-border/60 hover:bg-muted/50 hover:text-foreground",
                         )}
                       >
                         <div className={cn(
-                          "p-2 rounded-lg transition-colors",
+                          "p-1.5 rounded-lg transition-colors",
                           active
-                            ? "bg-primary/15 text-primary"
+                            ? "bg-primary/20 text-primary"
                             : "bg-transparent text-muted-foreground group-hover:bg-muted group-hover:text-foreground",
                         )}>
-                          <item.icon className="w-5 h-5" />
+                          <item.icon className="w-4 h-4" />
                         </div>
-                        <span className="font-semibold text-sm">{item.label}</span>
+                        <span className="font-semibold">{item.label}</span>
                       </Link>
                     );
                   })()
@@ -513,14 +458,14 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
             {safeRole === "creator" && growthNavItems.length > 0 && (
               <div>
-                <p className="mb-4 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("dashboard.createAndGrow")}</p>
+                <p className="mb-3 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("dashboard.createAndGrow")}</p>
                 <nav className="space-y-1">
                   {growthNavItems.map((item) => {
                     const active = isNavItemActive(location.pathname, item.href, location.search);
                     return (
                       <Link key={item.href} to={item.href} className={cn(
-                        "flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition",
-                        active ? "bg-primary/15 text-primary" : "text-foreground/75 hover:bg-muted/50 hover:text-foreground",
+                        "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition",
+                        active ? "bg-primary/15 text-primary font-bold" : "text-foreground/75 hover:bg-muted/50 hover:text-foreground",
                       )}>
                         <item.icon className="h-4 w-4" />
                         {item.label}
@@ -533,14 +478,14 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
             {safeRole === "host" && manageNavItems.length > 0 && (
               <div>
-                <p className="mb-4 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("dashboard.manage")}</p>
+                <p className="mb-3 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("dashboard.manage")}</p>
                 <nav className="space-y-1">
                   {manageNavItems.map((item) => {
                     const active = isNavItemActive(location.pathname, item.href, location.search);
                     return (
                       <Link key={item.href} to={item.href} className={cn(
-                        "flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition",
-                        active ? "bg-primary/15 text-primary" : "text-foreground/75 hover:bg-muted/50 hover:text-foreground",
+                        "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition",
+                        active ? "bg-primary/15 text-primary font-bold" : "text-foreground/75 hover:bg-muted/50 hover:text-foreground",
                       )}>
                         <item.icon className="h-4 w-4" />
                         {item.label}
@@ -553,10 +498,10 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
             {utilityNavItems.length > 0 && (
               <div>
-                <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#FF5500] mb-4">
+                <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#FF5500] mb-3">
                   {safeRole === "participant" ? t("dashboard.savedPerksWins") : t("dashboard.savedValue")}
                 </p>
-                <nav className="space-y-1.5">
+                <nav className="space-y-1">
                   {utilityNavItems.map((item) => (
                     (() => {
                       const active = isNavItemActive(location.pathname, item.href, location.search);
@@ -565,21 +510,21 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                           key={item.href}
                           to={item.href}
                           className={cn(
-                            safeRole === "participant" ? "flex items-center gap-3 rounded-xl px-3 py-2.5 transition group" : "flex items-center gap-3 rounded-xl border px-4 py-3 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200 group",
+                            "flex items-center gap-3 rounded-xl border px-3.5 py-2.5 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200 group text-sm",
                             active
-                              ? "border-primary/40 bg-primary/15 text-primary shadow-[inset_3px_0_0_hsl(var(--primary)),0_12px_30px_rgba(0,0,0,0.18)]"
+                              ? "border-primary/40 bg-primary/15 text-primary font-bold shadow-[inset_3px_0_0_hsl(var(--primary)),0_12px_30px_rgba(0,0,0,0.18)]"
                               : "border-transparent text-foreground/75 hover:border-border/60 hover:bg-muted/50 hover:text-foreground",
                           )}
                         >
                           <div className={cn(
-                            "p-2 rounded-lg transition-colors",
+                            "p-1.5 rounded-lg transition-colors",
                             active
-                              ? "bg-primary/15 text-primary"
+                              ? "bg-primary/20 text-primary"
                               : "bg-transparent text-muted-foreground group-hover:bg-muted group-hover:text-foreground",
                           )}>
-                            <item.icon className="w-5 h-5" />
+                            <item.icon className="w-4 h-4" />
                           </div>
-                          <span className="font-semibold text-sm">{item.label}</span>
+                          <span className="font-semibold">{item.label}</span>
                         </Link>
                       );
                     })()
