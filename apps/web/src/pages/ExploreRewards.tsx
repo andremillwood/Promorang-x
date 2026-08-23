@@ -27,12 +27,43 @@ import {
   TrendingUp,
   Users,
   Zap,
+  Compass,
 } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
 import { useToast } from "@/hooks/use-toast";
 import { INITIAL_DEAL_REQUESTS, CommunityDealRequest } from "@/data/rewardsData";
+import { VERIFIED_VENUES, VenueItem } from "@/data/venuesData";
 import { SmartVenuePicker } from "@/components/venues/SmartVenuePicker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+
+const POPULAR_PERK_PILLS = [
+  "🍹 Free Welcome Rum Punch with Meal",
+  "🏷️ 15% VIP Member Discount",
+  "🍻 2-for-1 Happy Hour Drafts",
+  "🔑 Skip-the-Line VIP Key & Balcony Access",
+  "🍽️ Free Chips & Guac / Tasting Bite",
+  "☕ Free Size Upgrade on Blue Mountain Coffee",
+];
+
+const VENUE_IMAGE_FALLBACKS: Record<string, string> = {
+  "Tacbar": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80",
+  "Dulce Lounge": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
+  "PriceSmart": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80",
+  "Devon House": "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=600&q=80",
+  "Tracks & Records": "https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=600&q=80",
+  "Janga's": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80",
+  "Chilitos": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80",
+};
+
+const getVenueImage = (venueName?: string | null, customUrl?: string | null) => {
+  if (customUrl && customUrl.startsWith("http")) return customUrl;
+  if (!venueName) return VERIFIED_VENUES[0].image_url;
+  for (const [key, url] of Object.entries(VENUE_IMAGE_FALLBACKS)) {
+    if (venueName.toLowerCase().includes(key.toLowerCase())) return url;
+  }
+  const match = VERIFIED_VENUES.find((v) => v.name.toLowerCase().includes(venueName.toLowerCase()));
+  return match ? match.image_url : VERIFIED_VENUES[0].image_url;
+};
 
 export function ExploreRewards() {
   const { user } = useAuth();
@@ -53,7 +84,7 @@ export function ExploreRewards() {
 
   // Query real database moments that have active rewards attached
   const verifiedMomentsQuery = useQuery({
-    queryKey: ["verified-moment-rewards"],
+    queryKey: ["verified-moment-rewards-v2"],
     queryFn: async () => {
       try {
         const { data, error } = await supabase
@@ -61,7 +92,7 @@ export function ExploreRewards() {
           .select("id, title, venue_name, location, reward, image_url, starts_at, category")
           .not("reward", "is", null)
           .order("starts_at", { ascending: true })
-          .limit(10);
+          .limit(12);
 
         if (error || !data) return [];
         return data.filter((m) => Boolean(m.reward));
@@ -126,7 +157,12 @@ export function ExploreRewards() {
       brand_interest: newBrand.trim() || "Local Merchant",
       requested_perk: newPerk.trim(),
       category: newCategory,
-      category_label: newCategory === "nightlife" ? "Nightlife & Music" : newCategory === "retail" ? "Retail & Fashion" : "Food & Dining",
+      category_label:
+        newCategory === "nightlife"
+          ? "Nightlife & Music"
+          : newCategory === "retail"
+          ? "Retail & Fashion"
+          : "Food & Dining",
       votes_count: 1,
       votes_threshold: 50,
       has_voted: true,
@@ -153,19 +189,19 @@ export function ExploreRewards() {
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
       <SEO
         title="Rewards & Demand Hub — Request & Unlock Member Perks | Promorang"
-        description="Vote on community deal requests and signal demand to local venues and brands to unlock exclusive perks."
+        description="Vote on community deal requests and signal demand to local venues and brands to unlock exclusive perks in Kingston."
         url={getSiteUrl("/rewards")}
       />
 
-      <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8 space-y-8">
+      <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8 space-y-10">
         {/* Header Title, Actions & Balance Hub */}
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-6">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <Badge className="rounded-full bg-primary text-white font-bold text-[10px] uppercase tracking-wider border-none">
-                Demand-Driven Perks & Quests
+              <Badge className="rounded-full bg-primary text-white font-bold text-[10px] uppercase tracking-wider border-none shadow-md shadow-primary/20">
+                Demand-Driven Perks & Vouchers
               </Badge>
-              <span className="text-xs text-white/50 font-semibold">Community Powered</span>
+              <span className="text-xs text-white/50 font-semibold">Kingston Ecosystem</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
               Rewards & Member Perks
@@ -179,7 +215,7 @@ export function ExploreRewards() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
             <Button
               onClick={() => setRequestModalOpen(true)}
-              className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/25 h-11 px-5 gap-1.5"
+              className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs shadow-lg shadow-primary/30 h-11 px-5 gap-1.5"
             >
               <Plus className="h-4 w-4" />
               <span>Request a Perk at a Spot</span>
@@ -205,53 +241,85 @@ export function ExploreRewards() {
           </div>
         </div>
 
-        {/* 1. Real Verified Live Moment Perks (If Any in Database) */}
+        {/* 1. VISUAL VERIFIED PERKS IN UPCOMING MOMENTS */}
         {verifiedMoments.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-bold text-[10px] uppercase tracking-wider border border-emerald-500/20">
+                    Live Door Perks
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-white mt-1 flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
                   <span>Verified Perks in Upcoming Moments</span>
                 </h2>
-                <p className="text-xs text-white/50">Guaranteed rewards included when you RSVP and check in.</p>
+                <p className="text-xs text-white/50">
+                  Guaranteed rewards, drink tokens, and points waiting for you when you RSVP and check in.
+                </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {verifiedMoments.map((m) => (
-                <Link
-                  key={m.id}
-                  to={`/moments/${m.id}`}
-                  className="p-5 rounded-3xl border border-white/10 bg-white/5 hover:border-primary/40 hover:bg-white/[0.08] transition flex flex-col justify-between space-y-3 group"
-                >
-                  <div className="space-y-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold">
-                      Included with RSVP
-                    </span>
-                    <h3 className="text-base font-bold text-white group-hover:text-primary transition line-clamp-1">
-                      {m.title}
-                    </h3>
-                    <p className="text-xs text-white/60 flex items-center gap-1">
-                      <MapPin className="h-3 w-3 text-primary shrink-0" />
-                      <span className="truncate">{m.venue_name || m.location}</span>
-                    </p>
-                  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {verifiedMoments.map((m) => {
+                const coverImage = getVenueImage(m.venue_name || m.location, m.image_url);
 
-                  <div className="pt-2 border-t border-white/5 flex items-center justify-between">
-                    <span className="text-xs font-black text-amber-300">
-                      🎁 {m.reward}
-                    </span>
-                    <ArrowRight className="h-4 w-4 text-white/40 group-hover:text-primary group-hover:translate-x-0.5 transition shrink-0" />
-                  </div>
-                </Link>
-              ))}
+                return (
+                  <Link
+                    key={m.id}
+                    to={`/moments/${m.id}`}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#111216] hover:border-primary/50 hover:bg-white/[0.04] transition-all hover:shadow-2xl duration-200"
+                  >
+                    {/* Top Image with Glowing Perk Badge */}
+                    <div className="relative h-40 w-full overflow-hidden bg-black">
+                      <img
+                        src={coverImage}
+                        alt={m.title}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+                      
+                      {/* Neon Perk Badge */}
+                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-primary text-black font-black text-[11px] shadow-lg flex items-center gap-1">
+                        <Gift className="h-3 w-3" />
+                        <span>{m.reward}</span>
+                      </span>
+
+                      <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white/90">
+                        {m.category || "Live Moment"}
+                      </span>
+                    </div>
+
+                    {/* Body Details */}
+                    <div className="p-4 space-y-2.5 flex-1 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <h3 className="text-sm font-bold text-white group-hover:text-primary transition line-clamp-2 leading-snug">
+                          {m.title}
+                        </h3>
+                        <p className="text-xs text-white/50 flex items-center gap-1 truncate pt-0.5">
+                          <MapPin className="h-3 w-3 text-primary shrink-0" />
+                          <span className="truncate">{m.venue_name || m.location}</span>
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
+                          <Check className="h-3 w-3" />
+                          <span>Included with Pass</span>
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5 text-white/40 group-hover:text-primary group-hover:translate-x-1 transition" />
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* 2. Community Perk Demand Engine Header & Search */}
-        <div className="space-y-4 pt-2">
+        {/* 2. COMMUNITY DEMAND SIGNALS GRID */}
+        <div className="space-y-5 pt-2">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
             <div>
               <div className="flex items-center gap-2">
@@ -307,81 +375,101 @@ export function ExploreRewards() {
             })}
           </div>
 
-          {/* Demand Requests Grid */}
+          {/* Demand Requests Grid with Venue Photography & Gauges */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {filteredRequests.map((req) => {
-              const progressPercent = Math.min(100, Math.round((req.votes_count / req.votes_threshold) * 100));
+              const progressPercent = Math.min(
+                100,
+                Math.round((req.votes_count / req.votes_threshold) * 100)
+              );
               const isClose = progressPercent >= 75;
+              const backdrop = getVenueImage(req.venue_name);
 
               return (
                 <div
                   key={req.id}
-                  className="p-6 rounded-3xl border border-white/10 bg-[#111216] hover:border-primary/40 transition duration-200 flex flex-col justify-between space-y-4 shadow-xl relative overflow-hidden"
+                  className="group relative rounded-3xl border border-white/15 bg-[#111216] overflow-hidden hover:border-primary/40 transition duration-200 flex flex-col justify-between shadow-2xl"
                 >
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-primary">
-                          {req.brand_interest}
-                        </span>
-                        <h3 className="text-lg font-black text-white leading-tight">
-                          {req.venue_name}
-                        </h3>
-                        <p className="text-xs text-white/50 flex items-center gap-1">
-                          <MapPin className="h-3 w-3 text-primary shrink-0" />
-                          <span>{req.location}</span>
-                        </p>
-                      </div>
+                  {/* Subtle Venue Backdrop Header */}
+                  <div className="relative h-28 w-full overflow-hidden bg-black">
+                    <img
+                      src={backdrop}
+                      alt={req.venue_name}
+                      className="h-full w-full object-cover opacity-40 group-hover:scale-105 transition duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#111216] via-[#111216]/60 to-transparent" />
 
-                      <span className="px-2.5 py-1 rounded-xl bg-white/5 border border-white/10 text-[10px] font-bold text-white/70 shrink-0">
+                    <div className="absolute top-3 left-4 right-4 flex items-center justify-between">
+                      <span className="px-2.5 py-0.5 rounded-full bg-primary/20 border border-primary/30 text-[10px] font-black uppercase tracking-wider text-primary">
+                        {req.brand_interest}
+                      </span>
+                      <span className="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white/70">
                         {req.category_label}
                       </span>
                     </div>
 
-                    <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5">
+                    <div className="absolute bottom-2 left-4">
+                      <h3 className="text-lg font-black text-white leading-tight">
+                        {req.venue_name}
+                      </h3>
+                      <p className="text-xs text-white/60 flex items-center gap-1">
+                        <MapPin className="h-3 w-3 text-primary shrink-0" />
+                        <span>{req.location}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Body with Requested Perk & Progress Meter */}
+                  <div className="p-5 space-y-4">
+                    <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 space-y-1">
+                      <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider">
+                        Requested Perk Deal:
+                      </span>
                       <p className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
                         <Gift className="h-3.5 w-3.5 shrink-0" />
-                        <span>Requested: {req.requested_perk}</span>
+                        <span>{req.requested_perk}</span>
                       </p>
                     </div>
 
-                    {/* Unlock Threshold Progress Bar */}
-                    <div className="space-y-1.5 pt-1">
+                    {/* Progress Gauge */}
+                    <div className="space-y-1.5">
                       <div className="flex justify-between items-center text-xs">
                         <span className="text-white/60 font-medium">Merchant Unlock Threshold</span>
                         <span className={`font-black ${isClose ? "text-emerald-400" : "text-amber-400"}`}>
                           {req.votes_count} / {req.votes_threshold} Votes ({progressPercent}%)
                         </span>
                       </div>
-                      <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                      <div className="w-full h-2.5 rounded-full bg-white/10 overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-primary to-amber-400 rounded-full transition-all duration-500"
+                          className="h-full bg-gradient-to-r from-primary via-amber-400 to-emerald-400 rounded-full transition-all duration-500"
                           style={{ width: `${progressPercent}%` }}
                         />
                       </div>
-                      <p className="text-[10px] text-white/40">
-                        Requested by {req.requester_name}
-                      </p>
+                      <div className="flex items-center justify-between text-[10px] text-white/40 pt-0.5">
+                        <span>Rallied by {req.requester_name}</span>
+                        <span>{req.votes_threshold - req.votes_count} more votes to pitch merchant</span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Vote / Boost Action */}
-                  <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                    <Button
-                      onClick={() => handleVote(req.id)}
-                      className={`rounded-2xl font-bold text-xs h-10 px-5 gap-1.5 transition ${
-                        req.has_voted
-                          ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                          : "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25"
-                      }`}
-                    >
-                      <ThumbsUp className="h-3.5 w-3.5" />
-                      <span>{req.has_voted ? "Demand Backed (+10 Pts)" : "Boost Demand (+10 Pts)"}</span>
-                    </Button>
+                    {/* Action Row */}
+                    <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                      <Button
+                        onClick={() => handleVote(req.id)}
+                        className={`rounded-2xl font-bold text-xs h-10 px-5 gap-1.5 transition ${
+                          req.has_voted
+                            ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                            : "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25"
+                        }`}
+                      >
+                        <ThumbsUp className="h-3.5 w-3.5" />
+                        <span>{req.has_voted ? "Demand Backed (+10 Pts)" : "Boost Demand (+10 Pts)"}</span>
+                      </Button>
 
-                    <span className="text-[11px] text-white/50 font-medium">
-                      {req.votes_threshold - req.votes_count} more to pitch merchant
-                    </span>
+                      <span className="text-xs font-bold text-primary flex items-center gap-1">
+                        <Flame className="h-3.5 w-3.5" />
+                        <span>{req.votes_count} Scouts Rallied</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
@@ -424,24 +512,25 @@ export function ExploreRewards() {
         </div>
       </div>
 
-      {/* Interactive "Request a Perk" Modal */}
+      {/* Interactive "Request a Perk" Modal with Smart Venue Picker & 1-Click Perk Pills */}
       <Dialog open={requestModalOpen} onOpenChange={setRequestModalOpen}>
-        <DialogContent className="sm:max-w-lg bg-[#111216] border-white/15 text-white rounded-3xl p-6">
+        <DialogContent className="sm:max-w-xl bg-[#111216] border-white/15 text-white rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-primary text-black font-black text-[10px] uppercase">
-                New Demand Signal
+              <span className="px-2.5 py-0.5 rounded-full bg-primary text-black font-black text-[10px] uppercase tracking-wider">
+                Demand Signal Generator
               </span>
             </div>
-            <DialogTitle className="text-xl font-black text-white leading-tight">
+            <DialogTitle className="text-xl sm:text-2xl font-black text-white leading-tight">
               Request a Perk at Your Favorite Spot
             </DialogTitle>
             <DialogDescription className="text-xs text-white/60">
-              Tell the community what spot you want to rally around. When 50 members vote, Promorang pitches the venue with guaranteed customer foot traffic!
+              Pick a local spot and select what perk would get you to go. When 50 members rally behind it, Promorang pitches the venue with guaranteed customer foot traffic!
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreateRequest} className="space-y-4 pt-2">
+          <form onSubmit={handleCreateRequest} className="space-y-5 pt-2">
+            {/* 1. Smart Venue Picker (Autosuggest + Vibe Explorer) */}
             <SmartVenuePicker
               selectedVenueName={newVenue}
               selectedAddress={newLocation}
@@ -453,41 +542,67 @@ export function ExploreRewards() {
               onManualAddressChange={(addr) => setNewLocation(addr)}
             />
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-white/80">Category</Label>
-              <select
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value as any)}
-                className="w-full rounded-2xl bg-white/5 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary h-11"
-              >
-                <option value="food" className="bg-[#111216] text-white">Food & Dining</option>
-                <option value="nightlife" className="bg-[#111216] text-white">Nightlife & Music</option>
-                <option value="retail" className="bg-[#111216] text-white">Retail & Merch</option>
-              </select>
+            {/* 2. Category & Brand Interest */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-white/80">Category</Label>
+                <select
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value as any)}
+                  className="w-full rounded-2xl bg-white/5 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary h-11"
+                >
+                  <option value="food" className="bg-[#111216] text-white">Food & Dining</option>
+                  <option value="nightlife" className="bg-[#111216] text-white">Nightlife & Music</option>
+                  <option value="retail" className="bg-[#111216] text-white">Retail & Merch</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-white/80">Brand / Product (Optional)</Label>
+                <Input
+                  placeholder="e.g. Arla Foods, Red Stripe, Tequila"
+                  value={newBrand}
+                  onChange={(e) => setNewBrand(e.target.value)}
+                  className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-11"
+                />
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-white/80">Brand / Product Interest (Optional)</Label>
-              <Input
-                placeholder="e.g. Arla Foods, Red Stripe, Local Craft Beer"
-                value={newBrand}
-                onChange={(e) => setNewBrand(e.target.value)}
-                className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-10"
-              />
-            </div>
+            {/* 3. 1-Click Popular Perk Suggestion Pills */}
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-white/80 flex items-center justify-between">
+                <span>What Perk Would Get You to Go? *</span>
+                <span className="text-[10px] text-primary font-bold">1-Click Suggestions</span>
+              </Label>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-white/80">What Perk or Deal Would Get You to Go?</Label>
+              <div className="flex flex-wrap gap-1.5">
+                {POPULAR_PERK_PILLS.map((pill) => (
+                  <button
+                    key={pill}
+                    type="button"
+                    onClick={() => setNewPerk(pill)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition text-left ${
+                      newPerk === pill
+                        ? "bg-primary text-white border-primary"
+                        : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {pill}
+                  </button>
+                ))}
+              </div>
+
               <Input
-                placeholder="e.g. Free Rum Punch with Platter, 15% VIP discount, BOGO Drafts"
+                placeholder="Or type a custom perk..."
                 value={newPerk}
                 onChange={(e) => setNewPerk(e.target.value)}
-                className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-10"
+                className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-11 mt-2"
                 required
               />
             </div>
 
-            <div className="pt-3 flex items-center justify-end gap-3">
+            {/* Actions */}
+            <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-3">
               <Button
                 type="button"
                 variant="ghost"
@@ -498,9 +613,9 @@ export function ExploreRewards() {
               </Button>
               <Button
                 type="submit"
-                className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs px-6 h-10 shadow-lg shadow-primary/25"
+                className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs px-6 h-11 shadow-lg shadow-primary/25"
               >
-                Publish Request & Earn +25 Pts
+                Publish Demand Request & Earn +25 Pts
               </Button>
             </div>
           </form>
