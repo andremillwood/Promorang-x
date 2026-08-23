@@ -79,7 +79,9 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
+  const [mapType, setMapType] = useState<"dark" | "satellite">("dark");
   const [isLocating, setIsLocating] = useState(false);
 
   // 1. Initialize Leaflet Map instance
@@ -102,22 +104,17 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
       attributionControl: false,
     });
 
-    // 1. Esri Dark Gray Base Map Layer (Fast CloudFront CDN, zero CORS, zero referer blocks)
-    L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    // High-resolution global street map layer with dark CSS filter
+    const tileLayer = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
       {
-        maxZoom: 16,
+        maxZoom: 18,
+        className: "promorang-map-tiles",
         attribution: "Esri",
       }
     ).addTo(map);
 
-    // 2. Esri Dark Gray Street & City Labels Overlay
-    L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
-      {
-        maxZoom: 16,
-      }
-    ).addTo(map);
+    tileLayerRef.current = tileLayer;
 
     if (interactive) {
       L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -150,10 +147,31 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
       map.remove();
       mapInstanceRef.current = null;
       markersLayerRef.current = null;
+      tileLayerRef.current = null;
     };
   }, []);
 
-  // 2. Sync center and zoom when props change
+  // 2. Toggle Tile Layer (Dark Street vs Satellite)
+  useEffect(() => {
+    if (!mapInstanceRef.current || !tileLayerRef.current) return;
+
+    mapInstanceRef.current.removeLayer(tileLayerRef.current);
+
+    const url =
+      mapType === "satellite"
+        ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}";
+
+    const newTileLayer = L.tileLayer(url, {
+      maxZoom: 18,
+      className: mapType === "satellite" ? "promorang-satellite-tiles" : "promorang-map-tiles",
+      attribution: "Esri",
+    }).addTo(mapInstanceRef.current);
+
+    tileLayerRef.current = newTileLayer;
+  }, [mapType]);
+
+  // 3. Sync center and zoom when props change
   useEffect(() => {
     if (!mapInstanceRef.current || !center?.lat || !center?.lng) return;
     mapInstanceRef.current.setView([center.lat, center.lng], zoom, {
@@ -161,7 +179,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
     });
   }, [center?.lat, center?.lng, zoom]);
 
-  // 3. Render dynamic markers
+  // 4. Render dynamic markers
   useEffect(() => {
     if (!mapInstanceRef.current || !markersLayerRef.current) return;
 
@@ -270,6 +288,28 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
 
   return (
     <div className={className} style={{ height, minHeight: "450px" }}>
+      {/* Map / Satellite Layer Switcher Overlay */}
+      <div className="absolute top-4 left-4 z-[400] flex items-center rounded-xl border border-white/15 bg-black/80 backdrop-blur-md p-1 shadow-xl">
+        <button
+          type="button"
+          onClick={() => setMapType("dark")}
+          className={`rounded-lg px-3 py-1 text-xs font-bold transition ${
+            mapType === "dark" ? "bg-primary text-white shadow-md" : "text-white/60 hover:text-white"
+          }`}
+        >
+          Map
+        </button>
+        <button
+          type="button"
+          onClick={() => setMapType("satellite")}
+          className={`rounded-lg px-3 py-1 text-xs font-bold transition ${
+            mapType === "satellite" ? "bg-primary text-white shadow-md" : "text-white/60 hover:text-white"
+          }`}
+        >
+          Satellite
+        </button>
+      </div>
+
       {/* Geolocation Button Overlay */}
       {showCurrentLocationBtn && (
         <button
