@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, Marker, InfoWindow } from '@vis.gl/react-google-maps';
 import { MapPin, Navigation, ExternalLink, Compass } from 'lucide-react';
 
 export interface MapMarkerItem {
@@ -23,12 +23,95 @@ interface PromorangMapProps {
   showCurrentLocationBtn?: boolean;
 }
 
-// Dark style map ID or custom styles
 const DEFAULT_CENTER = { lat: 18.0179, lng: -76.8099 }; // Kingston fallback
+
+// High-contrast, CORS-safe dark map style for raster tiles
+const DARK_MAP_STYLES = [
+  { elementType: "geometry", stylers: [{ color: "#18181b" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#18181b" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#a1a1aa" }] },
+  {
+    featureType: "administrative.locality",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#f97316" }],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d4d4d8" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "geometry",
+    stylers: [{ color: "#1c2421" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#4ade80" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#27272a" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#18181b" }],
+  },
+  {
+    featureType: "road",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#71717a" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [{ color: "#3f3f46" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#27272a" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#fdba74" }],
+  },
+  {
+    featureType: "transit",
+    elementType: "geometry",
+    stylers: [{ color: "#27272a" }],
+  },
+  {
+    featureType: "transit.station",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#fb923c" }],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#090d16" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#38bdf8" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#090d16" }],
+  },
+];
+
+const PIN_PATH = "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z";
 
 export const PromorangMap: React.FC<PromorangMapProps> = ({
   center = DEFAULT_CENTER,
-  zoom = 14,
+  zoom = 13,
   markers = [],
   className = "w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative bg-[#09090b]",
   height = "320px",
@@ -36,7 +119,6 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
   showCurrentLocationBtn = true,
 }) => {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
-  const mapId = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || "";
   const [selectedMarker, setSelectedMarker] = useState<MapMarkerItem | null>(null);
   const [mapCenter, setMapCenter] = useState(center);
   const [isLocating, setIsLocating] = useState(false);
@@ -54,7 +136,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
         (pos) => {
           setMapCenter({
             lat: pos.coords.latitude,
-            lng: pos.coords.longitude
+            lng: pos.coords.longitude,
           });
           setIsLocating(false);
         },
@@ -91,9 +173,8 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
           gestureHandling={interactive ? "greedy" : "none"}
           disableDefaultUI={!interactive}
           zoomControl={interactive}
-          mapId={mapId || undefined}
+          styles={DARK_MAP_STYLES}
           className="w-full h-full"
-          colorScheme="DARK"
         >
           {/* User Location Button Overlay */}
           {showCurrentLocationBtn && (
@@ -110,25 +191,41 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
 
           {/* Primary Center Marker if no specific markers passed */}
           {markers.length === 0 && (
-            <AdvancedMarker position={mapCenter}>
-              <Pin background="#ff5500" borderColor="#ffffff" glyphColor="#ffffff" />
-            </AdvancedMarker>
+            <Marker
+              position={mapCenter}
+              icon={{
+                path: PIN_PATH,
+                fillColor: "#ff5500",
+                fillOpacity: 1,
+                strokeColor: "#ffffff",
+                strokeWeight: 1.5,
+                scale: 1.6,
+                anchor: { x: 12, y: 22 } as google.maps.Point,
+              }}
+            />
           )}
 
           {/* Dynamic Markers */}
-          {markers.map((marker) => (
-            <AdvancedMarker
-              key={marker.id}
-              position={{ lat: marker.lat, lng: marker.lng }}
-              onClick={() => setSelectedMarker(marker)}
-            >
-              <Pin 
-                background={selectedMarker?.id === marker.id ? "#22c55e" : "#ff5500"} 
-                borderColor="#ffffff" 
-                glyphColor="#ffffff" 
+          {markers.map((marker) => {
+            const isSelected = selectedMarker?.id === marker.id;
+            return (
+              <Marker
+                key={marker.id}
+                position={{ lat: marker.lat, lng: marker.lng }}
+                onClick={() => setSelectedMarker(marker)}
+                title={marker.title}
+                icon={{
+                  path: PIN_PATH,
+                  fillColor: isSelected ? "#22c55e" : "#ff5500",
+                  fillOpacity: 1,
+                  strokeColor: "#ffffff",
+                  strokeWeight: 1.5,
+                  scale: isSelected ? 1.9 : 1.6,
+                  anchor: { x: 12, y: 22 } as google.maps.Point,
+                }}
               />
-            </AdvancedMarker>
-          ))}
+            );
+          })}
 
           {/* Info Window */}
           {selectedMarker && (
@@ -136,7 +233,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
               position={{ lat: selectedMarker.lat, lng: selectedMarker.lng }}
               onCloseClick={() => setSelectedMarker(null)}
             >
-              <div className="p-2 max-w-xs space-y-1.5 text-zinc-900">
+              <div className="p-2.5 max-w-xs space-y-2 text-zinc-900">
                 {selectedMarker.category && (
                   <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-orange-100 text-orange-700">
                     {selectedMarker.category}
@@ -149,7 +246,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
                 {selectedMarker.reward && (
                   <p className="text-xs font-bold text-emerald-600">🏆 {selectedMarker.reward}</p>
                 )}
-                <div className="flex items-center gap-3 pt-1">
+                <div className="flex items-center gap-3 pt-1 border-t border-zinc-200">
                   <a
                     href={`/moments/${selectedMarker.id}`}
                     className="inline-flex items-center gap-1 text-[11px] font-bold text-orange-600 hover:underline"
