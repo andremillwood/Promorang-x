@@ -59,8 +59,10 @@ import {
 import { cn } from "@/lib/utils";
 import { DemoExperienceBanner } from "@/components/demo/DemoExperienceBanner";
 import { DemoCoachmark } from "@/components/demo/DemoCoachmark";
+import { useI18n } from "@/i18n/I18nContext";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "promoter" | "marketing" | "admin";
+
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -444,17 +446,17 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
           {/* Navigation Section */}
           <div className={cn("dashboard-sidebar-scroll flex-1 space-y-7 overflow-y-auto px-4 pt-4", sidebarCollapsed && "lg:hidden")}>
             <div className="px-1">
-              <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{safeRole === "participant" ? "Your Promorang" : "Active workspace"}</p>
+              <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{safeRole === "participant" ? t("dashboard.yourPromorang") : t("dashboard.activeWorkspace")}</p>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex w-full items-center gap-3 rounded-2xl border border-primary/35 bg-primary px-4 py-3 text-left text-white shadow-[0_14px_38px_rgba(255,106,0,0.2)] transition hover:bg-orange-500">
                     <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/20"><roleInfo.icon className="h-4 w-4" /></span>
-                    <span className="min-w-0 flex-1"><span className="block text-[9px] font-bold uppercase tracking-widest text-white/80">{safeRole === "participant" ? "You’re here as" : "Working as"}</span><span className="block text-sm font-black">{roleInfo.label}</span></span>
+                    <span className="min-w-0 flex-1"><span className="block text-[9px] font-bold uppercase tracking-widest text-white/80">{safeRole === "participant" ? t("dashboard.youAreHereAs") : t("dashboard.workingAs")}</span><span className="block text-sm font-black">{roleInfo.label}</span></span>
                     <ChevronDown className="h-4 w-4" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-64">
-                  <DropdownMenuLabel>Switch workspace</DropdownMenuLabel>
+                  <DropdownMenuLabel>{t("dashboard.switchWorkspace")}</DropdownMenuLabel>
                   {roles.map((role) => {
                     const info = safeRoleInfo(role);
                     const RoleIcon = info.icon;
@@ -467,14 +469,14 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                     );
                   })}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild><Link to="/help" className="flex items-center gap-2"><Plus className="h-4 w-4" /> How role access works</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/help" className="flex items-center gap-2"><Plus className="h-4 w-4" /> {t("dashboard.howRoleAccessWorks")}</Link></DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <p className="px-3 pt-2 text-[10px] leading-4 text-muted-foreground">Only workspaces connected to your account appear here.</p>
+              <p className="px-3 pt-2 text-[10px] leading-4 text-muted-foreground">{t("dashboard.workspaceHelp")}</p>
             </div>
             <div>
               <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#FF5500] mb-4">
-                {safeRole === "participant" ? "Explore & Do" : "Explore"}
+                {safeRole === "participant" ? t("dashboard.exploreAndDo") : t("dashboard.explore")}
               </p>
               <nav className="space-y-1.5">
                 {primaryNavItems.map((item) => (
@@ -509,7 +511,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
             {safeRole === "creator" && growthNavItems.length > 0 && (
               <div>
-                <p className="mb-4 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Create & Grow</p>
+                <p className="mb-4 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("dashboard.createAndGrow")}</p>
                 <nav className="space-y-1">
                   {growthNavItems.map((item) => {
                     const active = isNavItemActive(location.pathname, item.href, location.search);
@@ -529,7 +531,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
             {safeRole === "host" && manageNavItems.length > 0 && (
               <div>
-                <p className="mb-4 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Manage</p>
+                <p className="mb-4 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("dashboard.manage")}</p>
                 <nav className="space-y-1">
                   {manageNavItems.map((item) => {
                     const active = isNavItemActive(location.pathname, item.href, location.search);
@@ -550,7 +552,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             {utilityNavItems.length > 0 && (
               <div>
                 <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#FF5500] mb-4">
-                  {safeRole === "participant" ? "Your saved perks & wins" : "Saved Value"}
+                  {safeRole === "participant" ? t("dashboard.savedPerksWins") : t("dashboard.savedValue")}
                 </p>
                 <nav className="space-y-1.5">
                   {utilityNavItems.map((item) => (
@@ -585,7 +587,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             )}
 
             <div>
-              <p className="mb-3 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Understand</p>
+              <p className="mb-3 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("dashboard.understand")}</p>
               <Link
                 to="/how-it-works"
                 className={cn(
@@ -596,7 +598,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                 )}
               >
                 <span className="rounded-lg bg-primary/10 p-2 text-primary"><CircleHelp className="h-5 w-5" /></span>
-                How Promorang works
+                {t("dashboard.howWorks")}
               </Link>
             </div>
 
@@ -742,16 +744,16 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               </Link>
 
               {safeRole !== "participant" ? <div className="mb-4 rounded-2xl border border-border/70 bg-muted/40 p-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Your Hub</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">{t("dashboard.yourHub")}</p>
                 <p className="mt-2 text-sm font-semibold text-foreground truncate">
                   {activeOrg?.name || "My Hub"}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {safeRole === "participant"
-                    ? "Live Moments, access, Gems, saved value, and tools in one place."
-                    : "Manage activations, return, account settings, and the work tied to this role."}
+                    ? t("dashboard.yourHubParticipantDesc")
+                    : t("dashboard.yourHubBusinessDesc")}
                 </p>
-              </div> : <div className="mb-4 grid grid-cols-2 gap-2"><Link to="/saved" className="rounded-xl border border-border/70 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors">Saved</Link><Link to="/dashboard/settings" className="rounded-xl border border-border/70 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors">Settings</Link></div>}
+              </div> : <div className="mb-4 grid grid-cols-2 gap-2"><Link to="/saved" className="rounded-xl border border-border/70 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors">{t("common.saved")}</Link><Link to="/dashboard/settings" className="rounded-xl border border-border/70 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors">{t("common.settings")}</Link></div>}
 
               <div className="flex items-center gap-2">
                 <ThemeToggle />
@@ -762,7 +764,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                   onClick={handleSignOut}
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  <span className="text-xs font-bold uppercase tracking-wider">Sign Out</span>
+                  <span className="text-xs font-bold uppercase tracking-wider">{t("common.signOut")}</span>
                 </Button>
               </div>
             </div>
@@ -860,13 +862,13 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
                   <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>Create</span>
+                  <span>{t("dashboard.create")}</span>
                   <ChevronDown className="w-3 h-3 opacity-70" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl shadow-2xl border-border/60 bg-popover text-popover-foreground">
                 <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Quick Actions
+                  {t("dashboard.quickActions")}
                 </div>
                 <DropdownMenuItem asChild>
                   <Link to="/create/moment" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
@@ -874,8 +876,8 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                       <Ticket className="w-3.5 h-3.5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold">New Moment</p>
-                      <p className="text-[10px] text-muted-foreground">Host an event or drop</p>
+                      <p className="text-xs font-bold">{t("dashboard.newMoment")}</p>
+                      <p className="text-[10px] text-muted-foreground">{t("dashboard.newMomentDesc")}</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -885,8 +887,8 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                       <Sparkles className="w-3.5 h-3.5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold">New Activation</p>
-                      <p className="text-[10px] text-muted-foreground">Fund a brand campaign</p>
+                      <p className="text-xs font-bold">{t("dashboard.newActivation")}</p>
+                      <p className="text-[10px] text-muted-foreground">{t("dashboard.newActivationDesc")}</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -896,8 +898,8 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                       <PlayCircle className="w-3.5 h-3.5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold">Content Drop</p>
-                      <p className="text-[10px] text-muted-foreground">Distribute media & stories</p>
+                      <p className="text-xs font-bold">{t("dashboard.contentDrop")}</p>
+                      <p className="text-[10px] text-muted-foreground">{t("dashboard.contentDropDesc")}</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>

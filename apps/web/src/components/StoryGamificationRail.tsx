@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sparkles, Flame, Plus, Gift, Zap } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface StoryItem {
   id: string;
@@ -57,6 +58,8 @@ export const StoryGamificationRail: React.FC<StoryGamificationRailProps> = ({
   onOpenWheel,
   onOpenStreak,
 }) => {
+  const { t } = useI18n();
+
   return (
     <div className="w-full overflow-x-auto no-scrollbar py-3 px-1 flex items-center gap-3">
       {MOCK_STORIES.map((story) => {
@@ -72,7 +75,7 @@ export const StoryGamificationRail: React.FC<StoryGamificationRailProps> = ({
                   <Sparkles className="w-7 h-7 text-amber-400 animate-pulse" />
                 </div>
               </div>
-              <span className="text-[11px] font-bold text-amber-400">Daily Wheel</span>
+              <span className="text-[11px] font-bold text-amber-400">{t("promoshare.dailyWheel")}</span>
             </button>
           );
         }
@@ -89,7 +92,7 @@ export const StoryGamificationRail: React.FC<StoryGamificationRailProps> = ({
                   <Gift className="w-7 h-7 text-orange-400" />
                 </div>
               </div>
-              <span className="text-[11px] font-bold text-orange-400">Day 3 Streak</span>
+              <span className="text-[11px] font-bold text-orange-400">{t("promoshare.day3Streak")}</span>
             </button>
           );
         }

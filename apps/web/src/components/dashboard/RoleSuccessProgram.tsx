@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRoleSuccessProgress } from "@/hooks/useRoleSuccessProgress";
+import { useI18n } from "@/i18n/I18nContext";
 
 type SuccessProgram = {
   name: string;
@@ -25,6 +26,7 @@ const programs: Record<string, SuccessProgram> = {
 };
 
 export function RoleSuccessProgram({ role }: { role: string }) {
+  const { t } = useI18n();
   const program = programs[role] || programs.participant;
   const { data: progress, isLoading } = useRoleSuccessProgress(role);
   const nextAction = progress?.nextAction || { label: program.action, href: program.href };
@@ -41,7 +43,7 @@ export function RoleSuccessProgram({ role }: { role: string }) {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <Badge className="border-primary/40 bg-primary/20 text-primary hover:bg-primary/20 font-bold px-3 py-1">
-                <Crown className="mr-1.5 h-3.5 w-3.5" /> Your Perks Journey
+                <Crown className="mr-1.5 h-3.5 w-3.5" /> {t("roleSuccess.perksJourney")}
               </Badge>
             </div>
             <h2 className="mt-4 font-sans text-3xl sm:text-4xl font-black uppercase tracking-tight text-white">{program.name}</h2>
@@ -55,9 +57,9 @@ export function RoleSuccessProgram({ role }: { role: string }) {
 
           <div className="grid border-t border-white/10 sm:grid-cols-3 lg:border-l lg:border-t-0">
             {[
-              { eyebrow: "Completed Perks", title: latestChange || "Your 1st win awaits", detail: progress?.sourceLabel || "Active Promorang perks & moves", state: "done" },
-              { eyebrow: "Next Perk Goal", title: attention || "Grab your next perk", detail: waiting.length ? "Your next $12 perk or free drink is waiting." : "Ready for your next reward drop.", state: "waiting" },
-              { eyebrow: "Your Move", title: nextAction.label, detail: `Unlock your ${program.metric.toLowerCase()} milestone.`, state: "next" },
+              { eyebrow: t("roleSuccess.completedPerks"), title: latestChange || t("roleSuccess.firstWinAwaits"), detail: progress?.sourceLabel || t("roleSuccess.activePerksMoves"), state: "done" },
+              { eyebrow: t("roleSuccess.nextPerkGoal"), title: attention || t("roleSuccess.grabNextPerk"), detail: waiting.length ? t("roleSuccess.nextPerkWaiting") : t("roleSuccess.readyForNext"), state: "waiting" },
+              { eyebrow: t("roleSuccess.yourMove"), title: nextAction.label, detail: t("roleSuccess.unlockMilestone", { metric: program.metric.toLowerCase() }), state: "next" },
             ].map((item) => (
               <div key={item.eyebrow} className="min-h-48 border-b border-white/10 px-5 py-6 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0 lg:px-6">
                 <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary/80">

@@ -27,17 +27,12 @@ import { cn } from "@/lib/utils";
 import { useMomentJourney } from "@/hooks/useMomentJourney";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
+import { useI18n } from "@/i18n/I18nContext";
 
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 
-const feedLenses: Array<{ label: string; value: FeedIntent | null; description: string }> = [
-  { label: "For You", value: null, description: "The strongest mix across your world" },
-  { label: "Near You", value: "nearby", description: "People, places, and Moments within reach" },
-  { label: "Tonight", value: "tonight", description: "What is live or starting soon" },
-  { label: "Earn", value: "earn", description: "Drops, proof, offers, and value to unlock" },
-];
-
 const CulturalCommandHome = () => {
+  const { t } = useI18n();
   const { user } = useAuth();
   const { data: balance } = useUserBalance();
   const { data: stats } = useParticipantStats();
@@ -46,6 +41,13 @@ const CulturalCommandHome = () => {
   const [activeIntent, setActiveIntent] = useState<FeedIntent | null>(null);
   const feedQuery = useForYouFeed(activeIntent);
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || "Explorer";
+
+  const feedLenses: Array<{ label: string; value: FeedIntent | null; description: string }> = [
+    { label: t("feed.forYou"), value: null, description: "The strongest mix across your world" },
+    { label: t("feed.nearYou"), value: "nearby", description: "People, places, and Moments within reach" },
+    { label: t("feed.tonight"), value: "tonight", description: "What is live or starting soon" },
+    { label: t("feed.earn"), value: "earn", description: "Drops, proof, offers, and value to unlock" },
+  ];
 
   const upcoming = useMemo(
     () => joinedMoments.filter((moment) => new Date(moment.starts_at) > new Date()).slice(0, 3),
@@ -103,8 +105,8 @@ const CulturalCommandHome = () => {
               <Zap className="h-5 w-5 text-black" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">Cultural Command</p>
-              <p className="text-xs font-semibold text-white/70">Welcome back, <span className="text-white">{firstName}</span></p>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">{t("commandHome.eyebrow")}</p>
+              <p className="text-xs font-semibold text-white/70">{t("commandHome.welcome", { name: firstName })}</p>
             </div>
           </div>
 
@@ -126,7 +128,7 @@ const CulturalCommandHome = () => {
               className="hidden h-9 items-center gap-2 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 px-4 text-xs font-extrabold text-black shadow-md shadow-amber-500/20 transition hover:scale-[1.02] sm:inline-flex"
             >
               <UserRoundPlus className="h-3.5 w-3.5" />
-              Invite Friends
+              {t("commandHome.inviteFriends")}
             </Link>
 
             <Link
@@ -135,7 +137,7 @@ const CulturalCommandHome = () => {
               className="group flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/70 transition hover:border-amber-400 hover:text-white sm:h-9 sm:w-48 sm:justify-start sm:px-3"
             >
               <Search className="h-4 w-4 transition group-hover:text-amber-400" />
-              <span className="ml-2 hidden text-xs text-white/40 sm:inline">Search platform...</span>
+              <span className="ml-2 hidden text-xs text-white/40 sm:inline">{t("commandHome.searchPlatform")}</span>
             </Link>
 
             <Link
@@ -167,7 +169,7 @@ const CulturalCommandHome = () => {
               <div className="flex flex-wrap items-center gap-3">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-                  {heroMoment && hostedMoments.some((item) => item.id === heroMoment.id) ? "Hosted by You" : "Featured Moment"}
+                  {heroMoment && hostedMoments.some((item) => item.id === heroMoment.id) ? t("commandHome.hostedByYou") : t("commandHome.featuredMoment")}
                 </span>
                 <span className="text-xs font-semibold text-white/50">
                   {heroMoment?.venue_name || heroMoment?.location || "Live Access"}
@@ -190,13 +192,13 @@ const CulturalCommandHome = () => {
                     to={heroJourney?.action.href || (heroMoment ? `/moments/${heroMoment.id}` : "/discover")}
                     className="inline-flex h-11 items-center gap-2 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 px-6 text-xs font-extrabold text-black shadow-lg shadow-amber-500/20 transition hover:scale-[1.02] hover:brightness-110"
                   >
-                    {heroJourney?.action.label || (heroMoment ? "Open Moment" : "Discover Moments")} <ArrowRight className="h-4 w-4" />
+                    {heroJourney?.action.label || (heroMoment ? t("commandHome.openMoment") : t("commandHome.discoverMoments"))} <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link
                     to="/discover"
                     className="inline-flex h-11 items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 text-xs font-bold text-white backdrop-blur-md transition hover:border-white/40 hover:bg-white/10"
                   >
-                    Explore Platform
+                    {t("commandHome.explorePlatform")}
                   </Link>
                 </div>
               </div>
@@ -216,11 +218,11 @@ const CulturalCommandHome = () => {
             <div>
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">Command Suite</p>
-                  <h3 className="text-base font-extrabold text-white">Access & Assets</h3>
+                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">{t("commandHome.commandSuite")}</p>
+                  <h3 className="text-base font-extrabold text-white">{t("commandHome.accessAssets")}</h3>
                 </div>
                 <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-amber-300">
-                  PRO LEVEL
+                  {t("commandHome.proLevel")}
                 </span>
               </div>
 
@@ -232,8 +234,8 @@ const CulturalCommandHome = () => {
                       <Gem className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">Gems Vault</p>
-                      <p className="text-[11px] text-white/40">Available economy balance</p>
+                      <p className="text-xs font-bold text-white">{t("commandHome.gemsVault")}</p>
+                      <p className="text-[11px] text-white/40">{t("commandHome.gemsVaultDesc")}</p>
                     </div>
                   </div>
                   <span className="text-base font-extrabold text-amber-400">{balance?.gems || 0}</span>
@@ -245,8 +247,8 @@ const CulturalCommandHome = () => {
                       <KeyRound className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">Promokeys</p>
-                      <p className="text-[11px] text-white/40">Access passes & invites</p>
+                      <p className="text-xs font-bold text-white">{t("commandHome.promokeys")}</p>
+                      <p className="text-[11px] text-white/40">{t("commandHome.promokeysDesc")}</p>
                     </div>
                   </div>
                   <span className="text-base font-extrabold text-orange-400">{balance?.promokeys || 0}</span>
@@ -258,8 +260,8 @@ const CulturalCommandHome = () => {
                       <Sparkles className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">Proof Signals</p>
-                      <p className="text-[11px] text-white/40">Participation points</p>
+                      <p className="text-xs font-bold text-white">{t("commandHome.proofSignals")}</p>
+                      <p className="text-[11px] text-white/40">{t("commandHome.proofSignalsDesc")}</p>
                     </div>
                   </div>
                   <span className="text-base font-extrabold text-yellow-400">{balance?.points || 0}</span>
@@ -325,12 +327,12 @@ const CulturalCommandHome = () => {
         <section aria-labelledby="archetypes-heading" className="rounded-2xl border border-white/10 bg-gradient-to-br from-[#181920] to-[#0d0e12] p-5 sm:p-7 shadow-xl">
           <div className="flex flex-col justify-between gap-3 border-b border-white/10 pb-5 md:flex-row md:items-end">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">Stakeholder Superpowers</p>
-              <h2 id="archetypes-heading" className="text-2xl font-extrabold text-white sm:text-3xl">Role Archetypes & Missions</h2>
-              <p className="mt-1 text-xs text-white/50">Choose how you participate in the economy. Earn rewards, build reputation, and unlock co-ownership.</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">{t("archetypes.eyebrow")}</p>
+              <h2 id="archetypes-heading" className="text-2xl font-extrabold text-white sm:text-3xl">{t("archetypes.title")}</h2>
+              <p className="mt-1 text-xs text-white/50">{t("archetypes.subtitle")}</p>
             </div>
             <Link to="/missions" className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:underline">
-              Browse All Role Missions <ArrowRight className="h-3.5 w-3.5" />
+              {t("archetypes.browseAll")} <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
@@ -338,46 +340,46 @@ const CulturalCommandHome = () => {
             {[
               {
                 id: "scout",
-                title: "Scout 🔍",
-                role: "Spotter & Finder",
-                desc: "Uncover hidden gems, verify physical turnout & claim Scout bounties.",
-                perk: "+100 Points / Spot",
+                title: t("archetypes.scoutTitle"),
+                role: t("archetypes.scoutRole"),
+                desc: t("archetypes.scoutDesc"),
+                perk: t("archetypes.scoutPerk"),
                 color: "border-amber-400/30 bg-amber-400/5 text-amber-300",
                 href: "/missions?role=scout",
               },
               {
                 id: "catalyst",
-                title: "Catalyst ⚡",
-                role: "Momentum Igniter",
-                desc: "Be the first to join, spark crowd momentum & launch live drops.",
-                perk: "High Match Boosts",
+                title: t("archetypes.catalystTitle"),
+                role: t("archetypes.catalystRole"),
+                desc: t("archetypes.catalystDesc"),
+                perk: t("archetypes.catalystPerk"),
                 color: "border-orange-500/30 bg-orange-500/5 text-orange-400",
                 href: "/missions?role=catalyst",
               },
               {
                 id: "anchor",
-                title: "Anchor ⚓",
-                role: "Venue & Merchant Host",
-                desc: "Anchor local culture with physical space, check-ins & redeemable perks.",
-                perk: "Commerce Payouts",
+                title: t("archetypes.anchorTitle"),
+                role: t("archetypes.anchorRole"),
+                desc: t("archetypes.anchorDesc"),
+                perk: t("archetypes.anchorPerk"),
                 color: "border-emerald-500/30 bg-emerald-500/5 text-emerald-400",
                 href: "/missions?role=anchor",
               },
               {
                 id: "hype",
-                title: "Hype 📣",
-                role: "Amplifier & Viral Linker",
-                desc: "Distribute tracked referral links, build viral reach & earn slice rewards.",
-                perk: "Referral Revenue",
+                title: t("archetypes.hypeTitle"),
+                role: t("archetypes.hypeRole"),
+                desc: t("archetypes.hypeDesc"),
+                perk: t("archetypes.hypePerk"),
                 color: "border-purple-500/30 bg-purple-500/5 text-purple-400",
                 href: "/missions?role=hype",
               },
               {
                 id: "pulse",
-                title: "Pulse 📊",
-                role: "Auditor & Trust Signal",
-                desc: "Audit proof receipts, analyze crowd signals & enforce compliance.",
-                perk: "Auditor Rep + Gems",
+                title: t("archetypes.pulseTitle"),
+                role: t("archetypes.pulseRole"),
+                desc: t("archetypes.pulseDesc"),
+                perk: t("archetypes.pulsePerk"),
                 color: "border-cyan-500/30 bg-cyan-500/5 text-cyan-400",
                 href: "/missions?role=pulse",
               },
@@ -408,12 +410,12 @@ const CulturalCommandHome = () => {
         <section aria-labelledby="feed-heading" className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-7 backdrop-blur-xl">
           <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-5 md:flex-row md:items-end">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">Live Stream</p>
-              <h2 id="feed-heading" className="text-2xl font-extrabold text-white sm:text-3xl">Everything Moving Toward You</h2>
-              <p className="mt-1 text-xs text-white/50">Moments to join, proof worth completing, and creator drops.</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">{t("commandHome.liveStream")}</p>
+              <h2 id="feed-heading" className="text-2xl font-extrabold text-white sm:text-3xl">{t("commandHome.streamTitle")}</h2>
+              <p className="mt-1 text-xs text-white/50">{t("commandHome.streamSubtitle")}</p>
             </div>
             <Link to="/for-you" className="inline-flex items-center gap-1.5 text-xs font-bold text-white/60 transition hover:text-amber-400">
-              Open Full Feed <ArrowRight className="h-3.5 w-3.5" />
+              {t("commandHome.openFullFeed")} <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 

@@ -65,14 +65,14 @@ export const PromoShareHero: React.FC<PromoShareHeroProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800/60">
-              <p className="text-[10px] text-zinc-500 font-bold uppercase">Active Tickets</p>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase">{t("promoshare.activeTickets")}</p>
               <p className="text-2xl font-black text-white flex items-center gap-1.5 mt-0.5">
                 <Ticket className="w-5 h-5 text-orange-400" /> {totalTickets}
               </p>
             </div>
 
             <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800/60">
-              <p className="text-[10px] text-zinc-500 font-bold uppercase">Yield Multiplier</p>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase">{t("promoshare.yieldMultiplier")}</p>
               <p className="text-2xl font-black text-amber-400 flex items-center gap-1 mt-0.5">
                 <Trophy className="w-5 h-5 text-amber-400" /> {multiplier}x
               </p>

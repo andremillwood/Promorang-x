@@ -9,8 +9,10 @@ import {
 } from "@/components/ui/dialog";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { triggerHaptic } from "@/lib/nativeWebApis";
+import { useI18n } from "@/i18n/I18nContext";
 
 export function MobileNotificationBridgeBanner() {
+  const { t } = useI18n();
   const { isSubscribed } = usePushNotifications();
   const [showBanner, setShowBanner] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -54,13 +56,13 @@ export function MobileNotificationBridgeBanner() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <p className="text-xs font-black uppercase tracking-wider text-white">Connect Promorang to Your Phone</p>
+              <p className="text-xs font-black uppercase tracking-wider text-white">{t("notificationBridge.title")}</p>
               <span className="text-[9px] font-bold bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-                Lock-Screen Alerts
+                {t("notificationBridge.badge")}
               </span>
             </div>
             <p className="text-xs text-white/70 mt-0.5">
-              Get real-time door passes, nearby member deals, and Gem payout alerts on your phone.
+              {t("notificationBridge.desc")}
             </p>
           </div>
         </div>
@@ -75,7 +77,7 @@ export function MobileNotificationBridgeBanner() {
             className="rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs gap-1.5 shadow-[0_0_15px_rgba(255,106,0,0.3)]"
           >
             <QrCode className="h-3.5 w-3.5" />
-            Scan Phone QR
+            {t("notificationBridge.scanButton")}
           </Button>
           <button
             onClick={handleDismiss}
@@ -94,9 +96,9 @@ export function MobileNotificationBridgeBanner() {
             <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/20 text-primary flex items-center justify-center mb-2">
               <QrCode className="h-6 w-6" />
             </div>
-            <DialogTitle className="text-xl font-black text-white">Scan with Your Phone</DialogTitle>
+            <DialogTitle className="text-xl font-black text-white">{t("notificationBridge.modalTitle")}</DialogTitle>
             <p className="text-xs text-white/60">
-              Open your phone camera to take your passes, live moments & Gem rewards on the go.
+              {t("notificationBridge.modalDesc")}
             </p>
           </DialogHeader>
 

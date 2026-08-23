@@ -468,19 +468,19 @@ const PromoShare = () => {
 
       <div className="my-8">
         <ContributionReceipt
-          title="Recent earning receipts"
+          title={t("promoshare.recentReceipts")}
           items={recentReceiptItems.length ? recentReceiptItems : [
-            { label: 'No receipts yet', detail: 'Move content, join Moments, submit proof, or refer users to start earning.', value: '0 entries' },
+            { label: t("promoshare.noReceiptsYet"), detail: t("promoshare.noReceiptsDesc"), value: '0 entries' },
           ]}
         />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full min-w-[560px] grid-cols-4 lg:w-fit">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="cycles">Active Cycles</TabsTrigger>
-          <TabsTrigger value="activity">My Activity</TabsTrigger>
-          <TabsTrigger value="history">Win History</TabsTrigger>
+          <TabsTrigger value="overview">{t("promoshare.tabOverview")}</TabsTrigger>
+          <TabsTrigger value="cycles">{t("promoshare.tabActiveCycles")}</TabsTrigger>
+          <TabsTrigger value="activity">{t("promoshare.tabMyActivity")}</TabsTrigger>
+          <TabsTrigger value="history">{t("promoshare.tabWinHistory")}</TabsTrigger>
         </TabsList>
 
         {/* OVERVIEW TAB */}
@@ -491,7 +491,7 @@ const PromoShare = () => {
               <CardContent className="pt-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <p className="text-sm text-muted-foreground">Current Weight</p>
+                    <p className="text-sm text-muted-foreground">{t("promoshare.currentWeight")}</p>
                     <p className="text-2xl font-bold">{totalWeight}</p>
                   </div>
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -505,7 +505,7 @@ const PromoShare = () => {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Total Entries</p>
+                    <p className="text-sm text-muted-foreground">{t("promoshare.totalEntries")}</p>
                     <p className="text-2xl font-bold">{totalEntries}</p>
                   </div>
                   <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
@@ -519,7 +519,7 @@ const PromoShare = () => {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Active Cycles</p>
+                    <p className="text-sm text-muted-foreground">{t("promoshare.tabActiveCycles")}</p>
                     <p className="text-2xl font-bold">{data.user_stats_by_cycle?.length || 0}</p>
                   </div>
                   <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
@@ -533,7 +533,7 @@ const PromoShare = () => {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Wins</p>
+                    <p className="text-sm text-muted-foreground">{t("promoshare.wins")}</p>
                     <p className="text-2xl font-bold">{data.history?.length || 0}</p>
                   </div>
                   <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center">

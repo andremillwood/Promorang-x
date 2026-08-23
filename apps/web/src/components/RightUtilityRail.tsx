@@ -1,5 +1,6 @@
 import React from 'react';
 import { Flame, Users, Calendar, Sparkles, Bookmark, ArrowRight, Zap } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface RightUtilityRailProps {
   onOpenSlashModal?: () => void;
@@ -10,6 +11,8 @@ export const RightUtilityRail: React.FC<RightUtilityRailProps> = ({
   onOpenSlashModal,
   onOpenStreakModal,
 }) => {
+  const { t } = useI18n();
+
   return (
     <aside className="hidden lg:flex flex-col gap-5 w-80 shrink-0 sticky top-20 h-fit">
       {/* 1. Active Squad Slash Widget */}
@@ -20,7 +23,7 @@ export const RightUtilityRail: React.FC<RightUtilityRailProps> = ({
               <Zap className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Active Squad Slash</h3>
+              <h3 className="text-sm font-bold text-white">{t("promoshare.activeSquadSlash")}</h3>
               <p className="text-[10px] text-zinc-400">2 slots open • Expiring in 14:59</p>
             </div>
           </div>
@@ -28,7 +31,7 @@ export const RightUtilityRail: React.FC<RightUtilityRailProps> = ({
 
         <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-3 mb-4">
           <div className="flex justify-between items-center text-xs mb-1">
-            <span className="text-zinc-400 font-medium">Squad Progress</span>
+            <span className="text-zinc-400 font-medium">{t("promoshare.squadProgress")}</span>
             <span className="text-orange-400 font-bold">1 / 3 Friends</span>
           </div>
           <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
@@ -41,7 +44,7 @@ export const RightUtilityRail: React.FC<RightUtilityRailProps> = ({
           className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-orange-500 hover:bg-orange-400 text-black flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-orange-500/20"
         >
           <Users className="w-3.5 h-3.5" />
-          <span>INVITE FRIENDS TO SLASH</span>
+          <span>{t("promoshare.inviteFriendsSlash")}</span>
         </button>
       </div>
 
@@ -53,7 +56,7 @@ export const RightUtilityRail: React.FC<RightUtilityRailProps> = ({
               <Calendar className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Day 3 Streak Active</h3>
+              <h3 className="text-sm font-bold text-white">{t("promoshare.dayStreakActive")}</h3>
               <p className="text-[10px] text-zinc-400">Claim today's 1x Piece Boost</p>
             </div>
           </div>
@@ -64,7 +67,7 @@ export const RightUtilityRail: React.FC<RightUtilityRailProps> = ({
           className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-1.5 transition-all"
         >
           <Sparkles className="w-3.5 h-3.5" />
-          <span>VIEW 7-DAY STREAK MATRIX</span>
+          <span>{t("promoshare.viewStreakMatrix")}</span>
         </button>
       </div>
 

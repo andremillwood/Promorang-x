@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Ticket, Sparkles, Gift, Zap, CheckCircle2, RotateCw } from "lucide-react";
 import { toast } from "sonner";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface PromoShareTicketDrawModalProps {
   jackpotAmount?: number;
@@ -35,6 +36,7 @@ export function PromoShareTicketDrawModal({
   trigger,
   onTicketEntered,
 }: PromoShareTicketDrawModalProps) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [ticketsToUse, setTicketsToUse] = useState(1);
@@ -79,7 +81,7 @@ export function PromoShareTicketDrawModal({
         {trigger || (
           <Button className="gap-2 bg-gradient-to-r from-[#FF6A00] to-amber-500 font-black text-black hover:opacity-90">
             <Ticket className="h-4 w-4" />
-            Enter Ticket Draw
+            {t("promoshare.enterTicketDraw")}
           </Button>
         )}
       </DialogTrigger>

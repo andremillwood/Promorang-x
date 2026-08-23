@@ -184,9 +184,7 @@ export function useUserIntentContinuity() {
               .maybeSingle();
 
             if (error) {
-              if (error.code === 'PGRST204' || error.code === '42P01' || error.message?.includes('404') || error.message?.includes('does not exist')) {
-                isDbIntentTableAvailable = false;
-              }
+              isDbIntentTableAvailable = false;
             } else if (dbIntent) {
               if (dbIntent.last_intent_key) {
                 setLastIntent(dbIntent.last_intent_key);
@@ -294,7 +292,7 @@ export function useUserIntentContinuity() {
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
         if (error) {
-          if (error.code === 'PGRST204' || error.code === '42P01') isDbIntentTableAvailable = false;
+          isDbIntentTableAvailable = false;
         }
       } catch (err) {
         isDbIntentTableAvailable = false;
@@ -321,7 +319,7 @@ export function useUserIntentContinuity() {
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
         if (error) {
-          if (error.code === 'PGRST204' || error.code === '42P01') isDbIntentTableAvailable = false;
+          isDbIntentTableAvailable = false;
         }
       } catch (err) {
         isDbIntentTableAvailable = false;

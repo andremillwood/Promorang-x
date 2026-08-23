@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/i18n/I18nContext';
 import {
   Compass,
   Calendar,
@@ -14,6 +15,7 @@ import {
   MapPin,
   Users
 } from 'lucide-react';
+
 
 import { SceneCard, SceneProps } from '@/components/radar/SceneCard';
 import { MomentCard, MomentProps, IntentType } from '@/components/radar/MomentCard';
@@ -487,6 +489,7 @@ const SAMPLE_MOMENTS: MomentProps[] = [
 const SAMPLE_DISCOVERIES: DiscoveryProps[] = [...DISCOVERY_POLLS];
 
 export default function OpportunityRadar() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'NOW' | 'DISCOVER' | 'UNLOCK' | 'SCENES'>('NOW');
@@ -528,15 +531,15 @@ export default function OpportunityRadar() {
             <div>
               <div className="flex items-center space-x-2 mb-2">
                 <span className="px-2.5 py-0.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-full text-xs font-black uppercase tracking-wider">
-                  Participation Network
+                  {t("radar.participationNetwork")}
                 </span>
                 <span className="text-xs text-gray-400 font-medium">Kingston, Jamaica</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-                Scenes & Moments Radar
+                {t("radar.title")}
               </h1>
               <p className="text-gray-400 text-xs md:text-sm mt-1 max-w-xl">
-                Discover what's worth doing, experiencing, and unlocking. Connect with active scenes and claim exclusive PromoKeys.
+                {t("radar.subtitle")}
               </p>
             </div>
 
@@ -547,13 +550,13 @@ export default function OpportunityRadar() {
                 className="px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-500/20 flex items-center space-x-1.5 transition-all"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Founding Member Access</span>
+                <span>{t("radar.foundingMemberAccess")}</span>
               </a>
               <a
                 href="/for-merchants"
                 className="px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold text-xs rounded-xl border border-gray-700 transition-colors"
               >
-                For Venues
+                {t("radar.forVenues")}
               </a>
             </div>
           </div>
@@ -576,7 +579,7 @@ export default function OpportunityRadar() {
               }`}
             >
               <Flame className="w-3.5 h-3.5" />
-              <span>NOW & Imminent</span>
+              <span>{t("radar.nowImminent")}</span>
             </button>
             
             <button
@@ -586,7 +589,7 @@ export default function OpportunityRadar() {
               }`}
             >
               <Compass className="w-3.5 h-3.5" />
-              <span>Scenes Lens</span>
+              <span>{t("radar.scenesLens")}</span>
             </button>
 
             <button
@@ -596,7 +599,7 @@ export default function OpportunityRadar() {
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Discoveries</span>
+              <span>{t("radar.discoveries")}</span>
             </button>
 
             <button
@@ -606,7 +609,7 @@ export default function OpportunityRadar() {
               }`}
             >
               <Key className="w-3.5 h-3.5" />
-              <span>Unlock PromoKeys</span>
+              <span>{t("radar.unlockPromoKeys")}</span>
             </button>
           </div>
 
@@ -645,7 +648,7 @@ export default function OpportunityRadar() {
               type="text"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              placeholder="Search moments, venues..."
+              placeholder={t("headerSearch.triggerPlaceholder")}
               className="w-full pl-9 pr-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-xl text-xs focus:outline-none focus:border-orange-500 shadow-sm"
             />
           </div>
@@ -694,7 +697,7 @@ export default function OpportunityRadar() {
             </div>
 
             {/* Demand to Supply Banner */}
-            <div className="bg-gradient-to-r from-gray-900 via-gray-950 to-gray-900 text-white p-8 rounded-3xl border border-gray-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="bg-gradient-to-r from-gray-900 via-gray-950 to-gray-950 text-white p-8 rounded-3xl border border-gray-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="max-w-xl">
                 <span className="px-3 py-1 bg-orange-500/20 border border-orange-500/30 text-orange-400 text-[10px] font-black uppercase tracking-wider rounded-lg">
                   Demand-to-Supply Engine
@@ -729,13 +732,13 @@ export default function OpportunityRadar() {
             {/* Featured Moments Section */}
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Active Moments</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("radar.activeMoments")}</h2>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Time-bounded opportunities worth acting on in Kingston today.
+                  {t("radar.liveForecasted", { city: "Kingston" })}
                 </p>
               </div>
               <span className="text-xs font-bold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/50 px-3 py-1 rounded-full border border-orange-100 dark:border-orange-900/50">
-                {filteredMoments.length} Opportunities Live
+                {t("radar.opportunitiesLive", { count: filteredMoments.length })}
               </span>
             </div>
 

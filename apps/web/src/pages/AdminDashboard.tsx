@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin, usePlatformStats } from "@/hooks/useAdmin";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import {
   Users,
   Calendar,
