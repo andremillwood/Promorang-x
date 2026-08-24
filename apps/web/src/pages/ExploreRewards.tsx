@@ -529,50 +529,79 @@ export function ExploreRewards() {
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreateRequest} className="space-y-5 pt-2">
-            {/* 1. Smart Venue Picker (Autosuggest + Vibe Explorer) */}
-            <SmartVenuePicker
-              selectedVenueName={newVenue}
-              selectedAddress={newLocation}
-              onSelectVenue={(v) => {
-                setNewVenue(v.name);
-                setNewLocation(v.location);
-              }}
-              onManualNameChange={(name) => setNewVenue(name)}
-              onManualAddressChange={(addr) => setNewLocation(addr)}
-            />
+          <form onSubmit={handleCreateRequest} className="space-y-6 pt-2">
+            {/* 1. Pick Venue or Spot */}
+            <div className="space-y-2.5">
+              <Label className="text-xs font-bold text-white/90 flex items-center justify-between">
+                <span>1. Where do you want a perk? *</span>
+                <span className="text-[10px] text-primary font-semibold">Verified Kingston Spots</span>
+              </Label>
 
-            {/* 2. Category & Brand Interest */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-white/80">Category</Label>
-                <select
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value as any)}
-                  className="w-full rounded-2xl bg-white/5 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary h-11"
-                >
-                  <option value="food" className="bg-[#111216] text-white">Food & Dining</option>
-                  <option value="nightlife" className="bg-[#111216] text-white">Nightlife & Music</option>
-                  <option value="retail" className="bg-[#111216] text-white">Retail & Merch</option>
-                </select>
+              {/* Instant Search Input */}
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                <input
+                  type="text"
+                  placeholder="Type any spot (e.g. Sweetwood, Dub Club, Chilitos, PriceSmart)..."
+                  value={newVenue}
+                  onChange={(e) => {
+                    setNewVenue(e.target.value);
+                    const match = VERIFIED_VENUES.find((v) =>
+                      v.name.toLowerCase().includes(e.target.value.toLowerCase())
+                    );
+                    if (match) {
+                      setNewLocation(match.location);
+                      setNewCategory(
+                        match.venue_type === "soundstage" || match.venue_type === "lounge"
+                          ? "nightlife"
+                          : "food"
+                      );
+                      setNewBrand(match.name);
+                    }
+                  }}
+                  className="w-full rounded-2xl bg-white/5 border border-white/10 pl-10 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-primary transition h-11"
+                  required
+                />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-white/80">Brand / Product (Optional)</Label>
-                <Input
-                  placeholder="e.g. Arla Foods, Red Stripe, Tequila"
-                  value={newBrand}
-                  onChange={(e) => setNewBrand(e.target.value)}
-                  className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-11"
-                />
+              {/* 1-Tap Popular Kingston Spots */}
+              <div className="space-y-1.5 pt-1">
+                <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider block">
+                  Or tap a popular spot:
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {VERIFIED_VENUES.slice(0, 6).map((v) => (
+                    <button
+                      key={v.id}
+                      type="button"
+                      onClick={() => {
+                        setNewVenue(v.name);
+                        setNewLocation(v.location);
+                        setNewCategory(
+                          v.venue_type === "soundstage" || v.venue_type === "lounge"
+                            ? "nightlife"
+                            : "food"
+                        );
+                        setNewBrand(v.name);
+                      }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition text-left flex items-center gap-1.5 ${
+                        newVenue === v.name
+                          ? "bg-primary text-white border-primary shadow-md"
+                          : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
+                      }`}
+                    >
+                      <span>{v.name}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* 3. 1-Click Popular Perk Suggestion Pills */}
-            <div className="space-y-2">
-              <Label className="text-xs font-bold text-white/80 flex items-center justify-between">
-                <span>What Perk Would Get You to Go? *</span>
-                <span className="text-[10px] text-primary font-bold">1-Click Suggestions</span>
+            {/* 2. What Perk Would Get You to Go */}
+            <div className="space-y-2.5 pt-2 border-t border-white/10">
+              <Label className="text-xs font-bold text-white/90 flex items-center justify-between">
+                <span>2. What perk would get you to go? *</span>
+                <span className="text-[10px] text-primary font-semibold">1-Click Suggestions</span>
               </Label>
 
               <div className="flex flex-wrap gap-1.5">
@@ -583,7 +612,7 @@ export function ExploreRewards() {
                     onClick={() => setNewPerk(pill)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition text-left ${
                       newPerk === pill
-                        ? "bg-primary text-white border-primary"
+                        ? "bg-primary text-white border-primary shadow-md"
                         : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
                     }`}
                   >
@@ -593,7 +622,7 @@ export function ExploreRewards() {
               </div>
 
               <Input
-                placeholder="Or type a custom perk..."
+                placeholder="Or type your custom desired perk..."
                 value={newPerk}
                 onChange={(e) => setNewPerk(e.target.value)}
                 className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-11 mt-2"
@@ -601,7 +630,7 @@ export function ExploreRewards() {
               />
             </div>
 
-            {/* Actions */}
+            {/* Submit Action */}
             <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-3">
               <Button
                 type="button"
@@ -613,9 +642,9 @@ export function ExploreRewards() {
               </Button>
               <Button
                 type="submit"
-                className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs px-6 h-11 shadow-lg shadow-primary/25"
+                className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs px-7 h-11 shadow-lg shadow-primary/25"
               >
-                Publish Demand Request & Earn +25 Pts
+                Rally Demand & Earn +25 Pts
               </Button>
             </div>
           </form>
