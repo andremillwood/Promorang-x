@@ -16,8 +16,12 @@ import {
   CheckCircle2,
   Search,
   ShieldCheck,
-  Building2
+  Building2,
+  KeyRound,
+  Flame,
+  Lock
 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -102,6 +106,12 @@ export const MomentLineupBuilder: React.FC<MomentLineupBuilderProps> = ({
   const [promoCode, setPromoCode] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
+
+  // PromoKey Gating & Master Key Hub Host Controls
+  const [promoKeyGated, setPromoKeyGated] = useState(false);
+  const [requiredKeys, setRequiredKeys] = useState<number>(1);
+  const [maxGatedCapacity, setMaxGatedCapacity] = useState<number>(25);
+  const [isMasterKeyHub, setIsMasterKeyHub] = useState(false);
 
   // Fetch verified Promorang creators for easy 1-click roster picking
   const { data: verifiedCreators } = useQuery({
@@ -363,6 +373,78 @@ export const MomentLineupBuilder: React.FC<MomentLineupBuilderProps> = ({
           <span className="text-white/40 text-[11px]">
             {t("lineupBuilder.remainingPool", { percent: Math.max(0, 100 - totalSplit).toString() })}
           </span>
+        </div>
+      </div>
+
+      {/* Host Economy Controls: PromoKey Gating & Master Key Hub */}
+      <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-transparent p-4 sm:p-5 text-white space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              <KeyRound className="h-4 w-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-white">
+                PromoKey Gating & Zero-Flake RSVP
+              </h4>
+              <p className="text-[11px] text-white/50">
+                Require attendees to stake or burn PromoKeys to reserve limited seating or VIP perks.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-white/70">
+              {promoKeyGated ? 'Gated VIP' : 'Open RSVP'}
+            </span>
+            <Switch
+              checked={promoKeyGated}
+              onCheckedChange={setPromoKeyGated}
+            />
+          </div>
+        </div>
+
+        {promoKeyGated && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-white/5 animate-in fade-in duration-150">
+            <div className="space-y-1">
+              <Label className="text-[10px] font-bold uppercase text-amber-300">
+                Required PromoKey Deposit
+              </Label>
+              <Input
+                type="number"
+                min="1"
+                max="5"
+                value={requiredKeys}
+                onChange={(e) => setRequiredKeys(Number(e.target.value))}
+                className="h-9 bg-white/5 border-white/10 text-xs rounded-xl text-white font-mono"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[10px] font-bold uppercase text-amber-300">
+                Max Gated Capacity (Spots)
+              </Label>
+              <Input
+                type="number"
+                min="1"
+                value={maxGatedCapacity}
+                onChange={(e) => setMaxGatedCapacity(Number(e.target.value))}
+                className="h-9 bg-white/5 border-white/10 text-xs rounded-xl text-white font-mono"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Master Key Hub Toggle */}
+        <div className="pt-3 border-t border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Flame className="h-3.5 w-3.5 text-orange-400" />
+            <span className="text-xs text-white/80 font-medium">
+              Designate as Official 24h Master Key Check-in Hub
+            </span>
+          </div>
+          <Switch
+            checked={isMasterKeyHub}
+            onCheckedChange={setIsMasterKeyHub}
+          />
         </div>
       </div>
 

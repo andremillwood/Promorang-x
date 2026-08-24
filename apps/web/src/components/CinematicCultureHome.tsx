@@ -98,40 +98,40 @@ const liveNow = cultureEvents.slice(0, 4);
 
 const commerceFallback = [
   {
-    id: "devon-house-pass",
+    id: "devon-house-tasting-passport",
     kind: "Experience Pass",
     title: "Devon House Tasting Passport (I Scream, Tacbar & Bakery)",
     merchant: "Devon House Courtyard Merchants",
     price: "$18.50 / 250 pts",
     image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=800",
-    href: "/radar",
+    href: "/shop/devon-house-tasting-passport",
   },
   {
-    id: "fat-wednesdays-pack",
+    id: "fat-wednesday-vip-pack",
     kind: "VIP Perk",
     title: "FAT Wednesday Jerk Platter & Craft Drink Pack",
     merchant: "Usain Bolt's Tracks & Records",
     price: "$24.00 / 320 pts",
     image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800",
-    href: "/radar",
+    href: "/shop/fat-wednesday-vip-pack",
   },
   {
-    id: "blue-mountain-flight",
+    id: "blue-mountain-coffee-flight",
     kind: "Tasting Flight",
     title: "Blue Mountain Grade 1 Coffee & Artisan Pastry Flight",
     merchant: "Cafe Blue & Strawberry Hill",
     price: "$16.00 / 220 pts",
     image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=800",
-    href: "/radar",
+    href: "/shop/blue-mountain-coffee-flight",
   },
   {
-    id: "artwalk-reggae-pass",
+    id: "downtown-artwalk-reggae-pass",
     kind: "Cultural Pass",
     title: "Downtown Artwalk Murals & Bob Marley Museum Pass",
     merchant: "Kingston Creative & Heritage Guild",
     price: "$28.00 / 380 pts",
     image: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&q=80&w=800",
-    href: "/radar",
+    href: "/shop/downtown-artwalk-reggae-pass",
   },
 ];
 
@@ -398,7 +398,7 @@ export default function CinematicCultureHome() {
         merchant: listing.merchant_name || listing.venue_name || "Promorang merchant",
         price: formatCommercePrice(listing),
         image: listing.image_url || commerceFallback[index % commerceFallback.length].image,
-        href: listing.listing_id ? `/shop/${listing.listing_id}` : "/radar",
+        href: listing.listing_id ? `/shop/${listing.listing_id}` : (listing.source_id ? `/shop/${listing.source_id}` : "/shop"),
         isSample: false,
       }))
     : commerceFallback.map((listing) => ({ ...listing, isSample: false }));

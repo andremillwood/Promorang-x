@@ -35,16 +35,16 @@ export default function MasterKeyScreen() {
         <Pressable accessibilityLabel="Go back" onPress={() => router.back()} style={styles.iconButton}>
           <Ionicons name="arrow-back" size={20} color={Colors.white} />
         </Pressable>
-        <Text style={styles.headerTitle}>Master Key 2FA</Text>
+        <Text style={styles.headerTitle}>Biometric Vault Shield</Text>
         <View style={styles.spacer} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.heroCard}>
-          <Ionicons name="key" size={32} color={Colors.primary} />
-          <Text style={styles.heroTitle}>Master Key Protection</Text>
+          <Ionicons name="shield-checkmark" size={32} color={Colors.primary} />
+          <Text style={styles.heroTitle}>Biometric Vault Shield</Text>
           <Text style={styles.heroSubtitle}>
-            Secure sensitive operations (withdrawal requests, drop publishing, account transfers) with hardware biometrics.
+            Hardware-backed 2FA device protection for high-value payouts, PromoKey burns, and instant Master Key streak verification.
           </Text>
         </View>
 

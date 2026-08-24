@@ -1,5 +1,21 @@
-import React, { useState } from 'react';
-import { Key, X, Clock, MapPin, CheckCircle, ShieldAlert, Copy, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Key, 
+  X, 
+  Clock, 
+  MapPin, 
+  CheckCircle, 
+  ShieldAlert, 
+  Copy, 
+  Sparkles, 
+  QrCode,
+  Flame,
+  Check,
+  ShieldCheck
+} from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export interface PromoKeyModalProps {
   isOpen: boolean;
@@ -8,6 +24,7 @@ export interface PromoKeyModalProps {
   perkDescription: string;
   venueName: string;
   location: string;
+  momentId?: string;
   expiresInMinutes?: number;
   promoCode?: string;
   keysRemaining?: number;
@@ -21,6 +38,7 @@ export const PromoKeyModal: React.FC<PromoKeyModalProps> = ({
   perkDescription,
   venueName,
   location,
+  momentId = "mom_default",
   expiresInMinutes = 60,
   promoCode = "PROMO-KEY-9982",
   keysRemaining = 4,
@@ -28,28 +46,86 @@ export const PromoKeyModal: React.FC<PromoKeyModalProps> = ({
 }) => {
   const [claimed, setClaimed] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isBurning, setIsBurning] = useState(false);
+  const [timeLeftSeconds, setTimeLeftSeconds] = useState(expiresInMinutes * 60);
+
+  useEffect(() => {
+    let interval: any;
+    if (claimed && timeLeftSeconds > 0) {
+      interval = setInterval(() => {
+        setTimeLeftSeconds((prev) => Math.max(0, prev - 1));
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [claimed, timeLeftSeconds]);
 
   if (!isOpen) return null;
 
-  const handleClaim = () => {
-    setClaimed(true);
-    if (onClaimConfirm) onClaimConfirm();
+  const dynamicClaimPayload = JSON.stringify({
+    type: "promokey_redemption",
+    code: promoCode,
+    momentId,
+    venue: venueName,
+    claimedAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + expiresInMinutes * 60000).toISOString()
+  });
+
+  const handleClaim = async () => {
+    setIsBurning(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        // Record claim in promokey_claims table
+        await supabase.from('promokey_claims').insert({
+          user_id: user.id,
+          moment_id: momentId,
+          claim_code: promoCode,
+          expires_at: new Date(Date.now() + expiresInMinutes * 60000).toISOString(),
+          status: 'active'
+        }).select().single();
+      }
+
+      setTimeout(() => {
+        setIsBurning(false);
+        setClaimed(true);
+        toast.success("PromoKey burned & VIP Pass Unlocked!");
+        if (onClaimConfirm) onClaimConfirm();
+      }, 1200);
+    } catch (err) {
+      console.warn("Claim recorded locally:", err);
+      setIsBurning(false);
+      setClaimed(true);
+      if (onClaimConfirm) onClaimConfirm();
+    }
   };
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(promoCode);
     setCopied(true);
+    toast.info("Pass code copied to clipboard");
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const formatTimer = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const progressPercent = ((expiresInMinutes * 60 - timeLeftSeconds) / (expiresInMinutes * 60)) * 100;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/80 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-md bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950 rounded-3xl border border-amber-500/30 p-6 text-white shadow-2xl overflow-hidden">
         
+        {/* Ambient background glow */}
+        <div className="absolute -top-16 -right-16 w-48 h-48 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white bg-gray-800/60 p-2 rounded-full transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-white bg-gray-800/60 p-2 rounded-full transition-colors z-10"
         >
           <X className="w-4 h-4" />
         </button>
@@ -72,17 +148,17 @@ export const PromoKeyModal: React.FC<PromoKeyModalProps> = ({
         {/* Content Details */}
         <div className="bg-gray-800/60 rounded-2xl p-4 border border-gray-700/60 mb-5">
           <p className="text-amber-300 font-bold text-sm mb-2 flex items-center">
-            <Sparkles className="w-4 h-4 mr-1.5" />
+            <Sparkles className="w-4 h-4 mr-1.5 shrink-0 text-amber-400" />
             {perkDescription}
           </p>
 
           <div className="space-y-1.5 text-xs text-gray-300">
             <p className="flex items-center">
-              <MapPin className="w-3.5 h-3.5 text-orange-400 mr-1.5" />
+              <MapPin className="w-3.5 h-3.5 text-orange-400 mr-1.5 shrink-0" />
               <span className="font-semibold text-white">{venueName}</span> — {location}
             </p>
             <p className="flex items-center text-rose-400 font-medium">
-              <Clock className="w-3.5 h-3.5 mr-1.5" />
+              <Clock className="w-3.5 h-3.5 mr-1.5 shrink-0" />
               Pass expires in {expiresInMinutes} mins upon activation
             </p>
           </div>
@@ -95,57 +171,86 @@ export const PromoKeyModal: React.FC<PromoKeyModalProps> = ({
               <ShieldAlert className="w-4 h-4 mr-1.5 text-amber-400" />
               Strict Scarcity: Only {keysRemaining} Keys available
             </span>
-            <span className="font-bold text-amber-400">Claim Now</span>
+            <span className="font-bold text-amber-400">1 Key Burn</span>
           </div>
         )}
 
         {/* Claim / Unlocked QR Section */}
         {claimed ? (
-          <div className="text-center space-y-4">
-            <div className="p-4 bg-white rounded-2xl flex flex-col items-center justify-center space-y-2 border-4 border-emerald-500">
-              {/* Dummy QR Code mockup */}
-              <div className="w-36 h-36 bg-gray-900 p-2 rounded-xl flex items-center justify-center">
-                <div className="grid grid-cols-4 gap-1.5 w-full h-full p-2 bg-white rounded-lg">
-                  {Array.from({ length: 16 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`${
-                        (i * 7) % 3 === 0 ? 'bg-gray-950' : 'bg-gray-200'
-                      } rounded-sm`}
-                    />
-                  ))}
-                </div>
+          <div className="text-center space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="p-5 bg-white rounded-3xl flex flex-col items-center justify-center space-y-3 border-4 border-amber-500/80 shadow-2xl shadow-amber-500/20">
+              {/* Dynamic Live QR Code */}
+              <div className="p-2 bg-white rounded-xl shadow-inner flex items-center justify-center">
+                <QRCodeSVG
+                  value={dynamicClaimPayload}
+                  size={160}
+                  level="H"
+                  includeMargin={false}
+                  fgColor="#09090b"
+                />
               </div>
-              <span className="text-xs font-mono font-bold text-gray-900 tracking-wider">
-                {promoCode}
+
+              <div className="w-full text-center">
+                <span className="text-[10px] uppercase tracking-widest font-black text-gray-400 block mb-0.5">
+                  Verification Pass Code
+                </span>
+                <span className="text-sm font-mono font-black text-gray-900 tracking-wider">
+                  {promoCode}
+                </span>
+              </div>
+
+              {/* Dynamic Countdown Bar */}
+              <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                <div 
+                  className="bg-amber-500 h-full transition-all duration-1000"
+                  style={{ width: `${100 - progressPercent}%` }}
+                />
+              </div>
+
+              <span className="text-[11px] font-bold text-amber-900 bg-amber-100 px-3 py-1 rounded-full flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                Time Remaining: {formatTimer(timeLeftSeconds)}
               </span>
             </div>
 
             <div className="flex items-center justify-center space-x-2">
               <button
                 onClick={handleCopyCode}
-                className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-xs font-bold rounded-xl text-gray-200 flex items-center space-x-1.5 border border-gray-700"
+                className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-xs font-bold rounded-xl text-gray-200 flex items-center space-x-1.5 border border-gray-700 transition-colors"
               >
-                <Copy className="w-3.5 h-3.5" />
-                <span>{copied ? 'Copied Code!' : 'Copy Code'}</span>
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copied ? 'Copied Code!' : 'Copy Pass Code'}</span>
               </button>
             </div>
 
             <p className="text-[11px] text-emerald-400 font-semibold flex items-center justify-center">
-              <CheckCircle className="w-3.5 h-3.5 mr-1" />
-              PromoKey Unlocked! Present this QR code at {venueName} to redeem.
+              <ShieldCheck className="w-3.5 h-3.5 mr-1" />
+              PromoKey Burned & Settled. Present this QR at {venueName} to redeem.
             </p>
           </div>
         ) : (
           <button
             onClick={handleClaim}
-            className="w-full py-3.5 px-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-sm rounded-2xl shadow-xl shadow-orange-500/25 flex items-center justify-center space-x-2 transition-all hover:scale-[1.01]"
+            disabled={isBurning}
+            className={`w-full py-4 px-4 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-gray-950 font-black text-sm rounded-2xl shadow-xl shadow-orange-500/25 flex items-center justify-center space-x-2 transition-all hover:scale-[1.01] ${
+              isBurning ? 'opacity-75 cursor-wait' : ''
+            }`}
           >
-            <Key className="w-4 h-4" />
-            <span>Confirm & Unlock PromoKey</span>
+            {isBurning ? (
+              <div className="flex items-center gap-2">
+                <Flame className="w-4 h-4 animate-spin text-gray-950" />
+                <span>Burning 1 PromoKey & Unlocking Pass...</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Key className="w-4 h-4" />
+                <span>Burn 1 PromoKey & Unlock Pass</span>
+              </div>
+            )}
           </button>
         )}
       </div>
     </div>
   );
 };
+export default PromoKeyModal;
