@@ -81,6 +81,19 @@ export function ExploreRewards() {
   const [newBrand, setNewBrand] = useState("");
   const [newPerk, setNewPerk] = useState("");
   const [newCategory, setNewCategory] = useState<"food" | "nightlife" | "retail" | "experience">("food");
+  const [venueDropdownOpen, setVenueDropdownOpen] = useState(false);
+
+  const venueSuggestions = useMemo(() => {
+    if (!newVenue.trim()) return VERIFIED_VENUES.slice(0, 5);
+    const q = newVenue.toLowerCase();
+    return VERIFIED_VENUES.filter(
+      (v) =>
+        v.name.toLowerCase().includes(q) ||
+        v.neighborhood.toLowerCase().includes(q) ||
+        v.location.toLowerCase().includes(q) ||
+        v.vibe.toLowerCase().includes(q)
+    );
+  }, [newVenue]);
 
   // Query real database moments that have active rewards attached
   const verifiedMomentsQuery = useQuery({
@@ -537,15 +550,17 @@ export function ExploreRewards() {
                 <span className="text-[10px] text-primary font-semibold">Verified Kingston Spots</span>
               </Label>
 
-              {/* Instant Search Input */}
+              {/* Instant Search Input with Live Autosuggest Dropdown */}
               <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
                 <input
                   type="text"
                   placeholder="Type any spot (e.g. Sweetwood, Dub Club, Chilitos, PriceSmart)..."
                   value={newVenue}
+                  onFocus={() => setVenueDropdownOpen(true)}
                   onChange={(e) => {
                     setNewVenue(e.target.value);
+                    setVenueDropdownOpen(true);
                     const match = VERIFIED_VENUES.find((v) =>
                       v.name.toLowerCase().includes(e.target.value.toLowerCase())
                     );
@@ -559,9 +574,79 @@ export function ExploreRewards() {
                       setNewBrand(match.name);
                     }
                   }}
-                  className="w-full rounded-2xl bg-white/5 border border-white/10 pl-10 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-primary transition h-11"
+                  className="w-full rounded-2xl bg-white/5 border border-white/10 pl-10 pr-10 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-primary transition h-11"
                   required
                 />
+                {newVenue && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewVenue("");
+                      setNewLocation("");
+                      setVenueDropdownOpen(true);
+                    }}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white text-xs font-bold"
+                  >
+                    &times;
+                  </button>
+                )}
+
+                {/* Live Floating Autosuggest Menu */}
+                {venueDropdownOpen && (
+                  <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl border border-white/15 bg-[#14151a] shadow-2xl overflow-hidden backdrop-blur-xl animate-in fade-in-50 zoom-in-95 duration-150">
+                    <div className="p-2 border-b border-white/5 bg-white/[0.02] flex items-center justify-between text-[10px] text-white/50 font-bold uppercase tracking-wider">
+                      <span>Verified Kingston Spots ({venueSuggestions.length})</span>
+                      <span>Tap to Auto-Select</span>
+                    </div>
+                    <div className="max-h-52 overflow-y-auto divide-y divide-white/5">
+                      {venueSuggestions.length === 0 ? (
+                        <div className="p-3 text-center text-xs text-white/50">
+                          <p>No verified spots matching "{newVenue}".</p>
+                          <p className="text-[11px] text-primary mt-0.5">You can proceed with this custom spot name.</p>
+                        </div>
+                      ) : (
+                        venueSuggestions.map((v) => (
+                          <button
+                            key={v.id}
+                            type="button"
+                            onClick={() => {
+                              setNewVenue(v.name);
+                              setNewLocation(v.location);
+                              setNewCategory(
+                                v.venue_type === "soundstage" || v.venue_type === "lounge"
+                                  ? "nightlife"
+                                  : "food"
+                              );
+                              setNewBrand(v.name);
+                              setVenueDropdownOpen(false);
+                            }}
+                            className="w-full p-2.5 hover:bg-white/5 text-left flex items-center gap-3 transition group"
+                          >
+                            <img
+                              src={v.image_url}
+                              alt={v.name}
+                              className="h-10 w-10 rounded-xl object-cover shrink-0 border border-white/10"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between gap-1">
+                                <p className="text-xs font-bold text-white group-hover:text-primary transition truncate">
+                                  {v.name}
+                                </p>
+                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">
+                                  {v.venue_type_label}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-white/50 flex items-center gap-1 truncate">
+                                <MapPin className="h-3 w-3 text-primary shrink-0" />
+                                <span>{v.location}</span>
+                              </p>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* 1-Tap Popular Kingston Spots */}
@@ -583,6 +668,7 @@ export function ExploreRewards() {
                             : "food"
                         );
                         setNewBrand(v.name);
+                        setVenueDropdownOpen(false);
                       }}
                       className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition text-left flex items-center gap-1.5 ${
                         newVenue === v.name
