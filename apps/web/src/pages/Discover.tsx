@@ -48,9 +48,8 @@ const categoryFilters = [
 ];
 
 const CURATED_COORDINATES: Record<string, { lat: number; lng: number }> = {
+  // Kingston & St. Andrew
   "00000000-0000-0000-0002-000000000060": { lat: 18.0435, lng: -76.8123 }, // PriceSmart Red Hills
-  "00000000-0000-0000-0002-000000000051": { lat: 18.4554, lng: -77.2023 }, // Plantation Cove
-  "00000000-0000-0000-0002-000000000052": { lat: 18.4554, lng: -77.2023 }, // Plantation Cove
   "00000000-0000-0000-0002-000000000001": { lat: 18.0267, lng: -76.7924 }, // Fiction Nightclub
   "00000000-0000-0000-0002-000000000002": { lat: 18.0267, lng: -76.7924 }, // Fiction Nightclub
   "00000000-0000-0000-0002-000000000025": { lat: 18.0270, lng: -76.7925 }, // Tracks & Records
@@ -59,10 +58,34 @@ const CURATED_COORDINATES: Record<string, { lat: number; lng: number }> = {
   "00000000-0000-0000-0002-000000000023": { lat: 18.0065, lng: -76.7865 }, // Pegasus
   "00000000-0000-0000-0002-000000000017": { lat: 18.0210, lng: -76.7725 }, // Chilitos JaMexican
   "00000000-0000-0000-0002-000000000018": { lat: 18.0145, lng: -76.7842 }, // AC Lounge
-  "00000000-0000-0000-0002-000000000004": { lat: 18.0465, lng: -76.7582 }, // Kingston Dub Club
+  "00000000-0000-0000-0002-000000000004": { lat: 18.0489, lng: -76.7587 }, // Kingston Dub Club
   "00000000-0000-0000-0002-000000000005": { lat: 18.0163, lng: -76.7915 }, // Devon House Gourmet
   "00000000-0000-0000-0002-000000000006": { lat: 18.0080, lng: -76.7890 }, // Janga's Soundbar
   "00000000-0000-0000-0002-000000000015": { lat: 17.9678, lng: -76.7910 }, // Downtown Art District
+
+  // Ocho Rios & St. Ann
+  "00000000-0000-0000-0002-000000000051": { lat: 18.4356, lng: -77.1645 }, // Plantation Cove
+  "00000000-0000-0000-0002-000000000052": { lat: 18.4356, lng: -77.1645 }, // Plantation Cove
+
+  // Montego Bay (St. James)
+  "00000000-0000-0000-0002-000000000071": { lat: 18.4716, lng: -77.9255 }, // Pier 1 MoBay
+  "00000000-0000-0000-0002-000000000072": { lat: 18.4839, lng: -77.9272 }, // Doctor's Cave MoBay
+  "00000000-0000-0000-0002-000000000073": { lat: 18.5208, lng: -77.8281 }, // Rose Hall MoBay
+
+  // Negril (Westmoreland)
+  "00000000-0000-0000-0002-000000000081": { lat: 18.2503, lng: -78.3697 }, // Rick's Cafe Negril
+  "00000000-0000-0000-0002-000000000082": { lat: 18.2925, lng: -78.3475 }, // Roots Bamboo Negril
+
+  // Port Antonio (Portland)
+  "00000000-0000-0000-0002-000000000091": { lat: 18.1565, lng: -76.3532 }, // Boston Bay Portland
+  "00000000-0000-0000-0002-000000000092": { lat: 18.1758, lng: -76.3942 }, // Frenchman's Cove Portland
+
+  // South Coast (St. Elizabeth)
+  "00000000-0000-0000-0002-000000000101": { lat: 17.8286, lng: -77.8188 }, // Floyd's Pelican Bar
+  "00000000-0000-0000-0002-000000000102": { lat: 17.8821, lng: -77.7592 }, // Jakes Treasure Beach
+
+  // Portmore (St. Catherine)
+  "00000000-0000-0000-0002-000000000111": { lat: 17.8931, lng: -76.8912 }, // Hellshire Beach Portmore
 };
 
 const DEFAULT_DISCOVER_CENTER = { lat: 18.0179, lng: -76.8099 };
@@ -582,36 +605,44 @@ const Discover = () => {
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div>
                     <h3 className="text-xl font-bold text-white">Curated Places & Cultural Venues</h3>
-                    <p className="text-xs text-white/50">Verified restaurants, lounges, and partner spots with member perks.</p>
+                    <p className="text-xs text-white/50">Verified restaurants, lounges, beach clubs, and cultural spots across Jamaica with member perks.</p>
                   </div>
+                  <span className="text-xs font-semibold text-white/50">{VERIFIED_VENUES.length} verified spots</span>
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  {CURATED_KINGSTON_MOMENTS.map((spot) => (
+                  {VERIFIED_VENUES.map((venue) => (
                     <div
-                      key={spot.id}
+                      key={venue.id}
                       className="group p-5 rounded-3xl border border-white/10 bg-white/5 hover:border-primary/40 transition flex flex-col justify-between space-y-4"
                     >
                       <div className="flex items-start gap-4">
                         <div className="h-16 w-16 rounded-2xl overflow-hidden bg-black shrink-0 relative">
-                          <img src={spot.image} alt={spot.title} className="h-full w-full object-cover" />
+                          <img src={venue.image_url} alt={venue.name} className="h-full w-full object-cover" />
                         </div>
                         <div className="space-y-1 min-w-0">
-                          <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-bold">
-                            Verified Venue
-                          </Badge>
-                          <h4 className="text-base font-bold text-white truncate">{spot.venueName}</h4>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-bold">
+                              {venue.city}
+                            </Badge>
+                            <Badge variant="outline" className="border-white/15 text-white/60 text-[10px]">
+                              {venue.venue_type_label}
+                            </Badge>
+                          </div>
+                          <h4 className="text-base font-bold text-white truncate">{venue.name}</h4>
                           <p className="text-xs text-white/60 flex items-center gap-1">
                             <MapPin className="h-3 w-3 text-primary shrink-0" />
-                            <span className="truncate">{spot.location}</span>
+                            <span className="truncate">{venue.location}</span>
                           </p>
                         </div>
                       </div>
                       <p className="text-xs text-white/70 line-clamp-2 leading-relaxed">
-                        {spot.description}
+                        {venue.vibe}
                       </p>
                       <Button asChild variant="outline" className="w-full rounded-2xl border-white/15 bg-white/5 text-white hover:bg-primary hover:border-primary font-bold text-xs">
-                        <Link to={`/moments/${spot.id}`}>Explore Venue Perks</Link>
+                        <a href={`https://maps.google.com/?q=${venue.latitude},${venue.longitude}`} target="_blank" rel="noopener noreferrer">
+                          View Location &amp; Directions ↗
+                        </a>
                       </Button>
                     </div>
                   ))}
