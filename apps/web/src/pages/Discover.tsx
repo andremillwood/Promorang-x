@@ -60,7 +60,7 @@ const CURATED_COORDINATES: Record<string, { lat: number; lng: number }> = {
   "00000000-0000-0000-0002-000000000018": { lat: 18.0145, lng: -76.7842 }, // AC Lounge
   "00000000-0000-0000-0002-000000000004": { lat: 18.0489, lng: -76.7587 }, // Kingston Dub Club
   "00000000-0000-0000-0002-000000000005": { lat: 18.0163, lng: -76.7915 }, // Devon House Gourmet
-  "00000000-0000-0000-0002-000000000006": { lat: 18.0080, lng: -76.7890 }, // Janga's Soundbar
+  "00000000-0000-0000-0002-000000000006": { lat: 18.0038, lng: -76.7885 }, // Janga's Soundbar (22 Belmont Rd)
   "00000000-0000-0000-0002-000000000015": { lat: 17.9678, lng: -76.7910 }, // Downtown Art District
 
   // Ocho Rios & St. Ann

@@ -169,7 +169,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
     const icon = {
       url: PIN_SVG("#ff5500"),
       scaledSize: new google.maps.Size(36, 36),
-      anchor: new google.maps.Point(18, 36),
+      anchor: new google.maps.Point(18, 33),
     };
 
     // Fallback single pin when no markers
