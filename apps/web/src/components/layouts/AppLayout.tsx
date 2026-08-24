@@ -47,6 +47,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         location.pathname === path || location.pathname.startsWith(path + "/")
     ) || ["/growth", "/organizer"].includes(location.pathname);
 
+    // Consumer preview routes provide their own canonical participant shell and
+    // must not inherit DashboardLayout or the marketing header/footer.
+    const isConsumerPreview = location.pathname === "/app-preview" || location.pathname.startsWith("/app-preview/");
+
     // Organizer sub-routes provide their own full workspace shell. Rendering them
     // inside DashboardLayout creates a participant sidebar/header around the
     // organizer sidebar and constrains the workspace inside a second container.
@@ -56,7 +60,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname);
     const showFooterCta = !["/live", "/pulse"].includes(location.pathname);
 
-    if (isOrganizerWorkspace) {
+    if (isConsumerPreview || isOrganizerWorkspace) {
         return <>{children || <Outlet />}</>;
     }
 
