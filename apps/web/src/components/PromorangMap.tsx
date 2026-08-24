@@ -163,21 +163,21 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
     let isMounted = true;
 
     loadGoogleMapsScript(apiKey)
-      .then((gMaps) => {
+      .then(async () => {
         if (!isMounted || !mapContainerRef.current) return;
 
-        const map = new gMaps.Map(mapContainerRef.current, {
+        const { Map } = (await google.maps.importLibrary("maps")) as google.maps.MapsLibrary;
+
+        if (!isMounted || !mapContainerRef.current) return;
+
+        const map = new Map(mapContainerRef.current, {
           center: { lat: center?.lat ?? DEFAULT_CENTER.lat, lng: center?.lng ?? DEFAULT_CENTER.lng },
           zoom: zoom,
           mapId: "DEMO_MAP_ID",
           styles: GOOGLE_DARK_STYLES,
           disableDefaultUI: !interactive,
           zoomControl: interactive,
-          mapTypeControl: true,
-          mapTypeControlOptions: {
-            position: gMaps.ControlPosition.TOP_LEFT,
-            style: gMaps.MapTypeControlStyle.HORIZONTAL_BAR,
-          },
+          mapTypeControl: interactive,
           streetViewControl: false,
           fullscreenControl: interactive,
           gestureHandling: interactive ? "greedy" : "none",
@@ -205,164 +205,185 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
   useEffect(() => {
     if (!mapInstanceRef.current || !mapLoaded || !window.google?.maps) return;
 
-    const map = mapInstanceRef.current;
+    let isMounted = true;
 
-    // Clear previous markers
-    activeMarkersRef.current.forEach((m) => {
-      if (m.map) m.map = null;
-      if (typeof m.setMap === "function") m.setMap(null);
-    });
-    activeMarkersRef.current = [];
+    const renderMarkers = async () => {
+      const map = mapInstanceRef.current;
+      if (!map) return;
 
-    const createPinElement = (isSelected: boolean) => {
-      const pinDiv = document.createElement("div");
-      pinDiv.className = "promorang-map-pin-el";
-      pinDiv.style.cursor = "pointer";
-      pinDiv.innerHTML = `
-        <div style="
-          position: relative;
-          width: 32px;
-          height: 32px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        ">
-          <div style="
-            position: absolute;
-            width: 28px;
-            height: 28px;
-            background: ${isSelected ? "#22c55e" : "#ff5500"};
-            border: 2.5px solid #ffffff;
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            box-shadow: 0 0 16px ${isSelected ? "rgba(34, 197, 94, 0.7)" : "rgba(255, 85, 0, 0.7)"}, 0 4px 10px rgba(0,0,0,0.6);
-          "></div>
-          <div style="
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: #ffffff;
-            border-radius: 50%;
-            z-index: 2;
-          "></div>
-        </div>
-      `;
-      return pinDiv;
-    };
-
-    if (markers.length === 0 && center) {
-      if (google.maps.marker?.AdvancedMarkerElement) {
-        const fallbackMarker = new google.maps.marker.AdvancedMarkerElement({
-          map,
-          position: { lat: center.lat, lng: center.lng },
-          content: createPinElement(false),
-        });
-        activeMarkersRef.current.push(fallbackMarker);
-      } else {
-        const fallbackMarker = new google.maps.Marker({
-          position: { lat: center.lat, lng: center.lng },
-          map,
-        });
-        activeMarkersRef.current.push(fallbackMarker);
-      }
-      return;
-    }
-
-    markers.forEach((m) => {
-      let marker: any;
-
-      if (google.maps.marker?.AdvancedMarkerElement) {
-        marker = new google.maps.marker.AdvancedMarkerElement({
-          map,
-          position: { lat: m.lat, lng: m.lng },
-          title: m.title,
-          content: createPinElement(false),
-        });
-      } else {
-        marker = new google.maps.Marker({
-          position: { lat: m.lat, lng: m.lng },
-          map,
-          title: m.title,
-        });
-      }
-
-      const popupContent = `
-        <div style="
-          padding: 12px;
-          min-width: 220px;
-          max-width: 280px;
-          font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          color: #18181b;
-        ">
-          ${m.category ? `
-            <span style="
-              display: inline-block;
-              font-size: 9px;
-              font-weight: 800;
-              text-transform: uppercase;
-              letter-spacing: 0.05em;
-              padding: 2px 8px;
-              border-radius: 9999px;
-              background: #ffedd5;
-              color: #c2410c;
-              margin-bottom: 6px;
-            ">${m.category}</span>
-          ` : ''}
-          <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 800; line-height: 1.25; color: #09090b;">
-            ${m.title}
-          </h4>
-          ${m.subtitle ? `
-            <p style="margin: 0 0 6px 0; font-size: 11px; color: #52525b; line-height: 1.3;">
-              ${m.subtitle}
-            </p>
-          ` : ''}
-          ${m.reward ? `
-            <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: 700; color: #059669;">
-              🏆 ${m.reward}
-            </p>
-          ` : ''}
-          <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #e4e4e7; padding-top: 8px; margin-top: 6px;">
-            <a href="/moments/${m.id}" style="
-              font-size: 11px;
-              font-weight: 800;
-              color: #ff5500;
-              text-decoration: none;
-            ">
-              View & RSVP →
-            </a>
-            <a href="https://maps.google.com/?q=${m.lat},${m.lng}" target="_blank" rel="noopener noreferrer" style="
-              font-size: 10px;
-              font-weight: 600;
-              color: #71717a;
-              text-decoration: none;
-            ">
-              Directions ↗
-            </a>
-          </div>
-        </div>
-      `;
-
-      const infoWindow = new google.maps.InfoWindow({
-        content: popupContent,
+      // Clear previous markers
+      activeMarkersRef.current.forEach((m) => {
+        if (m.map) m.map = null;
+        if (typeof m.setMap === "function") m.setMap(null);
       });
+      activeMarkersRef.current = [];
 
-      marker.addListener("click", () => {
-        if (activeInfoWindowRef.current) {
-          activeInfoWindowRef.current.close();
-        }
-        if (google.maps.marker?.AdvancedMarkerElement && marker instanceof google.maps.marker.AdvancedMarkerElement) {
-          infoWindow.open({
-            anchor: marker,
+      const createPinElement = (isSelected: boolean) => {
+        const pinDiv = document.createElement("div");
+        pinDiv.className = "promorang-map-pin-el";
+        pinDiv.style.cursor = "pointer";
+        pinDiv.innerHTML = `
+          <div style="
+            position: relative;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">
+            <div style="
+              position: absolute;
+              width: 28px;
+              height: 28px;
+              background: ${isSelected ? "#22c55e" : "#ff5500"};
+              border: 2.5px solid #ffffff;
+              border-radius: 50% 50% 50% 0;
+              transform: rotate(-45deg);
+              box-shadow: 0 0 16px ${isSelected ? "rgba(34, 197, 94, 0.7)" : "rgba(255, 85, 0, 0.7)"}, 0 4px 10px rgba(0,0,0,0.6);
+            "></div>
+            <div style="
+              position: absolute;
+              width: 8px;
+              height: 8px;
+              background: #ffffff;
+              border-radius: 50%;
+              z-index: 2;
+            "></div>
+          </div>
+        `;
+        return pinDiv;
+      };
+
+      let AdvancedMarkerElement: any = null;
+      try {
+        const markerLib = (await google.maps.importLibrary("marker")) as any;
+        AdvancedMarkerElement = markerLib?.AdvancedMarkerElement;
+      } catch (e) {
+        console.warn("AdvancedMarkerElement not available, using fallback", e);
+      }
+
+      if (!isMounted) return;
+
+      if (markers.length === 0 && center) {
+        if (AdvancedMarkerElement) {
+          const fallbackMarker = new AdvancedMarkerElement({
+            map,
+            position: { lat: center.lat, lng: center.lng },
+            content: createPinElement(false),
+          });
+          activeMarkersRef.current.push(fallbackMarker);
+        } else {
+          const fallbackMarker = new google.maps.Marker({
+            position: { lat: center.lat, lng: center.lng },
             map,
           });
-        } else {
-          infoWindow.open(map, marker);
+          activeMarkersRef.current.push(fallbackMarker);
         }
-        activeInfoWindowRef.current = infoWindow;
-      });
+        return;
+      }
 
-      activeMarkersRef.current.push(marker);
-    });
+      markers.forEach((m) => {
+        let marker: any;
+
+        if (AdvancedMarkerElement) {
+          marker = new AdvancedMarkerElement({
+            map,
+            position: { lat: m.lat, lng: m.lng },
+            title: m.title,
+            content: createPinElement(false),
+          });
+        } else {
+          marker = new google.maps.Marker({
+            position: { lat: m.lat, lng: m.lng },
+            map,
+            title: m.title,
+          });
+        }
+
+        const popupContent = `
+          <div style="
+            padding: 12px;
+            min-width: 220px;
+            max-width: 280px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #18181b;
+          ">
+            ${m.category ? `
+              <span style="
+                display: inline-block;
+                font-size: 9px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                padding: 2px 8px;
+                border-radius: 9999px;
+                background: #ffedd5;
+                color: #c2410c;
+                margin-bottom: 6px;
+              ">${m.category}</span>
+            ` : ''}
+            <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 800; line-height: 1.25; color: #09090b;">
+              ${m.title}
+            </h4>
+            ${m.subtitle ? `
+              <p style="margin: 0 0 6px 0; font-size: 11px; color: #52525b; line-height: 1.3;">
+                ${m.subtitle}
+              </p>
+            ` : ''}
+            ${m.reward ? `
+              <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: 700; color: #059669;">
+                🏆 ${m.reward}
+              </p>
+            ` : ''}
+            <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #e4e4e7; padding-top: 8px; margin-top: 6px;">
+              <a href="/moments/${m.id}" style="
+                font-size: 11px;
+                font-weight: 800;
+                color: #ff5500;
+                text-decoration: none;
+              ">
+                View & RSVP →
+              </a>
+              <a href="https://maps.google.com/?q=${m.lat},${m.lng}" target="_blank" rel="noopener noreferrer" style="
+                font-size: 10px;
+                font-weight: 600;
+                color: #71717a;
+                text-decoration: none;
+              ">
+                Directions ↗
+              </a>
+            </div>
+          </div>
+        `;
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: popupContent,
+        });
+
+        marker.addListener("click", () => {
+          if (activeInfoWindowRef.current) {
+            activeInfoWindowRef.current.close();
+          }
+          if (AdvancedMarkerElement && marker instanceof AdvancedMarkerElement) {
+            infoWindow.open({
+              anchor: marker,
+              map,
+            });
+          } else {
+            infoWindow.open(map, marker);
+          }
+          activeInfoWindowRef.current = infoWindow;
+        });
+
+        activeMarkersRef.current.push(marker);
+      });
+    };
+
+    renderMarkers();
+
+    return () => {
+      isMounted = false;
+    };
   }, [markers, mapLoaded, center]);
 
   const handleGeolocate = () => {
