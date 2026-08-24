@@ -5,6 +5,7 @@ import ConsumerObjectCard from "@/components/consumer/ConsumerObjectCard";
 import type { DiscoveryObject, MomentObject, SceneObject } from "@/lib/consumer-canonical";
 import { supabase } from "@/integrations/supabase/client";
 import { useConsumerHomeLiveData } from "@/hooks/useConsumerHomeLiveData";
+import { useConsumerInteractions } from "@/hooks/useConsumerInteractions";
 
 const fallbackMoment: MomentObject = {
   id: "preview-ilhh",
@@ -35,6 +36,7 @@ const formatMomentTime = (value?: string | null) => {
 
 const ConsumerHomePreview = () => {
   const live = useConsumerHomeLiveData();
+  const interactions = useConsumerInteractions();
   const { user, profile } = live;
 
   const liveMoments = useQuery({
@@ -76,16 +78,16 @@ const ConsumerHomePreview = () => {
     };
   }, [liveMoments.data]);
 
+  const rawScenes = live.scenes.data || [];
   const sceneObjects = useMemo<SceneObject[]>(() => {
-    const rows = live.scenes.data || [];
-    if (!rows.length) {
+    if (!rawScenes.length) {
       return [
         { id: "scene-kad", kind: "scene", title: "Kingston After Dark", subtitle: "Nightlife, selectors, late food and after-hours culture.", href: "/scenes/kingston-after-dark" },
         { id: "scene-food", kind: "scene", title: "Food & Taste", subtitle: "Places worth trying, tastings and food moments.", href: "/scenes/food-and-taste" },
         { id: "scene-move", kind: "scene", title: "Move Jamaica", subtitle: "Weekend movement, outdoors and worth-the-drive discoveries.", href: "/scenes/move-jamaica" },
       ];
     }
-    return rows.map((scene: any) => ({
+    return rawScenes.map((scene: any) => ({
       id: scene.id,
       kind: "scene" as const,
       title: scene.title,
@@ -96,7 +98,7 @@ const ConsumerHomePreview = () => {
       signalCount: Number(scene.signal_count || 0),
       trendingCount: Number(scene.trending_count || 0),
     }));
-  }, [live.scenes.data]);
+  }, [rawScenes]);
 
   const discoveryObjects = useMemo<DiscoveryObject[]>(() => {
     return (live.discoveries.data || []).slice(0, 3).map((item: any) => ({
@@ -150,6 +152,16 @@ const ConsumerHomePreview = () => {
       <section className="grid gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,.7fr)] lg:gap-10">
         <div>
           <ConsumerObjectCard item={featuredMoment} emphasis="feature" />
+          <div className="mt-3 flex flex-wrap gap-2">
+            <a href={featuredMoment.href || "/discover"} className="rounded-full bg-primary px-4 py-2 text-sm font-black text-primary-foreground">Open Moment</a>
+            <button
+              type="button"
+              onClick={() => interactions.shareInvite(referralCode)}
+              className="rounded-full border border-border bg-card px-4 py-2 text-sm font-black hover:border-primary hover:text-primary"
+            >
+              Invite someone
+            </button>
+          </div>
 
           {live.plans.length > 0 && (
             <section className="mt-8 border-y border-border py-5">
@@ -174,7 +186,24 @@ const ConsumerHomePreview = () => {
               <a href="/scenes" className="hidden text-sm font-semibold text-muted-foreground hover:text-primary sm:block">Explore all</a>
             </div>
             <div className="grid gap-5 md:grid-cols-3">
-              {sceneObjects.map((scene) => <ConsumerObjectCard key={scene.id} item={scene} />)}
+              {sceneObjects.map((scene, index) => {
+                const rawScene = rawScenes[index];
+                return (
+                  <div key={scene.id}>
+                    <ConsumerObjectCard item={scene} />
+                    {rawScene && (
+                      <button
+                        type="button"
+                        disabled={interactions.joinScene.isPending}
+                        onClick={() => interactions.joinScene.mutate(rawScene)}
+                        className="mt-2 w-full rounded-full border border-border bg-card px-3 py-2 text-xs font-black hover:border-primary hover:text-primary disabled:opacity-50"
+                      >
+                        Join Scene
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -207,9 +236,21 @@ const ConsumerHomePreview = () => {
                 { id: "maybe", label: "Maybe" },
                 { id: "no", label: "Not for me" },
               ]).map((option: any) => (
-                <a key={option.id} href="/discover?tab=polls" className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-bold transition hover:border-primary hover:text-primary">
-                  {option.label}{option.votes ? ` · ${option.votes}` : ""}
-                </a>
+                poll?.id ? (
+                  <button
+                    key={option.id}
+                    type="button"
+                    disabled={interactions.votePoll.isPending}
+                    onClick={() => interactions.votePoll.mutate({ pollId: poll.id, optionId: option.id })}
+                    className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-bold transition hover:border-primary hover:text-primary disabled:opacity-50"
+                  >
+                    {option.label}{option.votes ? ` · ${option.votes}` : ""}
+                  </button>
+                ) : (
+                  <a key={option.id} href="/discover?tab=polls" className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-bold transition hover:border-primary hover:text-primary">
+                    {option.label}
+                  </a>
+                )
               ))}
             </div>
           </section>
@@ -221,6 +262,9 @@ const ConsumerHomePreview = () => {
               <a href="/rewards" className="rounded-full bg-primary px-4 py-2.5 text-sm font-black text-primary-foreground">Rewards</a>
             </div>
             <p className="mt-4 text-sm leading-6 text-muted-foreground">{activeKeys.length} active access {activeKeys.length === 1 ? "perk" : "perks"}{activeKeys[0] ? ` · ${activeKeys[0].venue_name}` : ""}.</p>
+            {activeKeys[0] && (
+              <a href="/access" className="mt-3 inline-flex rounded-full border border-primary/30 px-3 py-2 text-xs font-black text-primary">Open access pass →</a>
+            )}
           </section>
 
           <section className="border-t border-border pt-5">
@@ -231,7 +275,13 @@ const ConsumerHomePreview = () => {
               <div className="bg-card p-3"><strong className="block text-xl">{referralStats?.referrals.totalSignups || 0}</strong><span className="text-[10px] text-muted-foreground">Joined</span></div>
               <div className="bg-card p-3"><strong className="block text-xl">{referralStats?.referrals.totalConversions || 0}</strong><span className="text-[10px] text-muted-foreground">Active</span></div>
             </div>
-            <a href="/growth/referrals" className="mt-4 inline-flex text-sm font-black text-primary">{referralCode ? `Invite with ${referralCode} →` : "Invite friends →"}</a>
+            <button
+              type="button"
+              onClick={() => interactions.shareInvite(referralCode)}
+              className="mt-4 inline-flex rounded-full bg-primary px-4 py-2.5 text-sm font-black text-primary-foreground"
+            >
+              {referralCode ? `Invite with ${referralCode}` : "Invite friends"}
+            </button>
           </section>
 
           <section className="border-t border-border pt-5">
@@ -240,6 +290,7 @@ const ConsumerHomePreview = () => {
               <div><strong className="text-3xl tracking-[-0.04em]">{piecePositions.length}</strong><p className="text-sm text-muted-foreground">Piece positions</p></div>
               <div className="text-right"><strong className="text-lg">{Number(live.pieces.data?.total_value || 0).toFixed(0)}</strong><p className="text-xs text-muted-foreground">Gems value</p></div>
             </div>
+            <p className="mt-3 text-xs leading-5 text-muted-foreground">Verified participation can surface here as durable cultural proof instead of as another onboarding concept.</p>
             <a href="/portfolio" className="mt-4 inline-flex text-sm font-black text-primary">Open your Pieces →</a>
           </section>
         </aside>
