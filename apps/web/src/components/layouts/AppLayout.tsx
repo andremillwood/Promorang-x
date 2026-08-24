@@ -19,7 +19,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     const [showRankCelebration, setShowRankCelebration] = useState(false);
     const [currentRank, setCurrentRank] = useState<number | null>(null);
 
-    // Track rank changes for celebration
     useEffect(() => {
         if (profile?.maturity_state !== undefined) {
             const lastRank = localStorage.getItem("promorang_last_seen_rank");
@@ -30,13 +29,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 setShowRankCelebration(true);
                 localStorage.setItem("promorang_last_seen_rank", profile.maturity_state.toString());
             } else if (lastRank === null) {
-                // Initialize if first time
                 localStorage.setItem("promorang_last_seen_rank", profile.maturity_state.toString());
             }
         }
     }, [profile?.maturity_state]);
 
-    // Define routes that should always use the marketing layout or NO layout
     const marketingRoutes = [
         "/", "/for-communities", "/for-brands", "/for-creators", "/for-merchants", "/for-agencies", "/for-enterprise", "/for-causes",
         "/auth", "/onboarding", "/propose", "/strategies", "/bounties",
@@ -49,14 +46,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     // Consumer preview routes provide their own canonical participant shell and
     // must not inherit DashboardLayout or the marketing header/footer.
-    const isConsumerPreview = location.pathname === "/app-preview" || location.pathname.startsWith("/app-preview/");
+    const previewMode = new URLSearchParams(location.search).get("preview");
+    const isConsumerPreview =
+        location.pathname === "/app-preview" ||
+        location.pathname.startsWith("/app-preview/") ||
+        (location.pathname === "/" && previewMode === "consumer");
 
-    // Organizer sub-routes provide their own full workspace shell. Rendering them
-    // inside DashboardLayout creates a participant sidebar/header around the
-    // organizer sidebar and constrains the workspace inside a second container.
     const isOrganizerWorkspace = location.pathname.startsWith("/organizer/");
-
-    // Auth and Onboarding are special "clean" pages
     const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname);
     const showFooterCta = !["/live", "/pulse"].includes(location.pathname);
 
@@ -64,8 +60,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         return <>{children || <Outlet />}</>;
     }
 
-    // If we are on a marketing route, we MUST NOT wrap with DashboardLayout
-    // DashboardLayout contains its own Header/Footer logic which might be conflicting
     if (isMarketingRoute) {
         return (
             <div className="flex min-h-screen flex-col overflow-x-clip">
@@ -95,7 +89,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         );
     }
 
-    // Default marketing layout for public visitors
     return (
         <div className="min-h-screen flex flex-col bg-background overflow-x-clip">
             {!isCleanPage && <Header />}
