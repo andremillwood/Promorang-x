@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   ArrowRight,
   Building2,
-  Calendar,
   CheckCircle2,
   ChevronRight,
-  Clock,
   Coins,
   Compass,
   FileText,
@@ -28,14 +26,14 @@ import {
   Upload,
   UserCheck,
   Users,
+  Vault,
   WalletCards,
   Zap,
 } from "lucide-react";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { revenueLines, moneyBoundaries } from "@/lib/revenue-model";
+import { moneyBoundaries } from "@/lib/revenue-model";
 
 type ConceptKey =
   | "overview"
@@ -71,16 +69,69 @@ type Highlight = {
 };
 
 const navigationLinks = [
-  { label: "Ecosystem", slug: "overview", path: "/economy" },
-  { label: "Moments", slug: "moments", path: "/economy/moments" },
-  { label: "Points & Rank", slug: "points", path: "/economy/points" },
-  { label: "PromoKeys", slug: "keys", path: "/economy/keys" },
-  { label: "Master Key", slug: "master-key", path: "/economy/master-key" },
-  { label: "Pieces", slug: "pieces", path: "/economy/pieces" },
-  { label: "Content & Missions", slug: "content", path: "/economy/content" },
-  { label: "Tickets & Gems", slug: "promoshare-gems", path: "/economy/promoshare-gems" },
-  { label: "Crew & Network", slug: "network", path: "/economy/network" },
-  { label: "Sustainability & Fees", slug: "sustainability", path: "/economy/sustainability" },
+  { label: "Ecosystem Architecture", slug: "overview", path: "/economy" },
+  { label: "Moments (Physical Anchor)", slug: "moments", path: "/economy/moments" },
+  { label: "Points & Rank (Merit)", slug: "points", path: "/economy/points" },
+  { label: "PromoKeys (Scarcity Gate)", slug: "keys", path: "/economy/keys" },
+  { label: "Master Key (Daily Pulse)", slug: "master-key", path: "/economy/master-key" },
+  { label: "Pieces (Cultural Equity)", slug: "pieces", path: "/economy/pieces" },
+  { label: "Missions & UGC", slug: "content", path: "/economy/content" },
+  { label: "Tickets & Funded Gems", slug: "promoshare-gems", path: "/economy/promoshare-gems" },
+  { label: "Crew & Social Multipliers", slug: "network", path: "/economy/network" },
+  { label: "3-Ledgers & Escrow", slug: "sustainability", path: "/economy/sustainability" },
+];
+
+const assetPrimitives = [
+  {
+    name: "Points",
+    icon: Coins,
+    color: "text-amber-400 border-amber-500/30 bg-amber-500/10",
+    role: "Merit, Standing & XP",
+    supply: "Infinite Velocity, Seasonal Reset",
+    monetaryRisk: "Zero (Free effort-based)",
+    burnMechanic: "500 Points burned per PromoKey minted",
+    summary: "Non-transferable internal score reflecting verified physical presence, consistency, and community trust.",
+  },
+  {
+    name: "PromoKeys",
+    icon: KeyRound,
+    color: "text-primary border-primary/30 bg-primary/10",
+    role: "Scarcity & Opportunity Gating",
+    supply: "Capped Daily Mint (Max 3/day)",
+    monetaryRisk: "Zero (Purely effort-minted)",
+    burnMechanic: "100% Burned upon unlocking high-tier drops",
+    summary: "Deflationary access tokens required to unlock sponsored prize vaults, VIP tables, and exclusive drops.",
+  },
+  {
+    name: "Master Key",
+    icon: Flame,
+    color: "text-orange-400 border-orange-500/30 bg-orange-500/10",
+    role: "Daily Active User Velocity",
+    supply: "24-Hour Rolling Pulse",
+    monetaryRisk: "Zero (Requires 1 daily verified action)",
+    burnMechanic: "Decays after 24h if no active proof provided",
+    summary: "Daily active streak mechanism ensuring continuous network liquidity and live platform engagement.",
+  },
+  {
+    name: "Pieces",
+    icon: Sparkles,
+    color: "text-purple-400 border-purple-500/30 bg-purple-500/10",
+    role: "Cultural Equity & Memorabilia",
+    supply: "Limited Edition Fixed Caps (e.g. 50–500)",
+    monetaryRisk: "Marketplace Secondary Trading",
+    burnMechanic: "1% Atomic Protocol Fee on P2P settlement",
+    summary: "Collectible digital relics from landmark events granting perpetual host utility, VIP lines, and tradeability.",
+  },
+  {
+    name: "PromoShare Gems",
+    icon: Gem,
+    color: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
+    role: "Funded Liquidity & Payouts",
+    supply: "100% Sponsor Escrow Backed",
+    monetaryRisk: "Fully Collateralized Escrow",
+    burnMechanic: "Redeemed for real-world products, perks, or cashouts",
+    summary: "Liquid reward units funded upfront by brand campaign deposits with transparent on-chain audit trails.",
+  },
 ];
 
 const conceptData: Record<
@@ -99,631 +150,631 @@ const conceptData: Record<
   }
 > = {
   overview: {
-    eyebrow: "The Promorang Ecosystem",
-    headline: "Turn real-world presence into lasting value.",
+    eyebrow: "Promorang Economic Architecture & Flywheel",
+    headline: "A closed-loop, proof-of-presence economy backed by real-world activity.",
     subhead:
-      "Promorang connects people, places, and brands through real moments. When you show up, share, or host, your real-world activity generates visible standing, exclusive perks, and tangible rewards.",
+      "Promorang bridges brand capital, venue foot traffic, and participant loyalty through cryptographic proof of physical presence. Unlike ad networks that monetize passive screen time or token schemes with unbacked emissions, Promorang's economy is 100% funded by verified real-world activations and commercial demand.",
     whyItMatters:
-      "Online feeds reward passive scrolling. Promorang rewards lived experience: attending gatherings, completing missions, supporting local venues, and sharing authentic culture.",
-    primaryCta: { label: "Explore Live Moments", href: "/explore/moments" },
-    secondaryCta: { label: "Host a Moment", href: "/create/moment" },
+      "Digital attention is zero-sum, easily bot-faked, and extractive. By anchoring incentives to verified physical presence and cultural contributions, Promorang creates a non-dilutive, sustainable economic engine where every reward is fully funded before it is earned.",
+    primaryCta: { label: "Explore Flywheel Simulator", href: "#macro-flywheel" },
+    secondaryCta: { label: "Schedule Enterprise Briefing", href: "/for-brands" },
     roles: [
       {
-        role: "For Attendees",
-        badge: "Discover & Earn",
-        why: "You want unforgettable experiences and recognition for showing up.",
+        role: "For Capital Allocators & Brands",
+        badge: "Measurable ROAS & Verifiable CAC",
+        why: "Digital ads suffer from rampant bot fraud, low conversion, and opaque attribution.",
         outcome:
-          "Check in at moments, earn Points, mint PromoKeys, and unlock high-value sponsor rewards and VIP access.",
-        action: "Find Moments Near You",
-        href: "/explore/moments",
+          "Convert sponsorship capital into verified physical foot traffic and authentic creator UGC with segregated escrow and real-time proof-of-presence receipts.",
+        action: "Explore Brand Architecture",
+        href: "/for-brands",
       },
       {
-        role: "For Hosts & Venues",
-        badge: "Pack Rooms & Build Loyalty",
-        why: "You need more than a flyer and a headcount.",
+        role: "For Venue Operators & Hosts",
+        badge: "Crowd Velocity & Zero Upfront Risk",
+        why: "Venues need predictable patron velocity, repeat customers, and high-energy off-peak crowds.",
         outcome:
-          "Reward attendees for showing up on time, refer friends, post content, and turn one-time guests into permanent regulars.",
-        action: "Create Your First Moment",
+          "Fill slow timeframes with gamified check-in missions, recruit local ambassadors, and monetize event culture via limited Piece editions.",
+        action: "Explore Host Tools",
         href: "/create/moment",
       },
       {
-        role: "For Brands & Creators",
-        badge: "Funded Activations",
-        why: "You need sponsorship and creator missions that spark verified real-world actions.",
+        role: "For Participants & Creators",
+        badge: "Merit-Based Value & Standing",
+        why: "Social platforms extract user attention and data without sharing economic value.",
         outcome:
-          "Sponsor moments, reward UGC creators, distribute funded Gems, and track authentic foot traffic and engagement.",
-        action: "Explore Brand Hub",
-        href: "/for-brands",
+          "Convert real-world energy, presence, and content into provable status, sponsor-backed Gems, and exclusive VIP privileges without paying to win.",
+        action: "Explore Live Moments",
+        href: "/explore/moments",
       },
     ],
     highlights: [
       {
-        icon: Ticket,
-        title: "1. Real Moments",
-        description: "Events, drops, tasting rituals, and creator missions in your city.",
+        icon: Vault,
+        title: "1. 100% Escrow Collateralized",
+        description: "Every Gem bounty and prize pool is deposited upfront in segregated escrow—zero unbacked token emissions.",
       },
       {
-        icon: Sparkles,
-        title: "2. Verified Proof",
-        description: "Leave a digital Mark when you arrive or contribute—no fake check-ins.",
+        icon: ShieldCheck,
+        title: "2. Anti-Sybil Proof of Presence",
+        description: "Geofenced QR Marks and receipt causality trees prevent bots and fake check-ins from draining budgets.",
       },
       {
-        icon: Gem,
-        title: "3. Real Perks & Gems",
-        description: "Convert energy into rank, PromoKeys, sponsor perks, and collectible pieces.",
+        icon: TrendingUp,
+        title: "3. Non-Dilutive Credit Velocity",
+        description: "Points act as non-transferable merit; PromoKeys burn upon entry to preserve perpetual asset scarcity.",
       },
     ],
     steps: [
-      { label: "01", title: "Show Up", text: "Find a live moment or drop in your city and participate in person." },
-      { label: "02", title: "Prove It", text: "Check in with a QR code or submit creator proof to register your Mark." },
-      { label: "03", title: "Level Up", text: "Collect points, activate your daily streak, and unlock exclusive rewards." },
+      { label: "01", title: "Capital Inflow & Escrow", text: "Brands and merchants deposit activation budgets directly into segregated, audited escrow contracts." },
+      { label: "02", title: "Physical Proof Verified", text: "Participants check in at partner venues, verify their presence via Mark QR, or submit authentic UGC missions." },
+      { label: "03", title: "Automated Value Settlement", text: "Escrowed rewards and standing settle automatically to participants, driving direct foot-traffic revenue to venues." },
     ],
-    tagline: "The simple truth: when you leave the feed and live in the real world, your presence should pay off.",
+    tagline: "Real-world presence is the ultimate scarce asset. We built the economic infrastructure to reward it.",
   },
 
   moments: {
-    eyebrow: "The Core Primitive",
-    headline: "Moments are the real-world experiences everything connects to.",
+    eyebrow: "The Physical Anchor",
+    headline: "Moments bind economic value to real-world coordinates.",
     subhead:
-      "A Moment is an event, secret drop, dining ritual, creator mission, or neighborhood gathering. It’s the reason to close your apps, step outside, and connect with real people.",
+      "A Moment is an event, secret drop, tasting ritual, creator mission, or neighborhood activation. It serves as the physical proof-of-presence anchor connecting sponsor capital, venue capacity, and community participation.",
     whyItMatters:
-      "Every reward, ticket, piece of content, and point in Promorang is anchored to a real Moment. Without real moments, points are just numbers on a screen.",
-    primaryCta: { label: "Browse Live Moments", href: "/explore/moments" },
-    secondaryCta: { label: "Create a Moment", href: "/create/moment" },
+      "Without a verified physical anchor, digital reward points become speculative numbers. Moments guarantee that economic transactions reflect genuine human movement and local business patronage.",
+    primaryCta: { label: "Explore Moment Network", href: "/explore/moments" },
+    secondaryCta: { label: "Host a Moment", href: "/create/moment" },
     roles: [
       {
-        role: "For Attendees",
-        badge: "Experience & Access",
-        why: "You want a compelling reason to discover your city and meet new people.",
+        role: "For Capital Allocators",
+        badge: "Targeted In-Person Reach",
+        why: "Direct marketing dollars to exact physical locations and demographic subcultures.",
         outcome:
-          "Discover secret tastings, VIP nightlife, workshops, and brand drops with verified perks.",
-        action: "Explore Today's Moments",
-        href: "/explore/moments",
+          "Sponsor localized moments with guaranteed geofenced check-in minimums and full ROI reporting.",
+        action: "Sponsor a Moment",
+        href: "/for-brands",
       },
       {
-        role: "For Hosts & Venues",
-        badge: "Fill Your Space",
-        why: "Traditional event flyers disappear in social feeds without driving commitments.",
+        role: "For Venue Operators",
+        badge: "Yield Optimization",
+        why: "Monetize quiet evenings and turn first-time attendees into lifetime repeat regulars.",
         outcome:
-          "Give guests instant incentives to arrive early, bring friends, document the night, and return next week.",
-        action: "Publish a Moment",
+          "Deploy moments with tiered arrival perks (e.g. earlier arrival = higher point multipliers).",
+        action: "Publish an Activation",
         href: "/create/moment",
       },
       {
-        role: "For Brands & Creators",
-        badge: "Live Culture",
-        why: "Digital ads are ignored; real-world cultural moments create lifelong brand affinity.",
+        role: "For Participants",
+        badge: "Lived Experience",
+        why: "Earn tangible perks and social standing simply for discovering and supporting your city.",
         outcome:
-          "Anchor your brand or creator meetup inside a live venue with trackable attendance and organic buzz.",
-        action: "Sponsor a Moment",
-        href: "/for-brands",
+          "Unlock secret tastings, VIP nightlife access, and permanent proof-of-memory marks.",
+        action: "Find Today's Moments",
+        href: "/explore/moments",
       },
     ],
     highlights: [
       {
         icon: MapPin,
-        title: "Physical & Digital Sync",
-        description: "Geofenced check-ins and live attendee rosters give moments real pulse.",
+        title: "Cryptographic Geofencing",
+        description: "Timestamped geolocation and dynamic QR rotation eliminate GPS spoofing.",
       },
       {
         icon: Gift,
         title: "Perks on Arrival",
-        description: "Hosts attach drink vouchers, VIP passes, and reward Gems directly to attendance.",
+        description: "Smart contracts unlock instant beverage vouchers and Gem bounties upon physical scan.",
       },
       {
         icon: ShieldCheck,
-        title: "Proof of Memory",
-        description: "Attending stamps your permanent profile record and unlocks exclusive future invites.",
+        title: "Permanent Reputation Log",
+        description: "Every checked-in moment stamps your profile with tamper-proof social standing.",
       },
     ],
     steps: [
-      { label: "01", title: "Host Publishes", text: "A venue or organizer sets the location, perks, and mission." },
-      { label: "02", title: "Guests Check In", text: "Attendees arrive, scan their Mark, and instantly verify their presence." },
-      { label: "03", title: "Memory & Value", text: "The moment logs to your profile, building your rank and unlocking next-tier drops." },
+      { label: "01", title: "Operator Deploys", text: "Venue or sponsor publishes location, capacity, reward pools, and arrival milestones." },
+      { label: "02", title: "Patron Arrives", text: "Attendee scans the live venue Mark inside the physical geofence." },
+      { label: "03", title: "Instant Verification", text: "Value receipt is minted, points and perks settle, and venue patron analytics log in real time." },
     ],
     tagline: "Moments matter because real life happens offline.",
   },
 
   points: {
-    eyebrow: "Organic Progression",
-    headline: "Points measure your energy, consistency, and rank.",
+    eyebrow: "Merit & Standing Architecture",
+    headline: "Points measure participation energy and reputation without monetary inflation.",
     subhead:
-      "Every check-in, review, share, and verified mission earns you Points. Points celebrate genuine participation, build your platform standing, and convert into valuable PromoKeys.",
+      "Points celebrate genuine participation and community standing. Because Points are non-transferable, zero-cost to earn, and periodically reset by season, they cannot be bought, farmed, or hyperinflated.",
     whyItMatters:
-      "Points don't cost money to earn. They are your free, merit-based passport that proves you are an active, trusted member of the community.",
-    primaryCta: { label: "Earn Points Today", href: "/explore/moments" },
-    secondaryCta: { label: "View Your Standing", href: "/activity" },
+      "Pay-to-win systems degrade community trust. Points ensure that standing on Promorang is 100% earned through authentic, effort-based physical and social contribution.",
+    primaryCta: { label: "View Standing Tiers", href: "/activity" },
+    secondaryCta: { label: "Earn Points Today", href: "/explore/moments" },
     roles: [
       {
-        role: "For Attendees",
-        badge: "Status & Rank",
-        why: "Your engagement should build toward tangible status and access.",
+        role: "For Enterprise Stakeholders",
+        badge: "Anti-Sybil Metric",
+        why: "Filter out high-net-worth speculators and bots in favor of genuine cultural advocates.",
         outcome:
-          "Level up from Pioneer to City Steward, converting 500 Points into 1 PromoKey daily.",
-        action: "Find Point Activities",
-        href: "/explore/moments",
+          "Identify highly active local micro-influencers whose points reflect true community trust.",
+        action: "View Community Analytics",
+        href: "/for-brands",
       },
       {
-        role: "For Hosts & Venues",
-        badge: "Identify Top Patrons",
-        why: "You need to know who your true champions and highest-energy regulars are.",
+        role: "For Venue Operators",
+        badge: "VIP Segmentation",
+        why: "Automatically identify and reward high-energy patrons who bring groups and drive revenue.",
         outcome:
-          "See top ranked point-earners in your scene and offer them exclusive tables and perks.",
-        action: "Reward Your Regulars",
+          "Target high-tier Point holders with exclusive tasting menus and private event invitations.",
+        action: "View Top Patrons",
         href: "/create/moment",
       },
       {
-        role: "For Brands",
-        badge: "Targeted Influence",
-        why: "Find authentic micro-influencers who actually attend and promote events.",
+        role: "For Participants",
+        badge: "Meritocratic Leveling",
+        why: "Your personal effort and consistency should build permanent status and access.",
         outcome:
-          "Reward users whose verified points reflect real-world local influence and trust.",
-        action: "Explore Brand Rewards",
-        href: "/for-brands",
+          "Convert 500 earned points into 1 scarce PromoKey daily to unlock high-yield prize vaults.",
+        action: "Earn Points",
+        href: "/explore/moments",
       },
     ],
     highlights: [
       {
         icon: Coins,
-        title: "Effort-Based Earning",
-        description: "Earn points freely by showing up, inviting friends, and completing missions.",
+        title: "Effort-Gated Minting",
+        description: "Points are strictly earned through verified check-ins, missions, and referrals—never purchased.",
       },
       {
         icon: TrendingUp,
-        title: "Tier Progression",
-        description: "Higher tiers unlock better multipliers, secret drops, and host discounts.",
+        title: "Seasonal Rank Decays",
+        description: "Seasonal resets prevent legacy stagnation and keep platform competition vibrant.",
       },
       {
         icon: KeyRound,
-        title: "Mint PromoKeys",
-        description: "Convert 500 Points directly into PromoKeys to open high-tier reward opportunities.",
+        title: "Burn on Conversion",
+        description: "Converting Points into PromoKeys permanently burns points, maintaining supply equilibrium.",
       },
     ],
     steps: [
-      { label: "01", title: "Participate", text: "Show up to moments, submit creator content, or refer friends." },
-      { label: "02", title: "Stack Points", text: "Watch your balance grow and your seasonal Pioneer rank increase." },
-      { label: "03", title: "Convert to Keys", text: "Use your hard-earned points to mint PromoKeys and unlock the Vault." },
+      { label: "01", title: "Active Contribution", text: "Attend moments, verify presence, or submit approved creator missions." },
+      { label: "02", title: "Stack Standing", text: "Increase seasonal standing tier to unlock boosted yield multipliers." },
+      { label: "03", title: "Mint Access Keys", text: "Burn 500 Points to mint 1 PromoKey into your personal vault." },
     ],
     tagline: "Your energy counts. Points prove you were there and put in the work.",
   },
 
   keys: {
-    eyebrow: "Access & Scarcity",
-    headline: "PromoKeys are your golden ticket to high-value opportunities.",
+    eyebrow: "Scarcity & Access Primitives",
+    headline: "PromoKeys enforce strict access scarcity for premium brand opportunities.",
     subhead:
-      "PromoKeys open doors that money can't buy. Mint them by converting your daily Points, and spend them to access exclusive sponsor giveaways, VIP event tiers, and high-yield missions.",
+      "PromoKeys are scarce access tokens minted exclusively by burning Points. They gate high-value sponsor giveaways, VIP event reservations, and high-bounty creator missions—ensuring that premium opportunities go only to verified active contributors.",
     whyItMatters:
-      "Instead of pay-to-win auctions, PromoKeys level the playing field. Anyone who stays active can mint keys and claim the best rewards.",
-    primaryCta: { label: "Mint Your PromoKeys", href: "/wallet" },
+      "Unrestricted open giveaways are quickly exploited by click farms and bots. PromoKey gating ensures brand budgets reward only high-intent, verified daily participants.",
+    primaryCta: { label: "Inspect Key Mechanics", href: "/wallet" },
     secondaryCta: { label: "Browse Key Drops", href: "/missions" },
     roles: [
       {
-        role: "For Attendees",
-        badge: "Unlock Opportunities",
-        why: "You want access to sponsored prizes, high-value Gem bounties, and VIP experiences.",
+        role: "For Brand Sponsors",
+        badge: "Fraud-Proof Gating",
+        why: "Ensure high-dollar rewards reach dedicated local brand advocates, not bot networks.",
         outcome:
-          "Spend 1 PromoKey to enter funded draws, claim instant merch drops, and unlock creator missions.",
-        action: "Open Your Wallet",
-        href: "/wallet",
+          "Require 1 or 2 PromoKeys for campaign entry, guaranteeing high user engagement quality.",
+        action: "Launch Gated Campaign",
+        href: "/for-brands",
       },
       {
-        role: "For Hosts",
-        badge: "Quality Gate",
-        why: "You want to ensure only dedicated, high-intent people claim your limited VIP slots.",
+        role: "For Venue Operators",
+        badge: "Zero-Flake Reservations",
+        why: "Prevent no-shows on limited VIP seating and private dining experiences.",
         outcome:
-          "Require PromoKeys for RSVPs to filter out flakers and ensure a packed, energetic room.",
-        action: "Set Up a Key Gate",
+          "Require PromoKey deposits on RSVP; attendees value their hard-earned keys and show up.",
+        action: "Create Key Gate",
         href: "/create/moment",
       },
       {
-        role: "For Brands",
-        badge: "High-Intent Audience",
-        why: "Prevent bots and giveaway hunters from draining your reward budgets.",
+        role: "For Participants",
+        badge: "Exclusive Access",
+        why: "Level playing field to win high-ticket products, VIP passes, and private tastings.",
         outcome:
-          "PromoKey gating ensures your budget goes to real, verified, daily active consumers.",
-        action: "Launch a Key Campaign",
-        href: "/for-brands",
+          "Spend earned PromoKeys to enter sponsor vaults with high win-probabilities.",
+        action: "Mint PromoKeys",
+        href: "/wallet",
       },
     ],
     highlights: [
       {
         icon: Lock,
-        title: "Protected Scarcity",
-        description: "Daily conversion limits (3 keys/day) keep access scarce and prestigious.",
+        title: "Hard Velocity Caps",
+        description: "Users can mint a maximum of 3 PromoKeys per 24 hours, preventing whale hoarding.",
       },
       {
         icon: Unlock,
-        title: "Instant Vault Access",
-        description: "Open sponsored product giveaways, VIP tables, and exclusive concert tickets.",
+        title: "Deflationary Burn",
+        description: "PromoKeys are destroyed upon opportunity entry, preventing secondary market rent-seeking.",
       },
       {
         icon: Sparkles,
-        title: "Zero Cash Required",
-        description: "100% mintable through active participation and points conversion.",
+        title: "100% Merit-Funded",
+        description: "Keys cannot be bought with fiat—only minted through verified platform participation.",
       },
     ],
     steps: [
-      { label: "01", title: "Accumulate 500 Pts", text: "Earn points naturally by attending moments or submitting proof." },
-      { label: "02", title: "Mint PromoKey", text: "Convert 500 Points into 1 PromoKey in your wallet (up to 3 per day)." },
-      { label: "03", title: "Unlock the Vault", text: "Spend keys to enter premium opportunities and claim sponsored rewards." },
+      { label: "01", title: "Earn & Burn Points", text: "Burn 500 earned points to mint 1 PromoKey into your encrypted wallet." },
+      { label: "02", title: "Select Premium Gate", text: "Choose a sponsored prize draw, VIP reservation, or exclusive mission." },
+      { label: "03", title: "Key Burn & Unlock", text: "The PromoKey is permanently burned, unlocking instant access." },
     ],
     tagline: "PromoKeys unlock the best of the city for the people who actually show up.",
   },
 
   "master-key": {
-    eyebrow: "Daily Active Streak",
-    headline: "The Master Key activates your daily VIP standing.",
+    eyebrow: "Daily Network Velocity",
+    headline: "The Master Key aligns continuous daily platform retention.",
     subhead:
-      "The Master Key is your daily pulse. Complete just one verified action each day—a check-in, a share, or a vote—to unlock funded prize draws and daily Gem rewards.",
+      "The Master Key is an active 24-hour status badge maintained by completing at least one verified physical or digital platform contribution each day. It acts as the heartbeat of ecosystem engagement.",
     whyItMatters:
-      "A daily ritual builds an unstoppable community. The Master Key rewards consistency over sporadic spending.",
-    primaryCta: { label: "Activate Today's Master Key", href: "/explore/moments" },
-    secondaryCta: { label: "Check Streak Status", href: "/activity" },
+      "Network effects require consistent daily liquidity. The Master Key aligns user habits with sponsor exposure, creating predictable daily active user (DAU) metrics for brand partners.",
+    primaryCta: { label: "Simulate Daily Pulse", href: "/activity" },
+    secondaryCta: { label: "Check Streak Status", href: "/explore/moments" },
     roles: [
       {
-        role: "For Attendees",
-        badge: "Daily Power-Up",
-        why: "You want continuous access to live prize draws, multipliers, and daily perks.",
+        role: "For Brand Allocators",
+        badge: "Predictable DAU Velocity",
+        why: "Need reliable daily audience engagement rather than sporadic campaign spikes.",
         outcome:
-          "Perform 1 free verified action per day to maintain your Master Key and claim active bonuses.",
-        action: "Complete Daily Action",
-        href: "/explore/moments",
+          "Sponsor daily Master Key streak rewards to gain guaranteed daily active impressions.",
+        action: "Sponsor Daily Drops",
+        href: "/for-brands",
       },
       {
-        role: "For Hosts",
-        badge: "Daily Foot Traffic",
-        why: "You want regular foot traffic every day of the week, not just Saturday night.",
+        role: "For Venue Operators",
+        badge: "Midweek Foot Traffic",
+        why: "Drive foot traffic on Tuesdays and Wednesdays, smoothing out weekend spikes.",
         outcome:
-          "Become an official Master Key check-in spot to draw curious locals through your doors.",
-        action: "Register Check-in Spot",
+          "Designate venue as an official Master Key check-in hub for local neighborhood regulars.",
+        action: "Register Check-in Hub",
         href: "/create/moment",
       },
       {
-        role: "For Brands",
-        badge: "Consistent Eyes",
-        why: "Sustained engagement beats one-off campaign spikes every time.",
+        role: "For Participants",
+        badge: "Compounding Multipliers",
+        why: "Earn higher point multipliers and unlock daily funded prize draws.",
         outcome:
-          "Daily active Master Key users view and interact with your sponsored activations on schedule.",
-        action: "Sponsor Daily Drops",
-        href: "/for-brands",
+          "Perform 1 free daily action to keep the Master Key active and boost all earnings by up to 1.5x.",
+        action: "Activate Master Key",
+        href: "/explore/moments",
       },
     ],
     highlights: [
       {
         icon: Flame,
-        title: "Streak Bonuses",
-        description: "Consecutive daily activations boost your draw odds and bonus point multipliers.",
+        title: "24-Hour Rolling Expiration",
+        description: "Key expires after 24h of inactivity, demanding genuine ongoing participation.",
       },
       {
         icon: QrCode,
-        title: "Quick & Simple",
-        description: "One single check-in or proof submission keeps your key active for 24 hours.",
+        title: "Single-Action Renewal",
+        description: "One physical check-in, verified review, or social share renews the status instantly.",
       },
       {
         icon: ShieldCheck,
-        title: "Funded Opportunity Gate",
-        description: "Keeps bots out and ensures real humans receive sponsored brand value.",
+        title: "Sponsor Pool Unlock",
+        description: "Only active Master Key holders qualify for daily sponsor-funded prize distributions.",
       },
     ],
     steps: [
-      { label: "01", title: "Perform Daily Action", text: "Check in at a venue, submit a quick review, or complete a mission." },
-      { label: "02", title: "Master Key Unlocks", text: "Your badge turns active gold for the next 24 hours." },
-      { label: "03", title: "Claim Funded Value", text: "Access all live Gem draws and sponsor-funded reward pools." },
+      { label: "01", title: "Complete Daily Action", text: "Check in at a partner venue or submit proof for a creator mission." },
+      { label: "02", title: "Status Renews", text: "Master Key turns active gold for the next 24 hours." },
+      { label: "03", title: "Claim Active Perks", text: "Access live daily Gem draws and boosted point yields." },
     ],
     tagline: "One small action every day opens the doors to everything.",
   },
 
   pieces: {
-    eyebrow: "Cultural Equity & Memorabilia",
-    headline: "Pieces let you own a lasting fragment of the moment.",
+    eyebrow: "Cultural Equity Primitives",
+    headline: "Pieces tokenize landmark moments into lasting cultural assets.",
     subhead:
-      "Pieces are limited digital collectibles tied to landmark events, iconic moments, and creator collaborations. They celebrate history, confer perpetual perks, and can be traded in the marketplace.",
+      "Pieces are limited-edition digital collectibles minted for flagship moments, festival milestones, and creator drops. They confer permanent venue privileges, backstage access, and can be traded on the peer-to-peer marketplace.",
     whyItMatters:
-      "Ticket stubs used to sit in a shoebox. Pieces turn memories into living assets that unlock discounts, backstage access, and lifetime host recognition.",
-    primaryCta: { label: "Explore Moment Pieces", href: "/portfolio" },
-    secondaryCta: { label: "Create a Piece Drop", href: "/create/moment" },
+      "Traditional event tickets expire and retain zero residual value for fans or creators. Pieces turn cultural memories into enduring assets that distribute royalties back to hosts on every secondary trade.",
+    primaryCta: { label: "Explore Piece Marketplace", href: "/marketplace" },
+    secondaryCta: { label: "Mint Event Pieces", href: "/create/moment" },
     roles: [
       {
-        role: "For Attendees",
-        badge: "Collect & Hold",
-        why: "You were there when history happened and want proof you were part of the early crew.",
+        role: "For Organizers & Hosts",
+        badge: "Perpetual Royalty Streams",
+        why: "Monetize cultural hype upfront and earn royalties on secondary ticket/membership trading.",
         outcome:
-          "Collect limited-edition pieces that grant lifetime perks, VIP lines, and secondary market value.",
-        action: "View Your Piece Vault",
-        href: "/portfolio",
-      },
-      {
-        role: "For Hosts & Creators",
-        badge: "Monetize Culture",
-        why: "You want to reward your earliest supporters while creating a recurring royalty stream.",
-        outcome:
-          "Mint 50-100 Pieces for your flagship event; reward loyal holders with perpetual perks.",
-        action: "Mint an Event Piece",
+          "Mint 50–500 Pieces per flagship event; earn automated royalties whenever pieces change hands.",
+        action: "Mint Event Collection",
         href: "/create/moment",
       },
       {
-        role: "For Brands",
-        badge: "Brand Relics",
-        why: "Create brand artifacts that people cherish and keep in their wallets for years.",
+        role: "For Collectors & Patrons",
+        badge: "Permanent Venue Utility",
+        why: "Own provable provenance of historic moments and enjoy permanent VIP venue rights.",
         outcome:
-          "Sponsor commemorative Pieces with redeemable physical gifts and annual VIP invitations.",
-        action: "Co-brand a Piece Drop",
+          "Hold Pieces to skip lines, receive annual discounts, or trade on the marketplace.",
+        action: "Browse Marketplace",
+        href: "/marketplace",
+      },
+      {
+        role: "For Brand Collaborators",
+        badge: "Co-Branded Relics",
+        why: "Build enduring brand affinity through collectible memorabilia attached to physical drops.",
+        outcome:
+          "Co-sponsor Piece collections that attach exclusive physical product redemptions.",
+        action: "Co-Brand a Collection",
         href: "/for-brands",
       },
     ],
     highlights: [
       {
         icon: Sparkles,
-        title: "Provable Provenance",
-        description: "Timestamped records proving you attended the maiden flight or anniversary drop.",
+        title: "Immutable Provenance",
+        description: "Verifiable timestamped attendance logs prove early participation in iconic events.",
       },
       {
         icon: Gift,
-        title: "Perpetual Utility",
-        description: "Holders enjoy permanent discounts, secret menu access, or free admission.",
+        title: "Embedded Smart Utility",
+        description: "Holders automatically unlock VIP queue privileges and secret venue perks.",
       },
       {
         icon: WalletCards,
-        title: "Marketplace Liquidity",
-        description: "Trade or gift your pieces to fellow collectors whenever you want.",
+        title: "1% Atomic Protocol Fee",
+        description: "Secondary market trades execute atomically with transparent, minimal platform overhead.",
       },
     ],
     steps: [
-      { label: "01", title: "Attend or Claim", text: "Earn a piece by being one of the first 50 attendees, or mint from the host drop." },
-      { label: "02", title: "Hold in Vault", text: "Flash your piece at participating venues to unlock secret perks and VIP queues." },
-      { label: "03", title: "Trade or Pass Down", text: "List on the Promorang marketplace or hold as a permanent cultural relic." },
+      { label: "01", title: "Host Mints Drop", text: "Organizer configures fixed supply, utility perks, and creator royalty splits." },
+      { label: "02", title: "Early Attendees Claim", text: "Top attendees or VIP buyers claim pieces during the live moment activation." },
+      { label: "03", title: "Hold or Trade", text: "Holders flash pieces for permanent venue perks or trade on the open marketplace." },
     ],
     tagline: "Don't just witness culture—hold a piece of it.",
   },
 
   content: {
-    eyebrow: "Creator Missions & UGC",
-    headline: "Content that sparks real movement, not mindless scrolls.",
+    eyebrow: "Verified Creator Missions",
+    headline: "Performance-driven creator incentives backed by physical foot traffic.",
     subhead:
-      "Creator missions connect authentic user-generated content directly to live moments. Post recaps, reviews, photos, or TikToks that point back to real places and get paid in Gems and Points.",
+      "Creator Missions align brand marketing spend directly with authentic user-generated content and verified venue foot traffic. Brands set bounties; creators post genuine recaps; smart verification confirms visits and distributes escrowed Gems.",
     whyItMatters:
-      "Social algorithms are cluttered with fake aesthetic posts. Promorang content proves real people having real experiences, driving actual foot traffic to venues.",
-    primaryCta: { label: "Browse Creator Missions", href: "/missions" },
-    secondaryCta: { label: "Post a Moment Recap", href: "/create/moment" },
+      "Traditional influencer marketing is plagued by fake followers, vanity metrics, and opaque attribution. Promorang creator missions guarantee that content creates verified in-person movement.",
+    primaryCta: { label: "Browse Mission Hub", href: "/missions" },
+    secondaryCta: { label: "Deploy Brand Mission", href: "/for-brands" },
     roles: [
       {
-        role: "For Creators",
-        badge: "Get Paid for Vibes",
-        why: "You love documenting nightlife, dining, and culture and want direct brand rewards.",
+        role: "For Enterprise Brands",
+        badge: "Attributed ROAS",
+        why: "Pay creators only for verified physical visits and trackable community actions.",
         outcome:
-          "Complete local venue missions, submit photo/video proof, and get paid directly in Gems & cash.",
-        action: "Find Open Missions",
-        href: "/missions",
+          "Fund UGC bounties with automated geofence checks and QR attribution tracking.",
+        action: "Launch Creator Campaign",
+        href: "/for-brands",
       },
       {
-        role: "For Hosts & Venues",
-        badge: "Authentic Foot Traffic",
-        why: "You need organic viral content from guests who are actually in your room.",
+        role: "For Venues & Merchants",
+        badge: "Viral Local Buzz",
+        why: "Generate hundreds of authentic short-form videos from guests inside the venue.",
         outcome:
-          "Put up a 100-Gem bounty for the best video recap of your Friday night DJ set.",
-        action: "Launch a UGC Mission",
+          "Put up 50–200 Gem bounties for best cocktail or vibe recaps, flooding local TikTok and Reels feeds.",
+        action: "Create Venue Mission",
         href: "/create/moment",
       },
       {
-        role: "For Brands",
-        badge: "Measurable Reach",
-        why: "Traditional influencer deals are opaque and hard to verify.",
+        role: "For Content Creators",
+        badge: "Guaranteed Payouts",
+        why: "Get compensated fairly and instantly for documenting local culture without agency delays.",
         outcome:
-          "Tie creator payouts to verified venue visits, attendee check-ins, and tracked QR scans.",
-        action: "Launch Brand Campaign",
-        href: "/for-brands",
+          "Complete local missions, submit media proof, and receive instant Gems deposited in wallet.",
+        action: "Find Open Bounties",
+        href: "/missions",
       },
     ],
     highlights: [
       {
         icon: PlayCircle,
-        title: "Mission Bounties",
-        description: "Clear briefs with guaranteed Gem payouts for verified photo & video submissions.",
+        title: "Smart Submission Auditing",
+        description: "Automated media analysis validates tags, timestamps, and geolocation integrity.",
       },
       {
         icon: UserCheck,
-        title: "Automatic Verification",
-        description: "Smart submission review verifies tags, geolocations, and quality criteria.",
+        title: "Instant Escrow Settlement",
+        description: "Approved submissions receive instant Gem payouts directly from the sponsor's escrow pool.",
       },
       {
         icon: TrendingUp,
-        title: "Creator Rank Boost",
-        description: "Top-performing creators unlock higher bounty limits and direct brand sponsorships.",
+        title: "Creator Standing Multiplier",
+        description: "High-performing creators unlock higher bounty limits and direct brand partnership invites.",
       },
     ],
     steps: [
-      { label: "01", title: "Pick a Mission", text: "Browse open briefs: e.g. 'Post a 15-second cocktail review tagging @venue'." },
-      { label: "02", title: "Submit Proof", text: "Upload your link or media directly in the app for fast review." },
-      { label: "03", title: "Get Rewarded", text: "Receive Gems in your wallet, boost your standing, and get featured." },
+      { label: "01", title: "Brand Funds Brief", text: "Brand specifies requirements (e.g. 15s video, tag @brand & @venue) and deposits Gems into escrow." },
+      { label: "02", title: "Creator Executes", text: "Creator visits venue, records authentic content, and uploads proof in-app." },
+      { label: "03", title: "Verification & Release", text: "Upon verification, escrowed Gems transfer instantly to the creator's wallet." },
     ],
     tagline: "Content that brings people together in the real world.",
   },
 
   "promoshare-gems": {
-    eyebrow: "Rewards & Real Value",
-    headline: "Transparent prize draws and sponsor-funded Gems.",
+    eyebrow: "Collateralized Reward Reserves",
+    headline: "100% Escrow-backed Gems and mathematically provable prize draws.",
     subhead:
-      "PromoShare gives every attendee provably fair chances at community prizes, while Gems represent guaranteed, sponsor-funded reward value you can redeem for real-world perks and products.",
+      "PromoShare introduces provably fair community prize draws, while Gems represent liquid reward units backed 1:1 by committed sponsor capital. Every Gem earned corresponds to real currency deposited in segregated escrow before distribution.",
     whyItMatters:
-      "No hidden lotteries or fake discount codes. PromoShare tickets are clearly named to specific draws, and Gems are 100% backed by committed sponsor pools before you earn them.",
-    primaryCta: { label: "See Live PromoShare Draws", href: "/promoshare" },
-    secondaryCta: { label: "Open Your Gem Vault", href: "/wallet" },
+      "Unlike inflationary web3 tokens or opaque corporate points programs with unstated liabilities, Promorang Gems carry 100% collateralized reserve backing with zero fractional reserve risk.",
+    primaryCta: { label: "Inspect PromoShare Ledger", href: "/promoshare" },
+    secondaryCta: { label: "Fund a Reward Pool", href: "/for-brands" },
     roles: [
       {
-        role: "For Attendees",
-        badge: "Win & Redeem",
-        why: "You want real, exciting rewards for your loyalty and participation.",
+        role: "For Capital Sponsors",
+        badge: "Audited Pool Escrow",
+        why: "Ensure promotional funds remain strictly dedicated to reward pools with complete transparency.",
         outcome:
-          "Collect Tickets from moments to enter weekly draws; redeem Gems for gift cards, drinks, and tickets.",
-        action: "Check PromoShare Draws",
-        href: "/promoshare",
+          "Deposit reward budgets into smart escrow; receive cryptographic receipts for every distributed unit.",
+        action: "Fund Brand Pool",
+        href: "/for-brands",
       },
       {
-        role: "For Hosts",
-        badge: "Electrify the Crowd",
-        why: "You want to turn regular nights into high-stakes, thrilling experiences.",
+        role: "For Venue Operators",
+        badge: "Crowd Excitement",
+        why: "Host high-stakes prize draws that keep crowds energized and incentivize longer stays.",
         outcome:
-          "Run a live PromoShare draw at midnight to keep the crowd engaged until closing time.",
-        action: "Host a PromoShare Draw",
+          "Integrate live PromoShare ticket draws at event midpoints to maximize patron retention.",
+        action: "Host PromoShare Draw",
         href: "/create/moment",
       },
       {
-        role: "For Brands",
-        badge: "Funded Rewards",
-        why: "You need transparent proof that your promotional budget reached verified participants.",
+        role: "For Participants",
+        badge: "Guaranteed Redemption",
+        why: "Confidence that rewards can be redeemed for real products, vouchers, and cashouts.",
         outcome:
-          "Fund a Gem pool with full audit trails, participant receipts, and measurable ROI.",
-        action: "Fund a Reward Pool",
-        href: "/for-brands",
+          "Collect named PromoShare tickets and redeem Gems in the marketplace for genuine value.",
+        action: "View PromoShare Draws",
+        href: "/promoshare",
       },
     ],
     highlights: [
       {
         icon: Ticket,
-        title: "Named PromoShare Tickets",
-        description: "Each ticket is tied to an explicit draw date and prize—no phantom entries.",
+        title: "Named Ticket Ledger",
+        description: "Every PromoShare ticket is cryptographically assigned to a specific draw timestamp and prize ID.",
       },
       {
         icon: Gem,
-        title: "Funded Gems",
-        description: "Gems are backed by verified sponsor reserves and redeemable for tangible perks.",
+        title: "1:1 Collateral Reserve",
+        description: "Gems are minted only when cash or stable capital is locked in segregated sponsor escrow.",
       },
       {
         icon: ShieldCheck,
-        title: "100% Provable Fairness",
-        description: "Draws are verifiable with publicly visible ticket totals and timestamped winners.",
+        title: "Provable Randomness",
+        description: "Winners are selected using verifiable random functions (VRF) for tamper-proof fairness.",
       },
     ],
     steps: [
-      { label: "01", title: "Earn Tickets & Gems", text: "Complete moment actions, convert keys, or win creator missions." },
-      { label: "02", title: "Join Transparent Draws", text: "Enter your named tickets into weekly community or brand prize drops." },
-      { label: "03", title: "Redeem Real Perks", text: "Spend Gems in the marketplace for drinks, merchandise, and VIP upgrades." },
+      { label: "01", title: "Sponsor Deposits", text: "Brand commits capital into segregated reward escrow pool." },
+      { label: "02", title: "Proof-Based Issuance", text: "Participants receive Gems and PromoShare tickets for verified actions." },
+      { label: "03", title: "Provable Distribution", text: "Draws execute on-chain; participants redeem Gems for physical goods and perks." },
     ],
     tagline: "Honest rewards backed by real sponsors. Win, collect, and redeem.",
   },
 
   network: {
-    eyebrow: "Community & Squads",
-    headline: "Moments are better together. Build your crew and multiply value.",
+    eyebrow: "Social Multipliers & Squad Economics",
+    headline: "Viral referral graphs and group coordination incentives.",
     subhead:
-      "Promorang isn't a solo game. When you bring friends, host a crew, and frequent the same venues together, you build Scene Standing that unlocks collective perks, crew multipliers, and exclusive invites.",
+      "Promorang rewards coordinated group behavior. When friends attend moments together, they trigger Squad Multipliers that boost point yields and unlock collective scene standing, creating viral organic distribution for venues.",
     whyItMatters:
-      "Great nightlife, dining, and culture thrive on social momentum. The more your crew shows up, the stronger your city's local culture becomes.",
-    primaryCta: { label: "Explore Local Communities", href: "/for-communities" },
-    secondaryCta: { label: "Invite Your Crew", href: "/explore/moments" },
+      "Physical dining, nightlife, and cultural events are inherently social. Rewarding groups rather than isolated individuals drives higher average ticket sizes and lower venue customer acquisition costs.",
+    primaryCta: { label: "Explore Scene Hub", href: "/for-communities" },
+    secondaryCta: { label: "Form a Squad", href: "/explore/moments" },
     roles: [
       {
-        role: "For Attendees & Crews",
-        badge: "Squad Power",
-        why: "Going out with your friends should be twice as fun and twice as rewarding.",
+        role: "For Venue Operators",
+        badge: "Higher Table Sizes",
+        why: "Incentivize groups of 4–10 to coordinate and attend together rather than solo walk-ins.",
         outcome:
-          "Form a crew, check in together for squad point multipliers, and unlock group table perks.",
-        action: "Find Your Scene",
-        href: "/explore/moments",
-      },
-      {
-        role: "For Hosts & Scene Stewards",
-        badge: "Cultivate Regulars",
-        why: "A venue without a community is just an empty room.",
-        outcome:
-          "Identify and reward the social hubs and key figures who bring 10+ friends every weekend.",
-        action: "Build a Scene Roster",
+          "Activate squad multipliers that reward groups with complimentary table upgrades and bonus points.",
+        action: "Configure Squad Perks",
         href: "/for-communities",
       },
       {
-        role: "For Brands",
-        badge: "Community Movement",
-        why: "Word-of-mouth recommendations between friends carry 10x more trust than billboard ads.",
+        role: "For Brands & Agencies",
+        badge: "Word-of-Mouth Scaling",
+        why: "Harness natural social contagion to amplify campaign reach without extra ad spend.",
         outcome:
-          "Sponsor entire crews and subcultures that represent the core demographic of your brand.",
-        action: "Sponsor a Community",
+          "Sponsor squad leaderboards to incentivize competing subcultures to advocate for your brand.",
+        action: "Sponsor Squad Leaderboards",
         href: "/for-brands",
+      },
+      {
+        role: "For Groups & Crews",
+        badge: "Group Status & Boosts",
+        why: "Going out with friends should be more rewarding and unlock collective VIP treatment.",
+        outcome:
+          "Check in with 3+ squad members to trigger a +50% point yield and climb city leaderboards.",
+        action: "Rally Your Squad",
+        href: "/explore/moments",
       },
     ],
     highlights: [
       {
         icon: Users,
-        title: "Crew Multipliers",
-        description: "Checking in with 3+ friends boosts everyone’s Point and Ticket yield by up to 50%.",
+        title: "Squad Multipliers",
+        description: "Simultaneous check-ins within a 30-minute window trigger group multiplier boosts.",
       },
       {
         icon: Compass,
         title: "Scene Leaderboards",
-        description: "Compete with other crews for monthly venue residencies and exclusive perks.",
+        description: "Neighborhood squads compete for monthly table residencies and private invites.",
       },
       {
         icon: Share2,
-        title: "Viral Referral Graph",
-        description: "Earn passive points whenever friends you introduced to Promorang attend moments.",
+        title: "Two-Sided Referral Loops",
+        description: "Inviters earn passive yield on downstream verified check-ins from referred peers.",
       },
     ],
     steps: [
-      { label: "01", title: "Rally Your Crew", text: "Share moment invites with your squad using your personal link." },
-      { label: "02", title: "Check In Together", text: "Trigger the Squad Multiplier when you scan in at the same venue." },
-      { label: "03", title: "Unlock Scene Status", text: "Climb the local leaderboard and unlock VIP table upgrades and invitations." },
+      { label: "01", title: "Form a Squad", text: "Invite friends to link profiles into a neighborhood crew." },
+      { label: "02", title: "Check In Together", text: "Scan venue Marks collectively to trigger the +50% Squad Multiplier." },
+      { label: "03", title: "Unlock Scene Standing", text: "Climb local leaderboards to secure reserved venue tables and perks." },
     ],
     tagline: "Culture is co-created. Bring your friends and build the scene.",
   },
 
   sustainability: {
-    eyebrow: "Platform Sustainability & Trust",
-    headline: "How Promorang earns: transparent, ethical, and aligned.",
+    eyebrow: "3-Ledger Architecture & Capital Safety",
+    headline: "Cryptographically isolated ledgers guaranteeing capital segregation.",
     subhead:
-      "Promorang earns when funded value moves, verified outcomes succeed, or premium operator tools are used. Free participation is never secretly monetized, and reward pools belong to the community.",
+      "Promorang enforces an audited 3-ledger accounting framework. Reward escrow funds, merchant proceeds, and platform service fees are segregated into isolated compartments, ensuring zero fund co-mingling and bulletproof financial compliance.",
     whyItMatters:
-      "Traditional platforms profit by selling your attention and data to advertisers. Promorang operates on a transparent, fee-for-service model where we only succeed when hosts pack rooms and attendees get real value.",
-    primaryCta: { label: "View Pricing & Products", href: "/pricing" },
-    secondaryCta: { label: "Explore Brand Hub", href: "/for-brands" },
+      "Platforms that mix user reward funds with operating capital create existential insolvency risks. Promorang’s separated architecture ensures sponsor budgets are legally and technically protected exclusively for participants.",
+    primaryCta: { label: "Review 3-Ledger Architecture", href: "#three-ledgers" },
+    secondaryCta: { label: "View Pricing & Terms", href: "/pricing" },
     roles: [
       {
-        role: "For Participants",
-        badge: "Always Free to Earn",
-        why: "You want assurance that your time and data are respected.",
+        role: "For Compliance & Legal",
+        badge: "Segregated Escrow",
+        why: "Ensure reward funds and sweepstakes mechanics comply with global financial and promotional regulations.",
         outcome:
-          "100% free to explore, attend, check in, and earn. Zero hidden fees or predatory ads.",
-        action: "Explore Free Moments",
-        href: "/explore/moments",
-      },
-      {
-        role: "For Hosts & Merchants",
-        badge: "Predictable Pricing",
-        why: "You need clear costs that scale with your actual business revenue.",
-        outcome:
-          "Transparent monthly operator plans and performance-based activation fees.",
-        action: "View Host Pricing",
+          "Reward pools reside in dedicated escrow accounts; Promorang acts strictly as the software verification layer.",
+        action: "Review Compliance Framework",
         href: "/pricing",
       },
       {
-        role: "For Brands & Sponsors",
-        badge: "Separated Escrow",
-        why: "You require complete audit trails for promotional budgets and prize funds.",
+        role: "For Brand Advertisers",
+        badge: "Audited Capital Flow",
+        why: "Demand transparent, auditable proof that promotional funds were disbursed directly to real consumers.",
         outcome:
-          "Reward pools remain committed in escrow; Promorang charges a published service fee.",
-        action: "Review Commercial Terms",
+          "Receive itemized cryptographic receipts documenting the exact journey of every committed dollar.",
+        action: "Explore Brand Hub",
         href: "/for-brands",
+      },
+      {
+        role: "For Venue Operators",
+        badge: "Direct Payouts",
+        why: "Ticket sales and merchant transactions must never be withheld or delayed by platform fees.",
+        outcome:
+          "Operator revenues settle directly via automated payout rails with disclosed service fees deducted cleanly.",
+        action: "View Commercial Terms",
+        href: "/pricing",
       },
     ],
     highlights: [
       {
         icon: ShieldCheck,
-        title: "3 Separate Ledgers",
-        description: "Promorang revenue, sponsor reward escrow, and operator proceeds are strictly separated.",
-      },
-      {
-        icon: Coins,
-        title: "Disclosed Fees Only",
-        description: "Every fee is published before checkout—no surprise deductions or hidden cuts.",
+        title: "1. Sponsor Escrow Pool",
+        description: "100% committed to community participants; legally isolated from Promorang operational funds.",
       },
       {
         icon: Building2,
-        title: "Value Aligned",
-        description: "We only earn when real transactions, bookings, and verified outcomes occur.",
+        title: "2. Operator & Host Proceeds",
+        description: "Merchant ticket and booking revenue settles directly to venues without middleman delays.",
+      },
+      {
+        icon: Coins,
+        title: "3. Disclosed Platform Fees",
+        description: "Promorang earns only published, predictable SaaS and configuration fees.",
       },
     ],
     steps: [
-      { label: "01", title: "Sponsor Funds", text: "A brand commits a reward pool and pays a published configuration fee." },
-      { label: "02", title: "Users Participate", text: "Participants complete verified missions and attend moments." },
-      { label: "03", title: "Outcomes Verified", text: "100% of the committed reward pool is distributed to qualifying participants." },
+      { label: "01", title: "Isolated Inflow", text: "Sponsor capital deposits directly into the dedicated Escrow Ledger." },
+      { label: "02", title: "Proof Verification", text: "Physical presence and creator proof trigger automated smart disbursement." },
+      { label: "03", title: "Audited Settlement", text: "Participants claim funds; platform fee is recorded separately with full transparency." },
     ],
     tagline: "A sustainable platform built on trust, transparency, and shared success.",
   },
@@ -732,6 +783,117 @@ const conceptData: Record<
 // ==========================================
 // Interactive Concept Visual Card Components
 // ==========================================
+
+function MacroFlywheelVisualDemo() {
+  const [activeStep, setActiveStep] = useState(1);
+
+  const steps = [
+    {
+      step: 1,
+      title: "1. Capital Deposit",
+      badge: "Sponsor Inflow",
+      color: "text-amber-400",
+      description: "Brand deposits $5,000 activation budget into Segregated Escrow (100% committed to community rewards).",
+      stat: "$5,000 Locked in Escrow",
+    },
+    {
+      step: 2,
+      title: "2. Proof of Presence",
+      badge: "Physical Mark Verification",
+      color: "text-emerald-400",
+      description: "850 attendees check in inside venue geofences; 45 creators post verified video recaps.",
+      stat: "850 Marks Verified • Anti-Sybil",
+    },
+    {
+      step: 3,
+      title: "3. Asset Circulation",
+      badge: "Points & Keys Velocity",
+      color: "text-primary",
+      description: "Participants earn Points, mint scarce PromoKeys, maintain Master Key streaks, and claim Gem bounties.",
+      stat: "127,500 Pts • 255 Keys Minted",
+    },
+    {
+      step: 4,
+      title: "4. Settlement & Redemption",
+      badge: "Closed Loop Value",
+      color: "text-cyan-400",
+      description: "Escrowed Gems redeem for real drinks & products; venues retain full food & beverage patronage revenue.",
+      stat: "100% Escrow Disbursed • Zero Dilution",
+    },
+  ];
+
+  return (
+    <div id="macro-flywheel" className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-b from-primary/[0.08] via-black/90 to-black p-6 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-black font-bold shadow-lg shadow-primary/30">
+            <TrendingUp className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-primary">Economic Engine Simulator</span>
+            <p className="text-sm font-bold text-white">Closed-Loop Value Circulation</p>
+          </div>
+        </div>
+        <Badge className="border-primary/40 bg-primary/20 text-primary text-xs font-mono">
+          Interactive Model
+        </Badge>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        {/* Step Selector Pills */}
+        <div className="grid grid-cols-4 gap-1.5 rounded-2xl bg-white/[0.04] p-1.5">
+          {steps.map((s) => (
+            <button
+              key={s.step}
+              onClick={() => setActiveStep(s.step)}
+              className={`rounded-xl py-2 text-center text-xs font-bold transition-all ${
+                activeStep === s.step
+                  ? "bg-primary text-black shadow-md"
+                  : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
+              }`}
+            >
+              Step {s.step}
+            </button>
+          ))}
+        </div>
+
+        {/* Dynamic Step Display */}
+        <div className="rounded-2xl border border-white/10 bg-black/60 p-4">
+          <div className="flex items-center justify-between">
+            <span className={`text-xs font-bold uppercase tracking-wider ${steps[activeStep - 1].color}`}>
+              {steps[activeStep - 1].badge}
+            </span>
+            <span className="rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 font-mono text-[11px] text-zinc-300">
+              {steps[activeStep - 1].stat}
+            </span>
+          </div>
+          <h4 className="mt-2 text-base font-bold text-white">{steps[activeStep - 1].title}</h4>
+          <p className="mt-1.5 text-xs leading-relaxed text-zinc-300">
+            {steps[activeStep - 1].description}
+          </p>
+        </div>
+
+        {/* Visual Ledger Route */}
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs text-zinc-300">
+          <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+            <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-400" /> Segregated Escrow</span>
+            <ArrowRight className="h-3 w-3 text-primary" />
+            <span className="flex items-center gap-1.5"><QrCode className="h-3.5 w-3.5 text-primary" /> Proof of Presence</span>
+            <ArrowRight className="h-3 w-3 text-primary" />
+            <span className="flex items-center gap-1.5"><Gem className="h-3.5 w-3.5 text-cyan-400" /> Direct Value</span>
+          </div>
+        </div>
+
+        <Button
+          onClick={() => setActiveStep((prev) => (prev % 4) + 1)}
+          className="w-full py-5 text-sm font-bold bg-primary text-black hover:bg-primary/90 shadow-lg shadow-primary/20"
+        >
+          <Sparkles className="mr-2 h-4 w-4" /> Next Flywheel Phase ({activeStep < 4 ? `Step ${activeStep + 1}` : "Restart Loop"})
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function MomentVisualDemo() {
   const [checkedIn, setCheckedIn] = useState(false);
@@ -745,7 +907,7 @@ function MomentVisualDemo() {
           <div>
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Live Moment</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Physical Anchor Point</span>
             </div>
             <p className="text-sm font-bold text-white">The Velvet Lounge & Bar</p>
           </div>
@@ -759,7 +921,7 @@ function MomentVisualDemo() {
         <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-xs font-semibold text-zinc-400">Tonight's Activation</p>
+              <p className="text-xs font-semibold text-zinc-400">Tonight's Sponsored Activation</p>
               <h4 className="text-base font-bold text-white mt-0.5">Midnight Jazz & Craft Tasting</h4>
             </div>
             <span className="rounded-md bg-amber-500/10 px-2 py-1 text-[11px] font-bold text-amber-400">
@@ -773,7 +935,7 @@ function MomentVisualDemo() {
 
         <div className="flex items-center justify-between rounded-xl bg-white/[0.04] p-3 text-xs text-zinc-300">
           <span className="flex items-center gap-2">
-            <QrCode className="h-4 w-4 text-primary" /> Geofence Verified
+            <QrCode className="h-4 w-4 text-primary" /> Geofence Verified Anti-Sybil
           </span>
           <span className="font-mono text-zinc-400">Austin, TX</span>
         </div>
@@ -792,7 +954,7 @@ function MomentVisualDemo() {
             </span>
           ) : (
             <span className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4" /> Simulate Check-In (Leave Mark)
+              <Sparkles className="h-4 w-4" /> Simulate Proof of Presence (Leave Mark)
             </span>
           )}
         </Button>
@@ -823,7 +985,7 @@ function PointsVisualDemo() {
             <Coins className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">Reputation & Rank</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">Merit & Standing Ledger</span>
             <p className="text-sm font-bold text-white">Season 2: Pioneer Standing</p>
           </div>
         </div>
@@ -835,9 +997,9 @@ function PointsVisualDemo() {
       <div className="mt-5 space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
-            <p className="text-xs text-zinc-400">Points Balance</p>
+            <p className="text-xs text-zinc-400">Points Balance (Non-Transferable)</p>
             <p className="mt-1 font-serif text-2xl font-bold text-amber-400">{points.toLocaleString()} <span className="text-xs font-sans font-normal text-zinc-400">Pts</span></p>
-            <p className="mt-1 text-[11px] text-zinc-500">+250 earned this week</p>
+            <p className="mt-1 text-[11px] text-zinc-500">+250 earned via verified presence</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
             <p className="text-xs text-zinc-400">Minted PromoKeys</p>
@@ -848,8 +1010,8 @@ function PointsVisualDemo() {
 
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <div className="flex items-center justify-between text-xs mb-2">
-            <span className="font-semibold text-zinc-300">Daily Conversion Window</span>
-            <span className="font-mono text-primary">500 Pts = 1 PromoKey</span>
+            <span className="font-semibold text-zinc-300">Conversion Window (500 Pts = 1 Key)</span>
+            <span className="font-mono text-primary">Burn on Mint</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
             <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-primary w-[80%]" />
@@ -863,11 +1025,11 @@ function PointsVisualDemo() {
         >
           {minted ? (
             <span className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4" /> 1 PromoKey Minted!
+              <CheckCircle2 className="h-4 w-4" /> 500 Points Burned • 1 PromoKey Minted!
             </span>
           ) : (
             <span className="flex items-center gap-2">
-              <KeyRound className="h-4 w-4" /> Mint 1 PromoKey (500 Pts)
+              <KeyRound className="h-4 w-4" /> Burn 500 Pts to Mint 1 PromoKey
             </span>
           )}
         </Button>
@@ -887,8 +1049,8 @@ function KeysVisualDemo() {
             <KeyRound className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-primary">Key Gated Opportunity</span>
-            <p className="text-sm font-bold text-white">The Creator Vault Drop</p>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-primary">Gated Opportunity Primitive</span>
+            <p className="text-sm font-bold text-white">Sponsor Vault Gate</p>
           </div>
         </div>
         <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 font-mono text-xs font-bold text-primary">
@@ -906,7 +1068,7 @@ function KeysVisualDemo() {
               <h4 className="text-sm font-bold text-white">VIP Tasting & Secret Menu Pass</h4>
               <p className="mt-1 text-xs text-zinc-400">
                 {unlocked
-                  ? "Access granted: Show your pass code #VK-9920 at the host stand."
+                  ? "Access granted: Key permanently burned. Show pass code #VK-9920."
                   : "Sponsored by Artisan Distillers • 8 slots remaining today"}
               </p>
             </div>
@@ -916,11 +1078,11 @@ function KeysVisualDemo() {
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-zinc-300">
             <p className="text-[10px] text-zinc-500 uppercase font-bold">Scarcity</p>
-            <p className="font-semibold text-white mt-0.5">Max 3 / Day</p>
+            <p className="font-semibold text-white mt-0.5">Max 3 Keys Minted / Day</p>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-zinc-300">
-            <p className="text-[10px] text-zinc-500 uppercase font-bold">Cost</p>
-            <p className="font-semibold text-primary mt-0.5">0 Cash (1 PromoKey)</p>
+            <p className="text-[10px] text-zinc-500 uppercase font-bold">Burn Model</p>
+            <p className="font-semibold text-primary mt-0.5">100% Deflationary Burn</p>
           </div>
         </div>
 
@@ -934,11 +1096,11 @@ function KeysVisualDemo() {
         >
           {unlocked ? (
             <span className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4" /> Pass Unlocked (#VK-9920)
+              <CheckCircle2 className="h-4 w-4" /> Key Burned • Pass Unlocked (#VK-9920)
             </span>
           ) : (
             <span className="flex items-center gap-2">
-              <KeyRound className="h-4 w-4" /> Spend 1 Key to Unlock Pass
+              <KeyRound className="h-4 w-4" /> Burn 1 Key to Unlock Opportunity
             </span>
           )}
         </Button>
@@ -958,8 +1120,8 @@ function MasterKeyVisualDemo() {
             <Flame className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">Daily Active Pulse</span>
-            <p className="text-sm font-bold text-white">Master Key: {active ? "Active" : "Inactive"}</p>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">Daily Network Pulse</span>
+            <p className="text-sm font-bold text-white">Master Key: {active ? "Active (In Streak)" : "Inactive (Expired)"}</p>
           </div>
         </div>
         <Badge className="border-amber-500/40 bg-amber-500/20 text-amber-300 text-xs font-mono">
@@ -970,12 +1132,12 @@ function MasterKeyVisualDemo() {
       <div className="mt-5 space-y-4">
         <div className="rounded-2xl border border-amber-500/20 bg-black/60 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-300">Status Window</span>
+            <span className="text-xs font-semibold text-zinc-300">24-Hour Velocity Window</span>
             <span className="text-xs font-mono text-amber-400">14h 32m remaining</span>
           </div>
           <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
             <div className="rounded-lg bg-white/[0.05] p-2">
-              <p className="text-[10px] text-zinc-400">Daily Draw</p>
+              <p className="text-[10px] text-zinc-400">Daily Pool</p>
               <p className="font-bold text-emerald-400 mt-0.5">Eligible</p>
             </div>
             <div className="rounded-lg bg-white/[0.05] p-2">
@@ -983,7 +1145,7 @@ function MasterKeyVisualDemo() {
               <p className="font-bold text-amber-400 mt-0.5">1.5x Pts</p>
             </div>
             <div className="rounded-lg bg-white/[0.05] p-2">
-              <p className="text-[10px] text-zinc-400">Gems Pool</p>
+              <p className="text-[10px] text-zinc-400">Escrow Draw</p>
               <p className="font-bold text-white mt-0.5">Active</p>
             </div>
           </div>
@@ -1001,7 +1163,7 @@ function MasterKeyVisualDemo() {
           variant="outline"
           className="w-full py-5 border-amber-500/40 text-amber-300 hover:bg-amber-500/10"
         >
-          {active ? "Simulate Expiration" : "Simulate Daily Action (Check In)"}
+          {active ? "Simulate 24h Inactivity Expiry" : "Simulate Proof-of-Presence Check In"}
         </Button>
       </div>
     </div>
@@ -1017,7 +1179,7 @@ function PieceVisualDemo() {
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-400">Cultural Memorabilia</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-400">Cultural Equity Asset</span>
             <p className="text-sm font-bold text-white">Founding Resident Piece #042</p>
           </div>
         </div>
@@ -1028,27 +1190,27 @@ function PieceVisualDemo() {
 
       <div className="mt-5 space-y-4">
         <div className="rounded-2xl border border-purple-500/20 bg-purple-950/20 p-4">
-          <p className="text-xs text-purple-300 font-semibold">Origin Moment</p>
+          <p className="text-xs text-purple-300 font-semibold">Origin Landmark Moment</p>
           <h4 className="text-base font-bold text-white mt-0.5">Neon Nights Launch Gala 2026</h4>
           <p className="mt-2 text-xs text-zinc-300">
-            Permanent utility: 15% VIP discount across all partner venues and guaranteed entry to annual reunion sessions.
+            Permanent utility: 15% VIP discount across partner venues, VIP line skip, and perpetual host royalty routing.
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-zinc-300">
-            <p className="text-[10px] text-zinc-500 uppercase font-bold">Ownership</p>
-            <p className="font-semibold text-white mt-0.5">Permanent & Tradable</p>
+            <p className="text-[10px] text-zinc-500 uppercase font-bold">Settlement</p>
+            <p className="font-semibold text-white mt-0.5">1% Protocol / 5% Royalty</p>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-zinc-300">
-            <p className="text-[10px] text-zinc-500 uppercase font-bold">Status</p>
-            <p className="font-semibold text-purple-300 mt-0.5">In Your Vault</p>
+            <p className="text-[10px] text-zinc-500 uppercase font-bold">Transferability</p>
+            <p className="font-semibold text-purple-300 mt-0.5">P2P Secondary Tradable</p>
           </div>
         </div>
 
         <Button className="w-full py-5 text-sm font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/30" asChild>
-          <Link to="/portfolio">
-            <WalletCards className="mr-2 h-4 w-4" /> View in Your Piece Vault
+          <Link to="/marketplace">
+            <WalletCards className="mr-2 h-4 w-4" /> Explore Piece Marketplace
           </Link>
         </Button>
       </div>
@@ -1067,25 +1229,25 @@ function CreatorMissionVisualDemo() {
             <PlayCircle className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-pink-400">Funded UGC Bounty</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-pink-400">Escrow-Funded UGC Bounty</span>
             <p className="text-sm font-bold text-white">15s Cocktail Craft Video</p>
           </div>
         </div>
         <span className="rounded-full border border-pink-500/30 bg-pink-500/10 px-3 py-1 font-mono text-xs font-bold text-pink-400">
-          +120 Gems Bounty
+          +120 Gems Escrow Bounty
         </span>
       </div>
 
       <div className="mt-5 space-y-4">
         <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
-          <p className="text-xs font-semibold text-zinc-400">Mission Brief</p>
+          <p className="text-xs font-semibold text-zinc-400">Sponsor Campaign Brief</p>
           <p className="mt-1 text-xs leading-relaxed text-zinc-200">
             Record a short video featuring the bartender preparing the signature seasonal cocktail and tag @TheVelvetLounge.
           </p>
           <div className="mt-3 flex items-center gap-2">
             <Badge variant="outline" className="border-white/15 text-[10px] text-zinc-400">TikTok / Reels</Badge>
             <Badge variant="outline" className="border-white/15 text-[10px] text-zinc-400">Min 10s</Badge>
-            <Badge variant="outline" className="border-emerald-500/30 text-[10px] text-emerald-400">Instant Review</Badge>
+            <Badge variant="outline" className="border-emerald-500/30 text-[10px] text-emerald-400">Auto Audited</Badge>
           </div>
         </div>
 
@@ -1099,7 +1261,7 @@ function CreatorMissionVisualDemo() {
         >
           {submitted ? (
             <span className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4" /> Proof Verified (+120 Gems Paid)
+              <CheckCircle2 className="h-4 w-4" /> Proof Verified (+120 Gems Released from Escrow)
             </span>
           ) : (
             <span className="flex items-center gap-2">
@@ -1121,12 +1283,12 @@ function PromoShareVisualDemo() {
             <Gem className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400">Transparent Rewards</span>
-            <p className="text-sm font-bold text-white">Tickets & Funded Gems</p>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400">100% Collateralized Reserves</span>
+            <p className="text-sm font-bold text-white">Tickets & Escrow Gems</p>
           </div>
         </div>
         <Badge className="border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-xs">
-          350 Gems Balance
+          350 Gems Backed
         </Badge>
       </div>
 
@@ -1140,18 +1302,18 @@ function PromoShareVisualDemo() {
             <span className="text-[10px] font-mono text-zinc-400">Draw Friday 8 PM</span>
           </div>
           <p className="mt-2 text-xs text-zinc-300">
-            Entered into the Austin Community Weekend Pool ($500 Sponsor Escrow).
+            Assigned to Austin Community Weekend Pool ($500 Sponsor Escrow Deposit).
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-zinc-300">
             <p className="text-[10px] text-zinc-500 uppercase font-bold">Fairness</p>
-            <p className="font-semibold text-white mt-0.5">100% Provable On-Chain</p>
+            <p className="font-semibold text-white mt-0.5">VRF Provable On-Chain</p>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-zinc-300">
             <p className="text-[10px] text-zinc-500 uppercase font-bold">Redeemable</p>
-            <p className="font-semibold text-cyan-300 mt-0.5">Direct Perks & Products</p>
+            <p className="font-semibold text-cyan-300 mt-0.5">Direct Perks & Cashouts</p>
           </div>
         </div>
 
@@ -1174,8 +1336,8 @@ function SquadVisualDemo() {
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">Squad Multiplier</span>
-            <p className="text-sm font-bold text-white">Downtown Collective</p>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">Social Multiplier Engine</span>
+            <p className="text-sm font-bold text-white">Downtown Collective Squad</p>
           </div>
         </div>
         <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 font-mono text-xs font-bold text-blue-400">
@@ -1186,8 +1348,8 @@ function SquadVisualDemo() {
       <div className="mt-5 space-y-4">
         <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
           <div className="flex items-center justify-between text-xs mb-3">
-            <span className="font-semibold text-zinc-300">Checked In Together (4/5 Active)</span>
-            <span className="font-mono text-blue-400">+50% Pts Yield</span>
+            <span className="font-semibold text-zinc-300">Coordinated Check-In (4/5 Present)</span>
+            <span className="font-mono text-blue-400">+50% Yield Velocity</span>
           </div>
           <div className="flex -space-x-2 overflow-hidden">
             {["AM", "SJ", "KL", "MR"].map((initials, i) => (
@@ -1206,7 +1368,7 @@ function SquadVisualDemo() {
 
         <div className="rounded-xl bg-white/[0.04] p-3 text-xs text-zinc-300">
           <p className="font-semibold text-white">Scene Standing #3 in Downtown</p>
-          <p className="mt-0.5 text-zinc-400">2 more check-ins this month unlocks VIP reservation priority.</p>
+          <p className="mt-0.5 text-zinc-400">2 more group check-ins unlocks VIP table reservation priority.</p>
         </div>
 
         <Button className="w-full py-5 text-sm font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30" asChild>
@@ -1221,7 +1383,7 @@ function SquadVisualDemo() {
 
 function SustainabilityVisualDemo() {
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-950/30 via-black/80 to-black p-6 shadow-2xl backdrop-blur-xl">
+    <div id="three-ledgers" className="relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-950/30 via-black/80 to-black p-6 shadow-2xl backdrop-blur-xl">
       <div className="flex items-center justify-between border-b border-emerald-500/20 pb-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
@@ -1233,7 +1395,7 @@ function SustainabilityVisualDemo() {
           </div>
         </div>
         <Badge className="border-emerald-500/40 bg-emerald-500/20 text-emerald-300 text-xs">
-          Audited Model
+          Audited Escrow
         </Badge>
       </div>
 
@@ -1256,7 +1418,7 @@ function SustainabilityVisualDemo() {
 
         <div className="rounded-xl border border-white/10 bg-black/50 p-3 flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold text-white">3. Promorang Service Fee</p>
+            <p className="text-xs font-bold text-white">3. Promorang Platform Fee</p>
             <p className="text-[11px] text-zinc-400">Disclosed software and setup configuration fees</p>
           </div>
           <span className="text-xs font-mono text-primary font-bold">Published Fee</span>
@@ -1264,7 +1426,7 @@ function SustainabilityVisualDemo() {
 
         <Button className="w-full py-5 text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30" asChild>
           <Link to="/pricing">
-            <Building2 className="mr-2 h-4 w-4" /> View Pricing & Commercial Terms
+            <Building2 className="mr-2 h-4 w-4" /> View Commercial Pricing & Plans
           </Link>
         </Button>
       </div>
@@ -1303,13 +1465,13 @@ export default function EconomyConcept() {
         return <SustainabilityVisualDemo />;
       case "overview":
       default:
-        return <MomentVisualDemo />;
+        return <MacroFlywheelVisualDemo />;
     }
   };
 
   return (
     <div className="min-h-screen bg-[#090909] text-white">
-      <SEO title={`${data.eyebrow} - Promorang`} description={data.subhead} />
+      <SEO title={`${data.eyebrow} - Promorang Economic Architecture`} description={data.subhead} />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-white/10 bg-[#161513] pb-16 pt-28 text-white md:pb-24 md:pt-36">
@@ -1317,7 +1479,7 @@ export default function EconomyConcept() {
 
         <div className="container relative z-10 px-6">
           <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-            {/* Left: Headline & Benefit Story */}
+            {/* Left: Headline & Stakeholder Architecture Narrative */}
             <div>
               <Badge className="border-primary/30 bg-primary/15 text-primary text-xs font-bold px-3 py-1 uppercase tracking-wider">
                 {data.eyebrow}
@@ -1355,102 +1517,103 @@ export default function EconomyConcept() {
               </div>
             </div>
 
-            {/* Right: Interactive Visual Demo */}
-            <div>{renderVisualCard()}</div>
+            {/* Right: Dedicated Visual Simulation & Ledger Demo */}
+            <div>
+              {renderVisualCard()}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Navigation Sub-Header Bar */}
-      <nav aria-label="Economy Navigation" className="sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-md">
-        <div className="container flex gap-2 overflow-x-auto px-6 py-3 scrollbar-none">
-          {navigationLinks.map((link) => {
-            const isActive =
-              (conceptKey === "overview" && link.slug === "overview") ||
-              link.slug === conceptKey;
-
-            return (
-              <Link
-                key={link.slug}
-                to={link.path}
-                className={`whitespace-nowrap rounded-full border px-4 py-1.5 text-xs font-bold transition-all ${
-                  isActive
-                    ? "border-primary bg-primary text-black font-extrabold shadow-md shadow-primary/20"
-                    : "border-white/10 bg-white/[0.03] text-zinc-400 hover:border-white/30 hover:text-white"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-
-      {/* Dynamic Persona / Role Value Section */}
-      <section className="border-b border-white/10 bg-[#0d0d0d] py-16 md:py-24">
+      {/* Horizontal Pillar Concept Navigation */}
+      <section className="sticky top-16 z-30 border-b border-white/10 bg-[#090909]/95 backdrop-blur-md">
         <div className="container px-6">
-          <div className="max-w-2xl">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">Tailored Experience</p>
-            <h2 className="mt-3 font-serif text-3xl font-bold md:text-4xl text-white">
-              Why this matters to you
+          <div className="flex gap-2 overflow-x-auto py-3.5 no-scrollbar">
+            {navigationLinks.map((item) => {
+              const isActive = conceptKey === item.slug;
+              return (
+                <Link
+                  key={item.slug}
+                  to={item.path}
+                  className={`inline-flex shrink-0 items-center rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition ${
+                    isActive
+                      ? "bg-primary text-black shadow-lg shadow-primary/25"
+                      : "border border-white/10 bg-white/[0.03] text-zinc-400 hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Stakeholder Perspective Selector */}
+      <section className="border-b border-white/10 bg-[#0c0c0c] py-16 md:py-24">
+        <div className="container px-6">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">Incentive Alignment</p>
+            <h2 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">
+              How Every Stakeholder Gains Value
             </h2>
-            <p className="mt-3 text-sm text-zinc-400">
-              Select your perspective to see how this fits your real-world goals.
+            <p className="mt-3 text-base text-zinc-300">
+              Select your perspective to understand how Promorang aligns financial and reputational incentives without zero-sum extraction.
             </p>
           </div>
 
-          {/* Persona Switcher Tabs */}
-          <div className="mt-8">
-            <div className="flex flex-wrap gap-2 border-b border-white/10 pb-4">
-              {data.roles.map((r, idx) => (
-                <button
-                  key={r.role}
-                  onClick={() => setSelectedRoleIndex(idx)}
-                  className={`rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
-                    selectedRoleIndex === idx
-                      ? "bg-primary text-black font-extrabold shadow-lg shadow-primary/20"
-                      : "bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  {r.role}
-                </button>
-              ))}
-            </div>
+          {/* Role Tabs */}
+          <div className="mt-8 flex flex-wrap gap-3">
+            {data.roles.map((r, idx) => (
+              <button
+                key={r.role}
+                onClick={() => setSelectedRoleIndex(idx)}
+                className={`rounded-xl px-5 py-3 text-xs font-bold uppercase tracking-wider transition ${
+                  selectedRoleIndex === idx
+                    ? "bg-white text-black shadow-lg"
+                    : "border border-white/10 bg-white/[0.04] text-zinc-400 hover:border-white/25 hover:text-white"
+                }`}
+              >
+                {r.role}
+              </button>
+            ))}
+          </div>
 
-            {/* Active Persona Details Card */}
-            <div className="mt-8 rounded-3xl border border-white/10 bg-gradient-to-r from-white/[0.04] to-transparent p-6 md:p-10">
-              <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-center">
-                <div>
-                  <Badge className="border-primary/30 bg-primary/10 text-primary text-xs font-bold mb-3">
-                    {activeRole.badge}
-                  </Badge>
-                  <h3 className="font-serif text-2xl font-bold text-white md:text-3xl">
-                    {activeRole.why}
-                  </h3>
-                  <p className="mt-4 text-sm leading-relaxed text-zinc-300 md:text-base">
-                    {activeRole.outcome}
-                  </p>
-                  <div className="mt-6">
-                    <Button variant="hero" asChild>
-                      <Link to={activeRole.href}>
-                        {activeRole.action}
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
+          {/* Active Stakeholder Card */}
+          <div className="mt-8 rounded-3xl border border-white/15 bg-gradient-to-b from-white/[0.06] to-white/[0.01] p-8 md:p-10 shadow-2xl backdrop-blur-xl">
+            <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+              <div>
+                <Badge className="border-primary/40 bg-primary/20 text-primary font-mono text-xs mb-3">
+                  {activeRole.badge}
+                </Badge>
+                <h3 className="font-serif text-2xl font-bold text-white md:text-3xl">
+                  {activeRole.why}
+                </h3>
+                <p className="mt-4 text-base leading-relaxed text-zinc-300">
+                  {activeRole.outcome}
+                </p>
+                <div className="mt-6">
+                  <Button variant="hero" asChild>
+                    <Link to={activeRole.href}>
+                      {activeRole.action}
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
                 </div>
+              </div>
 
-                <div className="grid gap-3">
+              {/* Stakeholder Highlights Grid */}
+              <div className="rounded-2xl border border-white/10 bg-black/40 p-6">
+                <p className="text-xs font-bold uppercase tracking-wider text-primary mb-4">Core Mechanism Pillars</p>
+                <div className="space-y-4">
                   {data.highlights.map((h, i) => (
-                    <div key={i} className="rounded-2xl border border-white/10 bg-black/40 p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                          <h.icon className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-white">{h.title}</p>
-                          <p className="mt-0.5 text-[11px] text-zinc-400">{h.description}</p>
-                        </div>
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <h.icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{h.title}</p>
+                        <p className="mt-0.5 text-[11px] text-zinc-400 leading-relaxed">{h.description}</p>
                       </div>
                     </div>
                   ))}
@@ -1461,16 +1624,70 @@ export default function EconomyConcept() {
         </div>
       </section>
 
-      {/* 3-Step Simple Flow */}
+      {/* Multi-Asset Primitives Breakdown (Stakeholder Matrix) */}
+      <section className="border-b border-white/10 bg-[#080808] py-16 md:py-24">
+        <div className="container px-6">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">Tokenomics & Asset Hierarchy</p>
+            <h2 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">
+              Multi-Primitive Asset Architecture
+            </h2>
+            <p className="mt-3 text-base text-zinc-300">
+              Each unit within Promorang serves an explicit economic function with segregated minting rules, velocity constraints, and burn mechanics.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {assetPrimitives.map((asset) => {
+              const Icon = asset.icon;
+              return (
+                <div
+                  key={asset.name}
+                  className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 transition-all hover:border-white/20 hover:bg-white/[0.04]"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${asset.color}`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <Badge variant="outline" className="border-white/15 text-[10px] text-zinc-400 font-mono">
+                      {asset.role}
+                    </Badge>
+                  </div>
+
+                  <h3 className="mt-5 text-xl font-bold text-white">{asset.name}</h3>
+                  <p className="mt-2 text-xs leading-relaxed text-zinc-400">{asset.summary}</p>
+
+                  <div className="mt-5 space-y-2 border-t border-white/10 pt-4 text-[11px]">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Supply Model:</span>
+                      <span className="font-mono text-zinc-300 font-bold">{asset.supply}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Monetary Risk:</span>
+                      <span className="font-mono text-emerald-400">{asset.monetaryRisk}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Burn / Sinks:</span>
+                      <span className="font-mono text-primary font-bold">{asset.burnMechanic}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 3-Step Execution Rhythm */}
       <section className="border-b border-white/10 bg-[#070707] py-16 md:py-24">
         <div className="container px-6">
           <div className="text-center max-w-2xl mx-auto">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">How It Works</p>
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">Protocol Flow</p>
             <h2 className="mt-3 font-serif text-3xl font-bold text-white md:text-4xl">
-              Simple 3-Step Rhythm
+              Closed-Loop Execution Rhythm
             </h2>
             <p className="mt-3 text-sm text-zinc-400">
-              Clear, transparent, and rewarding every step of the way.
+              Clear, transparent, and verifiable every step of the journey.
             </p>
           </div>
 
@@ -1493,71 +1710,69 @@ export default function EconomyConcept() {
         </div>
       </section>
 
-      {/* Dedicated Sustainability & Pricing Section (Only shown on /economy/sustainability OR overview tab) */}
-      {(conceptKey === "sustainability" || conceptKey === "overview") && (
-        <section id="sustainability" className="border-b border-white/10 bg-[#0d0d0d] py-16 md:py-24">
-          <div className="container px-6">
-            <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-              <div>
-                <Badge className="border-primary/30 bg-primary/10 text-primary text-xs font-bold mb-3">
-                  Ethical Monetization
-                </Badge>
-                <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
-                  How Promorang Earns
-                </h2>
-                <p className="mt-4 text-sm leading-relaxed text-zinc-300">
-                  Promorang charges predictable service fees when funded campaigns operate, bookings occur, or operators use premium growth tools. We do not sell your personal data or take hidden cuts from community reward pools.
-                </p>
-                <div className="mt-6">
-                  <Button variant="hero" asChild>
-                    <Link to="/pricing">
-                      View Products & Pricing
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                {revenueLines.map((line, idx) => (
-                  <div key={line.key} className="rounded-2xl border border-white/10 bg-black/40 p-5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs text-primary">0{idx + 1}</span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                        {line.capture}
-                      </span>
-                    </div>
-                    <h4 className="mt-3 text-base font-bold text-white">{line.title}</h4>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-primary/80 mt-0.5">
-                      Paid by {line.payer}
-                    </p>
-                    <p className="mt-2 text-xs leading-relaxed text-zinc-400">{line.description}</p>
-                  </div>
-                ))}
+      {/* 3-Ledger Architecture & Capital Safeguards Deep Dive */}
+      <section id="three-ledgers" className="border-b border-white/10 bg-[#0a0a0a] py-16 md:py-24">
+        <div className="container px-6">
+          <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div>
+              <Badge className="border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-bold mb-3">
+                Capital Safety & Compliance
+              </Badge>
+              <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
+                The 3-Ledger Escrow Guarantee
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-zinc-300">
+                To eliminate insolvency and regulatory risk, Promorang segregates capital into three non-fungible ledgers. Community reward budgets are committed upfront in locked escrow, ensuring funds can never be co-mingled with platform operational revenue.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-4">
+                <Button variant="hero" asChild>
+                  <Link to="/pricing">
+                    View Commercial Terms & Plans
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button variant="outline" className="border-white/20 text-white hover:bg-white/10" asChild>
+                  <Link to="/for-brands">Schedule Enterprise Briefing</Link>
+                </Button>
               </div>
             </div>
-          </div>
-        </section>
-      )}
 
-      {/* Ready to Get Started Bottom Banner */}
+            <div className="space-y-4">
+              {moneyBoundaries.map((boundary, idx) => (
+                <div key={boundary.label} className="rounded-2xl border border-white/10 bg-black/60 p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-bold text-emerald-400">Ledger 0{idx + 1}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                      Isolated Escrow
+                    </span>
+                  </div>
+                  <h4 className="mt-2 text-base font-bold text-white">{boundary.label}</h4>
+                  <p className="mt-1 text-xs leading-relaxed text-zinc-400">{boundary.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stakeholder Call to Action Footer Banner */}
       <section className="relative overflow-hidden py-16 md:py-24 bg-gradient-to-b from-[#090909] to-[#14120e]">
         <div className="container relative z-10 px-6 text-center max-w-3xl mx-auto">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-amber-500 text-black shadow-xl shadow-primary/30">
-            <Sparkles className="h-8 w-8" />
+            <ShieldCheck className="h-8 w-8" />
           </div>
 
           <h2 className="mt-6 font-serif text-3xl font-extrabold text-white md:text-5xl">
-            Experience the Real-World Economy
+            Partner With the Real-World Economy
           </h2>
           <p className="mt-4 text-base text-zinc-300 leading-relaxed">
-            Join the next live moment, start racking up points, or publish an activation that brings your community together.
+            Whether you are allocating brand sponsorship capital, operating a high-volume hospitality venue, or analyzing local network economics, Promorang provides the verified proof-of-presence infrastructure.
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button variant="hero" size="xl" asChild>
-              <Link to="/explore/moments">
-                Explore Moments
+              <Link to="/for-brands">
+                Schedule Stakeholder Briefing
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
@@ -1567,7 +1782,7 @@ export default function EconomyConcept() {
               className="border-white/20 bg-white/5 text-white hover:bg-white/10"
               asChild
             >
-              <Link to="/create/moment">Create a Moment</Link>
+              <Link to="/pricing">Review Commercial Pricing</Link>
             </Button>
           </div>
         </div>

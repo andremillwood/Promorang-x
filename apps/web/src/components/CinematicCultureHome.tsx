@@ -42,6 +42,7 @@ import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSe
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
 import { SampleContentNotice } from "@/components/content/ContentProvenance";
 import { possessiveLocation, useVisitorLocation } from "@/hooks/useVisitorLocation";
+import { InteractiveReceiptStudio } from "@/components/value/InteractiveReceiptStudio";
 import heroImage from "@/assets/hero-moments.jpg";
 import momentConcert from "@/assets/moment-concert.jpg";
 import momentFoodFestival from "@/assets/moment-food-festival.jpg";
@@ -700,59 +701,8 @@ export default function CinematicCultureHome() {
             </div>
           </div>
 
-          <div className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-white/10 bg-white/10 md:grid-cols-4">
-            {[
-              { number: "01", label: t("home.trail01Label"), title: t("home.trail01Title"), text: t("home.trail01Text") },
-              { number: "02", label: t("home.trail02Label"), title: t("home.trail02Title"), text: t("home.trail02Text") },
-              { number: "03", label: t("home.trail03Label"), title: t("home.trail03Title"), text: t("home.trail03Text") },
-              { number: "04", label: t("home.trail04Label"), title: t("home.trail04Title"), text: t("home.trail04Text") },
-            ].map((step, index) => (
-              <article key={step.number} className="group relative bg-[#0c0c0c] p-6 md:min-h-[280px]">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-primary">{step.number}</span>
-                  {index < 3 ? <ArrowRight className="h-4 w-4 text-white/20" /> : <Gem className="h-5 w-5 text-primary" />}
-                </div>
-                <p className="mt-14 text-[10px] font-black uppercase tracking-[0.22em] text-white/35">{step.label}</p>
-                <h3 className="mt-3 text-xl font-black leading-tight text-white">{step.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-white/48">{step.text}</p>
-                <div className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-200 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] group-hover:scale-x-100" />
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-12 grid gap-6 rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/12 via-white/[0.035] to-transparent p-5 md:grid-cols-[0.9fr_1.1fr] md:p-8">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{t("home.receiptEyebrow")}</p>
-              <h3 className="mt-3 text-3xl font-black tracking-[-0.04em]">{t("home.receiptTitle")}</h3>
-              <p className="mt-4 max-w-lg text-sm leading-6 text-white/55">
-                {t("home.receiptCopy")}
-              </p>
-              <p className="mt-4 text-xs text-white/35">{t("home.receiptFootnote")}</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-black/50 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.35)]">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">{t("home.receiptBadge")}</p>
-                  <p className="mt-1 font-black">{t("home.receiptTia")}</p>
-                </div>
-                <ShieldCheck className="h-7 w-7 text-emerald-400" />
-              </div>
-              <div className="grid grid-cols-3 gap-3 py-5 text-center">
-                {[["12", t("home.receiptVisits")], ["4", t("home.receiptReservations")], ["3", t("home.receiptArrivals")]].map(([value, label]) => (
-                  <div key={label} className="rounded-xl bg-white/[0.045] px-2 py-4">
-                    <p className="text-2xl font-black text-white">{value}</p>
-                    <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-white/35">{label}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/10 p-4">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{t("home.receiptKeeps")}</p>
-                  <p className="mt-1 text-sm font-bold">{t("home.receiptKeepsValue")}</p>
-                </div>
-                <ArrowRight className="h-5 w-5 text-primary" />
-              </div>
-            </div>
+          <div className="mt-12">
+            <InteractiveReceiptStudio />
           </div>
         </div>
       </section>

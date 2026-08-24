@@ -7,6 +7,32 @@ const { supabase } = require('../lib/supabase');
 
 const ENGAGEMENT_CAPS = { view: 5, like: 20, save: 10, comment: 10, share: 10 };
 
+// Public verification endpoint (accessible without auth)
+router.get('/receipts/public/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!supabase) {
+      return res.status(503).json({ success: false, error: 'Database service unavailable' });
+    }
+
+    const { data: receipt, error } = await supabase
+      .from('reward_receipts')
+      .select('id, lifecycle_status, headline, description, rewards, proof, next_action, created_at')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!receipt) {
+      return res.status(404).json({ success: false, error: 'Value receipt not found' });
+    }
+
+    res.json({ success: true, receipt });
+  } catch (error) {
+    console.error('[Economy API] Public receipt error:', error);
+    res.status(500).json({ success: false, error: 'Failed to retrieve receipt' });
+  }
+});
+
 router.use(requireAuth);
 
 router.get('/wallet', async (req, res) => {

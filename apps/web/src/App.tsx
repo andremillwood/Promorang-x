@@ -99,6 +99,7 @@ const CommerceDetail = lazy(() => import("./pages/CommerceDetail"));
 const CommerceReceiptDetail = lazy(() => import("./pages/CommerceReceiptDetail"));
 const MerchantStorefront = lazy(() => import("./pages/MerchantStorefront"));
 const OfferDetail = lazy(() => import("./pages/OfferDetail"));
+const PublicValueReceipt = lazy(() => import("./pages/PublicValueReceipt"));
 const ActivatePage = lazy(() => import("./pages/Activate"));
 const MomentDetail = lazy(() => import("./pages/MomentDetail"));
 const MomentRecord = lazy(() => import("./pages/MomentRecord"));
@@ -327,6 +328,8 @@ const App = () => (
                     <Route path="/shop" element={<Marketplace />} />
                     <Route path="/shop/category/:category" element={<Marketplace />} />
                     <Route path="/shop/:listingId" element={<CommerceDetail />} />
+                    <Route path="/r/:id" element={<PublicValueReceipt />} />
+                    <Route path="/receipts/value/:id" element={<PublicValueReceipt />} />
                     <Route path="/receipts/:id" element={<ProtectedRoute><CommerceReceiptDetail /></ProtectedRoute>} />
                     <Route path="/storefront/:merchantId" element={<MerchantStorefront />} />
                     <Route path="/activate" element={<ActivatePage />} />

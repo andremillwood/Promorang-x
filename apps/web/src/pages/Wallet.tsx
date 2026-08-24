@@ -27,6 +27,7 @@ import {
   DollarSign,
   Sparkles,
   ShieldCheck,
+  ExternalLink,
 } from "lucide-react";
 import { cultureEvents } from "@/data/culture-demo";
 import { CommerceReceiptRail } from "@/components/commerce/CommerceReceiptRail";
@@ -581,7 +582,15 @@ const Wallet = () => {
                             </Badge>
                           ))}
                         </div>
-                        <div className="mt-2 text-xs text-muted-foreground">{new Date(receipt.created_at).toLocaleString()}</div>
+                        <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 text-xs">
+                          <span className="text-muted-foreground">{new Date(receipt.created_at).toLocaleString()}</span>
+                          <Link
+                            to={`/r/${receipt.id}`}
+                            className="inline-flex items-center gap-1 font-bold text-primary hover:underline"
+                          >
+                            Inspect Value Receipt <ExternalLink className="h-3 w-3" />
+                          </Link>
+                        </div>
                       </div>
                     ))}
                   </div>
