@@ -8,11 +8,12 @@ interface ConsumerObjectCardProps {
 }
 
 const ConsumerObjectCard = ({ item, emphasis = "default" }: ConsumerObjectCardProps) => {
-  const href = item.href || "#";
   const isMoment = item.kind === "moment";
   const isScene = item.kind === "scene";
   const moment = isMoment ? (item as MomentObject) : null;
   const scene = isScene ? (item as SceneObject) : null;
+  const isConsumerPreview = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("preview") === "consumer";
+  const href = isConsumerPreview && isMoment ? `/?preview=consumer&moment=${encodeURIComponent(item.id)}` : (item.href || "#");
 
   return (
     <article className={`group overflow-hidden border-border bg-card ${emphasis === "feature" ? "border-y md:border" : "border-t"}`}>
