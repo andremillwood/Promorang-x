@@ -1,0 +1,35 @@
+{
+  "name": "@promorang/mcp-server",
+  "version": "1.0.0",
+  "description": "Promorang Model Context Protocol (MCP) Server for AI Assistants and Autonomous Agents",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "promorang-mcp": "./bin/promorang-mcp.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "promorang",
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "claude",
+    "cursor",
+    "antigravity"
+  ],
+  "author": "Promorang Team",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.5.0",
+    "@promorang/sdk": "file:../sdk",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}
