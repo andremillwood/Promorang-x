@@ -134,7 +134,7 @@ VALUES
     'Usain Bolt Tracks and Records',
     NOW() + INTERVAL '2 days',
     150,
-    '120 Proof Points + PromoKey',
+    '120 PromoPoints + PromoKey',
     'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800',
     TRUE,
     'open'
@@ -148,7 +148,7 @@ VALUES
     'Steakhouse on the Verandah (Devon House)',
     NOW() + INTERVAL '4 days',
     100,
-    '150 Proof Points + PromoKey',
+    '150 PromoPoints + PromoKey',
     'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800',
     TRUE,
     'open'
@@ -162,7 +162,7 @@ VALUES
     'Tacbar Jamaica (Devon House)',
     NOW() + INTERVAL '1 day',
     80,
-    '100 Proof Points',
+    '100 PromoPoints',
     'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=800',
     TRUE,
     'open'
@@ -176,7 +176,7 @@ VALUES
     'The Jamaica Pegasus Hotel (Pool Lounge)',
     NOW() + INTERVAL '4 days',
     200,
-    '100 Proof Points',
+    '100 PromoPoints',
     'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=80&w=800',
     TRUE,
     'open'
@@ -190,7 +190,7 @@ VALUES
     'Kingston Dub Club',
     NOW() + INTERVAL '6 days',
     300,
-    '100 Proof Points',
+    '100 PromoPoints',
     'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
     TRUE,
     'open'
@@ -204,7 +204,7 @@ VALUES
     'Downtown Art District',
     NOW() + INTERVAL '12 days',
     500,
-    '150 Proof Points + Badge',
+    '150 PromoPoints + Badge',
     'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&q=80&w=800',
     TRUE,
     'open'
@@ -218,7 +218,7 @@ VALUES
     'Chilitos JaMexican',
     NOW() + INTERVAL '3 days',
     120,
-    '100 Proof Points',
+    '100 PromoPoints',
     'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&q=80&w=800',
     TRUE,
     'open'
@@ -232,7 +232,7 @@ VALUES
     'AC Lounge (AC Hotel Kingston)',
     NOW() + INTERVAL '5 days',
     140,
-    '100 Proof Points',
+    '100 PromoPoints',
     'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?auto=format&fit=crop&q=80&w=800',
     TRUE,
     'open'
@@ -246,7 +246,7 @@ VALUES
     'Devon House Gourmet Court',
     NOW() + INTERVAL '2 days',
     150,
-    '100 Proof Points',
+    '100 PromoPoints',
     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800',
     TRUE,
     'open'
@@ -260,7 +260,7 @@ VALUES
     'Janga''s Soundbar & Grill',
     NOW() + INTERVAL '3 days',
     100,
-    '100 Proof Points',
+    '100 PromoPoints',
     'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
     TRUE,
     'open'

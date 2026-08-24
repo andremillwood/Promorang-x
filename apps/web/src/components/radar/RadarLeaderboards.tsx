@@ -47,7 +47,7 @@ const TOP_DISCOVERIES: LeaderboardItem[] = [
     title: 'Strawberry Hill Sunset Vinyl',
     subtitle: 'High Tea & Mountain Listening Session',
     stat: '46 Total Votes',
-    secondaryStat: 'Demand Signal',
+    secondaryStat: 'Community Vote',
   }
 ];
 

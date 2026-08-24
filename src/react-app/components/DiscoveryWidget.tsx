@@ -91,12 +91,12 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
         <span>{question}</span>
       </h3>
 
-      {/* Demand Signal Threshold Progress Bar */}
+      {/* Community Poll Threshold Progress Bar */}
       <div className="mb-5 bg-gray-800/80 p-3 rounded-xl border border-gray-700/50">
         <div className="flex items-center justify-between text-xs mb-1.5 font-medium">
           <span className="text-gray-300 flex items-center">
             <TrendingUp className="w-3.5 h-3.5 text-emerald-400 mr-1" />
-            Demand Signal Progress
+            Community Goal Progress
           </span>
           <span className="text-orange-400 font-bold">
             {totalVotes} / {thresholdForMoment} Votes
@@ -110,7 +110,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
         </div>
         {progressPercentage >= 100 ? (
           <p className="text-[11px] text-emerald-400 font-semibold mt-1.5 flex items-center">
-            <Sparkles className="w-3 h-3 mr-1" /> Demand Threshold Met! Promorang is creating this Moment now.
+            <Sparkles className="w-3 h-3 mr-1" /> Community Goal Met! Promorang is creating this Moment now.
           </p>
         ) : (
           <p className="text-[11px] text-gray-400 mt-1">

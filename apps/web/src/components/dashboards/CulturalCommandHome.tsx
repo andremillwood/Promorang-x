@@ -83,7 +83,7 @@ export function CulturalCommandHome() {
     { label: "Showed Up", value: stats?.checkedIn || 0, detail: "Moments attended", icon: Check, href: "/profile" },
     { label: "Gems Kept", value: balance?.gems || 0, detail: "Available balance", icon: Gem, href: "/wallet" },
     { label: "Access Keys", value: balance?.promokeys || 0, detail: "Invitations & passes", icon: KeyRound, href: "/wallet" },
-    { label: "Proof Points", value: balance?.points || 0, detail: "Signals created", icon: Sparkles, href: "/rewards" },
+    { label: "PromoPoints", value: balance?.points || 0, detail: "Community score", icon: Sparkles, href: "/rewards" },
   ];
 
   return (
@@ -238,7 +238,7 @@ export function CulturalCommandHome() {
               Polls & City Drops
             </h3>
             <p className="text-xs text-white/50 mt-0.5">
-              Vote on city demand signals & unlock secret drops.
+              Vote on city polls & unlock secret drops.
             </p>
           </div>
         </Link>

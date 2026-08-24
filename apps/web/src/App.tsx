@@ -55,6 +55,7 @@ const OrganizerWorkspace = lazy(() => import("./pages/OrganizerWorkspace"));
 const OrganizerLanding = lazy(() => import("./pages/OrganizerLanding"));
 const EconomyConcept = lazy(() => import("./pages/EconomyConcept"));
 const VenueReportTeaser = lazy(() => import("./pages/VenueReportTeaser"));
+const Hosting = lazy(() => import("./pages/Hosting"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const MembershipCheckout = lazy(() => import("./pages/MembershipCheckout"));
 const BillingResult = lazy(() => import("./pages/BillingResult"));
@@ -282,7 +283,8 @@ const App = () => (
                     <Route path="/host/moments/:momentId/guests" element={<ProtectedRoute><HostGuestOperations /></ProtectedRoute>} />
                     <Route path="/join/participant" element={<Navigate to="/pricing" replace />} />
                     <Route path="/join/venue" element={<Navigate to="/for-merchants" replace />} />
-                    <Route path="/host" element={<Navigate to="/for-communities" replace />} />
+                    <Route path="/hosting" element={<Hosting />} />
+                    <Route path="/host" element={<Navigate to="/hosting" replace />} />
                     <Route path="/why-join" element={<Navigate to="/" replace />} />
                     <Route path="/propose" element={<ProposeLanding />} />
                     <Route path="/create" element={<Navigate to="/create/moment" replace />} />

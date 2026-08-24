@@ -34,6 +34,7 @@ import {
   Tag,
   Compass,
   Flame,
+  Sparkles,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
@@ -54,7 +55,7 @@ import openMic from "@/assets/moments/open-mic.jpg";
 import streetArt from "@/assets/moments/street-art.jpg";
 import pottery from "@/assets/moments/pottery.jpg";
 import sunsetPhoto from "@/assets/moments/sunset-photo.jpg";
-import { MISSION_ARCHETYPES } from "@/lib/mission-archetypes";
+import { MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
 import { rememberMarketingIntent } from "@/lib/marketing-attribution";
 import { isSampleCommerceListing } from "@/lib/commerce-provenance";
 import { getSafeMediaUrl } from "@/lib/utils";
@@ -314,6 +315,7 @@ export default function CinematicCultureHome() {
   const [pageVisible, setPageVisible] = useState(true);
   const [shouldReduceMotion, setShouldReduceMotion] = useState(false);
   const [orientationOpen, setOrientationOpen] = useState(false);
+  const [selectedRoleArchetype, setSelectedRoleArchetype] = useState<MissionArchetype>("aura");
   const visitorLocation = useVisitorLocation();
   const discoveryQuery = useQuery({
     queryKey: ["homepage-public-discovery"],
@@ -917,32 +919,150 @@ export default function CinematicCultureHome() {
           <p className="-mt-2 mb-7 max-w-2xl text-sm leading-6 text-white/50">
             {t("home.archetypeCopy")}
           </p>
-          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3 scrollbar-none">
-            {Object.entries(MISSION_ARCHETYPES).map(([id, role]) => {
-              const RoleIcon = role.icon;
-              const aura = id === "aura";
+
+          {/* Interactive Role Tab Bar */}
+          <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-none">
+            {(Object.keys(MISSION_ARCHETYPES) as MissionArchetype[]).map((key) => {
+              const role = MISSION_ARCHETYPES[key];
+              const Icon = role.icon;
+              const isSelected = selectedRoleArchetype === key;
               return (
-                <Link
-                  key={id}
-                  to={`/missions?role=${id}`}
-                  className={`group relative min-w-[74%] snap-start overflow-hidden rounded-2xl border p-5 transition sm:min-w-[280px] ${
-                    aura
-                      ? "border-fuchsia-400/30 bg-gradient-to-br from-fuchsia-500/15 via-white/[0.04] to-primary/15"
-                      : "border-white/10 bg-white/[0.04] hover:border-primary/35"
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setSelectedRoleArchetype(key)}
+                  className={`group inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-wider transition shrink-0 ${
+                    isSelected
+                      ? "border-primary bg-primary/15 text-white ring-1 ring-primary/40 shadow-glow-sm"
+                      : "border-white/10 bg-white/[0.04] text-white/60 hover:border-white/25 hover:text-white"
                   }`}
                 >
-                  {aura ? <div className="pointer-events-none absolute inset-3 rounded-xl border border-white/10" /> : null}
-                  <div className="relative flex items-start justify-between">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${role.tone}`}>
-                      <RoleIcon className="h-5 w-5" />
+                  <Icon className={`h-3.5 w-3.5 transition ${isSelected ? "text-primary scale-110" : "text-white/40 group-hover:text-white/70"}`} />
+                  <span>{role.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Spotlight Active Archetype Deep-Dive Card */}
+          {(() => {
+            const activeRole = MISSION_ARCHETYPES[selectedRoleArchetype] || MISSION_ARCHETYPES.aura;
+            const ActiveIcon = activeRole.icon;
+            const isAura = selectedRoleArchetype === "aura";
+
+            return (
+              <div
+                className={`relative mt-2 overflow-hidden rounded-3xl border p-6 md:p-8 transition-all ${
+                  isAura
+                    ? "border-fuchsia-400/30 bg-gradient-to-br from-fuchsia-500/10 via-black to-primary/10"
+                    : "border-white/15 bg-gradient-to-br from-white/[0.06] via-black to-white/[0.02]"
+                }`}
+              >
+                {/* Background Ambient Glow */}
+                <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+
+                <div className="grid gap-6 lg:grid-cols-12 lg:items-center">
+                  {/* Left Column: Role Identity & Core Purpose */}
+                  <div className="space-y-4 lg:col-span-6">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${activeRole.tone}`}>
+                        <ActiveIcon className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{activeRole.verb}</span>
+                        <h3 className="text-3xl font-black uppercase tracking-[-0.04em] text-white">{activeRole.label}</h3>
+                      </div>
                     </div>
-                    <ArrowRight className="h-4 w-4 text-white/25 transition group-hover:translate-x-1 group-hover:text-primary" />
+
+                    <p className="text-base font-medium leading-relaxed text-white/85">
+                      {activeRole.description}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-bold text-white/80">
+                        <Tag className="h-3 w-3 text-primary" /> {activeRole.actionType}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-bold text-emerald-300">
+                        <Coins className="h-3 w-3" /> {activeRole.rewardRange}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-bold text-white/60">
+                        <Users className="h-3 w-3 text-white/40" /> {activeRole.targetPersona}
+                      </span>
+                    </div>
                   </div>
-                  <p className="relative mt-8 text-[9px] font-black uppercase tracking-[0.2em] text-white/35">{role.verb}</p>
-                  <h3 className="relative mt-1 text-2xl font-black uppercase tracking-[-0.04em]">{role.label}</h3>
-                  <p className="relative mt-3 text-xs leading-5 text-white/50">{role.description}</p>
-                  {aura ? <p className="relative mt-5 text-[10px] font-bold text-fuchsia-100/70">Camera boundaries are always visible before you join.</p> : null}
-                </Link>
+
+                  {/* Right Column: Concrete Action & Verification Box */}
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 lg:col-span-6">
+                    <div className="space-y-3.5 text-xs">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">Real-World Action Example</p>
+                        <p className="mt-1 text-sm font-semibold text-white/95">{activeRole.exampleAction}</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-1 border-t border-white/10">
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">Proof Method</p>
+                          <p className="mt-0.5 font-medium text-white/80">{activeRole.proofMethod}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">Privacy Policy</p>
+                          <p className="mt-0.5 inline-flex items-center gap-1 font-medium text-white/80">
+                            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                            <span>{activeRole.cameraPrivacy}</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 text-[11px] text-white/50">
+                          <KeyRound className="h-3.5 w-3.5 text-amber-400" />
+                          <span>Earn Points to unlock exclusive Key opportunities</span>
+                        </div>
+                        <Link
+                          to={`/missions?role=${selectedRoleArchetype}`}
+                          onClick={() => rememberMarketingIntent(`archetype_spotlight_${selectedRoleArchetype}`, `/missions?role=${selectedRoleArchetype}`, "participant")}
+                          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-lg transition hover:bg-primary/90 hover:scale-[1.02]"
+                        >
+                          Explore {activeRole.label} Missions
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Quick-Cards Rail for Direct Role Browsing */}
+          <div className="mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 scrollbar-none">
+            {Object.entries(MISSION_ARCHETYPES).map(([id, role]) => {
+              const RoleIcon = role.icon;
+              const isCurrent = selectedRoleArchetype === id;
+              const aura = id === "aura";
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setSelectedRoleArchetype(id as MissionArchetype)}
+                  className={`group text-left relative min-w-[70%] sm:min-w-[240px] md:min-w-[260px] snap-start overflow-hidden rounded-2xl border p-4 transition ${
+                    isCurrent
+                      ? "border-primary bg-primary/10 shadow-glow-sm ring-1 ring-primary/40"
+                      : aura
+                      ? "border-fuchsia-400/30 bg-white/[0.04] hover:border-fuchsia-400/60"
+                      : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
+                  }`}
+                >
+                  <div className="relative flex items-start justify-between">
+                    <div className={`flex h-9 w-9 items-center justify-center rounded-xl border ${role.tone}`}>
+                      <RoleIcon className="h-4 w-4" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-300/90">{role.rewardRange}</span>
+                  </div>
+                  <p className="relative mt-5 text-[9px] font-black uppercase tracking-[0.2em] text-white/35">{role.verb}</p>
+                  <h3 className="relative mt-0.5 text-xl font-black uppercase tracking-[-0.03em] text-white">{role.label}</h3>
+                  <p className="relative mt-2 line-clamp-2 text-[11px] leading-4 text-white/50">{role.description}</p>
+                </button>
               );
             })}
           </div>

@@ -147,8 +147,8 @@ export function ExploreRewards() {
     );
 
     toast({
-      title: "Demand Signal Recorded! 🔥",
-      description: "Your vote was added to the merchant notification threshold. You earned +10 Proof Points!",
+      title: "Community Vote Recorded! 🔥",
+      description: "Your vote was added to the merchant unlock threshold. You earned +10 PromoPoints!",
     });
   };
 
@@ -194,15 +194,15 @@ export function ExploreRewards() {
 
     toast({
       title: "Perk Request Published! 🚀",
-      description: "Your deal demand signal is now live for the community to rally behind. (+25 Points)",
+      description: "Your deal request is now live for the community to rally behind. (+25 PromoPoints)",
     });
   };
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
       <SEO
-        title="Rewards & Demand Hub — Request & Unlock Member Perks | Promorang"
-        description="Vote on community deal requests and signal demand to local venues and brands to unlock exclusive perks in Kingston."
+        title="Rewards & Deals Hub — Request & Unlock Member Perks | Promorang"
+        description="Vote on community deal requests and rally behind local venues and brands to unlock exclusive perks in Kingston."
         url={getSiteUrl("/rewards")}
       />
 
@@ -331,14 +331,14 @@ export function ExploreRewards() {
           </div>
         )}
 
-        {/* 2. COMMUNITY DEMAND SIGNALS GRID */}
+        {/* 2. COMMUNITY DEAL REQUESTS GRID */}
         <div className="space-y-5 pt-2">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
             <div>
               <div className="flex items-center gap-2">
                 <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
                   <Flame className="w-3.5 h-3.5 fill-amber-400" />
-                  Live Community Demand Signals
+                  Live Community Wishlist
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-1.5">
@@ -475,7 +475,7 @@ export function ExploreRewards() {
                         }`}
                       >
                         <ThumbsUp className="h-3.5 w-3.5" />
-                        <span>{req.has_voted ? "Demand Backed (+10 Pts)" : "Boost Demand (+10 Pts)"}</span>
+                        <span>{req.has_voted ? "Request Backed (+10 Pts)" : "Back Request (+10 Pts)"}</span>
                       </Button>
 
                       <span className="text-xs font-bold text-primary flex items-center gap-1">
@@ -531,7 +531,7 @@ export function ExploreRewards() {
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full bg-primary text-black font-black text-[10px] uppercase tracking-wider">
-                Demand Signal Generator
+                Community Deal Request
               </span>
             </div>
             <DialogTitle className="text-xl sm:text-2xl font-black text-white leading-tight">

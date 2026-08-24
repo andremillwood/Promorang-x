@@ -744,7 +744,7 @@ export default function MidasHostPortal() {
             <div className="max-w-3xl space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
-                  Cultural Demand Signals
+                  Community Poll Insights
                 </span>
                 {isDemoMode && (
                   <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-sm border border-amber-500/30">

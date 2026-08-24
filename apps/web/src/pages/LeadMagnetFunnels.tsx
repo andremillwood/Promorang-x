@@ -44,7 +44,7 @@ const funnels: Record<FunnelKey, Funnel> = {
     objections: [
       { q: "Is this another personality quiz?", a: "No. The result is designed to change what you can do next: what to explore, who to follow and which Moment is your easiest doorway in." },
       { q: "Do I need an account?", a: "Not to see your result. Create one only if you want to save it and receive matching invitations." },
-      { q: "Will you sell my answers?", a: "No. Your preferences exist to improve your experience and aggregate demand signals, not expose your personal responses." },
+      { q: "Will you sell my answers?", a: "No. Your preferences exist to improve your recommendations and show local hosts what the community wants, never to expose your personal responses." },
     ],
     result: (a) => ({ score: 78 + Object.keys(a).length * 3, name: a.room?.includes("small") ? "The Curated Table" : a.room?.includes("studio") ? "The Creative Current" : a.room?.includes("neighbourhood") ? "The Local Ritual" : "The Live Current", insight: `You do not need more things to do. You need ${a.energy?.toLowerCase() || "the right energy"} in a room that feels easy to enter.`, moves: ["Follow one Scene that matches your pace", "Choose a Moment with a clear host and promise", "Bring one person—or arrive through the guest list"], route: "/discover", cta: "See Moments for me" }),
   },

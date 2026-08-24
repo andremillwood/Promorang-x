@@ -523,12 +523,12 @@ export function DiscoveriesFeedSection() {
               <div className="rounded-xl border border-white/10 bg-black/40 p-4">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 block">Ballots Cast</span>
                 <span className="mt-1 font-mono text-2xl font-black text-primary">{votedCount}</span>
-                <span className="text-[10px] text-white/50 block mt-1">Active demand signals</span>
+                <span className="text-[10px] text-white/50 block mt-1">Active community votes</span>
               </div>
               <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 block">Signal Points</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 block">PromoPoints</span>
                 <span className="mt-1 font-mono text-2xl font-black text-amber-400">+{votedCount * 35}</span>
-                <span className="text-[10px] text-white/50 block mt-1">Proof rewards earned</span>
+                <span className="text-[10px] text-white/50 block mt-1">Points earned</span>
               </div>
               <div className="rounded-xl border border-white/10 bg-black/40 p-4">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 block">Perks Tracked</span>

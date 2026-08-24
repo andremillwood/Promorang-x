@@ -123,7 +123,7 @@ export default function DiscoveryDetail() {
     
     const whatsappShareText = userVotedOptionId 
       ? `🔥 I just backed "${selectedOptionObj?.text}" on Promorang's ${poll.category}! Vote with our squad to unlock the ${poll.targetUnlockPerk} for everyone 👉 ${shareUrl}`
-      : `Vote on Promorang: "${poll.question}" - Which option is your pick? Join the demand signal 👉 ${shareUrl}`;
+      : `Vote on Promorang: "${poll.question}" - Which option is your pick? Join the community vote 👉 ${shareUrl}`;
 
     const handleVoteOnPoll = (optionId: string) => {
       if (userVotedOptionId) return;
@@ -220,7 +220,7 @@ export default function DiscoveryDetail() {
     return (
       <main className="min-h-screen bg-[#07090e] pb-32 sm:pb-28 text-white selection:bg-orange-500 selection:text-white">
         <SEO
-          title={`${poll.question} — Promorang Demand Signal`}
+          title={`${poll.question} — Promorang Community Vote`}
           description={poll.description}
           url={getSiteUrl(`/discoveries/${poll.slug}`)}
         />
@@ -310,7 +310,7 @@ export default function DiscoveryDetail() {
 
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] sm:text-xs font-bold">
                   <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-400 animate-ping" />
-                  Live Demand Signal
+                  Live Community Poll
                 </span>
 
                 <span className="text-[11px] sm:text-xs font-black text-amber-300 bg-amber-950/60 border border-amber-800/40 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
@@ -740,7 +740,7 @@ export default function DiscoveryDetail() {
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black uppercase tracking-widest text-orange-400">🔥 THE STORY & WHY IT MATTERS</span>
                   </div>
-                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">Behind The Demand Signal</h3>
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">Behind The Community Vote</h3>
                   <p className="text-xs sm:text-base leading-relaxed text-white/80">
                     {poll.description}
                   </p>
@@ -944,7 +944,7 @@ export default function DiscoveryDetail() {
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] text-white/60 font-bold uppercase truncate">
-                  {userVotedOptionId ? "Loot Claimed 🎯" : "Demand Signal"}
+                  {userVotedOptionId ? "Loot Claimed 🎯" : "Community Vote"}
                 </p>
                 <p className="text-xs font-bold text-orange-400 truncate">
                   {totalVotes}/{poll.thresholdForMoment} Power Units ({progressPercentage}%)

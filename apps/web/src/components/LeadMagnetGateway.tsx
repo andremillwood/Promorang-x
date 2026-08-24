@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Building2, Compass, Lightbulb, Sparkles, Store, Users } from "lucide-react";
+import { ArrowRight, Building2, Clock3, Compass, Lightbulb, Sparkles, Store, Users, Zap } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
 
@@ -16,6 +16,9 @@ const toolsConfig: Array<{
   href: string;
   campaign: string;
   campaignLabelKey: TranslationKey;
+  personaBadge: string;
+  outputPreview: string;
+  personaTone: string;
 }> = [
   {
     audience: "participant",
@@ -28,6 +31,9 @@ const toolsConfig: Array<{
     href: "/free/scene",
     campaign: "/campaigns/kingston-comes-alive",
     campaignLabelKey: "leadMagnet.participant.campaignLabel",
+    personaBadge: "Attendees",
+    outputPreview: "Scene Match & Top 3 Rooms",
+    personaTone: "border-sky-400/25 bg-sky-400/10 text-sky-300",
   },
   {
     audience: "host",
@@ -40,6 +46,9 @@ const toolsConfig: Array<{
     href: "/free/moment",
     campaign: "/campaigns/moment-lab",
     campaignLabelKey: "leadMagnet.host.campaignLabel",
+    personaBadge: "Hosts & Orgs",
+    outputPreview: "Moment Score & Sponsor Pitch",
+    personaTone: "border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
   },
   {
     audience: "merchant",
@@ -52,6 +61,9 @@ const toolsConfig: Array<{
     href: "/free/demand",
     campaign: "/campaigns/quiet-hours",
     campaignLabelKey: "leadMagnet.merchant.campaignLabel",
+    personaBadge: "Venues & Food",
+    outputPreview: "Nearby Demand & Offer Simulator",
+    personaTone: "border-amber-400/25 bg-amber-400/10 text-amber-300",
   },
   {
     audience: "creator",
@@ -64,6 +76,9 @@ const toolsConfig: Array<{
     href: "/free/creator",
     campaign: "/campaigns/creators-who-move",
     campaignLabelKey: "leadMagnet.creator.campaignLabel",
+    personaBadge: "Creators",
+    outputPreview: "Audience Audit & Action Formats",
+    personaTone: "border-violet-400/25 bg-violet-400/10 text-violet-300",
   },
   {
     audience: "brand",
@@ -76,6 +91,9 @@ const toolsConfig: Array<{
     href: "/free/sponsor",
     campaign: "/campaigns/sponsor-kingston",
     campaignLabelKey: "leadMagnet.brand.campaignLabel",
+    personaBadge: "Brands & Agencies",
+    outputPreview: "Activation Brief & ROI Proof Model",
+    personaTone: "border-orange-400/25 bg-orange-400/10 text-orange-300",
   },
 ];
 
@@ -91,21 +109,27 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
         <div className="container px-6 py-14 md:py-20">
           <div className={`grid overflow-hidden rounded-[2rem] border ${dark ? "border-white/10 bg-white/[.04]" : "border-border bg-card"} lg:grid-cols-[.8fr_1.6fr_.8fr]`}>
             <div className="flex items-center gap-4 border-b p-6 lg:border-b-0 lg:border-r">
-              <span className="grid h-14 w-14 place-items-center rounded-full bg-primary text-white">
+              <span className={`grid h-14 w-14 place-items-center rounded-2xl border ${tool.personaTone}`}>
                 <Icon className="h-6 w-6"/>
               </span>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">{t("leadMagnet.reportBadge")}</p>
-                <p className={`mt-1 text-xs ${dark ? "text-white/45" : "text-muted-foreground"}`}>{tool.number} · {t("leadMagnet.timeEstimate")}</p>
+                <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider ${tool.personaTone}`}>
+                  {tool.personaBadge}
+                </span>
+                <p className={`mt-1.5 text-xs font-medium ${dark ? "text-white/50" : "text-muted-foreground"}`}>{tool.number} · {t("leadMagnet.timeEstimate")}</p>
               </div>
             </div>
             <div className="p-6 lg:p-8">
               <p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">{t(tool.eyebrowKey)}</p>
               <h2 className="mt-2 font-serif text-3xl font-bold tracking-tight md:text-4xl">{t(tool.titleKey)}</h2>
-              <p className={`mt-3 max-w-2xl text-sm leading-6 ${dark ? "text-white/55" : "text-muted-foreground"}`}>{t(tool.promiseKey)}</p>
+              <p className={`mt-3 max-w-2xl text-sm leading-6 ${dark ? "text-white/60" : "text-muted-foreground"}`}>{t(tool.promiseKey)}</p>
+              <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-white/80">
+                <Zap className="h-3.5 w-3.5 text-primary shrink-0" />
+                <span>Output: {tool.outputPreview}</span>
+              </div>
             </div>
             <div className="flex flex-col justify-center gap-3 border-t p-6 lg:border-l lg:border-t-0">
-              <Link to={tool.href} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-black text-white transition hover:-translate-y-0.5">
+              <Link to={tool.href} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-black text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-primary/90">
                 {t(tool.ctaKey)}<ArrowRight className="h-4 w-4"/>
               </Link>
               <Link to={tool.campaign} className={`inline-flex items-center justify-center gap-2 text-xs font-bold ${dark ? "text-white/55 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
@@ -123,39 +147,79 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
       <div className="container px-6 py-20 md:py-28">
         <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">{t("leadMagnet.sectionEyebrow")}</p>
-            <h2 className="mt-4 max-w-xl font-serif text-4xl font-bold leading-[.95] tracking-[-.04em] md:text-6xl">{t("leadMagnet.sectionTitle")}</h2>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("leadMagnet.sectionEyebrow")}</p>
+            <h2 className="mt-4 max-w-xl font-serif text-4xl font-bold leading-[0.95] tracking-[-0.04em] md:text-6xl">{t("leadMagnet.sectionTitle")}</h2>
           </div>
-          <p className="max-w-2xl text-sm leading-7 text-white/52 lg:justify-self-end">{t("leadMagnet.sectionCopy")}</p>
+          <p className="max-w-2xl text-sm leading-7 text-white/60 lg:justify-self-end">{t("leadMagnet.sectionCopy")}</p>
         </div>
-        <div className="mt-12 grid border-l border-t border-white/10 md:grid-cols-2 xl:grid-cols-5">
+
+        {/* Elevated 5-Column Interactive Cards Grid */}
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {toolsConfig.map(tool => {
             const Icon = tool.icon;
             return (
-              <Link key={tool.audience} to={tool.href} className="group flex flex-col justify-between border-b border-r border-white/10 p-6 transition hover:bg-primary">
+              <Link
+                key={tool.audience}
+                to={tool.href}
+                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/50 hover:bg-white/[0.06] hover:shadow-[0_12px_32px_-12px_rgba(255,107,0,0.2)]"
+              >
+                {/* Subtle Card Accent Glow on Hover */}
+                <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-primary/10 opacity-0 blur-2xl transition duration-300 group-hover:opacity-100" />
+
+                {/* Top Section: Number + Persona Badge + Icon */}
                 <div className="flex flex-col">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black tracking-[.2em] text-primary transition group-hover:text-white">{tool.number}</span>
-                    <Icon className="h-5 w-5 text-white/35 transition group-hover:text-white"/>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-black tracking-wider text-white/40 group-hover:text-primary transition">{tool.number}</span>
+                      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[8.5px] font-black uppercase tracking-wider ${tool.personaTone}`}>
+                        {tool.personaBadge}
+                      </span>
+                    </div>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-xl border ${tool.personaTone} transition group-hover:scale-105`}>
+                      <Icon className="h-4 w-4" />
+                    </div>
                   </div>
-                  <p className="mt-8 text-[10px] font-black uppercase tracking-[.16em] text-white/40 transition group-hover:text-white/70">{t(tool.eyebrowKey)}</p>
-                  <h3 className="mt-3 font-serif text-2xl font-bold leading-tight">{t(tool.titleKey)}</h3>
-                  <p className="mt-3 text-xs leading-6 text-white/46 transition group-hover:text-white/80">{t(tool.promiseKey)}</p>
+
+                  {/* Eyebrow & Title */}
+                  <p className="mt-6 text-[9px] font-black uppercase tracking-[0.16em] text-white/40 transition group-hover:text-white/70">{t(tool.eyebrowKey)}</p>
+                  <h3 className="mt-1.5 font-serif text-xl font-bold leading-snug text-white transition group-hover:text-primary-foreground">{t(tool.titleKey)}</h3>
+
+                  {/* Promise Copy */}
+                  <p className="mt-2.5 text-xs leading-5 text-white/50 transition group-hover:text-white/80">{t(tool.promiseKey)}</p>
+
+                  {/* Concrete Output Preview Chip */}
+                  <div className="mt-4 rounded-xl border border-white/8 bg-black/40 p-2.5 transition group-hover:border-white/15">
+                    <p className="text-[8.5px] font-black uppercase tracking-wider text-primary">Instant Output</p>
+                    <p className="mt-0.5 text-[11px] font-semibold leading-tight text-white/90">{tool.outputPreview}</p>
+                  </div>
                 </div>
-                <div className="mt-8 pt-2">
-                  <span className="inline-flex items-center gap-2 text-xs font-black text-primary transition group-hover:text-white">{t(tool.ctaKey)}<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1"/></span>
+
+                {/* Card Footer: Time & CTA Button */}
+                <div className="mt-6 pt-3 border-t border-white/8 flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white/40">
+                    <Clock3 className="h-3 w-3 text-primary/80" /> 2 min
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-black text-primary transition group-hover:translate-x-0.5 group-hover:text-white">
+                    {t(tool.ctaKey)}
+                    <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
+                  </span>
                 </div>
               </Link>
             );
           })}
         </div>
-        <div className="mt-8 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.035] p-5">
-          <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-primary"/>
-          <p className="text-xs leading-6 text-white/45">
-            <b className="text-white">{t("leadMagnet.noAccount")}</b> {t("leadMagnet.noAccountCopy")}
+
+        {/* Bottom Banner */}
+        <div className="mt-8 flex items-center gap-3.5 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/15 text-primary">
+            <Lightbulb className="h-4.5 w-4.5" />
+          </div>
+          <p className="text-xs leading-6 text-white/50">
+            <b className="text-white font-semibold">{t("leadMagnet.noAccount")}</b> {t("leadMagnet.noAccountCopy")}
           </p>
         </div>
       </div>
     </section>
   );
 }
+

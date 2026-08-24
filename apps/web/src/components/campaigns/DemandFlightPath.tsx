@@ -26,7 +26,7 @@ export function DemandFlightPath({ campaignId }: { campaignId: string }) {
     <section className="mt-10 overflow-hidden border border-black/15 bg-[#191816] text-white" aria-labelledby="demand-flight-path-title">
       <header className="grid gap-7 border-b border-white/12 p-7 sm:p-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
         <div>
-          <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.22em] text-orange-300"><Radio className="h-3.5 w-3.5" />Live demand signal</p>
+          <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.22em] text-orange-300"><Radio className="h-3.5 w-3.5" />Live community pulse</p>
           <h2 id="demand-flight-path-title" className="mt-3 max-w-3xl text-4xl font-black leading-[.95] tracking-[-.045em] sm:text-5xl">Follow the movement, not a vanity score.</h2>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-white/50">Every number traces back to a Promorang action. Verified conversion stays separate from attention, and each economic system keeps its own meaning.</p>
         </div>
