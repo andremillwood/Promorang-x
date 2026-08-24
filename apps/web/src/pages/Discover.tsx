@@ -37,7 +37,7 @@ import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getMomentStatus } from "@/lib/moment-recurrence";
 import { DiscoveryWidget, DiscoveryProps } from "@/components/radar/DiscoveryWidget";
 import { AskQuestionModal } from "@/components/discovery/AskQuestionModal";
-import { DISCOVERY_POLLS } from "@/data/discoveriesData";
+import { DISCOVERY_POLLS, CURATED_DISCOVERIES } from "@/data/discoveriesData";
 import { VERIFIED_VENUES } from "@/data/venuesData";
 
 const categoryFilters = [
@@ -101,7 +101,7 @@ const Discover = () => {
         .from("moments")
         .select("*")
         .order("starts_at", { ascending: true })
-        .limit(20);
+        .limit(100);
 
       const dbMoments = (momentsData || []).map((m) => {
         let lat = Number(m.latitude);
@@ -192,29 +192,81 @@ const Discover = () => {
 
   const featuredMoment = moments[0] || null;
 
+  // Comprehensive map pins combining all active Moments, Verified Venues, and Curated Discoveries
   const mapMarkers = useMemo<MapMarkerItem[]>(() => {
-    return filteredMoments
-      .map((m) => {
-        const lat = Number(m.latitude);
-        const lng = Number(m.longitude);
-        // Must be valid numbers with real coordinates (not 0,0 defaults)
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-        if (Math.abs(lat) < 0.5 && Math.abs(lng) < 0.5) return null; // skip 0,0 defaults
-        return {
-          id: m.id,
-          lat,
-          lng,
-          title: m.title,
-          subtitle: m.venue_name || m.location || undefined,
-          category: m.category || undefined,
-          reward: m.reward || undefined,
-          imageUrl: m.image_url || undefined,
-        };
-      })
-      .filter((m): m is MapMarkerItem => m !== null);
-  }, [filteredMoments]);
+    const markers: MapMarkerItem[] = [];
+    const seenIds = new Set<string>();
 
-  // Always center on Kingston — averaging markers with far-flung DB coords causes mid-ocean centering
+    // 1. Add all active/filtered moments
+    filteredMoments.forEach((m) => {
+      const lat = Number(m.latitude);
+      const lng = Number(m.longitude);
+      if (Number.isFinite(lat) && Number.isFinite(lng) && !(Math.abs(lat) < 0.5 && Math.abs(lng) < 0.5)) {
+        if (!seenIds.has(m.id)) {
+          seenIds.add(m.id);
+          markers.push({
+            id: m.id,
+            lat,
+            lng,
+            title: m.title,
+            subtitle: m.venue_name || m.location || undefined,
+            category: m.category || "Moment & Event",
+            reward: m.reward || undefined,
+            imageUrl: m.image_url || undefined,
+          });
+        }
+      }
+    });
+
+    // 2. Add verified partner venues across Jamaica
+    VERIFIED_VENUES.forEach((v) => {
+      const matchesSearch =
+        !searchQuery ||
+        v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        v.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        v.neighborhood.toLowerCase().includes(searchQuery.toLowerCase());
+
+      if (matchesSearch && !seenIds.has(v.id)) {
+        seenIds.add(v.id);
+        markers.push({
+          id: v.id,
+          lat: v.latitude,
+          lng: v.longitude,
+          title: v.name,
+          subtitle: `${v.neighborhood} • ${v.venue_type_label}`,
+          category: "Verified Venue",
+          reward: v.vibe ? `✨ ${v.vibe}` : "Partner Venue Perks",
+          imageUrl: v.image_url,
+        });
+      }
+    });
+
+    // 3. Add curated hidden gems & scenic discoveries (e.g. Strawberry Hill, Blue Ridge, Holywell)
+    CURATED_DISCOVERIES.forEach((d) => {
+      const matchesSearch =
+        !searchQuery ||
+        d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        d.location_address.toLowerCase().includes(searchQuery.toLowerCase());
+
+      if (matchesSearch && !seenIds.has(d.id)) {
+        seenIds.add(d.id);
+        markers.push({
+          id: d.id,
+          lat: d.latitude,
+          lng: d.longitude,
+          title: d.title,
+          subtitle: `${d.location_address} • ${d.city}`,
+          category: d.category === "hidden_gem" ? "Hidden Gem" : d.category === "music" ? "Music & Vibes" : "Scenic & Dining",
+          reward: `⭐ ${d.average_rating} rating • ${d.checkin_count} check-ins`,
+          imageUrl: d.cover_image,
+        });
+      }
+    });
+
+    return markers;
+  }, [filteredMoments, searchQuery]);
+
+  // Default discover center is Kingston, Jamaica
   const mapCenter = DEFAULT_DISCOVER_CENTER;
 
   return (
