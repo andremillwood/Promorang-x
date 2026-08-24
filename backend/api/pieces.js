@@ -2452,11 +2452,13 @@ router.get('/gems/balance', requireAuth, async (req, res) => {
 // POST /api/pieces/gems/purchase - Buy Gems with Stripe
 router.post('/gems/purchase', requireAuth, async (req, res) => {
   try {
-    const { usd_amount } = req.body;
+    const rawAmount = req.body.usd_amount ?? req.body.amount;
+    const usd_amount = Number(rawAmount);
     const userId = req.user.id;
+    const userEmail = req.user.email;
     
-    if (!usd_amount || usd_amount <= 0) {
-      return res.status(400).json({ error: 'USD amount required' });
+    if (!usd_amount || usd_amount <= 0 || isNaN(usd_amount)) {
+      return res.status(400).json({ error: 'Valid USD amount required' });
     }
     
     // Check KYC for purchases over $100
@@ -2481,7 +2483,7 @@ router.post('/gems/purchase', requireAuth, async (req, res) => {
       });
     }
     
-    const result = await gemsService.createPurchaseIntent(userId, usd_amount);
+    const result = await gemsService.createPurchaseIntent(userId, usd_amount, userEmail);
     
     res.json(result);
   } catch (error) {

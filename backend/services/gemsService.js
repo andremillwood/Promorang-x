@@ -262,7 +262,7 @@ async function recordGemsTransaction(userId, amount, type, metadata = {}) {
 /**
  * Create Gems purchase intent (Stripe)
  */
-async function createPurchaseIntent(userId, usdAmount) {
+async function createPurchaseIntent(userId, usdAmount, userEmail = null) {
   if (!supabase) {
     return {
       success: true,
@@ -283,23 +283,72 @@ async function createPurchaseIntent(userId, usdAmount) {
   const gemsAmount = Math.floor(usdAmount / GEMS_EXCHANGE_RATE);
   const actualUsdAmount = gemsAmount * GEMS_EXCHANGE_RATE;
 
-  // Get Stripe customer
-  const { data: user } = await supabase
-    .from('users')
-    .select('email, stripe_customer_id')
-    .eq('id', userId)
-    .single();
+  // Resolve customer ID and email safely across users and profiles tables
+  let customerId = null;
+  let email = userEmail;
+
+  // 1. Try users table
+  try {
+    const { data: user } = await supabase
+      .from('users')
+      .select('email, stripe_customer_id')
+      .eq('id', userId)
+      .maybeSingle();
+    if (user) {
+      customerId = user.stripe_customer_id || null;
+      if (user.email) email = user.email;
+    }
+  } catch (err) {
+    console.warn('[gemsService] Error querying users table:', err.message);
+  }
+
+  // 2. Try profiles table if needed
+  if (!customerId || !email) {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email, stripe_customer_id')
+        .eq('id', userId)
+        .maybeSingle();
+      if (profile) {
+        if (!customerId && profile.stripe_customer_id) customerId = profile.stripe_customer_id;
+        if (!email && profile.email) email = profile.email;
+      }
+    } catch (err) {
+      console.warn('[gemsService] Error querying profiles table:', err.message);
+    }
+  }
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.warn('[gemsService] STRIPE_SECRET_KEY is missing, returning demo client secret');
+    return {
+      success: true,
+      client_secret: 'demo_secret',
+      gems_amount: gemsAmount,
+      usd_amount: actualUsdAmount,
+      exchange_rate: GEMS_EXCHANGE_RATE,
+    };
+  }
 
   const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-  let customerId = user?.stripe_customer_id;
   if (!customerId) {
-    const customer = await stripe.customers.create({
-      email: user.email,
+    const customerPayload = {
       metadata: { user_id: userId },
-    });
+    };
+    if (email) {
+      customerPayload.email = email;
+    }
+    const customer = await stripe.customers.create(customerPayload);
     customerId = customer.id;
-    await supabase.from('users').update({ stripe_customer_id: customerId }).eq('id', userId);
+
+    // Save customer ID if tables exist
+    try {
+      await supabase.from('users').update({ stripe_customer_id: customerId }).eq('id', userId);
+    } catch (_) {}
+    try {
+      await supabase.from('profiles').update({ stripe_customer_id: customerId }).eq('id', userId);
+    } catch (_) {}
   }
 
   // Create payment intent
@@ -310,8 +359,8 @@ async function createPurchaseIntent(userId, usdAmount) {
     description: `Purchase ${gemsAmount} Gems`,
     metadata: {
       user_id: userId,
-      gems_amount: gemsAmount,
-      usd_amount: actualUsdAmount,
+      gems_amount: String(gemsAmount),
+      usd_amount: String(actualUsdAmount),
       type: 'gems_purchase',
     },
     automatic_payment_methods: { enabled: true },

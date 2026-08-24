@@ -43,31 +43,67 @@ async function createFiatDeposit({
   amount,
   currency = 'USD',
   description = 'Account deposit',
+  userEmail = null,
 }) {
   try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('Stripe is not configured on the server');
+    }
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     
     // Get or create Stripe customer
-    const { data: user } = await supabase
-      .from('users')
-      .select('email, stripe_customer_id')
-      .eq('id', userId)
-      .single();
-    
-    let customerId = user?.stripe_customer_id;
-    
+    let customerId = null;
+    let email = userEmail;
+
+    try {
+      const { data: user } = await supabase
+        .from('users')
+        .select('email, stripe_customer_id')
+        .eq('id', userId)
+        .maybeSingle();
+      if (user) {
+        customerId = user.stripe_customer_id || null;
+        if (user.email) email = user.email;
+      }
+    } catch (_) {}
+
+    if (!customerId || !email) {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('email, stripe_customer_id')
+          .eq('id', userId)
+          .maybeSingle();
+        if (profile) {
+          if (!customerId && profile.stripe_customer_id) customerId = profile.stripe_customer_id;
+          if (!email && profile.email) email = profile.email;
+        }
+      } catch (_) {}
+    }
+
     if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
+      const customerPayload = {
         metadata: { user_id: userId },
-      });
+      };
+      if (email) {
+        customerPayload.email = email;
+      }
+      const customer = await stripe.customers.create(customerPayload);
       customerId = customer.id;
       
       // Save Stripe customer ID
-      await supabase
-        .from('users')
-        .update({ stripe_customer_id: customerId })
-        .eq('id', userId);
+      try {
+        await supabase
+          .from('users')
+          .update({ stripe_customer_id: customerId })
+          .eq('id', userId);
+      } catch (_) {}
+      try {
+        await supabase
+          .from('profiles')
+          .update({ stripe_customer_id: customerId })
+          .eq('id', userId);
+      } catch (_) {}
     }
     
     // Create payment intent
