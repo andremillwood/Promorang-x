@@ -38,6 +38,7 @@ import { getMomentStatus } from "@/lib/moment-recurrence";
 import { DiscoveryWidget, DiscoveryProps } from "@/components/radar/DiscoveryWidget";
 import { AskQuestionModal } from "@/components/discovery/AskQuestionModal";
 import { DISCOVERY_POLLS } from "@/data/discoveriesData";
+import { VERIFIED_VENUES } from "@/data/venuesData";
 
 const categoryFilters = [
   { id: "all", label: "All Events", icon: Sparkles },
@@ -102,11 +103,41 @@ const Discover = () => {
         .order("starts_at", { ascending: true })
         .limit(20);
 
-      const dbMoments = (momentsData || []).map((m) => ({
-        ...m,
-        latitude: m.latitude ?? null,
-        longitude: m.longitude ?? null,
-      }));
+      const dbMoments = (momentsData || []).map((m) => {
+        let lat = Number(m.latitude);
+        let lng = Number(m.longitude);
+
+        // If coordinates are missing, (0,0), or clearly invalid, resolve from curated or venue list
+        const isInvalid = !Number.isFinite(lat) || !Number.isFinite(lng) || (Math.abs(lat) < 1 && Math.abs(lng) < 1);
+        if (isInvalid) {
+          const curated = CURATED_COORDINATES[m.id];
+          if (curated) {
+            lat = curated.lat;
+            lng = curated.lng;
+          } else {
+            // Try matching venue name
+            const venue = VERIFIED_VENUES.find(
+              (v) =>
+                v.name.toLowerCase() === (m.venue_name || "").toLowerCase() ||
+                (m.location || "").toLowerCase().includes(v.name.toLowerCase()) ||
+                (m.title || "").toLowerCase().includes(v.name.toLowerCase())
+            );
+            if (venue) {
+              lat = venue.latitude;
+              lng = venue.longitude;
+            } else {
+              lat = DEFAULT_DISCOVER_CENTER.lat;
+              lng = DEFAULT_DISCOVER_CENTER.lng;
+            }
+          }
+        }
+
+        return {
+          ...m,
+          latitude: lat,
+          longitude: lng,
+        };
+      });
 
       const curatedAsMoments = CURATED_KINGSTON_MOMENTS.map((cm) => {
         const coords = CURATED_COORDINATES[cm.id] || DEFAULT_DISCOVER_CENTER;
@@ -166,7 +197,9 @@ const Discover = () => {
       .map((m) => {
         const lat = Number(m.latitude);
         const lng = Number(m.longitude);
+        // Must be valid numbers with real coordinates (not 0,0 defaults)
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+        if (Math.abs(lat) < 0.5 && Math.abs(lng) < 0.5) return null; // skip 0,0 defaults
         return {
           id: m.id,
           lat,
@@ -181,17 +214,8 @@ const Discover = () => {
       .filter((m): m is MapMarkerItem => m !== null);
   }, [filteredMoments]);
 
-  const mapCenter = useMemo(() => {
-    if (mapMarkers.length > 0) {
-      const sumLat = mapMarkers.reduce((sum, m) => sum + m.lat, 0);
-      const sumLng = mapMarkers.reduce((sum, m) => sum + m.lng, 0);
-      return {
-        lat: sumLat / mapMarkers.length,
-        lng: sumLng / mapMarkers.length,
-      };
-    }
-    return DEFAULT_DISCOVER_CENTER;
-  }, [mapMarkers]);
+  // Always center on Kingston — averaging markers with far-flung DB coords causes mid-ocean centering
+  const mapCenter = DEFAULT_DISCOVER_CENTER;
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">

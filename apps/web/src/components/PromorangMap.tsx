@@ -213,7 +213,19 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
 
       gmMarkersRef.current.push(marker);
     });
-  }, [markers, ready, center]);
+
+    // Auto-fit bounds if we have multiple markers
+    if (markers.length > 1) {
+      const bounds = new google.maps.LatLngBounds();
+      markers.forEach((m) => {
+        bounds.extend(new google.maps.LatLng(m.lat, m.lng));
+      });
+      map.fitBounds(bounds, { top: 50, bottom: 50, left: 50, right: 50 });
+    } else if (markers.length === 1) {
+      map.setCenter({ lat: markers[0].lat, lng: markers[0].lng });
+      map.setZoom(zoom || 12);
+    }
+  }, [markers, ready, center, zoom]);
 
   /* ---------- 4. Geolocation ---------- */
   const handleGeolocate = useCallback(() => {
