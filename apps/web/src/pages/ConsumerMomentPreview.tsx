@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, MapPin, Share2, Users, CheckCircle2, Ticket, Sparkles } from "lucide-react";
 import ConsumerShell from "@/components/consumer/ConsumerShell";
@@ -18,7 +17,7 @@ const formatDate = (value?: string | null) => {
 };
 
 export default function ConsumerMomentPreview() {
-  const { id } = useParams<{ id: string }>();
+  const id = new URLSearchParams(window.location.search).get("moment") || undefined;
   const { user, profile } = useAuth();
   const joined = useJoinedMoments();
   const checkIn = useCheckIn();
@@ -63,7 +62,7 @@ export default function ConsumerMomentPreview() {
   }
 
   if (!moment) {
-    return <ConsumerShell locationLabel="Kingston"><div className="py-20"><h1 className="font-serif text-4xl">Moment unavailable.</h1><a href="/discover" className="mt-4 inline-flex text-primary font-black">Back to Discover →</a></div></ConsumerShell>;
+    return <ConsumerShell locationLabel="Kingston"><div className="py-20"><h1 className="font-serif text-4xl">Moment unavailable.</h1><a href="/?preview=consumer" className="mt-4 inline-flex text-primary font-black">Back to Home →</a></div></ConsumerShell>;
   }
 
   return (
