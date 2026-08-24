@@ -124,7 +124,7 @@ const loadGoogleMapsScript = (apiKey: string): Promise<typeof google.maps> => {
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
     script.id = "google-maps-script";
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry&v=weekly`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry,marker&loading=async&v=weekly`;
     script.async = true;
     script.defer = true;
     script.onload = () => {
@@ -151,7 +151,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const activeMarkersRef = useRef<google.maps.Marker[]>([]);
+  const activeMarkersRef = useRef<any[]>([]);
   const activeInfoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
@@ -169,6 +169,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
         const map = new gMaps.Map(mapContainerRef.current, {
           center: { lat: center?.lat ?? DEFAULT_CENTER.lat, lng: center?.lng ?? DEFAULT_CENTER.lng },
           zoom: zoom,
+          mapId: "DEMO_MAP_ID",
           styles: GOOGLE_DARK_STYLES,
           disableDefaultUI: !interactive,
           zoomControl: interactive,
@@ -200,49 +201,90 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
     mapInstanceRef.current.panTo({ lat: center.lat, lng: center.lng });
   }, [center?.lat, center?.lng]);
 
-  // 3. Render Google Maps Markers
+  // 3. Render Google Maps Markers (using modern AdvancedMarkerElement)
   useEffect(() => {
     if (!mapInstanceRef.current || !mapLoaded || !window.google?.maps) return;
 
     const map = mapInstanceRef.current;
 
     // Clear previous markers
-    activeMarkersRef.current.forEach((m) => m.setMap(null));
+    activeMarkersRef.current.forEach((m) => {
+      if (m.map) m.map = null;
+      if (typeof m.setMap === "function") m.setMap(null);
+    });
     activeMarkersRef.current = [];
 
-    const pinSvg = (color: string) =>
-      `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="${color}" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-          <circle cx="12" cy="10" r="3" fill="#ffffff"/>
-        </svg>
-      `)}`;
+    const createPinElement = (isSelected: boolean) => {
+      const pinDiv = document.createElement("div");
+      pinDiv.className = "promorang-map-pin-el";
+      pinDiv.style.cursor = "pointer";
+      pinDiv.innerHTML = `
+        <div style="
+          position: relative;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">
+          <div style="
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            background: ${isSelected ? "#22c55e" : "#ff5500"};
+            border: 2.5px solid #ffffff;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 0 16px ${isSelected ? "rgba(34, 197, 94, 0.7)" : "rgba(255, 85, 0, 0.7)"}, 0 4px 10px rgba(0,0,0,0.6);
+          "></div>
+          <div style="
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ffffff;
+            border-radius: 50%;
+            z-index: 2;
+          "></div>
+        </div>
+      `;
+      return pinDiv;
+    };
 
     if (markers.length === 0 && center) {
-      const fallbackMarker = new google.maps.Marker({
-        position: { lat: center.lat, lng: center.lng },
-        map: map,
-        icon: {
-          url: pinSvg("#ff5500"),
-          scaledSize: new google.maps.Size(34, 34),
-          anchor: new google.maps.Point(17, 34),
-        },
-      });
-      activeMarkersRef.current.push(fallbackMarker);
+      if (google.maps.marker?.AdvancedMarkerElement) {
+        const fallbackMarker = new google.maps.marker.AdvancedMarkerElement({
+          map,
+          position: { lat: center.lat, lng: center.lng },
+          content: createPinElement(false),
+        });
+        activeMarkersRef.current.push(fallbackMarker);
+      } else {
+        const fallbackMarker = new google.maps.Marker({
+          position: { lat: center.lat, lng: center.lng },
+          map,
+        });
+        activeMarkersRef.current.push(fallbackMarker);
+      }
       return;
     }
 
     markers.forEach((m) => {
-      const marker = new google.maps.Marker({
-        position: { lat: m.lat, lng: m.lng },
-        map: map,
-        title: m.title,
-        icon: {
-          url: pinSvg("#ff5500"),
-          scaledSize: new google.maps.Size(34, 34),
-          anchor: new google.maps.Point(17, 34),
-        },
-      });
+      let marker: any;
+
+      if (google.maps.marker?.AdvancedMarkerElement) {
+        marker = new google.maps.marker.AdvancedMarkerElement({
+          map,
+          position: { lat: m.lat, lng: m.lng },
+          title: m.title,
+          content: createPinElement(false),
+        });
+      } else {
+        marker = new google.maps.Marker({
+          position: { lat: m.lat, lng: m.lng },
+          map,
+          title: m.title,
+        });
+      }
 
       const popupContent = `
         <div style="
@@ -308,7 +350,14 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
         if (activeInfoWindowRef.current) {
           activeInfoWindowRef.current.close();
         }
-        infoWindow.open(map, marker);
+        if (google.maps.marker?.AdvancedMarkerElement && marker instanceof google.maps.marker.AdvancedMarkerElement) {
+          infoWindow.open({
+            anchor: marker,
+            map,
+          });
+        } else {
+          infoWindow.open(map, marker);
+        }
         activeInfoWindowRef.current = infoWindow;
       });
 
