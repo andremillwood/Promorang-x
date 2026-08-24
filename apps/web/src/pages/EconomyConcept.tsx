@@ -733,6 +733,545 @@ const conceptData: Record<
 // Interactive Concept Visual Card Components
 // ==========================================
 
+function MomentVisualDemo() {
+  const [checkedIn, setCheckedIn] = useState(false);
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-6 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 text-primary">
+            <MapPin className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Live Moment</span>
+            </div>
+            <p className="text-sm font-bold text-white">The Velvet Lounge & Bar</p>
+          </div>
+        </div>
+        <Badge className="border-primary/30 bg-primary/10 text-primary text-xs">
+          142 Checked In
+        </Badge>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-xs font-semibold text-zinc-400">Tonight's Activation</p>
+              <h4 className="text-base font-bold text-white mt-0.5">Midnight Jazz & Craft Tasting</h4>
+            </div>
+            <span className="rounded-md bg-amber-500/10 px-2 py-1 text-[11px] font-bold text-amber-400">
+              +150 Pts • 1 Drink Pass
+            </span>
+          </div>
+          <p className="mt-2 text-xs text-zinc-300">
+            Arrive before 10 PM and scan the venue Mark to verify attendance and unlock tasting perks.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between rounded-xl bg-white/[0.04] p-3 text-xs text-zinc-300">
+          <span className="flex items-center gap-2">
+            <QrCode className="h-4 w-4 text-primary" /> Geofence Verified
+          </span>
+          <span className="font-mono text-zinc-400">Austin, TX</span>
+        </div>
+
+        <Button
+          onClick={() => setCheckedIn(!checkedIn)}
+          className={`w-full py-5 text-sm font-bold transition-all ${
+            checkedIn
+              ? "bg-emerald-500 text-black hover:bg-emerald-400"
+              : "bg-primary text-black hover:bg-primary/90"
+          }`}
+        >
+          {checkedIn ? (
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4" /> Attendance Verified (+150 Pts Stamped)
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4" /> Simulate Check-In (Leave Mark)
+            </span>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function PointsVisualDemo() {
+  const [points, setPoints] = useState(1450);
+  const [keys, setKeys] = useState(2);
+  const [minted, setMinted] = useState(false);
+
+  const handleMint = () => {
+    if (points >= 500) {
+      setPoints(points - 500);
+      setKeys(keys + 1);
+      setMinted(true);
+      setTimeout(() => setMinted(false), 2000);
+    }
+  };
+
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-6 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+            <Coins className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">Reputation & Rank</span>
+            <p className="text-sm font-bold text-white">Season 2: Pioneer Standing</p>
+          </div>
+        </div>
+        <Badge className="border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs">
+          Rank Tier 4
+        </Badge>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
+            <p className="text-xs text-zinc-400">Points Balance</p>
+            <p className="mt-1 font-serif text-2xl font-bold text-amber-400">{points.toLocaleString()} <span className="text-xs font-sans font-normal text-zinc-400">Pts</span></p>
+            <p className="mt-1 text-[11px] text-zinc-500">+250 earned this week</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
+            <p className="text-xs text-zinc-400">Minted PromoKeys</p>
+            <p className="mt-1 font-serif text-2xl font-bold text-primary">{keys} <span className="text-xs font-sans font-normal text-zinc-400">Keys</span></p>
+            <p className="mt-1 text-[11px] text-zinc-500">Vault Access Ready</p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <div className="flex items-center justify-between text-xs mb-2">
+            <span className="font-semibold text-zinc-300">Daily Conversion Window</span>
+            <span className="font-mono text-primary">500 Pts = 1 PromoKey</span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+            <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-primary w-[80%]" />
+          </div>
+        </div>
+
+        <Button
+          onClick={handleMint}
+          disabled={points < 500}
+          className="w-full py-5 text-sm font-bold bg-gradient-to-r from-amber-400 to-primary text-black hover:opacity-90"
+        >
+          {minted ? (
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4" /> 1 PromoKey Minted!
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <KeyRound className="h-4 w-4" /> Mint 1 PromoKey (500 Pts)
+            </span>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function KeysVisualDemo() {
+  const [unlocked, setUnlocked] = useState(false);
+
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-6 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 text-primary">
+            <KeyRound className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-primary">Key Gated Opportunity</span>
+            <p className="text-sm font-bold text-white">The Creator Vault Drop</p>
+          </div>
+        </div>
+        <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 font-mono text-xs font-bold text-primary">
+          1 Key Required
+        </span>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-amber-400">
+              {unlocked ? <Unlock className="h-6 w-6 text-emerald-400" /> : <Lock className="h-6 w-6" />}
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white">VIP Tasting & Secret Menu Pass</h4>
+              <p className="mt-1 text-xs text-zinc-400">
+                {unlocked
+                  ? "Access granted: Show your pass code #VK-9920 at the host stand."
+                  : "Sponsored by Artisan Distillers • 8 slots remaining today"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-zinc-300">
+            <p className="text-[10px] text-zinc-500 uppercase font-bold">Scarcity</p>
+            <p className="font-semibold text-white mt-0.5">Max 3 / Day</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-zinc-300">
+            <p className="text-[10px] text-zinc-500 uppercase font-bold">Cost</p>
+            <p className="font-semibold text-primary mt-0.5">0 Cash (1 PromoKey)</p>
+          </div>
+        </div>
+
+        <Button
+          onClick={() => setUnlocked(!unlocked)}
+          className={`w-full py-5 text-sm font-bold transition-all ${
+            unlocked
+              ? "bg-emerald-500 text-black hover:bg-emerald-400"
+              : "bg-primary text-black hover:bg-primary/90"
+          }`}
+        >
+          {unlocked ? (
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4" /> Pass Unlocked (#VK-9920)
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <KeyRound className="h-4 w-4" /> Spend 1 Key to Unlock Pass
+            </span>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function MasterKeyVisualDemo() {
+  const [active, setActive] = useState(true);
+
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-b from-amber-500/[0.12] to-black/80 p-6 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-amber-500/20 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-black shadow-lg shadow-amber-500/30">
+            <Flame className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">Daily Active Pulse</span>
+            <p className="text-sm font-bold text-white">Master Key: {active ? "Active" : "Inactive"}</p>
+          </div>
+        </div>
+        <Badge className="border-amber-500/40 bg-amber-500/20 text-amber-300 text-xs font-mono">
+          🔥 6 Day Streak
+        </Badge>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        <div className="rounded-2xl border border-amber-500/20 bg-black/60 p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-zinc-300">Status Window</span>
+            <span className="text-xs font-mono text-amber-400">14h 32m remaining</span>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="rounded-lg bg-white/[0.05] p-2">
+              <p className="text-[10px] text-zinc-400">Daily Draw</p>
+              <p className="font-bold text-emerald-400 mt-0.5">Eligible</p>
+            </div>
+            <div className="rounded-lg bg-white/[0.05] p-2">
+              <p className="text-[10px] text-zinc-400">Multiplier</p>
+              <p className="font-bold text-amber-400 mt-0.5">1.5x Pts</p>
+            </div>
+            <div className="rounded-lg bg-white/[0.05] p-2">
+              <p className="text-[10px] text-zinc-400">Gems Pool</p>
+              <p className="font-bold text-white mt-0.5">Active</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-white/[0.04] p-3 text-xs text-zinc-300 flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-400" /> 1 Verified Action completed today
+          </span>
+          <span className="text-[11px] text-zinc-500">Auto-Renews</span>
+        </div>
+
+        <Button
+          onClick={() => setActive(!active)}
+          variant="outline"
+          className="w-full py-5 border-amber-500/40 text-amber-300 hover:bg-amber-500/10"
+        >
+          {active ? "Simulate Expiration" : "Simulate Daily Action (Check In)"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function PieceVisualDemo() {
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-purple-500/30 bg-gradient-to-b from-purple-950/40 via-black/80 to-black p-6 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-purple-500/20 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/20 text-purple-300">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-400">Cultural Memorabilia</span>
+            <p className="text-sm font-bold text-white">Founding Resident Piece #042</p>
+          </div>
+        </div>
+        <Badge className="border-purple-500/40 bg-purple-500/20 text-purple-300 text-xs font-mono">
+          1 of 100 Minted
+        </Badge>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        <div className="rounded-2xl border border-purple-500/20 bg-purple-950/20 p-4">
+          <p className="text-xs text-purple-300 font-semibold">Origin Moment</p>
+          <h4 className="text-base font-bold text-white mt-0.5">Neon Nights Launch Gala 2026</h4>
+          <p className="mt-2 text-xs text-zinc-300">
+            Permanent utility: 15% VIP discount across all partner venues and guaranteed entry to annual reunion sessions.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-zinc-300">
+            <p className="text-[10px] text-zinc-500 uppercase font-bold">Ownership</p>
+            <p className="font-semibold text-white mt-0.5">Permanent & Tradable</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-zinc-300">
+            <p className="text-[10px] text-zinc-500 uppercase font-bold">Status</p>
+            <p className="font-semibold text-purple-300 mt-0.5">In Your Vault</p>
+          </div>
+        </div>
+
+        <Button className="w-full py-5 text-sm font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/30" asChild>
+          <Link to="/portfolio">
+            <WalletCards className="mr-2 h-4 w-4" /> View in Your Piece Vault
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function CreatorMissionVisualDemo() {
+  const [submitted, setSubmitted] = useState(false);
+
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-6 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-500/20 text-pink-400">
+            <PlayCircle className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-pink-400">Funded UGC Bounty</span>
+            <p className="text-sm font-bold text-white">15s Cocktail Craft Video</p>
+          </div>
+        </div>
+        <span className="rounded-full border border-pink-500/30 bg-pink-500/10 px-3 py-1 font-mono text-xs font-bold text-pink-400">
+          +120 Gems Bounty
+        </span>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
+          <p className="text-xs font-semibold text-zinc-400">Mission Brief</p>
+          <p className="mt-1 text-xs leading-relaxed text-zinc-200">
+            Record a short video featuring the bartender preparing the signature seasonal cocktail and tag @TheVelvetLounge.
+          </p>
+          <div className="mt-3 flex items-center gap-2">
+            <Badge variant="outline" className="border-white/15 text-[10px] text-zinc-400">TikTok / Reels</Badge>
+            <Badge variant="outline" className="border-white/15 text-[10px] text-zinc-400">Min 10s</Badge>
+            <Badge variant="outline" className="border-emerald-500/30 text-[10px] text-emerald-400">Instant Review</Badge>
+          </div>
+        </div>
+
+        <Button
+          onClick={() => setSubmitted(!submitted)}
+          className={`w-full py-5 text-sm font-bold transition-all ${
+            submitted
+              ? "bg-emerald-500 text-black hover:bg-emerald-400"
+              : "bg-pink-600 hover:bg-pink-500 text-white"
+          }`}
+        >
+          {submitted ? (
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4" /> Proof Verified (+120 Gems Paid)
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <Upload className="h-4 w-4" /> Submit Video Proof
+            </span>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function PromoShareVisualDemo() {
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-6 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-400">
+            <Gem className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400">Transparent Rewards</span>
+            <p className="text-sm font-bold text-white">Tickets & Funded Gems</p>
+          </div>
+        </div>
+        <Badge className="border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-xs">
+          350 Gems Balance
+        </Badge>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Ticket className="h-4 w-4 text-primary" />
+              <span className="text-xs font-bold text-white">PromoShare Ticket #PS-88219</span>
+            </div>
+            <span className="text-[10px] font-mono text-zinc-400">Draw Friday 8 PM</span>
+          </div>
+          <p className="mt-2 text-xs text-zinc-300">
+            Entered into the Austin Community Weekend Pool ($500 Sponsor Escrow).
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-zinc-300">
+            <p className="text-[10px] text-zinc-500 uppercase font-bold">Fairness</p>
+            <p className="font-semibold text-white mt-0.5">100% Provable On-Chain</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-zinc-300">
+            <p className="text-[10px] text-zinc-500 uppercase font-bold">Redeemable</p>
+            <p className="font-semibold text-cyan-300 mt-0.5">Direct Perks & Products</p>
+          </div>
+        </div>
+
+        <Button className="w-full py-5 text-sm font-bold bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-600/30" asChild>
+          <Link to="/promoshare">
+            <Ticket className="mr-2 h-4 w-4" /> View Live PromoShare Draws
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function SquadVisualDemo() {
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-6 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/20 text-blue-400">
+            <Users className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">Squad Multiplier</span>
+            <p className="text-sm font-bold text-white">Downtown Collective</p>
+          </div>
+        </div>
+        <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 font-mono text-xs font-bold text-blue-400">
+          1.5x Boost Active 🔥
+        </span>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
+          <div className="flex items-center justify-between text-xs mb-3">
+            <span className="font-semibold text-zinc-300">Checked In Together (4/5 Active)</span>
+            <span className="font-mono text-blue-400">+50% Pts Yield</span>
+          </div>
+          <div className="flex -space-x-2 overflow-hidden">
+            {["AM", "SJ", "KL", "MR"].map((initials, i) => (
+              <div
+                key={i}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-black bg-blue-600 font-mono text-[11px] font-bold text-white"
+              >
+                {initials}
+              </div>
+            ))}
+            <div className="inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-black bg-white/10 text-[10px] text-zinc-400">
+              +1
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-white/[0.04] p-3 text-xs text-zinc-300">
+          <p className="font-semibold text-white">Scene Standing #3 in Downtown</p>
+          <p className="mt-0.5 text-zinc-400">2 more check-ins this month unlocks VIP reservation priority.</p>
+        </div>
+
+        <Button className="w-full py-5 text-sm font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30" asChild>
+          <Link to="/for-communities">
+            <Users className="mr-2 h-4 w-4" /> Explore Community Squads
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function SustainabilityVisualDemo() {
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-950/30 via-black/80 to-black p-6 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-emerald-500/20 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">3-Ledger Architecture</span>
+            <p className="text-sm font-bold text-white">Separated Funds & Escrow</p>
+          </div>
+        </div>
+        <Badge className="border-emerald-500/40 bg-emerald-500/20 text-emerald-300 text-xs">
+          Audited Model
+        </Badge>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        <div className="rounded-xl border border-white/10 bg-black/50 p-3 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold text-white">1. Sponsor Reward Escrow</p>
+            <p className="text-[11px] text-zinc-400">100% committed directly to participant rewards</p>
+          </div>
+          <span className="text-xs font-mono text-emerald-400 font-bold">100% Payout</span>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-black/50 p-3 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold text-white">2. Host & Operator Proceeds</p>
+            <p className="text-[11px] text-zinc-400">Direct ticket and sales revenue to venues</p>
+          </div>
+          <span className="text-xs font-mono text-white font-bold">Direct Payout</span>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-black/50 p-3 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold text-white">3. Promorang Service Fee</p>
+            <p className="text-[11px] text-zinc-400">Disclosed software and setup configuration fees</p>
+          </div>
+          <span className="text-xs font-mono text-primary font-bold">Published Fee</span>
+        </div>
+
+        <Button className="w-full py-5 text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30" asChild>
+          <Link to="/pricing">
+            <Building2 className="mr-2 h-4 w-4" /> View Pricing & Commercial Terms
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function EconomyConcept() {
   const { concept } = useParams();
   const conceptKey = (concept ?? "overview") as ConceptKey;
