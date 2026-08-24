@@ -78,11 +78,20 @@ export function useDiscovery(slug?: string) {
         }
       }
 
-      const { data: discovery, error } = await db
+      let { data: discovery, error } = await db
         .from("discoveries")
         .select("*")
         .eq("slug", slug)
         .maybeSingle();
+
+      if (!discovery && slug) {
+        const { data: byId } = await db
+          .from("discoveries")
+          .select("*")
+          .eq("id", slug)
+          .maybeSingle();
+        if (byId) discovery = byId;
+      }
 
       if (error) {
         console.warn("useDiscovery DB error:", error);

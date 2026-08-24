@@ -236,6 +236,8 @@ const Discover = () => {
             category: m.category || "Moment & Event",
             reward: m.reward || undefined,
             imageUrl: m.image_url || undefined,
+            url: `/moments/${m.slug || m.id}`,
+            actionLabel: "View & RSVP →",
           });
         }
       }
@@ -260,6 +262,8 @@ const Discover = () => {
           category: "Verified Venue",
           reward: v.vibe ? `✨ ${v.vibe}` : "Partner Venue Perks",
           imageUrl: v.image_url,
+          url: `/explore/venues`,
+          actionLabel: "View Venue →",
         });
       }
     });
@@ -282,6 +286,8 @@ const Discover = () => {
           category: d.category === "hidden_gem" ? "Hidden Gem" : d.category === "music" ? "Music & Vibes" : "Scenic & Dining",
           reward: `⭐ ${d.average_rating} rating • ${d.checkin_count} check-ins`,
           imageUrl: d.cover_image,
+          url: `/discoveries/${d.slug || d.id}`,
+          actionLabel: "Explore Discovery →",
         });
       }
     });

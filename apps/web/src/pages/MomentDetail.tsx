@@ -27,6 +27,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { demoMoments } from "@/data/demo-moments";
 import { cultureEvents } from "@/data/culture-demo";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
+import { getCuratedDiscoveryBySlug } from "@/data/discoveriesData";
 import { getSubMomentsForMoment } from "@/components/radar/MomentDetailModal";
 import type { MomentProps } from "@/components/radar/MomentCard";
 import { SquadJoinCard } from "@/components/moments/SquadJoinCard";
@@ -202,6 +203,17 @@ const MomentDetail = () => {
       const identifierIsUuid = UUID_PATTERN.test(id.trim());
       let momentData: Moment | null = null;
 
+      // 0. Smart Redirect: If this is a Discovery ID or slug, automatically redirect to /discoveries/:slug
+      const curatedDiscovery = getCuratedDiscoveryBySlug(cleanId);
+      if (curatedDiscovery) {
+        navigate(`/discoveries/${curatedDiscovery.slug || curatedDiscovery.id}`, { replace: true });
+        return;
+      }
+      if (cleanId.startsWith("disc-")) {
+        navigate(`/discoveries/${cleanId}`, { replace: true });
+        return;
+      }
+
       // 1. Direct Curated Kingston / Promorang Presents matching (instant, no network lag)
       const curatedMatch = CURATED_KINGSTON_MOMENTS.find(m => {
         if (m.id.toLowerCase() === cleanId) return true;
@@ -332,6 +344,21 @@ const MomentDetail = () => {
       }
 
       if (!momentData) {
+        try {
+          const { data: dbDisc } = await supabase
+            .from("discoveries" as any)
+            .select("slug, id")
+            .or(`slug.eq.${cleanId},id.eq.${cleanId}`)
+            .maybeSingle();
+
+          if (dbDisc) {
+            navigate(`/discoveries/${dbDisc.slug || dbDisc.id}`, { replace: true });
+            return;
+          }
+        } catch {
+          // Ignore DB query error and proceed to 404 state
+        }
+
         setMoment(null);
         setLoading(false);
         return;

@@ -10,6 +10,8 @@ export interface MapMarkerItem {
   category?: string;
   reward?: string;
   imageUrl?: string;
+  url?: string;
+  actionLabel?: string;
 }
 
 interface PromorangMapProps {
@@ -191,6 +193,19 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
         icon,
       });
 
+      const isDiscovery = item.id.startsWith("disc-") || item.category?.toLowerCase().includes("discovery") || item.category?.toLowerCase().includes("gem");
+      const isVenue = item.id.startsWith("venue-") || item.category?.toLowerCase().includes("venue");
+      const targetUrl = item.url || (
+        isDiscovery ? `/discoveries/${item.id}` :
+        isVenue ? `/explore/venues` :
+        `/moments/${item.id}`
+      );
+      const actionText = item.actionLabel || (
+        isDiscovery ? "Explore Discovery →" :
+        isVenue ? "View Venue →" :
+        "View &amp; RSVP →"
+      );
+
       const html = `
 <div style="padding:12px;min-width:220px;max-width:280px;font-family:system-ui,sans-serif;color:#18181b">
   ${item.category ? `<span style="display:inline-block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:9999px;background:#ffedd5;color:#c2410c;margin-bottom:6px">${item.category}</span>` : ""}
@@ -198,7 +213,7 @@ export const PromorangMap: React.FC<PromorangMapProps> = ({
   ${item.subtitle ? `<p style="margin:0 0 6px;font-size:11px;color:#52525b;line-height:1.3">${item.subtitle}</p>` : ""}
   ${item.reward ? `<p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#059669">🏆 ${item.reward}</p>` : ""}
   <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e4e7;padding-top:8px;margin-top:6px">
-    <a href="/moments/${item.id}" style="font-size:11px;font-weight:800;color:#ff5500;text-decoration:none">View &amp; RSVP →</a>
+    <a href="${targetUrl}" style="font-size:11px;font-weight:800;color:#ff5500;text-decoration:none">${actionText}</a>
     <a href="https://maps.google.com/?q=${item.lat},${item.lng}" target="_blank" rel="noopener noreferrer" style="font-size:10px;font-weight:600;color:#71717a;text-decoration:none">Directions ↗</a>
   </div>
 </div>`;
