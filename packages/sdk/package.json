@@ -1,0 +1,31 @@
+{
+  "name": "@promorang/sdk",
+  "version": "1.0.0",
+  "description": "Official TypeScript & Headless Client SDK for Promorang Developer APIs and AI Agents",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "node --test dist/*.test.js"
+  },
+  "keywords": [
+    "promorang",
+    "sdk",
+    "ai-agents",
+    "headless",
+    "mcp",
+    "promotions",
+    "coupons"
+  ],
+  "author": "Promorang Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}

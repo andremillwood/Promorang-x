@@ -397,11 +397,11 @@ export default function CinematicCultureHome() {
         title: listing.name || "Local offer",
         merchant: listing.merchant_name || listing.venue_name || "Promorang merchant",
         price: formatCommercePrice(listing),
-        image: listing.image_url || commerceFallback[index % commerceFallback.length].image,
+        image: listing.image_url || "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=800",
         href: listing.listing_id ? `/shop/${listing.listing_id}` : (listing.source_id ? `/shop/${listing.source_id}` : "/shop"),
         isSample: false,
       }))
-    : commerceFallback.map((listing) => ({ ...listing, isSample: false }));
+    : [];
 
   const heroItems = [
     ...(discoveryQuery.data?.moments || []).map((moment) => ({
@@ -645,26 +645,52 @@ export default function CinematicCultureHome() {
 
           <div className="pt-12">
             <SectionHeader eyebrow={t("home.secDealsEyebrow")} title={t("home.secDealsTitle")} accent={t("home.secDealsAccent")} action={t("home.secDealsAction")} actionHref="/shop" />
-            {homepageCommerce.length ? <div className="grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 scrollbar-none sm:auto-cols-[45%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
-              {homepageCommerce.map((listing) => (
-                <Link key={listing.id} to={listing.href} className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] transition hover:-translate-y-1 hover:border-primary/45">
-                  <div className="relative h-44 overflow-hidden">
-                    <img src={listing.image} alt="" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
-                    <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">{listing.kind}</span>
-                    {listing.isSample ? <span className="absolute right-3 top-3 rounded-full border border-white/15 bg-black/60 px-2 py-1 text-[9px] font-bold uppercase text-white/55">Preview</span> : null}
-                  </div>
-                  <div className="p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{listing.merchant}</p>
-                    <h3 className="mt-2 text-lg font-black leading-tight text-white transition group-hover:text-primary">{listing.title}</h3>
-                    <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-3">
-                      <span className="text-sm font-bold text-white/75">{listing.price}</span>
-                      <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
+            {homepageCommerce.length ? (
+              <div className="grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 scrollbar-none sm:auto-cols-[45%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
+                {homepageCommerce.map((listing) => (
+                  <Link key={listing.id} to={listing.href} className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] transition hover:-translate-y-1 hover:border-primary/45">
+                    <div className="relative h-44 overflow-hidden">
+                      <img src={listing.image} alt="" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+                      <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">{listing.kind}</span>
+                      {listing.isSample ? <span className="absolute right-3 top-3 rounded-full border border-white/15 bg-black/60 px-2 py-1 text-[9px] font-bold uppercase text-white/55">Preview</span> : null}
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div> : <SampleOptIn onShow={() => setShowSamples(true)} noun="merchant offers" loading={discoveryQuery.isLoading} />}
+                    <div className="p-4">
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{listing.merchant}</p>
+                      <h3 className="mt-2 text-lg font-black leading-tight text-white transition group-hover:text-primary">{listing.title}</h3>
+                      <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-3">
+                        <span className="text-sm font-bold text-white/75">{listing.price}</span>
+                        <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent p-8 text-center sm:p-10">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary mb-4">
+                  <Store className="h-7 w-7" />
+                </div>
+                <h3 className="text-2xl font-black text-white">Live merchant drops coming soon</h3>
+                <p className="mx-auto mt-2 max-w-lg text-sm text-white/60">
+                  Verified local merchants, restaurants, and venues are onboarding exclusive passes and special perks.
+                </p>
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                  <Link
+                    to="/for-merchants"
+                    className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-black text-black transition hover:bg-primary/90"
+                  >
+                    Claim a Merchant Profile <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    to="/merchants"
+                    className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10"
+                  >
+                    Explore Directory
+                  </Link>
+                </div>
+              </div>
+            )}
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <Link to="/merchants" className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-primary/45">
                 <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Store className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">{t("home.meetMerchantsTitle")}</strong><span className="text-xs text-white/45">{t("home.meetMerchantsDesc")}</span></span></span>

@@ -143,11 +143,13 @@ const Marketplace = () => {
     }, [commerceQuery.data]);
 
     const realListings = useMemo(() => {
-        const filteredDb = (commerceQuery.data || []).filter((listing) => !isSampleCommerceListing(listing));
-        return filteredDb.length > 0 ? filteredDb : KINGSTON_EXPERIENCE_LISTINGS;
+        return (commerceQuery.data || []).filter((listing) => !isSampleCommerceListing(listing));
     }, [commerceQuery.data]);
-    const sampleListings = useMemo(() => (commerceQuery.data || []).filter(isSampleCommerceListing), [commerceQuery.data]);
-    const sourceListings = realListings.length || !showSamples ? realListings : sampleListings;
+    const sampleListings = useMemo(() => {
+        const dbSamples = (commerceQuery.data || []).filter(isSampleCommerceListing);
+        return dbSamples.length > 0 ? dbSamples : KINGSTON_EXPERIENCE_LISTINGS;
+    }, [commerceQuery.data]);
+    const sourceListings = realListings.length > 0 ? realListings : (showSamples ? sampleListings : []);
 
     const listings = useMemo(() => {
         const query = searchQuery.trim().toLowerCase();
@@ -257,7 +259,16 @@ const Marketplace = () => {
                     <ShoppingBag className="mx-auto h-10 w-10 text-primary" />
                     <h2 className="mt-4 text-2xl font-black text-white">{t("market.noInventory")}</h2>
                     <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/50">{t("market.noInventoryCopy")}</p>
-                    {sampleListings.length ? <Button type="button" variant="outline" className="mt-5" onClick={() => setShowSamples((value) => !value)}>{showSamples ? t("market.hideSamples") : t("market.showSamples")}</Button> : null}
+                    <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                        <Link to="/for-merchants">
+                            <Button variant="hero" className="rounded-full">Claim a Merchant Profile <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                        </Link>
+                        {sampleListings.length ? (
+                            <Button type="button" variant="outline" className="rounded-full" onClick={() => setShowSamples((value) => !value)}>
+                                {showSamples ? t("market.hideSamples") : t("market.showSamples")}
+                            </Button>
+                        ) : null}
+                    </div>
                 </section>
             ) : null}
 

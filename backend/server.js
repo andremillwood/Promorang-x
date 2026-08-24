@@ -117,7 +117,7 @@ app.use((req, res, next) => {
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Api-Version, X-Advertiser-Account-Id, X-Merchant-Account-Id');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Api-Version, X-Api-Key, x-api-key, X-Advertiser-Account-Id, X-Merchant-Account-Id');
     res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
     return res.status(204).end();
   }
@@ -142,6 +142,9 @@ app.use(express.json({
     }
   }
 }));
+
+// Mount Public Developer & Agent API v1
+app.use('/api/v1', require('./api/v1'));
 
 // Parse URL-encoded bodies with error handling
 app.use(express.urlencoded({
