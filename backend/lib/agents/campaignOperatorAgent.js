@@ -4,9 +4,13 @@
  * and generating evidence-grounded campaign recommendations.
  */
 
-const { generateText } = require('ai');
-const { openai } = require('@ai-sdk/openai');
-const { google } = require('@ai-sdk/google');
+let generateText;
+try {
+  ({ generateText } = require('ai'));
+} catch (e) {
+  generateText = null;
+}
+
 const { campaignOperatorTools } = require('./agentTools');
 const demandPlanCompilerService = require('../../services/demandPlanCompilerService');
 const agentTraceService = require('../../services/agentTraceService');
@@ -53,9 +57,20 @@ async function runCampaignOperator(params = {}, userContext = {}) {
 
   let model = null;
   if (googleKey) {
-    model = google('gemini-1.5-flash');
-  } else if (openaiKey) {
-    model = openai('gpt-4o-mini');
+    try {
+      const { google } = require('@ai-sdk/google');
+      model = google('gemini-1.5-flash');
+    } catch (e) {
+      console.warn('⚠️ @ai-sdk/google not available, falling back');
+    }
+  }
+  if (!model && openaiKey) {
+    try {
+      const { openai } = require('@ai-sdk/openai');
+      model = openai('gpt-4o-mini');
+    } catch (e) {
+      console.warn('⚠️ @ai-sdk/openai not available, falling back');
+    }
   }
 
   let finalReport = null;
