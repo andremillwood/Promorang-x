@@ -35,6 +35,7 @@ import {
   Compass,
   Flame,
   Sparkles,
+  Share2,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";

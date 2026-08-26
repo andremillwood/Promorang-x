@@ -40,7 +40,7 @@ const corsMiddleware = cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Api-Version', 'X-Advertiser-Account-Id', 'X-Merchant-Account-Id']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Api-Version', 'X-Api-Key', 'x-api-key', 'X-Advertiser-Account-Id', 'X-Merchant-Account-Id']
 });
 
 app.use(corsMiddleware);
@@ -296,8 +296,23 @@ app.use('/api/portfolio', require('./portfolio'));
 app.use('/api/shares', require('./shares'));
 app.use('/api/social-forecasts', require('./social-forecasts'));
 app.use('/api/growth', require('./growth'));
+app.use('/api/growth-ops', require('./growth-ops'));
 app.use('/api/operator', require('./operator'));
 app.use('/api/agent', require('./agent'));
+app.use('/api/agency-clients', require('./agency-clients'));
+app.use('/api/activations', require('./activations'));
+app.use('/api/matchmaking', require('./matchmaking'));
+app.use('/api/commerce', require('./commerce'));
+app.use('/api/kyc', require('./kyc'));
+app.use('/api/support', require('./support'));
+app.use('/api/participation', require('./participation'));
+app.use('/api/pulse', require('./pulse'));
+app.use('/api/proof', require('./proof'));
+app.use('/api/memories', require('./memories'));
+app.use('/api/impact', require('./impact'));
+app.use('/api/creator-economics', require('./creator-economics'));
+app.use('/api/market-construction', require('./market-construction'));
+app.use('/api/admin', require('./admin'));
 app.use('/api/advertisers', require('./advertisers'));
 app.use('/api/advertisers', requireAuth, require('./advertiserTeam')); // Team management routes
 app.use('/api/campaigns', require('./campaigns'));

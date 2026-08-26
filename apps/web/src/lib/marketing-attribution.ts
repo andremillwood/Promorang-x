@@ -148,33 +148,39 @@ type GrowthEventInput = {
 
 export async function trackGrowthEvent(input: GrowthEventInput) {
   if (typeof window === "undefined") return;
-  const attribution = captureGrowthAttribution();
-  const touch = attribution?.lastTouch;
-  const { data } = await supabase.auth.getSession();
-  const response = await fetch(`${API_BASE_URL}/growth-ops/events`, {
-    method: "POST",
-    keepalive: true,
-    headers: {
-      "Content-Type": "application/json",
-      ...(data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {}),
-    },
-    body: JSON.stringify({
-      ...input,
-      anonymousId: getAnonymousId(),
-      sessionId: getGrowthSessionId(),
-      source: touch?.utm_source || (touch?.referral_code ? "referral" : "direct"),
-      medium: touch?.utm_medium || (touch?.referral_code ? "referral" : "none"),
-      campaign: touch?.utm_campaign,
-      content: touch?.utm_content,
-      term: touch?.utm_term,
-      referralCode: touch?.referral_code,
-      promoPushCampaignId: touch?.promopush_campaign_id,
-      promoPushChannelId: touch?.promopush_channel_id,
-      referrerUrl: touch?.referrer,
-    }),
-  });
-  if (!response.ok && import.meta.env.DEV) {
-    console.warn("[Growth] Event was not accepted", input.eventName, response.status);
+  try {
+    const attribution = captureGrowthAttribution();
+    const touch = attribution?.lastTouch;
+    const { data } = await supabase.auth.getSession();
+    const response = await fetch(`${API_BASE_URL}/growth-ops/events`, {
+      method: "POST",
+      keepalive: true,
+      headers: {
+        "Content-Type": "application/json",
+        ...(data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {}),
+      },
+      body: JSON.stringify({
+        ...input,
+        anonymousId: getAnonymousId(),
+        sessionId: getGrowthSessionId(),
+        source: touch?.utm_source || (touch?.referral_code ? "referral" : "direct"),
+        medium: touch?.utm_medium || (touch?.referral_code ? "referral" : "none"),
+        campaign: touch?.utm_campaign,
+        content: touch?.utm_content,
+        term: touch?.utm_term,
+        referralCode: touch?.referral_code,
+        promoPushCampaignId: touch?.promopush_campaign_id,
+        promoPushChannelId: touch?.promopush_channel_id,
+        referrerUrl: touch?.referrer,
+      }),
+    });
+    if (!response.ok && import.meta.env.DEV) {
+      console.warn("[Growth] Event was not accepted", input.eventName, response.status);
+    }
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn("[Growth] Failed to track event", input.eventName, err);
+    }
   }
 }
 
@@ -187,70 +193,95 @@ export async function getExperimentAssignment(experimentKey: string) {
     localStorage.removeItem(EXPERIMENT_KEY);
   }
   if (assignments[experimentKey]) return assignments[experimentKey];
-  const { data } = await supabase.auth.getSession();
-  const response = await fetch(`${API_BASE_URL}/growth-ops/experiments/${encodeURIComponent(experimentKey)}/assignment`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {}),
-    },
-    body: JSON.stringify({ anonymousId: getAnonymousId() }),
-  });
-  if (!response.ok) return null;
-  const payload = await response.json();
-  const variant = payload.data?.variant || null;
-  if (variant) {
-    assignments[experimentKey] = variant;
-    localStorage.setItem(EXPERIMENT_KEY, JSON.stringify(assignments));
+  try {
+    const { data } = await supabase.auth.getSession();
+    const response = await fetch(`${API_BASE_URL}/growth-ops/experiments/${encodeURIComponent(experimentKey)}/assignment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {}),
+      },
+      body: JSON.stringify({ anonymousId: getAnonymousId() }),
+    });
+    if (!response.ok) return null;
+    const payload = await response.json();
+    const variant = payload.data?.variant || null;
+    if (variant) {
+      assignments[experimentKey] = variant;
+      localStorage.setItem(EXPERIMENT_KEY, JSON.stringify(assignments));
+    }
+    return variant;
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn("[Growth] Failed to get experiment assignment", experimentKey, err);
+    }
+    return null;
   }
-  return variant;
 }
 
 export async function stitchGrowthIdentity() {
   if (typeof window === "undefined") return;
-  const attribution = captureGrowthAttribution();
-  const { data } = await supabase.auth.getSession();
-  if (!data.session?.access_token) return;
-  await fetch(`${API_BASE_URL}/growth-ops/identity`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${data.session.access_token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      anonymousId: getAnonymousId(), firstTouch: attribution?.firstTouch || {}, lastTouch: attribution?.lastTouch || {},
-    }),
-  });
+  try {
+    const attribution = captureGrowthAttribution();
+    const { data } = await supabase.auth.getSession();
+    if (!data.session?.access_token) return;
+    await fetch(`${API_BASE_URL}/growth-ops/identity`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${data.session.access_token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        anonymousId: getAnonymousId(), firstTouch: attribution?.firstTouch || {}, lastTouch: attribution?.lastTouch || {},
+      }),
+    });
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn("[Growth] Failed to stitch identity", err);
+    }
+  }
 }
 
 export async function claimStoredReferral() {
   if (typeof window === "undefined") return;
-  const attribution = captureGrowthAttribution();
-  const referralCode = attribution?.firstTouch.referral_code || attribution?.lastTouch.referral_code;
-  if (!referralCode) return;
-  const { data } = await supabase.auth.getSession();
-  if (!data.session?.access_token) return;
-  await fetch(`${API_BASE_URL}/growth-ops/claim-referral`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${data.session.access_token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ referralCode, anonymousId: getAnonymousId(), attribution: attribution.firstTouch, source: "web" }),
-  });
+  try {
+    const attribution = captureGrowthAttribution();
+    const referralCode = attribution?.firstTouch.referral_code || attribution?.lastTouch.referral_code;
+    if (!referralCode) return;
+    const { data } = await supabase.auth.getSession();
+    if (!data.session?.access_token) return;
+    await fetch(`${API_BASE_URL}/growth-ops/claim-referral`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${data.session.access_token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ referralCode, anonymousId: getAnonymousId(), attribution: attribution.firstTouch, source: "web" }),
+    });
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn("[Growth] Failed to claim stored referral", err);
+    }
+  }
 }
 
 export async function trackStoredReferralClick() {
   if (typeof window === "undefined") return;
-  const attribution = captureGrowthAttribution();
-  const referralCode = attribution?.lastTouch.referral_code;
-  if (!referralCode) return;
-  await fetch(`${API_BASE_URL}/growth-ops/referral-click`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      referralCode,
-      sessionId: getGrowthSessionId(),
-      anonymousId: getAnonymousId(),
-      landingPath: `${window.location.pathname}${window.location.search}`,
-      referrerUrl: document.referrer || null,
-      metadata: { first_touch: attribution.firstTouch },
-    }),
-  });
+  try {
+    const attribution = captureGrowthAttribution();
+    const referralCode = attribution?.lastTouch.referral_code;
+    if (!referralCode) return;
+    await fetch(`${API_BASE_URL}/growth-ops/referral-click`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        referralCode,
+        sessionId: getGrowthSessionId(),
+        anonymousId: getAnonymousId(),
+        landingPath: `${window.location.pathname}${window.location.search}`,
+        referrerUrl: document.referrer || null,
+        metadata: { first_touch: attribution.firstTouch },
+      }),
+    });
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn("[Growth] Failed to track referral click", err);
+    }
+  }
 }
 
 export async function flushGrowthAfterAuth() {
@@ -291,17 +322,23 @@ export async function flushMarketingIntent() {
   await flushGrowthAfterAuth();
   const raw = sessionStorage.getItem(INTENT_KEY);
   if (!raw) return;
-  const { data } = await supabase.auth.getSession();
-  if (!data.session?.access_token) return;
-  const intent = JSON.parse(raw) as MarketingIntent;
-  const response = await fetch(`${API_BASE_URL}/revenue-funnels/events`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${data.session.access_token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      funnel: "campaign", stage: "captured", entityType: "marketing_intent", source: "web",
-      sessionId: getGrowthSessionId(), metadata: intent,
-      idempotencyKey: `marketing-intent:${data.session.user.id}:${intent.capturedAt}`,
-    }),
-  });
-  if (response.ok) sessionStorage.removeItem(INTENT_KEY);
+  try {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session?.access_token) return;
+    const intent = JSON.parse(raw) as MarketingIntent;
+    const response = await fetch(`${API_BASE_URL}/revenue-funnels/events`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${data.session.access_token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        funnel: "campaign", stage: "captured", entityType: "marketing_intent", source: "web",
+        sessionId: getGrowthSessionId(), metadata: intent,
+        idempotencyKey: `marketing-intent:${data.session.user.id}:${intent.capturedAt}`,
+      }),
+    });
+    if (response.ok) sessionStorage.removeItem(INTENT_KEY);
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn("[Growth] Failed to flush marketing intent", err);
+    }
+  }
 }
