@@ -197,6 +197,8 @@ app.use('/api/telemetry', require('./api/telemetry'));
 app.use('/api/feed', require('./api/feed'));
 app.use('/api/events', require('./api/events'));
 app.use('/api/guest-rsvp', require('./api/guest-rsvp'));
+app.use('/api/discovery-acquisition', require('./api/discovery-acquisition'));
+app.use('/api/d', require('./api/discovery-acquisition'));
 
 app.use('/api/rewards', require('./api/rewards'));
 app.use('/api/pioneer-points', require('./api/pioneer-points'));

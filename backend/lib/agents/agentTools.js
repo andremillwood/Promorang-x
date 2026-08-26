@@ -4,11 +4,22 @@
  * Agents do NOT get raw DB query access. They interact ONLY through these typed tools.
  */
 
-const { tool } = require('ai');
 const { z } = require('zod');
 const { supabase } = require('../../lib/supabase');
 const brandCampaignService = require('../../services/brandCampaignService');
 const demandPlanCompilerService = require('../../services/demandPlanCompilerService');
+
+let tool;
+try {
+  ({ tool } = require('ai'));
+} catch (error) {
+  console.warn('[agentTools] AI SDK unavailable; agent tools will return graceful errors:', error.message);
+  tool = (definition) => ({
+    description: definition.description,
+    parameters: definition.parameters,
+    execute: async () => ({ error: 'AI SDK unavailable in this runtime' }),
+  });
+}
 
 /**
  * 1. Tool: inspectMerchant
