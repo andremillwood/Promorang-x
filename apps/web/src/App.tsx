@@ -75,6 +75,7 @@ const ProposeLanding = lazy(() => import("@/pages/ProposeLanding"));
 const CreateMoment = lazy(() => import("./pages/CreateMoment"));
 const Discover = lazy(() => import("./pages/Discover"));
 const DiscoveryDetail = lazy(() => import("./pages/DiscoveryDetail"));
+const DiscoveryAcquisitionPage = lazy(() => import("./pages/DiscoveryAcquisitionPage"));
 const ExploreMoments = lazy(() => import("./pages/ExploreMoments"));
 const EventScout = lazy(() => import("./pages/EventScout"));
 const ExploreVenues = lazy(() => import("./pages/ExploreVenues"));
@@ -303,6 +304,7 @@ const App = () => (
                     <Route path="/live" element={<Pulse />} />
                     <Route path="/explore" element={<Navigate to="/discover" replace />} />
                     <Route path="/discover" element={<Discover />} />
+                    <Route path="/d/:slug" element={<DiscoveryAcquisitionPage />} />
                     <Route path="/discoveries/:slug" element={<DiscoveryDetail />} />
                     <Route path="/discovery/:slug" element={<CanonicalDiscoveryRedirect />} />
                     <Route path="/discover/moments" element={<ExploreMoments />} />

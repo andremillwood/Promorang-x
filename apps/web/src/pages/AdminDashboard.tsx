@@ -59,6 +59,7 @@ import { AdminLeadsCRM } from "@/components/admin/AdminLeadsCRM";
 import { AdminPresentsPanel } from "@/components/admin/AdminPresentsPanel";
 import { AdminEnrichmentReviewTab } from "@/components/admin/AdminEnrichmentReviewTab";
 import { AdminEventVerificationReviewTab } from "@/components/admin/AdminEventVerificationReviewTab";
+import { AdminDiscoveryAcquisitionTab } from "@/components/admin/AdminDiscoveryAcquisitionTab";
 import { PromoPilotCompiler } from "@/components/campaigns/PromoPilotCompiler";
 import { useI18n } from "@/i18n/I18nContext";
 
@@ -66,6 +67,7 @@ const ADMIN_TABS = new Set([
   "command",
   "overview",
   "growth",
+  "discovery",
   "leads",
   "proof-builder",
   "pioneer",
@@ -103,6 +105,7 @@ const ADMIN_NAV_GROUPS: Array<{ label: string; items: AdminNavItem[] }> = [
       { value: "command", label: "Command Center", icon: Shield },
       { value: "overview", label: "Analytics", icon: BarChart3 },
       { value: "growth", label: "Growth", icon: TrendingUp },
+      { value: "discovery", label: "Discovery Loop", icon: Target },
       { value: "leads", label: "Leads & CRM", icon: ContactRound },
     ],
   },
@@ -343,6 +346,9 @@ const AdminDashboard = () => {
 
             <TabsContent value="growth">
               <AdminGrowthTab />
+            </TabsContent>
+            <TabsContent value="discovery">
+              <AdminDiscoveryAcquisitionTab />
             </TabsContent>
             <TabsContent value="leads">
               <AdminLeadsCRM />
