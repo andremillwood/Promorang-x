@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { Sparkles, Calculator, CheckCircle2, ShieldCheck, Tag, ArrowRight, Zap, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Sparkles, Calculator, CheckCircle2, ShieldCheck, Tag, ArrowRight, Zap, TrendingUp, QrCode, Plus } from "lucide-react";
+import { PostPerkModal } from "@/components/merchant/PostPerkModal";
 
 export default function MerchantCouponHub() {
   const [productPrice, setProductPrice] = useState(50);
   const [targetOrders, setTargetOrders] = useState(100);
+  const [postPerkOpen, setPostPerkOpen] = useState(false);
 
   const grossRevenue = productPrice * targetOrders;
   const platformFee = grossRevenue * 0.10; // 10% performance fee
@@ -31,14 +34,25 @@ export default function MerchantCouponHub() {
             </h1>
 
             <p className="mt-4 max-w-2xl text-base text-white/70">
-              Issue performance-based loyalty coupons. Zero upfront ad spend, zero subscription fees, and 100% pay-for-performance. You only pay when customers buy.
+              Issue performance-based loyalty perks and coupons. Zero upfront ad spend, zero subscription fees, and 100% pay-for-performance. You only pay when customers buy.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
-              <button className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-3.5 text-sm font-black text-black shadow-lg shadow-emerald-500/25 transition hover:brightness-110 active:scale-95">
-                Launch Zero-Risk Coupon Drop
-                <ArrowRight className="h-4 w-4" />
+              <button 
+                onClick={() => setPostPerkOpen(true)}
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-3.5 text-sm font-black text-black shadow-lg shadow-emerald-500/25 transition hover:brightness-110 active:scale-95 cursor-pointer"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Launch Zero-Risk Perk Drop</span>
               </button>
+
+              <Link
+                to="/staff/scanner"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 px-6 py-3.5 text-sm font-bold text-white transition active:scale-95"
+              >
+                <QrCode className="h-4 w-4 text-emerald-400" />
+                <span>Open Staff QR Scanner</span>
+              </Link>
             </div>
           </div>
         </header>
@@ -140,6 +154,12 @@ export default function MerchantCouponHub() {
         </section>
 
       </div>
+
+      <PostPerkModal
+        open={postPerkOpen}
+        onOpenChange={setPostPerkOpen}
+        onCreated={() => {}}
+      />
     </main>
   );
 }

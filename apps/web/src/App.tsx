@@ -178,6 +178,7 @@ const MidasBrandSponsorshipProposal = lazy(() => import("./pages/MidasBrandSpons
 const StewardDashboard = lazy(() => import("./pages/StewardDashboard"));
 const MerchantActionStudio = lazy(() => import("./pages/MerchantActionStudio"));
 const ActivatedReferralsDashboard = lazy(() => import("./pages/ActivatedReferralsDashboard"));
+const StaffScanner = lazy(() => import("./pages/StaffScanner"));
 
 
 const queryClient = new QueryClient();
@@ -346,6 +347,8 @@ const App = () => (
                     <Route path="/sprint" element={<ReferralSprintPage />} />
                     <Route path="/seasons/showdown" element={<SeasonShowdownPage />} />
                     <Route path="/merchant/coupons" element={<MerchantCouponHub />} />
+                    <Route path="/merchant/scan" element={<StaffScanner />} />
+                    <Route path="/staff/scanner" element={<StaffScanner />} />
                     <Route path="/flash-sales" element={<GemRushPage />} />
 
                     <Route path="/categories/:categorySlug" element={<CategoryArchive />} />

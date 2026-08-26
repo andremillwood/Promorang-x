@@ -620,6 +620,75 @@ export default function CinematicCultureHome() {
             </nav>
           </div>
 
+          {/* 3-SIDED MARKET ARCHITECTURE SHOWCASE */}
+          <div className="my-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link
+              to="/discover"
+              className="group p-6 rounded-3xl border border-orange-500/30 bg-gradient-to-b from-orange-500/10 via-zinc-950 to-zinc-950 hover:border-orange-500 transition-all shadow-xl space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <span className="px-3 py-1 rounded-full bg-orange-500/20 text-orange-400 font-mono text-xs font-black uppercase tracking-wider">
+                  People → Discover
+                </span>
+                <Compass className="w-5 h-5 text-orange-400 group-hover:rotate-45 transition-transform" />
+              </div>
+              <h3 className="text-xl font-black text-white group-hover:text-orange-300 transition-colors">
+                Discover What's Worth Doing &amp; Choosing
+              </h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Respond to culture choices, vote in city demand signals, unlock merchant perks, and earn PromoPoints.
+              </p>
+              <div className="pt-2 text-xs font-black text-orange-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Explore Live Discoveries</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </Link>
+
+            <Link
+              to="/for-merchants"
+              className="group p-6 rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-500/10 via-zinc-950 to-zinc-950 hover:border-emerald-500 transition-all shadow-xl space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-xs font-black uppercase tracking-wider">
+                  Businesses → Offer
+                </span>
+                <Store className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
+              </div>
+              <h3 className="text-xl font-black text-white group-hover:text-emerald-300 transition-colors">
+                Give People a Reason to Choose You
+              </h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Post zero-risk Perks and exclusive drops. Turn latent attention into verified foot traffic and purchases.
+              </p>
+              <div className="pt-2 text-xs font-black text-emerald-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Post a Perk</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </Link>
+
+            <Link
+              to="/creators"
+              className="group p-6 rounded-3xl border border-purple-500/30 bg-gradient-to-b from-purple-500/10 via-zinc-950 to-zinc-950 hover:border-purple-500 transition-all shadow-xl space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-mono text-xs font-black uppercase tracking-wider">
+                  Creators → Distribute
+                </span>
+                <Share2 className="w-5 h-5 text-purple-400 group-hover:scale-110 transition-transform" />
+              </div>
+              <h3 className="text-xl font-black text-white group-hover:text-purple-300 transition-colors">
+                Find Things Worth Sharing &amp; Move People
+              </h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Build measurable distribution reputation. Earn single-level referral points and weekly draw tickets.
+              </p>
+              <div className="pt-2 text-xs font-black text-purple-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Browse Things to Share</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </Link>
+          </div>
+
           <DiscoveriesFeedSection />
 
           <div className="pt-9">

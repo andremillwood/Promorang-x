@@ -34,6 +34,7 @@ import {
   Tag,
 } from "lucide-react";
 import { useState } from "react";
+import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -377,6 +378,9 @@ const Header = () => {
 
           {/* 3. Right Zone: Utilities & Unified User Dropdown */}
           <div className="flex items-center gap-2 shrink-0">
+            {/* Global Ticket & Balances Pill */}
+            <GlobalTicketBalancePill className="hidden md:inline-flex" />
+
             {user ? (
               <>
                 {/* Activity Pulse Notifications */}

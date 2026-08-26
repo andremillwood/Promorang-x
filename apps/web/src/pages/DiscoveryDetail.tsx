@@ -55,6 +55,10 @@ import {
   DiscoveryComment 
 } from "@/data/discoveriesData";
 import { useI18n } from "@/i18n/I18nContext";
+import { usePromoShareRail } from "@/hooks/usePromoShareRail";
+import { usePerks } from "@/hooks/usePerks";
+import { PerkCard } from "@/components/perks/PerkCard";
+import { PromoShareAction } from "@/components/promoshare/PromoShareAction";
 
 export default function DiscoveryDetail() {
   const { t } = useI18n();
@@ -62,6 +66,8 @@ export default function DiscoveryDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast: uiToast } = useToast();
+  const { recordAttributedAction } = usePromoShareRail();
+  const { perks } = usePerks();
 
   // Check if this slug matches a Discovery Poll / Demand Signal
   const pollConfig = getDiscoveryPollByIdOrSlug(slug || "");
@@ -145,9 +151,7 @@ export default function DiscoveryDetail() {
         setSelectedOptionForComment(selectedOpt.text);
       }
 
-      toast.success(`Vote counted! +${poll.pointsReward} PromoPoints awarded to your account.`, {
-        description: "Taste preferences updated & personalized spot recommendations unlocked below!",
-      });
+      recordAttributedAction('discovery.completed', poll.question);
     };
 
     const handleSimulateInvite = () => {

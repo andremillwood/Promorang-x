@@ -82,7 +82,7 @@ export function PWAInstallPrompt() {
   if (dismissed || (!deferredPrompt && !showIOSPrompt)) return null;
 
   return (
-    <aside aria-label={t("pwa.installTitle")} className="fixed bottom-20 left-4 right-4 z-[9998] md:left-auto md:right-6 md:bottom-6 md:w-96 rounded-3xl bg-[#0e0e11]/95 border border-primary/30 p-4 shadow-2xl backdrop-blur-2xl text-white animate-in slide-in-from-bottom-5 duration-300">
+    <aside aria-label={t("pwa.installTitle")} className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-[9998] md:left-auto md:right-6 md:bottom-6 md:w-96 rounded-3xl bg-[#0e0e11]/95 border border-primary/30 p-4 shadow-2xl backdrop-blur-2xl text-white animate-in slide-in-from-bottom-5 duration-300">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-amber-500 p-1.5 flex items-center justify-center shrink-0 shadow-md">

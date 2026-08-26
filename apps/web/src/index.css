@@ -408,6 +408,10 @@
     padding-bottom: max(env(safe-area-inset-bottom), 0px);
   }
 
+  .pb-safe-nav {
+    padding-bottom: calc(max(env(safe-area-inset-bottom), 0px) + 5.5rem);
+  }
+
   .px-safe {
     padding-left: max(env(safe-area-inset-left), 0px);
     padding-right: max(env(safe-area-inset-right), 0px);
@@ -415,6 +419,14 @@
 
   .pt-safe {
     padding-top: max(env(safe-area-inset-top), 0px);
+  }
+
+  .bottom-safe {
+    bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+
+  .mb-safe {
+    margin-bottom: max(env(safe-area-inset-bottom), 0px);
   }
 
   .app-shell-mobile {

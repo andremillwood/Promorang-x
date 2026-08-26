@@ -58,11 +58,11 @@ const ConsumerShell = ({ children, locationLabel = "Kingston", actions }: Consum
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl px-4 pb-24 pt-5 sm:px-6 md:pb-10 lg:px-8">{children}</main>
+      <main className="mx-auto w-full max-w-7xl px-4 pb-28 pt-5 pb-safe-nav sm:px-6 md:pb-10 lg:px-8">{children}</main>
 
       <nav
         aria-label="Mobile consumer navigation"
-        className="fixed inset-x-3 bottom-3 z-50 grid grid-cols-5 rounded-2xl border border-border/80 bg-background/95 p-1.5 shadow-elevated backdrop-blur-xl md:hidden"
+        className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-50 grid grid-cols-5 rounded-2xl border border-border/80 bg-background/95 p-1.5 shadow-elevated backdrop-blur-xl md:hidden"
       >
         {CONSUMER_PRIMARY_NAV.map((item) => {
           const active = location.pathname === item.href || location.pathname.startsWith(`${item.href}/`);

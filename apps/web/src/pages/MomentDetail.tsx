@@ -41,6 +41,8 @@ import { PoweredParticipation } from "@/components/moments/PoweredParticipation"
 import { MomentAccess } from "@/components/moments/MomentAccess";
 import { MomentLineupShowcase } from "@/components/moments/MomentLineupShowcase";
 import { Collaborator } from "@/components/moments/MomentLineupBuilder";
+import { PromoShareAction } from "@/components/promoshare/PromoShareAction";
+import { usePromoShareRail } from "@/hooks/usePromoShareRail";
 import {
   ArrowLeft,
   ArrowRight,
@@ -148,6 +150,7 @@ const MomentDetail = () => {
   const [searchParams] = useSearchParams();
   const { user, roles } = useAuth();
   const { toast } = useToast();
+  const { recordAttributedAction } = usePromoShareRail();
 
   const [moment, setMoment] = useState<Moment | null>(null);
   const [isJoined, setIsJoined] = useState(false);
@@ -557,6 +560,7 @@ const MomentDetail = () => {
     setIsJoined(true);
     setAccessQuote(payload?.access?.quote || payload?.access_quote || accessQuote);
     setParticipantCount((prev) => prev + 1);
+    recordAttributedAction('moment.rsvp', moment.title);
     toast({
       title: t("momentDetail.toastSpotReserved"),
       description: moment.reward ? t("momentDetail.toastSpotReservedDesc") : t("momentDetail.toastSpotReservedDesc"),
@@ -772,6 +776,13 @@ const MomentDetail = () => {
 
             <div className="flex items-center gap-2">
               <SaveButton momentId={moment.id} variant="icon" size="sm" />
+              <PromoShareAction
+                objectType="moment"
+                objectId={moment.id}
+                title={moment.title}
+                description={moment.description || undefined}
+                className="bg-black/50 border-white/15 text-white/90 rounded-full"
+              />
               <ShareButton title={moment.title} description={moment.description || undefined} />
               {isJoined && !isPast && (
                 <CalendarButton

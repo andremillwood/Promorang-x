@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { useState, useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +23,8 @@ import {
   Ticket,
   Users,
   Zap,
+  Tag,
+  Share2,
 } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
 import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModal";
@@ -39,53 +41,43 @@ import { DiscoveryWidget, DiscoveryProps } from "@/components/radar/DiscoveryWid
 import { AskQuestionModal } from "@/components/discovery/AskQuestionModal";
 import { DISCOVERY_POLLS, CURATED_DISCOVERIES } from "@/data/discoveriesData";
 import { VERIFIED_VENUES } from "@/data/venuesData";
+import { usePerks } from "@/hooks/usePerks";
+import { PerkCard } from "@/components/perks/PerkCard";
+import { PostPerkModal } from "@/components/merchant/PostPerkModal";
+import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
+import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 
 const categoryFilters = [
-  { id: "all", label: "All Events", icon: Sparkles },
-  { id: "music", label: "Music & Parties", icon: Radio },
+  { id: "all", label: "All Drops", icon: Sparkles },
   { id: "food", label: "Food & Drinks", icon: Gift },
+  { id: "music", label: "Music & Nightlife", icon: Radio },
   { id: "community", label: "Gatherings & Culture", icon: Users },
 ];
 
 const CURATED_COORDINATES: Record<string, { lat: number; lng: number }> = {
   // Kingston & St. Andrew
-  "00000000-0000-0000-0002-000000000060": { lat: 18.0435, lng: -76.8123 }, // PriceSmart Red Hills
-  "00000000-0000-0000-0002-000000000001": { lat: 18.0267, lng: -76.7924 }, // Fiction Nightclub
-  "00000000-0000-0000-0002-000000000002": { lat: 18.0267, lng: -76.7924 }, // Fiction Nightclub
-  "00000000-0000-0000-0002-000000000025": { lat: 18.0270, lng: -76.7925 }, // Tracks & Records
-  "00000000-0000-0000-0002-000000000026": { lat: 18.0163, lng: -76.7915 }, // Steakhouse Verandah Devon House
-  "00000000-0000-0000-0002-000000000022": { lat: 18.0163, lng: -76.7915 }, // Tacbar Devon House
-  "00000000-0000-0000-0002-000000000023": { lat: 18.0065, lng: -76.7865 }, // Pegasus
-  "00000000-0000-0000-0002-000000000017": { lat: 18.0210, lng: -76.7725 }, // Chilitos JaMexican
-  "00000000-0000-0000-0002-000000000018": { lat: 18.0145, lng: -76.7842 }, // AC Lounge
-  "00000000-0000-0000-0002-000000000004": { lat: 18.0489, lng: -76.7587 }, // Kingston Dub Club
-  "00000000-0000-0000-0002-000000000005": { lat: 18.0163, lng: -76.7915 }, // Devon House Gourmet
-  "00000000-0000-0000-0002-000000000006": { lat: 18.0038, lng: -76.7885 }, // Janga's Soundbar (22 Belmont Rd)
-  "00000000-0000-0000-0002-000000000015": { lat: 17.9678, lng: -76.7910 }, // Downtown Art District
+  "00000000-0000-0000-0002-000000000060": { lat: 18.0435, lng: -76.8123 },
+  "00000000-0000-0000-0002-000000000001": { lat: 18.0267, lng: -76.7924 },
+  "00000000-0000-0000-0002-000000000002": { lat: 18.0267, lng: -76.7924 },
+  "00000000-0000-0000-0002-000000000025": { lat: 18.0270, lng: -76.7925 },
+  "00000000-0000-0000-0002-000000000026": { lat: 18.0163, lng: -76.7915 },
+  "00000000-0000-0000-0002-000000000022": { lat: 18.0163, lng: -76.7915 },
+  "00000000-0000-0000-0002-000000000023": { lat: 18.0065, lng: -76.7865 },
+  "00000000-0000-0000-0002-000000000017": { lat: 18.0210, lng: -76.7725 },
+  "00000000-0000-0000-0002-000000000018": { lat: 18.0145, lng: -76.7842 },
+  "00000000-0000-0000-0002-000000000004": { lat: 18.0489, lng: -76.7587 },
+  "00000000-0000-0000-0002-000000000005": { lat: 18.0163, lng: -76.7915 },
+  "00000000-0000-0000-0002-000000000006": { lat: 18.0038, lng: -76.7885 },
+  "00000000-0000-0000-0002-000000000015": { lat: 17.9678, lng: -76.7910 },
 
   // Ocho Rios & St. Ann
-  "00000000-0000-0000-0002-000000000051": { lat: 18.4356, lng: -77.1645 }, // Plantation Cove
-  "00000000-0000-0000-0002-000000000052": { lat: 18.4356, lng: -77.1645 }, // Plantation Cove
+  "00000000-0000-0000-0002-000000000051": { lat: 18.4356, lng: -77.1645 },
+  "00000000-0000-0000-0002-000000000052": { lat: 18.4356, lng: -77.1645 },
 
   // Montego Bay (St. James)
-  "00000000-0000-0000-0002-000000000071": { lat: 18.4716, lng: -77.9255 }, // Pier 1 MoBay
-  "00000000-0000-0000-0002-000000000072": { lat: 18.4839, lng: -77.9272 }, // Doctor's Cave MoBay
-  "00000000-0000-0000-0002-000000000073": { lat: 18.5208, lng: -77.8281 }, // Rose Hall MoBay
-
-  // Negril (Westmoreland)
-  "00000000-0000-0000-0002-000000000081": { lat: 18.2503, lng: -78.3697 }, // Rick's Cafe Negril
-  "00000000-0000-0000-0002-000000000082": { lat: 18.2925, lng: -78.3475 }, // Roots Bamboo Negril
-
-  // Port Antonio (Portland)
-  "00000000-0000-0000-0002-000000000091": { lat: 18.1565, lng: -76.3532 }, // Boston Bay Portland
-  "00000000-0000-0000-0002-000000000092": { lat: 18.1758, lng: -76.3942 }, // Frenchman's Cove Portland
-
-  // South Coast (St. Elizabeth)
-  "00000000-0000-0000-0002-000000000101": { lat: 17.8286, lng: -77.8188 }, // Floyd's Pelican Bar
-  "00000000-0000-0000-0002-000000000102": { lat: 17.8821, lng: -77.7592 }, // Jakes Treasure Beach
-
-  // Portmore (St. Catherine)
-  "00000000-0000-0000-0002-000000000111": { lat: 17.8931, lng: -76.8912 }, // Hellshire Beach Portmore
+  "00000000-0000-0000-0002-000000000071": { lat: 18.4716, lng: -77.9255 },
+  "00000000-0000-0000-0002-000000000072": { lat: 18.4839, lng: -77.9272 },
+  "00000000-0000-0000-0002-000000000073": { lat: 18.5208, lng: -77.8281 },
 };
 
 const DEFAULT_DISCOVER_CENTER = { lat: 18.0179, lng: -76.8099 };
@@ -107,15 +99,35 @@ const formatMomentDate = (value?: string | null) => {
   }
 };
 
+type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
+
 const Discover = () => {
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState<"events" | "places" | "polls">("events");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = (searchParams.get("tab") as DiscoverTab) || "discoveries";
+
+  const [activeTab, setActiveTab] = useState<DiscoverTab>(initialTab);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   const [wheelOpen, setWheelOpen] = useState(false);
   const [streakOpen, setStreakOpen] = useState(false);
+  const [postPerkOpen, setPostPerkOpen] = useState(false);
+
+  const { perks, isLoading: perksLoading } = usePerks(activeCategory);
+
+  useEffect(() => {
+    const tabParam = searchParams.get("tab") as DiscoverTab;
+    if (tabParam && ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tab: DiscoverTab) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
 
   const discoveryQuery = useQuery({
     queryKey: ["discover-public-feed-v3"],
@@ -130,7 +142,6 @@ const Discover = () => {
         let lat = Number(m.latitude);
         let lng = Number(m.longitude);
 
-        // If coordinates are missing, (0,0), or clearly invalid, resolve from curated or venue list
         const isInvalid = !Number.isFinite(lat) || !Number.isFinite(lng) || (Math.abs(lat) < 1 && Math.abs(lng) < 1);
         if (isInvalid) {
           const curated = CURATED_COORDINATES[m.id];
@@ -138,7 +149,6 @@ const Discover = () => {
             lat = curated.lat;
             lng = curated.lng;
           } else {
-            // Try matching venue name
             const venue = VERIFIED_VENUES.find(
               (v) =>
                 v.name.toLowerCase() === (m.venue_name || "").toLowerCase() ||
@@ -215,12 +225,10 @@ const Discover = () => {
 
   const featuredMoment = moments[0] || null;
 
-  // Comprehensive map pins combining all active Moments, Verified Venues, and Curated Discoveries
   const mapMarkers = useMemo<MapMarkerItem[]>(() => {
     const markers: MapMarkerItem[] = [];
     const seenIds = new Set<string>();
 
-    // 1. Add all active/filtered moments
     filteredMoments.forEach((m) => {
       const lat = Number(m.latitude);
       const lng = Number(m.longitude);
@@ -243,13 +251,11 @@ const Discover = () => {
       }
     });
 
-    // 2. Add verified partner venues across Jamaica
     VERIFIED_VENUES.forEach((v) => {
       const matchesSearch =
         !searchQuery ||
         v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        v.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        v.neighborhood.toLowerCase().includes(searchQuery.toLowerCase());
+        v.location.toLowerCase().includes(searchQuery.toLowerCase());
 
       if (matchesSearch && !seenIds.has(v.id)) {
         seenIds.add(v.id);
@@ -258,36 +264,12 @@ const Discover = () => {
           lat: v.latitude,
           lng: v.longitude,
           title: v.name,
-          subtitle: `${v.neighborhood} • ${v.venue_type_label}`,
-          category: "Verified Venue",
-          reward: v.vibe ? `✨ ${v.vibe}` : "Partner Venue Perks",
+          subtitle: `${v.city} · ${v.venue_type_label}`,
+          category: "Verified Partner Venue",
+          reward: "Member Perks Available",
           imageUrl: v.image_url,
-          url: `/explore/venues`,
+          url: `/venues/${v.id}`,
           actionLabel: "View Venue →",
-        });
-      }
-    });
-
-    // 3. Add curated hidden gems & scenic discoveries (e.g. Strawberry Hill, Blue Ridge, Holywell)
-    CURATED_DISCOVERIES.forEach((d) => {
-      const matchesSearch =
-        !searchQuery ||
-        d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        d.location_address.toLowerCase().includes(searchQuery.toLowerCase());
-
-      if (matchesSearch && !seenIds.has(d.id)) {
-        seenIds.add(d.id);
-        markers.push({
-          id: d.id,
-          lat: d.latitude,
-          lng: d.longitude,
-          title: d.title,
-          subtitle: `${d.location_address} • ${d.city}`,
-          category: d.category === "hidden_gem" ? "Hidden Gem" : d.category === "music" ? "Music & Vibes" : "Scenic & Dining",
-          reward: `⭐ ${d.average_rating} rating • ${d.checkin_count} check-ins`,
-          imageUrl: d.cover_image,
-          url: `/discoveries/${d.slug || d.id}`,
-          actionLabel: "Explore Discovery →",
         });
       }
     });
@@ -295,95 +277,119 @@ const Discover = () => {
     return markers;
   }, [filteredMoments, searchQuery]);
 
-  // Default discover center is Kingston, Jamaica
-  const mapCenter = DEFAULT_DISCOVER_CENTER;
+  const mapCenter = useMemo(() => {
+    if (mapMarkers.length > 0) {
+      return { lat: mapMarkers[0].lat, lng: mapMarkers[0].lng };
+    }
+    return DEFAULT_DISCOVER_CENTER;
+  }, [mapMarkers]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
+    <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white pb-16">
       <SEO
-        title={`${t("discover.title")} — Promorang`}
-        description={t("discover.copy")}
+        title="Discover Culture, Perks & Opportunities — Promorang"
+        description="Discover what is worth doing, choosing, and sharing. Vote on community demand signals, unlock verified perks, and promote culture drops."
         url={getSiteUrl("/discover")}
       />
 
       <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8 space-y-6">
-        {/* Header Title & Search Row */}
+        
+        {/* Market Architecture Header Row */}
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-6">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <Badge className="rounded-full bg-primary text-white font-bold text-[10px] uppercase tracking-wider border-none">
-                {t("discover.badge")}
+              <Badge className="rounded-full bg-primary text-white font-black text-[10px] uppercase tracking-wider border-none">
+                People → Discover
               </Badge>
-              <span className="text-xs text-white/50 font-semibold">Kingston, Jamaica</span>
+              <span className="text-xs text-white/50 font-semibold">Kingston & Jamaica Wide</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-              {t("discover.title")}
+              Discover What's Worth Doing & Choosing
             </h1>
             <p className="text-white/60 text-xs sm:text-sm max-w-xl">
-              {t("discover.copy")}
+              Answer signals, unlock partner Perks, RSVP to live moments, or promote them to earn PromoShare draw tickets.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-            {/* Search Bar */}
-            <div className="relative w-full sm:min-w-[260px]">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
-              <input
-                type="text"
-                placeholder={t("discover.search")}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-2xl bg-white/5 border border-white/10 pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-white/40 focus:outline-none focus:border-primary transition"
-              />
-            </div>
+            {/* Global Ticket & Points Balance Ticker */}
+            <GlobalTicketBalancePill />
 
-            {/* Grid / Map Toggle */}
-            <div className="flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-1 shrink-0">
-              <button
-                type="button"
-                onClick={() => setViewMode("grid")}
-                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                  viewMode === "grid" ? "bg-primary text-white shadow-lg" : "text-white/60 hover:text-white"
-                }`}
-              >
-                <LayoutGrid className="h-3.5 w-3.5" />
-                <span>{t("discover.grid")}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("map")}
-                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                  viewMode === "map" ? "bg-primary text-white shadow-lg" : "text-white/60 hover:text-white"
-                }`}
-              >
-                <Map className="h-3.5 w-3.5" />
-                <span>{t("discover.map")}</span>
-              </button>
-            </div>
-
-            <SubmitDiscoveryModal />
+            {/* Merchant Post a Perk Quick Button */}
+            <Button
+              onClick={() => setPostPerkOpen(true)}
+              className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 h-10 px-4"
+            >
+              <Store className="w-4 h-4" />
+              <span>Post a Perk</span>
+            </Button>
           </div>
         </div>
 
-        {/* 3 High-Level Segmented Tabs */}
+        {/* 3-Sided Market Navigation Tabs */}
         <div className="flex items-center gap-2 border-b border-white/10 pb-4 overflow-x-auto scrollbar-none">
           <button
-            onClick={() => setActiveTab("events")}
+            onClick={() => handleTabChange("discoveries")}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "events"
+              activeTab === "discoveries"
+                ? "bg-primary text-white shadow-lg shadow-primary/25"
+                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <HelpCircle className="h-4 w-4 text-amber-400" />
+            <span>1. Discoveries & Polls</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-bold">
+              Acquire Signal
+            </span>
+          </button>
+
+          <button
+            onClick={() => handleTabChange("perks")}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              activeTab === "perks"
+                ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/25 font-black"
+                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <Gift className="h-4 w-4" />
+            <span>2. Perks & Drops</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
+              {perks.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => handleTabChange("moments")}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              activeTab === "moments"
                 ? "bg-primary text-white shadow-lg shadow-primary/25"
                 : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
             }`}
           >
             <Ticket className="h-4 w-4" />
-            <span>Moments & Events</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
+            <span>3. Moments & Events</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
               {moments.length}
             </span>
           </button>
 
           <button
-            onClick={() => setActiveTab("places")}
+            onClick={() => handleTabChange("distribute")}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              activeTab === "distribute"
+                ? "bg-purple-600 text-white shadow-lg shadow-purple-600/25 font-black"
+                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <Share2 className="h-4 w-4 text-purple-300" />
+            <span>4. Things to Share</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">
+              Earn Tickets
+            </span>
+          </button>
+
+          <button
+            onClick={() => handleTabChange("places")}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
               activeTab === "places"
                 ? "bg-primary text-white shadow-lg shadow-primary/25"
@@ -393,24 +399,9 @@ const Discover = () => {
             <Store className="h-4 w-4" />
             <span>Places & Venues</span>
           </button>
-
-          <button
-            onClick={() => setActiveTab("polls")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "polls"
-                ? "bg-primary text-white shadow-lg shadow-primary/25"
-                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <HelpCircle className="h-4 w-4" />
-            <span>Community Polls & Drops</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-bold">
-              Hot
-            </span>
-          </button>
         </div>
 
-        {/* Story & Streak Highlights */}
+        {/* Gamification Highlights */}
         <StoryGamificationRail
           onOpenWheel={() => setWheelOpen(true)}
           onOpenStreak={() => setStreakOpen(true)}
@@ -420,10 +411,117 @@ const Discover = () => {
         <div className="flex gap-8 items-start">
           <div className="flex-1 space-y-8 min-w-0">
 
-            {/* TAB 1: MOMENTS & EVENTS */}
-            {activeTab === "events" && (
-              <>
+            {/* TAB 1: DISCOVERIES & COMMUNITY DEMAND SIGNALS (PARTICIPANT WEDGE) */}
+            {activeTab === "discoveries" && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                  <div>
+                    <span className="px-3 py-1 bg-gradient-to-r from-primary/20 to-amber-500/20 text-primary border border-primary/40 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm inline-flex">
+                      <Zap className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                      ⚡ Demand Signals & City Unlock Quests
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">
+                      Vote, Charge the City Meter & Unlock Secret Perks
+                    </h3>
+                    <p className="text-xs text-white/60">
+                      Participate in live choices. Your vote instantly awards +25 PromoPoints, +1 PromoShare Draw Ticket, and surfaces exclusive partner loot.
+                    </p>
+                  </div>
+
+                  <AskQuestionModal
+                    trigger={
+                      <Button className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs shadow-lg shadow-primary/20 flex items-center gap-1.5 px-4 h-10 shrink-0">
+                        <Plus className="w-4 h-4" />
+                        <span>Launch a Signal</span>
+                      </Button>
+                    }
+                    onQuestionCreated={(newQ) => {
+                      DISCOVERY_QUESTIONS_FEED.unshift(newQ);
+                    }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {DISCOVERY_QUESTIONS_FEED.map((q) => (
+                    <DiscoveryWidget
+                      key={q.id}
+                      {...q}
+                      onVote={(qId, optId) => {
+                        console.log("Voted on discovery:", qId, optId);
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: PERKS & DROPS (BUSINESS OFFER WEDGE) */}
+            {activeTab === "perks" && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
+                      <Store className="w-3.5 h-3.5" />
+                      <span>Businesses → Offer</span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">
+                      Verified Perks, Discounts & Complimentary Drops
+                    </h3>
+                    <p className="text-xs text-white/60">
+                      Claim passes, discounts, and VIP upgrades. Show your QR code at the merchant to redeem in real life.
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={() => setPostPerkOpen(true)}
+                    className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 h-10 px-4 shrink-0"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Post a Perk</span>
+                  </Button>
+                </div>
+
                 {/* Category Pills Bar */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                  {categoryFilters.map((cat) => {
+                    const isActive = activeCategory === cat.id;
+                    const Icon = cat.icon;
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => setActiveCategory(cat.id)}
+                        className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all shrink-0 ${
+                          isActive
+                            ? "bg-emerald-500 text-black shadow-md font-black"
+                            : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/5"
+                        }`}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        <span>{cat.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {perksLoading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {[1, 2, 3, 4].map((n) => (
+                      <Skeleton key={n} className="h-80 w-full rounded-3xl bg-white/5" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {perks.map((perk) => (
+                      <PerkCard key={perk.id} perk={perk} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 3: MOMENTS & EVENTS */}
+            {activeTab === "moments" && (
+              <>
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
                   {categoryFilters.map((cat) => {
                     const isActive = activeCategory === cat.id;
@@ -445,173 +543,87 @@ const Discover = () => {
                   })}
                 </div>
 
-                {/* Featured Hero Event Card */}
                 {featuredMoment && !searchQuery && activeCategory === "all" && viewMode === "grid" && (
                   <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-black min-h-[340px] sm:min-h-[380px] flex items-end p-5 sm:p-8">
-                    {featuredMoment.image_url ? (
-                      <img
-                        src={featuredMoment.image_url}
-                        alt={featuredMoment.title}
-                        className="absolute inset-0 h-full w-full object-cover opacity-50 filter blur-[1px] scale-105"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-[#121214] to-black" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-[#0a0a0b]/60 to-transparent" />
-
-                    <div className="relative z-10 space-y-3 max-w-2xl">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge className="bg-primary text-white font-bold text-[10px] px-3 py-0.5">Featured Event</Badge>
-                        <Badge variant="outline" className="border-white/20 text-white/80 bg-black/40 text-[10px]">
-                          {formatMomentDate(featuredMoment.starts_at)}
-                        </Badge>
-                      </div>
-
-                      <h2 className="text-2xl font-black text-white sm:text-4xl leading-tight">
-                        {featuredMoment.title}
-                      </h2>
-
-                      <p className="text-white/80 text-xs sm:text-sm line-clamp-2 font-normal">
-                        {featuredMoment.description}
-                      </p>
-
-                      <div className="pt-2 flex flex-wrap items-center gap-3">
-                        <Button asChild className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold px-6 py-2.5 text-xs shadow-lg shadow-primary/25">
-                          <Link to={`/moments/${featuredMoment.id}`}>
-                            <span>RSVP & Reserve Spot</span>
-                            <ArrowRight className="ml-2 h-3.5 w-3.5" />
-                          </Link>
-                        </Button>
-                        <span className="text-xs text-white/60 flex items-center gap-1.5 font-medium truncate">
-                          <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
-                          <span>{featuredMoment.venue_name || featuredMoment.location}</span>
-                        </span>
-                      </div>
+                    <img
+                      src={featuredMoment.image_url || undefined}
+                      alt={featuredMoment.title}
+                      className="absolute inset-0 h-full w-full object-cover opacity-60"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                    <div className="relative z-10 space-y-3 max-w-xl">
+                      <Badge className="bg-primary text-white font-bold text-xs">Featured Moment</Badge>
+                      <h2 className="text-2xl sm:text-4xl font-black text-white">{featuredMoment.title}</h2>
+                      <p className="text-xs sm:text-sm text-white/70">{featuredMoment.description}</p>
+                      <Button asChild className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-xs px-6 py-2.5">
+                        <Link to={`/moments/${featuredMoment.id}`}>View Moment &amp; RSVP →</Link>
+                      </Button>
                     </div>
                   </div>
                 )}
 
-                {/* Events Grid or Map View */}
-                {viewMode === "map" ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-primary" />
-                        <h3 className="text-lg sm:text-xl font-bold text-white">Live Discovery Map</h3>
-                      </div>
-                      <span className="text-xs font-semibold text-white/50">{mapMarkers.length} locations mapped</span>
-                    </div>
-                    <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-                      <PromorangMap
-                        center={mapCenter}
-                        zoom={11}
-                        markers={mapMarkers}
-                        height="100%"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                      <h3 className="text-lg sm:text-xl font-bold text-white">Upcoming Events & Passes</h3>
-                      <span className="text-xs font-semibold text-white/50">{filteredMoments.length} moments found</span>
-                    </div>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  {filteredMoments.map((item) => {
+                    const status = getMomentStatus(item);
+                    return (
+                      <div
+                        key={item.id}
+                        className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-white/5 transition-all hover:border-primary/40 hover:bg-white/10 hover:shadow-xl"
+                      >
+                        <div className="relative h-44 w-full overflow-hidden bg-black">
+                          {item.image_url && (
+                            <img
+                              src={item.image_url}
+                              alt={item.title}
+                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                          <Badge className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white border border-white/10 text-[10px] font-bold uppercase">
+                            {item.category || "Gathering"}
+                          </Badge>
+                        </div>
 
-                    {discoveryQuery.isLoading ? (
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        {[1, 2, 3, 4].map((n) => (
-                          <Skeleton key={n} className="h-72 w-full rounded-3xl bg-white/5" />
-                        ))}
-                      </div>
-                    ) : filteredMoments.length === 0 ? (
-                      <div className="text-center py-16 bg-white/5 rounded-3xl border border-white/10 space-y-3">
-                        <Compass className="h-10 w-10 text-white/30 mx-auto" />
-                        <h4 className="text-lg font-bold text-white">No Moments Found</h4>
-                        <p className="text-xs text-white/50">Try selecting a different category or search term.</p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        {filteredMoments.map((item) => {
-                          const status = getMomentStatus(item);
-                          return (
-                            <div
-                              key={item.id}
-                              className={`group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-white/5 transition-all hover:border-primary/40 hover:bg-white/10 hover:shadow-xl ${
-                                status.isPast ? "opacity-85 hover:opacity-100" : ""
-                              }`}
-                            >
-                              <div className="relative h-44 w-full overflow-hidden bg-black">
-                                {item.image_url ? (
-                                  <img
-                                    src={item.image_url}
-                                    alt={item.title}
-                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                  />
-                                ) : (
-                                  <div className="h-full w-full bg-gradient-to-tr from-primary/20 via-[#121214] to-black" />
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                                {status.isPast ? (
-                                  <Badge className="absolute top-3 left-3 bg-red-500/80 backdrop-blur-md text-white border border-red-500/30 text-[10px] font-black uppercase">
-                                    Concluded
-                                  </Badge>
-                                ) : (
-                                  <Badge className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white border border-white/10 text-[10px] font-bold uppercase">
-                                    {item.category || "Social"}
-                                  </Badge>
-                                )}
-                              </div>
-
-                              <div className="p-4 space-y-2.5 flex-1 flex flex-col justify-between">
-                                <div className="space-y-1.5">
-                                  <div className={`flex items-center gap-1.5 text-xs font-semibold ${status.isPast ? "text-white/40" : "text-primary"}`}>
-                                    <Calendar className="h-3.5 w-3.5" />
-                                    <span>{status.isPast ? `Concluded • ${formatMomentDate(status.displayStartsAt)}` : formatMomentDate(status.displayStartsAt)}</span>
-                                  </div>
-
-                                  <h3 className="text-base font-bold text-white group-hover:text-primary transition-colors line-clamp-1">
-                                    {item.title}
-                                  </h3>
-
-                                  <p className="text-xs text-white/60 flex items-center gap-1.5 line-clamp-1">
-                                    <MapPin className="h-3.5 w-3.5 text-white/40 shrink-0" />
-                                    <span>{item.venue_name || item.location}</span>
-                                  </p>
-
-                                  {item.reward && (
-                                    <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-bold text-emerald-400">
-                                      <Gift className="h-3 w-3" /> <span>{item.reward}</span>
-                                    </div>
-                                  )}
-
-                                  <SocialGraphFacepile claimedCount={18} />
-                                </div>
-                              </div>
-
-                              <div className="p-4 pt-0">
-                                <Button asChild variant="outline" className={`w-full rounded-2xl border-white/15 bg-white/5 font-bold text-xs transition-all ${
-                                  status.isPast ? "text-white/60 hover:text-white hover:bg-white/10" : "text-white hover:bg-primary hover:border-primary"
-                                }`}>
-                                  <Link to={`/moments/${item.id}`}>{status.actionLabel}</Link>
-                                </Button>
-                              </div>
+                        <div className="p-4 space-y-2.5 flex-1 flex flex-col justify-between">
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                              <Calendar className="h-3.5 w-3.5" />
+                              <span>{formatMomentDate(status.displayStartsAt)}</span>
                             </div>
-                          );
-                        })}
+                            <h3 className="text-base font-bold text-white group-hover:text-primary transition-colors line-clamp-1">
+                              {item.title}
+                            </h3>
+                            <p className="text-xs text-white/60 flex items-center gap-1.5 line-clamp-1">
+                              <MapPin className="h-3.5 w-3.5 text-white/40 shrink-0" />
+                              <span>{item.venue_name || item.location}</span>
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="p-4 pt-0">
+                          <Button asChild variant="outline" className="w-full rounded-2xl border-white/15 bg-white/5 text-white hover:bg-primary hover:border-primary font-bold text-xs">
+                            <Link to={`/moments/${item.id}`}>{status.actionLabel}</Link>
+                          </Button>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                )}
+                    );
+                  })}
+                </div>
               </>
             )}
 
-            {/* TAB 2: PLACES & VENUES */}
+            {/* TAB 4: THINGS WORTH SHARING (CREATOR / DISTRIBUTOR WEDGE) */}
+            {activeTab === "distribute" && (
+              <ThingsWorthSharingFeed />
+            )}
+
+            {/* TAB 5: PLACES & VENUES */}
             {activeTab === "places" && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div>
                     <h3 className="text-xl font-bold text-white">Curated Places & Cultural Venues</h3>
-                    <p className="text-xs text-white/50">Verified restaurants, lounges, beach clubs, and cultural spots across Jamaica with member perks.</p>
+                    <p className="text-xs text-white/50">Verified partner venues across Jamaica with active Perks.</p>
                   </div>
                   <span className="text-xs font-semibold text-white/50">{VERIFIED_VENUES.length} verified spots</span>
                 </div>
@@ -656,45 +668,6 @@ const Discover = () => {
               </div>
             )}
 
-            {/* TAB 3: COMMUNITY POLLS & DROPS */}
-            {activeTab === "polls" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-                  <div>
-                    <span className="px-3 py-1 bg-gradient-to-r from-primary/20 to-amber-500/20 text-primary border border-primary/40 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm inline-flex">
-                      <Zap className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                      ⚡ Live City Drops & Community Unlocks
-                    </span>
-                    <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">Rally & Unlock Secret Drops</h3>
-                    <p className="text-xs text-white/60">Every vote charges the city battery to unlock exclusive tasting passes and VIP access.</p>
-                  </div>
-                  <AskQuestionModal
-                    trigger={
-                      <Button className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs shadow-lg shadow-primary/20 flex items-center gap-1.5 px-4 h-10 shrink-0">
-                        <Plus className="w-4 h-4" />
-                        <span>Launch a Quest</span>
-                      </Button>
-                    }
-                    onQuestionCreated={(newQ) => {
-                      DISCOVERY_QUESTIONS_FEED.unshift(newQ);
-                    }}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {DISCOVERY_QUESTIONS_FEED.map((q) => (
-                    <DiscoveryWidget
-                      key={q.id}
-                      {...q}
-                      onVote={(qId, optId) => {
-                        console.log("Voted on discover page:", qId, optId);
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
           </div>
 
           {/* Right Discovery Rail */}
@@ -705,6 +678,11 @@ const Discover = () => {
         </div>
 
         {/* Modals */}
+        <PostPerkModal
+          open={postPerkOpen}
+          onOpenChange={setPostPerkOpen}
+          onCreated={() => handleTabChange("perks")}
+        />
         <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
         <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
       </div>

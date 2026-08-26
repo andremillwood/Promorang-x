@@ -14,9 +14,13 @@ import {
   ArrowUpRight,
   MessageSquare,
   Flame,
-  Zap
+  Zap,
+  Tag
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { usePromoShareRail } from '@/hooks/usePromoShareRail';
+import { usePerks } from '@/hooks/usePerks';
+import { PromoShareAction } from '@/components/promoshare/PromoShareAction';
 
 export interface DiscoveryOption {
   id: string;
@@ -54,6 +58,8 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
   onAddOption
 }) => {
   const navigate = useNavigate();
+  const { recordAttributedAction } = usePromoShareRail();
+  const { perks, claimPerk } = usePerks();
   const [options, setOptions] = useState<DiscoveryOption[]>(initialOptions);
   const [totalVotes, setTotalVotes] = useState<number>(initialTotalVotes);
   const [votedOptionId, setVotedOptionId] = useState<string | undefined>(initialUserVotedOptionId);
@@ -61,6 +67,13 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
   const [showAddOption, setShowAddOption] = useState(false);
 
   const detailUrl = `/discoveries/${slug || id}`;
+
+  // Find related perk for this discovery
+  const relatedPerk = perks.find(p => 
+    p.category?.toLowerCase() === category.toLowerCase() || 
+    p.title.toLowerCase().includes('wings') ||
+    p.title.toLowerCase().includes('taco')
+  ) || perks[0];
 
   const navigateToDetail = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -77,10 +90,11 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
       prev.map(opt => (opt.id === optionId ? { ...opt, votes: opt.votes + 1 } : opt))
     );
 
+    recordAttributedAction('discovery.completed', question);
+
     if (onVote) {
       onVote(id, optionId);
     }
-    toast.success('Vote counted! +25 PromoPoints awarded.');
   };
 
   const handleAddOptionSubmit = (e: React.FormEvent) => {
@@ -223,49 +237,72 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
           })}
         </div>
 
-        {/* Post-Vote Micro-Conversion & Reward Banner */}
+        {/* Post-Vote Micro-Conversion & Related Perk Unlocked */}
         {votedOptionId && (
-          <div className="mb-4 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-purple-950/70 via-gray-900 to-orange-950/70 border border-purple-500/40 shadow-xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-purple-950/80 via-zinc-900 to-orange-950/80 border border-purple-500/40 shadow-xl space-y-3 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between gap-2">
-              <div className="flex items-start space-x-2.5 sm:space-x-3 min-w-0">
-                <div className="p-1.5 sm:p-2 rounded-xl bg-orange-500/20 text-orange-400 mt-0.5 shrink-0">
-                  <Gift className="w-4 h-4 sm:w-5 sm:h-5" />
+              <div className="flex items-start space-x-2.5 min-w-0">
+                <div className="p-2 rounded-xl bg-orange-500/20 text-orange-400 shrink-0">
+                  <Gift className="w-5 h-5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-black text-white flex items-center gap-1.5">
-                    <span>Loot Claimed!</span>
-                    <span className="px-2 py-0.5 rounded-full bg-orange-500 text-black text-[9px] sm:text-[10px] font-black uppercase">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-black text-white">Demand Signal Recorded!</span>
+                    <span className="px-2 py-0.5 rounded-full bg-orange-500 text-black text-[9px] font-black uppercase">
                       +25 Pts
                     </span>
-                  </p>
-                  <p className="text-[10px] sm:text-[11px] text-white/70 mt-1 leading-relaxed">
-                    You're locked in! When this reaches {thresholdForMoment} votes, your tasting pass unlocks in your Vault.
+                    <span className="px-1.5 py-0.5 rounded-full bg-purple-500/30 text-purple-300 text-[9px] font-mono font-bold">
+                      +1 🎟️
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-zinc-300 mt-1">
+                    Your contribution charged the City Unlock Meter. Here is an instant unlocked Perk from our verified partner:
                   </p>
                 </div>
               </div>
             </div>
-            <div className="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-2.5 border-t border-white/10">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const text = `Help unlock this drop on Promorang! "${question}" - Vote here: ${window.location.origin}${detailUrl}`;
-                  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-                }}
-                className="text-[11px] font-bold text-emerald-400 bg-emerald-500/15 hover:bg-emerald-500/25 px-3 py-2 sm:py-1.5 rounded-xl flex items-center justify-center gap-1.5 transition w-full sm:w-auto"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                <span>Rally on WhatsApp</span>
-              </button>
+
+            {/* Related Perk Micro-Card */}
+            {relatedPerk && (
+              <div className="p-3 rounded-xl bg-black/60 border border-orange-500/30 flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <span className="text-[9px] font-mono uppercase tracking-wider text-orange-400 font-bold block">
+                    {relatedPerk.merchantName} · Unlocked Drop
+                  </span>
+                  <p className="text-xs font-bold text-white truncate">{relatedPerk.title}</p>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    claimPerk(relatedPerk);
+                  }}
+                  className="shrink-0 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black text-xs font-black transition-all shadow-md"
+                >
+                  Claim Perk →
+                </button>
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-2 border-t border-white/10">
+              <PromoShareAction
+                objectType="discovery"
+                objectId={id}
+                slugOrPath={slug}
+                title={question}
+                potentialReward={{ promoPoints: 25, tickets: 1, condition: 'when friends vote' }}
+                buttonLabel="Rally Group Chat (+1 Ticket)"
+                variant="compact"
+              />
 
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(detailUrl);
                 }}
-                className="text-xs font-bold text-black bg-orange-500 hover:bg-orange-400 px-3.5 py-2 sm:py-1.5 rounded-xl flex items-center justify-center space-x-1 transition-colors shadow-md shadow-orange-500/20 w-full sm:w-auto"
+                className="text-xs font-bold text-white hover:text-orange-300 px-3 py-1.5 rounded-xl flex items-center justify-center space-x-1 transition-colors"
               >
-                <span>Arena & Takes</span>
-                <ArrowRight className="w-3 h-3" />
+                <span>Live Arena & Hot Takes</span>
+                <ArrowRight className="w-3 h-3 ml-1" />
               </button>
             </div>
           </div>
