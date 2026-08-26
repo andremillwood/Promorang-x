@@ -976,36 +976,40 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
         {/* Page Content */}
         <div className={cn(
-          "relative z-10 flex flex-1 flex-col p-4 pb-28 sm:p-6 sm:pb-32 md:p-8 lg:pb-14 lg:pt-8",
-          isImmersiveProductRoute || isDashboardHome ? "lg:px-6 xl:px-8" : "lg:px-10 xl:px-12",
+          "relative z-10 flex flex-1 flex-col w-full min-w-0 pb-28 lg:pb-12",
           (isCinematicCultureRoute || isDashboardHome) && "bg-black"
         )}>
-          <div className={cn("mx-auto flex min-h-full w-full min-w-0 flex-1 flex-col", isImmersiveProductRoute || isDashboardHome ? "max-w-[1560px]" : "max-w-7xl")}>
-            {!hidePageHeader && (
-            <div className="mb-5 hidden overflow-hidden lg:flex items-start justify-between gap-6 rounded-[1.75rem] border border-border/70 bg-card/85 p-5 shadow-soft">
-              <div className="min-w-0">
-                <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary">
-                  <roleInfo.icon className="h-3.5 w-3.5" />
-                  {roleInfo.label}
+          {!hidePageHeader && (
+            <div className="w-full px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
+              <div className="mb-5 hidden overflow-hidden lg:flex items-start justify-between gap-6 rounded-[1.75rem] border border-border/70 bg-card/85 p-5 shadow-soft">
+                <div className="min-w-0">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary">
+                    <roleInfo.icon className="h-3.5 w-3.5" />
+                    {roleInfo.label}
+                  </div>
+                  <h1 className="mt-3 font-sans text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">{pageMeta.label}</h1>
+                  <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{pageMeta.description}</p>
                 </div>
-                <h1 className="mt-3 font-sans text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">{pageMeta.label}</h1>
-                <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{pageMeta.description}</p>
-              </div>
-              <div className="min-w-[240px] rounded-2xl border border-border/60 bg-background/70 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Active hub</p>
-                <p className="mt-2 text-sm font-semibold text-foreground truncate">{activeOrg?.name || "My Hub"}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {safeRole === "participant" ? "Your live Moments, access, Gems, and saved value stay together here." : "Your work, return, and account tools stay together here."}
-                </p>
+                <div className="min-w-[240px] rounded-2xl border border-border/60 bg-background/70 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Active hub</p>
+                  <p className="mt-2 text-sm font-semibold text-foreground truncate">{activeOrg?.name || "My Hub"}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {safeRole === "participant" ? "Your live Moments, access, Gems, and saved value stay together here." : "Your work, return, and account tools stay together here."}
+                  </p>
+                </div>
               </div>
             </div>
-            )}
-            {showCompactDemoBanner ? (
+          )}
+          {showCompactDemoBanner ? (
+            <div className="w-full px-4 sm:px-6 lg:px-8">
               <DemoExperienceBanner role={safeRole === "admin" ? null : safeRole} variant="compact" />
-            ) : null}
-            <div className="flex min-h-0 flex-1 flex-col pt-1 lg:pt-0">
-              {children}
             </div>
+          ) : null}
+          <div className={cn(
+            "flex min-h-0 w-full min-w-0 flex-1 flex-col",
+            !isImmersiveProductRoute && !isDashboardHome && "px-4 sm:px-6 lg:px-8"
+          )}>
+            {children}
           </div>
         </div>
       </main>

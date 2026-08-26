@@ -292,7 +292,7 @@ const Discover = () => {
         url={getSiteUrl("/discover")}
       />
 
-      <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+      <div className="w-full px-4 py-6 sm:px-6 lg:px-8 space-y-6">
         
         {/* Market Architecture Header Row */}
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-6">

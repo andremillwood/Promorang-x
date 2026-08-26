@@ -24,7 +24,7 @@ const ConsumerShell = ({ children, locationLabel = "Kingston", actions }: Consum
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="w-full flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-5">
             <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="Promorang home">
               <img src={promorangLogo} alt="Promorang" className="h-8 w-auto" />
@@ -58,7 +58,7 @@ const ConsumerShell = ({ children, locationLabel = "Kingston", actions }: Consum
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl px-4 pb-28 pt-5 pb-safe-nav sm:px-6 md:pb-10 lg:px-8">{children}</main>
+      <main className="w-full px-4 pb-28 pt-5 pb-safe-nav sm:px-6 md:pb-10 lg:px-8">{children}</main>
 
       <nav
         aria-label="Mobile consumer navigation"

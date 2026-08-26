@@ -488,7 +488,7 @@ export default function HowItWorks() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_15%,rgba(255,107,0,0.22),transparent_35%),radial-gradient(circle_at_20%_50%,rgba(147,51,234,0.12),transparent_35%),linear-gradient(180deg,#121212_0%,#070707_100%)]" />
         <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.05)_1px,transparent_1px)] [background-size:40px_40px]" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_420px] lg:items-center">
+        <div className="relative w-full px-4 sm:px-6 lg:px-8 grid gap-12 lg:grid-cols-[1fr_420px] lg:items-center">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3.5 py-1 text-xs font-black uppercase tracking-widest text-primary">
               <Sparkles className="h-3.5 w-3.5" />
@@ -575,7 +575,7 @@ export default function HowItWorks() {
 
       {/* 5 Ways You Get Rewarded (Benefit-First) */}
       <section className="border-b border-white/10 px-5 py-16">
-        <div className="mx-auto max-w-7xl">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">
@@ -622,7 +622,7 @@ export default function HowItWorks() {
 
       {/* Complete Journey Interactive Stepper */}
       <section className="px-5 py-16 md:py-24">
-        <div className="mx-auto max-w-7xl">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">Interactive Journey</p>
@@ -738,7 +738,7 @@ export default function HowItWorks() {
 
       {/* 5 Integrated System Layers */}
       <section className="border-y border-white/10 bg-[#0c0c0c] px-5 py-16 md:py-24">
-        <div className="mx-auto max-w-7xl">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">Integrated Platform</p>
             <h2 className="mt-2 text-4xl font-black tracking-[-0.05em] sm:text-5xl">
@@ -783,7 +783,7 @@ export default function HowItWorks() {
 
       {/* Real-World Value Engine (Replacing raw Liquidity jargon) */}
       <section className="px-5 py-16 md:py-24">
-        <div className="mx-auto max-w-7xl">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">Trust & Sustainability</p>

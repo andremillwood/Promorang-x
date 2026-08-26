@@ -47,7 +47,7 @@ const Dashboard = () => {
   const ResolvedDashboard = dashboardByRole[resolvedRole] || ParticipantDashboardV2;
 
   return (
-    <div className="container mx-auto px-4 py-4 max-w-7xl space-y-4">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
       <MobileNotificationBridgeBanner />
       {activeDraft && <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />}
       <Suspense fallback={dashboardFallback}>

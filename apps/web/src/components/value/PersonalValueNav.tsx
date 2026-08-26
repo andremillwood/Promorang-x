@@ -20,7 +20,7 @@ export function PersonalValueNav({ className = "" }: PersonalValueNavProps) {
   return (
     <nav
       aria-label="Your value"
-      className={`mx-auto w-full max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#111111]/95 p-2 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl ${className}`}
+      className={`w-full overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#111111]/95 p-2 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl ${className}`}
     >
       <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {valueDestinations.map((item) => {

@@ -309,6 +309,7 @@ app.use('/api/participation', require('./participation'));
 app.use('/api/pulse', require('./pulse'));
 app.use('/api/proof', require('./proof'));
 app.use('/api/memories', require('./memories'));
+app.use('/api/vault', require('./memories'));
 app.use('/api/impact', require('./impact'));
 app.use('/api/creator-economics', require('./creator-economics'));
 app.use('/api/market-construction', require('./market-construction'));
@@ -372,10 +373,10 @@ app.use('/api/cron', require('./cron')); // Serverless cron entrypoints
 app.use('/api/email', require('./email')); // Email event entrypoints
 app.use('/api/today', require('./today')); // Daily Layer Today Screen
 app.use('/api/moments', require('./moments')); // Moment Infrastructure
+app.use('/api/moments', require('./moment-pricing')); // Moment SKU pricing endpoints
 app.use('/api/moment-economy', require('./moment-economy')); // Moment Economy V1
 app.use('/api/economy', require('./economy')); // Canonical wallet and conversions
 app.use('/api/growth-programs', require('./growth-programs')); // Defensible Growth Hub programs
-app.use('/api/roles', require('./roles')); // Role Management
 app.use('/api/roles', require('./roles')); // Role Management
 app.use('/api/host-applications', require('./host-applications')); // Host Applications
 app.use('/api/organizations', require('./organizations')); // B2B Onboarding & Management

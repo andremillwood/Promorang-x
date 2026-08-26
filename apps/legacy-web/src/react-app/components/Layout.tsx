@@ -597,7 +597,7 @@ export default function Layout({ children }: LayoutProps) {
 
           {/* CENTER FEED - Fluid expansion */}
           <main className="flex-1 bg-pr-surface-background">
-            <div className="max-w-[1800px] w-full mx-auto px-0 sm:px-4 md:px-6 lg:px-8 py-6 pb-mobile-nav lg:pb-8">
+            <div className="w-full px-4 sm:px-6 lg:px-8 py-6 pb-mobile-nav lg:pb-8">
               {children}
             </div>
           </main>

@@ -109,7 +109,7 @@ const Header = () => {
           : "border-b border-border/60 bg-background/85 text-foreground shadow-sm"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-3 sm:px-6">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <nav className="flex items-center justify-between h-16 gap-3 lg:gap-6">
           {/* 1. Left Zone: Brand Logo & Desktop Nav */}
           <div className="flex items-center gap-3 xl:gap-6 shrink-0">

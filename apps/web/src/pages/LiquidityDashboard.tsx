@@ -175,7 +175,7 @@ export function LiquidityDashboard() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <div className="border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.18),transparent_34%),linear-gradient(135deg,rgba(10,10,10,0.98),rgba(18,18,18,0.94))] backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">
@@ -205,21 +205,21 @@ export function LiquidityDashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <Alert className="mb-6 border-primary/20 bg-primary/5">
           <Info className="h-4 w-4" />
-          <AlertTitle>Advanced value layer</AlertTitle>
+          <AlertTitle>Co-Producer Backing Layer</AlertTitle>
           <AlertDescription>
-            Liquidity supports Pieces by pairing them with Gems. Pool browsing is live, but position reporting and deeper portfolio behavior still depend on backend endpoints that need fuller production validation. Review KYC and risk before adding funds.
+            Co-producers back cultural drops by pairing Pieces with Gems. Active drops share 0.25% of all secondary pass &amp; piece trade fees directly with backers. Review details and commitments before backing.
           </AlertDescription>
         </Alert>
 
         <div className="mb-8 grid gap-3 md:grid-cols-4">
           {[
-            ["Choose a pool", "Back a Moment, creator, host, venue, or content asset with real market signal."],
-            ["Pair value", "Deposit equal value of Pieces and Gems so trades can move."],
-            ["Earn fees", "Trading activity can return fees to liquidity providers."],
-            ["Manage risk", "Track exposure, redemption rules, KYC, and impermanent loss before scaling."],
+            ["Choose a Drop", "Back a music release, moment, creator, or venue with real cultural backing."],
+            ["Pair Value", "Commit Pieces and Gems to back the drop's active circulation."],
+            ["Shared Rewards", "Circulation returns a direct fee split to co-producers."],
+            ["Manage Backing", "Track your position, member redemption rules, and return metrics."],
           ].map(([label, body]) => (
             <div key={label} className="rounded-2xl border border-white/10 bg-card/70 p-4">
               <div className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">{label}</div>
@@ -266,7 +266,7 @@ export function LiquidityDashboard() {
               </div>
               <div className="text-2xl font-bold mt-1">{positions.length}</div>
               <div className="text-sm text-muted-foreground">
-                pools supported
+                drops backed
               </div>
             </CardContent>
           </Card>
@@ -279,7 +279,7 @@ export function LiquidityDashboard() {
               </div>
               <div className="text-2xl font-bold mt-1">{gemsBalance.toFixed(2)}</div>
               <div className="text-sm text-muted-foreground">
-                ready to pair
+                ready to commit
               </div>
             </CardContent>
           </Card>
@@ -287,9 +287,9 @@ export function LiquidityDashboard() {
 
         <Tabs defaultValue="all" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="all">All Pools</TabsTrigger>
-            <TabsTrigger value="my-positions">My Positions ({positions.length})</TabsTrigger>
-            <TabsTrigger value="high-apr">High Signal</TabsTrigger>
+            <TabsTrigger value="all">All Cultural Drops</TabsTrigger>
+            <TabsTrigger value="my-positions">My Backed Drops ({positions.length})</TabsTrigger>
+            <TabsTrigger value="high-apr">High Return Signal</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
@@ -314,7 +314,7 @@ export function LiquidityDashboard() {
                           <div className="text-2xl font-bold text-green-600">
                             {apr.toFixed(0)}%
                           </div>
-                          <div className="text-xs text-muted-foreground">fee signal</div>
+                          <div className="text-xs text-muted-foreground">est. return</div>
                         </div>
                       </div>
                     </CardHeader>
@@ -323,7 +323,7 @@ export function LiquidityDashboard() {
                       {/* Pool Stats */}
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Liquidity</span>
+                          <span className="text-muted-foreground">Backing Reserve</span>
                           <span>{pool.pieces_reserve?.toFixed(0)} Pieces</span>
                         </div>
                         <div className="flex justify-between">
@@ -331,7 +331,7 @@ export function LiquidityDashboard() {
                           <span>{pool.last_price?.toFixed(2)} Gems</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">24h Volume</span>
+                          <span className="text-muted-foreground">24h Circulation</span>
                           <span>{pool.volume_24h?.toFixed(0)} Gems</span>
                         </div>
                         <div className="flex justify-between">
@@ -344,14 +344,14 @@ export function LiquidityDashboard() {
                       {position && (
                         <div className="rounded-lg bg-emerald-500/10 p-3 space-y-1">
                           <div className="flex justify-between text-sm">
-                            <span className="text-green-700">Your Share</span>
+                            <span className="text-green-700">Your Reserve Share</span>
                             <span className="font-semibold text-green-700">
                               {((position.lp_tokens / Math.sqrt(pool.pieces_reserve * pool.currency_reserve)) * 100).toFixed(2)}%
                             </span>
                           </div>
                           {position.fees_earned_currency > 0 && (
                             <div className="flex justify-between text-sm">
-                              <span className="text-green-600">Fees Earned</span>
+                              <span className="text-green-600">Rewards Earned</span>
                               <span className="font-semibold text-green-600">
                                 +{position.fees_earned_currency.toFixed(4)} Gems
                               </span>
@@ -365,7 +365,7 @@ export function LiquidityDashboard() {
                         onClick={() => openLiquidityModal(pool)}
                       >
                         <Plus className="h-4 w-4 mr-1" />
-                        {position ? 'Manage Position' : 'Add Liquidity'}
+                        {position ? 'Manage Backing' : 'Back Drop'}
                       </Button>
                     </CardContent>
                   </Card>
@@ -377,13 +377,13 @@ export function LiquidityDashboard() {
           <TabsContent value="my-positions">
             {positions.length === 0 ? (
               <Card className="p-12 text-center">
-                <Wallet className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No positions yet</h3>
+                <Wallet className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                <h3 className="text-lg font-semibold mb-2">No backed drops yet</h3>
                 <p className="text-muted-foreground mb-4">
-                  Start supporting Pieces by adding liquidity to an active pool.
+                  Start supporting artists &amp; creators by becoming a co-producer for an active drop.
                 </p>
                 <Button onClick={() => document.querySelector('[value="all"]')?.dispatchEvent(new Event('click'))}>
-                  Browse Pools
+                  Browse Cultural Drops
                 </Button>
               </Card>
             ) : (
@@ -410,7 +410,7 @@ export function LiquidityDashboard() {
                       <CardContent className="space-y-4">
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Deposited</span>
+                            <span className="text-muted-foreground">Committed</span>
                             <span className="font-semibold">
                               {position.pieces_deposited.toFixed(2)} Pieces
                             </span>
@@ -425,13 +425,13 @@ export function LiquidityDashboard() {
 
                         <div className="bg-green-50 rounded-lg p-3">
                           <div className="flex justify-between text-sm mb-1">
-                            <span className="text-green-700">Fees Earned</span>
+                            <span className="text-green-700">Rewards Earned</span>
                             <span className="font-semibold text-green-700">
                               +{position.fees_earned_currency.toFixed(4)} Gems
                             </span>
                           </div>
                           <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Current APR</span>
+                            <span>Current Est. Return</span>
                             <span>{apr.toFixed(0)}%</span>
                           </div>
                         </div>
@@ -441,7 +441,7 @@ export function LiquidityDashboard() {
                           className="w-full"
                           onClick={() => openLiquidityModal(position.pool)}
                         >
-                          Manage Position
+                          Manage Backing
                         </Button>
                       </CardContent>
                     </Card>

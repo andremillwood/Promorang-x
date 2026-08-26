@@ -46,7 +46,7 @@ export default function MerchantStorefront() {
   const services = items.filter((x: any) => x.fulfillment_mode === 'booking' || x.listing_kind === 'service');
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-7 sm:px-6">
+    <main className="w-full px-4 sm:px-6 lg:px-8 py-7">
       <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_80%_0%,rgba(255,106,26,.24),transparent_30%),linear-gradient(135deg,#080808,#15110f)] p-7 text-white sm:p-10">
         <div className="flex flex-wrap items-center gap-2">
           <Badge className="gap-1 bg-primary text-primary-foreground"><Store className="h-3.5 w-3.5" />{t("storefront.label")}</Badge>

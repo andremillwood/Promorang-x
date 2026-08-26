@@ -199,12 +199,12 @@ const Vault = () => {
             onClick={() => setActiveTab("liquidity")}
             className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
               activeTab === "liquidity"
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
                 : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <Sparkles className="h-4 w-4 text-indigo-400" />
-            <span>Liquidity &amp; Pieces</span>
+            <Sparkles className="h-4 w-4 text-blue-400" />
+            <span>Community Backing &amp; Reserves</span>
           </button>
         </div>
 

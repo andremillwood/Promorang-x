@@ -124,7 +124,7 @@ export default function Creators() {
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/35" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/25" />
         
-        <div className="container relative flex min-h-[440px] items-end px-6 pb-12 max-w-7xl mx-auto">
+        <div className="relative flex min-h-[440px] items-end px-4 sm:px-6 lg:px-8 pb-12 w-full">
           <div className="grid w-full gap-8 lg:grid-cols-[1fr_360px] lg:items-end">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
@@ -180,12 +180,12 @@ export default function Creators() {
       </section>
 
       {/* SECTION 1: THINGS WORTH SHARING FEED */}
-      <section className="container max-w-7xl px-6 py-12 mx-auto">
+      <section className="w-full px-4 sm:px-6 lg:px-8 py-12">
         <ThingsWorthSharingFeed />
       </section>
 
       {/* SECTION 2: CREATOR DIRECTORY & DISTRIBUTION PROOF */}
-      <section className="container max-w-7xl px-6 py-8 mx-auto">
+      <section className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-purple-400">
@@ -270,7 +270,7 @@ export default function Creators() {
       </section>
 
       {/* 4 Pillars of Creator Success */}
-      <section className="container max-w-7xl px-6 py-10 mx-auto">
+      <section className="w-full px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid gap-4 rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:grid-cols-4">
           {[
             { icon: Sparkles, title: "1. Discover", text: "Find exciting Perks, moments, and cultural drops worth talking about." },

@@ -24,7 +24,7 @@ const Analytics = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       {(primaryRole === "host" || primaryRole === "participant") && (
         <Alert className="mb-6 border-primary/20 bg-primary/5">
           <AlertCircle className="h-4 w-4" />

@@ -1,7 +1,7 @@
 /**
- * Liquidity Provider Component
- * Allow users to add/remove liquidity from pools and earn fees
- * Similar to Uniswap - users deposit Gems + Pieces, earn trading fees
+ * Co-Producer & Drop Backing Component
+ * Allow users to add/withdraw backing from cultural drop pools and earn shared fees
+ * Users deposit Gems + Pieces, earning shared platform and trade fees
  */
 
 import { useState, useEffect } from 'react';
@@ -24,7 +24,8 @@ import {
   AlertTriangle,
   Loader2,
   ChevronRight,
-  Percent
+  Percent,
+  HeartHandshake
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -98,22 +99,30 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
       
       // Calculate LP tokens
       if (pool.pieces_reserve > 0 && pool.currency_reserve > 0) {
-        const totalLp = totalLpTokens || Math.sqrt(pool.pieces_reserve * pool.currency_reserve);
-        const piecesShare = pieces / pool.pieces_reserve;
-        const currencyShare = requiredGems / pool.currency_reserve;
-        const lpTokens = Math.min(piecesShare, currencyShare) * totalLp;
-        setEstimatedLpTokens(lpTokens);
+        const poolShare = pieces / (pool.pieces_reserve + pieces);
+        const newLp = (totalLpTokens || 100) * poolShare;
+        setEstimatedLpTokens(newLp);
+      } else {
+        setEstimatedLpTokens(pieces);
       }
+    } else {
+      setEstimatedGemsRequired(0);
+      setEstimatedLpTokens(0);
     }
-  }, [piecesToAdd, pool]);
+  }, [piecesToAdd, pool.last_price, pool.pieces_reserve, pool.currency_reserve, totalLpTokens]);
 
   useEffect(() => {
     if (lpTokensToRemove && position) {
-      const share = parseFloat(lpTokensToRemove) / position.lp_tokens;
-      setEstimatedPiecesOut(position.pieces_deposited * share);
-      setEstimatedGemsOut(position.currency_deposited * share);
+      const tokens = parseFloat(lpTokensToRemove);
+      const share = tokens / (totalLpTokens || position.lp_tokens);
+      
+      setEstimatedPiecesOut(pool.pieces_reserve * share);
+      setEstimatedGemsOut(pool.currency_reserve * share);
+    } else {
+      setEstimatedPiecesOut(0);
+      setEstimatedGemsOut(0);
     }
-  }, [lpTokensToRemove, position]);
+  }, [lpTokensToRemove, position, totalLpTokens, pool.pieces_reserve, pool.currency_reserve]);
 
   const fetchPosition = async () => {
     if (!session?.access_token) {
@@ -123,30 +132,21 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
 
     setFetchingPosition(true);
     try {
-      const authHeaders = { 'Authorization': `Bearer ${session.access_token}` };
-      const [positionRes, poolRes] = await Promise.all([
-        fetch(apiUrl(`/pieces/pools/${pool.id}/lp-position`), {
-          headers: authHeaders,
-        }),
-        fetch(apiUrl(`/pieces/pools/${pool.id}`), {
-          headers: authHeaders,
-        }),
-      ]);
-
-      if (positionRes.ok) {
-        const posData = await positionRes.json();
-        setPosition(posData.lp_tokens ? posData : null);
+      const response = await fetch(apiUrl(`/pieces/pools/${pool.id}/position`), {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+      const data = await response.json();
+      
+      if (data.position) {
+        setPosition(data.position);
       }
-
-      // Calculate total LP tokens from pool
-      if (poolRes.ok) {
-        const poolData = await poolRes.json();
-        if (poolData.pool) {
-          setTotalLpTokens(Math.sqrt(poolData.pool.pieces_reserve * poolData.pool.currency_reserve));
-        }
+      if (data.total_lp_tokens) {
+        setTotalLpTokens(data.total_lp_tokens);
       }
     } catch (error) {
-      console.error('Failed to fetch position:', error);
+      console.error('Failed to fetch position', error);
     } finally {
       setFetchingPosition(false);
     }
@@ -165,9 +165,9 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
           'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          pieces_to_add: parseFloat(piecesToAdd),
-          max_currency: parseFloat(gemsToAdd),
-          slippage_tolerance: 0.01,
+          pieces_amount: parseFloat(piecesToAdd),
+          currency_amount: parseFloat(gemsToAdd),
+          min_lp_tokens: estimatedLpTokens * 0.95,
         }),
       });
 
@@ -175,14 +175,14 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
 
       if (response.ok && data.success) {
         toast({
-          title: 'Liquidity Added!',
-          description: `You added ${piecesToAdd} pieces and ${gemsToAdd} Gems. Received ${data.lp_tokens_received?.toFixed(2)} LP tokens.`,
+          title: 'Backing Confirmed!',
+          description: `You backed this drop with ${piecesToAdd} pieces and ${gemsToAdd} Gems.`,
         });
         fetchPosition();
         setPiecesToAdd('');
         setGemsToAdd('');
       } else {
-        throw new Error(data.error || 'Failed to add liquidity');
+        throw new Error(data.error || 'Failed to add backing');
       }
     } catch (error: any) {
       toast({
@@ -218,13 +218,13 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
 
       if (response.ok && data.success) {
         toast({
-          title: 'Liquidity Removed!',
+          title: 'Backing Returned!',
           description: `You received ${data.pieces_out?.toFixed(2)} pieces and ${data.currency_out?.toFixed(2)} Gems.`,
         });
         fetchPosition();
         setLpTokensToRemove('');
       } else {
-        throw new Error(data.error || 'Failed to remove liquidity');
+        throw new Error(data.error || 'Failed to return backing');
       }
     } catch (error: any) {
       toast({
@@ -246,8 +246,7 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
     const dailyFees = dailyVolume * lpFeeRate;
     const yearlyFees = dailyFees * 365;
     
-    // Assuming LP provides proportional to pool size
-    const poolValue = pool.currency_reserve * 2; // Both sides
+    const poolValue = pool.currency_reserve * 2;
     const apr = (yearlyFees / poolValue) * 100;
     
     return apr;
@@ -268,46 +267,47 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">
-            {pool.asset?.title || pool.asset?.name || 'Pool'} Liquidity
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <HeartHandshake className="h-5 w-5 text-purple-400" />
+            {pool.asset?.title || pool.asset?.name || 'Drop'} Co-Producer Backing
           </h3>
           <p className="text-sm text-muted-foreground">
-            Earn {(pool.lp_fee_percent * 100).toFixed(2)}% of every trade
+            Earn {(pool.lp_fee_percent * 100).toFixed(2)}% shared fee distribution on secondary trades
           </p>
         </div>
         <Badge variant="secondary" className="text-lg">
           <TrendingUp className="h-4 w-4 mr-1" />
-          {apr.toFixed(0)}% APR
+          {apr.toFixed(0)}% Est. Return
         </Badge>
       </div>
 
       {/* Current Position */}
       {position && (
-        <Card className="bg-green-50 border-green-200">
+        <Card className="bg-purple-950/20 border-purple-500/30">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Wallet className="h-4 w-4" />
-              Your Position
+              <Wallet className="h-4 w-4 text-purple-400" />
+              Your Backing Stake
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Pool Share</span>
+              <span className="text-sm text-muted-foreground">Reserve Share</span>
               <span className="font-semibold">{position.pool_share_percent?.toFixed(2)}%</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">LP Tokens</span>
+              <span className="text-sm text-muted-foreground">Co-Producer Shares</span>
               <span className="font-semibold">{position.lp_tokens?.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Deposited</span>
+              <span className="text-sm text-muted-foreground">Active Commitment</span>
               <span className="font-semibold">
                 {position.pieces_deposited?.toFixed(2)} Pieces + {position.currency_deposited?.toFixed(2)} Gems
               </span>
             </div>
             {(position.fees_earned_pieces > 0 || position.fees_earned_currency > 0) && (
-              <div className="flex justify-between text-green-600">
-                <span className="text-sm">Fees Earned</span>
+              <div className="flex justify-between text-emerald-400">
+                <span className="text-sm">Shared Fees Earned</span>
                 <span className="font-semibold">
                   {position.fees_earned_pieces?.toFixed(4)} Pieces + {position.fees_earned_currency?.toFixed(4)} Gems
                 </span>
@@ -322,21 +322,21 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="add">
             <Plus className="h-4 w-4 mr-1" />
-            Add Liquidity
+            Add Backing
           </TabsTrigger>
           <TabsTrigger value="remove" disabled={!position}>
             <Minus className="h-4 w-4 mr-1" />
-            Remove
+            Withdraw Backing
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="add" className="space-y-4">
-          {/* Add Liquidity Form */}
+          {/* Add Backing Form */}
           <div className="space-y-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Tag className="h-4 w-4" />
-                Pieces to Deposit
+                Pieces to Commit
               </Label>
               <Input
                 type="number"
@@ -347,14 +347,14 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
                 onChange={(e) => setPiecesToAdd(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Available: {userPieces.toFixed(2)} Pieces
+                Available in Wallet: {userPieces.toFixed(2)} Pieces
               </p>
             </div>
 
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Gem className="h-4 w-4" />
-                Gems to Deposit
+                Gems to Commit
               </Label>
               <Input
                 type="number"
@@ -365,9 +365,9 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
                 onChange={(e) => setGemsToAdd(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Available: {gemsBalance.toFixed(2)} Gems
+                Available in Wallet: {gemsBalance.toFixed(2)} Gems
                 {estimatedGemsRequired > 0 && piecesToAdd && (
-                  <span className="ml-2 text-violet-600">
+                  <span className="ml-2 text-violet-400">
                     (Suggested: {estimatedGemsRequired.toFixed(2)} Gems)
                   </span>
                 )}
@@ -378,11 +378,11 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
             {piecesToAdd && gemsToAdd && (
               <div className="bg-muted rounded-lg p-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Estimated LP Tokens</span>
+                  <span className="text-muted-foreground">Estimated Co-Producer Shares</span>
                   <span className="font-semibold">{estimatedLpTokens.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Pool Share After</span>
+                  <span className="text-muted-foreground">Your Share of Reserve</span>
                   <span className="font-semibold">
                     {((estimatedLpTokens / (totalLpTokens + estimatedLpTokens)) * 100).toFixed(2)}%
                   </span>
@@ -390,11 +390,11 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
               </div>
             )}
 
-            <Alert className="bg-blue-50 border-blue-200">
-              <Info className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-sm text-blue-700">
-                <strong>How it works:</strong> You deposit equal value of Pieces and Gems. 
-                You earn {(pool.lp_fee_percent * 100).toFixed(2)}% of every trade proportional to your share.
+            <Alert className="bg-blue-950/20 border-blue-500/30">
+              <Info className="h-4 w-4 text-blue-400" />
+              <AlertDescription className="text-sm text-blue-300">
+                <strong>How it works:</strong> You commit equal value of Pieces and Gems to back this drop's circulation. 
+                You earn {(pool.lp_fee_percent * 100).toFixed(2)}% of trading activity proportional to your share.
               </AlertDescription>
             </Alert>
 
@@ -408,7 +408,7 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
               ) : (
                 <Plus className="h-4 w-4 mr-1" />
               )}
-              Add Liquidity
+              Confirm Backing
             </Button>
           </div>
         </TabsContent>
@@ -417,7 +417,7 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
           {position ? (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>LP Tokens to Remove</Label>
+                <Label>Co-Producer Shares to Withdraw</Label>
                 <Input
                   type="number"
                   min="0.01"
@@ -428,40 +428,39 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
                   onChange={(e) => setLpTokensToRemove(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Available: {position.lp_tokens.toFixed(2)} LP Tokens
+                  Active in Reserve: {position.lp_tokens.toFixed(2)} Shares
                 </p>
               </div>
 
               {lpTokensToRemove && (
                 <div className="bg-muted rounded-lg p-4 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Estimated Pieces Out</span>
+                    <span className="text-muted-foreground">Estimated Pieces to Return</span>
                     <span className="font-semibold">{estimatedPiecesOut.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Estimated Gems Out</span>
+                    <span className="text-muted-foreground">Estimated Gems to Return</span>
                     <span className="font-semibold">{estimatedGemsOut.toFixed(2)}</span>
                   </div>
                   {position.fees_earned_pieces > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
-                      <span>+ Fees Earned (Pieces)</span>
+                    <div className="flex justify-between text-sm text-emerald-400">
+                      <span>+ Shared Fees (Pieces)</span>
                       <span className="font-semibold">+{position.fees_earned_pieces.toFixed(4)}</span>
                     </div>
                   )}
                   {position.fees_earned_currency > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
-                      <span>+ Fees Earned (Gems)</span>
+                    <div className="flex justify-between text-sm text-emerald-400">
+                      <span>+ Shared Fees (Gems)</span>
                       <span className="font-semibold">+{position.fees_earned_currency.toFixed(4)}</span>
                     </div>
                   )}
                 </div>
               )}
 
-              <Alert className="bg-yellow-50 border-yellow-200">
-                <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                <AlertDescription className="text-sm text-yellow-700">
-                  <strong>Important:</strong> You may receive different amounts than you deposited due to 
-                  price changes and impermanent loss.
+              <Alert className="bg-amber-950/20 border-amber-500/30">
+                <AlertTriangle className="h-4 w-4 text-amber-400" />
+                <AlertDescription className="text-sm text-amber-300">
+                  <strong>Notice:</strong> The proportion of Pieces and Gems returned reflects market trading movement since your backing was committed.
                 </AlertDescription>
               </Alert>
 
@@ -476,18 +475,18 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
                 ) : (
                   <Minus className="h-4 w-4 mr-1" />
                 )}
-                Remove Liquidity
+                Withdraw Backing to Wallet
               </Button>
             </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              <Wallet className="h-12 w-12 mx-auto mb-2" />
-              <p>You don't have any liquidity in this pool yet.</p>
+              <Wallet className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>You haven't backed this drop yet.</p>
               <Button 
                 variant="link" 
                 onClick={() => setActiveTab('add')}
               >
-                Add liquidity first
+                Back this drop first
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
@@ -498,16 +497,16 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
       {/* Pool Stats */}
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div className="bg-muted rounded-lg p-3">
-          <div className="text-muted-foreground">Total Liquidity</div>
+          <div className="text-muted-foreground">Total Backing Reserve</div>
           <div className="font-semibold">{pool.pieces_reserve?.toFixed(0)} Pieces</div>
           <div className="font-semibold">{pool.currency_reserve?.toFixed(0)} Gems</div>
         </div>
         <div className="bg-muted rounded-lg p-3">
-          <div className="text-muted-foreground">24h Volume</div>
+          <div className="text-muted-foreground">24h Circulation</div>
           <div className="font-semibold">{pool.volume_24h?.toFixed(0)} Gems</div>
           <div className="text-muted-foreground">
             <Percent className="h-3 w-3 inline" />
-            {(pool.lp_fee_percent * 100).toFixed(2)}% fees to LPs
+            {(pool.lp_fee_percent * 100).toFixed(2)}% shared with co-producers
           </div>
         </div>
       </div>

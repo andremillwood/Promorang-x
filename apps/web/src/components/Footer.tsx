@@ -57,7 +57,7 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
   return (
     <footer className="bg-background border-t border-border">
       {/* CTA Section */}
-      {showCta ? <div className="container px-4 py-14 sm:px-6 md:py-24">
+      {showCta ? <div className="w-full px-4 py-14 sm:px-6 md:py-24">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
             {t("footer.ctaTitle")}
@@ -78,7 +78,7 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
 
       {/* Footer Links */}
       <div className="border-t border-border">
-        <div className="container px-4 py-12 sm:px-6">
+        <div className="w-full px-4 py-12 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-8 lg:grid-cols-6">
             {/* Brand Column */}
             <div className="col-span-2 md:col-span-1">

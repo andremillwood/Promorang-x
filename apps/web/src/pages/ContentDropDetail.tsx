@@ -127,7 +127,7 @@ export default function ContentDropDetail() {
 
   return (
     <div className="min-h-screen bg-[#070707] text-white">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full px-4 py-6 sm:px-6 lg:px-8">
         {receipt ? (
           <div className="mb-6">
             <ProofReceipt

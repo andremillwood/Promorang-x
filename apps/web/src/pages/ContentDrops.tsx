@@ -205,7 +205,7 @@ export default function ContentDrops() {
 
   return (
     <div className="min-h-screen bg-[#070707] text-white">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full px-4 py-6 sm:px-6 lg:px-8">
         <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-black">
           <img src={getSafeMediaUrl(getAssets(drops[0] || seededContentDrops[0])?.[0]?.media_url) || ""} alt="" className="absolute inset-0 h-full w-full object-cover opacity-45" />
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/20" />

@@ -282,7 +282,7 @@ const Wallet = () => {
       <div className="relative min-h-[500px] overflow-hidden border-b border-white/10 bg-black">
         <img src={cultureEvents[1]?.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/35" />
-        <div className="relative mx-auto grid min-h-[500px] max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1fr_420px] md:items-end">
+        <div className="relative w-full grid min-h-[500px] gap-8 px-4 sm:px-6 lg:px-8 py-8 md:py-10 md:grid-cols-[1fr_420px] md:items-end">
           <div className="text-white">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">
               <WalletCards className="h-3.5 w-3.5" />
@@ -317,9 +317,11 @@ const Wallet = () => {
         </div>
       </div>
 
-      <PersonalValueNav className="relative z-20 -mt-4 px-2" />
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <PersonalValueNav className="relative z-20 -mt-6" />
+      </div>
 
-      <main className="mx-auto max-w-7xl space-y-6 px-4 py-6">
+      <main className="w-full space-y-6 px-4 sm:px-6 lg:px-8 py-6">
         <CouponWalletRail />
         <CommerceReceiptRail />
         <GuidanceDisclosure
