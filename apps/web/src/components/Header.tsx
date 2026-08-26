@@ -378,11 +378,11 @@ const Header = () => {
 
           {/* 3. Right Zone: Utilities & Unified User Dropdown */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Global Ticket & Balances Pill */}
-            <GlobalTicketBalancePill className="hidden md:inline-flex" />
-
             {user ? (
               <>
+                {/* Global Ticket & Balances Pill */}
+                <GlobalTicketBalancePill className="hidden md:inline-flex" />
+
                 {/* Activity Pulse Notifications */}
                 <DropdownMenu>
                   <DropdownMenuTrigger className="relative p-2 rounded-full text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors outline-none cursor-pointer">

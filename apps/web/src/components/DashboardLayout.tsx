@@ -5,6 +5,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import logo from "@/assets/promorang-logo.png";
 import { HeaderSearchPreview } from "@/components/HeaderSearchPreview";
+import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 import {
   Home,
   Compass,
@@ -835,14 +836,8 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Wallet Balance Pill */}
-            <Link
-              to="/wallet"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/80 bg-card/80 hover:bg-muted/60 text-xs font-bold transition group"
-            >
-              <Coins className="w-3.5 h-3.5 text-primary group-hover:rotate-12 transition-transform" />
-              <span className="text-foreground">{profile?.points ? `${profile.points.toLocaleString()} pts` : "0 pts"}</span>
-            </Link>
+            {/* Global Ticket & Points Balance Pill */}
+            <GlobalTicketBalancePill className="hidden sm:inline-flex" />
 
             {/* Notifications Bell */}
             <DropdownMenu>

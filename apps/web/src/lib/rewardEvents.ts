@@ -176,10 +176,10 @@ export function getUnifiedBalances(): UnifiedBalances {
   const nextDrawDate = nextFriday.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
   return {
-    promoPoints: 620,
-    gems: 25,
-    promoShareTickets: 17,
-    claimedPerksCount: 4,
+    promoPoints: 0,
+    gems: 0,
+    promoShareTickets: 0,
+    claimedPerksCount: 0,
     nextDrawDate: `Friday (${nextDrawDate})`,
   };
 }
