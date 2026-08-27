@@ -18,7 +18,8 @@ export function HeroFloatingBadges({ scrollYProgress, reducedMotion = false }: H
 
   return (
     <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden" aria-hidden="true">
-      {/* Floating Badge 1: Gem Reward (Top Right) */}
+      <div className="max-w-7xl mx-auto relative h-full w-full px-4 sm:px-6 lg:px-8">
+        {/* Floating Badge 1: Gem Reward (Top Right) */}
       <motion.div
         style={{ y: yFast }}
         initial={{ opacity: 0, scale: 0.8, y: 20 }}
@@ -97,6 +98,7 @@ export function HeroFloatingBadges({ scrollYProgress, reducedMotion = false }: H
           <p className="text-[11px] font-black text-white">{t("hero.artwalkVisit")}</p>
         </div>
       </motion.div>
+      </div>
     </div>
   );
 }

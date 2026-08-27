@@ -40,6 +40,7 @@ import {
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
+import { DigitalPromoCard } from "@/components/promocard";
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
 import { SampleContentNotice } from "@/components/content/ContentProvenance";
 import { possessiveLocation, useVisitorLocation } from "@/hooks/useVisitorLocation";
@@ -564,7 +565,7 @@ export default function CinematicCultureHome() {
           {activeHeroItem ? (
             <motion.div
               style={{ y: shouldReduceMotion ? 0 : cardParallaxY }}
-              className="mt-12 w-full max-w-sm lg:absolute lg:bottom-16 lg:right-16 will-change-transform z-20"
+              className="mt-12 w-full max-w-sm lg:absolute lg:bottom-16 lg:right-6 xl:right-8 will-change-transform z-20"
             >
               <TiltCard3D
                 maxTilt={shouldReduceMotion ? 0 : 12}
@@ -614,6 +615,24 @@ export default function CinematicCultureHome() {
       </section>
 
       <LeadMagnetGateway />
+
+      {/* Promorang Black Card & Stored-Value Showcase */}
+      <section className="relative overflow-hidden border-b border-white/10 bg-gradient-to-b from-black via-zinc-950 to-[#070707] py-10 px-6">
+        <div className="container relative max-w-6xl mx-auto">
+          <div className="text-center mb-6 space-y-1">
+            <span className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-400">
+              Zero-Cash Pre-Endowed Purchasing Power
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black uppercase text-white">
+              Your Promorang <span className="text-amber-400">Black Card</span>
+            </h2>
+            <p className="text-xs text-zinc-400 max-w-lg mx-auto">
+              Pre-loaded with spendable purchasing credit across partner venues, dining, and online drops.
+            </p>
+          </div>
+          <DigitalPromoCard />
+        </div>
+      </section>
 
       <section className="relative overflow-hidden border-b border-white/10 bg-[#070707]">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(255,106,0,0.16),transparent_32%)]" />

@@ -6,18 +6,19 @@ export default {
   prefix: "",
   theme: {
     container: {
-      center: false,
+      center: true,
       padding: {
         DEFAULT: "1rem",
         sm: "1.5rem",
         lg: "2rem",
+        xl: "2.5rem",
       },
       screens: {
-        sm: "100%",
-        md: "100%",
-        lg: "100%",
-        xl: "100%",
-        "2xl": "100%",
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1440px",
       },
     },
     extend: {
