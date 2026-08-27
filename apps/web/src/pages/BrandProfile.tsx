@@ -170,9 +170,14 @@ export default function BrandProfile() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 items-center">
                 <Badge variant="secondary">{t("brandProfilePage.campaignsCount", { count: formatNumber(brand.active_campaigns_count || 0) })}</Badge>
                 <Badge variant="secondary">{t("brandProfilePage.associatedMomentsCount", { count: formatNumber(brand.associated_moments_count || 0) })}</Badge>
+                <Button asChild variant="default" size="sm" className="bg-primary text-primary-foreground font-bold shadow-md">
+                  <Link to={`/create/campaign?brand=${slug}`}>
+                    Partner as Creator / Claim Drop
+                  </Link>
+                </Button>
                 {brand.website_url && (
                   <Button asChild variant="outline" size="sm">
                     <a href={brand.website_url} target="_blank" rel="noreferrer">

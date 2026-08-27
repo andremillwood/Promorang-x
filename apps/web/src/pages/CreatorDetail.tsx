@@ -152,6 +152,29 @@ export default function CreatorDetail() {
         </div>
 
         <aside className="space-y-4">
+          {/* PromoShare Share-to-Earn Card */}
+          <div className="rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/15 via-black to-black p-5 shadow-xl">
+            <div className="flex items-center gap-2">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping" />
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">Share-to-Earn Active</p>
+            </div>
+            <h3 className="mt-2 text-base font-extrabold text-white">Earn with @{creator.handle}</h3>
+            <p className="mt-1.5 text-xs text-white/70 leading-relaxed">
+              Share this creator&apos;s upcoming moments and drops. Earn an instant 15% Gem commission on every verified check-in driven.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(`https://promorang.co/creators/${creator.handle}?ref=promoshare`);
+                alert(`PromoShare link for @${creator.handle} copied!`);
+              }}
+              className="mt-4 w-full py-2.5 bg-primary hover:bg-primary/90 text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>Copy PromoShare Link</span>
+            </button>
+          </div>
+
           <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">{t("creatorProfile.growth")}</p>
             <p className="mt-3 text-sm leading-6 text-white/65">

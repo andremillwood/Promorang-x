@@ -255,12 +255,16 @@ export default function VenueProfile() {
                   ))}
                 </div>
                 <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                  <Button asChild>
+                  <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
                     <Link to="/explore/moments">{t("venueProfile.findMoment")}</Link>
                   </Button>
-                  <Button asChild variant="outline" className="border-white/15 bg-white/[0.06] text-white hover:bg-white/[0.12] hover:text-white">
-                    <Link to="/marketplace">{t("venueProfile.viewOffers")}</Link>
+                  <Button asChild variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 font-bold">
+                    <Link to="/rewards">Claim Perk to Wallet</Link>
                   </Button>
+                </div>
+                <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-white/50">
+                  <span>⚡ Powered by Community Vault Float</span>
+                  <span className="text-emerald-400 font-semibold">100% Guaranteed</span>
                 </div>
               </div>
             </div>

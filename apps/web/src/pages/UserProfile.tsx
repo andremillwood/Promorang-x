@@ -281,12 +281,29 @@ const UserProfilePage = () => {
                             {/* Actions */}
                             <div className="flex flex-wrap items-center gap-3">
                                 {isOwnProfile ? (
-                                    <Button variant="outline" className="border-white/20 bg-black/30 text-white hover:bg-white/10 hover:text-white" asChild>
-                                        <Link to="/dashboard/settings">
-                                            <Settings className="h-4 w-4 mr-2" />
-                                            {t("profile.edit")}
-                                        </Link>
-                                    </Button>
+                                    <>
+                                        <Button variant="outline" className="border-white/20 bg-black/30 text-white hover:bg-white/10 hover:text-white" asChild>
+                                            <Link to="/dashboard/settings">
+                                                <Settings className="h-4 w-4 mr-2" />
+                                                {t("profile.edit")}
+                                            </Link>
+                                        </Button>
+                                        <Button 
+                                            variant="outline" 
+                                            className="border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(window.location.href);
+                                                toast.success("Profile link copied to clipboard!");
+                                            }}
+                                        >
+                                            Share Profile
+                                        </Button>
+                                        <Button variant="default" className="bg-gradient-to-r from-orange-500 to-amber-500 text-black font-bold shadow-lg" asChild>
+                                            <Link to="/vault">
+                                                Open My Vault
+                                            </Link>
+                                        </Button>
+                                    </>
                                 ) : (
                                     <>
                                         <FollowButton
@@ -295,6 +312,16 @@ const UserProfilePage = () => {
                                             followerCount={stats?.followers}
                                             onFollowChange={setIsFollowing}
                                         />
+                                        <Button
+                                            variant="outline"
+                                            className="border-white/20 bg-black/30 text-white hover:bg-white/10"
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(window.location.href);
+                                                toast.success("Profile link copied to clipboard!");
+                                            }}
+                                        >
+                                            Share Profile
+                                        </Button>
                                         <Button
                                             variant="outline"
                                             size="icon"
