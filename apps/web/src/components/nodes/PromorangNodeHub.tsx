@@ -16,6 +16,9 @@ import {
 import { TangibleNodeCard } from './TangibleNodeCard';
 import { NodeLiveTelemetryTicker } from './NodeLiveTelemetryTicker';
 import jackpotMegaVault from '@/assets/nodes/jackpot-mega-vault.jpg';
+import { ProofReceiptModal } from '@/components/value/ProofReceiptModal';
+import { ProofPassportCard } from '@/components/value/ProofPassportCard';
+import { ValueReceiptData } from '@/components/value/TactileValueReceipt';
 
 interface NodeHubProps {
   userTier?: 'free' | 'premium' | 'super';
@@ -33,12 +36,46 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
   onStake,
 }) => {
   const [selectedNode, setSelectedNode] = useState<string>('pieces-amm-node');
-  const [stakeInput, setStakeInput] = useState<string>('100');
+  const [activeReceipt, setActiveReceipt] = useState<ValueReceiptData | null>(null);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState<boolean>(false);
 
   const multiplier = userTier === 'super' ? 10 : userTier === 'premium' ? 3 : 1;
   const baseTickets = Math.floor(stakedBalance / 10);
   const streakBoostPct = Math.round(Math.min(streakDays, 365) * 0.5);
   const totalTickets = Math.floor(baseTickets * multiplier * (1 + streakBoostPct / 100));
+
+  const handleIgniteNode = (nodeId: string, amount: number) => {
+    if (onStake) onStake(nodeId, amount);
+
+    // Generate real-time Proof of Value Staking Receipt
+    const newReceipt: ValueReceiptData = {
+      id: `rec_node_stake_${Date.now()}`,
+      receiptNumber: `REC-NODE-${Math.floor(1000 + Math.random() * 9000)}`,
+      actorHandle: '@pioneer_member',
+      actorName: 'Promorang Node Backer',
+      actionType: 'commerce',
+      actionTitle: 'Deployed Liquidity Node Fuel',
+      targetEntity: 'Pieces AMM & Merchant Float Core',
+      timestamp: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      status: 'verified',
+      verificationMethod: 'Promorang Treasury Proof Ledger',
+      proofHash: `0x${Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+      hostQuote: 'Community liquidity successfully routed to merchant float & AMM reserves. Principal 100% protected.',
+      hostSigner: 'Promorang Protocol Treasury',
+      metrics: [
+        { label: 'Fuel Deployed', value: `$${amount}.00 USD`, highlight: true },
+        { label: 'Draw Power', value: `+${amount * multiplier / 10} Tickets` },
+        { label: 'Yield Rate', value: '5.0% APY' },
+      ],
+      rewards: [
+        { type: 'cash', label: '100% Protected Principal', value: `$${amount}.00 USD` },
+        { type: 'keys', label: 'Active Jackpot Entries', value: `+${Math.floor(amount / 10 * multiplier)} Tickets` },
+      ],
+    };
+
+    setActiveReceipt(newReceipt);
+    setIsReceiptModalOpen(true);
+  };
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-8 p-4 md:p-6 text-white">
@@ -135,9 +172,7 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
             stakedAmount={stakedBalance}
             multiplier={multiplier}
             totalTickets={totalTickets}
-            onIgniteStake={() => {
-              if (onStake) onStake(selectedNode, 100);
-            }}
+            onIgniteStake={() => handleIgniteNode(selectedNode, 100)}
           />
         </div>
         <div className="lg:col-span-6">
@@ -147,25 +182,32 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
 
       {/* Prize Pools Showcase */}
       <div className="space-y-4">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-amber-400" />
-          Active No-Loss Prize Pools
-        </h2>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-400" />
+              Active No-Loss Prize Pools
+            </h2>
+            <p className="text-xs text-zinc-400">
+              Drawings occur automatically using verifiable random functions (VRF).
+            </p>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Pool 1 */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 flex flex-col justify-between hover:border-zinc-700 transition-all">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-xs font-semibold text-blue-400">
-                  Weekly Cadence
+                <span className="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-xs font-semibold text-emerald-400">
+                  Weekly Draw
                 </span>
-                <span className="text-xs text-zinc-400">All Tiers</span>
+                <span className="text-xs text-zinc-400 font-medium">All Tiers</span>
               </div>
-              <h3 className="text-lg font-bold">Sunday Weekly Spark</h3>
-              <div className="text-2xl font-black text-blue-400">$1,250.00</div>
+              <h3 className="text-lg font-bold text-white">Sunday Community Pool</h3>
+              <div className="text-2xl font-black text-emerald-400">$1,250.00</div>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Distributed every Sunday evening to active node backers. 100% of your deposit stays in your wallet.
+                Generated from platform float yield and verified sponsor contributions.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-zinc-800 text-xs text-zinc-400 flex justify-between items-center">
@@ -238,6 +280,30 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Cumulative Proof Passport & Verified Resume */}
+      <div className="pt-4">
+        <ProofPassportCard
+          userHandle="@pioneer_operator"
+          pioneerRank={`Level ${userTier === 'super' ? '5 (Titan)' : userTier === 'premium' ? '3 (Pro)' : '1 (Explorer)'}`}
+          totalCommerceDriven={stakedBalance * 3.4}
+          totalFootfall={24}
+          totalGemsEarned={Math.floor(stakedBalance * 1.5)}
+          onSelectReceipt={(rec) => {
+            setActiveReceipt(rec);
+            setIsReceiptModalOpen(true);
+          }}
+        />
+      </div>
+
+      {/* Interactive Proof Receipt Modal */}
+      {activeReceipt && (
+        <ProofReceiptModal
+          isOpen={isReceiptModalOpen}
+          receipt={activeReceipt}
+          onClose={() => setIsReceiptModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

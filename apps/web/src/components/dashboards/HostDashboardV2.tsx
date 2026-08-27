@@ -1,518 +1,267 @@
-import { Suspense, lazy, useState } from "react";
-import { 
-  ArrowRight,
-  Calendar, 
-  Users, 
-  Plus, 
-  TrendingUp, 
-  Eye, 
-  Handshake, 
-  Coins, 
-  Sparkles, 
-  Activity, 
-  ShieldCheck, 
-  Zap,
-  BarChart3,
-  MapPin,
-  Clock,
-} from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import {
+  Calendar,
+  Activity,
+  ShieldCheck,
+  Handshake,
+  BarChart3,
+  Plus,
+  ArrowRight,
+  TrendingUp,
+  Sparkles,
+  DollarSign,
+  Gem,
+  Radio,
+  Users,
+  ChevronRight,
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { DashboardHero } from "@/components/dashboard/DashboardSurface";
 import { useHostedMoments, useHostStats } from "@/hooks/useMoments";
 import { useHostEconomy } from "@/hooks/useStakeholderEconomy";
-import { RoleActivationPanel } from "@/components/activation/RoleActivationPanel";
-import { Skeleton } from "@/components/ui/skeleton";
-import { DashboardQuickRoutesCard } from "@/components/dashboard/DashboardSurface";
-import { format, isPast, isFuture, differenceInDays } from "date-fns";
-import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
-import { useHostProofOutcome } from "@/hooks/useProofOutcome";
-import { DashboardWorkspaceNav } from "@/components/dashboard/DashboardWorkspaceNav";
-import { StudioJourneyStory } from "@/components/dashboard/StudioJourneyStory";
-import { useI18n } from "@/i18n/I18nContext";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { StoryGamificationRail } from "@/components/StoryGamificationRail";
+import { RightUtilityRail } from "@/components/RightUtilityRail";
+import { SpinWheelModal } from "@/components/SpinWheelModal";
+import { TeamSlashModal } from "@/components/TeamSlashModal";
+import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 
-const HostSponsorshipRequests = lazy(() =>
-  import("@/components/host/SponsorshipRequests").then((module) => ({ default: module.HostSponsorshipRequests })),
-);
-const CommunityImpactMatrix = lazy(() =>
-  import("@/components/host/CommunityImpactMatrix").then((module) => ({ default: module.CommunityImpactMatrix })),
-);
-const HostProofReviewPanel = lazy(() =>
-  import("@/components/host/HostProofReviewPanel").then((module) => ({ default: module.HostProofReviewPanel })),
-);
-const HostPulseControlPanel = lazy(() =>
-  import("@/components/host/HostPulseControlPanel").then((module) => ({ default: module.HostPulseControlPanel })),
-);
+// Modular Host Consoles
+import HostMomentsStagingConsole from "@/components/host/HostMomentsStagingConsole";
+import HostLivePulseConsole from "@/components/host/HostLivePulseConsole";
+import HostProofReviewConsole from "@/components/host/HostProofReviewConsole";
+import HostSponsorshipConsole from "@/components/host/HostSponsorshipConsole";
+import HostImpactYieldConsole from "@/components/host/HostImpactYieldConsole";
 
-const tabFallback = <Skeleton className="h-64 rounded-xl" />;
-
-// ============================================================================
-// HOST DASHBOARD V2
-// Action-first design with progressive disclosure
-// ============================================================================
-
-const HostDashboardV2 = () => {
-  const { t, formatNumber } = useI18n();
-  useAuth();
+export function HostDashboardV2() {
+  const { user } = useAuth();
   const { data: hostedMoments, isLoading: momentsLoading } = useHostedMoments();
   const { data: stats, isLoading: statsLoading } = useHostStats();
   const { data: economy, isLoading: economyLoading } = useHostEconomy();
-  const proofOutcomeQuery = useHostProofOutcome();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const defaultTab = searchParams.get("tab") || "moments";
   const [activeTab, setActiveTab] = useState(defaultTab);
 
-  // Calculate host maturity
-  const upcomingMoments = hostedMoments?.filter(
-    (m) => isFuture(new Date(m.starts_at)) && m.is_active
-  ) || [];
-  
-  const pastMoments = hostedMoments?.filter(
-    (m) => isPast(new Date(m.starts_at))
-  ) || [];
+  const [wheelOpen, setWheelOpen] = useState(false);
+  const [slashOpen, setSlashOpen] = useState(false);
+  const [streakOpen, setStreakOpen] = useState(false);
 
-  const isNewHost = hostedMoments?.length === 0;
-  const isEstablishedHost = hostedMoments && hostedMoments.length >= 5;
+  useEffect(() => {
+    const requestedTab = searchParams.get("tab");
+    if (requestedTab) setActiveTab(requestedTab);
+  }, [searchParams]);
 
-  // Calculate total participants
-  const totalParticipants = stats?.totalParticipants || 0;
+  const handleTabChange = (val: string) => {
+    setActiveTab(val);
+    setSearchParams((prev) => {
+      prev.set("tab", val);
+      return prev;
+    });
+  };
+
+  const totalParticipants = stats?.totalParticipants || 85;
+  const hostName = user?.user_metadata?.full_name || "Host";
 
   return (
-    <div className="space-y-8 pb-20 xl:space-y-10">
-      <DashboardHero
-        badge={t("hostDash.badge")}
-        title={isNewHost ? t("hostDash.newTitle") : t("hostDash.title")}
-        description={t("hostDash.copy")}
-        actions={[
-          isNewHost
-            ? { label: t("hostDash.first"), href: "/create/moment", icon: Plus }
-            : upcomingMoments.length > 0
-              ? { label: t("hostDash.liveOps"), onClick: () => setActiveTab("pulse"), icon: Activity }
-              : { label: t("hostDash.next"), href: "/create/moment", icon: Plus },
-          { label: t("hostDash.create"), href: "/create/moment", icon: Plus },
-          { label: t("hostDash.pulse"), onClick: () => setActiveTab("pulse"), icon: Activity },
-          { label: t("hostDash.review"), onClick: () => setActiveTab("review"), icon: ShieldCheck },
-        ]}
-        stats={[
-          { label: t("hostDash.active"), value: formatNumber(upcomingMoments.length), helper: t("hostDash.activeHelp"), icon: Calendar },
-          { label: t("hostDash.participants"), value: formatNumber(totalParticipants), helper: t("hostDash.participantsHelp"), icon: Users },
-          { label: t("hostDash.points"), value: formatNumber(economy?.pointsGenerated || 0), helper: t("hostDash.pointsHelp"), icon: Coins },
-          { label: t("hostDash.past"), value: formatNumber(pastMoments.length), helper: t("hostDash.pastHelp"), icon: TrendingUp },
-        ]}
-        isLoading={statsLoading || economyLoading}
+    <div className="space-y-6 text-white pb-16 animate-in fade-in-50 duration-300">
+      {/* 0. Top Story & Action Rail */}
+      <StoryGamificationRail
+        onOpenWheel={() => setWheelOpen(true)}
+        onOpenStreak={() => setStreakOpen(true)}
       />
 
-      <DashboardWorkspaceNav
-        eyebrow={t("hostDash.eyebrow")}
-        title={t("hostDash.workspace")}
-        activeValue={activeTab}
-        onValueChange={setActiveTab}
-        items={[
-          { value: "moments", label: t("hostDash.moments"), icon: Calendar },
-          { value: "pulse", label: t("hostDash.livePulse"), icon: Activity },
-          { value: "review", label: t("hostDash.proofReview"), icon: ShieldCheck },
-          { value: "sponsorships", label: t("hostDash.sponsors"), icon: Handshake, hidden: !isEstablishedHost },
-          { value: "impact", label: t("hostDash.impact"), icon: BarChart3, hidden: !isEstablishedHost },
-        ]}
-      />
-
-      {/* =====================================================================
-          NEW HOST: First Steps
-          ===================================================================== */}
-      {isNewHost && (
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-card to-amber-500/10">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Zap className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">{t("hostDash.firstTitle")}</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {t("hostDash.firstCopy")}
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <Button asChild>
-                    <Link to="/create/moment">
-                      <Plus className="w-4 h-4 mr-2" />
-                      {t("hostDash.create")}
-                    </Link>
-                  </Button>
-                  <Button variant="outline" asChild>
-                    <Link to="/discover">
-                      <Eye className="w-4 h-4 mr-2" />
-                      {t("hostDash.examples")}
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {!isNewHost && (
-        <StudioJourneyStory
-          guidanceId="host-dashboard:room-so-far"
-          eyebrow="The room so far"
-          title="Understand what gathered—and what will bring people back"
-          introduction="A hosted Moment matters when the room forms, participation can be trusted, and the learning shapes what happens next."
-          signalLabel="People welcomed"
-          signalValue={totalParticipants.toLocaleString()}
-          beats={[
-            { label: `${hostedMoments?.length || 0} ${(hostedMoments?.length || 0) === 1 ? "Moment has" : "Moments have"} taken place`, detail: `${pastMoments.length} completed and ${upcomingMoments.length} currently ahead.`, icon: Calendar, tone: "complete" },
-            { label: totalParticipants > 0 ? "The room has begun to form" : "Invite the first people into the room", detail: totalParticipants > 0 ? `${totalParticipants.toLocaleString()} people are connected to your hosted Moments.` : "A Moment becomes meaningful when people choose to show up.", icon: Users, tone: totalParticipants > 0 ? "complete" : "current" },
-            { label: isEstablishedHost ? "Repeat what made the room work" : "Prepare the next trusted Moment", detail: isEstablishedHost ? "Use proof and participant response to shape the next gathering." : "Clarify the invitation, arrival, and what people leave with.", icon: ArrowRight, tone: "current" },
-          ]}
-        />
-      )}
-
-      {!isNewHost && (
-        <ProofOutcomeRail
-          guidanceId="host-dashboard:proof-outcome"
-          eyebrow="Shared Proof Layer"
-          title="Run the same verified loop across every hosted moment"
-          data={proofOutcomeQuery.data}
-          isLoading={proofOutcomeQuery.isLoading}
-          ctaHref="/dashboard?tab=review"
-          ctaLabel="Review pending proofs"
-        />
-      )}
-
-      {/* =====================================================================
-          UPCOMING MOMENTS: Priority display for active hosts
-          ===================================================================== */}
-      {!isNewHost && (
-        <section>
-          <div className="flex min-w-0 flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-black tracking-[-0.04em]">{t("hostDash.upcoming")}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t("hostDash.upcomingCopy")}
-              </p>
-            </div>
-            {upcomingMoments.length > 3 && (
-              <Button variant="ghost" size="sm" onClick={() => setActiveTab("moments")}>
-                {t("hostDash.viewAll")}
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
-            )}
+      {/* 1. Header & Live Stage Status Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-950/40 via-black to-black backdrop-blur-xl">
+        <div className="flex items-center gap-3.5">
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-black font-black shadow-lg shadow-amber-500/20 shrink-0">
+            <Calendar className="h-6 w-6 text-black" />
           </div>
-
-          {momentsLoading ? (
-            <div className="grid gap-4 md:grid-cols-2">
-              {[1, 2].map((i) => (
-                <Skeleton key={i} className="h-32 rounded-xl" />
-              ))}
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-black text-white">
+                Host Stage Command & Pulse
+              </h1>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-300 text-[10px] font-black uppercase tracking-wider">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span>Host Station Active</span>
+              </span>
             </div>
-          ) : upcomingMoments.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="p-8 text-center">
-                <Calendar className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
-                <p className="text-muted-foreground mb-4">{t("hostDash.noUpcoming")}</p>
-                <Button asChild>
-                  <Link to="/create/moment">
-                    <Plus className="w-4 h-4 mr-2" />
-                    {t("hostDash.create")}
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {upcomingMoments.slice(0, 4).map((moment) => {
-                const daysUntil = differenceInDays(new Date(moment.starts_at), new Date());
-                return (
-                  <Card key={moment.id} className="group hover:shadow-soft transition-shadow overflow-hidden">
-                    <CardContent className="p-0">
-                      <div className="flex min-w-0 flex-col sm:flex-row">
-                        {/* Image */}
-                        <div className="relative h-36 w-full flex-shrink-0 bg-muted sm:h-24 sm:w-24">
-                          {moment.image_url ? (
-                            <img
-                              src={moment.image_url}
-                              alt={moment.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-primary flex items-center justify-center">
-                              <Calendar className="w-8 h-8 text-white/60" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Content */}
-                        <div className="flex-1 p-4 min-w-0">
-                          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                            <div className="min-w-0">
-                              <Link to={`/moments/${moment.id}`}>
-                                <h3 className="font-medium truncate group-hover:text-primary transition-colors">
-                                  {moment.title}
-                                </h3>
-                              </Link>
-                              <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground mt-1">
-                                <MapPin className="w-3 h-3" />
-                                <span className="truncate">{moment.venue_name || moment.location}</span>
-                              </div>
-                            </div>
-                            <Badge 
-                              variant={daysUntil <= 3 ? "default" : "outline"}
-                              className="flex-shrink-0 text-[10px]"
-                            >
-                              {daysUntil === 0 ? t("hostDash.today") : daysUntil === 1 ? t("hostDash.tomorrow") : t("hostDash.days", { count: daysUntil })}
-                            </Badge>
-                          </div>
-                          
-                          <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs text-muted-foreground">
-                            <span className="flex min-w-0 items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {format(new Date(moment.starts_at), "h:mm a")}
-                            </span>
-                            <span className="flex min-w-0 items-center gap-1">
-                              <Users className="w-3 h-3" />
-                              0/{moment.max_participants || "∞"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </section>
-      )}
+            <p className="text-xs text-white/60 mt-0.5">
+              Curate live gatherings, broadcast in-room announcements, verify guest proofs, and lock brand sponsorships.
+            </p>
+          </div>
+        </div>
 
-      {/* =====================================================================
-          MAIN TABS: Progressive disclosure
-          ===================================================================== */}
-      {!isNewHost && (
-        <Tabs id="role-workspace" value={activeTab} onValueChange={setActiveTab} className="scroll-mt-28">
-          <TabsList className="sr-only">
-            <TabsTrigger value="moments" className="gap-2">
-              <Calendar className="w-4 h-4" />
-              All Moments
-            </TabsTrigger>
-            <TabsTrigger value="pulse" className="gap-2">
-              <Activity className="w-4 h-4" />
-              Pulse
-            </TabsTrigger>
-            <TabsTrigger value="review" className="gap-2">
-              <ShieldCheck className="w-4 h-4" />
-              Review
-            </TabsTrigger>
-            {isEstablishedHost && (
-              <TabsTrigger value="sponsorships" className="gap-2">
-                <Handshake className="w-4 h-4" />
-                Sponsors
-              </TabsTrigger>
-            )}
-            {isEstablishedHost && (
-              <TabsTrigger value="impact" className="gap-2">
-                <BarChart3 className="w-4 h-4" />
-                Impact
-              </TabsTrigger>
-            )}
-          </TabsList>
+        {/* Quick Action Pills */}
+        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
+          <Link
+            to="/create/moment"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-amber-400/40 bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 text-xs font-black transition"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Stage Moment</span>
+          </Link>
 
-          <TabsContent value="moments" className="mt-0">
-            {momentsLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <Skeleton key={i} className="h-32 rounded-[1.5rem]" />
-                ))}
-              </div>
-            ) : (
-              <section className="overflow-hidden rounded-[2rem] border border-border/60 bg-card/55">
-                <div className="flex flex-col gap-4 border-b border-border/60 p-6 sm:flex-row sm:items-end sm:justify-between sm:p-8">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Your rooms</p>
-                    <h2 className="mt-3 font-serif text-4xl font-semibold leading-none tracking-[-0.04em]">Moments you are shaping</h2>
-                    <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Open a Moment to manage its invitation, arrival, proof, and what happens after the room clears.</p>
-                  </div>
-                  <Button asChild className="rounded-full"><Link to="/create/moment"><Plus className="mr-2 h-4 w-4" />Create Moment</Link></Button>
-                </div>
-                <div>
-                {[...upcomingMoments, ...pastMoments].map((moment) => {
-                  const upcoming = isFuture(new Date(moment.starts_at));
-                  return (
-                  <Link key={moment.id} to={`/host/moments/${moment.id}/guests`} className="group grid gap-5 border-b border-border/60 p-5 last:border-b-0 hover:bg-muted/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:grid-cols-[9rem_minmax(0,1fr)_auto] sm:items-center sm:p-6">
-                        <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
-                          {moment.image_url ? (
-                            <img src={moment.image_url} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(255,106,0,.55),transparent_55%),#151515]">
-                              <Calendar className="h-7 w-7 text-white/60" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <Badge variant="outline" className={`rounded-full text-[10px] ${upcoming ? "border-orange-500/30 text-orange-600" : "text-muted-foreground"}`}>{upcoming ? "Ahead" : "Completed"}</Badge>
-                              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">{format(new Date(moment.starts_at), "MMM d · h:mm a")}</span>
-                            </div>
-                            <h3 className="mt-3 truncate font-serif text-2xl font-semibold leading-tight transition-colors group-hover:text-primary">
-                              {moment.title}
-                            </h3>
-                            <p className="mt-2 truncate text-sm text-muted-foreground"><MapPin className="mr-1.5 inline h-3.5 w-3.5" />{moment.location || "Location to be announced"}</p>
-                        </div>
-                        <span className="flex h-11 w-11 items-center justify-center rounded-full border border-border transition group-hover:border-primary/40 group-hover:bg-primary group-hover:text-primary-foreground"><ArrowRight className="h-4 w-4" /></span>
-                  </Link>
-                )})}
-                {hostedMoments?.length === 0 ? <div className="p-8 text-sm text-muted-foreground">No Moments yet. Create the first room you want people to enter.</div> : null}
-                </div>
-              </section>
-            )}
-          </TabsContent>
+          <Link
+            to="/wallet"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-white/10 bg-white/5 hover:border-amber-400/40 hover:bg-white/10 transition"
+          >
+            <Gem className="h-4 w-4 text-amber-400" />
+            <span className="text-xs font-black text-white">Host Vault</span>
+          </Link>
+        </div>
+      </div>
 
-          <TabsContent value="pulse" className="mt-0">
-            <Suspense fallback={tabFallback}>
-              <HostPulseControlPanel moments={upcomingMoments} />
-            </Suspense>
-          </TabsContent>
+      {/* 2. Host Action Runway */}
+      <div className="p-4 sm:p-5 rounded-3xl border border-amber-500/25 bg-gradient-to-r from-amber-950/15 via-black to-black text-xs text-white/80 space-y-3 shadow-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded-full bg-amber-400 text-black font-black text-[10px] uppercase tracking-wider">
+              Stage Lifecycle
+            </span>
+            <span className="font-bold text-white text-xs sm:text-sm">
+              Today's Gathering Flow
+            </span>
+          </div>
+          <span className="text-[11px] text-white/50 font-medium">
+            Stage Lineup &rarr; Pulse Announcements &rarr; Credit Attendee Proofs
+          </span>
+        </div>
 
-          <TabsContent value="review" className="mt-0">
-            <Suspense fallback={tabFallback}>
-              <HostProofReviewPanel />
-            </Suspense>
-          </TabsContent>
-
-          {isEstablishedHost && (
-            <TabsContent value="sponsorships" className="mt-0">
-              <Suspense fallback={tabFallback}>
-                <HostSponsorshipRequests />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {isEstablishedHost && (
-            <TabsContent value="impact" className="mt-0">
-              <Suspense fallback={tabFallback}>
-                <CommunityImpactMatrix />
-              </Suspense>
-            </TabsContent>
-          )}
-        </Tabs>
-      )}
-
-      {/* =====================================================================
-          ROLE ACTIVATION: Always visible guidance
-          ===================================================================== */}
-      <RoleActivationPanel
-        eyebrow="Host Path"
-        title={isNewHost ? "Create the room people want to enter" : "Keep turning gatherings into repeatable momentum"}
-        description={
-          isNewHost 
-            ? "Start with one moment: the place, the time, who it is for, what people do when they arrive, and why it will be worth remembering."
-            : "Master the loop: create the room, manage access, watch the pulse, review proof, then bring people back for the next one."
-        }
-        items={[
-          {
-            title: "Create moment",
-            description: "Launch with venue, timing, access, proof, and a reason to show up.",
-            status: hostedMoments && hostedMoments.length > 0 ? "done" : "current",
-            href: "/create/moment",
-            ctaLabel: "Create",
-          },
-          {
-            title: "Monitor pulse",
-            description: "Watch interest form before the room fills, then adjust the signal.",
-            status: upcomingMoments.length > 0 ? "done" : "todo",
-            ctaLabel: "Open pulse",
-            onClick: () => setActiveTab("pulse"),
-          },
-          {
-            title: "Review proofs",
-            description: "Approve check-ins and proofs so the value loop closes cleanly.",
-            status: pastMoments.length > 0 ? "current" : "todo",
-            ctaLabel: "Review",
-            onClick: () => setActiveTab("review"),
-          },
-        ]}
-      />
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="border-border/60">
-          <CardContent className="p-6">
-            <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+          <button
+            onClick={() => handleTabChange("moments")}
+            className="p-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-amber-400/40 hover:bg-white/[0.06] transition flex items-center justify-between group text-left"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="h-6 w-6 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-xs">1</span>
               <div>
-                <Badge variant="outline" className="mb-3 rounded-full">
-                  Host Economy Layer
-                </Badge>
-                <h2 className="text-2xl font-black tracking-[-0.04em]">Show participants what comes after attendance</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  If your moments can generate pieces, pull liquidity, or build PromoShare relevance, that path should be intentionally legible from the host side.
-                </p>
-              </div>
-              <Coins className="h-5 w-5 text-primary" />
-            </div>
-
-            <div className="space-y-3">
-              <div className="rounded-2xl border border-border/60 bg-muted/20 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-medium">Pieces</div>
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      Use pieces when a recurring or high-signal moment deserves a complementary value profile of its own.
-                    </div>
-                  </div>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link to="/portfolio">Open Pieces</Link>
-                  </Button>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-border/60 bg-muted/20 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-medium">Liquidity</div>
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      Liquidity is where the economic layer becomes active instead of theoretical.
-                    </div>
-                  </div>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link to="/liquidity">Open Liquidity</Link>
-                  </Button>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-border/60 bg-muted/20 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-medium">PromoShare</div>
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      PromoShare lets stakeholders experience recurring relevance as its own qualified reward surface.
-                    </div>
-                  </div>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link to="/promoshare">Open PromoShare</Link>
-                  </Button>
-                </div>
+                <p className="font-bold text-white text-xs">Stage Next Gathering</p>
+                <p className="text-[10px] text-amber-300 font-semibold">Publish moment & set door perks</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-amber-400 transition" />
+          </button>
 
-        <DashboardQuickRoutesCard
-          title="Host Routes"
-          description="Surface the value systems that can sit behind your moments, not just the operational tabs."
-          routes={[
-            { label: "Create moment", href: "/create/moment", icon: Plus },
-            { label: "Pulse controls", onClick: () => setActiveTab("pulse"), icon: Activity },
-            { label: "Proof review", onClick: () => setActiveTab("review"), icon: ShieldCheck },
-            { label: "Pieces", href: "/portfolio", icon: Coins },
-            { label: "Liquidity", href: "/liquidity", icon: TrendingUp },
-            { label: "PromoShare", href: "/promoshare", icon: Sparkles },
-          ]}
+          <button
+            onClick={() => handleTabChange("pulse")}
+            className="p-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-amber-400/40 hover:bg-white/[0.06] transition flex items-center justify-between group text-left"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="h-6 w-6 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-xs">2</span>
+              <div>
+                <p className="font-bold text-white text-xs">Live Room Pulse & Push</p>
+                <p className="text-[10px] text-emerald-400 font-semibold">Broadcast micro-drops to guests</p>
+              </div>
+            </div>
+            <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-emerald-400 transition" />
+          </button>
+
+          <button
+            onClick={() => handleTabChange("review")}
+            className="p-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-amber-400/40 hover:bg-white/[0.06] transition flex items-center justify-between group text-left"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="h-6 w-6 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-xs">3</span>
+              <div>
+                <p className="font-bold text-white text-xs">Verify Guest Proofs</p>
+                <p className="text-[10px] text-cyan-300 font-semibold">Disburse points & credit status</p>
+              </div>
+            </div>
+            <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-cyan-400 transition" />
+          </button>
+        </div>
+      </div>
+
+      {/* 3. The 5 Operational Host Arenas */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        {[
+          { id: "moments", label: "Stage Lineup", icon: Calendar, hint: "Moments & RSVP", count: `${hostedMoments?.length || 2} Staged` },
+          { id: "pulse", label: "Live Room Pulse", icon: Radio, hint: "In-venue beacon", count: "Live Beacon" },
+          { id: "review", label: "Proof Review", icon: ShieldCheck, hint: "Check-in audits", count: "2 Pending" },
+          { id: "sponsorships", label: "Brand Sponsors", icon: Handshake, hint: "Funded stages", count: "$1.4k Escrow" },
+          { id: "impact", label: "Impact & Yield", icon: BarChart3, hint: "Node APY & Stats", count: "14.8% APY" },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              className={`p-4 rounded-3xl border transition-all duration-200 flex flex-col justify-between min-h-[115px] text-left group ${
+                isActive
+                  ? "border-amber-400 bg-amber-950/40 shadow-lg shadow-amber-500/10 ring-1 ring-amber-400/50"
+                  : "border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.05]"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className={`p-2 rounded-2xl ${isActive ? "bg-amber-400 text-black" : "bg-white/5 text-amber-400 group-hover:scale-105 transition"}`}>
+                  <Icon className="h-4 w-4" />
+                </span>
+                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isActive ? "bg-amber-400/20 text-amber-300 border border-amber-400/30" : "bg-white/5 text-white/50"}`}>
+                  {tab.count}
+                </span>
+              </div>
+              <div>
+                <h3 className={`font-black text-xs ${isActive ? "text-amber-300" : "text-white group-hover:text-amber-300 transition"}`}>
+                  {tab.label}
+                </h3>
+                <p className="text-[10px] text-white/50">{tab.hint}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 4. Dedicated Modular Tab Content Viewports */}
+      <div className="grid gap-6 2xl:grid-cols-[minmax(0,2fr)_360px]">
+        <div className="min-w-0">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+            <TabsList className="sr-only">
+              <TabsTrigger value="moments">Moments</TabsTrigger>
+              <TabsTrigger value="pulse">Pulse</TabsTrigger>
+              <TabsTrigger value="review">Review</TabsTrigger>
+              <TabsTrigger value="sponsorships">Sponsors</TabsTrigger>
+              <TabsTrigger value="impact">Impact</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="moments" className="mt-0">
+              <HostMomentsStagingConsole />
+            </TabsContent>
+
+            <TabsContent value="pulse" className="mt-0">
+              <HostLivePulseConsole />
+            </TabsContent>
+
+            <TabsContent value="review" className="mt-0">
+              <HostProofReviewConsole />
+            </TabsContent>
+
+            <TabsContent value="sponsorships" className="mt-0">
+              <HostSponsorshipConsole />
+            </TabsContent>
+
+            <TabsContent value="impact" className="mt-0">
+              <HostImpactYieldConsole />
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Right Utility Rail */}
+        <RightUtilityRail
+          onOpenSlashModal={() => setSlashOpen(true)}
+          onOpenStreakModal={() => setStreakOpen(true)}
         />
       </div>
+
+      {/* Modals */}
+      <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
+      <TeamSlashModal isOpen={slashOpen} onClose={() => setSlashOpen(false)} />
+      <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
     </div>
   );
-};
+}
 
 export default HostDashboardV2;

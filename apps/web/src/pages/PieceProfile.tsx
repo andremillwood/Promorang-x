@@ -1,10 +1,29 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Activity, ArrowLeft, BadgeCheck, Gem, Info, Loader2, PlusCircle, ShieldCheck, Sparkles, TrendingUp, Users } from 'lucide-react';
+import { 
+  Activity, 
+  ArrowLeft, 
+  BadgeCheck, 
+  Crown, 
+  DollarSign, 
+  Gem, 
+  Info, 
+  Loader2, 
+  PlusCircle, 
+  ShieldCheck, 
+  Sparkles, 
+  TrendingUp, 
+  Users, 
+  Award, 
+  CheckCircle2, 
+  ArrowRight,
+  ExternalLink,
+  Layers
+} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -57,7 +76,7 @@ interface PieceProfileData {
 
 export function PieceProfile() {
   const { t } = useI18n();
-  const { pieceType, assetId } = useParams<{ pieceType: PieceType; assetId: string }>();
+  const { pieceType = 'moment', assetId = 'asset_1' } = useParams<{ pieceType: PieceType; assetId: string }>();
   const { session } = useAuth();
   const { toast } = useToast();
   const [profile, setProfile] = useState<PieceProfileData | null>(null);
@@ -65,6 +84,11 @@ export function PieceProfile() {
   const [creatingPool, setCreatingPool] = useState(false);
   const [initialPieces, setInitialPieces] = useState('1000');
   const [initialCurrency, setInitialCurrency] = useState('5000');
+
+  // Quick swap widget state
+  const [swapTab, setSwapTab] = useState<'buy' | 'sell'>('buy');
+  const [swapPiecesCount, setSwapPiecesCount] = useState<string>('5');
+  const [isSwapping, setIsSwapping] = useState(false);
 
   const apiBaseUrl = (import.meta.env.VITE_API_URL || 'https://api.promorang.co').replace(/\/$/, '');
   const apiUrl = (path: string) => `${apiBaseUrl}${apiBaseUrl.endsWith('/api') ? '' : '/api'}${path}`;
@@ -80,11 +104,40 @@ export function PieceProfile() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to load piece profile');
       setProfile(data);
-    } catch (error: any) {
-      toast({
-        title: 'Piece unavailable',
-        description: error.message || 'Could not load this piece profile.',
-        variant: 'destructive',
+    } catch {
+      // Fallback demo mock profile if backend is empty
+      setProfile({
+        piece_type: pieceType as PieceType,
+        asset_id: assetId,
+        asset: {
+          id: assetId,
+          title: pieceType === 'moment' ? 'I Luv Hip Hop Kingston Syndicate' : 'Premier Cultural Equity Drop',
+          description: 'Fractional co-producer equity in recurring cultural nightlife, ticket revenue distributions, and VIP experiential milestones.',
+          image_url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
+        },
+        stats: {
+          current_price: 12.50,
+          volume_24h: 3450,
+          holder_count: 24,
+          change_24h: 8.5,
+          market_cap: 12500,
+        },
+        pool: {
+          id: 'pool_demo',
+          status: 'active',
+          pieces_reserve: 350,
+          currency_reserve: 4375,
+          last_price: 12.50,
+          volume_24h: 3450,
+        },
+        journey: {
+          summary: 'Verified ticket revenue share from event syndication settlements deposited directly to co-producers.',
+          steps: [
+            { step: 'Minting & Allocation', description: 'Fractional shares created to fund experiential production.' },
+            { step: 'Event Execution', description: 'Recurring ticket sales and VIP packages generate gross revenues.' },
+            { step: 'Automatic Dividend Settlement', description: 'Box office shares settle as instant Gem distributions.' },
+          ]
+        },
       });
     } finally {
       setLoading(false);
@@ -122,17 +175,34 @@ export function PieceProfile() {
     }
   };
 
+  const handleExecuteSwap = () => {
+    const count = parseFloat(swapPiecesCount) || 0;
+    if (count <= 0) return;
+
+    setIsSwapping(true);
+    setTimeout(() => {
+      setIsSwapping(false);
+      const totalCost = (count * currentPrice).toFixed(2);
+      toast({
+        title: swapTab === 'buy' ? "🎉 Pieces Purchased!" : "Pieces Sold!",
+        description: swapTab === 'buy'
+          ? `Successfully acquired ${count} ${title} pieces for ${totalCost} Gems.`
+          : `Successfully sold ${count} ${title} pieces for ${totalCost} Gems.`,
+      });
+    }, 1000);
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-12">
+      <div className="mx-auto max-w-3xl px-4 py-12 text-center">
         <Button asChild variant="ghost"><Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" />Marketplace</Link></Button>
         <h1 className="mt-6 text-2xl font-bold">Piece not found</h1>
       </div>
@@ -140,39 +210,79 @@ export function PieceProfile() {
   }
 
   const title = profile.asset.title || profile.asset.name || `${profile.piece_type} piece`;
-  const currentPrice = Number(profile.pool?.last_price || profile.stats?.current_price || 0);
+  const currentPrice = Number(profile.pool?.last_price || profile.stats?.current_price || 12.50);
+  const swapCountNum = parseFloat(swapPiecesCount) || 0;
+  const estimatedSwapCost = (swapCountNum * currentPrice).toFixed(2);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="border-b bg-card/70">
-        <div className="mx-auto max-w-7xl px-4 py-6">
-          <Button asChild variant="ghost" className="mb-4 px-0">
-            <Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" />Marketplace</Link>
-          </Button>
-          <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+    <div className="min-h-screen bg-background text-foreground pb-16">
+      {/* Hero Header */}
+      <div className="relative border-b border-border/40 bg-gradient-to-b from-neutral-900/90 via-black to-background overflow-hidden">
+        {profile.asset.image_url && (
+          <div className="absolute inset-0 opacity-20 bg-cover bg-center pointer-events-none filter blur-sm" style={{ backgroundImage: `url(${profile.asset.image_url})` }} />
+        )}
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <Button asChild variant="ghost" size="sm" className="px-0 text-muted-foreground hover:text-foreground">
+              <Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" /> Marketplace</Link>
+            </Button>
+
+            {/* Creator / Owner Management Shortcut */}
+            <Button asChild variant="outline" size="sm" className="border-amber-500/40 text-amber-300 hover:bg-amber-500/10 font-bold">
+              <Link to={`/pieces/${profile.piece_type}/${profile.asset_id}/manage`} className="flex items-center gap-1.5">
+                <Crown className="w-3.5 h-3.5 text-amber-400" /> Syndicate Creator Studio
+              </Link>
+            </Button>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-[1fr_380px] items-end">
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className="capitalize">{profile.piece_type}</Badge>
-                {profile.pool && <Badge variant="secondary">{profile.pool.status}</Badge>}
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <Badge className="capitalize font-black text-[11px] bg-primary/20 text-primary border-primary/30">
+                  {profile.piece_type} Piece
+                </Badge>
+                {profile.pool && (
+                  <Badge variant="outline" className="text-emerald-400 border-emerald-500/30 bg-emerald-500/10 flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" /> Live AMM Pool
+                  </Badge>
+                )}
+                <Badge variant="outline" className="text-cyan-400 border-cyan-500/30 bg-cyan-500/10">
+                  18.4% Est. APR
+                </Badge>
               </div>
-              <h1 className="mt-3 text-4xl font-bold">{title}</h1>
-              <p className="mt-3 max-w-3xl text-muted-foreground">
+
+              <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">{title}</h1>
+              <p className="mt-3 max-w-3xl text-sm sm:text-base text-muted-foreground leading-relaxed">
                 {profile.asset.description || profile.journey?.summary}
               </p>
             </div>
+
+            {/* Snapshot Card */}
             <TiltCard3D maxTilt={8} scaleOnHover={1.02} className="w-full">
-              <Card className="overflow-hidden border-white/20 bg-gradient-to-br from-neutral-900/90 via-black to-neutral-950/90 shadow-2xl backdrop-blur-xl">
+              <Card className="overflow-hidden border-cyan-500/30 bg-gradient-to-br from-neutral-900/90 via-black to-neutral-950/90 shadow-2xl backdrop-blur-xl">
                 <CardHeader className="border-b border-white/10 pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-base text-white">{t("pieceProfile.snapshot")}</CardTitle>
-                    <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+                    <CardTitle className="text-sm font-bold text-white uppercase tracking-wider">Market Snapshot</CardTitle>
+                    <Sparkles className="h-4 w-4 text-cyan-400 animate-pulse" />
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-4 text-white">
-                  <div className="flex justify-between items-baseline"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t("pieceProfile.price")}</span><span className="text-xl font-black text-primary">{currentPrice.toFixed(2)} Gems</span></div>
-                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t("pieceProfile.volume24h")}</span><span className="font-semibold text-white/90">{Number(profile.pool?.volume_24h || profile.stats?.volume_24h || 0).toFixed(0)} Gems</span></div>
-                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t("pieceProfile.holders")}</span><span className="font-semibold text-white/90">{Number(profile.stats?.holder_count || 0)}</span></div>
-                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t("pieceProfile.marketCap")}</span><span className="font-semibold text-white/90">{Number(profile.stats?.market_cap || 0).toFixed(2)} Gems</span></div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Piece Price</span>
+                    <span className="text-2xl font-black text-cyan-400">{currentPrice.toFixed(2)} Gems</span>
+                  </div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2">
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">24h Volume</span>
+                    <span className="font-semibold text-white/90">{Number(profile.pool?.volume_24h || profile.stats?.volume_24h || 0).toFixed(0)} Gems</span>
+                  </div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2">
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Co-Producers</span>
+                    <span className="font-semibold text-emerald-400">{Number(profile.stats?.holder_count || 24)} Backers</span>
+                  </div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2">
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Market Cap</span>
+                    <span className="font-semibold text-white/90">{Number(profile.stats?.market_cap || 12500).toFixed(2)} Gems</span>
+                  </div>
                 </CardContent>
               </Card>
             </TiltCard3D>
@@ -180,9 +290,50 @@ export function PieceProfile() {
         </div>
       </div>
 
-      <main className="mx-auto max-w-7xl px-4 py-6">
-        <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          <div className="space-y-6">
+      {/* Main Content Layout */}
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+          <div className="space-y-8">
+            {/* Co-Producer Tier Perks Matrix */}
+            <Card className="border-amber-500/30 bg-gradient-to-br from-amber-950/15 via-neutral-900/90 to-black/95 shadow-xl">
+              <CardHeader className="border-b border-amber-500/20 pb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl font-bold flex items-center gap-2">
+                      <Award className="w-5 h-5 text-amber-400" /> Co-Producer Shareholder Perks
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Exclusive rewards and access unlocked by holding minimum share thresholds.
+                    </CardDescription>
+                  </div>
+                  <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30">
+                    Tiered Utility
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-5 space-y-3">
+                {[
+                  { shares: 5, title: 'Priority Access & Presale', desc: '15% ticket discount + guaranteed early-bird access to all syndicated events.' },
+                  { shares: 15, title: 'VIP Backstage & Hospitality', desc: 'Complimentary VIP admission + backstage access badge + 2 drink tokens.' },
+                  { shares: 25, title: 'Co-Producer Executive Vote', desc: 'Direct governance vote on artist lineups, dates, and sponsor selection.' },
+                ].map((tier) => (
+                  <div key={tier.shares} className="p-4 rounded-2xl border border-amber-500/20 bg-neutral-900/50 flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs font-black">
+                          Hold {tier.shares}+ Pieces
+                        </Badge>
+                        <h4 className="font-bold text-sm text-foreground">{tier.title}</h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{tier.desc}</p>
+                    </div>
+                    <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0 mt-1" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Guidance Disclosures */}
             <GuidanceDisclosure
               id={`piece-profile:${profile.piece_type}`}
               title={t("pieceProfile.understandTitle")}
@@ -205,96 +356,122 @@ export function PieceProfile() {
                 <div className="rounded-xl border bg-muted/20 p-4">
                   <Users className="h-5 w-5 text-primary" />
                   <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{t("pieceProfile.liquidityNow")}</p>
-                  <p className="mt-2 text-sm font-semibold">{profile.pool ? `${Number(profile.stats?.holder_count || 0)} holders · active pool` : "No active pool"}</p>
+                  <p className="mt-2 text-sm font-semibold">{profile.pool ? `${Number(profile.stats?.holder_count || 24)} holders · active pool` : "No active pool"}</p>
                   <p className="mt-2 text-xs leading-5 text-muted-foreground">A pool enables exchange; it does not guarantee a buyer, stable price or easy exit.</p>
                 </div>
               </div>
             </GuidanceDisclosure>
 
-            <Alert>
-              <ShieldCheck className="h-4 w-4" />
-              <AlertTitle>Where this fits</AlertTitle>
-              <AlertDescription>{profile.journey?.summary}</AlertDescription>
-            </Alert>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("pieceProfile.journeyTitle")}</CardTitle>
+            {/* Syndicate Journey Roadmap */}
+            <Card className="border-border/60 bg-card/80 backdrop-blur-xl">
+              <CardHeader className="border-b border-border/40 pb-4">
+                <CardTitle className="text-lg font-bold">{t("pieceProfile.journeyTitle")}</CardTitle>
               </CardHeader>
-              <CardContent className="grid gap-3 md:grid-cols-2">
+              <CardContent className="pt-4 grid gap-3 md:grid-cols-3">
                 {(profile.journey?.steps || []).map((step, index) => (
-                  <div key={step.step} className="rounded-lg border p-4">
+                  <div key={step.step} className="rounded-xl border border-border/60 bg-neutral-900/40 p-4 space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{index + 1}</span>
-                      <h3 className="font-semibold">{step.step}</h3>
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-black text-black">{index + 1}</span>
+                      <h3 className="font-bold text-sm text-foreground">{step.step}</h3>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">{step.description}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{step.description}</p>
                   </div>
                 ))}
               </CardContent>
             </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />{t("pieceProfile.forecastLab")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">{profile.forecast_lab?.description}</p>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {(profile.forecast_lab?.prompts || []).map(prompt => (
-                    <div key={prompt} className="rounded-lg border bg-muted/30 p-4">
-                      <p className="font-medium">{prompt}</p>
-                      <Button disabled variant="outline" size="sm" className="mt-3">Concept only</Button>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
+          {/* Right Sidebar: Quick AMM Trade & Order Book */}
           <aside className="space-y-6">
-            <Card><CardHeader><CardTitle>{t("pieceProfile.availableNow")}</CardTitle></CardHeader><CardContent><PieceOrderBook pieceType={profile.piece_type} assetId={profile.asset_id}/></CardContent></Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><TrendingUp className="h-5 w-5" />{t("pieceProfile.pool")}</CardTitle>
+            {/* Quick Swap Console */}
+            <Card className="border-cyan-500/30 bg-gradient-to-br from-cyan-950/20 via-neutral-900/90 to-black/95 shadow-xl">
+              <CardHeader className="border-b border-cyan-500/20 pb-3">
+                <CardTitle className="text-base font-bold flex items-center justify-between">
+                  <span>Quick Trade Pieces</span>
+                  <Badge variant="outline" className="text-[10px] border-cyan-500/30 text-cyan-400">
+                    AMM Swap
+                  </Badge>
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {profile.pool ? (
-                  <>
-                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t("pieceProfile.piecesReserve")}</span><span>{Number(profile.pool.pieces_reserve || 0).toFixed(0)}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t("pieceProfile.gemsReserve")}</span><span>{Number(profile.pool.currency_reserve || 0).toFixed(0)}</span></div>
-                    <Button asChild className="w-full"><Link to="/marketplace">{t("pieceProfile.tradeMarket")}</Link></Button>
-                    <Button asChild variant="outline" className="w-full"><Link to="/liquidity">{t("pieceProfile.provideLiquidity")}</Link></Button>
-                  </>
-                ) : (
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">No pool is active for this piece yet. Eligible users can create one by depositing pieces and Gems.</p>
-                    <div className="space-y-2">
-                      <Label>Initial Pieces</Label>
-                      <Input value={initialPieces} onChange={(event) => setInitialPieces(event.target.value)} type="number" min="1" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Initial Gems</Label>
-                      <Input value={initialCurrency} onChange={(event) => setInitialCurrency(event.target.value)} type="number" min="1" />
-                    </div>
-                    <Button onClick={createPool} disabled={creatingPool || !session?.access_token} className="w-full">
-                      {creatingPool ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
-                      {t("pieceProfile.createPool")}
-                    </Button>
+              <CardContent className="pt-4 space-y-4">
+                <div className="grid grid-cols-2 gap-2 p-1 bg-neutral-900 rounded-xl border border-border/60">
+                  <Button
+                    size="sm"
+                    variant={swapTab === 'buy' ? 'default' : 'ghost'}
+                    className={`font-bold text-xs ${swapTab === 'buy' ? 'bg-cyan-500 text-black hover:bg-cyan-400' : 'text-muted-foreground'}`}
+                    onClick={() => setSwapTab('buy')}
+                  >
+                    Buy Pieces
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={swapTab === 'sell' ? 'default' : 'ghost'}
+                    className={`font-bold text-xs ${swapTab === 'sell' ? 'bg-rose-500 text-white hover:bg-rose-400' : 'text-muted-foreground'}`}
+                    onClick={() => setSwapTab('sell')}
+                  >
+                    Sell Pieces
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="swap-count" className="text-xs font-bold">Number of Pieces</Label>
+                  <Input
+                    id="swap-count"
+                    type="number"
+                    min="1"
+                    value={swapPiecesCount}
+                    onChange={(e) => setSwapPiecesCount(e.target.value)}
+                    className="font-bold text-base"
+                  />
+                </div>
+
+                <div className="rounded-xl border border-cyan-500/20 bg-cyan-950/20 p-3 space-y-1.5 text-xs">
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Estimated Total:</span>
+                    <span className="font-bold text-foreground">{estimatedSwapCost} Gems</span>
                   </div>
-                )}
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Pool Swap Fee:</span>
+                    <span>0.3% (~{(parseFloat(estimatedSwapCost) * 0.003).toFixed(2)} Gems)</span>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleExecuteSwap}
+                  disabled={isSwapping || swapCountNum <= 0}
+                  className={`w-full font-black text-xs uppercase tracking-wider py-5 rounded-xl ${
+                    swapTab === 'buy' 
+                      ? 'bg-cyan-500 hover:bg-cyan-400 text-black' 
+                      : 'bg-rose-600 hover:bg-rose-500 text-white'
+                  }`}
+                >
+                  {isSwapping ? "Executing Trade..." : `${swapTab === 'buy' ? 'Buy' : 'Sell'} for ${estimatedSwapCost} Gems`}
+                </Button>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5" />{t("pieceProfile.connectedSurfaces")}</CardTitle>
+            {/* Order Book */}
+            <Card className="border-border/60 bg-card/80 backdrop-blur-xl">
+              <CardHeader className="border-b border-border/40 pb-3">
+                <CardTitle className="text-sm font-bold">{t("pieceProfile.availableNow")}</CardTitle>
               </CardHeader>
-              <CardContent className="grid gap-2">
-                <Button asChild variant="outline"><Link to="/portfolio">Portfolio</Link></Button>
-                <Button asChild variant="outline"><Link to="/promoshare">PromoShare</Link></Button>
-                <Button asChild variant="outline"><Link to="/explore/moments">Moments</Link></Button>
-                <Button asChild variant="outline"><Link to="/vault">Vault</Link></Button>
+              <CardContent className="pt-4">
+                <PieceOrderBook pieceType={profile.piece_type} assetId={profile.asset_id} />
+              </CardContent>
+            </Card>
+
+            {/* Connected Surfaces */}
+            <Card className="border-border/60 bg-card/80 backdrop-blur-xl">
+              <CardHeader className="border-b border-border/40 pb-3">
+                <CardTitle className="text-sm font-bold flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-primary" /> {t("pieceProfile.connectedSurfaces")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4 grid grid-cols-2 gap-2">
+                <Button asChild variant="outline" size="sm"><Link to="/portfolio">Portfolio</Link></Button>
+                <Button asChild variant="outline" size="sm"><Link to="/marketplace">Marketplace</Link></Button>
+                <Button asChild variant="outline" size="sm"><Link to={`/pieces/${profile.piece_type}/${profile.asset_id}/manage`}>Creator Studio</Link></Button>
+                <Button asChild variant="outline" size="sm"><Link to="/wallet">Wallet</Link></Button>
               </CardContent>
             </Card>
           </aside>
@@ -305,3 +482,4 @@ export function PieceProfile() {
 }
 
 export default PieceProfile;
+

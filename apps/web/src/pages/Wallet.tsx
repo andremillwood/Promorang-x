@@ -28,6 +28,13 @@ import {
   Sparkles,
   ShieldCheck,
   ExternalLink,
+  Eye,
+  Heart,
+  Bookmark,
+  MessageSquare,
+  Share2,
+  ArrowRight,
+  TrendingUp,
 } from "lucide-react";
 import { cultureEvents } from "@/data/culture-demo";
 import { CommerceReceiptRail } from "@/components/commerce/CommerceReceiptRail";
@@ -353,248 +360,394 @@ const Wallet = () => {
           </section>
         </GuidanceDisclosure>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Coins className="h-4 w-4 text-amber-500" />
-                Points
-              </CardTitle>
-              <CardDescription>{t("wallet.pointsCopy")}</CardDescription>
+        {/* Core Metric Cards */}
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {/* 1. Points Card */}
+          <Card className="relative overflow-hidden border-amber-500/30 bg-gradient-to-br from-amber-950/20 via-neutral-900/90 to-black/95 shadow-xl backdrop-blur-xl">
+            <div className="absolute top-0 right-0 h-24 w-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-base font-bold text-foreground">
+                  <span className="p-1.5 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                    <Coins className="h-4 w-4" />
+                  </span>
+                  Points
+                </CardTitle>
+                <Badge variant="outline" className="border-amber-500/30 text-amber-400 text-[10px] uppercase font-black tracking-wider">
+                  Participation
+                </Badge>
+              </div>
+              <CardDescription className="text-xs">{t("wallet.pointsCopy")}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-2 space-y-4">
               {walletLoading ? (
                 <Skeleton className="h-10 w-24" />
               ) : (
-                <div className="text-3xl font-bold">{walletBalance?.points?.toLocaleString() || 0}</div>
+                <div>
+                  <div className="text-3xl font-black text-foreground tracking-tight">
+                    {walletBalance?.points?.toLocaleString() || 0}
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("wallet.pointsBody")}</p>
+                </div>
               )}
-              <p className="mt-3 text-sm text-muted-foreground">{t("wallet.pointsBody")}</p>
-              <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-amber-500" style={{ width: `${nextKeyProgress}%` }} /></div>
-              <p className="mt-2 text-xs text-muted-foreground">{t("wallet.nextKey", { count: formatNumber(Math.max(0, pointsPerKey - (points % pointsPerKey))) })}</p>
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span className="text-muted-foreground">PromoKey Progress</span>
+                  <span className="text-amber-400">{Math.round(nextKeyProgress)}%</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-neutral-800 border border-neutral-700/50">
+                  <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-300 transition-all duration-500" style={{ width: `${nextKeyProgress}%` }} />
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {t("wallet.nextKey", { count: formatNumber(Math.max(0, pointsPerKey - (points % pointsPerKey))) })}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                className="w-full border-amber-500/30 hover:bg-amber-500/10 text-amber-300 font-bold text-xs"
+                size="sm"
+                onClick={() => setConvertDialogOpen(true)}
+                disabled={availableConversions < 1}
+              >
+                Convert to PromoKeys
+              </Button>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <KeyRound className="h-4 w-4 text-primary" />
-                PromoKeys
-              </CardTitle>
-              <CardDescription>{t("wallet.keysCopy")}</CardDescription>
+          {/* 2. PromoKeys Card */}
+          <Card className="relative overflow-hidden border-primary/30 bg-gradient-to-br from-primary/10 via-neutral-900/90 to-black/95 shadow-xl backdrop-blur-xl">
+            <div className="absolute top-0 right-0 h-24 w-24 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-base font-bold text-foreground">
+                  <span className="p-1.5 rounded-lg bg-primary/15 text-primary border border-primary/30">
+                    <KeyRound className="h-4 w-4" />
+                  </span>
+                  PromoKeys
+                </CardTitle>
+                <Badge variant="outline" className="border-primary/30 text-primary text-[10px] uppercase font-black tracking-wider">
+                  Access Key
+                </Badge>
+              </div>
+              <CardDescription className="text-xs">{t("wallet.keysCopy")}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-2 space-y-4">
               {walletLoading ? (
                 <Skeleton className="h-10 w-24" />
               ) : (
-                <div className="text-3xl font-bold">{walletBalance?.promokeys || 0}</div>
+                <div>
+                  <div className="text-3xl font-black text-foreground tracking-tight">
+                    {walletBalance?.promokeys || 0}
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("wallet.keysBody")}</p>
+                </div>
               )}
-              <p className="mt-3 text-sm text-muted-foreground">{t("wallet.keysBody")}</p>
-              <Button className="mt-4 w-full" size="sm" onClick={() => setConvertDialogOpen(true)} disabled={availableConversions < 1}>
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-2.5 text-xs text-muted-foreground">
+                <span className="font-semibold text-primary">Unlocks:</span> Funded Moments, gated drops, and proof-backed experiences.
+              </div>
+              <Button
+                className="w-full font-bold text-xs shadow-md"
+                size="sm"
+                onClick={() => setConvertDialogOpen(true)}
+                disabled={availableConversions < 1}
+              >
                 {t("wallet.convert")}
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="border-violet-500/20 bg-violet-500/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Gem className="h-4 w-4 text-violet-500" />
-                Gems
-              </CardTitle>
-              <CardDescription>{t("wallet.gemsCopy")}</CardDescription>
+          {/* 3. Gems Card */}
+          <Card className="relative overflow-hidden border-violet-500/30 bg-gradient-to-br from-violet-950/25 via-neutral-900/90 to-black/95 shadow-xl backdrop-blur-xl">
+            <div className="absolute top-0 right-0 h-24 w-24 bg-violet-500/15 rounded-full blur-2xl pointer-events-none" />
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-base font-bold text-foreground">
+                  <span className="p-1.5 rounded-lg bg-violet-500/15 text-violet-400 border border-violet-500/30">
+                    <Gem className="h-4 w-4" />
+                  </span>
+                  Gems
+                </CardTitle>
+                <Badge variant="outline" className="border-violet-500/30 text-violet-400 text-[10px] uppercase font-black tracking-wider">
+                  $1 = 1 Gem
+                </Badge>
+              </div>
+              <CardDescription className="text-xs">{t("wallet.gemsCopy")}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-2 space-y-4">
               {gemsLoading ? (
                 <Skeleton className="h-10 w-24" />
               ) : (
                 <>
-                  <div className="text-3xl font-bold">{gems.toLocaleString()}</div>
-                  <p className="mt-2 text-sm text-muted-foreground">{t("wallet.gemsBody")}</p>
-                  <div className="mt-4 space-y-1 text-xs text-muted-foreground">
-                    <div>{t("wallet.available")}: {formatNumber(gems)} Gems</div>
-                    <div>{t("wallet.pending")}: {formatNumber(pendingWithdrawalGems)} Gems</div>
-                    <div>Older hold data: {Number(gemsSnapshot.pending_purchase_redemption_balance || 0).toLocaleString()} Gems</div>
-                    {gemsSnapshot.next_purchase_redemption_at ? (
-                      <div>Next purchase batch unlocks: {new Date(gemsSnapshot.next_purchase_redemption_at).toLocaleString()}</div>
-                    ) : null}
+                  <div>
+                    <div className="text-3xl font-black text-foreground tracking-tight">
+                      {gems.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">Gems</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Spendable on Pieces, Moments, & Creator drops.
+                    </p>
+                  </div>
+                  <div className="space-y-1 rounded-xl border border-violet-500/20 bg-violet-950/20 p-2.5 text-[11px] text-muted-foreground">
+                    <div className="flex justify-between">
+                      <span>Available:</span>
+                      <span className="font-semibold text-foreground">{formatNumber(gems)} Gems</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Pending settlement:</span>
+                      <span className="font-semibold text-violet-300">{formatNumber(pendingWithdrawalGems)} Gems</span>
+                    </div>
                   </div>
                 </>
               )}
-              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                <Button size="sm" disabled={!canBuyGems} onClick={() => { setCheckoutActive(false); setBuyDialogOpen(true); }}>
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  {canBuyGems ? t("wallet.buy") : `Purchases unavailable in ${country.name}`}
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button
+                  size="sm"
+                  className="flex-1 bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs"
+                  disabled={!canBuyGems}
+                  onClick={() => { setCheckoutActive(false); setBuyDialogOpen(true); }}
+                >
+                  <CreditCard className="mr-1.5 h-3.5 w-3.5" />
+                  {canBuyGems ? t("wallet.buy") : "Unavailable"}
                 </Button>
-                <Button size="sm" variant="outline" disabled={!canWithdrawGems} onClick={() => setWithdrawDialogOpen(true)}>
-                  <ArrowDownLeft className="mr-2 h-4 w-4" />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 border-violet-500/30 hover:bg-violet-500/10 text-violet-300 font-bold text-xs"
+                  disabled={!canWithdrawGems}
+                  onClick={() => setWithdrawDialogOpen(true)}
+                >
+                  <ArrowDownLeft className="mr-1.5 h-3.5 w-3.5" />
                   {t("wallet.withdraw")}
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-emerald-500/20 bg-emerald-500/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base"><DollarSign className="h-4 w-4 text-emerald-500" />{t("wallet.queue")}</CardTitle>
-              <CardDescription>{t("wallet.queueCopy")}</CardDescription>
+          {/* 4. Withdrawal Queue Card */}
+          <Card className="relative overflow-hidden border-emerald-500/30 bg-gradient-to-br from-emerald-950/25 via-neutral-900/90 to-black/95 shadow-xl backdrop-blur-xl">
+            <div className="absolute top-0 right-0 h-24 w-24 bg-emerald-500/15 rounded-full blur-2xl pointer-events-none" />
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-base font-bold text-foreground">
+                  <span className="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    <DollarSign className="h-4 w-4" />
+                  </span>
+                  Withdrawal Queue
+                </CardTitle>
+                <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 text-[10px] uppercase font-black tracking-wider">
+                  Settlement
+                </Badge>
+              </div>
+              <CardDescription className="text-xs">{t("wallet.queueCopy")}</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{pendingWithdrawalGems.toLocaleString()} Gems</div>
-              <p className="mt-3 text-sm text-muted-foreground">Requests are reviewed before settlement. 1 Gem withdraws as US$1 before any external provider fees.</p>
-              <Button className="mt-4 w-full" size="sm" variant="outline" disabled={!canWithdrawGems} onClick={() => setWithdrawDialogOpen(true)}><ShieldCheck className="mr-2 h-4 w-4" />{canWithdrawGems ? t("wallet.request") : `Withdrawals unavailable in ${country.name}`}</Button>
+            <CardContent className="pt-2 space-y-4">
+              <div>
+                <div className="text-3xl font-black text-foreground tracking-tight">
+                  {pendingWithdrawalGems.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">Gems</span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  ≈ ${pendingWithdrawalGems.toLocaleString()} USD in review.
+                </p>
+              </div>
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-950/20 p-2.5 text-xs text-muted-foreground">
+                <span className="font-semibold text-emerald-400">1 Gem = US$1</span> before external banking fees.
+              </div>
+              <Button
+                className="w-full border-emerald-500/30 hover:bg-emerald-500/10 text-emerald-300 font-bold text-xs"
+                size="sm"
+                variant="outline"
+                disabled={!canWithdrawGems}
+                onClick={() => setWithdrawDialogOpen(true)}
+              >
+                <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
+                {canWithdrawGems ? t("wallet.request") : `Unavailable in ${country.name}`}
+              </Button>
             </CardContent>
           </Card>
         </div>
 
+        {/* History and Activity Grids */}
         <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("wallet.history")}</CardTitle>
-              <CardDescription>{t("wallet.historyCopy")}</CardDescription>
+          {/* Left: Gem Activity History */}
+          <Card className="border-border/60 bg-card/80 backdrop-blur-xl shadow-xl">
+            <CardHeader className="border-b border-border/40 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-bold">{t("wallet.history")}</CardTitle>
+                  <CardDescription className="text-xs">{t("wallet.historyCopy")}</CardDescription>
+                </div>
+                <Badge variant="outline" className="text-xs">
+                  {gemsTransactions.length} Events
+                </Badge>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               {transactionsLoading ? (
                 <div className="space-y-3">
                   {Array.from({ length: 4 }).map((_, index) => (
-                    <Skeleton key={index} className="h-12 w-full" />
+                    <Skeleton key={index} className="h-12 w-full rounded-xl" />
                   ))}
                 </div>
               ) : gemsTransactions.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border p-6 text-center">
-                  <Gem className="mx-auto h-8 w-8 text-violet-500" />
-                  <h3 className="mt-3 font-semibold">{t("wallet.noActivity")}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{t("wallet.noActivityCopy")}</p>
+                <div className="rounded-2xl border border-dashed border-border/60 p-8 text-center bg-neutral-900/30">
+                  <Gem className="mx-auto h-10 w-10 text-violet-400/60" />
+                  <h3 className="mt-3 font-bold text-foreground">{t("wallet.noActivity")}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">{t("wallet.noActivityCopy")}</p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("wallet.type")}</TableHead>
-                      <TableHead>{t("wallet.amount")}</TableHead>
-                      <TableHead>{t("wallet.redemption")}</TableHead>
-                      <TableHead>{t("wallet.balanceAfter")}</TableHead>
-                      <TableHead>{t("wallet.when")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {gemsTransactions.map((transaction) => (
-                      <TableRow key={transaction.id}>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="font-medium capitalize">{transaction.transaction_type.replace(/_/g, " ")}</div>
-                            {transaction.description ? (
-                              <div className="text-xs text-muted-foreground">{transaction.description}</div>
-                            ) : null}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className={transaction.amount >= 0 ? "font-semibold text-emerald-600" : "font-semibold text-rose-600"}>
-                            {formatSignedValue(transaction.amount)}
-                          </span>
-                          {transaction.fiat_amount ? (
-                            <div className="text-xs text-muted-foreground">
-                              {formatCurrency(Number(transaction.fiat_amount), transaction.fiat_currency || "USD")}
-                            </div>
-                          ) : null}
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">
-                          {transaction.effective_redemption_status ? (
-                            <>
-                              <div className="capitalize">{transaction.effective_redemption_status.replace(/_/g, " ")}</div>
-                              {transaction.redeemable_after ? (
-                                <div>{t("wallet.after", { date: new Date(transaction.redeemable_after).toLocaleDateString(locale) })}</div>
-                              ) : null}
-                            </>
-                          ) : (
-                            t("wallet.notApplicable")
-                          )}
-                        </TableCell>
-                        <TableCell>{Number(transaction.balance_after || 0).toLocaleString()}</TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {new Date(transaction.created_at).toLocaleString(locale)}
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border/40">
+                        <TableHead className="text-xs font-bold uppercase">{t("wallet.type")}</TableHead>
+                        <TableHead className="text-xs font-bold uppercase">{t("wallet.amount")}</TableHead>
+                        <TableHead className="text-xs font-bold uppercase">{t("wallet.balanceAfter")}</TableHead>
+                        <TableHead className="text-xs font-bold uppercase">{t("wallet.when")}</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {gemsTransactions.map((transaction) => (
+                        <TableRow key={transaction.id} className="border-border/30 hover:bg-muted/30 transition-colors">
+                          <TableCell>
+                            <div className="space-y-0.5">
+                              <div className="font-semibold text-sm capitalize text-foreground flex items-center gap-1.5">
+                                <span className={`h-2 w-2 rounded-full ${transaction.amount >= 0 ? "bg-emerald-500" : "bg-rose-500"}`} />
+                                {transaction.transaction_type.replace(/_/g, " ")}
+                              </div>
+                              {transaction.description ? (
+                                <div className="text-xs text-muted-foreground line-clamp-1">{transaction.description}</div>
+                              ) : null}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className={`font-black text-sm ${transaction.amount >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                              {formatSignedValue(transaction.amount)} Gems
+                            </span>
+                            {transaction.fiat_amount ? (
+                              <div className="text-[11px] text-muted-foreground">
+                                {formatCurrency(Number(transaction.fiat_amount), transaction.fiat_currency || "USD")}
+                              </div>
+                            ) : null}
+                          </TableCell>
+                          <TableCell className="font-semibold text-xs text-foreground">
+                            {Number(transaction.balance_after || 0).toLocaleString()} Gems
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                            {new Date(transaction.created_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
 
+          {/* Right Column: Requests, Proof Receipts, Contribution Limits */}
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("wallet.requests")}</CardTitle>
-                <CardDescription>{t("wallet.requestsCopy")}</CardDescription>
+            {/* Gem Requests */}
+            <Card className="border-border/60 bg-card/80 backdrop-blur-xl shadow-xl">
+              <CardHeader className="pb-3 border-b border-border/40">
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-primary" /> {t("wallet.requests")}
+                </CardTitle>
+                <CardDescription className="text-xs">{t("wallet.requestsCopy")}</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {withdrawalsLoading ? <Skeleton className="h-20 w-full" /> : gemWithdrawals.length ? gemWithdrawals.slice(0, 5).map((request) => (
-                  <div key={request.id} className="rounded-xl border border-border p-3">
-                    <div className="flex items-start justify-between gap-3">
+              <CardContent className="pt-4 space-y-3">
+                {withdrawalsLoading ? (
+                  <Skeleton className="h-20 w-full rounded-xl" />
+                ) : gemWithdrawals.length ? (
+                  gemWithdrawals.slice(0, 4).map((request) => (
+                    <div key={request.id} className="rounded-xl border border-border/60 bg-neutral-900/40 p-3 flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-semibold">{Number(request.gems_amount).toLocaleString()} Gems</p>
-                        <p className="text-xs text-muted-foreground">US${Number(request.usd_amount).toLocaleString()} value · {new Date(request.created_at).toLocaleDateString()}</p>
+                        <p className="font-bold text-sm text-foreground">{Number(request.gems_amount).toLocaleString()} Gems</p>
+                        <p className="text-xs text-muted-foreground">US${Number(request.usd_amount).toLocaleString()} · {new Date(request.created_at).toLocaleDateString()}</p>
                       </div>
-                      <Badge variant={request.status === "requested" ? "secondary" : "outline"} className="capitalize">{request.status}</Badge>
+                      <div className="text-right space-y-1">
+                        <Badge variant={request.status === "requested" ? "secondary" : "outline"} className="capitalize text-[10px]">
+                          {request.status}
+                        </Badge>
+                        {["requested", "reviewing"].includes(request.status) && (
+                          <div>
+                            <button
+                              className="text-[11px] font-semibold text-rose-400 hover:underline"
+                              disabled={gemActions.cancelWithdrawal.isPending}
+                              onClick={async () => {
+                                try {
+                                  await gemActions.cancelWithdrawal.mutateAsync(request.id);
+                                  toast({ title: "Withdrawal cancelled", description: "The Gems returned to your wallet." });
+                                  await refreshWallet();
+                                } catch (error: unknown) {
+                                  toast({ title: "Could not cancel request", description: errorMessage(error), variant: "destructive" });
+                                }
+                              }}
+                            >
+                              {t("wallet.cancelRequest")}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    {["requested", "reviewing"].includes(request.status) && (
-                      <button className="mt-2 text-xs font-semibold text-primary" disabled={gemActions.cancelWithdrawal.isPending} onClick={async () => { try { await gemActions.cancelWithdrawal.mutateAsync(request.id); toast({ title: "Withdrawal cancelled", description: "The Gems returned to your wallet." }); await refreshWallet(); } catch (error: unknown) { toast({ title: "Could not cancel request", description: errorMessage(error), variant: "destructive" }); } }}>{t("wallet.cancelRequest")}</button>
-                    )}
-                  </div>
-                )) : <p className="text-sm text-muted-foreground">{t("wallet.noRequests")}</p>}
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground py-2 text-center">{t("wallet.noRequests")}</p>
+                )}
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("wallet.proofReceipts")}</CardTitle>
+            {/* Recent Proof Receipts */}
+            <Card className="border-border/60 bg-card/80 backdrop-blur-xl shadow-xl">
+              <CardHeader className="pb-3 border-b border-border/40">
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-400" /> {t("wallet.proofReceipts")}
+                </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-4 space-y-3">
                 <GuidanceDisclosure
                   id="wallet:proof-receipts"
                   title={t("wallet.proofMeaning")}
                   summary={t("wallet.proofSummary")}
-                  className="mb-4 mt-0"
+                  className="mb-2 mt-0"
                 >
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {t("wallet.proofCopy")}
                   </p>
                 </GuidanceDisclosure>
+
                 {receiptsLoading ? (
                   <div className="space-y-3">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <Skeleton key={index} className="h-12 w-full" />
+                    {Array.from({ length: 3 }).map((_, index) => (
+                      <Skeleton key={index} className="h-14 w-full rounded-xl" />
                     ))}
                   </div>
                 ) : receipts.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">{t("wallet.noProof")}</p>
+                  <p className="text-xs text-muted-foreground py-2 text-center">{t("wallet.noProof")}</p>
                 ) : (
-                  <div className="space-y-3">
-                    {receipts.slice(0, 6).map((receipt) => (
-                      <div key={receipt.id} className="rounded-xl border border-border p-3">
-                        <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-2.5">
+                    {receipts.slice(0, 4).map((receipt) => (
+                      <div key={receipt.id} className="rounded-xl border border-border/60 bg-neutral-900/40 p-3 hover:border-primary/40 transition-colors">
+                        <div className="flex items-start justify-between gap-2">
                           <div>
-                            <div className="font-medium">{receipt.headline}</div>
-                            <div className="text-sm text-muted-foreground">{receipt.description}</div>
+                            <div className="font-semibold text-xs text-foreground">{receipt.headline}</div>
+                            <div className="text-[11px] text-muted-foreground line-clamp-1">{receipt.description}</div>
                           </div>
-                          <Badge variant={receipt.lifecycle_status === "available" ? "default" : "secondary"} className="capitalize">
+                          <Badge variant={receipt.lifecycle_status === "available" ? "default" : "secondary"} className="capitalize text-[10px]">
                             {receipt.lifecycle_status}
                           </Badge>
                         </div>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {(receipt.rewards || []).filter((reward) => Number(reward.amount) !== 0).map((reward, index) => (
-                            <Badge key={`${reward.currency}-${index}`} variant="outline">
-                              {formatSignedValue(Number(reward.amount))} {reward.label || reward.currency}
-                            </Badge>
-                          ))}
-                        </div>
-                        <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 text-xs">
-                          <span className="text-muted-foreground">{new Date(receipt.created_at).toLocaleString()}</span>
+                        <div className="mt-2 flex flex-wrap items-center justify-between border-t border-border/40 pt-2 gap-2 text-xs">
+                          <div className="flex flex-wrap gap-1.5">
+                            {(receipt.rewards || []).filter((reward) => Number(reward.amount) !== 0).map((reward, index) => (
+                              <Badge key={`${reward.currency}-${index}`} variant="outline" className="text-[10px] bg-primary/10 border-primary/20 text-primary">
+                                {formatSignedValue(Number(reward.amount))} {reward.label || reward.currency}
+                              </Badge>
+                            ))}
+                          </div>
                           <Link
                             to={`/r/${receipt.id}`}
-                            className="inline-flex items-center gap-1 font-bold text-primary hover:underline"
+                            className="inline-flex items-center gap-1 font-bold text-[11px] text-primary hover:underline"
                           >
-                            Inspect Value Receipt <ExternalLink className="h-3 w-3" />
+                            Inspect <ExternalLink className="h-3 w-3" />
                           </Link>
                         </div>
                       </div>
@@ -604,37 +757,78 @@ const Wallet = () => {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("wallet.limits")}</CardTitle>
+            {/* Today's Contribution Limits (Gamified progress meters) */}
+            <Card className="border-border/60 bg-card/80 backdrop-blur-xl shadow-xl">
+              <CardHeader className="pb-3 border-b border-border/40">
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-emerald-400" /> {t("wallet.limits")}
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="pt-4 space-y-4">
                 <GuidanceDisclosure
                   id="wallet:contribution-limits"
                   title={t("wallet.limitsWhy")}
                   summary={t("wallet.limitsSummary")}
                   className="mt-0"
                 >
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {t("wallet.limitsCopy")}
                   </p>
                 </GuidanceDisclosure>
-                {caps.map((cap) => (
-                  <div key={cap.action_type}>
-                    <div className="mb-1.5 flex items-center justify-between text-sm">
-                      <span className="capitalize">{cap.action_type}s</span>
-                      <span className="text-muted-foreground">{t("wallet.rewarded", { used: cap.used, limit: cap.daily_limit })}</span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className="h-full rounded-full bg-primary transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
-                        style={{ width: `${Math.min(100, (cap.used / cap.daily_limit) * 100)}%` }}
-                      />
-                    </div>
+
+                {caps.length > 0 ? (
+                  <div className="space-y-3.5">
+                    {caps.map((cap) => {
+                      const percent = Math.min(100, Math.round((cap.used / cap.daily_limit) * 100));
+                      const isMaxed = cap.used >= cap.daily_limit;
+
+                      const actionIcons: Record<string, any> = {
+                        view: Eye,
+                        like: Heart,
+                        save: Bookmark,
+                        comment: MessageSquare,
+                        share: Share2,
+                      };
+                      const IconComponent = actionIcons[cap.action_type.toLowerCase()] || Coins;
+
+                      return (
+                        <div key={cap.action_type} className="space-y-1.5">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold capitalize text-foreground flex items-center gap-1.5">
+                              <IconComponent className="w-3.5 h-3.5 text-primary" />
+                              {cap.action_type}s
+                            </span>
+                            <span className="font-medium text-muted-foreground flex items-center gap-2">
+                              <span>{cap.used} / {cap.daily_limit}</span>
+                              <Badge variant={isMaxed ? "default" : "outline"} className={`text-[10px] py-0 px-1.5 ${isMaxed ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : ""}`}>
+                                {percent}%
+                              </Badge>
+                            </span>
+                          </div>
+                          <div className="h-2 overflow-hidden rounded-full bg-neutral-800 border border-neutral-700/40">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${
+                                isMaxed
+                                  ? "bg-emerald-500 shadow-sm shadow-emerald-500/50"
+                                  : percent > 50
+                                  ? "bg-amber-500"
+                                  : "bg-primary"
+                              }`}
+                              style={{ width: `${percent}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-                {!receiptsLoading && caps.length === 0 && (
-                  <p className="text-sm text-muted-foreground">{t("wallet.noLimits")}</p>
+                ) : !receiptsLoading ? (
+                  <p className="text-xs text-muted-foreground py-2 text-center">{t("wallet.noLimits")}</p>
+                ) : (
+                  <div className="space-y-3">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton key={i} className="h-6 w-full rounded-full" />
+                    ))}
+                  </div>
                 )}
               </CardContent>
             </Card>

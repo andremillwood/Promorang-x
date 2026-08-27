@@ -498,6 +498,7 @@ const en = {
   "home.scoutNetworkCopy": "Vote on real-time community polls to unlock vouchers and pop-up experiences, or explore curated hidden gems logged by local scouts.",
   "home.proposeBallot": "Propose Ballot",
   "home.submitFind": "Submit Find",
+  "home.scoutNetworkVerify": "Verify upcoming city moments",
 
   "auth.back": "Back to home",
   "auth.welcomeBack": "Welcome back",

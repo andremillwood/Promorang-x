@@ -152,6 +152,7 @@ const FeaturedPlacementsAdmin = lazy(() => import("./pages/admin/FeaturedPlaceme
 const TradingMarketplace = lazy(() => import("./pages/TradingMarketplace"));
 const PiecePortfolio = lazy(() => import("./pages/PiecePortfolio"));
 const PieceProfile = lazy(() => import("./pages/PieceProfile"));
+const PieceOwnerManage = lazy(() => import("./pages/PieceOwnerManage"));
 const KYCPage = lazy(() => import("./pages/KYCPage"));
 const KYCAdminDashboard = lazy(() => import("./pages/admin/KYCAdminDashboard"));
 const ClaimPages = lazy(() => import("./pages/ClaimPages"));
@@ -453,6 +454,7 @@ const App = () => (
                     <Route path="/marketplace" element={<ProtectedRoute><TradingMarketplace /></ProtectedRoute>} />
                     <Route path="/portfolio" element={<ProtectedRoute><PiecePortfolio /></ProtectedRoute>} />
                     <Route path="/pieces/:pieceType/:assetId" element={<ProtectedRoute><PieceProfile /></ProtectedRoute>} />
+                    <Route path="/pieces/:pieceType/:assetId/manage" element={<ProtectedRoute><PieceOwnerManage /></ProtectedRoute>} />
                     <Route path="/kyc" element={<ProtectedRoute><KYCPage /></ProtectedRoute>} />
                     <Route path="/liquidity" element={<ProtectedRoute><LiquidityDashboard /></ProtectedRoute>} />
                   </Route>

@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin, usePlatformStats } from "@/hooks/useAdmin";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
   Users,
@@ -32,8 +35,13 @@ import {
   UserPlus,
   ContactRound,
   ClipboardCheck,
+  Search,
+  ShieldCheck,
+  Radio,
+  FileCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
 import { AdminMomentsTab } from "@/components/admin/AdminMomentsTab";
 import { AdminAnalyticsTab } from "@/components/admin/AdminAnalyticsTab";
@@ -61,10 +69,12 @@ import { AdminEnrichmentReviewTab } from "@/components/admin/AdminEnrichmentRevi
 import { AdminEventVerificationReviewTab } from "@/components/admin/AdminEventVerificationReviewTab";
 import { AdminDiscoveryAcquisitionTab } from "@/components/admin/AdminDiscoveryAcquisitionTab";
 import { PromoPilotCompiler } from "@/components/campaigns/PromoPilotCompiler";
+import { AdminVerificationHub } from "@/components/admin/AdminVerificationHub";
 import { useI18n } from "@/i18n/I18nContext";
 
 const ADMIN_TABS = new Set([
   "command",
+  "verification-hub",
   "overview",
   "growth",
   "discovery",
@@ -96,56 +106,59 @@ type AdminNavItem = {
   value: string;
   label: string;
   icon: LucideIcon;
+  badge?: string;
 };
 
 const ADMIN_NAV_GROUPS: Array<{ label: string; items: AdminNavItem[] }> = [
   {
-    label: "Overview",
+    label: "Master Telemetry",
     items: [
-      { value: "command", label: "Command Center", icon: Shield },
-      { value: "overview", label: "Analytics", icon: BarChart3 },
-      { value: "growth", label: "Growth", icon: TrendingUp },
+      { value: "command", label: "Master Command", icon: Shield, badge: "Live" },
+      { value: "verification-hub", label: "Verification Hub", icon: ShieldCheck, badge: "3 New" },
+      { value: "overview", label: "Analytics & ROI", icon: BarChart3 },
+      { value: "growth", label: "Growth Radar", icon: TrendingUp },
       { value: "discovery", label: "Discovery Loop", icon: Target },
       { value: "leads", label: "Leads & CRM", icon: ContactRound },
     ],
   },
   {
-    label: "Operations",
+    label: "Operations & Supply",
     items: [
-      { value: "moments", label: "Moments", icon: Calendar },
+      { value: "moments", label: "Moments Directory", icon: Calendar },
       { value: "claimable-pages", label: "Create for Owners", icon: UserPlus },
-      { value: "users", label: "Users", icon: Users },
+      { value: "users", label: "User Accounts", icon: Users },
       { value: "applications", label: "Host Applications", icon: Sparkles },
-      { value: "pioneer", label: "Pioneer Review", icon: Target },
+      { value: "pioneer", label: "Pioneer Audit", icon: Target },
       { value: "enrichment-review", label: "Scout Proof Review", icon: ClipboardCheck },
       { value: "event-review", label: "Event Evidence", icon: Calendar },
-      { value: "operations", label: "Platform Operations", icon: Activity },
+      { value: "operations", label: "Live Operations", icon: Activity },
     ],
   },
   {
-    label: "Trust & finance",
+    label: "Trust, Nodes & Treasury",
     items: [
-      { value: "moderation", label: "Moderation", icon: Scale },
-      { value: "payouts", label: "Payouts", icon: DollarSign },
-      { value: "economy", label: "Economy", icon: Coins },
-      { value: "access", label: "Access", icon: KeyRound },
-      { value: "audit", label: "Audit", icon: Shield },
+      { value: "moderation", label: "Moderation Queue", icon: Scale },
+      { value: "payouts", label: "Payouts & Escrow", icon: DollarSign },
+      { value: "economy", label: "Gem Node Economy", icon: Coins },
+      { value: "access", label: "Access & PromoKeys", icon: KeyRound },
+      { value: "audit", label: "Audit Ledger", icon: Shield },
     ],
   },
   {
-    label: "Platform",
+    label: "Platform Services",
     items: [
-      { value: "promopush", label: "PromoPush", icon: Megaphone },
-      { value: "catalog", label: "Catalog", icon: Store },
-      { value: "commerce", label: "Commerce", icon: ShoppingBag },
-      { value: "support", label: "Support", icon: LifeBuoy },
+      { value: "promopush", label: "PromoPush Broadcast", icon: Megaphone },
+      { value: "catalog", label: "Catalog Manager", icon: Store },
+      { value: "commerce", label: "Commerce & Orders", icon: ShoppingBag },
+      { value: "support", label: "Support Desk", icon: LifeBuoy },
     ],
   },
   {
-    label: "System",
+    label: "System & Engine",
     items: [
+      { value: "compiler", label: "Campaign Compiler", icon: Radio },
       { value: "proof-builder", label: "Proof Builder", icon: CheckCircle },
-      { value: "config", label: "Config", icon: Settings },
+      { value: "config", label: "System Config", icon: Settings },
     ],
   },
 ];
@@ -159,288 +172,261 @@ const AdminDashboard = () => {
   const requestedTab = searchParams.get("tab");
   const initialTab = requestedTab && ADMIN_TABS.has(requestedTab) ? requestedTab : "command";
   const [activeTab, setActiveTab] = useState(initialTab);
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setSearchParams({ tab }, { replace: true });
-  };
+  const [navSearch, setNavSearch] = useState("");
 
   useEffect(() => {
-    if (requestedTab && ADMIN_TABS.has(requestedTab) && requestedTab !== activeTab) {
+    if (requestedTab && ADMIN_TABS.has(requestedTab)) {
       setActiveTab(requestedTab);
     }
-  }, [requestedTab, activeTab]);
+  }, [requestedTab]);
 
-  // Redirect non-admins
-  if (!authLoading && !user) {
-    return <Navigate to="/auth" replace />;
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set("tab", value);
+      return next;
+    });
+  };
+
+  const allNavItems = useMemo(() => {
+    return ADMIN_NAV_GROUPS.flatMap((g) => g.items);
+  }, []);
+
+  const activeItem = allNavItems.find((item) => item.value === activeTab) || allNavItems[0];
+
+  if (authLoading || isAdmin === undefined) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
   }
 
-  if (!authLoading && !isAdmin) {
-    return <Navigate to="/dashboard" replace />;
+  if (!user || !isAdmin) {
+    return <Navigate to="/" replace />;
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="w-full px-4 sm:px-6 lg:px-8 pb-12 pt-4 sm:pt-6">
-        <div className="w-full space-y-8">
-          {/* Header */}
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <div className="mb-2 flex items-center gap-3">
-                <div className="rounded-xl bg-primary/10 p-2.5 shadow-soft">
-                  <Shield className="h-6 w-6 text-primary" />
-                </div>
-                <h1 className="font-serif text-3xl font-bold text-foreground sm:text-4xl">
-                  Admin Dashboard
-                </h1>
-              </div>
-              <p className="text-sm text-muted-foreground font-medium sm:text-base">
-                Platform management and moderation tools
-              </p>
+    <div className="w-full space-y-6 pb-20 text-white animate-in fade-in-50 duration-300">
+      {/* 1. Header & Live Admin Telemetry Shell */}
+      <div className="p-6 rounded-3xl border border-white/15 bg-gradient-to-r from-cyan-950/30 via-[#0e1015] to-black backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xl">
+        <div className="flex items-center gap-4">
+          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-black font-black shadow-lg shadow-cyan-500/20 shrink-0">
+            <Shield className="h-7 w-7 text-black" />
+          </div>
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-black text-white">Platform Administration</h1>
+              <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[10px] font-extrabold uppercase tracking-wider">
+                Root Access • {activeItem.label}
+              </span>
             </div>
-            <div className="flex flex-wrap gap-2.5">
-              <button
-                type="button"
-                onClick={() => handleTabChange("compiler")}
-                className="inline-flex h-10 items-center gap-2 rounded-xl border border-border/80 bg-card px-4 text-sm font-semibold text-foreground transition-all hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-soft"
-              >
-                <Zap className="h-4 w-4 text-primary" />
-                {t("adminDash.compiler")}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleTabChange("claimable-pages")}
-                className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-              >
-                <Sparkles className="h-4 w-4" />
-                {t("adminDash.createOwner")}
-              </button>
-            </div>
+            <p className="text-xs text-white/60 mt-1">
+              Global system control, verification triaging, node liquidity, and master operational state.
+            </p>
           </div>
+        </div>
 
-          {/* Stats Overview */}
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-4">
-            {statsLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-28 rounded-xl" />
-              ))
-            ) : (
-              [
-                { label: t("adminDash.totalUsers"), value: stats?.totalUsers || 0, icon: Users, color: "text-primary", bg: "bg-primary/10" },
-                { label: t("adminDash.totalMoments"), value: stats?.totalMoments || 0, icon: Calendar, color: "text-blue-500", bg: "bg-blue-500/10" },
-                { label: t("adminDash.participations"), value: stats?.totalParticipations || 0, icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-                { label: t("adminDash.rewardsIssued"), value: stats?.totalRewards || 0, icon: Gift, color: "text-amber-500", bg: "bg-amber-500/10" },
-                { label: t("adminDash.activations"), value: stats?.totalCampaigns || 0, icon: Building2, color: "text-purple-500", bg: "bg-purple-500/10" },
-              ].map((stat, index) => (
-                <div
-                  key={index}
-                  role="region"
-                  aria-label={`${stat.label}: ${formatNumber(stat.value)}`}
-                  className="rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-soft transition-colors hover:border-primary/40"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-semibold text-muted-foreground sm:text-sm">{stat.label}</span>
-                    <div className={cn("h-7 w-7 rounded-lg flex items-center justify-center", stat.bg)}>
-                      <stat.icon className={cn("w-4 h-4", stat.color)} />
-                    </div>
-                  </div>
-                  <p className="text-2xl font-black text-foreground sm:text-3xl">{formatNumber(stat.value)}</p>
-                </div>
-              ))
-            )}
-          </div>
+        {/* Global Quick Action Pills */}
+        <div className="flex items-center gap-2.5 w-full md:w-auto justify-between md:justify-end">
+          <Button
+            size="sm"
+            onClick={() => handleTabChange("verification-hub")}
+            className="h-10 px-4 rounded-xl bg-cyan-400 hover:bg-cyan-500 text-black font-extrabold text-xs shadow-md shadow-cyan-400/20"
+          >
+            <ShieldCheck className="h-4 w-4 mr-1.5" />
+            Proof Hub
+          </Button>
 
-          {/* Secondary Stats */}
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
-            {statsLoading ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-20 rounded-xl" />
-              ))
-            ) : (
-              [
-                { label: t("adminDash.activeWeek"), value: stats?.activeUsersThisWeek || 0, icon: Users, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-                { label: t("adminDash.totalVenues"), value: stats?.totalVenues || 0, icon: MapPin, color: "text-orange-500", bg: "bg-orange-500/10" },
-                { label: t("adminDash.userGrowth"), value: `${stats?.userGrowth || 0}%`, icon: TrendingUp, color: "text-primary", bg: "bg-primary/10" },
-              ].map((stat, index) => (
-                <div
-                  key={index}
-                  role="region"
-                  aria-label={`${stat.label}: ${stat.value}`}
-                  className="rounded-xl border border-border/80 bg-card/60 p-4 shadow-soft transition-colors hover:border-primary/40"
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-xs font-semibold text-muted-foreground sm:text-sm">{stat.label}</p>
-                    <div className={cn("h-6 w-6 rounded-md flex items-center justify-center", stat.bg)}>
-                      <stat.icon className={cn("w-3.5 h-3.5", stat.color)} />
-                    </div>
-                  </div>
-                  <p className="text-lg font-black text-foreground sm:text-2xl">{stat.value}</p>
-                </div>
-              ))
-            )}
-          </div>
+          <Button
+            size="sm"
+            onClick={() => handleTabChange("promopush")}
+            className="h-10 px-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs"
+          >
+            <Megaphone className="h-3.5 w-3.5 mr-1.5 text-primary" />
+            PromoPush
+          </Button>
+        </div>
+      </div>
 
-          <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <div className="relative mb-6 lg:hidden">
-              <label htmlFor="admin-section" className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
-                Admin section
-              </label>
-              <select
-                id="admin-section"
-                value={activeTab}
-                onChange={(event) => handleTabChange(event.target.value)}
-                className="h-12 w-full appearance-none rounded-xl border border-border bg-card px-4 pr-10 text-sm font-semibold text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              >
-                {ADMIN_NAV_GROUPS.map((group) => (
-                  <optgroup key={group.label} label={group.label}>
-                    {group.items.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
-                  </optgroup>
-                ))}
-                <optgroup label="Create">
-                  <option value="compiler">Campaign Compiler</option>
-                  <option value="create-moment">Create Moment</option>
-                </optgroup>
-              </select>
-              <ChevronDown className="pointer-events-none absolute bottom-4 right-4 h-4 w-4 text-muted-foreground" />
+      {/* 2. Admin Command Shell (Left Navigation Bar + Right Viewport) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Sidebar Navigation (3 cols) */}
+        <div className="lg:col-span-3 space-y-4">
+          <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-4 space-y-4 sticky top-6 shadow-xl">
+            {/* Quick Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+              <Input
+                value={navSearch}
+                onChange={(e) => setNavSearch(e.target.value)}
+                placeholder="Search admin consoles..."
+                className="h-9 pl-8.5 rounded-xl border-white/10 bg-white/5 text-white text-xs"
+              />
             </div>
 
-            <div className="grid items-start gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
-              <aside aria-label="Admin navigation" className="sticky top-24 hidden max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl border border-border bg-card p-3 shadow-sm lg:block">
-                {ADMIN_NAV_GROUPS.map((group, groupIndex) => (
-                  <div key={group.label} className={groupIndex === 0 ? "" : "mt-5"}>
-                    <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+            {/* Nav Groups List */}
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+              {ADMIN_NAV_GROUPS.map((group) => {
+                const visibleItems = group.items.filter((item) =>
+                  item.label.toLowerCase().includes(navSearch.toLowerCase())
+                );
+                if (visibleItems.length === 0) return null;
+
+                return (
+                  <div key={group.label} className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-white/40 px-2.5">
                       {group.label}
                     </p>
                     <div className="space-y-1">
-                      {group.items.map((item) => {
+                      {visibleItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = activeTab === item.value;
+
                         return (
                           <button
                             key={item.value}
-                            type="button"
                             onClick={() => handleTabChange(item.value)}
-                            aria-current={isActive ? "page" : undefined}
-                            className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isActive ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition text-left group ${
+                              isActive
+                                ? "bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 shadow-sm"
+                                : "text-white/70 hover:bg-white/5 hover:text-white"
+                            }`}
                           >
-                            <Icon className="h-4 w-4 shrink-0" />
-                            <span className="font-medium">{item.label}</span>
+                            <div className="flex items-center gap-2.5 truncate">
+                              <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-cyan-400" : "text-white/40 group-hover:text-white/70"}`} />
+                              <span className="truncate">{item.label}</span>
+                            </div>
+                            {item.badge && (
+                              <span className="px-1.5 py-0.5 rounded-md bg-cyan-400/20 text-cyan-300 text-[9px] font-extrabold shrink-0">
+                                {item.badge}
+                              </span>
+                            )}
                           </button>
                         );
                       })}
                     </div>
                   </div>
-                ))}
-              </aside>
+                );
+              })}
+            </div>
+          </div>
+        </div>
 
-              <main className="min-w-0">
-
-            <TabsContent value="command">
+        {/* Right Main Console Viewport (9 cols) */}
+        <div className="lg:col-span-9 min-w-0">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+            <TabsContent value="command" className="mt-0">
               <AdminCommandCenter />
             </TabsContent>
 
-            <TabsContent value="overview">
+            <TabsContent value="verification-hub" className="mt-0">
+              <AdminVerificationHub />
+            </TabsContent>
+
+            <TabsContent value="overview" className="mt-0">
               <AdminAnalyticsTab />
             </TabsContent>
 
-            <TabsContent value="growth">
+            <TabsContent value="growth" className="mt-0">
               <AdminGrowthTab />
             </TabsContent>
-            <TabsContent value="discovery">
+
+            <TabsContent value="discovery" className="mt-0">
               <AdminDiscoveryAcquisitionTab />
             </TabsContent>
-            <TabsContent value="leads">
+
+            <TabsContent value="leads" className="mt-0">
               <AdminLeadsCRM />
             </TabsContent>
 
-            <TabsContent value="proof-builder">
-              <AdminProofBuilderTab />
-            </TabsContent>
-            <TabsContent value="pioneer">
-              <AdminPioneerReviewTab />
-            </TabsContent>
-
-            <TabsContent value="operations">
-              <AdminOperationsTab />
-            </TabsContent>
-
-            <TabsContent value="enrichment-review">
-              <AdminEnrichmentReviewTab />
-            </TabsContent>
-            <TabsContent value="event-review">
-              <AdminEventVerificationReviewTab />
-            </TabsContent>
-
-            <TabsContent value="promopush">
-              <AdminPromoPushTab />
-            </TabsContent>
-
-            <TabsContent value="catalog">
-              <AdminCatalogTab />
-            </TabsContent>
-
-            <TabsContent value="commerce">
-              <AdminCommerceTab />
-            </TabsContent>
-
-            <TabsContent value="users">
-              <AdminUsersTab />
-            </TabsContent>
-
-            <TabsContent value="moments">
+            <TabsContent value="moments" className="mt-0">
               <AdminMomentsTab />
             </TabsContent>
 
-            <TabsContent value="applications">
+            <TabsContent value="claimable-pages" className="mt-0">
+              <AdminClaimablePagesTab />
+            </TabsContent>
+
+            <TabsContent value="users" className="mt-0">
+              <AdminUsersTab />
+            </TabsContent>
+
+            <TabsContent value="applications" className="mt-0">
               <AdminHostApplicationsTab />
             </TabsContent>
 
-            <TabsContent value="payouts">
-              <AdminPayoutsTab />
+            <TabsContent value="pioneer" className="mt-0">
+              <AdminPioneerReviewTab />
             </TabsContent>
 
-            <TabsContent value="economy">
-              <AdminEconomyTab />
+            <TabsContent value="enrichment-review" className="mt-0">
+              <AdminEnrichmentReviewTab />
             </TabsContent>
 
-            <TabsContent value="access">
-              <AdminAccessRulesTab />
-              <AdminPresentsPanel />
+            <TabsContent value="event-review" className="mt-0">
+              <AdminEventVerificationReviewTab />
             </TabsContent>
 
-            <TabsContent value="audit">
-              <AdminAuditTab />
+            <TabsContent value="operations" className="mt-0">
+              <AdminOperationsTab />
             </TabsContent>
 
-            <TabsContent value="moderation">
+            <TabsContent value="moderation" className="mt-0">
               <AdminModerationTab />
             </TabsContent>
 
-            <TabsContent value="support">
+            <TabsContent value="payouts" className="mt-0">
+              <AdminPayoutsTab />
+            </TabsContent>
+
+            <TabsContent value="economy" className="mt-0">
+              <AdminEconomyTab />
+            </TabsContent>
+
+            <TabsContent value="access" className="mt-0">
+              <AdminAccessRulesTab />
+            </TabsContent>
+
+            <TabsContent value="audit" className="mt-0">
+              <AdminAuditTab />
+            </TabsContent>
+
+            <TabsContent value="promopush" className="mt-0">
+              <AdminPromoPushTab />
+            </TabsContent>
+
+            <TabsContent value="catalog" className="mt-0">
+              <AdminCatalogTab />
+            </TabsContent>
+
+            <TabsContent value="commerce" className="mt-0">
+              <AdminCommerceTab />
+            </TabsContent>
+
+            <TabsContent value="support" className="mt-0">
               <AdminSupportTab />
             </TabsContent>
 
-            <TabsContent value="config">
+            <TabsContent value="compiler" className="mt-0">
+              <PromoPilotCompiler />
+            </TabsContent>
+
+            <TabsContent value="proof-builder" className="mt-0">
+              <AdminProofBuilderTab />
+            </TabsContent>
+
+            <TabsContent value="config" className="mt-0">
               <AdminConfigTab />
             </TabsContent>
 
-            <TabsContent value="compiler">
-              <PromoPilotCompiler adminMode={true} />
-            </TabsContent>
-
-            <TabsContent value="create-moment">
+            <TabsContent value="create-moment" className="mt-0">
               <AdminCreateMomentTab />
             </TabsContent>
-            <TabsContent value="claimable-pages">
-              <AdminClaimablePagesTab />
-            </TabsContent>
-              </main>
-            </div>
           </Tabs>
         </div>
       </div>
-
     </div>
   );
 };
