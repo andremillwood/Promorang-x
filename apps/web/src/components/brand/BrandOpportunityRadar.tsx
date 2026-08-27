@@ -82,7 +82,7 @@ export function BrandOpportunityRadar() {
 
   return (
     <div className="space-y-6">
-      {/* 1. Header & Live Radar Identity */}
+      {/* 1. Header & Simple Finder */}
       <div className="p-6 rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-black to-black backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-black font-black shadow-lg shadow-primary/20 shrink-0">
@@ -90,20 +90,20 @@ export function BrandOpportunityRadar() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Live Opportunity & Moment Radar</h2>
+              <h2 className="text-2xl font-black text-white">Find Events & Places to Sponsor</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-primary/20 border border-primary/40 text-primary text-[10px] font-extrabold uppercase">
-                AI Match Score Engine
+                Curated Opportunities
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Evaluated Kingston moments with verified audience affinity and on-site sponsor slots.
+              Connect your brand with popular local festivals, art walks, dining hubs, and concerts.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 text-xs text-white/60">
           <Sparkles className="h-4 w-4 text-primary" />
-          <span>Real-Time Regional Matchmaking</span>
+          <span>Recommended for Your Brand</span>
         </div>
       </div>
 

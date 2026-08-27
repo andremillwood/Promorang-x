@@ -118,19 +118,19 @@ export function BrandDashboardV2() {
         </div>
       </div>
 
-      {/* 2. Cultural Flight Action Runway */}
+      {/* 2. Simple 3-Step Action Guide */}
       <div className="p-4 sm:p-5 rounded-3xl border border-primary/25 bg-gradient-to-r from-primary/15 via-black to-black text-xs text-white/80 space-y-3 shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded-full bg-primary text-black font-black text-[10px] uppercase tracking-wider">
-              Flight Cycle
+              How It Works
             </span>
             <span className="font-bold text-white text-xs sm:text-sm">
-              Sponsorship & Creator Pipeline
+              Your 3-Step Sponsoring System
             </span>
           </div>
           <span className="text-[11px] text-white/50 font-medium">
-            Match Moments &rarr; Dispatch Bounties &rarr; Verify Footfalls
+            1. Pick an Event &rarr; 2. Local Creators Share Your Brand &rarr; 3. Verified People Walk in the Door
           </span>
         </div>
 
@@ -142,8 +142,8 @@ export function BrandDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">1</span>
               <div>
-                <p className="font-bold text-white text-xs">Sponsor Live Moments</p>
-                <p className="text-[10px] text-primary font-semibold">Match high-affinity Kingston stages</p>
+                <p className="font-bold text-white text-xs">Sponsor an Event or Place</p>
+                <p className="text-[10px] text-primary font-semibold">Drop discounts onto local cards</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-primary transition" />
@@ -156,8 +156,8 @@ export function BrandDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">2</span>
               <div>
-                <p className="font-bold text-white text-xs">Review Creator UGC</p>
-                <p className="text-[10px] text-amber-300 font-semibold">Approve verified content bounties</p>
+                <p className="font-bold text-white text-xs">Review Social Posts</p>
+                <p className="text-[10px] text-amber-300 font-semibold">Creators post authentic videos</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-amber-400 transition" />
@@ -170,8 +170,8 @@ export function BrandDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">3</span>
               <div>
-                <p className="font-bold text-white text-xs">Verify In-Person Footfalls</p>
-                <p className="text-[10px] text-cyan-300 font-semibold">Audit door redemptions & ROI</p>
+                <p className="font-bold text-white text-xs">See Real-World Results</p>
+                <p className="text-[10px] text-cyan-300 font-semibold">Track real check-ins & sales</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-cyan-400 transition" />
@@ -182,11 +182,11 @@ export function BrandDashboardV2() {
       {/* 3. The 5 Operational Brand Navigation Arenas */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
-          { id: "campaigns", label: "Campaign Flight Deck", icon: Megaphone, hint: "Live flights & pace", count: `${activeCampaigns.length || 2} Live` },
-          { id: "opportunities", label: "Opportunity Radar", icon: Target, hint: "AI moment match", count: "3 Hot" },
-          { id: "creators", label: "Creator Bureau", icon: Users, hint: "UGC & bounties", count: "1 Pending" },
-          { id: "correlation", label: "O2O Proof Map", icon: Link2, hint: "Footfall attribution", count: "4.9x ROI" },
-          { id: "insights", label: "Treasury & Insights", icon: Coins, hint: "Escrow & APY", count: "$6.4k Vault" },
+          { id: "campaigns", label: "Active Promotions", icon: Megaphone, hint: "Live campaigns & budget", count: `${activeCampaigns.length || 2} Live` },
+          { id: "opportunities", label: "Find Events to Sponsor", icon: Target, hint: "Top local events & venues", count: "3 Ready" },
+          { id: "creators", label: "Creator Posts", icon: Users, hint: "Review photo & video posts", count: "1 Ready" },
+          { id: "correlation", label: "Customer Foot-Traffic", icon: Link2, hint: "See who visited in person", count: "4.9x ROI" },
+          { id: "insights", label: "Budget & Payouts", icon: Coins, hint: "Safe escrow & balances", count: "$6.4k Safe" },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

@@ -93,7 +93,7 @@ export function BrandCampaignFlightDeck({
 
   return (
     <div className="space-y-6">
-      {/* 1. Header & Live Flight Command HUD */}
+      {/* 1. Header & Live Promotion HUD */}
       <div className="p-6 rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-black to-black backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-black font-black shadow-lg shadow-primary/20 shrink-0">
@@ -101,13 +101,13 @@ export function BrandCampaignFlightDeck({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Campaign Flight Command Deck</h2>
+              <h2 className="text-2xl font-black text-white">Your Sponsored Promotions</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-primary/20 border border-primary/40 text-primary text-[10px] font-extrabold uppercase">
-                {campaigns.filter((c: any) => c.is_active).length} Live Flights
+                {campaigns.filter((c: any) => c.is_active).length} Active Campaigns
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Real-time flight velocity, creator deliverable tracking, and on-site redemption ROI.
+              Track how your budget turns into social media buzz, real store visits, and sales.
             </p>
           </div>
         </div>
@@ -118,18 +118,18 @@ export function BrandCampaignFlightDeck({
         >
           <Link to="/create/campaign">
             <Plus className="h-4 w-4 mr-1.5" />
-            Launch New Activation
+            Start New Promotion
           </Link>
         </Button>
       </div>
 
-      {/* 2. Flight Filter Chips & High-Level KPIs */}
+      {/* 2. Simple Filter Tabs */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {[
-            { id: "all", label: "All Flights" },
-            { id: "live", label: "Live in Market" },
-            { id: "scheduled", label: "Scheduled & Staged" },
+            { id: "all", label: "All Campaigns" },
+            { id: "live", label: "Currently Active" },
+            { id: "scheduled", label: "Upcoming / Scheduled" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -186,12 +186,12 @@ export function BrandCampaignFlightDeck({
                 </p>
               </div>
 
-              {/* Spend Pacing Meter */}
+              {/* Spend Meter */}
               <div className="space-y-1.5 p-3.5 rounded-2xl bg-black/40 border border-white/5">
                 <div className="flex items-center justify-between text-xs font-semibold">
-                  <span className="text-white/60">Flight Spend Pacing</span>
+                  <span className="text-white/60">Budget Used So Far</span>
                   <span className="text-white font-mono font-bold">
-                    ${spent.toLocaleString()} / ${budget.toLocaleString()} ({pacePercent}%)
+                    ${spent.toLocaleString()} of ${budget.toLocaleString()} spent ({pacePercent}%)
                   </span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
@@ -202,18 +202,18 @@ export function BrandCampaignFlightDeck({
                 </div>
               </div>
 
-              {/* Physical vs Online Metric Dials */}
+              {/* Real World Performance Dials */}
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-white/50">Attention / Reach</p>
+                  <p className="text-[10px] font-bold uppercase text-white/50">People Reached</p>
                   <p className="text-base font-black text-white">{(campaign.impressions || 0).toLocaleString()}</p>
                 </div>
                 <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-white/50">Verified Arrivals</p>
+                  <p className="text-[10px] font-bold uppercase text-white/50">In-Person Visits</p>
                   <p className="text-base font-black text-emerald-400">{(campaign.redemptions || 0).toLocaleString()}</p>
                 </div>
                 <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-white/50">Active Creators</p>
+                  <p className="text-[10px] font-bold uppercase text-white/50">Creators Posting</p>
                   <p className="text-base font-black text-amber-400">{campaign.creatorsCount || 6}</p>
                 </div>
               </div>
@@ -227,7 +227,7 @@ export function BrandCampaignFlightDeck({
                   className="h-9 px-3 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs flex-1"
                 >
                   <Flame className="h-3.5 w-3.5 mr-1.5 text-primary" />
-                  Boost Flight (+$500)
+                  Add +$500 to Reach More People
                 </Button>
 
                 <Button
