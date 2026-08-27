@@ -195,6 +195,12 @@ const AdminDashboard = () => {
 
   const activeItem = allNavItems.find((item) => item.value === activeTab) || allNavItems[0];
 
+  // Find which group contains the activeTab
+  const currentGroupIndex = ADMIN_NAV_GROUPS.findIndex((g) =>
+    g.items.some((item) => item.value === activeTab)
+  );
+  const selectedGroup = currentGroupIndex !== -1 ? ADMIN_NAV_GROUPS[currentGroupIndex] : ADMIN_NAV_GROUPS[0];
+
   if (authLoading || isAdmin === undefined) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -209,120 +215,142 @@ const AdminDashboard = () => {
 
   return (
     <div className="w-full space-y-6 pb-20 text-white animate-in fade-in-50 duration-300">
-      {/* 1. Header & Live Admin Telemetry Shell */}
-      <div className="p-6 rounded-3xl border border-white/15 bg-gradient-to-r from-cyan-950/30 via-[#0e1015] to-black backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xl">
-        <div className="flex items-center gap-4">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-black font-black shadow-lg shadow-cyan-500/20 shrink-0">
-            <Shield className="h-7 w-7 text-black" />
-          </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-black text-white">Platform Administration</h1>
-              <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[10px] font-extrabold uppercase tracking-wider">
-                Root Access • {activeItem.label}
-              </span>
+      {/* 1. Master Admin Command Header & Category Strip */}
+      <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-cyan-950/20 via-[#0e1218] to-[#0a0d12] backdrop-blur-xl p-5 shadow-2xl space-y-4">
+        {/* Top Header Row */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-black font-black shadow-lg shadow-cyan-500/20 shrink-0">
+              <Shield className="h-5 w-5 text-black" />
             </div>
-            <p className="text-xs text-white/60 mt-1">
-              Global system control, verification triaging, node liquidity, and master operational state.
-            </p>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-xl font-bold tracking-tight text-white">Platform Administration</h1>
+                <span className="px-2 py-0.5 rounded-md bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] font-mono font-bold tracking-wide uppercase">
+                  ROOT • {activeItem.label}
+                </span>
+              </div>
+              <p className="text-[11px] text-white/50 mt-0.5">
+                Master operational state, node telemetry, verification triage, and treasury controls.
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Global Quick Action Pills */}
-        <div className="flex items-center gap-2.5 w-full md:w-auto justify-between md:justify-end">
-          <Button
-            size="sm"
-            onClick={() => handleTabChange("verification-hub")}
-            className="h-10 px-4 rounded-xl bg-cyan-400 hover:bg-cyan-500 text-black font-extrabold text-xs shadow-md shadow-cyan-400/20"
-          >
-            <ShieldCheck className="h-4 w-4 mr-1.5" />
-            Proof Hub
-          </Button>
-
-          <Button
-            size="sm"
-            onClick={() => handleTabChange("promopush")}
-            className="h-10 px-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs"
-          >
-            <Megaphone className="h-3.5 w-3.5 mr-1.5 text-primary" />
-            PromoPush
-          </Button>
-        </div>
-      </div>
-
-      {/* 2. Admin Command Shell (Left Navigation Bar + Right Viewport) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Sidebar Navigation (3 cols) */}
-        <div className="lg:col-span-3 space-y-4">
-          <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-4 space-y-4 sticky top-6 shadow-xl">
-            {/* Quick Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+          {/* Header Quick Actions */}
+          <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
+            <div className="relative w-48 hidden sm:block">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
               <Input
                 value={navSearch}
                 onChange={(e) => setNavSearch(e.target.value)}
-                placeholder="Search admin consoles..."
-                className="h-9 pl-8.5 rounded-xl border-white/10 bg-white/5 text-white text-xs"
+                placeholder="Jump to tool..."
+                className="h-8 pl-8 rounded-lg border-white/10 bg-white/5 text-white text-xs placeholder:text-white/40 focus:border-cyan-500/50"
               />
             </div>
 
-            {/* Nav Groups List */}
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-              {ADMIN_NAV_GROUPS.map((group) => {
-                const visibleItems = group.items.filter((item) =>
-                  item.label.toLowerCase().includes(navSearch.toLowerCase())
-                );
-                if (visibleItems.length === 0) return null;
+            <Button
+              size="sm"
+              onClick={() => handleTabChange("verification-hub")}
+              className="h-8 px-3 rounded-lg bg-cyan-400 hover:bg-cyan-500 text-black font-extrabold text-xs shadow-md shadow-cyan-400/20"
+            >
+              <ShieldCheck className="h-3.5 w-3.5 mr-1" />
+              Proof Hub
+            </Button>
 
-                return (
-                  <div key={group.label} className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-white/40 px-2.5">
-                      {group.label}
-                    </p>
-                    <div className="space-y-1">
-                      {visibleItems.map((item) => {
-                        const Icon = item.icon;
-                        const isActive = activeTab === item.value;
-
-                        return (
-                          <button
-                            key={item.value}
-                            onClick={() => handleTabChange(item.value)}
-                            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition text-left group ${
-                              isActive
-                                ? "bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 shadow-sm"
-                                : "text-white/70 hover:bg-white/5 hover:text-white"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2.5 truncate">
-                              <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-cyan-400" : "text-white/40 group-hover:text-white/70"}`} />
-                              <span className="truncate">{item.label}</span>
-                            </div>
-                            {item.badge && (
-                              <span className="px-1.5 py-0.5 rounded-md bg-cyan-400/20 text-cyan-300 text-[9px] font-extrabold shrink-0">
-                                {item.badge}
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <Button
+              size="sm"
+              onClick={() => handleTabChange("promopush")}
+              className="h-8 px-3 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs"
+            >
+              <Megaphone className="h-3 w-3 mr-1 text-primary" />
+              PromoPush
+            </Button>
           </div>
         </div>
 
-        {/* Right Main Console Viewport (9 cols) */}
-        <div className="lg:col-span-9 min-w-0">
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-            <TabsContent value="command" className="mt-0">
-              <AdminCommandCenter />
-            </TabsContent>
+        {/* Category Navigation Pills (Groups) */}
+        <div className="pt-3 border-t border-white/5 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          {ADMIN_NAV_GROUPS.map((group) => {
+            const isGroupActive = group.items.some((item) => item.value === activeTab);
 
-            <TabsContent value="verification-hub" className="mt-0">
-              <AdminVerificationHub />
+            return (
+              <button
+                key={group.label}
+                onClick={() => handleTabChange(group.items[0].value)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition flex items-center gap-1.5 ${
+                  isGroupActive
+                    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                {group.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Sub-item Pills for Selected Category */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none bg-black/30 p-1.5 rounded-xl border border-white/5">
+          {selectedGroup.items.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.value;
+
+            return (
+              <button
+                key={item.value}
+                onClick={() => handleTabChange(item.value)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition flex items-center gap-2 ${
+                  isActive
+                    ? "bg-white/15 text-white shadow-sm border border-white/20"
+                    : "text-white/50 hover:text-white/90 hover:bg-white/5"
+                }`}
+              >
+                <Icon className={`h-3.5 w-3.5 ${isActive ? "text-cyan-400" : "text-white/40"}`} />
+                <span>{item.label}</span>
+                {item.badge && (
+                  <span className="px-1.5 py-0.2 rounded bg-cyan-400/20 text-cyan-300 text-[9px] font-mono font-bold">
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Search Results Dropdown (if user searches) */}
+        {navSearch.trim().length > 0 && (
+          <div className="p-2 rounded-xl bg-[#141822] border border-cyan-500/30 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5">
+            {allNavItems
+              .filter((item) => item.label.toLowerCase().includes(navSearch.toLowerCase()))
+              .map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.value}
+                    onClick={() => {
+                      handleTabChange(item.value);
+                      setNavSearch("");
+                    }}
+                    className="flex items-center gap-2 p-2 rounded-lg text-left text-xs text-white/80 hover:bg-cyan-500/10 hover:text-cyan-300 transition"
+                  >
+                    <Icon className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
+                    <span className="truncate">{item.label}</span>
+                  </button>
+                );
+              })}
+          </div>
+        )}
+      </div>
+
+      {/* 2. Admin Main Viewport (Full 12-col Canvas) */}
+      <div className="w-full min-w-0">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+          <TabsContent value="command" className="mt-0">
+            <AdminCommandCenter />
+          </TabsContent>
+
+          <TabsContent value="verification-hub" className="mt-0">
+            <AdminVerificationHub />
             </TabsContent>
 
             <TabsContent value="overview" className="mt-0">
@@ -426,7 +454,6 @@ const AdminDashboard = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
     </div>
   );
 };
