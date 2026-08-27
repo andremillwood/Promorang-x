@@ -15,8 +15,8 @@ const NodesPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-zinc-950 pt-24 pb-20">
       <SEO
-        title="Community Liquidity Nodes & No-Loss Jackpot | Promorang"
-        description="Deploy Promorang commerce nodes to power instant checkout settlement and AMM liquidity. 100% principal protected with weekly and monthly cash jackpot entries."
+        title="Save & Win Community Vaults | Promorang"
+        description="Back local businesses and event check-ins with community savings vaults. Keep 100% of your money with zero risk, plus get free tickets into weekly and monthly cash prize draws."
       />
       <div className="container mx-auto px-4">
         <PromorangNodeHub

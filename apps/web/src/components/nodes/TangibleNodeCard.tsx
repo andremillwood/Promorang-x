@@ -120,14 +120,14 @@ export const TangibleNodeCard: React.FC<TangibleNodeCardProps> = ({
             </div>
             <div>
               <div className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase">
-                SERIAL: {serialNumber}
+                VAULT ID: {serialNumber}
               </div>
               <h3 className="text-lg font-black text-white tracking-wide">{nodeName}</h3>
             </div>
           </div>
 
           <div className={`px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider border ${tierColors.badge}`}>
-            {userTier} Core
+            {userTier} Vault
           </div>
         </div>
 
@@ -141,11 +141,11 @@ export const TangibleNodeCard: React.FC<TangibleNodeCardProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-80" />
           <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
             <span className="text-[10px] font-mono bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 text-white font-bold">
-              ⚡ ACTIVE POWER CORE
+              ⚡ ACTIVE COMMUNITY VAULT
             </span>
             <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/80 backdrop-blur-md px-2.5 py-1 rounded-full border border-emerald-500/40 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-              SYNCHRONIZED
+              BACKING LOCAL DEALS
             </span>
           </div>
         </div>
@@ -154,17 +154,17 @@ export const TangibleNodeCard: React.FC<TangibleNodeCardProps> = ({
         <div className="grid grid-cols-2 gap-4 my-4 relative z-10">
           <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-3.5 shadow-inner">
             <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold block">
-              Node Fuel (Principal)
+              Your Stashed Savings
             </span>
             <div className="text-xl font-black text-white mt-1 flex items-baseline gap-1.5">
               ${stakedAmount.toLocaleString()}
-              <span className="text-[10px] text-emerald-400 font-bold">100% Intact</span>
+              <span className="text-[10px] text-emerald-400 font-bold">100% Yours</span>
             </div>
           </div>
 
           <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-3.5 shadow-inner">
             <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold block">
-              Draw Power Output
+              Free Prize Tickets
             </span>
             <div className={`text-xl font-black ${tierColors.accent} mt-1 flex items-baseline gap-1.5`}>
               {totalTickets.toLocaleString()}
@@ -174,21 +174,21 @@ export const TangibleNodeCard: React.FC<TangibleNodeCardProps> = ({
 
           <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-3.5 shadow-inner">
             <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold block">
-              Operational Status
+              Vault Status
             </span>
             <div className="text-xs font-bold text-emerald-400 mt-1.5 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-              ONLINE / SETTLING
+              ACTIVE &amp; POWERING PERKS
             </div>
           </div>
 
           <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-3.5 shadow-inner">
             <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold block">
-              Base Commerce Yield
+              Steady Community Bonus
             </span>
             <div className="text-xs font-bold text-white mt-1.5 flex items-center gap-1">
               <Zap className="w-3.5 h-3.5 text-amber-400" />
-              ~5.0% APY Guaranteed
+              ~5.0% Annual Bonus
             </div>
           </div>
         </div>
@@ -205,7 +205,7 @@ export const TangibleNodeCard: React.FC<TangibleNodeCardProps> = ({
             }`}
           >
             <Flame className={`w-4 h-4 ${isIgnited ? 'animate-spin' : ''}`} />
-            <span>{isIgnited ? '⚡ ENGINE RUNNING AT FULL THROTTLE' : '⚡ POWER UP / INJECT FUEL'}</span>
+            <span>{isIgnited ? '⚡ VAULT LOADED & READY' : '⚡ STASH GEMS & BACK LOCAL DEALS'}</span>
           </button>
         </div>
 
@@ -213,7 +213,7 @@ export const TangibleNodeCard: React.FC<TangibleNodeCardProps> = ({
         <div className="mt-4 pt-3 border-t border-zinc-800/60 text-center relative z-10">
           <p className="text-[10px] text-zinc-400 flex items-center justify-center gap-1">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Your principal is 100% protected and withdrawable at any time.</span>
+            <span>You never lose a cent. Your savings are 100% protected and withdrawable anytime.</span>
           </p>
         </div>
       </div>

@@ -50,26 +50,26 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
     // Generate real-time Proof of Value Staking Receipt
     const newReceipt: ValueReceiptData = {
       id: `rec_node_stake_${Date.now()}`,
-      receiptNumber: `REC-NODE-${Math.floor(1000 + Math.random() * 9000)}`,
-      actorHandle: '@pioneer_member',
-      actorName: 'Promorang Node Backer',
+      receiptNumber: `REC-VAULT-${Math.floor(1000 + Math.random() * 9000)}`,
+      actorHandle: '@community_backer',
+      actorName: 'Community Vault Supporter',
       actionType: 'commerce',
-      actionTitle: 'Deployed Liquidity Node Fuel',
-      targetEntity: 'Pieces AMM & Merchant Float Core',
+      actionTitle: 'Stashed Gems in City Vault',
+      targetEntity: 'Local Merchant Float & Community Vault',
       timestamp: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       status: 'verified',
-      verificationMethod: 'Promorang Treasury Proof Ledger',
+      verificationMethod: 'Promorang Transparent Savings Ledger',
       proofHash: `0x${Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
-      hostQuote: 'Community liquidity successfully routed to merchant float & AMM reserves. Principal 100% protected.',
-      hostSigner: 'Promorang Protocol Treasury',
+      hostQuote: 'Community funds successfully routed to back local perks and instant check-ins. Your money is 100% protected and withdrawable.',
+      hostSigner: 'Promorang Community Treasury',
       metrics: [
-        { label: 'Fuel Deployed', value: `$${amount}.00 USD`, highlight: true },
-        { label: 'Draw Power', value: `+${amount * multiplier / 10} Tickets` },
-        { label: 'Yield Rate', value: '5.0% APY' },
+        { label: 'Amount Stashed', value: `$${amount}.00 USD`, highlight: true },
+        { label: 'Free Draw Tickets', value: `+${amount * multiplier / 10} Tickets` },
+        { label: 'Bonus Yield', value: '5.0% Growth' },
       ],
       rewards: [
-        { type: 'cash', label: '100% Protected Principal', value: `$${amount}.00 USD` },
-        { type: 'keys', label: 'Active Jackpot Entries', value: `+${Math.floor(amount / 10 * multiplier)} Tickets` },
+        { type: 'cash', label: '100% Protected Savings', value: `$${amount}.00 USD` },
+        { type: 'keys', label: 'Active Prize Draw Entries', value: `+${Math.floor(amount / 10 * multiplier)} Tickets` },
       ],
     };
 
@@ -85,24 +85,24 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 border border-amber-500/40 rounded-full text-xs font-bold text-amber-400">
               <ShieldCheck className="w-4 h-4 text-amber-400" />
-              <span>100% PRINCIPAL-PROTECTED LIQUIDITY</span>
+              <span>100% PROTECTED SAVINGS • ZERO RISK</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-              Promorang Community Nodes &amp; No-Loss Jackpot
+              Community Vaults &amp; Save-and-Win Pots
             </h1>
             <p className="text-zinc-400 text-sm md:text-base max-w-2xl">
-              Fund platform liquidity to power AMM swaps and instant merchant payouts. Earn base APY yields plus recurring entries into the weekly &amp; monthly cash jackpot pools without risking your principal.
+              Stash your Gems to power instant discounts, check-ins, and local perks. You keep 100% of your money at all times, earn steady bonuses, and unlock free tickets into weekly and monthly cash prize draws.
             </p>
           </div>
 
           <div className="flex flex-col items-end bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 min-w-[220px]">
-            <span className="text-xs text-zinc-400 font-medium">Your Active Tier</span>
+            <span className="text-xs text-zinc-400 font-medium">Your Member Tier</span>
             <div className="flex items-center gap-2 mt-1">
               <Crown className={`w-5 h-5 ${userTier === 'super' ? 'text-purple-400' : userTier === 'premium' ? 'text-amber-400' : 'text-zinc-400'}`} />
               <span className="text-lg font-bold uppercase tracking-wider">{userTier} Member</span>
             </div>
             <div className="mt-2 text-xs font-semibold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full">
-              {multiplier}x Ticket Multiplier Active
+              {multiplier}x Free Ticket Multiplier
             </div>
           </div>
         </div>
@@ -110,27 +110,27 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
 
       {/* Metric Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        {/* Card 1: Staked Principal */}
+        {/* Card 1: Stashed Principal */}
         <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 shadow-lg relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Staked Principal</span>
+            <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Your Stashed Savings</span>
             <Coins className="w-5 h-5 text-emerald-400" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-3xl font-extrabold text-white">${stakedBalance.toFixed(2)}</span>
             <span className="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-              Protected 100%
+              100% Protected
             </span>
           </div>
           <p className="text-xs text-zinc-400 mt-2">
-            Earning ~5.0% Base LP yield + zero risk to capital.
+            Earns ~5.0% steady bonus • Withdraw 100% of your funds anytime.
           </p>
         </div>
 
         {/* Card 2: Draw Tickets */}
         <div className="bg-zinc-900/90 border border-amber-500/30 rounded-2xl p-5 shadow-lg relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">Active Draw Tickets</span>
+            <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">Free Prize Tickets</span>
             <Ticket className="w-5 h-5 text-amber-400" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
@@ -140,7 +140,7 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
             </span>
           </div>
           <p className="text-xs text-zinc-400 mt-2">
-            Includes +{streakBoostPct}% bonus from your {streakDays}-day active streak.
+            Includes +{streakBoostPct}% bonus from your {streakDays}-day check-in streak.
           </p>
         </div>
 
@@ -186,10 +186,10 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
           <div>
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-400" />
-              Active No-Loss Prize Pools
+              Active Save &amp; Win Prize Pots
             </h2>
             <p className="text-xs text-zinc-400">
-              Drawings occur automatically using verifiable random functions (VRF).
+              Community drawings occur automatically and transparently every Sunday and month end.
             </p>
           </div>
         </div>
@@ -202,17 +202,17 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
                 <span className="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-xs font-semibold text-emerald-400">
                   Weekly Draw
                 </span>
-                <span className="text-xs text-zinc-400 font-medium">All Tiers</span>
+                <span className="text-xs text-zinc-400 font-medium">All Members</span>
               </div>
-              <h3 className="text-lg font-bold text-white">Sunday Community Pool</h3>
+              <h3 className="text-lg font-bold text-white">Sunday Community Treat Pot</h3>
               <div className="text-2xl font-black text-emerald-400">$1,250.00</div>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Generated from platform float yield and verified sponsor contributions.
+                Funded by platform check-in fees and verified local business sponsors.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-zinc-800 text-xs text-zinc-400 flex justify-between items-center">
-              <span>Your Entries: <strong className="text-white">{totalTickets}</strong></span>
-              <span className="text-emerald-400 font-semibold">Eligible</span>
+              <span>Your Tickets: <strong className="text-white">{totalTickets}</strong></span>
+              <span className="text-emerald-400 font-semibold">Active &amp; Ready</span>
             </div>
           </div>
 
@@ -234,19 +234,19 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-70" />
                 <div className="absolute bottom-2 left-2.5 text-[10px] font-bold text-amber-300 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded-full border border-amber-500/30">
-                  💰 RECURRING COMMUNITY POT
+                  💰 MONTHLY COMMUNITY POT
                 </div>
               </div>
 
-              <h3 className="text-lg font-bold text-amber-200">Monthly Ignite Jackpot</h3>
+              <h3 className="text-lg font-bold text-amber-200">Monthly City Mega Pot</h3>
               <div className="text-2xl font-black text-amber-400">$6,500.00</div>
               <p className="text-xs text-zinc-300 leading-relaxed">
-                Higher-tier drawing funded by platform commerce and AMM swap volumes.
+                Bigger prize pot built from city-wide shopping deals and venue check-ins.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-amber-500/20 text-xs text-zinc-300 flex justify-between items-center relative z-10">
-              <span>Your Entries: <strong className="text-white">{totalTickets}</strong></span>
-              <span className="text-amber-400 font-semibold">Eligible</span>
+              <span>Your Tickets: <strong className="text-white">{totalTickets}</strong></span>
+              <span className="text-amber-400 font-semibold">Active &amp; Ready</span>
             </div>
           </div>
 
@@ -259,15 +259,15 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
                 </span>
                 <span className="text-xs text-purple-400 font-medium">Super Tier Only</span>
               </div>
-              <h3 className="text-lg font-bold text-purple-200">Seasonal Operator Crown</h3>
+              <h3 className="text-lg font-bold text-purple-200">Seasonal Champion Pot</h3>
               <div className="text-2xl font-black text-purple-400">$35,000.00</div>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                The grand prize awarded at the conclusion of each Operator Season.
+                The grand prize awarded to community champions at the end of each season.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-zinc-800 text-xs text-zinc-400 flex justify-between items-center">
               {userTier === 'super' ? (
-                <span className="text-purple-400 font-semibold">Eligible</span>
+                <span className="text-purple-400 font-semibold">Active &amp; Ready</span>
               ) : (
                 <button
                   onClick={onUpgradeTier}

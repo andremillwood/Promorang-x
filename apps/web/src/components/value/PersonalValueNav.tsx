@@ -5,7 +5,7 @@ const valueDestinations = [
   { href: "/wallet", label: "Wallet", detail: "Balances & receipts", icon: WalletCards },
   { href: "/portfolio", label: "Pieces", detail: "Equity & dividends", icon: Layers },
   { href: "/marketplace", label: "Market", detail: "Trade syndicates", icon: Gem },
-  { href: "/nodes", label: "Nodes", detail: "5% APY & No-Loss Pot", icon: Coins },
+  { href: "/nodes", label: "Save & Win", detail: "Protected pots & bonus", icon: Coins },
   { href: "/vault", label: "Vault", detail: "Memories & perks", icon: Archive },
   { href: "/rewards", label: "Rewards", detail: "Claims & unlocks", icon: Gift },
   { href: "/growth", label: "Growth Hub", detail: "Fund, build & compound", icon: Rocket },

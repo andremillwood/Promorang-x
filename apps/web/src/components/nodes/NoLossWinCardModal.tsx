@@ -24,7 +24,7 @@ export const NoLossWinCardModal: React.FC<NoLossWinCardModalProps> = ({
   if (!isOpen) return null;
 
   const shareUrl = `https://promorang.co/nodes?ref=${referralCode}`;
-  const shareText = `I just won $${prizeAmount.toLocaleString()} in the Promorang No-Loss Jackpot without risking a single dollar! Stake in a Promorang Node and join the weekly draw: ${shareUrl}`;
+  const shareText = `I just won $${prizeAmount.toLocaleString()} in the Promorang Save & Win Community Pot without risking a single penny! Stash savings in a Community Vault and join the free weekly draw: ${shareUrl}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shareText);
@@ -62,7 +62,7 @@ export const NoLossWinCardModal: React.FC<NoLossWinCardModalProps> = ({
 
           <div className="p-5 pt-1">
             <div className="text-xs font-bold text-amber-400 tracking-wider uppercase">
-              No-Loss Jackpot Winner!
+              Save &amp; Win Pot Winner!
             </div>
 
             <div className="text-3xl font-black text-white my-1.5">
@@ -75,7 +75,7 @@ export const NoLossWinCardModal: React.FC<NoLossWinCardModalProps> = ({
 
           <div className="mt-4 pt-3 border-t border-zinc-800 text-[11px] text-zinc-400 flex items-center justify-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>100% Principal Preserved • Zero Risk</span>
+            <span>100% Savings Kept • Zero Risk</span>
           </div>
         </div>
 

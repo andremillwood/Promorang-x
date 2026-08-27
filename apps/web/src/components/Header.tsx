@@ -275,9 +275,9 @@ const Header = () => {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                          Nodes &amp; Jackpot <span className="text-[9px] font-bold px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/40">NO-LOSS</span>
+                          Save &amp; Win Vaults <span className="text-[9px] font-bold px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/40">ZERO RISK</span>
                         </p>
-                        <p className="text-[10px] text-white/50 leading-tight">Protected 5% APY yield &amp; recurring cash draws</p>
+                        <p className="text-[10px] text-white/50 leading-tight">100% Protected savings &amp; recurring cash pots</p>
                       </div>
                     </Link>
                   </DropdownMenuItem>
@@ -767,7 +767,7 @@ const Header = () => {
                     className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-medium transition col-span-2"
                   >
                     <Coins className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Nodes &amp; No-Loss Jackpot</span>
+                    <span>Save &amp; Win Vaults</span>
                   </Link>
                 </div>
               </div>
