@@ -2,11 +2,15 @@ import React, { useState, useRef } from 'react';
 import { ShieldCheck, Zap, Activity, Cpu, Flame, Lock, ChevronRight } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptics';
 import { hapticAudio } from '@/lib/hapticAudio';
+import nodeAmmCore from '@/assets/nodes/node-amm-core.jpg';
+import nodeMerchantVault from '@/assets/nodes/node-merchant-vault.jpg';
+import nodeCreatorPrism from '@/assets/nodes/node-creator-prism.jpg';
 
 interface TangibleNodeCardProps {
   serialNumber?: string;
   nodeName: string;
   nodeCategory: string;
+  nodeType?: 'amm_liquidity' | 'merchant_coupon_float' | 'bounty_settlement';
   userTier?: 'free' | 'premium' | 'super';
   stakedAmount: number;
   multiplier: number;
@@ -18,6 +22,7 @@ export const TangibleNodeCard: React.FC<TangibleNodeCardProps> = ({
   serialNumber = 'PRM-0842-X',
   nodeName = 'Commerce & Coupon Float Engine',
   nodeCategory = 'Merchant Settlement Float',
+  nodeType = 'merchant_coupon_float',
   userTier = 'premium',
   stakedAmount = 1000,
   multiplier = 3,
@@ -77,6 +82,13 @@ export const TangibleNodeCard: React.FC<TangibleNodeCardProps> = ({
     },
   }[userTier];
 
+  const nodeArtwork =
+    nodeType === 'amm_liquidity'
+      ? nodeAmmCore
+      : nodeType === 'bounty_settlement'
+      ? nodeCreatorPrism
+      : nodeMerchantVault;
+
   return (
     <div
       style={{ perspective: 1000 }}
@@ -119,8 +131,27 @@ export const TangibleNodeCard: React.FC<TangibleNodeCardProps> = ({
           </div>
         </div>
 
+        {/* 3D Visual Engine Artwork */}
+        <div className="relative my-4 overflow-hidden rounded-2xl border border-white/10 shadow-2xl group">
+          <img
+            src={nodeArtwork}
+            alt={nodeName}
+            className="w-full h-48 sm:h-56 object-cover object-center group-hover:scale-105 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-80" />
+          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+            <span className="text-[10px] font-mono bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 text-white font-bold">
+              ⚡ ACTIVE POWER CORE
+            </span>
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/80 backdrop-blur-md px-2.5 py-1 rounded-full border border-emerald-500/40 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              SYNCHRONIZED
+            </span>
+          </div>
+        </div>
+
         {/* Live Machine Specs Grid */}
-        <div className="grid grid-cols-2 gap-4 my-6 relative z-10">
+        <div className="grid grid-cols-2 gap-4 my-4 relative z-10">
           <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-3.5 shadow-inner">
             <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold block">
               Node Fuel (Principal)

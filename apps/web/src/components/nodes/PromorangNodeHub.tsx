@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { TangibleNodeCard } from './TangibleNodeCard';
 import { NodeLiveTelemetryTicker } from './NodeLiveTelemetryTicker';
+import jackpotMegaVault from '@/assets/nodes/jackpot-mega-vault.jpg';
 
 interface NodeHubProps {
   userTier?: 'free' | 'premium' | 'super';
@@ -174,21 +175,34 @@ export const PromorangNodeHub: React.FC<NodeHubProps> = ({
           </div>
 
           {/* Pool 2 */}
-          <div className="bg-gradient-to-b from-amber-500/10 to-zinc-900 border border-amber-500/40 rounded-2xl p-6 flex flex-col justify-between shadow-xl">
-            <div className="space-y-3">
+          <div className="bg-gradient-to-b from-amber-500/10 to-zinc-900 border border-amber-500/40 rounded-2xl p-6 flex flex-col justify-between shadow-xl relative overflow-hidden group">
+            <div className="relative z-10 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="px-2.5 py-1 bg-amber-500/20 border border-amber-500/30 rounded-full text-xs font-semibold text-amber-400">
                   Monthly Mega
                 </span>
                 <span className="text-xs text-amber-400 font-medium">Pro &amp; Super</span>
               </div>
+              
+              <div className="relative my-2 rounded-xl overflow-hidden border border-amber-500/30">
+                <img 
+                  src={jackpotMegaVault} 
+                  alt="Mega Jackpot Vault" 
+                  className="w-full h-32 object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-70" />
+                <div className="absolute bottom-2 left-2.5 text-[10px] font-bold text-amber-300 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded-full border border-amber-500/30">
+                  💰 RECURRING COMMUNITY POT
+                </div>
+              </div>
+
               <h3 className="text-lg font-bold text-amber-200">Monthly Ignite Jackpot</h3>
               <div className="text-2xl font-black text-amber-400">$6,500.00</div>
               <p className="text-xs text-zinc-300 leading-relaxed">
                 Higher-tier drawing funded by platform commerce and AMM swap volumes.
               </p>
             </div>
-            <div className="mt-6 pt-4 border-t border-amber-500/20 text-xs text-zinc-300 flex justify-between items-center">
+            <div className="mt-6 pt-4 border-t border-amber-500/20 text-xs text-zinc-300 flex justify-between items-center relative z-10">
               <span>Your Entries: <strong className="text-white">{totalTickets}</strong></span>
               <span className="text-amber-400 font-semibold">Eligible</span>
             </div>

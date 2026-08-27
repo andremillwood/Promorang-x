@@ -1,5 +1,6 @@
 import React from 'react';
 import { Trophy, Share2, Sparkles, X, Check, Copy } from 'lucide-react';
+import jackpotMegaVault from '@/assets/nodes/jackpot-mega-vault.jpg';
 
 interface NoLossWinCardModalProps {
   isOpen: boolean;
@@ -39,24 +40,34 @@ export const NoLossWinCardModal: React.FC<NoLossWinCardModalProps> = ({
 
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-white rounded-full hover:bg-zinc-800 transition-colors"
+          className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-white rounded-full hover:bg-zinc-800 transition-colors z-20"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Win Card Graphic */}
-        <div className="mt-4 p-6 rounded-2xl bg-gradient-to-b from-zinc-800 to-zinc-950 border border-amber-500/30 shadow-inner relative">
-          <div className="w-16 h-16 mx-auto bg-amber-500/20 border border-amber-500/40 rounded-full flex items-center justify-center mb-3">
-            <Trophy className="w-8 h-8 text-amber-400 animate-bounce" />
+        <div className="mt-4 rounded-2xl bg-gradient-to-b from-zinc-800 to-zinc-950 border border-amber-500/30 shadow-inner relative overflow-hidden">
+          <div className="relative h-44 w-full overflow-hidden">
+            <img 
+              src={jackpotMegaVault} 
+              alt="Jackpot Mega Vault" 
+              className="w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
+            <div className="absolute top-3 left-3 bg-amber-500/20 border border-amber-500/40 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-amber-300 flex items-center gap-1.5">
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span>OFFICIAL DRAW WINNER</span>
+            </div>
           </div>
 
-          <div className="text-xs font-bold text-amber-400 tracking-wider uppercase">
-            No-Loss Jackpot Winner!
-          </div>
+          <div className="p-5 pt-1">
+            <div className="text-xs font-bold text-amber-400 tracking-wider uppercase">
+              No-Loss Jackpot Winner!
+            </div>
 
-          <div className="text-4xl font-black text-white my-2">
-            ${prizeAmount.toLocaleString()} USD
-          </div>
+            <div className="text-3xl font-black text-white my-1.5">
+              ${prizeAmount.toLocaleString()} USD
+            </div>
 
           <div className="text-xs text-zinc-400">
             Awarded from <span className="text-zinc-200 font-semibold">{poolName}</span>
