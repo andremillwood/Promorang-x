@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Bell, X, Check, Trophy, Star, Coins, AlertCircle, Info } from 'lucide-react';
-import { useAuth } from '@getmocha/users-service/react';
+import { Bell, X, Check, Trophy, Star, Coins, AlertCircle, Info, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Notification {
   id: string;
-  type: 'achievement' | 'reward' | 'system' | 'social' | 'warning';
+  type: string;
   title: string;
   message: string;
   timestamp: Date;
@@ -24,75 +25,72 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isOpen && user) {
+    if (isOpen && user?.id) {
       fetchNotifications();
     }
-  }, [isOpen, user]);
+  }, [isOpen, user?.id]);
 
   const fetchNotifications = async () => {
+    if (!user?.id) return;
     setLoading(true);
     try {
-      // For now, we'll use mock data since we don't have a notifications API yet
-      const mockNotifications: Notification[] = [
-        {
-          id: '1',
-          type: 'achievement',
-          title: 'Achievement Unlocked!',
-          message: 'You earned the "First Steps" achievement and received 50 gold!',
-          timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-          read: false,
-          data: { achievement: 'first_steps', gold_reward: 50 }
-        },
-        {
-          id: '2',
-          type: 'reward',
-          title: 'Points Earned',
-          message: 'You earned 25 points from sharing content!',
-          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-          read: false,
-          data: { points_earned: 25, action: 'content_share' }
-        },
-        {
-          id: '3',
-          type: 'system',
-          title: 'Master Key Activated',
-          message: 'Your master key for today has been activated. You can now apply to drops!',
-          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 hours ago
-          read: true
-        },
-        {
-          id: '4',
-          type: 'social',
-          title: 'New Follower',
-          message: 'PromoCreator just followed you!',
-          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 8), // 8 hours ago
-          read: true,
-          actionUrl: '/users/promocreator'
-        }
-      ];
-      
-      setNotifications(mockNotifications);
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(30);
+
+      if (error) throw error;
+
+      setNotifications(
+        (data || []).map((n) => ({
+          id: n.id,
+          type: n.type || 'system',
+          title: n.title,
+          message: n.message || '',
+          timestamp: new Date(n.created_at),
+          read: Boolean(n.is_read),
+          actionUrl: n.related_id ? `/content/${n.related_id}` : undefined,
+        }))
+      );
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
+      setNotifications([]);
     } finally {
       setLoading(false);
     }
   };
 
   const markAsRead = async (notificationId: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === notificationId 
-          ? { ...notification, read: true }
-          : notification
+    setNotifications((prev) =>
+      prev.map((notification) =>
+        notification.id === notificationId ? { ...notification, read: true } : notification
       )
     );
+
+    try {
+      await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notificationId);
+    } catch (err) {
+      console.error('Failed to update notification read status:', err);
+    }
   };
 
   const markAllAsRead = async () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
-    );
+    setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })));
+
+    if (!user?.id) return;
+    try {
+      await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', user.id);
+    } catch (err) {
+      console.error('Failed to mark all as read:', err);
+    }
   };
 
   const getNotificationIcon = (type: string) => {

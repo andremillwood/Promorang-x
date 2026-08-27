@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Gift, Send, Loader2, Search, ArrowRight, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,12 +7,15 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 export function GrantPointsModal() {
   const [loading, setLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [tier, setTier] = useState("medium");
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [userResults, setUserResults] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
@@ -22,6 +25,42 @@ export function GrantPointsModal() {
     large: 500,
     vip: 1000
   };
+
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setUserResults([]);
+      return;
+    }
+
+    const searchUsers = async () => {
+      setSearchLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, user_id, full_name, avatar_url, location')
+          .ilike('full_name', `%${searchQuery.trim()}%`)
+          .limit(8);
+
+        if (error) throw error;
+        setUserResults(
+          (data || []).map((p) => ({
+            id: p.id,
+            userId: p.user_id,
+            name: p.full_name || 'Anonymous Explorer',
+            avatar: p.avatar_url || '',
+            handles: p.location ? `@${p.location.toLowerCase().replace(/\s+/g, '')}` : '@member',
+          }))
+        );
+      } catch (err) {
+        console.error('Error searching profiles:', err);
+      } finally {
+        setSearchLoading(false);
+      }
+    };
+
+    const debounce = setTimeout(searchUsers, 200);
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
 
   const handleGrant = async () => {
     if (!selectedUser) return;
@@ -40,16 +79,6 @@ export function GrantPointsModal() {
       setSearchQuery("");
     }, 1500);
   };
-
-  const mockUsers = [
-    { id: "1", name: "Alex Rivera", avatar: "", handles: "@arivera" },
-    { id: "2", name: "Jordan Smith", avatar: "", handles: "@jsmith_99" },
-    { id: "3", name: "Sam Chen", avatar: "", handles: "@schen_explorer" },
-  ];
-
-  const filteredUsers = searchQuery.length >= 2 
-    ? mockUsers.filter(u => u.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    : [];
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -93,8 +122,13 @@ export function GrantPointsModal() {
                 </div>
 
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-                    {filteredUsers.length > 0 ? (
-                        filteredUsers.map(u => (
+                    {searchLoading ? (
+                        <div className="flex items-center justify-center py-6 gap-2 text-xs text-muted-foreground">
+                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                            <span>Searching members...</span>
+                        </div>
+                    ) : userResults.length > 0 ? (
+                        userResults.map(u => (
                             <button 
                                 key={u.id}
                                 onClick={() => setSelectedUser(u)}
@@ -102,7 +136,11 @@ export function GrantPointsModal() {
                             >
                                 <div className="flex items-center gap-3">
                                     <Avatar className="w-10 h-10 border border-border">
-                                        <AvatarFallback className="bg-primary/10 text-primary font-bold">{u.name[0]}</AvatarFallback>
+                                        {u.avatar ? (
+                                            <AvatarImage src={u.avatar} alt={u.name} />
+                                        ) : (
+                                            <AvatarFallback className="bg-primary/10 text-primary font-bold">{(u.name || "?")[0]}</AvatarFallback>
+                                        )}
                                     </Avatar>
                                     <div>
                                         <p className="font-bold text-sm">{u.name}</p>

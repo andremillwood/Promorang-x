@@ -1,87 +1,73 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, ShoppingCart, Award, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Activity, ShoppingCart, Award, ShieldCheck, Clock } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
-interface TelemetryEvent {
+interface RealTelemetryEvent {
   id: string;
   timestamp: string;
-  type: 'coupon_settlement' | 'bounty_cleared' | 'amm_swap';
-  description: string;
+  type: 'node_stake' | 'transaction' | 'redemption';
+  title: string;
+  subtitle: string;
   amountUsd: number;
-  feeCapturedUsd: number;
-  ticketsEarned: number;
 }
 
-const INITIAL_EVENTS: TelemetryEvent[] = [
-  {
-    id: 'evt-1',
-    timestamp: 'Just now',
-    type: 'coupon_settlement',
-    description: 'Instant Checkout Float: Nike Air Max Purchase (Miami)',
-    amountUsd: 140.00,
-    feeCapturedUsd: 2.10,
-    ticketsEarned: 3,
-  },
-  {
-    id: 'evt-2',
-    timestamp: '28s ago',
-    type: 'bounty_cleared',
-    description: 'Creator Proof-of-Post Verified (@jordan_fit on TikTok)',
-    amountUsd: 75.00,
-    feeCapturedUsd: 1.50,
-    ticketsEarned: 2,
-  },
-  {
-    id: 'evt-3',
-    timestamp: '1m ago',
-    type: 'amm_swap',
-    description: 'Pieces AMM Liquidity Swap (100 Culture Pieces)',
-    amountUsd: 250.00,
-    feeCapturedUsd: 2.50,
-    ticketsEarned: 5,
-  },
-  {
-    id: 'evt-4',
-    timestamp: '2m ago',
-    type: 'coupon_settlement',
-    description: 'Instant Checkout Float: Sephora Summer Drop (NYC)',
-    amountUsd: 85.00,
-    feeCapturedUsd: 1.25,
-    ticketsEarned: 2,
-  },
-];
-
 export const NodeLiveTelemetryTicker: React.FC = () => {
-  const [events, setEvents] = useState<TelemetryEvent[]>(INITIAL_EVENTS);
+  const [events, setEvents] = useState<RealTelemetryEvent[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Periodically insert live mock transaction activity to show physical activity
   useEffect(() => {
-    const interval = setInterval(() => {
-      const sampleTypes: ('coupon_settlement' | 'bounty_cleared' | 'amm_swap')[] = [
-        'coupon_settlement',
-        'bounty_cleared',
-        'amm_swap',
-      ];
-      const selectedType = sampleTypes[Math.floor(Math.random() * sampleTypes.length)];
-      
-      const newEvent: TelemetryEvent = {
-        id: `evt-${Date.now()}`,
-        timestamp: 'Just now',
-        type: selectedType,
-        description:
-          selectedType === 'coupon_settlement'
-            ? 'Instant Merchant Settlement (Apple Store Online)'
-            : selectedType === 'bounty_cleared'
-            ? 'Creator Campaign Milestone Verified (@alex_creative)'
-            : 'AMM Swap Execution (50 Moment Pieces)',
-        amountUsd: Math.floor(Math.random() * 150) + 30,
-        feeCapturedUsd: Number((Math.random() * 2 + 0.5).toFixed(2)),
-        ticketsEarned: Math.floor(Math.random() * 3) + 1,
-      };
+    const fetchRealActivity = async () => {
+      try {
+        // Query recent node stakes and platform transactions
+        const { data: stakes } = await supabase
+          .from('node_stakes')
+          .select('id, staked_amount, created_at')
+          .order('created_at', { ascending: false })
+          .limit(5);
 
-      setEvents((prev) => [newEvent, ...prev.slice(0, 4)]);
-    }, 6000);
+        const realList: RealTelemetryEvent[] = (stakes || []).map((s) => ({
+          id: s.id,
+          timestamp: new Date(s.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          type: 'node_stake',
+          title: 'Community Vault Stash',
+          subtitle: 'Gems protected in Community Fuel Vault',
+          amountUsd: Number(s.staked_amount) || 0,
+        }));
 
-    return () => clearInterval(interval);
+        setEvents(realList);
+      } catch (err) {
+        console.error('Error fetching live telemetry:', err);
+        setEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRealActivity();
+
+    // Subscribe to realtime changes on node_stakes
+    const channel = supabase
+      .channel('node_stakes_realtime')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'node_stakes' },
+        (payload) => {
+          const newEvent: RealTelemetryEvent = {
+            id: payload.new.id,
+            timestamp: 'Just now',
+            type: 'node_stake',
+            title: 'New Community Vault Stash',
+            subtitle: 'Gems protected in Community Fuel Vault',
+            amountUsd: Number(payload.new.staked_amount) || 0,
+          };
+          setEvents((prev) => [newEvent, ...prev.slice(0, 4)]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return (
@@ -94,43 +80,59 @@ export const NodeLiveTelemetryTicker: React.FC = () => {
             <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
           </span>
           <h4 className="text-sm font-bold text-white uppercase tracking-wider">
-            Live Commerce Settlement Stream
+            Live Settlement Ledger
           </h4>
         </div>
-        <span className="text-xs text-zinc-400 font-mono">NODE THROUGHPUT: 12.4 TX/SEC</span>
+        <span className="text-[11px] text-zinc-400 font-mono flex items-center gap-1">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+          VERIFIED REALTIME STREAM
+        </span>
       </div>
 
       {/* Live Events List */}
       <div className="space-y-3">
-        {events.map((evt) => (
-          <div
-            key={evt.id}
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-zinc-900/60 border border-zinc-800/60 rounded-2xl text-xs hover:border-zinc-700 transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-zinc-800/80 text-amber-400">
-                {evt.type === 'coupon_settlement' && <ShoppingCart className="w-4 h-4" />}
-                {evt.type === 'bounty_cleared' && <Award className="w-4 h-4 text-purple-400" />}
-                {evt.type === 'amm_swap' && <Activity className="w-4 h-4 text-blue-400" />}
+        {loading ? (
+          <div className="py-8 text-center text-zinc-500 text-xs flex items-center justify-center gap-2">
+            <Activity className="w-4 h-4 animate-spin text-amber-400" />
+            <span>Connecting to live ledger...</span>
+          </div>
+        ) : events.length === 0 ? (
+          <div className="py-8 px-4 text-center rounded-2xl bg-zinc-900/40 border border-zinc-800/50">
+            <Clock className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
+            <p className="text-xs font-semibold text-zinc-300">Awaiting New Settlement Activity</p>
+            <p className="text-[11px] text-zinc-500 mt-1 max-w-sm mx-auto">
+              As community members stash savings or redeem merchant vouchers, verified on-chain entries stream here in real time.
+            </p>
+          </div>
+        ) : (
+          events.map((evt) => (
+            <div
+              key={evt.id}
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-zinc-900/60 border border-zinc-800/60 rounded-2xl text-xs hover:border-zinc-700 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-zinc-800/80 text-amber-400">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                </div>
+                <div>
+                  <div className="font-semibold text-zinc-200">{evt.title}</div>
+                  <div className="text-[11px] text-zinc-400 flex items-center gap-2">
+                    <span>{evt.subtitle}</span>
+                    <span>•</span>
+                    <span>{evt.timestamp}</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <div className="font-semibold text-zinc-200">{evt.description}</div>
-                <div className="text-[11px] text-zinc-400 flex items-center gap-2">
-                  <span>${evt.amountUsd.toFixed(2)} volume</span>
-                  <span>•</span>
-                  <span>{evt.timestamp}</span>
+
+              <div className="flex items-center gap-4 sm:justify-end">
+                <div className="text-right">
+                  <div className="text-emerald-400 font-bold">+${evt.amountUsd.toFixed(2)} USD</div>
+                  <div className="text-[10px] text-zinc-400">100% Protected</div>
                 </div>
               </div>
             </div>
-
-            <div className="flex items-center gap-4 sm:justify-end">
-              <div className="text-right">
-                <div className="text-emerald-400 font-bold">+${evt.feeCapturedUsd.toFixed(2)} fee</div>
-                <div className="text-[10px] text-amber-400/90 font-medium">+{evt.ticketsEarned} jackpot tickets</div>
-              </div>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
