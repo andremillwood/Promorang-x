@@ -117,10 +117,10 @@ export const MerchantMarginPoolManager: React.FC<MerchantMarginPoolManagerProps>
             <div>
               <CardTitle className="text-lg font-bold flex items-center gap-2">
                 <Sliders className="h-5 w-5 text-amber-400" />
-                Customer Acquisition Margin Settings
+                Customer Growth & Perk Settings
               </CardTitle>
               <CardDescription className="text-zinc-400 text-xs mt-1">
-                Authorize how much promotional margin Promorang can drop onto local user cards.
+                Set how much store perk Promorang members can unlock at your business.
               </CardDescription>
             </div>
             <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
@@ -132,7 +132,7 @@ export const MerchantMarginPoolManager: React.FC<MerchantMarginPoolManagerProps>
         <CardContent className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label className="text-xs text-zinc-300">Customer Card Perk ($ Discount)</Label>
+              <Label className="text-xs text-zinc-300">Customer Perk ($ Discount)</Label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-zinc-400 text-sm">$</span>
                 <Input
@@ -146,7 +146,7 @@ export const MerchantMarginPoolManager: React.FC<MerchantMarginPoolManagerProps>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs text-zinc-300">Minimum Order Size ($ Minimum)</Label>
+              <Label className="text-xs text-zinc-300">Minimum Spend to Unlock</Label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-zinc-400 text-sm">$</span>
                 <Input
@@ -156,7 +156,7 @@ export const MerchantMarginPoolManager: React.FC<MerchantMarginPoolManagerProps>
                   className="bg-zinc-900 border-zinc-800 pl-7 text-white"
                 />
               </div>
-              <p className="text-[11px] text-zinc-500">Protects your profit margin per customer</p>
+              <p className="text-[11px] text-zinc-500">Guarantees profitable ticket size</p>
             </div>
 
             <div className="space-y-2">
@@ -167,20 +167,20 @@ export const MerchantMarginPoolManager: React.FC<MerchantMarginPoolManagerProps>
                 onChange={(e) => setCap(Number(e.target.value))}
                 className="bg-zinc-900 border-zinc-800 text-white"
               />
-              <p className="text-[11px] text-zinc-500">Max redemptions authorized per month</p>
+              <p className="text-[11px] text-zinc-500">Max new customers allowed per month</p>
             </div>
           </div>
 
           <div className="p-4 rounded-xl bg-amber-950/20 border border-amber-500/20 text-xs space-y-1.5 text-zinc-300">
             <div className="flex items-center gap-1.5 font-semibold text-amber-400">
               <Sparkles className="h-4 w-4" />
-              Campaign Impact Preview
+              Projected Revenue & Customer Yield
             </div>
             <p>
-              By authorizing a <strong>${allowance} perk</strong> on orders over <strong>${minBasket}</strong> with a <strong>{cap} customer cap</strong>:
+              By offering a <strong>${allowance} perk</strong> on purchases over <strong>${minBasket}</strong> with a <strong>{cap} customer cap</strong>:
             </p>
             <p className="text-emerald-400 font-medium">
-              → You generate a minimum of <strong>${(minBasket * cap).toFixed(2)} in Gross Sales</strong> and <strong>${((minBasket - allowance) * cap).toFixed(2)} in Net Cash Flow</strong> with <strong>$0 upfront ad spend</strong>.
+              → You unlock at least <strong>${(minBasket * cap).toFixed(2)} in Gross Customer Sales</strong> and <strong>${((minBasket - allowance) * cap).toFixed(2)} in Guaranteed Net Cash Revenue</strong> with <strong>$0 upfront ad spend</strong>.
             </p>
           </div>
 
@@ -188,7 +188,7 @@ export const MerchantMarginPoolManager: React.FC<MerchantMarginPoolManagerProps>
             onClick={handleSavePool}
             className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs px-6 rounded-xl"
           >
-            Save Margin Settings
+            Save Customer Perk Rules
           </Button>
         </CardContent>
       </Card>
