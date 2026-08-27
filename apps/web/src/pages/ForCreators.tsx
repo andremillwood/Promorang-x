@@ -6,6 +6,7 @@ import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import PioneerCallout from "@/components/pioneer/PioneerCallout";
 import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
+import { CreatorEarningsSimulator } from "@/components/value/CreatorEarningsSimulator";
 import { PlayCircle, Link2, MapPin, Sparkles, TrendingUp, ArrowRight, Gem, Users, Camera, Store, CalendarCheck, BadgeDollarSign, ShieldCheck, BarChart3, CheckCircle2 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
@@ -173,6 +174,11 @@ const ForCreators = () => {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Interactive Value Experience Simulator */}
+      <section className="container mx-auto px-4 -mt-12 relative z-20 mb-16">
+        <CreatorEarningsSimulator />
       </section>
 
       <LeadMagnetGateway audience="creator" />

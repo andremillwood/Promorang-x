@@ -45,6 +45,7 @@ import { cultureEvents, cultureScenes } from "@/data/culture-demo";
 import { SampleContentNotice } from "@/components/content/ContentProvenance";
 import { possessiveLocation, useVisitorLocation } from "@/hooks/useVisitorLocation";
 import { InteractiveReceiptStudio } from "@/components/value/InteractiveReceiptStudio";
+import { StakeholderValueHub } from "@/components/value/StakeholderValueHub";
 import heroImage from "@/assets/hero-moments.jpg";
 import momentConcert from "@/assets/moment-concert.jpg";
 import momentFoodFestival from "@/assets/moment-food-festival.jpg";
@@ -889,6 +890,10 @@ export default function CinematicCultureHome() {
 
           <div className="mt-12">
             <InteractiveReceiptStudio />
+          </div>
+
+          <div className="mt-16 pt-16 border-t border-white/10">
+            <StakeholderValueHub initialRole="guest" showHeroBanner={true} />
           </div>
         </div>
       </section>

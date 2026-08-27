@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, BarChart3, CheckCircle2, Radio, Ticket, Users } from "lucide-react";
 import SEO from "@/components/SEO";
 import { cultureEvents } from "@/data/culture-demo";
+import { HostSyndicateSimulator } from "@/components/value/HostSyndicateSimulator";
 
 const operatingLoop = [
   { icon: Radio, label: "Publish", text: "Put a moment into the world with a clear reason to show up." },
@@ -56,6 +57,11 @@ export default function OrganizerLanding() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Interactive Production & Syndicate Breakeven Simulator */}
+      <section className="container px-6 py-12">
+        <HostSyndicateSimulator />
       </section>
 
       <section className="container px-6 py-16">

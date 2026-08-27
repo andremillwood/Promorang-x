@@ -267,6 +267,23 @@ const Header = () => {
 
                   <DropdownMenuItem asChild>
                     <Link
+                      to="/nodes"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0 border border-amber-500/30">
+                        <Coins className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                          Nodes &amp; Jackpot <span className="text-[9px] font-bold px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/40">NO-LOSS</span>
+                        </p>
+                        <p className="text-[10px] text-white/50 leading-tight">Protected 5% APY yield &amp; recurring cash draws</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link
                       to="/promoshare"
                       className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
                     >
@@ -533,6 +550,20 @@ const Header = () => {
 
                     {/* Core Navigation Items */}
                     <DropdownMenuItem asChild>
+                      <Link to="/portfolio" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-cyan-500/10 text-cyan-300 transition cursor-pointer font-semibold">
+                        <Coins className="w-4 h-4 text-cyan-400" />
+                        <span className="text-xs">My Pieces Portfolio</span>
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
+                      <Link to="/marketplace" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
+                        <Gem className="w-4 h-4 text-violet-400" />
+                        <span className="text-xs font-medium">Pieces Marketplace</span>
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
                       <Link to="/dashboard" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
                         <Compass className="w-4 h-4 text-primary" />
                         <span className="text-xs font-medium">Dashboard & Workspace</span>
@@ -729,6 +760,14 @@ const Header = () => {
                   >
                     <Store className="w-3.5 h-3.5 text-emerald-400" />
                     <span>{t("nav.localDealsShop")}</span>
+                  </Link>
+                  <Link
+                    to="/nodes"
+                    onClick={closeMobileMenu}
+                    className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-medium transition col-span-2"
+                  >
+                    <Coins className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Nodes &amp; No-Loss Jackpot</span>
                   </Link>
                 </div>
               </div>

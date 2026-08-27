@@ -1,12 +1,13 @@
-import { Archive, Gift, Layers, Rocket, WalletCards } from "lucide-react";
+import { Archive, Coins, Gem, Gift, Layers, Rocket, WalletCards } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const valueDestinations = [
   { href: "/wallet", label: "Wallet", detail: "Balances & receipts", icon: WalletCards },
+  { href: "/portfolio", label: "Pieces", detail: "Equity & dividends", icon: Layers },
+  { href: "/marketplace", label: "Market", detail: "Trade syndicates", icon: Gem },
+  { href: "/nodes", label: "Nodes", detail: "5% APY & No-Loss Pot", icon: Coins },
   { href: "/vault", label: "Vault", detail: "Memories & perks", icon: Archive },
   { href: "/rewards", label: "Rewards", detail: "Claims & unlocks", icon: Gift },
-  { href: "/promoshare", label: "PromoShare", detail: "Verified activity return", icon: Gift },
-  { href: "/portfolio", label: "Pieces", detail: "Value you stay connected to", icon: Layers },
   { href: "/growth", label: "Growth Hub", detail: "Fund, build & compound", icon: Rocket },
 ];
 

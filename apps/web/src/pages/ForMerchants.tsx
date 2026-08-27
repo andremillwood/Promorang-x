@@ -9,6 +9,8 @@ import PioneerCallout from "@/components/pioneer/PioneerCallout";
 import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import { PostPerkModal } from "@/components/merchant/PostPerkModal";
+import { MerchantRoiSimulator } from "@/components/value/MerchantRoiSimulator";
+
 import {
     Store,
     Users,
@@ -154,6 +156,11 @@ const ForMerchants = () => {
                         </div>
                     </div>
                 </div>
+            </section>
+
+            {/* Interactive Value Experience Simulator */}
+            <section className="container mx-auto px-4 -mt-12 relative z-20 mb-16">
+                <MerchantRoiSimulator />
             </section>
 
             <LeadMagnetGateway audience="merchant" />

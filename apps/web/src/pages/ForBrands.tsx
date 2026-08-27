@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
+import { BrandCampaignSimulator } from "@/components/value/BrandCampaignSimulator";
 import {
     Building2,
     Handshake,
@@ -146,6 +147,11 @@ const ForBrands = () => {
                     </div>
                     </div>
                 </div>
+            </section>
+
+            {/* Interactive Campaign Simulator */}
+            <section className="container mx-auto px-4 -mt-12 relative z-20 mb-16">
+                <BrandCampaignSimulator />
             </section>
 
             <LeadMagnetGateway audience="brand" />
