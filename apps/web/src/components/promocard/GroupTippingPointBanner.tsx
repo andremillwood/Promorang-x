@@ -38,13 +38,13 @@ export const GroupTippingPointBanner: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="border-amber-500/40 text-amber-300 bg-amber-500/10 text-[10px] uppercase">
-              Groupon-Style Collective Drops
+              Promorang Community Drops
             </Badge>
-            <span className="text-xs text-zinc-400 font-medium">Tipping Point Engine</span>
+            <span className="text-xs text-zinc-400 font-medium">Collective Tipping Engine</span>
           </div>
           <h3 className="text-lg font-bold text-white mt-1 flex items-center gap-1.5">
             <Flame className="h-5 w-5 text-amber-400 fill-amber-400" />
-            Group Unlock Drops (Tipping Points)
+            Community Unlock Drops (Tipping Points)
           </h3>
         </div>
       </div>

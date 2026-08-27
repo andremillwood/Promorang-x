@@ -715,7 +715,7 @@ The rule is: **educate toward the end goal, but reveal detail only when it helps
 
 Promorang can learn from great platforms without imitating them.
 
-The goal is not to look like Apple, Meta, YouTube, Amazon, Groupon, or Fiverr. The goal is to translate their strongest product instincts into Promorang's world of moments, missions, proof, rewards, status, and retained value.
+The goal is not to look like Apple, Meta, YouTube, Amazon, legacy coupon directories, or Fiverr. The goal is to translate their strongest product instincts into Promorang's world of moments, missions, proof, rewards, status, and retained value.
 
 ### Apple
 
@@ -816,7 +816,7 @@ Avoid:
 - transactional coldness
 - overwhelming rows of options before the user understands what matters
 
-### Groupon
+### Local Commerce & Collective Drops
 
 Borrow:
 
@@ -873,7 +873,7 @@ Promorang should combine:
 - Meta's social proof and identity loops
 - YouTube's creator discovery and recommendation shelves
 - Amazon's decision confidence and conversion discipline
-- Groupon's local immediacy and redeemable value
+- Local commerce immediacy, collective tipping drops, and redeemable value
 - Fiverr's task clarity, reputation, and package logic
 
 But the final product should feel like none of them.
@@ -994,7 +994,7 @@ Promorang examples:
 - Brand package selector: verified actions, audience, proof type, timeline, price.
 - Mission filters: location, reward, proof type, deadline, eligibility.
 
-#### Groupon-Inspired Cues
+#### Community Drop & Local Commerce Cues
 
 Use for local offers, merchant activations, redemption, limited-time campaigns, and place-based rewards.
 

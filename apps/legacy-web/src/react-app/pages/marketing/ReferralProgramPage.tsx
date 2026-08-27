@@ -129,7 +129,7 @@ export default function ReferralProgramPage() {
                             },
                         ].map((tier, i) => (
                             <div key={i} className={`relative group`}>
-                                {/* Groupon-style Digital Voucher Card */}
+                                {/* Promorang Digital Pass Card */}
                                 <div className={`bg-[#130F1E] border ${tier.color.split(' ')[0]} rounded-[3rem] p-12 relative shadow-2xl transition-all duration-300 group-hover:shadow-indigo-500/10`}>
                                     <div className="absolute top-1/2 -left-6 w-12 h-12 rounded-full bg-[#0A0714] border-r border-white/10" />
                                     <div className="absolute top-1/2 -right-6 w-12 h-12 rounded-full bg-[#0A0714] border-l border-white/10" />

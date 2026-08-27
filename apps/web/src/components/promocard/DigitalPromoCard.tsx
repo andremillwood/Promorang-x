@@ -181,7 +181,7 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ onCardUpdate
         </div>
       </div>
 
-      {/* Groupon-Style Collective Tipping Points */}
+      {/* Promorang Collective Tipping Drops */}
       <div className="pt-2">
         <GroupTippingPointBanner />
       </div>

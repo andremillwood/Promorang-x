@@ -174,7 +174,7 @@ export default function HowItWorks() {
                                 </div>
                             ))}
                         </div>
-                        {/* Summary Card overlap (Groupon clarity) */}
+                        {/* Summary Card overlap (Promorang clarity) */}
                         <div className="absolute -bottom-8 -right-8 w-64 bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-8 shadow-2xl">
                             <div className="text-4xl font-black text-white mb-2 tracking-tighter">100%</div>
                             <div className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-6">Proven Presence</div>

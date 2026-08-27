@@ -124,7 +124,7 @@ export default function ScanPage() {
                                         {momentContext.description}
                                     </p>
 
-                                    {/* Groupon-style clarity box */}
+                                    {/* Promorang Value Pass clarity box */}
                                     <div className="bg-white/5 p-6 rounded-2xl border border-white/5 text-left mb-10 relative">
                                         <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-1">Presence standard</p>
                                         <p className="text-xs text-zinc-300 font-medium leading-relaxed">By confirming, you record this unique encounter. This action is immutable and adds to your verified history.</p>

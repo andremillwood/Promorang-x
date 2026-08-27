@@ -149,7 +149,7 @@ function OpportunityCard({ opportunity, navigate }: { opportunity: typeof exampl
 
             {/* Voucher Aesthetics (The Bridge) */}
             <div className="relative p-8 pt-0">
-                {/* Groupon-style Punch-outs */}
+                {/* Promorang Pass Punch-outs */}
                 <div className="absolute -top-6 -left-6 w-12 h-12 bg-pr-surface-background rounded-full border-r border-white/10" />
                 <div className="absolute -top-6 -right-6 w-12 h-12 bg-pr-surface-background rounded-full border-l border-white/10" />
 

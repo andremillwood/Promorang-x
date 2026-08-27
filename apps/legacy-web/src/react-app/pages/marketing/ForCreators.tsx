@@ -146,7 +146,7 @@ export default function ForCreators() {
                                                 <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">{story.role}</div>
                                             </div>
                                         </div>
-                                        {/* Groupon-style Reward Badge */}
+                                        {/* Promorang Reward Badge */}
                                         <div className="bg-emerald-500 text-black px-6 py-3 rounded-2xl font-black text-sm shadow-xl shadow-emerald-500/20 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                                             {story.mvi}
                                         </div>

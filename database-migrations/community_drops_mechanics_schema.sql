@@ -1,9 +1,9 @@
--- Groupon-Inspired Mechanics SQL Schema & Database Expansion
+-- Promorang Community Drops & Collective Tipping Mechanics SQL Schema & Database Expansion
 
 -- 1. Create enum for deal tipping status
 CREATE TYPE tipping_status AS ENUM ('pending', 'tipped', 'expired', 'sold_out');
 
--- 2. Add Groupon-inspired fields to existing coupons/deals table
+-- 2. Add collective tipping fields to existing coupons/deals table
 ALTER TABLE IF EXISTS coupons
   ADD COLUMN IF NOT EXISTS tipping_threshold INT DEFAULT 1,
   ADD COLUMN IF NOT EXISTS current_claims INT DEFAULT 0,

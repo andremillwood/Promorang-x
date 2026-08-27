@@ -71,7 +71,7 @@ const DEFAULT_CARD_STATE: PromoCardData = {
 
 const DEFAULT_GROUP_DROPS: GroupTippingDrop[] = [
   {
-    id: "drop_groupon_1",
+    id: "drop_community_1",
     merchantName: "Kinfolk Coffee & Roastery",
     merchantCategory: "Food & Beverage",
     headline: "Unlock $20 Super-Drop on Weekend Brunches",
@@ -84,7 +84,7 @@ const DEFAULT_GROUP_DROPS: GroupTippingDrop[] = [
     userJoined: false,
   },
   {
-    id: "drop_groupon_2",
+    id: "drop_community_2",
     merchantName: "District Streetwear Lab",
     merchantCategory: "Fashion & Retail",
     headline: "Unlock $30 Flash Pass on New Spring Collection",
@@ -188,7 +188,7 @@ export class PromoCardService {
     };
   }
 
-  // --- GROUPON-STYLE TIPPING POINT GROUP UNLOCKS ---
+  // --- PROMORANG COMMUNITY TIPPING POINT DROPS ---
   public static getGroupDrops(): GroupTippingDrop[] {
     try {
       const stored = localStorage.getItem(GROUP_DROPS_KEY);

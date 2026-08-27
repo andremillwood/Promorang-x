@@ -1,6 +1,6 @@
 import React from 'react';
 import { Users, Flame, CheckCircle2, Clock } from 'lucide-react';
-import { TippingStatus } from '../../types/grouponMechanics';
+import { TippingStatus } from '../../types/communityDrops';
 
 interface TippingProgressBarProps {
   currentClaims: number;

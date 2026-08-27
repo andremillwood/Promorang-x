@@ -39,7 +39,7 @@ export default function ForAdvertisers() {
                                 From <span className="text-zinc-600">Transactional Churn</span> to <span className="text-indigo-400">Verified History.</span>
                             </h2>
                             <p className="text-xl text-pr-text-2 leading-relaxed font-medium">
-                                Groupon brings you bargain hunters who leave. Promorang builds your brand into the user's permanent identity canon.
+                                Generic discount platforms bring you bargain hunters who leave. Promorang builds your brand into the user's permanent identity canon.
                             </p>
 
                             <div className="space-y-6">
@@ -131,7 +131,7 @@ export default function ForAdvertisers() {
                 </div>
             </section>
 
-            {/* Recognition Showcase (Groupon Premium Voucher Style) */}
+            {/* Recognition Showcase (Promorang Verified Value Pass Style) */}
             <section className="py-32 bg-[#0F0C1E] border-t border-white/5 overflow-hidden">
                 <div className="max-w-6xl mx-auto px-6">
                     <div className="grid lg:grid-cols-2 gap-24 items-center">

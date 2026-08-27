@@ -244,7 +244,7 @@ export default function CredibilityPage() {
                                 ))}
                             </div>
 
-                            {/* Groupon-style Indexed Value Voucher overlay */}
+                            {/* Promorang Indexed Value Voucher overlay */}
                             <div className="absolute -bottom-10 -right-10 w-72 bg-[#130F1E] border border-white/10 rounded-[2.5rem] p-8 shadow-2xl z-20">
                                 <div className="absolute top-1/2 -left-4 w-8 h-8 rounded-full bg-[#0A0714] border-r border-white/10" />
                                 <div className="text-center">
