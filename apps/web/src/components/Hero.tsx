@@ -266,21 +266,21 @@ const Hero = () => {
       <div className="container relative z-10 px-6 py-16 md:py-24">
         <div className="grid gap-10 lg:grid-cols-[1fr_0.78fr] lg:items-center">
           <div className="max-w-4xl">
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-white backdrop-blur animate-fade-in">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-bold">Real life has rewards now</span>
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/10 px-4 py-2 text-amber-300 backdrop-blur animate-fade-in shadow-lg shadow-amber-500/10">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span className="text-sm font-bold">Pre-Loaded $50 PromoCard Active • Spend Today</span>
             </div>
 
             <h1 className="mb-6 max-w-4xl font-serif text-5xl font-bold leading-[0.98] text-white animate-slide-up md:text-7xl lg:text-8xl">
               Show up.
               <br />
-              Get known.
+              Spend your Card.
               <br />
               <span className="text-primary">Unlock more.</span>
             </h1>
 
             <p className="mb-8 max-w-2xl text-lg leading-8 text-zinc-200 animate-slide-up md:text-xl" style={{ animationDelay: "0.1s" }}>
-              Promorang makes real life count. Find something worth doing, leave your Mark when you arrive, and let participation become access, rewards, memory, and invitations.
+              Promorang gives you a pre-loaded card to spend across the best local venues, dining, and brand drops. Spend your balance, share your Moments, and earn a piece of the network.
             </p>
 
             <MarketingPromiseStrip

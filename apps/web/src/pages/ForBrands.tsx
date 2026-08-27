@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
+import { BrandCaseStudies } from "@/components/brands/BrandCaseStudies";
 
 const ForBrands = () => {
     const { user } = useAuth();
@@ -150,6 +151,7 @@ const ForBrands = () => {
             <LeadMagnetGateway audience="brand" />
 
             <MissionRoleValue audience="brand" />
+            <BrandCaseStudies />
 
             {/* Participation Measurement Section */}
             <section className="py-20 md:py-32">

@@ -44,6 +44,20 @@ export const PromoShareHero: React.FC<PromoShareHeroProps> = ({
             <PromoShareTicketDrawModal userTickets={totalTickets} />
 
             <Button
+              onClick={() => {
+                const text = encodeURIComponent(
+                  "🔥 Yo! Check out Promorang for the best underground events, secret guestlists, and free member perks in Jamaica. Claim your VIP pass here: " +
+                  (typeof window !== "undefined" ? window.location.origin + "/discover" : "https://promorang.co/discover")
+                );
+                window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
+              }}
+              className="rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-6 shadow-lg shadow-emerald-900/20"
+            >
+              <span className="mr-2">💬</span>
+              <span>Share to WhatsApp</span>
+            </Button>
+
+            <Button
               onClick={onOpenSlash}
               variant="outline"
               className="rounded-2xl border-orange-500/40 bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 font-bold px-6 py-6"

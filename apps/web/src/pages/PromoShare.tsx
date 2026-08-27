@@ -36,6 +36,7 @@ import {
 } from '@/components/promorang/ExperiencePrimitives';
 import { PromoShareTicketDrawModal } from '@/components/promoshare/PromoShareTicketDrawModal';
 import { PromoShareHero } from '@/components/promoshare/PromoShareHero';
+import { CardDropCreator } from '@/components/promoshare/CardDropCreator';
 import { StoryGamificationRail } from '@/components/StoryGamificationRail';
 import { RightUtilityRail } from '@/components/RightUtilityRail';
 import { SocialGraphFacepile } from '@/components/SocialGraphFacepile';
@@ -351,6 +352,11 @@ const PromoShare = () => {
         multiplier={3.5}
         onOpenSlash={() => setSlashOpen(true)}
       />
+
+      {/* Pre-Loaded Card Drop Creator */}
+      <div className="mb-8">
+        <CardDropCreator />
+      </div>
 
       {/* Main 3-Column Desktop Layout */}
       <div className="flex gap-8 items-start">

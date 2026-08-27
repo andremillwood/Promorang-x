@@ -59,6 +59,7 @@ const EconomyConcept = lazy(() => import("./pages/EconomyConcept"));
 const VenueReportTeaser = lazy(() => import("./pages/VenueReportTeaser"));
 const Hosting = lazy(() => import("./pages/Hosting"));
 const Pricing = lazy(() => import("./pages/Pricing"));
+const NodesPage = lazy(() => import("./pages/NodesPage"));
 const MembershipCheckout = lazy(() => import("./pages/MembershipCheckout"));
 const BillingResult = lazy(() => import("./pages/BillingResult"));
 const Help = lazy(() => import("./pages/Help"));
@@ -136,6 +137,7 @@ const UGCReview = lazy(() => import("./pages/UGCReview"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const PromoShare = lazy(() => import("./pages/PromoShare"));
+const CardDropClaim = lazy(() => import("./pages/CardDropClaim"));
 const ContentDrops = lazy(() => import("./pages/ContentDrops"));
 const ContentDropDetail = lazy(() => import("./pages/ContentDropDetail"));
 const OfferStudio = lazy(() => import("./pages/OfferStudio"));
@@ -276,6 +278,7 @@ const App = () => (
                     <Route path="/economy/:concept" element={<EconomyConcept />} />
                     <Route path="/venue-report/:id" element={<VenueReportTeaser />} />
                     <Route path="/pricing" element={<Pricing />} />
+                    <Route path="/nodes" element={<NodesPage />} />
                     <Route path="/membership/checkout" element={<ProtectedRoute><MembershipCheckout /></ProtectedRoute>} />
                     <Route path="/claim-pages" element={<ProtectedRoute><ClaimPages /></ProtectedRoute>} />
                     <Route path="/billing/result" element={<ProtectedRoute><BillingResult /></ProtectedRoute>} />
@@ -411,6 +414,7 @@ const App = () => (
                     <Route path="/dashboard/rewards" element={<Navigate to="/vault" replace />} />
                     <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
                     <Route path="/promoshare" element={<PromoShare />} />
+                    <Route path="/claim-drop" element={<CardDropClaim />} />
                     <Route path="/content-drops" element={<ContentDrops />} />
                     <Route path="/content-drops/:id" element={<ContentDropDetail />} />
                     <Route path="/offers" element={<ProtectedRoute><OfferStudio /></ProtectedRoute>} />

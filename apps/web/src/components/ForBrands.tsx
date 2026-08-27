@@ -80,35 +80,29 @@ const ForBrands = () => {
                   {/* Stat Cards */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-secondary rounded-xl p-4">
-                      <p className="text-2xl font-bold text-foreground">2,450</p>
-                      <p className="text-xs text-muted-foreground">Participants</p>
+                      <p className="text-2xl font-bold text-foreground">800+</p>
+                      <p className="text-xs text-muted-foreground">Expo UGC Signups</p>
                     </div>
                     <div className="bg-secondary rounded-xl p-4">
-                      <p className="text-2xl font-bold text-foreground">89%</p>
-                      <p className="text-xs text-muted-foreground">Redemption</p>
+                      <p className="text-2xl font-bold text-foreground">0 ➔ 230</p>
+                      <p className="text-xs text-muted-foreground">Nightlife Footfall</p>
                     </div>
                   </div>
 
-                  {/* Mock Chart */}
-                  <div className="bg-secondary rounded-xl p-4">
-                    <div className="flex items-end gap-2 h-24">
-                      {[40, 65, 45, 80, 60, 90, 75].map((height, i) => (
-                        <div
-                          key={i}
-                          className="flex-1 bg-gradient-to-t from-primary to-accent rounded-t-md transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
-                          style={{ height: `${height}%` }}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-3">Weekly participation</p>
-                  </div>
-
-                  {/* Mock Moment List */}
-                  <div className="space-y-2">
-                    {["Summer Launch Event", "Coffee Tasting Week"].map((name, i) => (
+                  {/* Mock Proven Campaigns */}
+                  <div className="space-y-2 pt-2">
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Proven Enterprise Proofs</p>
+                    {[
+                      { name: "Lifespan & Sunshine Snacks", type: "Receipt OCR & Draw", status: "Verified" },
+                      { name: "Ladies Expo Sweepstakes", type: "Selfie / 800+ Leads", status: "Completed" },
+                      { name: "I Luv Hip Hop Series", type: "Dead-Night Revival", status: "230 Footfall" },
+                    ].map((campaign, i) => (
                       <div key={i} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                        <span className="text-sm text-foreground font-medium">{name}</span>
-                        <span className="text-xs text-primary font-semibold">Live</span>
+                        <div>
+                          <p className="text-xs text-foreground font-semibold">{campaign.name}</p>
+                          <p className="text-[10px] text-muted-foreground">{campaign.type}</p>
+                        </div>
+                        <span className="text-[10px] text-primary font-bold px-2 py-0.5 rounded-full bg-primary/10">{campaign.status}</span>
                       </div>
                     ))}
                   </div>

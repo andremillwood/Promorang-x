@@ -125,13 +125,44 @@ const CreateCampaign = () => {
                 </p>
 
                 <div className="mt-10 border-y border-black/15 py-6">
-                  <label htmlFor="activation-intent" className="text-sm font-black">{t("createCampaign.intentLabel")}</label>
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="activation-intent" className="text-sm font-black">{t("createCampaign.intentLabel")}</label>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#d85b24]">Proven Blueprints</span>
+                  </div>
+
+                  {/* 1-Click Starter Blueprints */}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {[
+                      {
+                        label: "🛒 Retail Receipt Sweepstakes (Lifespan / Sunshine Snacks)",
+                        promptText: "Reward verified retail shoppers who upload a supermarket receipt showing eligible product purchases with automated entries into a monthly cash draw.",
+                      },
+                      {
+                        label: "📸 Live Event / Expo Selfie Draw (Ladies Expo Model)",
+                        promptText: "Drive on-the-ground footfall at our expo booth by giving attendees who snap a branded selfie and signup 1 ticket into a $500 cash sweepstakes.",
+                      },
+                      {
+                        label: "🎪 Dead-Night Venue Revival (I Luv Hip Hop Model)",
+                        promptText: "Pack a slow weeknight by dropping 100 free VIP entry passes before 11 PM and giving each attendee a welcome drink perk.",
+                      },
+                    ].map((bp, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setPrompt(bp.promptText)}
+                        className="text-left rounded-xl border border-black/10 bg-white/60 px-3 py-1.5 text-xs font-semibold text-black/75 hover:border-[#d85b24] hover:bg-white transition-all shadow-sm"
+                      >
+                        {bp.label}
+                      </button>
+                    ))}
+                  </div>
+
                   <Textarea
                     id="activation-intent"
                     value={prompt}
                     onChange={(event) => setPrompt(event.target.value)}
                     placeholder={t("createCampaign.intentPlaceholder")}
-                    className="mt-4 min-h-[150px] resize-none rounded-none border-0 bg-transparent p-0 text-xl leading-8 shadow-none placeholder:text-black/25 focus-visible:ring-0 sm:text-2xl"
+                    className="mt-4 min-h-[130px] resize-none rounded-none border-0 bg-transparent p-0 text-xl leading-8 shadow-none placeholder:text-black/25 focus-visible:ring-0 sm:text-2xl"
                     autoFocus
                   />
                 </div>

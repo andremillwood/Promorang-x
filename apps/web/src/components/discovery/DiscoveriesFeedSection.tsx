@@ -21,6 +21,7 @@ import { formatDiscoveryCategory, discoveryLocation } from "@promorang/shared";
 import { useDiscoveries } from "@/hooks/useDiscoveries";
 import { SubmitDiscoveryModal } from "./SubmitDiscoveryModal";
 import { AskQuestionModal } from "./AskQuestionModal";
+import { PromoAcceptanceBadge } from "@/components/promocard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -481,6 +482,9 @@ export function DiscoveriesFeedSection() {
                           {item.description}
                         </p>
                       )}
+                      <div className="mt-3">
+                        <PromoAcceptanceBadge allowanceAmount={15} minSpend={35} />
+                      </div>
                     </div>
                   </div>
 

@@ -68,6 +68,7 @@ import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import { useI18n } from "@/i18n/I18nContext";
 import { OpsTheatreStatusPill } from "@/components/theater/OpsTheatreStatusPill";
 import { OpsTheatreOrientationModal } from "@/components/onboarding/OpsTheatreOrientationModal";
+import { BrandCaseStudies } from "@/components/brands/BrandCaseStudies";
 
 type PublicMoment = Tables<"moments"> & { participant_count?: number | null };
 type PublicCommerceListing = Tables<"view_public_commerce_directory">;
@@ -512,26 +513,52 @@ export default function CinematicCultureHome() {
             <p className="mt-3 max-w-xl text-xs font-black uppercase tracking-[0.16em] text-primary">
               {t("home.heroRhythm")}
             </p>
-            <div className="mt-7 flex w-full max-w-[calc(100vw-3rem)] flex-col gap-3 sm:max-w-xl sm:flex-row">
+            <div className="mt-7 flex w-full max-w-[calc(100vw-3rem)] flex-wrap gap-3 sm:max-w-2xl">
               <Link
                 to="/discover"
                 onClick={() => rememberMarketingIntent("hero_explore_discover", "/discover", "participant")}
-                className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl bg-primary px-7 py-4 text-sm font-black uppercase tracking-wider text-white shadow-[0_20px_60px_rgba(255,85,0,0.35)] transition-all hover:bg-orange-600 active:scale-[0.98]"
+                className="inline-flex min-w-0 items-center justify-center gap-2.5 rounded-2xl bg-primary px-6 py-3.5 text-sm font-black uppercase tracking-wider text-white shadow-[0_20px_60px_rgba(255,85,0,0.35)] transition-all hover:bg-orange-600 active:scale-[0.98]"
               >
-                <Compass className="h-5 w-5" />
+                <Compass className="h-4 w-4" />
                 <span>{t("home.exploreMoments")}</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/hosting"
                 onClick={() => rememberMarketingIntent("hero_host_moment", "/hosting", "host")}
-                className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/[0.06] backdrop-blur-md px-7 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98]"
+                className="inline-flex min-w-0 items-center justify-center gap-2.5 rounded-2xl border border-white/20 bg-white/[0.06] backdrop-blur-md px-6 py-3.5 text-sm font-bold uppercase tracking-wider text-white transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98]"
               >
-                <Store className="h-5 w-5 text-amber-400" />
-                <span>{t("home.hostOrDeal")}</span>
+                <Store className="h-4 w-4 text-amber-400" />
+                <span>Host / Venue Pass</span>
+              </Link>
+              <Link
+                to="/for-brands"
+                onClick={() => rememberMarketingIntent("hero_brands", "/for-brands", "brand")}
+                className="inline-flex min-w-0 items-center justify-center gap-2.5 rounded-2xl border border-white/20 bg-white/[0.06] backdrop-blur-md px-6 py-3.5 text-sm font-bold uppercase tracking-wider text-white transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98]"
+              >
+                <Building2 className="h-4 w-4 text-cyan-400" />
+                <span>Brands &amp; Retail</span>
               </Link>
             </div>
-            <p className="mt-3 text-xs text-white/50">{t("home.heroNote")}</p>
+
+            {/* Live Social Proof & Outcomes Ticker */}
+            <div className="pt-2 flex flex-wrap items-center gap-3 text-xs">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-zinc-300">
+                <Flame className="w-3.5 h-3.5 text-orange-400" />
+                <span className="font-bold text-white">0 ➔ 230+</span>
+                <span className="text-zinc-400">Nightlife Footfall</span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-zinc-300">
+                <Camera className="w-3.5 h-3.5 text-pink-400" />
+                <span className="font-bold text-white">800+</span>
+                <span className="text-zinc-400">Expo UGC Signups</span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-zinc-300">
+                <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="text-zinc-400">Proven by</span>
+                <span className="font-bold text-white">Lifespan &amp; Sunshine Snacks</span>
+              </div>
+            </div>
           </motion.div>
 
           {activeHeroItem ? (
@@ -621,73 +648,117 @@ export default function CinematicCultureHome() {
             </nav>
           </div>
 
-          {/* 3-SIDED MARKET ARCHITECTURE SHOWCASE */}
-          <div className="my-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link
-              to="/discover"
-              className="group p-6 rounded-3xl border border-orange-500/30 bg-gradient-to-b from-orange-500/10 via-zinc-950 to-zinc-950 hover:border-orange-500 transition-all shadow-xl space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full bg-orange-500/20 text-orange-400 font-mono text-xs font-black uppercase tracking-wider">
-                  People → Discover
-                </span>
-                <Compass className="w-5 h-5 text-orange-400 group-hover:rotate-45 transition-transform" />
+          {/* 4 CORE ECOSYSTEM PILLARS */}
+          <div className="my-8">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">The Ecosystem Architecture</p>
+                <h3 className="text-2xl font-black uppercase tracking-tight text-white sm:text-3xl">4 Pillars of Promorang</h3>
               </div>
-              <h3 className="text-xl font-black text-white group-hover:text-orange-300 transition-colors">
-                Discover What's Worth Doing &amp; Choosing
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Respond to culture choices, vote in city demand signals, unlock merchant perks, and earn PromoPoints.
-              </p>
-              <div className="pt-2 text-xs font-black text-orange-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                <span>Explore Live Discoveries</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </div>
-            </Link>
+              <span className="hidden sm:inline-block text-xs font-medium text-white/50">From Culture to Shared Wealth</span>
+            </div>
 
-            <Link
-              to="/for-merchants"
-              className="group p-6 rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-500/10 via-zinc-950 to-zinc-950 hover:border-emerald-500 transition-all shadow-xl space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-xs font-black uppercase tracking-wider">
-                  Businesses → Offer
-                </span>
-                <Store className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
-              </div>
-              <h3 className="text-xl font-black text-white group-hover:text-emerald-300 transition-colors">
-                Give People a Reason to Choose You
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Post zero-risk Perks and exclusive drops. Turn latent attention into verified foot traffic and purchases.
-              </p>
-              <div className="pt-2 text-xs font-black text-emerald-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                <span>Post a Perk</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </div>
-            </Link>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Pillar 1: Moments & Passes */}
+              <Link
+                to="/discover/moments"
+                className="group p-5 rounded-3xl border border-orange-500/30 bg-gradient-to-b from-orange-500/10 via-zinc-950 to-zinc-950 hover:border-orange-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-400 font-mono text-[10px] font-black uppercase tracking-wider">
+                      1. Moments &amp; Passes
+                    </span>
+                    <Flame className="w-4 h-4 text-orange-400 group-hover:scale-110 transition-transform" />
+                  </div>
+                  <h4 className="text-lg font-black text-white group-hover:text-orange-300 transition-colors leading-snug">
+                    Access Dope Nights &amp; Fill Venues
+                  </h4>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Exclusive guestlist passes, Kingston DJ nights, beach fetes, and dead-night venue revival from 0 to 230+ guests.
+                  </p>
+                </div>
+                <div className="pt-2 text-xs font-black text-orange-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
+                  <span>Explore Moments</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Link>
 
-            <Link
-              to="/creators"
-              className="group p-6 rounded-3xl border border-purple-500/30 bg-gradient-to-b from-purple-500/10 via-zinc-950 to-zinc-950 hover:border-purple-500 transition-all shadow-xl space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-mono text-xs font-black uppercase tracking-wider">
-                  Creators → Distribute
-                </span>
-                <Share2 className="w-5 h-5 text-purple-400 group-hover:scale-110 transition-transform" />
-              </div>
-              <h3 className="text-xl font-black text-white group-hover:text-purple-300 transition-colors">
-                Find Things Worth Sharing &amp; Move People
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Build measurable distribution reputation. Earn single-level referral points and weekly draw tickets.
-              </p>
-              <div className="pt-2 text-xs font-black text-purple-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                <span>Browse Things to Share</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </div>
-            </Link>
+              {/* Pillar 2: PromoCard & Margin Clearinghouse */}
+              <Link
+                to="/shop"
+                className="group p-5 rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-500/10 via-zinc-950 to-zinc-950 hover:border-emerald-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-black uppercase tracking-wider">
+                      2. PromoCard &amp; Margin
+                    </span>
+                    <Store className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+                  </div>
+                  <h4 className="text-lg font-black text-white group-hover:text-emerald-300 transition-colors leading-snug">
+                    Split-Tender Perks at Partner Spots
+                  </h4>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Recharge your member card balance through real actions and save $10-$25 on food, drinks, and retail.
+                  </p>
+                </div>
+                <div className="pt-2 text-xs font-black text-emerald-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
+                  <span>View Member Perks</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Link>
+
+              {/* Pillar 3: PromoShare & Sponsor Draws */}
+              <Link
+                to="/promoshare"
+                className="group p-5 rounded-3xl border border-purple-500/30 bg-gradient-to-b from-purple-500/10 via-zinc-950 to-zinc-950 hover:border-purple-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[10px] font-black uppercase tracking-wider">
+                      3. PromoShare &amp; Draws
+                    </span>
+                    <Share2 className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+                  </div>
+                  <h4 className="text-lg font-black text-white group-hover:text-purple-300 transition-colors leading-snug">
+                    WhatsApp Loops &amp; Cash Commissions
+                  </h4>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Share drops with 1 tap. Earn instant cash per RSVP and enter sponsor-funded jackpot cycle draws.
+                  </p>
+                </div>
+                <div className="pt-2 text-xs font-black text-purple-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
+                  <span>Open PromoShare</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Link>
+
+              {/* Pillar 4: Pieces & AMM Dividends */}
+              <Link
+                to="/wallet"
+                className="group p-5 rounded-3xl border border-cyan-500/30 bg-gradient-to-b from-cyan-500/10 via-zinc-950 to-zinc-950 hover:border-cyan-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-black uppercase tracking-wider">
+                      4. Pieces &amp; Equity
+                    </span>
+                    <Coins className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+                  </div>
+                  <h4 className="text-lg font-black text-white group-hover:text-cyan-300 transition-colors leading-snug">
+                    Own a Slice &amp; Collect Dividends
+                  </h4>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Hold fractional Pieces of recurring events, media drops, and cultural IP. Earn automated quarterly cash dividends.
+                  </p>
+                </div>
+                <div className="pt-2 text-xs font-black text-cyan-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
+                  <span>View Pieces Portfolio</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Link>
+            </div>
           </div>
 
           <DiscoveriesFeedSection />
@@ -958,6 +1029,9 @@ export default function CinematicCultureHome() {
           </div>
         </div>
       </section>
+
+      {/* PROVEN TRACK RECORD & ENTERPRISE CASE STUDIES */}
+      <BrandCaseStudies />
 
       <section className="border-b border-white/10 bg-black">
         <div className="container px-6 py-12 md:py-16">

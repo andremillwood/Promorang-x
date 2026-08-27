@@ -37,6 +37,8 @@ import { DigitalWalletPass3D } from "@/components/wallet/DigitalWalletPass3D";
 import { PARTICIPANT_ECONOMY } from "@promorang/shared";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
+import { DigitalPromoCard } from "@/components/promocard";
+import { PiecesDividendWalletCard } from "@/components/wallet/PiecesDividendWalletCard";
 
 type GemsTransaction = {
   id: string;
@@ -321,7 +323,9 @@ const Wallet = () => {
         <PersonalValueNav className="relative z-20 -mt-6" />
       </div>
 
-      <main className="w-full space-y-6 px-4 sm:px-6 lg:px-8 py-6">
+      <main className="w-full space-y-8 px-4 sm:px-6 lg:px-8 py-6">
+        <DigitalPromoCard onCardUpdate={() => refreshWallet()} />
+        <PiecesDividendWalletCard userId={user.id} />
         <CouponWalletRail />
         <CommerceReceiptRail />
         <GuidanceDisclosure

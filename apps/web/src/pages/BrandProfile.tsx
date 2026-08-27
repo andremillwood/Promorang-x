@@ -11,6 +11,7 @@ import { PublicContentCard, type PublicContentItem } from "@/components/content/
 import { ArrowLeft, ExternalLink, ShieldCheck, Sparkles } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
 import { useI18n } from "@/i18n/I18nContext";
+import { MerchantMarginPoolManager } from "@/components/promocard";
 
 interface PublicBrandRow {
   id: string;
@@ -183,6 +184,13 @@ export default function BrandProfile() {
               </div>
             </div>
           </section>
+
+          <div className="mt-8">
+            <MerchantMarginPoolManager
+              merchantId={brand.id || `brand_${slug}`}
+              merchantName={brand.name}
+            />
+          </div>
 
           <div className="mt-10 space-y-12">
             <section>
