@@ -44,8 +44,7 @@ import { DigitalWalletPass3D } from "@/components/wallet/DigitalWalletPass3D";
 import { PARTICIPANT_ECONOMY } from "@promorang/shared";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
-import { DigitalPromoCard } from "@/components/promocard";
-import { PiecesDividendWalletCard } from "@/components/wallet/PiecesDividendWalletCard";
+import { ValueInstrumentCard } from "@/components/value/ValueInstrumentCard";
 
 type GemsTransaction = {
   id: string;
@@ -331,10 +330,6 @@ const Wallet = () => {
       </div>
 
       <main className="w-full space-y-8 px-4 sm:px-6 lg:px-8 py-6">
-        <DigitalPromoCard onCardUpdate={() => refreshWallet()} />
-        <PiecesDividendWalletCard userId={user.id} />
-        <CouponWalletRail />
-        <CommerceReceiptRail />
         <GuidanceDisclosure
           id="wallet:economy-path"
           eyebrow="Wallet path"
@@ -360,8 +355,24 @@ const Wallet = () => {
           </section>
         </GuidanceDisclosure>
 
-        {/* Core Metric Cards */}
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <section aria-labelledby="available-value-heading" className="space-y-5">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Available now</p>
+              <h2 id="available-value-heading" className="mt-1 text-3xl font-black tracking-[-.045em]">What your value can do</h2>
+              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Each balance has one job. Use it, convert it, or see exactly why it is waiting.</p>
+            </div>
+            <Button asChild variant="outline" className="rounded-xl"><Link to="/portfolio">View your Pieces <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            <ValueInstrumentCard icon={Coins} label="Participation points" value={formatNumber(points)} meaning="Proof that you showed up and contributed. Turn enough Points into access." status="Builds access" tone="amber" loading={walletLoading} progress={nextKeyProgress} progressLabel={`${Math.max(0, pointsPerKey - (points % pointsPerKey))} to next PromoKey`} actionLabel="Convert to PromoKeys" onAction={() => setConvertDialogOpen(true)} disabled={availableConversions < 1} disabledReason={`Need ${Math.max(0, pointsPerKey - points)} more Points`} />
+            <ValueInstrumentCard icon={KeyRound} label="PromoKeys" value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning="Access for funded Moments, gated drops, and proof-backed experiences." status="Spend for access" tone="orange" loading={walletLoading} actionLabel="Find something to unlock" onAction={() => window.location.assign("/discover")} />
+            <ValueInstrumentCard icon={Gem} label="Gems" value={formatNumber(gemsSnapshot.balance || gems)} meaning="Value earned through funded work. Some Gems may need to clear before withdrawal." status={Number(gemsSnapshot.pending_purchase_redemption_balance || 0) > 0 ? "Partly pending" : "Usable value"} tone="violet" loading={gemsLoading} actionLabel={canBuyGems ? "Buy or manage Gems" : "View Gem details"} onAction={() => { setCheckoutActive(false); setBuyDialogOpen(true); }} />
+            <ValueInstrumentCard icon={DollarSign} label="Withdrawable" value={formatCurrency(Number(gemsSnapshot.withdrawable_balance || 0))} meaning={pendingWithdrawalGems > 0 ? `${formatNumber(pendingWithdrawalGems)} Gems are already under review.` : "The portion currently eligible to request as a payout."} status={pendingWithdrawalGems > 0 ? "Request pending" : "Eligible now"} tone="emerald" loading={gemsLoading || withdrawalsLoading} actionLabel="Request withdrawal" onAction={() => setWithdrawDialogOpen(true)} disabled={!canWithdrawGems || Number(gemsSnapshot.withdrawable_balance || 0) <= 0} disabledReason={!canWithdrawGems ? `Unavailable in ${country.name}` : "Nothing eligible yet"} />
+          </div>
+        </section>
+
+        <div className="hidden" aria-hidden="true">
           {/* 1. Points Card */}
           <Card className="relative overflow-hidden border-amber-500/30 bg-gradient-to-br from-amber-950/20 via-neutral-900/90 to-black/95 shadow-xl backdrop-blur-xl">
             <div className="absolute top-0 right-0 h-24 w-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
@@ -834,6 +845,12 @@ const Wallet = () => {
             </Card>
           </div>
         </div>
+
+        <section aria-labelledby="saved-value-heading" className="space-y-5 border-t border-border/60 pt-8">
+          <div><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Saved for later</p><h2 id="saved-value-heading" className="mt-1 text-2xl font-black tracking-[-.04em]">Passes, offers, and receipts</h2><p className="mt-2 text-sm text-muted-foreground">The things you can return to, redeem, or use as proof—kept separate from spendable balances.</p></div>
+          <CouponWalletRail />
+          <CommerceReceiptRail />
+        </section>
       </main>
 
       <Dialog open={convertDialogOpen} onOpenChange={setConvertDialogOpen}>
