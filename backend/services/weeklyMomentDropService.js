@@ -48,7 +48,7 @@ async function listHorizon({ asOf = new Date(), leadDays = LEAD_DAYS } = {}) {
   const until = new Date(asOf.getTime() + leadDays * 86400000).toISOString();
   const { data, error } = await client
     .from('cultural_calendar_events')
-    .select('event_key, title, city, starts_at, ends_at, status, source_name, source_url, schedule_precision')
+    .select('event_key, title, city, country, country_code, city_slug, hub_id, starts_at, ends_at, status, source_name, source_url, schedule_precision')
     .gte('starts_at', asOf.toISOString())
     .lt('starts_at', until)
     .order('starts_at', { ascending: true });
@@ -71,7 +71,12 @@ async function addCalendarEvent(event) {
       description: event.description || event.title,
       category: event.category || 'community',
       city: event.city || null,
-      country: event.country || 'Jamaica',
+      country: event.country || null,
+      country_code: event.country_code || null,
+      country_slug: event.country_slug || null,
+      city_slug: event.city_slug || null,
+      hub_id: event.hub_id || null,
+      ...(event.timezone ? { timezone: event.timezone } : {}),
       location: event.location || null,
       venue_name: event.venue_name || null,
       starts_at: event.starts_at,

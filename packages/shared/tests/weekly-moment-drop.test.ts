@@ -6,6 +6,7 @@ import {
   classifyLeadWindow,
   getIsoWeekStart,
   getLeadHorizonEnd,
+  getWeeklyDropHubs,
   shouldPublishCalendarEvent,
 } from "../src/weekly-moment-drop";
 
@@ -44,5 +45,26 @@ describe("weekly moment drop windows", () => {
     expect(copy).toContain("Newly announced (2)");
     expect(copy).toContain("Treasure Beach Food, Rum & Reggae Festival");
     expect(copy).toContain("7 more dated events sit inside the 90-day planning window.");
+  });
+
+  it("covers live and pilot hubs, not planned markets", () => {
+    const hubs = getWeeklyDropHubs();
+    const ids = hubs.map((hub) => hub.hubId);
+    expect(ids).toEqual(expect.arrayContaining([
+      "kingston",
+      "montego-bay",
+      "trinidad",
+      "barbados",
+      "bahamas",
+      "guyana",
+      "accra",
+      "dominican-republic",
+      "medellin",
+      "bogota",
+      "panama-city",
+    ]));
+    expect(ids).not.toContain("havana");
+    expect(ids).not.toContain("london");
+    expect(hubs.every((hub) => hub.launchStage === "live" || hub.launchStage === "pilot")).toBe(true);
   });
 });

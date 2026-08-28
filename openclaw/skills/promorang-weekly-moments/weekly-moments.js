@@ -34,7 +34,7 @@ async function run() {
             const until = new Date(asOf.getTime() + 90 * 86400000).toISOString();
             const { data, error } = await supabase
                 .from('cultural_calendar_events')
-                .select('event_key, title, city, starts_at, status, source_name, schedule_precision')
+                .select('event_key, title, city, country, country_code, hub_id, starts_at, status, source_name, schedule_precision')
                 .gte('starts_at', asOf.toISOString())
                 .lt('starts_at', until)
                 .order('starts_at');
@@ -69,7 +69,12 @@ async function run() {
                     description: args.description || args.title,
                     category: args.category || 'community',
                     city: args.city || null,
-                    country: args.country || 'Jamaica',
+                    country: args.country || null,
+                    country_code: args.country_code || null,
+                    country_slug: args.country_slug || null,
+                    city_slug: args.city_slug || null,
+                    hub_id: args.hub_id || null,
+                    timezone: args.timezone || null,
                     location: args.location || null,
                     venue_name: args.venue_name || null,
                     starts_at: args.starts_at,

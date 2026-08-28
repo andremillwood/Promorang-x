@@ -21,7 +21,7 @@ export function AdminWeeklyMomentDropTab() {
         <p className="text-xs font-black uppercase tracking-[.2em] text-primary">Weekly Moment agent</p>
         <h2 className="mt-2 font-serif text-3xl font-bold">90-day calendar drop</h2>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Mondays publish dated events whose calendar date is within 90 days, then announce the new ones on Explore.
+          Mondays publish dated events whose calendar date is within 90 days across every live and pilot hub. Explore only shows the selected city.
         </p>
       </div>
 
@@ -48,10 +48,13 @@ export function AdminWeeklyMomentDropTab() {
                 <div>
                   <p className="font-bold">{item.title}</p>
                   <p className="text-sm text-muted-foreground">
-                    {jamaicaDate(item.starts_at)} · {item.city || item.location}
+                    {jamaicaDate(item.starts_at)} · {[item.city, item.country].filter(Boolean).join(", ")}
                   </p>
                 </div>
-                <Badge>{item.role === "new_this_week" ? "New this week" : "90-day horizon"}</Badge>
+                <div className="flex flex-wrap gap-2">
+                  {item.country ? <Badge variant="outline">{item.country}</Badge> : null}
+                  <Badge>{item.role === "new_this_week" ? "New this week" : "90-day horizon"}</Badge>
+                </div>
               </div>
             ))}
           </div>

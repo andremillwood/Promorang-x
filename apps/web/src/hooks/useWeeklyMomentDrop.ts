@@ -17,6 +17,10 @@ export type WeeklyDropItem = {
   category: string | null;
   city: string | null;
   country: string | null;
+  country_code: string | null;
+  city_slug: string | null;
+  country_slug: string | null;
+  hub_id: string | null;
   location: string | null;
   venue_name: string | null;
   starts_at: string;
