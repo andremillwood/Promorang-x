@@ -965,29 +965,61 @@ const MomentDetail = () => {
 
       {/* Navigation Sub-Tab Bar for Quick Jumping */}
       <nav className="sticky top-0 z-30 border-b border-white/10 bg-[#09090b]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl gap-2 px-4 py-2.5 sm:px-6 overflow-x-auto">
-          {momentTabs.map((tab) => {
-            const isActive = activeMomentTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveMomentTab(tab.id)}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-sm font-semibold transition-all shrink-0 ${
-                  isActive
-                    ? "bg-[#ff5500] text-white shadow-md shadow-[#ff5500]/20"
-                    : "text-white/60 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <tab.Icon className="h-3.5 w-3.5" />
-                {tab.label}
-              </button>
-            );
-          })}
+        <div className="mx-auto max-w-6xl px-4 py-2.5 sm:px-6">
+          <div className="mb-2 flex items-center justify-between gap-4 px-0.5 sm:mb-1.5">
+            <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/45">
+              {t("momentDetail.exploreSections")}
+            </span>
+            <span className="flex items-center gap-1 text-[10px] font-bold text-[#ff8a50] sm:hidden">
+              {t("momentDetail.swipeForMore")} <ArrowRight className="h-3 w-3" aria-hidden="true" />
+            </span>
+          </div>
+          <div className="relative -mr-4 sm:mr-0">
+            <div
+              role="tablist"
+              aria-label={t("momentDetail.exploreSections")}
+              className="flex gap-2 overflow-x-auto pb-1 pr-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:pr-0"
+            >
+              {momentTabs.map((tab) => {
+                const isActive = activeMomentTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    id={`moment-tab-${tab.id}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls="moment-tabpanel"
+                    onClick={() => setActiveMomentTab(tab.id)}
+                    className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff8a50] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] sm:text-sm ${
+                      isActive
+                        ? "border-[#ff6a1a] bg-[#ff5500] text-white shadow-md shadow-[#ff5500]/25"
+                        : "border-white/15 bg-white/[0.06] text-white/70 hover:border-white/30 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    <tab.Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 right-0 flex w-12 items-center justify-end bg-gradient-to-l from-[#09090b] via-[#09090b]/90 to-transparent pr-2 sm:hidden"
+            >
+              <ArrowRight className="h-4 w-4 text-white/65" />
+            </div>
+          </div>
         </div>
       </nav>
 
       {/* Main Body 2-Column Grid */}
-      <main id="moment-content" className="scroll-mt-20 mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <main
+        id="moment-tabpanel"
+        role="tabpanel"
+        aria-labelledby={`moment-tab-${activeMomentTab}`}
+        className="scroll-mt-20 mx-auto max-w-6xl px-4 py-8 sm:px-6"
+      >
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">
 
           {/* Left Main Column */}
