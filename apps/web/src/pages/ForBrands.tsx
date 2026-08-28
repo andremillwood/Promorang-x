@@ -63,7 +63,7 @@ const ForBrands = () => {
     ];
 
     return (
-        <div className="min-h-screen overflow-x-clip bg-background">
+        <div className="marketing-refined min-h-screen overflow-x-clip bg-background">
             <SEO
                 title={t("forBrands.seoTitle")}
                 description={t("forBrands.seoDescription")}

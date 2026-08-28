@@ -473,7 +473,7 @@ export default function HowItWorks() {
   const currentRole = rolesData[activeRole];
 
   return (
-    <main className="min-h-screen bg-[#070707] text-white selection:bg-primary selection:text-black">
+    <main className="marketing-refined min-h-screen bg-[#070707] text-white selection:bg-primary selection:text-black">
       <SEO
         title={t("how.seoTitle") || "How Promorang Works — Real-World Movement & Verified Rewards"}
         description={

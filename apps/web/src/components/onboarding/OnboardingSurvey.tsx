@@ -211,10 +211,10 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-6">
+    <div className="onboarding-mobile min-h-screen min-h-dvh bg-[#f3efe6] flex items-start justify-center px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-5 text-[#171512] sm:items-center sm:p-6">
       <div className="w-full max-w-2xl">
         {/* Progress */}
-        <div className="mb-8">
+        <div className="mb-5 sm:mb-8">
           <Progress value={progress} className="h-2" />
           <p className="text-sm text-muted-foreground mt-2 text-center">
             Step {step + 1} of {steps.length}
@@ -222,7 +222,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
         </div>
 
         {/* Card */}
-        <div className="bg-card border border-border rounded-2xl p-8 shadow-elevated">
+        <div className="bg-white border border-[#171512]/10 rounded-[1.4rem] p-5 shadow-[0_18px_50px_rgba(46,31,17,.1)] sm:p-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={step}
@@ -232,11 +232,11 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
               transition={{ duration: 0.3 }}
             >
               {/* Header */}
-              <div className="text-center mb-8">
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 text-primary">
+              <div className="text-left mb-6 sm:text-center sm:mb-8">
+                <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary sm:mx-auto sm:h-14 sm:w-14">
                   {steps[step].icon}
                 </div>
-                <h1 className="font-serif text-2xl md:text-3xl font-bold mb-2">
+                <h1 className="font-serif text-[2rem] leading-none md:text-3xl font-black mb-2">
                   {steps[step].title}
                 </h1>
                 <p className="text-muted-foreground">{steps[step].subtitle}</p>
@@ -556,7 +556,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
 
           {/* Navigation (Only show for steps 0 to 4) */}
           {step < 5 && (
-            <div className="flex justify-between mt-10">
+            <div className="sticky bottom-0 -mx-5 mt-8 flex justify-between border-t border-[#171512]/10 bg-white/95 px-5 pb-1 pt-4 backdrop-blur sm:static sm:mx-0 sm:mt-10 sm:border-0 sm:bg-transparent sm:p-0">
               <Button
                 variant="ghost"
                 onClick={handleBack}

@@ -65,7 +65,7 @@ const ForMerchants = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="marketing-refined min-h-screen bg-background">
             <SEO
                 title={claimVenue ? t("forMerchants.seoTitleClaim", { venue: claimVenue }) : t("forMerchants.seoTitle")}
                 description={t("forMerchants.seoDescription")}

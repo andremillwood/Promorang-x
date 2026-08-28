@@ -114,7 +114,7 @@ const ForCreators = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="marketing-refined min-h-screen bg-background">
       <SEO
         title={t("forCreators.seoTitle")}
         description={t("forCreators.seoDescription")}

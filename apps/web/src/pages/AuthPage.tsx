@@ -58,6 +58,8 @@ const AuthPage = () => {
   const [fullName, setFullName] = useState("");
   const [demoEmail, setDemoEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showRolePicker, setShowRolePicker] = useState(false);
+  const [showDemoAccess, setShowDemoAccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -88,6 +90,7 @@ const AuthPage = () => {
 
     if (["participant", "creator", "host", "brand", "merchant"].includes(requestedRole)) {
       setSelectedRole(requestedRole as UserRole);
+      setShowRolePicker(requestedRole !== "participant");
       setMode("signup");
     }
   }, [searchParams]);
@@ -241,27 +244,27 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen min-h-dvh bg-[#f3efe6] flex text-[#171512]">
       {/* Left Panel - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-start justify-center px-5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-6 sm:p-8 lg:items-center">
         <div className="w-full max-w-md">
           {/* Back to Home */}
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
+            className="inline-flex min-h-11 items-center gap-2 text-sm text-[#6d645a] transition-colors mb-4 sm:mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
             {t("auth.back")}
           </Link>
 
           {/* Logo */}
-          <img src={logo} alt="Promorang" className="h-10 mb-8" />
+          <img src={logo} alt="Promorang" className="h-8 mb-7 sm:h-10 sm:mb-8" />
 
           {/* Header */}
-          <h1 className="font-serif text-3xl font-bold text-foreground mb-2">
+          <h1 className="font-serif text-[2.35rem] leading-none font-black text-[#171512] mb-3 sm:text-3xl">
             {mode === "login" ? t("auth.welcomeBack") : t("auth.join")}
           </h1>
-          <p className="text-muted-foreground mb-8">
+          <p className="text-[#6d645a] leading-6 mb-7">
             {mode === "login"
               ? t("auth.loginCopy")
               : t("auth.signupCopy")}
@@ -274,9 +277,15 @@ const AuthPage = () => {
           )}
 
           {/* Role Selection (Signup only) */}
-          {mode === "signup" && (
+          {mode === "signup" && !showRolePicker && (
+            <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-[#171512]/10 bg-white/55 px-4 py-3">
+              <div><p className="text-sm font-black">Personal membership</p><p className="text-xs text-[#756b5f]">PromoCard, Moments and member benefits</p></div>
+              <button type="button" onClick={() => setShowRolePicker(true)} className="min-h-11 shrink-0 text-xs font-black text-primary">Business?</button>
+            </div>
+          )}
+          {mode === "signup" && showRolePicker && (
             <div className="mb-6">
-              <Label className="text-sm font-medium mb-3 block">{t("auth.chooseRole")}</Label>
+              <div className="mb-3 flex items-center justify-between"><Label className="text-sm font-medium">{t("auth.chooseRole")}</Label><button type="button" onClick={() => { setSelectedRole("participant"); setShowRolePicker(false); }} className="min-h-11 text-xs font-black text-primary">Use personal</button></div>
               <div className="grid grid-cols-2 gap-3">
                 {(Object.entries(roleInfo) as [UserRole, typeof roleInfo[UserRole]][]).map(
                   ([role, info]) => (
@@ -284,7 +293,7 @@ const AuthPage = () => {
                       key={role}
                       type="button"
                       onClick={() => setSelectedRole(role)}
-                      className={`p-4 rounded-xl border-2 text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${selectedRole === role
+                      className={`min-h-[5.5rem] p-3 rounded-xl border text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${selectedRole === role
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/50"
                         }`}
@@ -403,7 +412,11 @@ const AuthPage = () => {
           </p>
 
           {/* Demo Accounts */}
-          <div className="mt-8 pt-8 border-t border-border">
+          <div className="mt-8 pt-6 border-t border-[#171512]/10">
+            <button type="button" onClick={() => setShowDemoAccess(value => !value)} className="flex min-h-11 w-full items-center justify-between text-left text-sm font-black">
+              <span>Preview a business workspace</span><span className="text-primary">{showDemoAccess ? "Hide" : "Open"}</span>
+            </button>
+            {showDemoAccess && <div className="pt-4">
             <div className="mb-4 text-center">
               <p className="text-sm font-medium text-foreground">{t("auth.demoTitle")}</p>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -498,6 +511,7 @@ const AuthPage = () => {
             <p className="mt-3 text-center text-xs text-muted-foreground">
               Each demo opens a curated workspace with stable sample data so prospects see the product in a clean, repeatable state.
             </p>
+            </div>}
           </div>
         </div>
       </div>

@@ -83,7 +83,7 @@ const ForCommunities = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="marketing-refined min-h-screen bg-background">
       <SEO
         title={t("forCommunities.seoTitle")}
         description={t("forCommunities.seoDescription")}

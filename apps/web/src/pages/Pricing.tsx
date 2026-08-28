@@ -24,7 +24,7 @@ const PricingPage = () => {
     const [activeTab, setActiveTab] = useState('brands');
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="marketing-refined min-h-screen bg-background">
             <SEO
                 title={t("pricing.seoTitle")}
                 description={t("pricing.seoDescription")}

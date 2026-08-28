@@ -57,7 +57,7 @@ const ForAgencies = () => {
                 title={t("forAgencies.seoTitle")}
                 description={t("forAgencies.seoDescription")}
             />
-            <div className="min-h-screen bg-background">
+            <div className="marketing-refined min-h-screen bg-background">
             {/* Hero Section */}
             <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-brand">
                 <div className="container px-6">

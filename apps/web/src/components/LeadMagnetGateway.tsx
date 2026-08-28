@@ -154,14 +154,14 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
         </div>
 
         {/* Elevated 5-Column Interactive Cards Grid */}
-        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-12 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3 xl:grid-cols-5">
           {toolsConfig.map(tool => {
             const Icon = tool.icon;
             return (
               <Link
                 key={tool.audience}
                 to={tool.href}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/50 hover:bg-white/[0.06] hover:shadow-[0_12px_32px_-12px_rgba(255,107,0,0.2)]"
+                className="group relative flex w-[82vw] max-w-[19rem] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/50 hover:bg-white/[0.06] hover:shadow-[0_12px_32px_-12px_rgba(255,107,0,0.2)] sm:w-auto sm:max-w-none"
               >
                 {/* Subtle Card Accent Glow on Hover */}
                 <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-primary/10 opacity-0 blur-2xl transition duration-300 group-hover:opacity-100" />

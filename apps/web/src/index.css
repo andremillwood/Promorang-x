@@ -614,4 +614,48 @@ img.promorang-satellite-tiles {
 .leaflet-container a.leaflet-popup-close-button:hover {
   color: #ffffff !important;
 }
+@media (max-width: 767px) {
+  .marketing-refined > section {
+    content-visibility: auto;
+    contain-intrinsic-size: 720px;
+  }
 
+  .marketing-refined > section:not(:first-of-type) {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+
+  .marketing-refined > section:nth-of-type(n + 5):not(:last-of-type) {
+    display: none;
+  }
+
+  .marketing-refined > section:first-of-type {
+    padding-top: 5.75rem;
+    padding-bottom: 4rem;
+  }
+
+  .marketing-refined h1 {
+    max-width: 18ch;
+    text-wrap: balance;
+  }
+
+  .marketing-refined h2,
+  .marketing-refined h3 {
+    text-wrap: balance;
+  }
+
+  .marketing-refined a,
+  .marketing-refined button {
+    touch-action: manipulation;
+  }
+
+  .onboarding-mobile button {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  .onboarding-mobile input {
+    min-height: 48px;
+    font-size: 16px;
+  }
+}
