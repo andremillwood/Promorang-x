@@ -72,7 +72,7 @@ export const CardDropCreator: React.FC = () => {
               Gift a Pre-Loaded Card Drop
             </CardTitle>
             <CardDescription className="text-xs text-zinc-400">
-              Drop real spendable purchasing power directly to your friends, followers, or community.
+              Send eligible promotional spending balance directly to friends, followers, or your community.
             </CardDescription>
           </div>
         </div>
@@ -95,7 +95,7 @@ export const CardDropCreator: React.FC = () => {
                 }`}
               >
                 <span className="text-lg block">${amt}</span>
-                <span className="text-[10px] font-normal text-zinc-400">Card Credit</span>
+                <span className="text-[10px] font-normal text-zinc-400">PromoCard balance</span>
               </button>
             ))}
           </div>
@@ -128,7 +128,7 @@ export const CardDropCreator: React.FC = () => {
             <p className="text-xs text-zinc-300">
               <strong className="text-white">{senderName}</strong> sent you:
             </p>
-            <p className="text-2xl font-black text-amber-400">${dropAmount}.00 Promorang Card Credit</p>
+            <p className="text-2xl font-black text-amber-400">${dropAmount}.00 PromoCard balance</p>
             <p className="text-xs text-zinc-400 italic">"{customNote}"</p>
           </div>
         </div>

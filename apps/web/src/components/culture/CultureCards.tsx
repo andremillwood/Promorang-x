@@ -155,13 +155,13 @@ export function MobileBottomNav() {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/90 px-safe pb-safe backdrop-blur-xl md:hidden">
-      <div className="grid grid-cols-5 px-3 py-2 text-[10px] font-bold text-white/60">
+    <nav aria-label="Primary mobile navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/95 px-safe pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl md:hidden">
+      <div className="grid h-16 grid-cols-5 px-2 text-[10px] font-bold text-white/55">
         {items.map((item) => {
           const active = item.href === "/" ? location.pathname === "/" : location.pathname.startsWith(item.href);
           return (
-            <Link key={item.label} to={item.href} className={`flex flex-col items-center gap-1 rounded-xl px-1 py-2 ${active ? "text-primary" : ""}`}>
-              <item.icon className="h-5 w-5" />
+            <Link key={item.label} to={item.href} aria-current={active ? "page" : undefined} className={`flex min-h-11 flex-col items-center justify-center gap-1 rounded-xl px-1 transition active:bg-white/10 ${active ? "text-primary" : ""}`}>
+              <item.icon className="h-[19px] w-[19px]" />
               {item.label}
             </Link>
           );

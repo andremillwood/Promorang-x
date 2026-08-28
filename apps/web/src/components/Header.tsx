@@ -110,14 +110,14 @@ const Header = () => {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="flex items-center justify-between h-16 gap-3 lg:gap-6">
+        <nav className="flex items-center justify-between h-14 gap-2 sm:h-16 sm:gap-3 lg:gap-6">
           {/* 1. Left Zone: Brand Logo & Desktop Nav */}
           <div className="flex items-center gap-3 xl:gap-6 shrink-0">
             <Link
               to="/"
               className="flex items-center gap-2 shrink-0 active:scale-95 transition-all group focus:outline-none"
             >
-              <div className="h-9 w-9 rounded-xl p-0.5 flex items-center justify-center transition-transform group-hover:scale-105">
+              <div className="h-8 w-8 rounded-xl p-0.5 flex items-center justify-center transition-transform group-hover:scale-105 sm:h-9 sm:w-9">
                 <img src={logo} alt="Promorang" className="h-full w-full object-contain drop-shadow-md" />
               </div>
               <span className="font-black tracking-tight text-lg hidden sm:inline bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent">
@@ -383,7 +383,7 @@ const Header = () => {
           </div>
 
           {/* 2. Center/Right Zone: Search & Location */}
-          <div className="flex items-center gap-2.5 flex-1 justify-end max-w-lg">
+          <div className="hidden items-center gap-2.5 flex-1 justify-end max-w-lg sm:flex">
             {/* City Quick Switcher */}
             <CityQuickSwitcher className="hidden md:inline-flex" />
 
@@ -402,7 +402,7 @@ const Header = () => {
 
                 {/* Activity Pulse Notifications */}
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="relative p-2 rounded-full text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors outline-none cursor-pointer">
+                  <DropdownMenuTrigger className="relative hidden p-2 rounded-full text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors outline-none cursor-pointer sm:flex">
                     <Bell className="w-4 h-4" />
                     <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-[#09090b] animate-pulse" />
                   </DropdownMenuTrigger>
@@ -438,7 +438,7 @@ const Header = () => {
 
                 {/* Unified User Profile & Workspace Dropdown */}
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/20 transition-all outline-none cursor-pointer group">
+                  <DropdownMenuTrigger className="hidden items-center gap-2 pl-1 pr-2.5 py-1 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/20 transition-all outline-none cursor-pointer group sm:flex">
                     <div className="relative h-7 w-7 rounded-full bg-gradient-primary flex items-center justify-center text-white text-xs font-bold shadow-sm overflow-hidden ring-1 ring-white/20 shrink-0">
                       {userAvatarUrl ? (
                         <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
@@ -662,7 +662,7 @@ const Header = () => {
 
         {/* Responsive Mobile Drawer */}
         {mobileMenuOpen && (
-          <div className="max-h-[calc(100vh-4.5rem)] overflow-y-auto border-t border-white/10 py-5 lg:hidden px-3 bg-[#0a0a0c]/98 backdrop-blur-2xl text-white animate-in slide-in-from-top-4 duration-200">
+          <div className="max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain border-t border-white/10 py-4 lg:hidden px-3 bg-[#0a0a0c]/98 backdrop-blur-2xl text-white animate-in slide-in-from-top-4 duration-200 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
             <div className="flex flex-col gap-5 pb-6">
               {/* Logged in User Mobile Quick Profile */}
               {user && (
@@ -891,4 +891,3 @@ const Header = () => {
 };
 
 export default Header;
-

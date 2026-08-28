@@ -144,11 +144,11 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
 
   return (
     <section className="border-b border-white/10 bg-[#0a0a0a] text-white">
-      <div className="container px-6 py-20 md:py-28">
+      <div className="container px-5 py-14 md:px-6 md:py-28">
         <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("leadMagnet.sectionEyebrow")}</p>
-            <h2 className="mt-4 max-w-xl font-serif text-4xl font-bold leading-[0.95] tracking-[-0.04em] md:text-6xl">{t("leadMagnet.sectionTitle")}</h2>
+            <h2 className="mt-3 max-w-xl font-serif text-3xl font-bold leading-[1.02] tracking-[-0.035em] sm:text-4xl md:mt-4 md:text-6xl md:leading-[0.95] md:tracking-[-0.04em]">{t("leadMagnet.sectionTitle")}</h2>
           </div>
           <p className="max-w-2xl text-sm leading-7 text-white/60 lg:justify-self-end">{t("leadMagnet.sectionCopy")}</p>
         </div>
@@ -222,4 +222,3 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
     </section>
   );
 }
-
