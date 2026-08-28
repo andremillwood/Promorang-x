@@ -16,7 +16,7 @@
 - **Model:** MiniMax M2.5 (primary), Ollama llama3.2:1b (heartbeats), Grok (X/Twitter data)
 - **Heartbeat:** Local Ollama — check for cron tasks only
 - **Workspace:** `~/openclaw/ops/`
-- **Skills:** `event-watcher`, `bird`, `exa`, `cron-scheduling`, `daily-report`, `content-creator`, `promorang-claim`, `promorang-content`, `promorang-community`, `promorang-feedback`, `promorang-analytics`, `promorang-email`
+- **Skills:** `event-watcher`, `bird`, `exa`, `cron-scheduling`, `daily-report`, `content-creator`, `promorang-claim`, `promorang-content`, `promorang-weekly-moments`, `promorang-community`, `promorang-feedback`, `promorang-analytics`, `promorang-email`
 - **dmScope:** `per-agent` (only Andre accesses this agent)
 - **exec mode:** `gateway` (whitelist: `node`, `git`, `curl`. Everything else blocked)
 
