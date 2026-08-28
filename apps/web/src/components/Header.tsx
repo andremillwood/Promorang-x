@@ -453,7 +453,12 @@ const Header = () => {
                     <ChevronDown className="w-3.5 h-3.5 text-white/40 group-hover:text-white/80 transition-colors shrink-0" />
                   </DropdownMenuTrigger>
 
-                  <DropdownMenuContent align="end" className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/98 backdrop-blur-2xl text-white space-y-1.5 animate-in fade-in-50 zoom-in-95 duration-150">
+                  <DropdownMenuContent
+                    align="end"
+                    sideOffset={8}
+                    collisionPadding={12}
+                    className="w-72 max-h-[calc(100dvh-5.5rem)] overflow-y-auto overscroll-contain p-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/98 backdrop-blur-2xl text-white space-y-1.5 animate-in fade-in-50 zoom-in-95 duration-150"
+                  >
                     {/* User Identity Header Card */}
                     <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5 flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-gradient-primary flex items-center justify-center text-white text-sm font-black shrink-0 overflow-hidden shadow-inner">
@@ -662,7 +667,7 @@ const Header = () => {
 
         {/* Responsive Mobile Drawer */}
         {mobileMenuOpen && (
-          <div className="max-h-[calc(100vh-4.5rem)] overflow-y-auto border-t border-white/10 py-5 lg:hidden px-3 bg-[#0a0a0c]/98 backdrop-blur-2xl text-white animate-in slide-in-from-top-4 duration-200">
+          <div className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain border-t border-white/10 py-5 lg:hidden px-3 bg-[#0a0a0c]/98 backdrop-blur-2xl text-white animate-in slide-in-from-top-4 duration-200 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
             <div className="flex flex-col gap-5 pb-6">
               {/* Logged in User Mobile Quick Profile */}
               {user && (
