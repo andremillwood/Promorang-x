@@ -25,6 +25,23 @@ describe("localization", () => {
     });
   });
 
+  it("translates homepage marketing copy instead of falling back to English", () => {
+    const homepageKeys = [
+      "home.promoHeadline1",
+      "home.promoGetCard",
+      "home.pillarsTitle",
+      "home.pillar2Title",
+      "home.mobileNextOuting",
+      "home.hostVenuePass",
+      "home.brandsRetail",
+    ] as const;
+
+    homepageKeys.forEach((key) => {
+      expect(translations["es-419"][key]).not.toEqual(translations.en[key]);
+      expect(translations["pt-BR"][key]).not.toEqual(translations.en[key]);
+    });
+  });
+
   it("recognizes and rewrites localized public paths", () => {
     expect(localeFromPath("/es/discover/moments")).toBe("es-419");
     expect(localeFromPath("/pt-br/scenes")).toBe("pt-BR");
