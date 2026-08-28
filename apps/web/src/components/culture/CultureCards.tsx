@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Bell, Bookmark, Flame, Home, MapPin, Search, User } from "lucide-react";
+import { Bell, Bookmark, Flame, Home, MapPin, Search, User, WalletCards } from "lucide-react";
 import { ContentProvenanceBadge } from "@/components/content/ContentProvenance";
 
 type CultureEvent = {
@@ -148,8 +148,8 @@ export function MobileBottomNav() {
   const location = useLocation();
   const items = [
     { label: "Home", icon: Home, href: "/" },
+    { label: "PromoCard", icon: WalletCards, href: "/wallet" },
     { label: "Discover", icon: Search, href: "/discover" },
-    { label: "Live", icon: Flame, href: "/live" },
     { label: "Inbox", icon: Bell, href: "/notifications" },
     { label: "Profile", icon: User, href: "/profile" },
   ];

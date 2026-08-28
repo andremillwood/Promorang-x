@@ -40,7 +40,7 @@ import {
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
-import { PromoCardGateway } from "@/components/promocard";
+import { MobilePromoHome, PromoCardGateway } from "@/components/promocard";
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
 import { SampleContentNotice } from "@/components/content/ContentProvenance";
 import { possessiveLocation, useVisitorLocation } from "@/hooks/useVisitorLocation";
@@ -472,6 +472,8 @@ export default function CinematicCultureHome() {
     <main className="min-h-screen bg-black text-white">
       {user ? <HomeFeedToggle /> : null}
       <PromoCardGateway />
+      <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} />
+      <div className="hidden md:block">
       <section ref={heroRef} className="relative overflow-hidden border-b border-white/10 md:min-h-[92svh]">
         {/* Parallax Background Layer */}
         <motion.div
@@ -1394,6 +1396,8 @@ export default function CinematicCultureHome() {
           </div>
         </div>
       </section>
+
+      </div>
 
       {user ? <MobileBottomNav /> : null}
 
