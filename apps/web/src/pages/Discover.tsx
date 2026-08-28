@@ -34,7 +34,8 @@ import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { DiscoverRightRail } from "@/components/discovery/DiscoverRightRail";
 import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
-import { useI18n } from "@/i18n/I18nContext";
+import { useMarket } from "@/contexts/MarketContext";
+import { getCityHubCenter, getDefaultCityHub, matchesCityHub } from "@/lib/city-hubs";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getMomentStatus } from "@/lib/moment-recurrence";
 import { DiscoveryWidget, DiscoveryProps } from "@/components/radar/DiscoveryWidget";
@@ -99,10 +100,38 @@ const formatMomentDate = (value?: string | null) => {
   }
 };
 
+const HubEmptyState = ({
+  cityName,
+  noun,
+  onShowLiveHub,
+}: {
+  cityName: string;
+  noun: string;
+  onShowLiveHub: () => void;
+}) => {
+  const isLiveHub = cityName.toLowerCase().includes("kingston");
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-8 text-center">
+      <MapPin className="mx-auto h-8 w-8 text-primary" />
+      <h3 className="mt-4 text-lg font-black text-white">No live {noun} in {cityName} yet</h3>
+      <p className="mx-auto mt-2 max-w-md text-sm text-white/60">
+        {isLiveHub
+          ? "Nothing is posted in this hub right now. Check back shortly or explore another tab."
+          : "This hub is warming up. Kingston is the live pulse right now — switch there to see Moments, places, and signals already on the ground."}
+      </p>
+      {!isLiveHub && (
+        <Button onClick={onShowLiveHub} className="mt-5 rounded-2xl bg-primary text-white font-bold">
+          Browse Kingston
+        </Button>
+      )}
+    </div>
+  );
+};
+
 type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
 
 const Discover = () => {
-  const { t } = useI18n();
+  const { city, setCity } = useMarket();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as DiscoverTab) || "discoveries";
 
@@ -203,8 +232,45 @@ const Discover = () => {
   });
 
   const moments = useMemo(() => discoveryQuery.data || [], [discoveryQuery.data]);
+  const hubMoments = useMemo(
+    () => moments.filter((m) => matchesCityHub(m, city)),
+    [moments, city],
+  );
+  const hubVenues = useMemo(
+    () => VERIFIED_VENUES.filter((venue) => matchesCityHub(venue, city)),
+    [city],
+  );
+  const hubDiscoveries = useMemo(
+    () =>
+      DISCOVERY_QUESTIONS_FEED.filter((q) => {
+        const poll = q as { question?: string; description?: string; targetUnlockPerk?: string; tags?: string[] };
+        return matchesCityHub(
+          {
+            title: poll.question,
+            description: [poll.description, poll.targetUnlockPerk, ...(poll.tags || [])].filter(Boolean).join(" "),
+          },
+          city,
+        );
+      }),
+    [city],
+  );
+  const hubPerks = useMemo(
+    () =>
+      perks.filter((perk) =>
+        matchesCityHub(
+          {
+            title: perk.title,
+            description: perk.description,
+            location: perk.merchantLocation,
+            venue_name: perk.merchantName,
+          },
+          city,
+        ),
+      ),
+    [perks, city],
+  );
   const filteredMoments = useMemo(() => {
-    const matched = moments.filter((m) => {
+    const matched = hubMoments.filter((m) => {
       const matchesCategory = activeCategory === "all" || (m.category || "").toLowerCase().includes(activeCategory);
       const matchesSearch =
         !searchQuery ||
@@ -221,9 +287,9 @@ const Discover = () => {
       }
       return new Date(statusA.displayStartsAt).getTime() - new Date(statusB.displayStartsAt).getTime();
     });
-  }, [moments, activeCategory, searchQuery]);
+  }, [hubMoments, activeCategory, searchQuery]);
 
-  const featuredMoment = moments[0] || null;
+  const featuredMoment = filteredMoments[0] || null;
 
   const mapMarkers = useMemo<MapMarkerItem[]>(() => {
     const markers: MapMarkerItem[] = [];
@@ -251,7 +317,7 @@ const Discover = () => {
       }
     });
 
-    VERIFIED_VENUES.forEach((v) => {
+    hubVenues.forEach((v) => {
       const matchesSearch =
         !searchQuery ||
         v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -275,14 +341,14 @@ const Discover = () => {
     });
 
     return markers;
-  }, [filteredMoments, searchQuery]);
+  }, [filteredMoments, hubVenues, searchQuery]);
 
   const mapCenter = useMemo(() => {
     if (mapMarkers.length > 0) {
       return { lat: mapMarkers[0].lat, lng: mapMarkers[0].lng };
     }
-    return DEFAULT_DISCOVER_CENTER;
-  }, [mapMarkers]);
+    return getCityHubCenter(city);
+  }, [mapMarkers, city]);
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white pb-16">
@@ -301,7 +367,7 @@ const Discover = () => {
               <Badge className="rounded-full bg-primary text-white font-black text-[10px] uppercase tracking-wider border-none">
                 People → Discover
               </Badge>
-              <span className="text-xs text-white/50 font-semibold">Kingston & Jamaica Wide</span>
+              <span className="text-xs text-white/50 font-semibold">{city.name}</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
               Discover What's Worth Doing & Choosing
@@ -354,7 +420,7 @@ const Discover = () => {
             <Gift className="h-4 w-4" />
             <span>2. Perks & Drops</span>
             <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
-              {perks.length}
+              {hubPerks.length}
             </span>
           </button>
 
@@ -369,7 +435,7 @@ const Discover = () => {
             <Ticket className="h-4 w-4" />
             <span>3. Moments & Events</span>
             <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
-              {moments.length}
+              {hubMoments.length}
             </span>
           </button>
 
@@ -442,7 +508,7 @@ const Discover = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {DISCOVERY_QUESTIONS_FEED.map((q) => (
+                  {hubDiscoveries.map((q) => (
                     <DiscoveryWidget
                       key={q.id}
                       {...q}
@@ -452,6 +518,13 @@ const Discover = () => {
                     />
                   ))}
                 </div>
+                {hubDiscoveries.length === 0 && (
+                  <HubEmptyState
+                    cityName={city.name}
+                    noun="discovery signals"
+                    onShowLiveHub={() => setCity(getDefaultCityHub())}
+                  />
+                )}
               </div>
             )}
 
@@ -511,10 +584,17 @@ const Discover = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {perks.map((perk) => (
+                    {hubPerks.map((perk) => (
                       <PerkCard key={perk.id} perk={perk} />
                     ))}
                   </div>
+                )}
+                {!perksLoading && hubPerks.length === 0 && (
+                  <HubEmptyState
+                    cityName={city.name}
+                    noun="perks"
+                    onShowLiveHub={() => setCity(getDefaultCityHub())}
+                  />
                 )}
               </div>
             )}
@@ -562,6 +642,16 @@ const Discover = () => {
                   </div>
                 )}
 
+                {viewMode === "map" ? (
+                  <div className="overflow-hidden rounded-3xl border border-white/10">
+                    <PromorangMap
+                      center={mapCenter}
+                      zoom={city.id === "all-jamaica" ? 8 : 12}
+                      markers={mapMarkers}
+                      height="520px"
+                    />
+                  </div>
+                ) : (
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   {filteredMoments.map((item) => {
                     const status = getMomentStatus(item);
@@ -609,6 +699,14 @@ const Discover = () => {
                     );
                   })}
                 </div>
+                )}
+                {filteredMoments.length === 0 && (
+                  <HubEmptyState
+                    cityName={city.name}
+                    noun="Moments"
+                    onShowLiveHub={() => setCity(getDefaultCityHub())}
+                  />
+                )}
               </>
             )}
 
@@ -623,13 +721,13 @@ const Discover = () => {
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div>
                     <h3 className="text-xl font-bold text-white">Curated Places & Cultural Venues</h3>
-                    <p className="text-xs text-white/50">Verified partner venues across Jamaica with active Perks.</p>
+                    <p className="text-xs text-white/50">Verified partner venues in {city.name}.</p>
                   </div>
-                  <span className="text-xs font-semibold text-white/50">{VERIFIED_VENUES.length} verified spots</span>
+                  <span className="text-xs font-semibold text-white/50">{hubVenues.length} verified spots</span>
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  {VERIFIED_VENUES.map((venue) => (
+                  {hubVenues.map((venue) => (
                     <div
                       key={venue.id}
                       className="group p-5 rounded-3xl border border-white/10 bg-white/5 hover:border-primary/40 transition flex flex-col justify-between space-y-4"
@@ -665,6 +763,13 @@ const Discover = () => {
                     </div>
                   ))}
                 </div>
+                {hubVenues.length === 0 && (
+                  <HubEmptyState
+                    cityName={city.name}
+                    noun="venues"
+                    onShowLiveHub={() => setCity(getDefaultCityHub())}
+                  />
+                )}
               </div>
             )}
 
@@ -674,6 +779,8 @@ const Discover = () => {
           <DiscoverRightRail
             onToggleMap={() => setViewMode((v) => (v === "map" ? "grid" : "map"))}
             isMapMode={viewMode === "map"}
+            moments={filteredMoments}
+            cityName={city.name}
           />
         </div>
 

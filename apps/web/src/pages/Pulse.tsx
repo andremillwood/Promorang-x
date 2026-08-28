@@ -17,6 +17,8 @@ import {
   Zap,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
+import { useMarket } from "@/contexts/MarketContext";
+import { getDefaultCityHub, matchesCityHub } from "@/lib/city-hubs";
 
 type PulseMoment = {
   id: string;
@@ -28,6 +30,8 @@ type PulseMoment = {
   starts_at?: string | null;
   reward?: string | null;
   city?: string | null;
+  city_slug?: string | null;
+  location?: string | null;
   slug?: string;
   isSample?: boolean;
   image_url?: string | null;
@@ -198,14 +202,15 @@ const PulseSection = ({
 const Pulse = () => {
   const { t, formatNumber } = useI18n();
   const { user } = useAuth();
+  const { city, setCity } = useMarket();
 
   const { data, isLoading, error } = useQuery<PulseMoment[]>({
-    queryKey: ["pulse-live", user?.id],
+    queryKey: ["pulse-live", user?.id, city.id],
     queryFn: async () => {
       const [momentResult, publicationResult] = await Promise.all([
         supabase
           .from("moments")
-          .select("id,title,venue_name,pulse_state,gathering_threshold,starts_at,reward,city,image_url,content_origin")
+          .select("id,title,venue_name,pulse_state,gathering_threshold,starts_at,reward,city,location,image_url,content_origin")
           .in("pulse_state", ["forming", "live", "cooling"])
           .eq("is_active", true)
           .eq("content_origin", "stakeholder_created")
@@ -238,7 +243,13 @@ const Pulse = () => {
     },
   });
 
-  const pulseMoments = useMemo(() => (data || []).filter((moment) => !moment.isSample && !String(moment.id).startsWith("demo-")), [data]);
+  const pulseMoments = useMemo(
+    () =>
+      (data || [])
+        .filter((moment) => !moment.isSample && !String(moment.id).startsWith("demo-"))
+        .filter((moment) => matchesCityHub(moment, city)),
+    [data, city],
+  );
   const liveMoments = useMemo(
     () => pulseMoments.filter((moment) => moment.pulse_state === "live"),
     [pulseMoments],
@@ -276,7 +287,7 @@ const Pulse = () => {
             </div>
             <h1 className="mt-6 max-w-3xl font-sans text-6xl font-black uppercase leading-[0.82] tracking-[-0.075em] sm:text-8xl lg:text-9xl">{t("pulsePage.heroTitle")}</h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-white/65 sm:text-lg">
-              {t("pulsePage.heroSubtitle")}
+              {t("pulsePage.heroSubtitle")} Now showing {city.name}.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild size="lg">
@@ -352,14 +363,20 @@ const Pulse = () => {
           <Sparkles className="mx-auto h-10 w-10 text-primary" />
           <h2 className="mt-4 font-serif text-3xl font-bold text-foreground">{t("pulsePage.noActivePulseTitle")}</h2>
           <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-            {t("pulsePage.noActivePulseDesc")}
+            Nothing is live in {city.name} right now. {city.id === "kingston" ? t("pulsePage.noActivePulseDesc") : "Kingston is the live pulse — switch hubs to see forming and live Moments."}
           </p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild variant="hero" size="lg">
-              <Link to="/create/moment">{t("pulsePage.startMoment")}</Link>
-            </Button>
+            {city.id !== "kingston" ? (
+              <Button size="lg" onClick={() => setCity(getDefaultCityHub())}>
+                Browse Kingston
+              </Button>
+            ) : (
+              <Button asChild variant="hero" size="lg">
+                <Link to="/create/moment">{t("pulsePage.startMoment")}</Link>
+              </Button>
+            )}
             <Button asChild variant="outline" size="lg">
-              <Link to="/discover/moments">{t("pulsePage.browseDiscovery")}</Link>
+              <Link to="/discover">{t("pulsePage.browseDiscovery")}</Link>
             </Button>
           </div>
         </div>

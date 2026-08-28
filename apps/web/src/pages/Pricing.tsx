@@ -18,6 +18,47 @@ import {
     TrendingUp,
 } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
+import type { TranslationKey } from '@/i18n/translations';
+import { PromoCardEconomyExplainer } from '@/components/promocard';
+
+const revenueLineCopy: Record<string, { title: TranslationKey; payer: TranslationKey; capture: TranslationKey; desc: TranslationKey }> = {
+    'funded-moments': {
+        title: 'pricing.lineFundedTitle',
+        payer: 'pricing.lineFundedPayer',
+        capture: 'pricing.lineFundedCapture',
+        desc: 'pricing.lineFundedDesc',
+    },
+    'operator-plans': {
+        title: 'pricing.linePlansTitle',
+        payer: 'pricing.linePlansPayer',
+        capture: 'pricing.linePlansCapture',
+        desc: 'pricing.linePlansDesc',
+    },
+    memberships: {
+        title: 'pricing.lineMembershipsTitle',
+        payer: 'pricing.lineMembershipsPayer',
+        capture: 'pricing.lineMembershipsCapture',
+        desc: 'pricing.lineMembershipsDesc',
+    },
+    commerce: {
+        title: 'pricing.lineCommerceTitle',
+        payer: 'pricing.lineCommercePayer',
+        capture: 'pricing.lineCommerceCapture',
+        desc: 'pricing.lineCommerceDesc',
+    },
+    sponsorships: {
+        title: 'pricing.lineSponsorsTitle',
+        payer: 'pricing.lineSponsorsPayer',
+        capture: 'pricing.lineSponsorsCapture',
+        desc: 'pricing.lineSponsorsDesc',
+    },
+    pieces: {
+        title: 'pricing.linePiecesTitle',
+        payer: 'pricing.linePiecesPayer',
+        capture: 'pricing.linePiecesCapture',
+        desc: 'pricing.linePiecesDesc',
+    },
+};
 
 const PricingPage = () => {
     const { t } = useI18n();
@@ -57,6 +98,8 @@ const PricingPage = () => {
                 </div>
             </section>
 
+            <PromoCardEconomyExplainer audience="merchant" compact />
+
             <section className="border-y border-white/10 bg-[#090909] py-16 text-white md:py-24">
                 <div className="container px-4 sm:px-6">
                     <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr]">
@@ -67,17 +110,20 @@ const PricingPage = () => {
                             <Link to="/economy#how-promorang-earns" className="mt-7 inline-flex items-center gap-2 text-sm font-black text-primary hover:underline">{t("pricing.seeMoneyFlow")} <ArrowRight className="h-4 w-4" /></Link>
                         </div>
                         <div className="grid gap-px overflow-hidden rounded-3xl border border-white/10 bg-white/10 sm:grid-cols-2">
-                            {revenueLines.map((line, index) => (
+                            {revenueLines.map((line, index) => {
+                                const copy = revenueLineCopy[line.key];
+                                return (
                                 <article key={line.key} className="bg-[#111] p-6 md:p-7">
                                     <div className="flex items-center justify-between gap-4">
                                         <span className="font-mono text-xs text-primary">0{index + 1}</span>
-                                        <span className="rounded-full border border-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white/50">{line.capture}</span>
+                                        <span className="rounded-full border border-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white/50">{copy ? t(copy.capture) : line.capture}</span>
                                     </div>
-                                    <h3 className="mt-8 text-xl font-black">{line.title}</h3>
-                                    <p className="mt-2 text-xs font-bold uppercase tracking-wider text-white/35">{t("pricing.paidBy", { payer: line.payer })}</p>
-                                    <p className="mt-4 text-sm leading-6 text-white/55">{line.description}</p>
+                                    <h3 className="mt-8 text-xl font-black">{copy ? t(copy.title) : line.title}</h3>
+                                    <p className="mt-2 text-xs font-bold uppercase tracking-wider text-white/35">{t("pricing.paidBy", { payer: copy ? t(copy.payer) : line.payer })}</p>
+                                    <p className="mt-4 text-sm leading-6 text-white/55">{copy ? t(copy.desc) : line.description}</p>
                                 </article>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

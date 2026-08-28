@@ -15,6 +15,7 @@ export * from "./guest-rsvp";
 export * from "./demand-plan";
 export * from "./action-engine";
 export * from "./gem-ledger";
+export * from "./promocard-moment";
 
 export type PromorangJourneyStepId =
   | "discover"
@@ -1154,4 +1155,3 @@ export function resolveParticipantEconomyTier(tier?: string | null) {
 
 export * from "./context/Web3VaultContext";
 export * from "./markets";
-

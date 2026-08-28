@@ -10,6 +10,7 @@ import { CreatorEarningsSimulator } from "@/components/value/CreatorEarningsSimu
 import { PlayCircle, Link2, MapPin, Sparkles, TrendingUp, ArrowRight, Gem, Users, Camera, Store, CalendarCheck, BadgeDollarSign, ShieldCheck, BarChart3, CheckCircle2 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
+import { PromoCardEconomyExplainer } from "@/components/promocard";
 
 const ForCreators = () => {
   const { t } = useI18n();
@@ -175,6 +176,8 @@ const ForCreators = () => {
           </div>
         </div>
       </section>
+
+      <PromoCardEconomyExplainer audience="creator" />
 
       {/* Interactive Value Experience Simulator */}
       <section className="container mx-auto px-4 -mt-12 relative z-20 mb-16">

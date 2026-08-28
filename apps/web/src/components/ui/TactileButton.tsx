@@ -79,9 +79,13 @@ export const TactileButton = React.forwardRef<HTMLButtonElement, TactileButtonPr
         )}
         {...props}
       >
-        <span className="relative z-10 flex items-center justify-center gap-2">
-          {children}
-        </span>
+        {asChild ? (
+          children
+        ) : (
+          <span className="relative z-10 flex items-center justify-center gap-2">
+            {children}
+          </span>
+        )}
       </Comp>
     );
   }

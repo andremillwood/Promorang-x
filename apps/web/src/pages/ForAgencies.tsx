@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
+import { PromoCardEconomyExplainer } from "@/components/promocard";
 
 const ForAgencies = () => {
     const { t } = useI18n();
@@ -87,6 +88,8 @@ const ForAgencies = () => {
                     </div>
                 </div>
             </section>
+
+            <PromoCardEconomyExplainer audience="agency" />
 
             <LeadMagnetGateway audience="brand" />
 

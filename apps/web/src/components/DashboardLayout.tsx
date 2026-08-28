@@ -61,7 +61,9 @@ import {
 import { cn } from "@/lib/utils";
 import { DemoExperienceBanner } from "@/components/demo/DemoExperienceBanner";
 import { DemoCoachmark } from "@/components/demo/DemoCoachmark";
+import { CityQuickSwitcher } from "@/components/location/CityQuickSwitcher";
 import { useI18n } from "@/i18n/I18nContext";
+import { useMarket } from "@/contexts/MarketContext";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "promoter" | "marketing" | "admin";
 
@@ -247,6 +249,7 @@ const safeRoleInfo = (role: string | undefined | null) => {
 const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const { t } = useI18n();
   const { user, roles, organizations, activeOrgId, setActiveOrgId, agencyClients, setActiveRole, signOut, profile } = useAuth();
+  const { city } = useMarket();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -589,7 +592,10 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                       {organizations.map((org) => (
                         <DropdownMenuItem
                           key={org.id}
-                          onClick={() => setActiveOrgId(org.id)}
+                          onClick={() => {
+                            setActiveOrgId(org.id);
+                            navigate("/dashboard");
+                          }}
                           className={`flex items-center gap-3 py-3 ${activeOrgId === org.id ? "bg-muted font-bold" : ""}`}
                         >
                           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
@@ -677,15 +683,26 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
           {/* Clean Sidebar Footer */}
           <div className={cn("mt-auto p-4 border-t border-border/50", sidebarCollapsed && "lg:hidden")}>
+            <button
+              type="button"
+              onClick={() => {
+                setSidebarOpen(false);
+                void handleSignOut();
+              }}
+              className="mb-2 flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-rose-500 transition-colors hover:bg-rose-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/60 lg:hidden"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>{t("nav.signOut")}</span>
+            </button>
             <div className="flex items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
-                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                title={sidebarCollapsed ? t("dashboard.expand") : t("dashboard.collapseSidebar")}
               >
                 <PanelLeftClose className="w-4 h-4" />
-                <span>Collapse</span>
+                <span>{t("dashboard.collapse")}</span>
               </button>
 
               <Link
@@ -748,11 +765,8 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 bg-gradient-primary rounded-lg flex items-center justify-center shadow-soft">
-                <img src={logo} alt="" className="h-4 w-auto" />
-              </div>
-              <span className="text-lg font-black text-foreground">Promorang</span>
+            <div className="flex min-w-0 flex-1 items-center justify-center px-2">
+              <CityQuickSwitcher tone="app" className="max-w-[180px]" />
             </div>
             <Link to="/profile" className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center text-white font-bold text-xs shadow-soft active:scale-95 transition-transform overflow-hidden">
               {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -782,6 +796,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               <roleInfo.icon className="h-3.5 w-3.5" />
               <span>{roleInfo.label}</span>
             </div>
+            <CityQuickSwitcher tone="app" />
             <span className="text-border text-sm">/</span>
             <h2 className="text-sm font-black text-foreground uppercase tracking-wide truncate">
               {pageMeta.label}
@@ -951,21 +966,21 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                 <DropdownMenuItem asChild>
                   <Link to="/vault" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
                     <Archive className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs font-medium">Vault & Memories</span>
+                    <span className="text-xs font-medium">{t("dashboard.vaultMemories")}</span>
                   </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem asChild>
                   <Link to="/saved" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
                     <Bookmark className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs font-medium">Saved Items</span>
+                    <span className="text-xs font-medium">{t("dashboard.savedItems")}</span>
                   </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem asChild>
                   <Link to="/dashboard/settings" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
                     <Settings className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs font-medium">Account Settings</span>
+                    <span className="text-xs font-medium">{t("dashboard.accountSettings")}</span>
                   </Link>
                 </DropdownMenuItem>
 
@@ -973,7 +988,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
                 <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2.5 p-2 rounded-xl text-rose-500 hover:bg-rose-500/10 cursor-pointer">
                   <LogOut className="w-4 h-4" />
-                  <span className="text-xs font-medium">Sign Out</span>
+                  <span className="text-xs font-medium">{t("nav.signOut")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -998,9 +1013,9 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                 </div>
                 <div className="min-w-[240px] rounded-2xl border border-border/60 bg-background/70 p-4">
                   <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Active hub</p>
-                  <p className="mt-2 text-sm font-semibold text-foreground truncate">{activeOrg?.name || "My Hub"}</p>
+                  <p className="mt-2 text-sm font-semibold text-foreground truncate">{city.name}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {safeRole === "participant" ? "Your live Moments, access, Gems, and saved value stay together here." : "Your work, return, and account tools stay together here."}
+                    {activeOrg?.name ? `${activeOrg.name} · ${city.countryName}` : "Discover, Pulse, and the map follow this city hub."}
                   </p>
                 </div>
               </div>

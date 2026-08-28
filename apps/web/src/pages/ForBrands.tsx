@@ -22,6 +22,7 @@ import {
 import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
 import { BrandCaseStudies } from "@/components/brands/BrandCaseStudies";
+import { PromoCardEconomyExplainer } from "@/components/promocard";
 
 const ForBrands = () => {
     const { user } = useAuth();
@@ -148,6 +149,8 @@ const ForBrands = () => {
                     </div>
                 </div>
             </section>
+
+            <PromoCardEconomyExplainer audience="brand" />
 
             {/* Interactive Campaign Simulator */}
             <section className="container mx-auto px-4 -mt-12 relative z-20 mb-16">

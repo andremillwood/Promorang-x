@@ -1984,6 +1984,10 @@ A good Promorang card shows:
 
 Cards should not be mini dashboards.
 
+Do not default to shadcn `Card`, `Badge`, and icon-plus-copy grids for culture, economy, vault, Save & Win, or marketing explainers. Those primitives are utilities. The visual system is tickets, receipts, PromoCard faces, relics, trails, and money pots. Shared implementations live in `apps/web/src/components/promorang/SignatureObjects.tsx`. If a new surface needs a component, design a holdable object first, then wrap behavior around it.
+
+Member-facing copy on these surfaces must stay kitchen-table: show up, save, refill, ticket, streak, keepsake. Internal terms such as node, AMM, stake, mint, burn, escrow, and telemetry stay in admin, contracts, and ledgers.
+
 ### Receipts
 
 Receipts are central to Promorang.

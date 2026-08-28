@@ -1,42 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { Activity, ShoppingCart, Award, ShieldCheck, Clock } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from "react";
+import { Clock, ShieldCheck } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { PaperReceipt, StatusChip } from "@/components/promorang/SignatureObjects";
 
-interface RealTelemetryEvent {
+interface VaultEvent {
   id: string;
   timestamp: string;
-  type: 'node_stake' | 'transaction' | 'redemption';
   title: string;
   subtitle: string;
   amountUsd: number;
 }
 
-export const NodeLiveTelemetryTicker: React.FC = () => {
-  const [events, setEvents] = useState<RealTelemetryEvent[]>([]);
+export const NodeLiveTelemetryTicker = () => {
+  const [events, setEvents] = useState<VaultEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRealActivity = async () => {
       try {
-        // Query recent node stakes and platform transactions
         const { data: stakes } = await supabase
-          .from('node_stakes')
-          .select('id, staked_amount, created_at')
-          .order('created_at', { ascending: false })
+          .from("node_stakes")
+          .select("id, staked_amount, created_at")
+          .order("created_at", { ascending: false })
           .limit(5);
 
-        const realList: RealTelemetryEvent[] = (stakes || []).map((s) => ({
-          id: s.id,
-          timestamp: new Date(s.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          type: 'node_stake',
-          title: 'Community Vault Stash',
-          subtitle: 'Gems protected in Community Fuel Vault',
-          amountUsd: Number(s.staked_amount) || 0,
-        }));
-
-        setEvents(realList);
+        setEvents(
+          (stakes || []).map((s) => ({
+            id: s.id,
+            timestamp: new Date(s.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            title: "Someone set money aside",
+            subtitle: "Backing local perks · still theirs to withdraw",
+            amountUsd: Number(s.staked_amount) || 0,
+          })),
+        );
       } catch (err) {
-        console.error('Error fetching live telemetry:', err);
+        console.error("Error fetching vault activity:", err);
         setEvents([]);
       } finally {
         setLoading(false);
@@ -45,24 +43,18 @@ export const NodeLiveTelemetryTicker: React.FC = () => {
 
     fetchRealActivity();
 
-    // Subscribe to realtime changes on node_stakes
     const channel = supabase
-      .channel('node_stakes_realtime')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'node_stakes' },
-        (payload) => {
-          const newEvent: RealTelemetryEvent = {
-            id: payload.new.id,
-            timestamp: 'Just now',
-            type: 'node_stake',
-            title: 'New Community Vault Stash',
-            subtitle: 'Gems protected in Community Fuel Vault',
-            amountUsd: Number(payload.new.staked_amount) || 0,
-          };
-          setEvents((prev) => [newEvent, ...prev.slice(0, 4)]);
-        }
-      )
+      .channel("node_stakes_realtime")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "node_stakes" }, (payload) => {
+        const newEvent: VaultEvent = {
+          id: payload.new.id,
+          timestamp: "Just now",
+          title: "Someone set money aside",
+          subtitle: "Backing local perks · still theirs to withdraw",
+          amountUsd: Number(payload.new.staked_amount) || 0,
+        };
+        setEvents((prev) => [newEvent, ...prev.slice(0, 4)]);
+      })
       .subscribe();
 
     return () => {
@@ -71,69 +63,51 @@ export const NodeLiveTelemetryTicker: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full bg-zinc-950/80 border border-zinc-800/80 rounded-3xl p-5 md:p-6 shadow-xl">
-      {/* Telemetry Header */}
-      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-4 mb-4">
-        <div className="flex items-center gap-2.5">
-          <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-          </span>
-          <h4 className="text-sm font-bold text-white uppercase tracking-wider">
-            Live Settlement Ledger
-          </h4>
+    <section aria-labelledby="vault-activity-heading" className="rounded-[1.7rem] border border-white/10 bg-[#0d0d0e] p-5 sm:p-6">
+      <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+        <div>
+          <h2 id="vault-activity-heading" className="font-serif text-xl font-bold text-white">
+            Live from the pots
+          </h2>
+          <p className="mt-1 text-sm text-zinc-400">People setting money aside to back local deals.</p>
         </div>
-        <span className="text-[11px] text-zinc-400 font-mono flex items-center gap-1">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          VERIFIED REALTIME STREAM
-        </span>
+        <StatusChip ok>Live</StatusChip>
       </div>
 
-      {/* Live Events List */}
-      <div className="space-y-3">
-        {loading ? (
-          <div className="py-8 text-center text-zinc-500 text-xs flex items-center justify-center gap-2">
-            <Activity className="w-4 h-4 animate-spin text-amber-400" />
-            <span>Connecting to live ledger...</span>
-          </div>
-        ) : events.length === 0 ? (
-          <div className="py-8 px-4 text-center rounded-2xl bg-zinc-900/40 border border-zinc-800/50">
-            <Clock className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-            <p className="text-xs font-semibold text-zinc-300">Awaiting New Settlement Activity</p>
-            <p className="text-[11px] text-zinc-500 mt-1 max-w-sm mx-auto">
-              As community members stash savings or redeem merchant vouchers, verified on-chain entries stream here in real time.
-            </p>
-          </div>
-        ) : (
-          events.map((evt) => (
-            <div
-              key={evt.id}
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-zinc-900/60 border border-zinc-800/60 rounded-2xl text-xs hover:border-zinc-700 transition-all"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-zinc-800/80 text-amber-400">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                </div>
-                <div>
-                  <div className="font-semibold text-zinc-200">{evt.title}</div>
-                  <div className="text-[11px] text-zinc-400 flex items-center gap-2">
-                    <span>{evt.subtitle}</span>
-                    <span>•</span>
-                    <span>{evt.timestamp}</span>
-                  </div>
-                </div>
+      {loading ? (
+        <p className="py-10 text-center text-sm text-zinc-400">Looking up recent activity…</p>
+      ) : events.length === 0 ? (
+        <div className="py-6">
+          <PaperReceipt
+            heading="Quiet right now"
+            lines={[
+              { label: "What you'll see", value: "Real set-asides" },
+              { label: "When", value: "As people save" },
+              { label: "Risk to them", value: "None" },
+            ]}
+            footer="When someone puts money in a community pot, it shows up here."
+          />
+        </div>
+      ) : (
+        <ol className="mt-4 space-y-3">
+          {events.map((evt) => (
+            <li key={evt.id} className="flex items-center justify-between gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold text-white">{evt.title}</p>
+                <p className="mt-0.5 text-xs text-zinc-400">
+                  {evt.subtitle} · {evt.timestamp}
+                </p>
               </div>
+              <p className="shrink-0 font-serif text-lg font-bold text-emerald-300">+${evt.amountUsd.toFixed(0)}</p>
+            </li>
+          ))}
+        </ol>
+      )}
 
-              <div className="flex items-center gap-4 sm:justify-end">
-                <div className="text-right">
-                  <div className="text-emerald-400 font-bold">+${evt.amountUsd.toFixed(2)} USD</div>
-                  <div className="text-[10px] text-zinc-400">100% Protected</div>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
+      <p className="mt-4 flex items-center gap-1.5 text-[11px] text-zinc-500">
+        {events.length === 0 ? <Clock className="h-3.5 w-3.5" /> : <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />}
+        Your money stays yours. This is just the neighborhood pulse.
+      </p>
+    </section>
   );
 };

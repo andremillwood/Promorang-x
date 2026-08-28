@@ -43,6 +43,8 @@ import { MomentLineupShowcase } from "@/components/moments/MomentLineupShowcase"
 import { Collaborator } from "@/components/moments/MomentLineupBuilder";
 import { PromoShareAction } from "@/components/promoshare/PromoShareAction";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
+import { PromoCardMomentLoop } from "@/components/moments/PromoCardMomentLoop";
+import { usePromoCard } from "@/hooks/usePromoCard";
 import {
   ArrowLeft,
   ArrowRight,
@@ -151,6 +153,7 @@ const MomentDetail = () => {
   const { user, roles } = useAuth();
   const { toast } = useToast();
   const { recordAttributedAction } = usePromoShareRail();
+  const promoCardQuery = usePromoCard(user?.id);
 
   const [moment, setMoment] = useState<Moment | null>(null);
   const [isJoined, setIsJoined] = useState(false);
@@ -1164,6 +1167,12 @@ const MomentDetail = () => {
                       description: t("momentDetail.toastFanPassDesc", { code }),
                     })
                   }
+                />
+
+                <PromoCardMomentLoop
+                  isJoined={isJoined}
+                  isHost={Boolean(isHost)}
+                  cardBalance={promoCardQuery.data?.availableBalance}
                 />
 
                 {/* Venue & Map Card */}

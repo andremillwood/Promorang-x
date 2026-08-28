@@ -1,0 +1,32 @@
+---
+description: Ban generic SaaS cards on culture, economy, vault, and marketing surfaces. Use Promorang objects and everyday language.
+globs: apps/web/src/{pages,components}/**/*.{tsx,ts}
+alwaysApply: false
+---
+
+# Promorang object surfaces
+
+`DESIGN.md` is product law. Do not ship another grid of identical `rounded-2xl` icon cards, shadcn `Card`/`Badge` stacks, or metric dashboards on culture, economy, vault, nodes, or marketing explainer pages.
+
+## Use these objects instead
+
+- PromoCard face (plastic card, spendable amount)
+- Ticket / pass with a stub
+- Paper receipt (what changed)
+- Collectible relic (Pieces)
+- Night trail (one story, not four equal panels)
+- Money pots (separated funds, never “ledgers” for members)
+
+Import from `@/components/promorang/SignatureObjects` or compose a new object that a person could hold, tear, scan, or keep. `Button`/`Badge`/`Card` from `components/ui` are utilities, not the visual system.
+
+## Language
+
+Lead with the human meaning, then the branded term.
+
+Forbidden in member-facing copy: node, AMM, telemetry, stake, yield, mint, burn, escrow, sybil, on-chain, deflationary, flywheel, primitive, ROAS, DAU, capital allocator.
+
+Prefer: show up, save at checkout, refill, ticket, streak, keepsake, prize already paid for, money set aside.
+
+## First viewport test
+
+A screenshot must show a real object and one next action. If it could belong to any fintech SaaS, rebuild it.

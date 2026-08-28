@@ -2,34 +2,36 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Map, MapPin, Flame, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 
 interface DiscoverRightRailProps {
   onToggleMap: () => void;
   isMapMode: boolean;
+  cityName?: string;
+  moments?: Array<{ id: string; title?: string; venue_name?: string | null; location?: string | null }>;
 }
 
 export const DiscoverRightRail: React.FC<DiscoverRightRailProps> = ({
   onToggleMap,
   isMapMode,
+  cityName = "this hub",
+  moments = [],
 }) => {
-  const trendingMoments = CURATED_KINGSTON_MOMENTS.slice(0, 3);
+  const trendingMoments = moments.slice(0, 3);
 
   return (
     <aside className="hidden lg:flex flex-col gap-5 w-80 shrink-0 sticky top-20 h-fit">
-      {/* 1. Live Map Preview Card */}
       <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.05] via-[#121316] to-black p-5 shadow-xl backdrop-blur-md">
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2.5 rounded-2xl bg-primary/10 border border-primary/20 text-primary">
             <Map className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white">Live City Map</h3>
-            <p className="text-[11px] text-white/50">Geofenced moments & perks</p>
+            <h3 className="text-sm font-bold text-white">{cityName} Map</h3>
+            <p className="text-[11px] text-white/50">Moments and perks in this hub</p>
           </div>
         </div>
         <p className="text-xs text-white/70 mb-4 leading-relaxed">
-          Switch to interactive map view to discover moments happening within walking distance.
+          Switch to map view to see what is happening around {cityName}.
         </p>
         <Button
           onClick={onToggleMap}
@@ -40,12 +42,11 @@ export const DiscoverRightRail: React.FC<DiscoverRightRailProps> = ({
         </Button>
       </div>
 
-      {/* 2. Trending Tonight Card */}
       <div className="rounded-3xl border border-white/10 bg-[#111215] p-5 shadow-xl backdrop-blur-md space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Flame className="h-4 w-4 text-amber-400 fill-amber-400" />
-            <h3 className="text-sm font-bold text-white">Trending Tonight</h3>
+            <h3 className="text-sm font-bold text-white">Trending in {cityName}</h3>
           </div>
           <span className="px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400 font-bold text-[10px]">
             Hot
@@ -65,16 +66,18 @@ export const DiscoverRightRail: React.FC<DiscoverRightRailProps> = ({
                 </p>
                 <p className="text-[11px] text-white/50 flex items-center gap-1">
                   <MapPin className="h-3 w-3 text-primary shrink-0" />
-                  <span className="truncate">{m.venueName}</span>
+                  <span className="truncate">{m.venue_name || m.location || cityName}</span>
                 </p>
               </div>
               <ArrowRight className="h-3.5 w-3.5 text-white/30 group-hover:text-primary group-hover:translate-x-0.5 transition shrink-0" />
             </Link>
           ))}
+          {trendingMoments.length === 0 && (
+            <p className="text-xs text-white/45">No live Moments in {cityName} yet.</p>
+          )}
         </div>
       </div>
 
-      {/* 3. Community Perk Tip */}
       <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-4 text-xs text-white/60 space-y-1">
         <div className="flex items-center gap-1.5 text-white font-bold">
           <Sparkles className="h-3.5 w-3.5 text-primary" />

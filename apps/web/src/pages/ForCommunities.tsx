@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
+import { PromoCardEconomyExplainer } from "@/components/promocard";
 
 const ForCommunities = () => {
   const { t } = useI18n();
@@ -131,6 +132,8 @@ const ForCommunities = () => {
           </div>
         </div>
       </section>
+
+      <PromoCardEconomyExplainer audience="community" />
 
       <LeadMagnetGateway audience="host" />
 
