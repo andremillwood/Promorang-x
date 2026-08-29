@@ -45,6 +45,7 @@ import { PARTICIPANT_ECONOMY } from "@promorang/shared";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { ValueInstrumentCard } from "@/components/value/ValueInstrumentCard";
+import { getPromoKeyAccessState } from "@/lib/promo-key-access";
 
 type GemsTransaction = {
   id: string;
@@ -256,6 +257,7 @@ const Wallet = () => {
   const pointsPerKey = PARTICIPANT_ECONOMY.pointsPerPromoKey;
   const availableConversions = Math.min(PARTICIPANT_ECONOMY.maxDailyPromoKeyConversions, Math.floor(points / pointsPerKey));
   const nextKeyProgress = Math.min(100, ((points % pointsPerKey) / pointsPerKey) * 100);
+  const keyAccess = getPromoKeyAccessState(points);
   const submitGemWithdrawal = async () => {
     try {
       await gemActions.requestWithdrawal.mutateAsync({ amount: Number(withdrawAmount), note: withdrawNote });
@@ -365,8 +367,8 @@ const Wallet = () => {
             <Button asChild variant="outline" className="rounded-xl"><Link to="/portfolio">View your Pieces <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
           </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            <ValueInstrumentCard icon={Coins} label="Participation points" value={formatNumber(points)} meaning="Proof that you showed up and contributed. Turn enough Points into access." status="Builds access" tone="amber" loading={walletLoading} progress={nextKeyProgress} progressLabel={`${Math.max(0, pointsPerKey - (points % pointsPerKey))} to next PromoKey`} actionLabel="Convert to PromoKeys" onAction={() => setConvertDialogOpen(true)} disabled={availableConversions < 1} disabledReason={`Need ${Math.max(0, pointsPerKey - points)} more Points`} />
-            <ValueInstrumentCard icon={KeyRound} label="PromoKeys" value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning="Access for funded Moments, gated drops, and proof-backed experiences." status="Spend for access" tone="orange" loading={walletLoading} actionLabel="Find something to unlock" onAction={() => window.location.assign("/discover")} />
+            <ValueInstrumentCard icon={Coins} label="Participation points" value={formatNumber(points)} meaning="Proof that you showed up. Enough Points become a pass into a funded Moment." status="Builds a pass" tone="amber" loading={walletLoading} progress={keyAccess.progress} progressLabel={keyAccess.canConvert ? t(keyAccess.readyCount === 1 ? "wallet.unlockReady" : "wallet.unlockReadyPlural", { count: formatNumber(keyAccess.readyCount) }) : t("wallet.unlockNeed", { count: formatNumber(keyAccess.pointsNeeded) })} actionLabel={t("wallet.unlockOutcome")} onAction={() => setConvertDialogOpen(true)} disabled={!keyAccess.canConvert} disabledReason={t("wallet.unlockNeed", { count: formatNumber(keyAccess.pointsNeeded) })} />
+            <ValueInstrumentCard icon={KeyRound} label="PromoKeys" value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning="Your ticket into a funded tasting, drop, or reserved table." status="Ready to use" tone="orange" loading={walletLoading} actionLabel={t("wallet.useKeys")} onAction={() => window.location.assign("/discover")} />
             <ValueInstrumentCard icon={Gem} label="Gems" value={formatNumber(gemsSnapshot.balance || gems)} meaning="Value earned through funded work. Some Gems may need to clear before withdrawal." status={Number(gemsSnapshot.pending_purchase_redemption_balance || 0) > 0 ? "Partly pending" : "Usable value"} tone="violet" loading={gemsLoading} actionLabel={canBuyGems ? "Buy or manage Gems" : "View Gem details"} onAction={() => { setCheckoutActive(false); setBuyDialogOpen(true); }} />
             <ValueInstrumentCard icon={DollarSign} label="Withdrawable" value={formatCurrency(Number(gemsSnapshot.withdrawable_balance || 0))} meaning={pendingWithdrawalGems > 0 ? `${formatNumber(pendingWithdrawalGems)} Gems are already under review.` : "The portion currently eligible to request as a payout."} status={pendingWithdrawalGems > 0 ? "Request pending" : "Eligible now"} tone="emerald" loading={gemsLoading || withdrawalsLoading} actionLabel="Request withdrawal" onAction={() => setWithdrawDialogOpen(true)} disabled={!canWithdrawGems || Number(gemsSnapshot.withdrawable_balance || 0) <= 0} disabledReason={!canWithdrawGems ? `Unavailable in ${country.name}` : "Nothing eligible yet"} />
           </div>

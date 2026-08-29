@@ -15,7 +15,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Trophy,
   Ticket,
-  Target,
   Zap,
   Clock,
   Gift,
@@ -484,7 +483,7 @@ const PromoShare = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full min-w-[560px] grid-cols-4 lg:w-fit">
+        <TabsList className="w-full justify-start lg:w-fit">
           <TabsTrigger value="overview">{t("promoshare.tabOverview")}</TabsTrigger>
           <TabsTrigger value="cycles">{t("promoshare.tabActiveCycles")}</TabsTrigger>
           <TabsTrigger value="activity">{t("promoshare.tabMyActivity")}</TabsTrigger>
@@ -494,62 +493,33 @@ const PromoShare = () => {
         {/* OVERVIEW TAB */}
         <TabsContent value="overview" className="space-y-6">
           {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="text-sm text-muted-foreground">{t("promoshare.currentWeight")}</p>
-                    <p className="text-2xl font-bold">{totalWeight}</p>
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Target className="w-5 h-5 text-primary" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{t("promoshare.totalEntries")}</p>
-                    <p className="text-2xl font-bold">{totalEntries}</p>
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <Ticket className="w-5 h-5 text-blue-500" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{t("promoshare.tabActiveCycles")}</p>
-                    <p className="text-2xl font-bold">{data.user_stats_by_cycle?.length || 0}</p>
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-purple-500" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{t("promoshare.wins")}</p>
-                    <p className="text-2xl font-bold">{data.history?.length || 0}</p>
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center">
-                    <Trophy className="w-5 h-5 text-yellow-500" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <article className="rounded-[1.4rem] border border-white/10 bg-[#111113] p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/40">{t("promoshare.currentWeight")}</p>
+              <p className="mt-2 font-serif text-4xl font-bold text-white">{totalWeight}</p>
+              <p className="mt-2 text-xs text-white/50">How strongly this cycle is counting you.</p>
+            </article>
+            <article className="pr-ticket min-h-[132px] rounded-2xl">
+              <div className="p-4">
+                <p className="text-[10px] font-bold tracking-[0.18em] text-orange-700">{t("promoshare.totalEntries")}</p>
+                <p className="mt-1 font-serif text-3xl font-bold text-[#1a120c]">{totalEntries}</p>
+                <p className="mt-1 text-xs text-[#4a3b2f]">Draw tickets already in your hand.</p>
+              </div>
+              <div className="pr-ticket-stub">
+                <p className="rotate-180 text-[9px] font-bold tracking-[0.18em] text-[#7a6554]" style={{ writingMode: "vertical-rl" }}>Keep</p>
+                <Ticket className="mt-2 h-4 w-4 text-[#1a120c]" />
+              </div>
+            </article>
+            <article className="rounded-[1.4rem] border border-violet-400/20 bg-violet-950/20 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-200/70">{t("promoshare.tabActiveCycles")}</p>
+              <p className="mt-2 font-serif text-4xl font-bold text-white">{data.user_stats_by_cycle?.length || 0}</p>
+              <p className="mt-2 text-xs text-white/50">Live draws you can still move.</p>
+            </article>
+            <article className="pr-relic rounded-3xl border border-amber-300/20 p-5 text-white">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200/70">{t("promoshare.wins")}</p>
+              <p className="mt-2 font-serif text-4xl font-bold">{data.history?.length || 0}</p>
+              <p className="mt-2 text-xs text-white/55">Prizes already paid for by showing up.</p>
+            </article>
           </div>
 
           {/* Primary Cycle Status */}

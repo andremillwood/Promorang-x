@@ -420,8 +420,7 @@ const Settings = () => {
         </div>
       ) : (
         <Tabs defaultValue="profile" className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8">
-          <div className="overflow-x-auto pb-2">
-          <TabsList className="mb-8 h-auto min-w-max justify-start gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-1">
+          <TabsList className="mb-8 h-auto w-full justify-start gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-1">
             <TabsTrigger value="profile">{t("settings.identity")}</TabsTrigger>
             <TabsTrigger value="preferences">{t("settings.discovery")}</TabsTrigger>
             <TabsTrigger value="access-rank">{t("settings.status")}</TabsTrigger>
@@ -429,7 +428,6 @@ const Settings = () => {
             <TabsTrigger value="payouts">{t("settings.payouts")}</TabsTrigger>
             <TabsTrigger value="account">{t("settings.account")}</TabsTrigger>
           </TabsList>
-          </div>
 
           {/* --- PROFILE TAB --- */}
           <TabsContent value="profile">
