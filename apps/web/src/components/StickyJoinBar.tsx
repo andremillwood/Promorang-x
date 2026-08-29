@@ -15,6 +15,14 @@ import { SaveButton } from "@/components/SaveButton";
 import { Gift, Users, Flame, ChevronUp, Share2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { AccessState } from "@/lib/access";
+import {
+    canAttemptStickyJoin,
+    getStickyJoinCtaLabel,
+    getStickyJoinStatusLine,
+    getStickyJoinTactileVariant,
+    shouldShowStickyMissions,
+    shouldShowStickyPingSquad,
+} from "@/components/stickyJoinBarModel";
 
 interface StickyJoinBarProps {
     momentId: string;
@@ -93,38 +101,26 @@ export function StickyJoinBar({
         }
     };
 
+    const railState = {
+        participantCount,
+        maxParticipants,
+        isJoined,
+        isPast,
+        isHost,
+        isLoggedIn,
+        isJoining,
+        accessState,
+        missionCount,
+        onExploreMissions,
+    };
     const spotsLeft = maxParticipants ? maxParticipants - participantCount : null;
     const isAlmostFull = spotsLeft !== null && spotsLeft <= 5;
-    const isFull = spotsLeft !== null && spotsLeft <= 0;
-    const canJoin = !(isPast || isFull || isJoining || accessState?.canAttempt === false);
-    const showMissions = missionCount > 0 && Boolean(onExploreMissions);
-    const showPingSquad = isJoined && !isPast && !isHost;
-
-    const getButtonContent = () => {
-        if (isPast) return "Moment Ended";
-        if (!isLoggedIn) return "Sign In to Join";
-        if (isHost) return "Manage Moment";
-        if (isJoined) return "You're Joined";
-        if (isFull) return "Moment Full";
-        if (accessState && accessState.key !== "available") return accessState.ctaLabel;
-        return isJoining ? "Joining..." : "Join This Moment";
-    };
-
-    const getTactileVariant = () => {
-        if (isPast || isFull) return "obsidian" as const;
-        if (isJoined) return "success" as const;
-        if (accessState?.key === "requires_plus" || accessState?.key === "blocked") return "obsidian" as const;
-        if (accessState?.key === "needs_keys") return "vault" as const;
-        return "primary" as const;
-    };
-
-    const statusLine = [
-        `${participantCount} ${participantCount === 1 ? "person" : "people"} joined`,
-        maxParticipants ? `${maxParticipants - participantCount} spots left` : null,
-        accessState && !isJoined ? accessState.label : null,
-    ]
-        .filter(Boolean)
-        .join(" • ");
+    const canJoin = canAttemptStickyJoin(railState);
+    const showMissions = shouldShowStickyMissions(railState);
+    const showPingSquad = shouldShowStickyPingSquad(railState);
+    const buttonContent = getStickyJoinCtaLabel(railState);
+    const tactileVariant = getStickyJoinTactileVariant(railState);
+    const statusLine = getStickyJoinStatusLine(railState);
 
     const handleExploreMissions = () => {
         setIsExpanded(false);
@@ -197,13 +193,13 @@ export function StickyJoinBar({
                 <DrawerFooter>
                     <TactileButton
                         type="button"
-                        variant={getTactileVariant()}
+                        variant={tactileVariant}
                         size="lg"
                         fullWidth
                         onClick={handlePrimaryAction}
                         disabled={!canJoin}
                     >
-                        {getButtonContent()}
+                        {buttonContent}
                     </TactileButton>
                 </DrawerFooter>
             </DrawerContent>
@@ -261,13 +257,13 @@ export function StickyJoinBar({
                         ) : null}
                         <TactileButton
                             type="button"
-                            variant={getTactileVariant()}
+                            variant={tactileVariant}
                             size="lg"
                             fullWidth
                             onClick={onJoin}
                             disabled={!canJoin}
                         >
-                            {getButtonContent()}
+                            {buttonContent}
                         </TactileButton>
                     </div>
 

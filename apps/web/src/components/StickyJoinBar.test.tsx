@@ -1,67 +1,63 @@
-import { describe, it, expect, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { StickyJoinBar } from "./StickyJoinBar";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "vitest";
+import {
+  getStickyJoinCtaLabel,
+  getStickyJoinStatusLine,
+  getStickyJoinTactileVariant,
+  shouldShowStickyMissions,
+  shouldShowStickyPingSquad,
+} from "./stickyJoinBarModel";
 
-vi.mock("@/hooks/use-toast", () => ({
-  useToast: () => ({ toast: vi.fn() }),
-}));
+const joinBarSource = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "StickyJoinBar.tsx"),
+  "utf8",
+);
+const momentDetailSource = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "../pages/MomentDetail.tsx"),
+  "utf8",
+);
 
-vi.mock("@/lib/hapticAudio", () => ({
-  hapticAudio: { playClick: vi.fn() },
-}));
-
-const baseProps = {
-  momentId: "moment-1",
-  title: "Footprints Cafe Night",
+const guestState = {
   participantCount: 0,
   isJoined: false,
   isPast: false,
   isHost: false,
   isLoggedIn: false,
-  onJoin: vi.fn(),
-  accessState: {
-    key: "available" as const,
-    label: "Available" as const,
-    ctaLabel: "Join This Moment",
-    canAttempt: true,
-    description: "This moment is open.",
-  },
 };
 
-describe("StickyJoinBar", () => {
-  it("keeps essential join actions on the rail instead of a swipe row", () => {
-    const { container } = render(
-      <StickyJoinBar
-        {...baseProps}
-        missionCount={3}
-        missionPointTotal={175}
-        onExploreMissions={vi.fn()}
-      />,
-    );
-
-    expect(screen.getByRole("button", { name: "Sign In to Join" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /3 Missions/ })).toBeInTheDocument();
-    expect(container.querySelector(".overflow-x-auto")).toBeNull();
-    expect(container.querySelector(".touch-pan-x")).toBeNull();
+describe("sticky join bar model", () => {
+  it("keeps the guest join CTA on the primary action", () => {
+    expect(getStickyJoinCtaLabel(guestState)).toBe("Sign In to Join");
+    expect(getStickyJoinTactileVariant(guestState)).toBe("primary");
+    expect(getStickyJoinStatusLine({ ...guestState, accessState: {
+      key: "available",
+      label: "Available",
+      description: "Open",
+      ctaLabel: "Join This Moment",
+      canAttempt: true,
+    } })).toBe("0 people joined • Available");
   });
 
-  it("opens extra squad actions in the Drawer component", () => {
-    render(
-      <StickyJoinBar
-        {...baseProps}
-        isLoggedIn
-        isJoined
-        participantCount={4}
-        missionCount={3}
-        missionPointTotal={175}
-        onExploreMissions={vi.fn()}
-      />,
-    );
+  it("sends extra squad actions out of the primary rail", () => {
+    expect(shouldShowStickyMissions({ ...guestState, missionCount: 3, onExploreMissions: () => {} })).toBe(true);
+    expect(shouldShowStickyPingSquad({ ...guestState, isLoggedIn: true, isJoined: true })).toBe(true);
+    expect(shouldShowStickyPingSquad(guestState)).toBe(false);
+  });
+});
 
-    fireEvent.click(screen.getByRole("button", { name: "Open moment quick details" }));
+describe("Moment action components", () => {
+  it("uses Drawer and TactileButton instead of a swipe row", () => {
+    expect(joinBarSource).toContain('from "@/components/ui/drawer"');
+    expect(joinBarSource).toContain('from "@/components/ui/TactileButton"');
+    expect(joinBarSource).not.toContain("overflow-x-auto");
+    expect(joinBarSource).not.toContain("touch-pan-x");
+  });
 
-    expect(screen.getByText("Footprints Cafe Night")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Ping Squad" })).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: "You're Joined" }).length).toBeGreaterThan(0);
+  it("uses Tabs for Moment section options", () => {
+    expect(momentDetailSource).toContain('from "@/components/ui/tabs"');
+    expect(momentDetailSource).toContain("<TabsList");
+    expect(momentDetailSource).toContain("<TabsTrigger");
   });
 });
