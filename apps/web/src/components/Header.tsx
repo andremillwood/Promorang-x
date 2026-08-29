@@ -36,6 +36,12 @@ import {
 import { useState } from "react";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 import {
+  mobileNavItemClass,
+  mobileNavSectionLabelClass,
+  mobileNavSheetClass,
+  mobileNavTextItemClass,
+} from "@/components/nav/mobile-nav-surface";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -652,7 +658,11 @@ const Header = () => {
               type="button"
               aria-label={mobileMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
               aria-expanded={mobileMenuOpen}
-              className="rounded-xl p-2 text-white/80 hover:text-white hover:bg-white/[0.08] transition lg:hidden cursor-pointer"
+              className={`rounded-xl p-2 transition lg:hidden cursor-pointer ${
+                hasDarkHeader
+                  ? "text-white hover:bg-white/[0.08]"
+                  : "text-foreground hover:bg-muted"
+              }`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -660,15 +670,19 @@ const Header = () => {
           </div>
         </nav>
 
-        {/* Responsive Mobile Drawer */}
+        {/* Responsive Mobile Drawer — opaque theme surface so labels stay readable in light mode */}
         {mobileMenuOpen && (
-          <div className="max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain border-t border-white/10 py-4 lg:hidden px-3 bg-[#0a0a0c]/98 backdrop-blur-2xl text-white animate-in slide-in-from-top-4 duration-200 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+          <div
+            id="mobile-nav"
+            data-testid="mobile-nav-sheet"
+            className={`${mobileNavSheetClass} animate-in slide-in-from-top-4 duration-200`}
+          >
             <div className="flex flex-col gap-5 pb-6">
               {/* Logged in User Mobile Quick Profile */}
               {user && (
-                <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-between">
+                <div className="p-3.5 rounded-2xl bg-muted border border-border flex items-center justify-between">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-10 w-10 rounded-full bg-gradient-primary flex items-center justify-center text-white text-sm font-black shrink-0 overflow-hidden">
+                    <div className="h-10 w-10 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground text-sm font-black shrink-0 overflow-hidden">
                       {userAvatarUrl ? (
                         <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
                       ) : (
@@ -676,14 +690,14 @@ const Header = () => {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-white truncate">{userDisplayName}</p>
-                      <p className="text-[10px] text-white/50 truncate">{user?.email}</p>
+                      <p className="text-xs font-bold text-foreground truncate">{userDisplayName}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
                     </div>
                   </div>
                   <Link
                     to="/dashboard"
                     onClick={closeMobileMenu}
-                    className="px-3 py-1.5 rounded-full bg-primary/20 text-primary text-xs font-bold border border-primary/30 shrink-0"
+                    className="px-3 py-1.5 rounded-full bg-primary/15 text-primary text-xs font-bold border border-primary/30 shrink-0"
                   >
                     {t("nav.dashboard")}
                   </Link>
@@ -692,7 +706,7 @@ const Header = () => {
 
               {/* Mobile City Quick Switcher */}
               <div className="px-1">
-                <CityQuickSwitcher className="w-full justify-between py-2.5 px-4" />
+                <CityQuickSwitcher tone="app" className="w-full justify-between py-2.5 px-4" />
               </div>
 
               {/* Quick Action Pill Row */}
@@ -700,7 +714,7 @@ const Header = () => {
                 <Link
                   to="/discover"
                   onClick={closeMobileMenu}
-                  className="flex items-center gap-2 p-3 rounded-2xl bg-white/[0.05] border border-white/10 hover:border-primary/40 text-xs font-bold"
+                  className="flex items-center gap-2 p-3 rounded-2xl bg-muted border border-border hover:border-primary/40 text-xs font-bold text-foreground"
                 >
                   <Compass className="w-4 h-4 text-primary" />
                   <span>{t("nav.discoverHub")}</span>
@@ -717,7 +731,7 @@ const Header = () => {
 
               {/* Section 1: Explore Experiences */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">{t("nav.exploreExperiences")}</p>
+                <p className={mobileNavSectionLabelClass}>{t("nav.exploreExperiences")}</p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs">
                   {[
                     ["/discover", Compass, t("nav.discoverMoments")],
@@ -731,9 +745,9 @@ const Header = () => {
                         key={href as string}
                         to={href as string}
                         onClick={closeMobileMenu}
-                        className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
+                        className={mobileNavItemClass}
                       >
-                        <ItemIcon className="w-3.5 h-3.5 text-primary/80" />
+                        <ItemIcon className="w-3.5 h-3.5 text-primary" />
                         <span>{label as string}</span>
                       </Link>
                     );
@@ -743,30 +757,30 @@ const Header = () => {
 
               {/* Section 2: Rewards & Deals */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">{t("nav.rewardsDeals")}</p>
+                <p className={mobileNavSectionLabelClass}>{t("nav.rewardsDeals")}</p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs">
                   <Link
                     to="/rewards"
                     onClick={closeMobileMenu}
-                    className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
+                    className={mobileNavItemClass}
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                     <span>{t("nav.rewardsHub")}</span>
                   </Link>
                   <Link
                     to="/shop"
                     onClick={closeMobileMenu}
-                    className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
+                    className={mobileNavItemClass}
                   >
-                    <Store className="w-3.5 h-3.5 text-emerald-400" />
+                    <Store className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
                     <span>{t("nav.localDealsShop")}</span>
                   </Link>
                   <Link
                     to="/nodes"
                     onClick={closeMobileMenu}
-                    className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-medium transition col-span-2"
+                    className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/15 border border-amber-700/35 text-amber-900 dark:text-amber-200 font-semibold transition col-span-2"
                   >
-                    <Coins className="w-3.5 h-3.5 text-amber-400" />
+                    <Coins className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                     <span>Save &amp; Win Vaults</span>
                   </Link>
                 </div>
@@ -774,33 +788,33 @@ const Header = () => {
 
               {/* Section 3: For Business & Hosts */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">{t("nav.forBusinessHosts")}</p>
+                <p className={mobileNavSectionLabelClass}>{t("nav.forBusinessHosts")}</p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs">
                   <Link
                     to="/hosting"
                     onClick={closeMobileMenu}
-                    className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
+                    className={mobileNavTextItemClass}
                   >
                     {t("nav.hostMoment")}
                   </Link>
                   <Link
                     to="/for-brands"
                     onClick={closeMobileMenu}
-                    className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
+                    className={mobileNavTextItemClass}
                   >
                     {t("nav.brandsMerchants")}
                   </Link>
                   <Link
                     to="/how-it-works"
                     onClick={closeMobileMenu}
-                    className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
+                    className={mobileNavTextItemClass}
                   >
                     {t("nav.howItWorks")}
                   </Link>
                   <Link
                     to="/pricing"
                     onClick={closeMobileMenu}
-                    className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
+                    className={mobileNavTextItemClass}
                   >
                     {t("nav.pricingPlans")}
                   </Link>
@@ -808,16 +822,16 @@ const Header = () => {
               </div>
 
               {/* Mobile Preferences (Language + Theme) */}
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/10">
-                <span className="text-xs text-white/60 font-medium">Preferences</span>
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-muted border border-border">
+                <span className="text-xs text-foreground font-medium">Preferences</span>
                 <div className="flex items-center gap-2">
-                  <LanguageSelector />
-                  <ThemeToggle />
+                  <LanguageSelector tone="app" />
+                  <ThemeToggle className="text-foreground hover:bg-accent" />
                 </div>
               </div>
 
               {/* Bottom Auth / User Row */}
-              <div className="pt-4 border-t border-white/10 flex flex-col gap-2">
+              <div className="pt-4 border-t border-border flex flex-col gap-2">
                 {user ? (
                   <>
                     <Link
@@ -829,8 +843,8 @@ const Header = () => {
                         <UserRoundPlus className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-bold text-xs text-white">Invite Friends & Earn</p>
-                        <p className="text-[10px] text-white/60">Share your link and earn referral rewards</p>
+                        <p className="font-bold text-xs text-foreground">Invite Friends & Earn</p>
+                        <p className="text-[10px] text-muted-foreground">Share your link and earn referral rewards</p>
                       </div>
                     </Link>
                     <Button
@@ -840,7 +854,7 @@ const Header = () => {
                         navigate("/dashboard");
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full rounded-xl bg-primary text-xs font-bold"
+                      className="w-full rounded-xl bg-primary text-primary-foreground text-xs font-bold"
                     >
                       {t("nav.dashboard")}
                     </Button>
@@ -851,7 +865,7 @@ const Header = () => {
                         handleSignOut();
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full rounded-xl border-white/10 text-xs text-white/70"
+                      className="w-full rounded-xl border-border text-xs text-foreground"
                     >
                       {t("nav.signOut")}
                     </Button>
@@ -865,7 +879,7 @@ const Header = () => {
                         navigate("/auth");
                         setMobileMenuOpen(false);
                       }}
-                      className="flex-1 rounded-xl border-white/15 text-xs text-white hover:bg-white/10"
+                      className="flex-1 rounded-xl border-border text-xs text-foreground hover:bg-muted"
                     >
                       {t("nav.login")}
                     </Button>
@@ -875,7 +889,7 @@ const Header = () => {
                         navigate("/auth");
                         setMobileMenuOpen(false);
                       }}
-                      className="flex-1 rounded-xl bg-primary text-xs font-bold shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+                      className="flex-1 rounded-xl bg-primary text-primary-foreground text-xs font-bold"
                     >
                       {t("nav.getStarted")}
                     </Button>
