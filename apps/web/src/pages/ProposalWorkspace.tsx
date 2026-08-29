@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, CalendarDays, Camera, CheckCircle2, CircleDollarSign, HeartHandshake, MapPin, Plus, Sparkles, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/i18n/I18nContext";
@@ -135,9 +136,9 @@ export default function ProposalWorkspace() {
           </div>
         </section>
 
-        <div className="mt-8 flex gap-2 overflow-x-auto pb-2" aria-label="Filter activation plans">
-          {filters.map((item) => <button key={item} onClick={() => setFilter(item)} className={`rounded-full border px-4 py-2 text-xs font-bold capitalize transition ${filter === item ? "border-primary bg-primary text-black" : "border-white/10 bg-white/[0.04] text-white/55 hover:border-white/25"}`}>{filterLabels[item] || item}</button>)}
-        </div>
+        <SwipeRail compact fadeFrom="from-black" showDots={false} className="mt-8" scrollerClassName="gap-2 pb-2">
+          {filters.map((item) => <button key={item} onClick={() => setFilter(item)} aria-selected={filter === item} className={`shrink-0 snap-start rounded-full border px-4 py-2 text-xs font-bold capitalize transition ${filter === item ? "border-primary bg-primary text-black" : "border-white/10 bg-white/[0.04] text-white/55 hover:border-white/25"}`}>{filterLabels[item] || item}</button>)}
+        </SwipeRail>
 
         <section className="mt-4 space-y-4">
           {isLoading ? Array.from({ length: 2 }).map((_, index) => <div key={index} className="h-64 animate-pulse rounded-[2rem] border border-white/10 bg-white/[0.04]" />) : activations.length === 0 ? (

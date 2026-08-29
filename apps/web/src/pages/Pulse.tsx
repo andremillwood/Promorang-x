@@ -17,6 +17,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { useMarket } from "@/contexts/MarketContext";
 import { getDefaultCityHub, matchesCityHub } from "@/lib/city-hubs";
 
@@ -329,7 +330,7 @@ const Pulse = () => {
         </div>
       ) : null}
 
-      <div className="flex gap-3 overflow-x-auto pb-1">
+      <SwipeRail fadeFrom="from-black" scrollerClassName="gap-3 pb-1">
         {[
           { label: t("pulsePage.statLiveNow"), value: liveMoments.length, href: "#live" },
           { label: t("pulsePage.statForming"), value: formingMoments.length, href: "#forming" },
@@ -341,7 +342,7 @@ const Pulse = () => {
             <p className="mt-1 text-xs text-white/45">{item.label}</p>
           </a>
         ))}
-      </div>
+      </SwipeRail>
 
       {user && error ? (
         <div className="rounded-3xl border border-destructive/20 bg-destructive/5 p-5 text-sm text-destructive">

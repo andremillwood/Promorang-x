@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { resolveCommerceReceiptPresentation } from '@promorang/shared';
 import { useI18n } from '@/i18n/I18nContext';
+import { SwipeRail } from '@/components/ui/SwipeRail';
 
 type CommerceReceipt = {
   id: string;
@@ -98,7 +99,7 @@ export function CommerceReceiptRail() {
           </CardContent>
         </Card>
       ) : (
-        <div className="flex gap-3 overflow-x-auto pb-2">
+        <SwipeRail fadeFrom="from-background" scrollerClassName="gap-3 pb-2">
           {q.data.map((receipt) => {
             const Icon = receiptIcon[receipt.receipt_type as keyof typeof receiptIcon] || Receipt;
             const presentation = resolveCommerceReceiptPresentation({ receiptType: receipt.receipt_type, status: receipt.status, productName: receipt.merchant_products?.name, attribution: receipt.attribution as any });
@@ -136,7 +137,7 @@ export function CommerceReceiptRail() {
               </Link>
             );
           })}
-        </div>
+        </SwipeRail>
       )}
     </section>
   );

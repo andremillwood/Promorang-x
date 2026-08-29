@@ -11,6 +11,7 @@ import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { ALL_CITY_HUBS, type CityOption, type RegionCategory } from "@/lib/city-hubs";
 import { cn } from "@/lib/utils";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 
 export type { CityOption, RegionCategory } from "@/lib/city-hubs";
 export { ALL_CITY_HUBS, POPULAR_CITIES } from "@/lib/city-hubs";
@@ -107,7 +108,7 @@ export function CityQuickSwitcher({
           />
         </div>
 
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+        <SwipeRail compact fadeFrom="from-[#0e0e11]" showDots={false} showChevrons={false} scrollerClassName="items-center gap-1">
           {[
             { id: "all" as const, label: "All", count: regionCounts.all },
             { id: "jamaica" as const, label: "🇯🇲 JA", count: regionCounts.jamaica },
@@ -133,7 +134,7 @@ export function CityQuickSwitcher({
               <span className="ml-1 opacity-60">({tab.count})</span>
             </button>
           ))}
-        </div>
+        </SwipeRail>
 
         <div className="max-h-[320px] overflow-y-auto space-y-0.5 pr-0.5 scrollbar-thin scrollbar-thumb-white/10">
           {filteredCities.map((item) => {

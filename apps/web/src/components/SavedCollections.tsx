@@ -7,6 +7,7 @@ import { MomentCard } from "@/components/MomentCard";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
 import { useI18n } from "@/i18n/I18nContext";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 
 type Moment = Tables<"moments">;
 
@@ -115,11 +116,12 @@ export function SavedCollections({
             )}
 
             {/* Collection Tabs / Pills */}
-            <div className="flex gap-2 overflow-x-auto pb-4 mb-6">
+            <SwipeRail compact fadeFrom="from-black" showDots={false} className="mb-6" scrollerClassName="gap-2 pb-4">
                 <button
                     onClick={() => setSelectedCollection(null)}
+                    aria-selected={selectedCollection === null}
                     className={cn(
-                        "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+                        "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap snap-start transition-colors",
                         selectedCollection === null
                             ? "bg-orange-500 text-black"
                             : "border border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/10"
@@ -131,8 +133,9 @@ export function SavedCollections({
                     <button
                         key={collection.id}
                         onClick={() => setSelectedCollection(collection.id)}
+                        aria-selected={selectedCollection === collection.id}
                         className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2",
+                            "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap snap-start transition-colors flex items-center gap-2",
                             selectedCollection === collection.id
                                 ? "bg-orange-500 text-black"
                                 : "border border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/10"
@@ -142,7 +145,7 @@ export function SavedCollections({
                         <span className="text-xs opacity-70">({collection.moments.length})</span>
                     </button>
                 ))}
-            </div>
+            </SwipeRail>
 
             {/* Collection Grid */}
             {selectedCollection === null ? (

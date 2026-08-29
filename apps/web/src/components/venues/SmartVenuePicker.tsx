@@ -6,6 +6,7 @@ import {
   Compass,
 } from "lucide-react";
 import { VERIFIED_VENUES, VenueItem } from "@/data/venuesData";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 
 interface SmartVenuePickerProps {
   selectedVenueName: string;
@@ -199,7 +200,7 @@ export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
             </div>
 
             {/* Vibe Category Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            <SwipeRail compact fadeFrom="from-black" showDots={false} showChevrons={false} scrollerClassName="items-center gap-1.5 pb-1">
               {[
                 { id: "all", label: "All Vibe Types" },
                 { id: "soundstage", label: "🎵 Soundstages" },
@@ -211,7 +212,8 @@ export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
                   key={pill.id}
                   type="button"
                   onClick={() => setActiveVibeFilter(pill.id)}
-                  className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition shrink-0 ${
+                  aria-selected={activeVibeFilter === pill.id}
+                  className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition shrink-0 snap-start ${
                     activeVibeFilter === pill.id
                       ? "bg-primary text-white"
                       : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
@@ -220,7 +222,7 @@ export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
                   {pill.label}
                 </button>
               ))}
-            </div>
+            </SwipeRail>
           </div>
 
           {/* Cards Grid */}

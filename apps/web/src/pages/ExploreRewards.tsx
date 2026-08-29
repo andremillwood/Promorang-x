@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserBalance } from "@/hooks/useEconomy";
 import { Button } from "@/components/ui/button";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -363,7 +364,7 @@ export function ExploreRewards() {
           </div>
 
           {/* Category Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <SwipeRail compact fadeFrom="from-black" showDots={false} scrollerClassName="items-center gap-2">
             {[
               { id: "all", label: "All Requests", icon: Sparkles },
               { id: "food", label: "Food & Dining 🍽️", icon: Gift },
@@ -386,7 +387,7 @@ export function ExploreRewards() {
                 </button>
               );
             })}
-          </div>
+          </SwipeRail>
 
           {/* Demand Requests Grid with Venue Photography & Gauges */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

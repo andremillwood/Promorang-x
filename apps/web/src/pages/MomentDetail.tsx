@@ -11,6 +11,7 @@ import { SaveButton } from "@/components/SaveButton";
 import { ReactionBar } from "@/components/ReactionBar";
 import { CommentSection } from "@/components/CommentSection";
 import { Button } from "@/components/ui/button";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShareButton } from "@/components/ShareButton";
@@ -969,20 +970,14 @@ const MomentDetail = () => {
       {/* Navigation Sub-Tab Bar for Quick Jumping */}
       <nav className="sticky top-0 z-30 border-b border-white/10 bg-[#09090b]/90 backdrop-blur-xl">
         <div className="mx-auto max-w-6xl px-4 py-2.5 sm:px-6">
-          <div className="mb-2 flex items-center justify-between gap-4 px-0.5 sm:mb-1.5">
-            <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/45">
-              {t("momentDetail.exploreSections")}
-            </span>
-            <span className="flex items-center gap-1 text-[10px] font-bold text-[#ff8a50] sm:hidden">
-              {t("momentDetail.swipeForMore")} <ArrowRight className="h-3 w-3" aria-hidden="true" />
-            </span>
-          </div>
-          <div className="relative -mr-4 sm:mr-0">
-            <div
-              role="tablist"
-              aria-label={t("momentDetail.exploreSections")}
-              className="flex gap-2 overflow-x-auto pb-1 pr-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:pr-0"
-            >
+          <SwipeRail
+            label={t("momentDetail.exploreSections")}
+            fadeFrom="from-[#09090b]"
+            compact
+            showDots={false}
+            className="-mr-4 sm:mr-0"
+            scrollerClassName="gap-2 pb-1"
+          >
               {momentTabs.map((tab) => {
                 const isActive = activeMomentTab === tab.id;
                 return (
@@ -1005,14 +1000,7 @@ const MomentDetail = () => {
                   </button>
                 );
               })}
-            </div>
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 right-0 flex w-12 items-center justify-end bg-gradient-to-l from-[#09090b] via-[#09090b]/90 to-transparent pr-2 sm:hidden"
-            >
-              <ArrowRight className="h-4 w-4 text-white/65" />
-            </div>
-          </div>
+          </SwipeRail>
         </div>
       </nav>
 

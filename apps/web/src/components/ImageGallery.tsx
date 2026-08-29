@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { X, ChevronLeft, ChevronRight, ZoomIn, Heart, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { cn } from "@/lib/utils";
 
 interface ImageGalleryProps {
@@ -268,11 +269,12 @@ export function ImageGallery({ images, className }: ImageGalleryProps) {
                     )}
 
                     {/* Thumbnail strip */}
-                    <div className="absolute bottom-20 left-0 right-0 flex gap-2 overflow-x-auto px-4 touch-pan-x snap-x-mandatory scrollbar-none sm:justify-center">
+                    <SwipeRail compact fadeFrom="from-black" showDots={false} showChevrons={false} className="absolute bottom-20 left-0 right-0 px-4" scrollerClassName="gap-2 sm:justify-center">
                         {images.map((img, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx)}
+                                aria-selected={idx === currentIndex}
                                 className={cn(
                                     "h-16 w-16 flex-shrink-0 snap-start overflow-hidden rounded-lg transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
                                     idx === currentIndex
@@ -287,7 +289,7 @@ export function ImageGallery({ images, className }: ImageGalleryProps) {
                                 />
                             </button>
                         ))}
-                    </div>
+                    </SwipeRail>
                 </div>
             )}
         </>

@@ -13,6 +13,7 @@ import {
   Star 
 } from 'lucide-react';
 import SEO from '@/components/SEO';
+import { SwipeRail } from '@/components/ui/SwipeRail';
 import { useI18n } from '@/i18n/I18nContext';
 
 export default function ActivatePage() {
@@ -135,8 +136,7 @@ export default function ActivatePage() {
               <div className="flex items-center"><CheckCircle className="w-5 h-5 text-green-500 mr-2" /> {t("activatePage.feat5DayDelivery")}</div>
             </div>
 
-            <div className="mt-6 -mx-4 overflow-x-auto px-4 touch-pan-x snap-x-mandatory scrollbar-none sm:hidden">
-              <div className="flex gap-3 pb-1 text-left">
+            <SwipeRail fadeFrom="from-background" className="mt-6 -mx-4 px-4 sm:hidden" scrollerClassName="gap-3 pb-1 text-left">
                 <div className="min-w-[240px] snap-start rounded-2xl border border-primary/15 bg-primary/5 p-4">
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{t("activatePage.journeyTitle")}</p>
                   <p className="mt-2 text-sm font-medium text-foreground">{t("activatePage.journeyDesc")}</p>
@@ -145,8 +145,7 @@ export default function ActivatePage() {
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">{t("activatePage.touchFlowTitle")}</p>
                   <p className="mt-2 text-sm text-muted-foreground">{t("activatePage.touchFlowDesc")}</p>
                 </div>
-              </div>
-            </div>
+            </SwipeRail>
           </div>
         </div>
       </section>

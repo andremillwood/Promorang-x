@@ -14,6 +14,7 @@ import {
   Filter
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 
 const CATEGORIES = [
   { value: "all", label: "All Categories" },
@@ -160,13 +161,15 @@ const BountyBoard = () => {
           </div>
 
           {/* Filters */}
-          <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2">
-            <Filter className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+          <div className="mb-8 flex items-start gap-2">
+            <Filter className="mt-2 w-4 h-4 shrink-0 text-muted-foreground" />
+            <SwipeRail compact fadeFrom="from-background" showDots={false} className="min-w-0 flex-1" scrollerClassName="items-center gap-2 pb-2">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.value}
                 onClick={() => setCategoryFilter(cat.value)}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${categoryFilter === cat.value
+                aria-selected={categoryFilter === cat.value}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap snap-start transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${categoryFilter === cat.value
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground hover:bg-secondary"
                   }`}
@@ -174,6 +177,7 @@ const BountyBoard = () => {
                 {cat.label}
               </button>
             ))}
+            </SwipeRail>
           </div>
 
           {/* Bounties Grid */}

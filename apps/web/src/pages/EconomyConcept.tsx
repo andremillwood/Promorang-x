@@ -10,6 +10,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import SEO from "@/components/SEO";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { TactileButton } from "@/components/ui/TactileButton";
 import {
   CollectibleRelic,
@@ -791,7 +792,7 @@ export default function EconomyConcept() {
 
       <nav aria-label={t("economy.navOverview")} className="sticky top-16 z-30 border-b border-white/10 bg-[#090909]/95 backdrop-blur-md">
         <div className="container px-6">
-          <div className="flex gap-2 overflow-x-auto py-3 pr-scroll-rail">
+          <SwipeRail compact fadeFrom="from-[#090909]" showDots={false} className="py-3" scrollerClassName="gap-2">
             {navigationLinks.map((item) => {
               const isActive = (conceptKey === "overview" && item.slug === "overview") || conceptKey === item.slug;
               return (
@@ -799,7 +800,7 @@ export default function EconomyConcept() {
                   key={item.slug}
                   to={item.path}
                   aria-current={isActive ? "page" : undefined}
-                  className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                  className={`inline-flex min-h-11 shrink-0 snap-start items-center rounded-full px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                     isActive
                       ? "bg-primary text-black"
                       : "border border-white/10 bg-white/[0.03] text-zinc-300 hover:text-white"
@@ -809,7 +810,7 @@ export default function EconomyConcept() {
                 </Link>
               );
             })}
-          </div>
+          </SwipeRail>
         </div>
       </nav>
 

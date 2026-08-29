@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
+import { SwipeRail } from '@/components/ui/SwipeRail';
 import {
   Compass,
   Calendar,
@@ -584,7 +585,7 @@ export default function OpportunityRadar() {
           />
 
           {/* Navigation Mode Tabs */}
-          <div className="flex items-center space-x-2 border-b border-gray-800 pb-3 overflow-x-auto">
+          <SwipeRail compact fadeFrom="from-black" showDots={false} className="border-b border-gray-800 pb-3" scrollerClassName="items-center gap-2">
             <button
               onClick={() => setActiveTab('NOW')}
               className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center space-x-1.5 ${
@@ -624,7 +625,7 @@ export default function OpportunityRadar() {
               <Key className="w-3.5 h-3.5" />
               <span>{t("radar.unlockPromoKeys")}</span>
             </button>
-          </div>
+          </SwipeRail>
 
         </div>
       </div>
@@ -635,7 +636,7 @@ export default function OpportunityRadar() {
         {/* Intent Filters & Search */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           {/* Intent Filters */}
-          <div className="flex items-center space-x-1.5 overflow-x-auto pb-2 md:pb-0">
+          <SwipeRail compact fadeFrom="from-black" showDots={false} showChevrons={false} scrollerClassName="items-center gap-1.5">
             <span className="text-xs font-bold text-gray-500 dark:text-gray-400 mr-2 flex items-center">
               <Filter className="w-3.5 h-3.5 mr-1" /> Intent:
             </span>
@@ -652,7 +653,7 @@ export default function OpportunityRadar() {
                 {intent}
               </button>
             ))}
-          </div>
+          </SwipeRail>
 
           {/* Search Box */}
           <div className="relative w-full md:w-64">

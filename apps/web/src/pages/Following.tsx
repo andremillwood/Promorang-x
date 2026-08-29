@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { FollowButton } from "@/components/FollowButton";
 import { cultureImages } from "@/data/culture-demo";
 import { useI18n } from "@/i18n/I18nContext";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 
 interface FollowingUser {
     id: string;
@@ -310,21 +311,21 @@ const Following = () => {
                         </div>
                         
                         {loading ? (
-                            <div className="flex gap-4 overflow-x-auto pb-2">
+                            <SwipeRail fadeFrom="from-[#111]" showDots={false} showChevrons={false} scrollerClassName="items-start gap-4 pb-2">
                                 {[1, 2, 3].map(i => (
-                                    <div key={i} className="flex flex-col items-center gap-2 min-w-[80px]">
+                                    <div key={i} className="flex min-w-[80px] snap-start flex-col items-center gap-2">
                                         <Skeleton className="h-14 w-14 rounded-full" />
                                         <Skeleton className="h-3 w-16" />
                                     </div>
                                 ))}
-                            </div>
+                            </SwipeRail>
                         ) : followingUsers.length > 0 ? (
-                            <div className="flex gap-4 overflow-x-auto pb-2">
+                            <SwipeRail fadeFrom="from-[#111]" showDots={false} scrollerClassName="items-start gap-4 pb-2">
                                 {followingUsers.map(person => (
                                     <Link
                                         key={person.id}
                                         to={`/profile/${person.id}`}
-                                        className="flex flex-col items-center gap-2 min-w-[80px] group"
+                                        className="flex min-w-[80px] snap-start flex-col items-center gap-2 group"
                                     >
                                         {person.avatar ? (
                                             <img 
@@ -344,35 +345,35 @@ const Following = () => {
                                 ))}
                                 <Link
                                     to="/creators"
-                                    className="flex flex-col items-center gap-2 min-w-[80px]"
+                                    className="flex min-w-[80px] snap-start flex-col items-center gap-2"
                                 >
                                     <div className="h-14 w-14 rounded-full border-2 border-dashed border-primary/50 flex items-center justify-center text-primary hover:bg-primary/10 transition-colors">
                                         <UserPlus className="h-5 w-5" />
                                     </div>
                                     <span className="text-xs text-muted-foreground">{t("following.findMore")}</span>
                                 </Link>
-                            </div>
+                            </SwipeRail>
                         ) : (
                             <div className="space-y-4">
                                 {loadingSuggestions ? (
-                                    <div className="flex gap-4 overflow-x-auto pb-2">
+                                    <SwipeRail fadeFrom="from-[#111]" showDots={false} showChevrons={false} scrollerClassName="items-start gap-4 pb-2">
                                         {[1, 2, 3, 4].map(i => (
-                                            <div key={i} className="flex flex-col items-center gap-2 min-w-[100px]">
+                                            <div key={i} className="flex min-w-[100px] snap-start flex-col items-center gap-2">
                                                 <Skeleton className="h-14 w-14 rounded-full" />
                                                 <Skeleton className="h-3 w-16" />
                                             </div>
                                         ))}
-                                    </div>
+                                    </SwipeRail>
                                 ) : suggestedUsers.length > 0 ? (
                                     <div className="space-y-3">
                                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                             Suggested for you
                                         </p>
-                                        <div className="flex gap-4 overflow-x-auto pb-2">
+                                        <SwipeRail fadeFrom="from-[#111]" showDots={false} scrollerClassName="items-start gap-4 pb-2">
                                             {suggestedUsers.map(person => (
                                                 <div
                                                     key={person.id}
-                                                    className="flex flex-col items-center gap-2 min-w-[100px] group"
+                                                    className="flex min-w-[100px] snap-start flex-col items-center gap-2 group"
                                                 >
                                                     <Link to={`/profile/${person.id}`} className="relative">
                                                         {person.avatar ? (
@@ -410,7 +411,7 @@ const Following = () => {
                                                     />
                                                 </div>
                                             ))}
-                                        </div>
+                                        </SwipeRail>
                                     </div>
                                 ) : (
                                     <div className="text-center py-6">

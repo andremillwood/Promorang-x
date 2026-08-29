@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -105,7 +106,7 @@ export const StakeholderValueHub: React.FC<StakeholderValueHubProps> = ({
         )}
 
         {/* Stakeholder Role Switcher Bar */}
-        <div className="flex items-center justify-start md:justify-center overflow-x-auto pb-4 mb-8 gap-2.5 no-scrollbar">
+        <SwipeRail compact fadeFrom="from-black" showDots={false} className="mb-8" scrollerClassName="items-center justify-start gap-2.5 pb-4 md:justify-center">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeRole === tab.id;
@@ -113,7 +114,8 @@ export const StakeholderValueHub: React.FC<StakeholderValueHubProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setActiveRole(tab.id)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all shrink-0 text-left cursor-pointer ${
+                aria-selected={isActive}
+                className={`flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all shrink-0 snap-start text-left cursor-pointer ${
                   isActive
                     ? "bg-white/10 border-white/30 text-white shadow-2xl scale-[1.02]"
                     : "bg-zinc-900/60 border-white/5 text-white/60 hover:bg-zinc-900 hover:text-white"
@@ -143,7 +145,7 @@ export const StakeholderValueHub: React.FC<StakeholderValueHubProps> = ({
               </button>
             );
           })}
-        </div>
+        </SwipeRail>
 
         {/* Active Simulator Container */}
         <div className="w-full">

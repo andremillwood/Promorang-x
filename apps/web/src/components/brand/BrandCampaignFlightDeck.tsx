@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import {
   Megaphone,
   Plus,
@@ -125,7 +126,7 @@ export function BrandCampaignFlightDeck({
 
       {/* 2. Simple Filter Tabs */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+        <SwipeRail compact fadeFrom="from-black" showDots={false} scrollerClassName="items-center gap-2 pb-1 sm:pb-0">
           {[
             { id: "all", label: "All Campaigns" },
             { id: "live", label: "Currently Active" },
@@ -134,7 +135,8 @@ export function BrandCampaignFlightDeck({
             <button
               key={tab.id}
               onClick={() => setFilterState(tab.id as any)}
-              className={`px-4 py-2 rounded-2xl text-xs font-bold transition shrink-0 ${
+              aria-selected={filterState === tab.id}
+              className={`px-4 py-2 rounded-2xl text-xs font-bold transition shrink-0 snap-start ${
                 filterState === tab.id
                   ? "bg-primary text-black shadow-md shadow-primary/20"
                   : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/5"
@@ -143,7 +145,7 @@ export function BrandCampaignFlightDeck({
               {tab.label}
             </button>
           ))}
-        </div>
+        </SwipeRail>
 
         <div className="flex items-center gap-2 text-xs text-white/60">
           <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />

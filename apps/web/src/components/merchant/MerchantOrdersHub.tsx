@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
@@ -161,7 +162,7 @@ export function MerchantOrdersHub({
 
       {/* 2. Filter Strip & Search Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+        <SwipeRail compact fadeFrom="from-black" showDots={false} scrollerClassName="items-center gap-2 pb-1 sm:pb-0">
           {[
             { value: "all", label: "All Orders" },
             { value: "pending", label: "New / Pending" },
@@ -172,7 +173,8 @@ export function MerchantOrdersHub({
             <button
               key={tab.value}
               onClick={() => setFilterStatus(tab.value)}
-              className={`px-3.5 py-2 rounded-2xl text-xs font-bold transition shrink-0 ${
+              aria-selected={filterStatus === tab.value}
+              className={`px-3.5 py-2 rounded-2xl text-xs font-bold transition shrink-0 snap-start ${
                 filterStatus === tab.value
                   ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
                   : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/5"
@@ -181,7 +183,7 @@ export function MerchantOrdersHub({
               {tab.label}
             </button>
           ))}
-        </div>
+        </SwipeRail>
 
         <div className="relative w-full sm:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />

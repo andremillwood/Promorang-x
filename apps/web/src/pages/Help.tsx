@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { Input } from "@/components/ui/input";
 import {
   Shield,
@@ -314,14 +315,15 @@ export default function HelpCenter() {
           </div>
 
           {/* Category Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-10 no-scrollbar">
+          <SwipeRail compact fadeFrom="from-black" showDots={false} className="mb-10" scrollerClassName="items-center gap-2 pb-4">
             {categories.map((cat) => {
               const Icon = cat.icon;
               return (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider whitespace-nowrap transition ${
+                  aria-selected={activeCategory === cat.id}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider whitespace-nowrap snap-start transition ${
                     activeCategory === cat.id
                       ? "bg-primary text-black"
                       : "border border-white/10 bg-white/[0.03] text-white/60 hover:text-white hover:border-white/20"
@@ -332,7 +334,7 @@ export default function HelpCenter() {
                 </button>
               );
             })}
-          </div>
+          </SwipeRail>
 
           {/* Quick Hub Navigation Cards */}
           <div className="grid sm:grid-cols-3 gap-4 mb-16">

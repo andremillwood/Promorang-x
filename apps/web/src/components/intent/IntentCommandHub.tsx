@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { SwipeRail } from '@/components/ui/SwipeRail';
 import { useUserIntentContinuity, UserIntentCategory, UserGoalOption } from '@/hooks/useUserIntentContinuity';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
@@ -73,12 +74,13 @@ export const IntentCommandHub: React.FC = () => {
       </div>
 
       {/* Category Pills */}
-      <div className="mt-5 flex flex-wrap gap-2 overflow-x-auto pb-1">
+      <SwipeRail compact fadeFrom="from-black" showDots={false} className="mt-5" scrollerClassName="items-center gap-2 pb-1">
         {categories.map(cat => (
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200 ${
+            aria-selected={selectedCategory === cat.id}
+            className={`shrink-0 snap-start rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200 ${
               selectedCategory === cat.id
                 ? 'bg-primary text-white shadow-[0_2px_10px_rgba(255,85,0,0.35)]'
                 : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/5'
@@ -87,7 +89,7 @@ export const IntentCommandHub: React.FC = () => {
             {cat.label}
           </button>
         ))}
-      </div>
+      </SwipeRail>
 
       {/* Action Grid */}
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

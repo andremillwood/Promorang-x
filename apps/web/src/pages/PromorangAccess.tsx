@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { claimPresentsExperience, getMyPresents, getPresentsCatalog, PresentsExperience } from "@/lib/presents";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import "./PromorangPresents.css";
 
 const filterKeys = ["All", "Tonight", "Music", "VIP", "Tables", "Secret"] as const;
@@ -72,9 +73,9 @@ export default function PromorangAccess() {
       </section>
 
       <section className="mx-auto max-w-7xl px-5 py-12 sm:px-10 lg:px-20">
-        <div className="mb-10 flex gap-2 overflow-x-auto pb-2" aria-label="Filter experiences">
-          {filterKeys.map((item) => <button key={item} onClick={() => setFilter(item)} className={`whitespace-nowrap border px-4 py-2 text-xs font-bold uppercase tracking-wider ${filter === item ? 'border-orange-500 bg-orange-500 text-white' : 'border-white/15 text-stone-400 hover:border-white/40'}`}>{getFilterLabel(item)}</button>)}
-        </div>
+        <SwipeRail compact fadeFrom="from-[#11100e]" showDots={false} className="mb-10" scrollerClassName="gap-2 pb-2">
+          {filterKeys.map((item) => <button key={item} onClick={() => setFilter(item)} aria-selected={filter === item} className={`shrink-0 snap-start whitespace-nowrap border px-4 py-2 text-xs font-bold uppercase tracking-wider ${filter === item ? 'border-orange-500 bg-orange-500 text-white' : 'border-white/15 text-stone-400 hover:border-white/40'}`}>{getFilterLabel(item)}</button>)}
+        </SwipeRail>
         {loading ? <div className="grid gap-5 md:grid-cols-2"><div className="h-96 animate-pulse bg-white/5"/><div className="h-96 animate-pulse bg-white/5"/></div> : (
           <div className="grid gap-5 md:grid-cols-2">
             {visible.map((experience, index) => {

@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { ArrowRight, Award, CalendarDays, CheckCircle2, Gem, Instagram, Mail, MessageCircle, Music2, Play, Radio, Share2, Sparkles, Users } from "lucide-react";
 import SEO from "@/components/SEO";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { ExperienceCard, MobileBottomNav } from "@/components/culture/CultureCards";
 import { cultureCreators, cultureEvents } from "@/data/culture-demo";
 import { ContentProvenanceBadge, SampleContentNotice } from "@/components/content/ContentProvenance";
@@ -88,14 +89,14 @@ export default function CreatorDetail() {
           </div>
         </div>
         <div className="relative z-10 border-t border-white/10 bg-black/70">
-          <div className="container flex gap-6 overflow-x-auto px-6 scrollbar-none">
+          <SwipeRail compact fadeFrom="from-black" showDots={false} showChevrons={false} className="container px-6" scrollerClassName="items-center gap-6">
             {tabs.map((tab, index) => (
-              <button key={tab.label} className={`inline-flex min-w-fit items-center gap-2 border-b-2 px-2 py-4 text-sm font-bold ${index === 0 ? "border-primary text-primary" : "border-transparent text-white/60"}`}>
+              <button key={tab.label} aria-selected={index === 0} className={`inline-flex min-w-fit snap-start items-center gap-2 border-b-2 px-2 py-4 text-sm font-bold ${index === 0 ? "border-primary text-primary" : "border-transparent text-white/60"}`}>
                 <tab.icon className="h-4 w-4" />
                 {tab.label}
               </button>
             ))}
-          </div>
+          </SwipeRail>
         </div>
       </section>
       <div className="container px-6 pt-6">
@@ -129,9 +130,9 @@ export default function CreatorDetail() {
 
           <div className="mt-10">
             <h2 className="mb-5 text-2xl font-black uppercase tracking-[-0.03em]">{t("creatorProfile.recent")}</h2>
-            <div className="grid grid-flow-col auto-cols-[68%] gap-4 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[30%]">
+            <SwipeRail fadeFrom="from-black" scrollerClassName="grid grid-flow-col auto-cols-[68%] gap-4 pb-3 md:auto-cols-[30%]">
               {cultureEvents.map((event) => (
-                <Link key={event.slug} to="/discover/content" className="group">
+                <Link key={event.slug} to="/discover/content" className="group snap-start">
                   <article className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05]">
                     <img src={event.image} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
@@ -147,7 +148,7 @@ export default function CreatorDetail() {
                   </article>
                 </Link>
               ))}
-            </div>
+            </SwipeRail>
           </div>
         </div>
 

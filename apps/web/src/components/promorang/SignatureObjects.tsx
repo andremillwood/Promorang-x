@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { TactileButton } from "@/components/ui/TactileButton";
 import { cn } from "@/lib/utils";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 
 export function PlainEnglish({ children }: { children: ReactNode }) {
   return (
@@ -261,27 +262,26 @@ export function ObjectShelf({
   };
 
   return (
-    <ul className="flex gap-4 overflow-x-auto pb-2 pr-scroll-rail">
+    <SwipeRail fadeFrom="from-black" scrollerClassName="gap-4 pb-2">
       {items.map((item) => (
-        <li key={item.name} className="min-w-[240px] max-w-[260px] shrink-0">
-          <Link
-            to={item.href}
-            aria-current={item.active ? "page" : undefined}
-            className={cn(
-              "block h-full overflow-hidden rounded-[1.4rem] border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-              item.active ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/[0.03] hover:border-white/25",
-            )}
-          >
-            <span className={cn("block h-2 bg-gradient-to-r", marks[item.name] ?? "from-primary to-amber-400")} />
-            <span className="block p-5">
-              <p className="font-serif text-xl font-bold text-white">{item.name}</p>
-              <p className="mt-2 text-sm leading-6 text-zinc-300">{item.like}</p>
-              <p className="mt-4 text-xs leading-5 text-amber-200/90">{item.use}</p>
-            </span>
-          </Link>
-        </li>
+        <Link
+          key={item.name}
+          to={item.href}
+          aria-current={item.active ? "page" : undefined}
+          className={cn(
+            "block h-full min-w-[240px] max-w-[260px] shrink-0 snap-start overflow-hidden rounded-[1.4rem] border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            item.active ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/[0.03] hover:border-white/25",
+          )}
+        >
+          <span className={cn("block h-2 bg-gradient-to-r", marks[item.name] ?? "from-primary to-amber-400")} />
+          <span className="block p-5">
+            <p className="font-serif text-xl font-bold text-white">{item.name}</p>
+            <p className="mt-2 text-sm leading-6 text-zinc-300">{item.like}</p>
+            <p className="mt-4 text-xs leading-5 text-amber-200/90">{item.use}</p>
+          </span>
+        </Link>
       ))}
-    </ul>
+    </SwipeRail>
   );
 }
 

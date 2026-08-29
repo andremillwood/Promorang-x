@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sparkles, Flame, Plus, Gift, Zap } from 'lucide-react';
+import { SwipeRail } from '@/components/ui/SwipeRail';
 import { useI18n } from '@/i18n/I18nContext';
 
 interface StoryItem {
@@ -61,14 +62,14 @@ export const StoryGamificationRail: React.FC<StoryGamificationRailProps> = ({
   const { t } = useI18n();
 
   return (
-    <div className="w-full overflow-x-auto no-scrollbar py-3 px-1 flex items-center gap-3">
+    <SwipeRail fadeFrom="from-black" showDots={false} className="py-3 px-1" scrollerClassName="items-center gap-3">
       {MOCK_STORIES.map((story) => {
         if (story.type === 'wheel') {
           return (
             <button
               key={story.id}
               onClick={onOpenWheel}
-              className="flex-shrink-0 flex flex-col items-center gap-1.5 group cursor-pointer"
+              className="flex-shrink-0 snap-start flex flex-col items-center gap-1.5 group cursor-pointer"
             >
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-400 p-0.5 shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-all">
                 <div className="w-full h-full bg-zinc-950 rounded-[14px] flex items-center justify-center">
@@ -85,7 +86,7 @@ export const StoryGamificationRail: React.FC<StoryGamificationRailProps> = ({
             <button
               key={story.id}
               onClick={onOpenStreak}
-              className="flex-shrink-0 flex flex-col items-center gap-1.5 group cursor-pointer"
+              className="flex-shrink-0 snap-start flex flex-col items-center gap-1.5 group cursor-pointer"
             >
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 p-0.5 shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-all">
                 <div className="w-full h-full bg-zinc-950 rounded-[14px] flex items-center justify-center">
@@ -100,7 +101,7 @@ export const StoryGamificationRail: React.FC<StoryGamificationRailProps> = ({
         return (
           <div
             key={story.id}
-            className="flex-shrink-0 flex flex-col items-center gap-1.5 cursor-pointer group"
+            className="flex-shrink-0 snap-start flex flex-col items-center gap-1.5 cursor-pointer group"
           >
             <div
               className={`w-16 h-16 rounded-2xl p-0.5 transition-all group-hover:scale-105 ${
@@ -121,6 +122,6 @@ export const StoryGamificationRail: React.FC<StoryGamificationRailProps> = ({
           </div>
         );
       })}
-    </div>
+    </SwipeRail>
   );
 };

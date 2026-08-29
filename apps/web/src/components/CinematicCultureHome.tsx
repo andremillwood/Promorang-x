@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { TiltCard3D } from "@/components/ui/TiltCard3D";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { HeroFloatingBadges } from "@/components/hero/HeroFloatingBadges";
 import {
   ArrowRight,
@@ -774,7 +775,7 @@ export default function CinematicCultureHome() {
 
           <div className="pt-9">
             <SectionHeader eyebrow={t("home.secMomentsEyebrow")} title={t("home.secMomentsTitle")} accent={t("home.secMomentsAccent")} action={t("home.secMomentsAction")} actionHref="/discover/moments" />
-            {homepageMoments.length ? <div className="grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 scrollbar-none sm:auto-cols-[45%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
+            {homepageMoments.length ? <SwipeRail collapseAt="lg" fadeFrom="from-black" scrollerClassName="grid grid-flow-col auto-cols-[82%] gap-4 pb-3 sm:auto-cols-[45%] lg:grid-flow-row lg:grid-cols-4">
               {homepageMoments.map((moment) => (
                 <Link key={moment.id} to={moment.href} className="group">
                   <ImageCard image={moment.image} className="h-72">
@@ -790,13 +791,13 @@ export default function CinematicCultureHome() {
                   </ImageCard>
                 </Link>
               ))}
-            </div> : <SampleOptIn onShow={() => setShowSamples(true)} noun="Moments" loading={discoveryQuery.isLoading} />}
+            </SwipeRail> : <SampleOptIn onShow={() => setShowSamples(true)} noun="Moments" loading={discoveryQuery.isLoading} />}
           </div>
 
           <div className="pt-12">
             <SectionHeader eyebrow={t("home.secDealsEyebrow")} title={t("home.secDealsTitle")} accent={t("home.secDealsAccent")} action={t("home.secDealsAction")} actionHref="/shop" />
             {homepageCommerce.length ? (
-              <div className="grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 scrollbar-none sm:auto-cols-[45%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
+              <SwipeRail collapseAt="lg" fadeFrom="from-black" scrollerClassName="grid grid-flow-col auto-cols-[82%] gap-4 pb-3 sm:auto-cols-[45%] lg:grid-flow-row lg:grid-cols-4">
                 {homepageCommerce.map((listing) => (
                   <Link key={listing.id} to={listing.href} className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] transition hover:-translate-y-1 hover:border-primary/45">
                     <div className="relative h-44 overflow-hidden">
@@ -815,7 +816,7 @@ export default function CinematicCultureHome() {
                     </div>
                   </Link>
                 ))}
-              </div>
+              </SwipeRail>
             ) : (
               <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent p-8 text-center sm:p-10">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary mb-4">
@@ -1054,7 +1055,7 @@ export default function CinematicCultureHome() {
           </p>
 
           {/* Interactive Role Tab Bar */}
-          <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-none">
+          <SwipeRail compact fadeFrom="from-black" showDots={false} scrollerClassName="gap-2 pb-4">
             {(Object.keys(MISSION_ARCHETYPES) as MissionArchetype[]).map((key) => {
               const role = MISSION_ARCHETYPES[key];
               const Icon = role.icon;
@@ -1075,7 +1076,7 @@ export default function CinematicCultureHome() {
                 </button>
               );
             })}
-          </div>
+          </SwipeRail>
 
           {/* Spotlight Active Archetype Deep-Dive Card */}
           {(() => {
@@ -1168,7 +1169,7 @@ export default function CinematicCultureHome() {
           })()}
 
           {/* Quick-Cards Rail for Direct Role Browsing */}
-          <div className="mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 scrollbar-none">
+          <SwipeRail fadeFrom="from-black" scrollerClassName="mt-6 gap-3 pb-2">
             {Object.entries(MISSION_ARCHETYPES).map(([id, role]) => {
               const RoleIcon = role.icon;
               const isCurrent = selectedRoleArchetype === id;
@@ -1198,7 +1199,7 @@ export default function CinematicCultureHome() {
                 </button>
               );
             })}
-          </div>
+          </SwipeRail>
         </div>
       </section>
 
@@ -1206,7 +1207,7 @@ export default function CinematicCultureHome() {
       <div className="container px-6 py-12 md:py-16">
         <SampleContentNotice noun="moments, scenes, and activity" className="mb-8" />
         <SectionHeader eyebrow="Find your vibe" title="What are you" accent="into?" />
-        <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-none">
+        <SwipeRail fadeFrom="from-black" scrollerClassName="gap-4 pb-3">
           {vibeCards.map((vibe) => (
             <Link key={vibe.label} to={vibe.href} className="group min-w-[132px] md:min-w-[168px]">
               <ImageCard image={vibe.image} className="h-36 md:h-44">
@@ -1215,12 +1216,12 @@ export default function CinematicCultureHome() {
               </ImageCard>
             </Link>
           ))}
-        </div>
+        </SwipeRail>
       </div>
 
       <div className="container px-6 py-6 md:py-10">
         <SectionHeader eyebrow="The cultural pulse" title="Trending" accent="this week" action="View all" />
-        <div className="grid grid-flow-col auto-cols-[72%] gap-4 overflow-x-auto pb-3 scrollbar-none sm:auto-cols-[42%] lg:grid-flow-row lg:grid-cols-5 lg:overflow-visible">
+        <SwipeRail collapseAt="lg" fadeFrom="from-black" scrollerClassName="grid grid-flow-col auto-cols-[72%] gap-4 pb-3 sm:auto-cols-[42%] lg:grid-flow-row lg:grid-cols-5">
           {trendingCards.map((card) => (
             <Link key={card.slug} to={`/events/${card.slug}`}>
               <ImageCard image={card.image} className="h-56">
@@ -1233,12 +1234,12 @@ export default function CinematicCultureHome() {
               </ImageCard>
             </Link>
           ))}
-        </div>
+        </SwipeRail>
       </div>
 
       <div className="container px-6 py-6 md:py-10">
         <SectionHeader eyebrow="Real people. Real stories." title="This is why we show up." />
-        <div className="grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[38%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
+        <SwipeRail collapseAt="lg" fadeFrom="from-black" scrollerClassName="grid grid-flow-col auto-cols-[82%] gap-4 pb-3 md:auto-cols-[38%] lg:grid-flow-row lg:grid-cols-4">
           {storyCards.map((story) => (
             <ImageCard key={story.name} image={story.image} className="h-44">
               <p className="max-w-[14rem] text-xl font-black leading-tight">"{story.quote}"</p>
@@ -1251,12 +1252,12 @@ export default function CinematicCultureHome() {
               </div>
             </ImageCard>
           ))}
-        </div>
+        </SwipeRail>
       </div>
 
       <div className="container px-6 py-6 md:py-10">
         <SectionHeader eyebrow="Scenes" title="More than moments. Find your" accent="scene." action="Explore all scenes" />
-        <div className="grid grid-flow-col auto-cols-[48%] gap-3 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[24%] lg:grid-flow-row lg:grid-cols-7 lg:overflow-visible">
+        <SwipeRail collapseAt="lg" fadeFrom="from-black" scrollerClassName="grid grid-flow-col auto-cols-[48%] gap-3 pb-3 md:auto-cols-[24%] lg:grid-flow-row lg:grid-cols-7">
           {scenes.map((scene) => (
             <Link key={scene.slug} to={`/scenes/${scene.slug}`} className="rounded-2xl border border-white/10 bg-white/[0.04] p-2 transition hover:border-primary/50">
               <ImageCard image={scene.image} className="h-28 rounded-xl">
@@ -1265,7 +1266,7 @@ export default function CinematicCultureHome() {
               <p className="mt-2 text-center text-xs font-bold text-white/70">{scene.momentsHosted} moments</p>
             </Link>
           ))}
-        </div>
+        </SwipeRail>
       </div>
 
       <div className="container px-6 py-6 md:py-10">
@@ -1288,7 +1289,7 @@ export default function CinematicCultureHome() {
 
       <div className="container px-6 py-6 md:py-10">
         <SectionHeader eyebrow="The feed" title="Every" accent="moment. All in one place." action="Explore the feed" />
-        <div className="grid grid-flow-col auto-cols-[42%] gap-4 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[22%] lg:grid-flow-row lg:grid-cols-6 lg:overflow-visible">
+        <SwipeRail collapseAt="lg" fadeFrom="from-black" scrollerClassName="grid grid-flow-col auto-cols-[42%] gap-4 pb-3 md:auto-cols-[22%] lg:grid-flow-row lg:grid-cols-6">
           {feedItems.map((item) => (
             <Link key={item.user} to="/pulse">
               <ImageCard image={item.image} className="aspect-[4/5]">
@@ -1300,12 +1301,12 @@ export default function CinematicCultureHome() {
               </ImageCard>
             </Link>
           ))}
-        </div>
+        </SwipeRail>
       </div>
 
       <div className="container px-6 py-6 md:py-10">
         <SectionHeader eyebrow="Creators" title="The culture" accent="makers." action="Discover more creators" />
-        <div className="grid grid-flow-col auto-cols-[72%] gap-3 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[28%] lg:grid-flow-row lg:grid-cols-6 lg:overflow-visible">
+        <SwipeRail collapseAt="lg" fadeFrom="from-black" scrollerClassName="grid grid-flow-col auto-cols-[72%] gap-3 pb-3 md:auto-cols-[28%] lg:grid-flow-row lg:grid-cols-6">
           {creators.map((creator) => (
             <Link key={creator.name} to={`/creators/${creator.handle}`} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.07] p-3 transition hover:border-primary/50">
               <img src={creator.image} alt="" className="h-14 w-14 rounded-full object-cover" />
@@ -1317,7 +1318,7 @@ export default function CinematicCultureHome() {
               <ArrowRight className="h-4 w-4 text-primary" />
             </Link>
           ))}
-        </div>
+        </SwipeRail>
       </div>
 
       </> : null}
