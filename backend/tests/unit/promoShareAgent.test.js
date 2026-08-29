@@ -9,8 +9,9 @@ const {
   compileSponsorBrief,
   compileHostBrief,
   compileBrief,
+  compileHandoffBrief,
 } = require('../../lib/agents/promoShareBrief');
-const { runPromoShareOperator, runPromoShareShareDraft, runPromoSharePoolDraft } = require('../../lib/agents/promoShareAgent');
+const { runPromoShareOperator, runPromoShareShareDraft, runPromoSharePoolDraft, runPromoShareHandoff } = require('../../lib/agents/promoShareAgent');
 
 const almostQualified = {
   cycles: [
@@ -194,5 +195,87 @@ describe('PromoShare operator runner', () => {
   test('compileBrief dispatches by role', () => {
     expect(compileBrief('admin').role).toBe('admin');
     expect(compileBrief('steward', { location: 'Kingston' }).headline).toMatch(/Kingston/);
+  });
+});
+
+describe('PromoShare handoff continuum', () => {
+  const nights = [
+    { id: 'm1', name: 'Thursday tasting', location: 'Kingston' },
+    { id: 'm2', name: 'Friday supper club', location: 'Kingston' },
+  ];
+
+  test('after check-in names the night and never sends them back to the same door', () => {
+    const brief = compileHandoffBrief({
+      standing: almostQualified,
+      moments: nights,
+      lastAction: 'check_in',
+      momentId: 'm1',
+      momentName: 'Thursday tasting',
+      location: 'Kingston',
+      userName: 'Tia',
+    });
+
+    expect(brief.headline).toMatch(/It counted at Thursday tasting/);
+    expect(brief.stage).toBe('unlock');
+    expect(brief.nextMove.href).not.toBe('/moments/m1/checkin');
+    expect(brief.nextMove.href).toBe('/moments/m2');
+    expect(brief.nextMove.ctaLabel).toMatch(/Friday supper club/);
+    expect(brief.theyGet).toMatch(/ticket from Thursday tasting/i);
+    expect(brief.promorangGets).toMatch(/verified visit/i);
+    expect(brief.share.posted).toBe(false);
+    expect(brief.summary).not.toMatch(/guaranteed|income|yield/i);
+  });
+
+  test('after check-in when already in, grow by inviting — not another check-in', () => {
+    const brief = compileHandoffBrief({
+      standing: {
+        cycles: [{
+          ...almostQualified.cycles[0],
+          eligible: true,
+          progress_to_qualify: {
+            moves: { current: 3, required: 3, complete: true },
+            moments: { current: 1, required: 1, complete: true },
+            referrals: { current: 1, required: 1, complete: true },
+          },
+        }],
+      },
+      moments: nights,
+      lastAction: 'check_in',
+      momentId: 'm1',
+      momentName: 'Thursday tasting',
+    });
+
+    expect(brief.stage).toBe('grow');
+    expect(brief.nextMove.kind).toBe('invite');
+    expect(brief.nextMove.href).not.toBe('/moments/m1/checkin');
+    expect(brief.nextMove.ctaLabel).toMatch(/friend/i);
+  });
+
+  test('after join, the next move is check-in at that same Moment', () => {
+    const brief = compileHandoffBrief({
+      standing: almostQualified,
+      moments: nights,
+      lastAction: 'join',
+      momentId: 'm1',
+      momentName: 'Thursday tasting',
+    });
+
+    expect(brief.stage).toBe('move');
+    expect(brief.headline).toMatch(/going to Thursday tasting/i);
+    expect(brief.nextMove.kind).toBe('check_in');
+    expect(brief.nextMove.href).toBe('/moments/m1/checkin');
+    expect(brief.theyGet).toMatch(/held place/i);
+  });
+
+  test('handoff runner compiles without an LLM', async () => {
+    const result = await runPromoShareHandoff(
+      { lastAction: 'check_in', momentId: 'm1', momentName: 'Thursday tasting', location: 'Kingston', role: 'participant' },
+      { userId: null, activeRole: 'participant', userName: 'Tia' }
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.brief.headline).toMatch(/It counted at Thursday tasting/);
+    expect(result.brief.nextMove.href).not.toBe('/moments/m1/checkin');
+    expect(result.traceId).toMatch(/^trace_/);
   });
 });

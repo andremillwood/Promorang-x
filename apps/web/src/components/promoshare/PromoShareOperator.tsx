@@ -1,79 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
-import { API_BASE_URL } from "@/lib/api";
 import { TactileButton } from "@/components/ui/TactileButton";
 import { PaperReceipt, TicketPass } from "@/components/promorang/SignatureObjects";
 import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { useI18n } from "@/i18n/I18nContext";
+import {
+  usePromoShareBrief,
+  type OperatorRole,
+  type PromoShareLastAction,
+} from "@/hooks/usePromoShareBrief";
 
-type OperatorRole = "participant" | "host" | "creator" | "sponsor" | "steward" | "admin";
-
-type NextMove = {
-  kind: string;
-  title: string;
-  why: string;
-  href?: string;
-  ctaLabel?: string;
-  momentId?: string | null;
-  momentName?: string | null;
-};
-
-type ShareDraft = {
-  status: string;
-  posted: boolean;
-  href: string;
-  message: string;
-  caption?: string;
-  warning?: string;
-};
-
-type PoolDraft = {
-  status: string;
-  funded: boolean;
-  published: boolean;
-  outcome: { statement: string; targetCount: number; timeframe?: string };
-  funding: {
-    requested_gems: number;
-    prize_pool_gems: number;
-    platform_fee_percent: number;
-  };
-  caps: { max_winners: number; liability_cap_gems: number };
-  message: string;
-};
-
-type OperatorBrief = {
-  role: OperatorRole;
-  headline: string;
-  summary: string;
-  unlock?: string;
-  proof?: string;
-  nextMove: NextMove;
-  share?: ShareDraft;
-  poolDraft?: PoolDraft;
-  cycle?: { tickets?: number; name?: string; eligible?: boolean } | null;
-  receiptLines: Array<{ label: string; value: string; strong?: boolean }>;
-  boundaries: string[];
-  alerts?: string[];
-};
-
-const ROLE_MAP: Record<string, OperatorRole> = {
-  participant: "participant",
-  creator: "creator",
-  host: "host",
-  brand: "sponsor",
-  merchant: "sponsor",
-  agency: "sponsor",
-  promoter: "participant",
-  marketing: "participant",
-  admin: "admin",
-};
-
-function mapRole(activeRole?: string | null, fallback?: OperatorRole): OperatorRole {
-  if (activeRole && ROLE_MAP[activeRole]) return ROLE_MAP[activeRole];
-  return fallback || "participant";
-}
+export type OperatorVariant = "pageHero" | "handoff" | "rail" | "compact";
 
 function shareUrl(href?: string) {
   if (typeof window === "undefined") return href || "/discover";
@@ -82,61 +20,59 @@ function shareUrl(href?: string) {
   return `${window.location.origin}${href}`;
 }
 
+function resolveVariant({
+  variant,
+  asPageHero,
+  compact,
+}: {
+  variant?: OperatorVariant;
+  asPageHero?: boolean;
+  compact?: boolean;
+}): OperatorVariant {
+  if (variant) return variant;
+  if (asPageHero) return "pageHero";
+  if (compact) return "compact";
+  return "pageHero";
+}
+
 export function PromoShareOperator({
   defaultRole,
   compact = false,
   asPageHero = false,
+  variant,
+  lastAction,
+  momentId,
+  momentName,
 }: {
   defaultRole?: OperatorRole;
   compact?: boolean;
   asPageHero?: boolean;
+  variant?: OperatorVariant;
+  lastAction?: PromoShareLastAction | string;
+  momentId?: string;
+  momentName?: string;
 }) {
   const { t } = useI18n();
-  const { session, activeRole, profile } = useAuth();
-  const role = mapRole(activeRole, defaultRole);
-  const [brief, setBrief] = useState<OperatorBrief | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [ask, setAsk] = useState("");
-  const [budgetGems, setBudgetGems] = useState("800");
+  const resolved = resolveVariant({ variant, asPageHero, compact });
+  const {
+    role,
+    brief,
+    loading,
+    ask,
+    setAsk,
+    budgetGems,
+    setBudgetGems,
+    canAskOutcome,
+    loadBrief,
+    session,
+  } = usePromoShareBrief({
+    defaultRole,
+    lastAction,
+    momentId,
+    momentName,
+  });
 
-  const canAskOutcome = role === "sponsor" || role === "steward" || role === "admin";
-  const TitleTag = asPageHero ? "h1" : "h2";
-
-  const loadBrief = async (objective?: string) => {
-    if (!session?.access_token) return;
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/agent/promoshare/brief`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          role,
-          objective: objective || undefined,
-          location: profile?.city || profile?.location || undefined,
-          budgetGems: canAskOutcome && budgetGems ? Number(budgetGems) : undefined,
-        }),
-      });
-      const result = await response.json();
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || "PromoShare operator could not compile a brief");
-      }
-      setBrief(result.data.brief);
-    } catch (error) {
-      console.error(error);
-      toast.error(t("promoshare.operatorLoadError"));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!session?.access_token) return;
-    loadBrief();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.access_token, role]);
+  const TitleTag = resolved === "pageHero" ? "h1" : "h2";
 
   const copyShare = async () => {
     if (!brief?.share?.message) return;
@@ -155,13 +91,15 @@ export function PromoShareOperator({
   };
 
   const eyebrow = useMemo(() => {
+    if (resolved === "handoff") return t("promoshare.operatorEyebrowHandoff");
+    if (resolved === "rail") return t("promoshare.operatorEyebrowRail");
     if (role === "sponsor") return t("promoshare.operatorEyebrowSponsor");
     if (role === "host") return t("promoshare.operatorEyebrowHost");
     if (role === "creator") return t("promoshare.operatorEyebrowCreator");
     if (role === "steward") return t("promoshare.operatorEyebrowSteward");
     if (role === "admin") return t("promoshare.operatorEyebrowAdmin");
     return t("promoshare.operatorEyebrow");
-  }, [role, t]);
+  }, [resolved, role, t]);
 
   if (!session?.access_token) return null;
 
@@ -169,6 +107,52 @@ export function PromoShareOperator({
   const stub = brief?.cycle?.tickets != null
     ? String(brief.cycle.tickets)
     : brief?.nextMove.kind || "GO";
+
+  const actions = brief ? (
+    <div className={`flex flex-col gap-3 ${resolved === "rail" ? "sm:flex-row sm:shrink-0" : "sm:flex-row sm:flex-wrap"}`}>
+      {brief.nextMove.href ? (
+        <TactileButton variant="primary" size={resolved === "rail" ? "default" : "lg"} asChild>
+          <Link to={brief.nextMove.href}>{cta}</Link>
+        </TactileButton>
+      ) : (
+        <TactileButton variant="primary" size={resolved === "rail" ? "default" : "lg"} disabled={loading} onClick={() => loadBrief(ask || undefined)}>
+          {cta}
+        </TactileButton>
+      )}
+      {brief.share?.message && resolved !== "rail" ? (
+        <TactileButton type="button" variant="success" size="lg" onClick={sendWhatsApp}>
+          {t("promoshare.operatorSendWhatsApp")}
+        </TactileButton>
+      ) : null}
+    </div>
+  ) : null;
+
+  if (resolved === "rail") {
+    return (
+      <section
+        className="mb-4 overflow-hidden rounded-2xl border border-orange-500/25 bg-zinc-950/90 px-4 py-3 sm:px-5"
+        aria-labelledby="promoshare-rail-heading"
+        aria-busy={loading}
+      >
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold tracking-[0.18em] text-orange-300">{eyebrow}</p>
+            <h2 id="promoshare-rail-heading" className="mt-1 truncate font-serif text-lg font-bold text-white">
+              {brief?.headline || t("promoshare.operatorIdleTitle")}
+            </h2>
+            <p className="mt-0.5 line-clamp-2 text-xs text-white/55">
+              {brief?.theyGet || brief?.unlock || t("promoshare.operatorIdleCopy")}
+            </p>
+          </div>
+          {loading && !brief ? (
+            <p className="text-xs text-white/45">{t("promoshare.operatorWorking")}</p>
+          ) : (
+            actions
+          )}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -188,7 +172,7 @@ export function PromoShareOperator({
             id="promoshare-operator-heading"
             className="mt-4 font-serif text-4xl font-bold leading-[1.05] text-white sm:text-5xl"
           >
-            {brief?.headline || t("promoshare.operatorIdleTitle")}
+            {brief?.headline || (resolved === "handoff" ? t("promoshare.operatorHandoffIdle") : t("promoshare.operatorIdleTitle"))}
           </TitleTag>
           <p className="mt-4 max-w-2xl text-base leading-7 text-amber-100/90 sm:text-lg">
             {brief?.unlock || brief?.summary || t("promoshare.operatorIdleCopy")}
@@ -198,7 +182,24 @@ export function PromoShareOperator({
           ) : null}
         </div>
 
-        {canAskOutcome ? (
+        {resolved === "handoff" && (brief?.theyGet || brief?.promorangGets) ? (
+          <div className="grid max-w-2xl gap-3 sm:grid-cols-2">
+            {brief?.theyGet ? (
+              <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
+                <p className="text-[10px] font-bold tracking-[0.16em] text-orange-300">{t("promoshare.operatorTheyGet")}</p>
+                <p className="mt-1.5 text-sm leading-6 text-white/85">{brief.theyGet}</p>
+              </div>
+            ) : null}
+            {brief?.promorangGets ? (
+              <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
+                <p className="text-[10px] font-bold tracking-[0.16em] text-amber-200/80">{t("promoshare.operatorPromorangGets")}</p>
+                <p className="mt-1.5 text-sm leading-6 text-white/85">{brief.promorangGets}</p>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        {canAskOutcome && resolved !== "handoff" ? (
           <form
             className="max-w-2xl rounded-[1.4rem] border border-white/10 bg-black/30 p-4 sm:p-5"
             onSubmit={(event) => {
@@ -258,24 +259,9 @@ export function PromoShareOperator({
               stubLabel={t("promoshare.operatorKeep")}
             />
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              {brief.nextMove.href ? (
-                <TactileButton variant="primary" size="lg" asChild>
-                  <Link to={brief.nextMove.href}>{cta}</Link>
-                </TactileButton>
-              ) : (
-                <TactileButton variant="primary" size="lg" disabled={loading} onClick={() => loadBrief(ask || undefined)}>
-                  {cta}
-                </TactileButton>
-              )}
-              {brief.share?.message ? (
-                <TactileButton type="button" variant="success" size="lg" onClick={sendWhatsApp}>
-                  {t("promoshare.operatorSendWhatsApp")}
-                </TactileButton>
-              ) : null}
-            </div>
+            {actions}
 
-            {brief.share ? (
+            {brief.share && resolved !== "compact" ? (
               <blockquote className="rounded-2xl border border-dashed border-white/15 bg-black/30 px-4 py-4 text-sm leading-6 text-zinc-200">
                 <p>{brief.share.message}</p>
                 <button
@@ -298,9 +284,9 @@ export function PromoShareOperator({
           </div>
         ) : null}
 
-        {brief && !compact ? (
+        {brief && resolved !== "compact" ? (
           <GuidanceDisclosure
-            id={`promoshare-operator:${role}`}
+            id={`promoshare-operator:${role}:${resolved}`}
             title={t("promoshare.operatorWhyCounts")}
             summary={brief.proof || brief.summary}
             className="mt-2"

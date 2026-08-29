@@ -11,6 +11,7 @@ const {
   runPromoShareOperator,
   runPromoShareShareDraft,
   runPromoSharePoolDraft,
+  runPromoShareHandoff,
 } = require('../lib/agents/promoShareAgent');
 const { 
   createCampaignDraftTool, 
@@ -311,6 +312,38 @@ router.post('/promoshare/draft-pool', async (req, res) => {
     }
     console.error('Error drafting PromoShare pool:', err);
     return sendError(res, 500, err.message || 'Failed to draft pool', 'PROMOSHARE_POOL_DRAFT_FAILED');
+  }
+});
+
+/**
+ * POST /api/agent/promoshare/handoff
+ * After a verified action: "it counted" plus the next move.
+ * Never sends someone back to check in at the same door.
+ */
+router.post('/promoshare/handoff', async (req, res) => {
+  try {
+    const body = req.body || {};
+    const result = await runPromoShareHandoff(
+      {
+        lastAction: body.lastAction,
+        momentId: body.momentId,
+        momentName: body.momentName,
+        location: body.location,
+        role: body.role,
+        organizationId: body.organizationId,
+      },
+      promoShareUserContext(req, body)
+    );
+
+    const href = result.brief?.nextMove?.href;
+    if (body.lastAction === 'check_in' && body.momentId && href === `/moments/${body.momentId}/checkin`) {
+      return sendError(res, 500, 'Handoff must not send someone back to the same door', 'HANDOFF_INTEGRITY');
+    }
+
+    return sendSuccess(res, result, 'PromoShare handoff compiled');
+  } catch (err) {
+    console.error('Error running PromoShare handoff:', err);
+    return sendError(res, 500, err.message || 'Failed to compile PromoShare handoff', 'PROMOSHARE_HANDOFF_FAILED');
   }
 });
 

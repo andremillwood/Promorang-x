@@ -42,6 +42,7 @@ import { MomentAccess } from "@/components/moments/MomentAccess";
 import { MomentLineupShowcase } from "@/components/moments/MomentLineupShowcase";
 import { Collaborator } from "@/components/moments/MomentLineupBuilder";
 import { PromoShareAction } from "@/components/promoshare/PromoShareAction";
+import { PromoShareOperator } from "@/components/promoshare/PromoShareOperator";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
 import { PromoCardMomentLoop } from "@/components/moments/PromoCardMomentLoop";
 import { usePromoCard } from "@/hooks/usePromoCard";
@@ -1023,6 +1024,15 @@ const MomentDetail = () => {
         aria-labelledby={`moment-tab-${activeMomentTab}`}
         className="scroll-mt-20 mx-auto max-w-6xl px-4 py-8 sm:px-6"
       >
+        {user && (isCheckedIn || isJoined) ? (
+          <PromoShareOperator
+            variant={isCheckedIn ? "handoff" : "rail"}
+            lastAction={isCheckedIn ? "check_in" : "join"}
+            momentId={moment.id}
+            momentName={moment.title}
+          />
+        ) : null}
+
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">
 
           {/* Left Main Column */}

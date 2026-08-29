@@ -9,6 +9,7 @@ const {
   ROLES,
   resolvePromoShareRole,
   compileBrief,
+  compileHandoffBrief,
   compilePoolDraftFromOutcome,
   buildShareDraft,
 } = require('./promoShareBrief');
@@ -248,9 +249,66 @@ async function runPromoSharePoolDraft(params = {}, userContext = {}) {
   return { success: true, role, draft };
 }
 
+async function runPromoShareHandoff(params = {}, userContext = {}) {
+  const startTime = Date.now();
+  const role = resolvePromoShareRole(params.role || userContext.activeRole, userContext.userType);
+  const tools = createPromoShareTools({
+    ...userContext,
+    activeRole: role,
+    location: params.location || userContext.location,
+  });
+
+  const ground = await gatherGroundTruth(role, params, userContext);
+  const brief = role === ROLES.PARTICIPANT
+    ? compileHandoffBrief({
+        ...ground,
+        lastAction: params.lastAction,
+        momentId: params.momentId,
+        momentName: params.momentName,
+      })
+    : compileBrief(role, ground);
+
+  const polish = await maybePolishBrief(brief, role, params, tools);
+  if (polish.text) {
+    brief.operatorNote = polish.text;
+  }
+
+  const durationMs = Date.now() - startTime;
+  const toolCalls = [
+    { toolName: 'inspectMyStanding', args: { userId: userContext.userId }, result: { cycleCount: ground.standing?.cycles?.length || 0 } },
+    { toolName: 'findEligibleMoments', args: { location: ground.location }, result: { count: ground.moments.length } },
+    ...polish.toolCalls,
+  ];
+
+  const trace = await agentTraceService.recordTrace({
+    agentName: 'promorang-promoshare-handoff',
+    userId: userContext.userId || null,
+    organizationId: params.organizationId || userContext.organizationId || null,
+    objectiveInput: {
+      role,
+      lastAction: params.lastAction || null,
+      momentId: params.momentId || null,
+    },
+    toolCalls,
+    durationMs,
+    status: 'success',
+  });
+
+  return {
+    success: true,
+    role,
+    brief,
+    llmResponse: polish.text,
+    traceId: trace.id,
+    durationMs,
+    boundaries: brief.boundaries,
+  };
+}
+
 module.exports = {
   SYSTEM_PROMPT,
   runPromoShareOperator,
   runPromoShareShareDraft,
   runPromoSharePoolDraft,
+  runPromoShareHandoff,
 };

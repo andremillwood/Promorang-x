@@ -279,6 +279,13 @@ function compileParticipantBrief({ standing, moments = [], location, userName } 
     summary: cycle
       ? 'Show up. Check in. That ticket can count today, this week, and for the big pot. Nobody is owed a prize.'
       : 'Show up anyway. When a pot opens, nights you already proved still count.',
+    stage: cycle?.eligible ? 'grow' : 'notice',
+    theyGet: cycle?.eligible
+      ? "You're in this week's pot. Standing gets stronger when someone you brought checks in."
+      : place
+        ? `A ticket from ${place} — today, this week, and the grand pot.`
+        : 'A ticket from one real night.',
+    promorangGets: 'Verified demand it can attach to a capped pot — not a click.',
     unlock: cycle?.eligible
       ? 'Bring one person tonight and your standing gets stronger without chasing a payout.'
       : place
@@ -526,6 +533,207 @@ function compileBrief(role, input = {}) {
   }
 }
 
+const PROVED_ACTIONS = new Set(['check_in', 'complete', 'proof', 'verified']);
+const JOIN_ACTIONS = new Set(['join', 'rsvp', 'going']);
+const GROW_ACTIONS = new Set(['invite', 'share']);
+
+function normalizeLastAction(lastAction) {
+  return String(lastAction || '').toLowerCase().trim();
+}
+
+function momentTitle(moment, fallback) {
+  return moment?.name || moment?.title || fallback || null;
+}
+
+function resolveHandoffStage(lastAction, gap, eligible) {
+  const action = normalizeLastAction(lastAction);
+  if (GROW_ACTIONS.has(action)) return 'return';
+  if (PROVED_ACTIONS.has(action)) return eligible || gap.key === 'qualified' ? 'grow' : 'unlock';
+  if (JOIN_ACTIONS.has(action)) return 'move';
+  return eligible || gap.key === 'qualified' ? 'grow' : 'notice';
+}
+
+function compileHandoffBrief({
+  standing,
+  moments = [],
+  lastAction,
+  momentName,
+  momentId,
+  location,
+  userName,
+} = {}) {
+  const cycles = standing?.cycles || standing?.user_stats_by_cycle || [];
+  const cycle = pickPrimaryCycle(cycles);
+  const gap = findNearestGap(cycle?.progress_to_qualify);
+  const eligible = Boolean(cycle?.eligible) || gap.key === 'qualified';
+  const action = normalizeLastAction(lastAction);
+  const stage = resolveHandoffStage(action, gap, eligible);
+  const justProved = PROVED_ACTIONS.has(action);
+  const justJoined = JOIN_ACTIONS.has(action);
+
+  const thisMoment = (moments || []).find((item) => item.id === momentId) || null;
+  const place = momentName || momentTitle(thisMoment) || 'this Moment';
+  const otherMoments = (moments || []).filter((item) => item.id !== momentId);
+  const nextPlace = otherMoments[0] || null;
+  const share = buildShareDraft({
+    moment: thisMoment || { id: momentId, name: place, title: place },
+    userName,
+    cycleName: cycle?.cycle_name,
+    location,
+  });
+
+  let nextMove;
+  if (justJoined) {
+    nextMove = {
+      kind: 'check_in',
+      title: `Check in at ${place}`,
+      why: 'Joining held your place. The ticket mints when you check in at the door.',
+      href: momentId ? `/moments/${momentId}/checkin` : '/discover',
+      momentId: momentId || null,
+      momentName: place,
+      ctaLabel: `Check in at ${place}`,
+    };
+  } else if (justProved) {
+    if (eligible || gap.key === 'qualified' || gap.key === 'referrals') {
+      nextMove = {
+        kind: 'invite',
+        title: `Bring one person to ${place}`,
+        why: eligible || gap.key === 'qualified'
+          ? "You're already in this week's pot. A friend who actually shows makes the night stronger."
+          : gap.why,
+        href: share.href,
+        momentId: momentId || null,
+        momentName: place,
+        ctaLabel: 'Invite one friend who will go',
+      };
+    } else if (gap.key === 'moments') {
+      const joinName = momentTitle(nextPlace, 'another night this week');
+      nextMove = {
+        kind: 'join_moment',
+        title: nextPlace ? `Join ${joinName}` : 'Join another night this week',
+        why: 'That visit counted. A distinct Moment is still missing from this cycle.',
+        href: nextPlace?.id ? `/moments/${nextPlace.id}` : '/discover',
+        momentId: nextPlace?.id || null,
+        momentName: nextPlace ? joinName : null,
+        ctaLabel: nextPlace ? `I'm going to ${joinName}` : 'Find another night',
+      };
+    } else {
+      const goName = momentTitle(nextPlace);
+      nextMove = nextPlace
+        ? {
+            kind: 'join_moment',
+            title: `Go to ${goName}`,
+            why: 'That visit counted. One more night closes the nearest gap.',
+            href: `/moments/${nextPlace.id}`,
+            momentId: nextPlace.id,
+            momentName: goName,
+            ctaLabel: `I'm going to ${goName}`,
+          }
+        : {
+            kind: 'invite',
+            title: 'Bring one person who will actually go',
+            why: 'That visit counted. A friend who checks in closes the nearest gap.',
+            href: share.href,
+            momentId: momentId || null,
+            momentName: place,
+            ctaLabel: 'Invite one friend who will go',
+          };
+    }
+  } else {
+    nextMove = compileParticipantBrief({ standing, moments, location, userName }).nextMove;
+  }
+
+  if (justProved && nextMove.href === `/moments/${momentId}/checkin`) {
+    nextMove = {
+      ...nextMove,
+      kind: 'invite',
+      title: `Bring one person to ${place}`,
+      href: share.href,
+      ctaLabel: 'Invite one friend who will go',
+    };
+  }
+
+  const theyGet = justProved
+    ? `A ticket from ${place}. It can count today, this week, and for the grand pot.`
+    : justJoined
+      ? `A held place at ${place}. The ticket comes when you check in.`
+      : eligible
+        ? "You're in this week's pot. Standing gets stronger when someone you brought checks in."
+        : gap.remaining
+          ? `The next ${gap.noun} that closes this week's gap.`
+          : 'A ticket from one real night.';
+
+  const promorangGets = justProved
+    ? 'A verified visit it can fund, match to a pot, and ask someone to repeat.'
+    : justJoined
+      ? 'Intent it can turn into a real night — only if they check in.'
+      : 'Verified demand it can attach to a capped pot — not a click.';
+
+  const headline = justProved
+    ? `It counted at ${place}.`
+    : justJoined
+      ? `You're going to ${place}.`
+      : eligible
+        ? "You're already in this week's pot."
+        : gap.remaining === 1
+          ? `You are one ${gap.noun} short of this week’s pot.`
+          : `You are ${gap.remaining} ${gap.noun}s short of this week’s pot.`;
+
+  return {
+    role: ROLES.PARTICIPANT,
+    stage,
+    headline,
+    summary: justProved
+      ? 'That visit is a ticket. Nobody is owed a prize. Here is the next move that helps both of you.'
+      : 'Show up. Check in. That ticket can count today, this week, and for the big pot. Nobody is owed a prize.',
+    theyGet,
+    promorangGets,
+    unlock: justProved
+      ? (eligible ? 'Bring one person tonight. You are already in.' : nextMove.why)
+      : justJoined
+        ? `Check in at ${place}. That is the whole next move.`
+        : eligible
+          ? 'Bring one person tonight and your standing gets stronger without chasing a payout.'
+          : `Go. Check in. That is the unlock.`,
+    proof: 'A check-in or approved proof. RSVPs and views do not count.',
+    nextMove,
+    share,
+    checkIn: {
+      needed: nextMove.kind === 'check_in',
+      copy: justProved
+        ? 'You already proved this night. Do not check in here again.'
+        : `If you go to ${place}, check in so the ticket counts.`,
+    },
+    cycle: cycle ? {
+      id: cycle.cycle_id || cycle.id,
+      name: cycle.cycle_name,
+      type: cycle.cycle_type,
+      eligible: Boolean(cycle.eligible),
+      status: cycle.status || 'not_qualified',
+      tickets: cycle.total_entries || 0,
+      weight: cycle.weight || 0,
+    } : null,
+    receiptLines: [
+      { label: 'It counted', value: justProved ? place : 'Not yet', strong: true },
+      ...receiptLinesFromCycle(cycle, gap),
+      { label: 'You get', value: theyGet },
+      { label: 'Promorang gets', value: promorangGets },
+    ],
+    trail: [
+      { label: 'Notice', title: place, text: 'A night worth going to.' },
+      { label: 'Move', title: justJoined || justProved ? 'You showed up' : 'Go', text: justProved ? `You were at ${place}.` : 'Hold the place, then arrive.' },
+      { label: 'Prove', title: justProved ? 'It counted' : 'Check in at the door', text: 'The ticket is the receipt, not the night.' },
+      { label: 'Unlock', title: eligible ? 'You are in the pot' : gap.title, text: theyGet },
+      { label: 'Grow', title: nextMove.title, text: nextMove.why },
+      { label: 'Return', title: 'Same room, next week', text: 'Come back. Repeat visits count more honestly than one blast.' },
+    ],
+    lastAction: action || null,
+    momentId: momentId || null,
+    momentName: place,
+    boundaries: BOUNDARIES,
+  };
+}
+
 module.exports = {
   ROLES,
   BOUNDARIES,
@@ -543,4 +751,6 @@ module.exports = {
   compileStewardBrief,
   compileAdminBrief,
   compileBrief,
+  compileHandoffBrief,
+  resolveHandoffStage,
 };
