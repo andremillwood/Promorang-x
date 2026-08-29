@@ -68,7 +68,7 @@ export const PromoKeyForgeModal: React.FC<PromoKeyForgeModalProps> = ({
       setTimeout(() => {
         setIsForging(false);
         setForgedSuccess(true);
-        toast.success(`Successfully forged ${keysToForge} PromoKey${keysToForge > 1 ? 's' : ''}!`);
+        toast.success(`${keysToForge} PromoKey${keysToForge > 1 ? "s" : ""} ready to use`);
         
         if (onForgeSuccess) {
           onForgeSuccess(userPoints - totalCost, currentPromoKeys + keysToForge);
@@ -77,7 +77,7 @@ export const PromoKeyForgeModal: React.FC<PromoKeyForgeModalProps> = ({
     } catch (err) {
       console.error('Error during key forging:', err);
       setIsForging(false);
-      toast.error('Failed to forge PromoKey. Please try again.');
+      toast.error('Could not get that PromoKey. Please try again.');
     }
   };
 
@@ -113,21 +113,21 @@ export const PromoKeyForgeModal: React.FC<PromoKeyForgeModalProps> = ({
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">
-                    Effort-to-Scarcity Forge
+                    Get a funded pass
                   </span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-purple-500/20 border border-purple-500/30 text-purple-300">
                     {userTier} Tier
                   </span>
                 </div>
                 <h2 className="text-xl font-bold text-white leading-tight">
-                  Forge PromoKeys
+                  Unlock a funded Moment
                 </h2>
               </div>
             </div>
 
             {/* Description */}
             <p className="text-xs text-gray-300 leading-relaxed">
-              Convert your participation Points into scarce PromoKeys to unlock exclusive partner drops, VIP passes, and sponsored vaults.
+              Turn the Points you already earned into a PromoKey. That Key is your pass into a funded tasting, drop, or reserved table.
             </p>
 
             {/* Balance Summary Cards */}
@@ -162,7 +162,7 @@ export const PromoKeyForgeModal: React.FC<PromoKeyForgeModalProps> = ({
             {/* Quantity Selector */}
             <div className="bg-gray-800/30 border border-gray-800 rounded-2xl p-4 space-y-3">
               <label className="text-xs font-semibold text-gray-300 flex justify-between">
-                <span>Select Keys to Forge</span>
+                <span>How many passes to get</span>
                 <span className="text-amber-400 font-mono font-bold">
                   {keysToForge} Key{keysToForge > 1 ? 's' : ''} = {totalCost.toLocaleString()} Pts
                 </span>
@@ -191,7 +191,7 @@ export const PromoKeyForgeModal: React.FC<PromoKeyForgeModalProps> = ({
               <div className="flex items-center space-x-2 text-xs bg-rose-500/10 border border-rose-500/30 p-3 rounded-xl text-rose-300">
                 <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
                 <span>
-                  Insufficient points. You need {(totalCost - userPoints).toLocaleString()} more points to forge {keysToForge} Key{keysToForge > 1 ? 's' : ''}.
+                  You need {(totalCost - userPoints).toLocaleString()} more Points for {keysToForge} PromoKey{keysToForge > 1 ? 's' : ''}.
                 </span>
               </div>
             )}
@@ -209,12 +209,12 @@ export const PromoKeyForgeModal: React.FC<PromoKeyForgeModalProps> = ({
               {isForging ? (
                 <div className="flex items-center space-x-2">
                   <Flame className="w-5 h-5 animate-spin text-amber-950" />
-                  <span>Smelting Proof into PromoKeys...</span>
+                  <span>Getting your pass ready...</span>
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
                   <KeyRound className="w-4 h-4" />
-                  <span>Burn {totalCost.toLocaleString()} Points & Forge Keys</span>
+                  <span>Use {totalCost.toLocaleString()} Points for {keysToForge} PromoKey{keysToForge > 1 ? "s" : ""}</span>
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </div>
               )}
@@ -232,13 +232,13 @@ export const PromoKeyForgeModal: React.FC<PromoKeyForgeModalProps> = ({
             <div className="space-y-1.5">
               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 flex items-center justify-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                Minting Settled
+                Pass ready
               </span>
               <h3 className="text-2xl font-black text-white">
-                +{keysToForge} PromoKey{keysToForge > 1 ? 's' : ''} Minted!
+                +{keysToForge} PromoKey{keysToForge > 1 ? 's' : ''} ready
               </h3>
               <p className="text-xs text-gray-300 max-w-sm mx-auto">
-                Burned {totalCost.toLocaleString()} Points. Your new PromoKeys are ready to unlock high-yield drops and VIP reservations.
+                You used {totalCost.toLocaleString()} Points. Your new PromoKey{keysToForge > 1 ? "s are" : " is"} ready for a funded Moment.
               </p>
             </div>
 

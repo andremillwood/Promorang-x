@@ -19,15 +19,15 @@ export const ExplorationStreakWidget: React.FC<ExplorationStreakWidgetProps> = (
 
         <div>
           <div className="flex items-center gap-1.5">
-            <span className="text-xs font-bold text-orange-300 uppercase tracking-wider">Duolingo Streak Loop</span>
+            <span className="text-xs font-bold text-orange-300 uppercase tracking-wider">Daily streak</span>
             <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold rounded-md">
-              {streak.yieldMultiplier}x Boost
+              {streak.yieldMultiplier}x more rewards
             </span>
           </div>
           <h4 className="text-sm font-bold text-white">
-            {streak.currentStreakDays} Day Exploration Streak!
+            {streak.currentStreakDays} day streak
           </h4>
-          <p className="text-xs text-gray-400">Keep redeeming weekly drops to preserve your streak.</p>
+          <p className="text-xs text-gray-400">Keep showing up this week to keep it.</p>
         </div>
       </div>
 

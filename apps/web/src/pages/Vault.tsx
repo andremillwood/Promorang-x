@@ -16,7 +16,6 @@ import {
   QrCode,
   Calendar,
   Clock,
-  Zap,
   Gem,
   Bookmark,
   Share2,
@@ -28,6 +27,7 @@ import { usePerks } from "@/hooks/usePerks";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
 import { PerkCard } from "@/components/perks/PerkCard";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -105,54 +105,46 @@ const Vault = () => {
           </div>
 
           {/* 4 Economic Dimensions Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {/* PromoPoints: Progress */}
-            <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-white/50 font-bold uppercase tracking-wider">PromoPoints</span>
-                <Zap className="w-3.5 h-3.5 text-orange-400" />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="relative overflow-hidden rounded-[1.4rem] border border-amber-400/20 bg-[#14110d] p-4">
+              <div aria-hidden className="absolute right-3 top-3 h-10 w-10 rounded-full border-[4px] border-amber-700/40 bg-[#1c160f]">
+                <div className="absolute inset-x-0.5 bottom-0.5 h-1/2 rounded-b-full bg-amber-400" />
               </div>
-              <p className="text-2xl font-black text-orange-400">{balances.promoPoints} pts</p>
-              <span className="text-[10px] text-zinc-500 block">Progress &amp; Rank Tier</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-200/70">Points you earned</span>
+              <p className="mt-2 text-2xl font-black text-amber-300">{balances.promoPoints}</p>
+              <span className="text-[10px] text-zinc-500">Ready to become a pass</span>
             </div>
-
-            {/* Perks: Utility */}
-            <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Active Perks</span>
-                <Gift className="w-3.5 h-3.5 text-emerald-400" />
-              </div>
-              <p className="text-2xl font-black text-emerald-400">{claimedPerks.length || balances.claimedPerksCount}</p>
-              <span className="text-[10px] text-zinc-500 block">Ready to redeem</span>
+            <div className="rounded-[1.4rem] border border-emerald-400/20 bg-emerald-950/20 p-4">
+              <Gift className="mb-2 h-4 w-4 text-emerald-400" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-200/70">Perks on hand</span>
+              <p className="mt-2 text-2xl font-black text-emerald-300">{claimedPerks.length || balances.claimedPerksCount}</p>
+              <span className="text-[10px] text-zinc-500">Show these at the door</span>
             </div>
-
-            {/* PromoShare Tickets: Possibility */}
-            <div className="rounded-2xl border border-purple-500/30 bg-purple-950/20 p-4 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-purple-300 font-bold uppercase tracking-wider">Draw Tickets</span>
-                <Ticket className="w-3.5 h-3.5 text-purple-400" />
+            <div className="pr-ticket min-h-[118px] rounded-2xl">
+              <div className="p-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-orange-700">Draw tickets</span>
+                <p className="mt-1 font-serif text-2xl font-bold text-[#1a120c]">{balances.promoShareTickets}</p>
+                <span className="text-[10px] text-[#7a6554]">Next draw {balances.nextDrawDate}</span>
               </div>
-              <p className="text-2xl font-black text-purple-300">{balances.promoShareTickets} 🎟️</p>
-              <span className="text-[10px] text-purple-400 block">Draw: {balances.nextDrawDate}</span>
+              <div className="pr-ticket-stub">
+                <Ticket className="h-4 w-4 text-[#1a120c]" />
+              </div>
             </div>
-
-            {/* Gems: Economic Value */}
-            <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Platform Gems</span>
-                <Gem className="w-3.5 h-3.5 text-blue-400" />
-              </div>
-              <p className="text-2xl font-black text-blue-400">{balances.gems} Gems</p>
-              <span className="text-[10px] text-zinc-500 block">1 Gem = US$1 Value</span>
+            <div className="pr-plastic-card rounded-[1.3rem] p-4 text-white">
+              <Gem className="mb-2 h-4 w-4 text-violet-300" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white/50">Gems</span>
+              <p className="mt-1 text-2xl font-black">{balances.gems}</p>
+              <span className="text-[10px] text-white/45">1 Gem · US$1 platform value</span>
             </div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-4">
+        <SwipeRail compact fadeFrom="from-black" showDots={false} className="border-b border-white/10 pb-4" scrollerClassName="items-center gap-2">
           <button
             onClick={() => setActiveTab("perks")}
-            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
+            aria-selected={activeTab === "perks"}
+            className={`inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
               activeTab === "perks"
                 ? "bg-[#ff5500] text-white shadow-lg shadow-[#ff5500]/20"
                 : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
@@ -167,7 +159,8 @@ const Vault = () => {
 
           <button
             onClick={() => setActiveTab("tickets")}
-            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
+            aria-selected={activeTab === "tickets"}
+            className={`inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
               activeTab === "tickets"
                 ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20"
                 : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
@@ -182,7 +175,8 @@ const Vault = () => {
 
           <button
             onClick={() => setActiveTab("memories")}
-            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
+            aria-selected={activeTab === "memories"}
+            className={`inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
               activeTab === "memories"
                 ? "bg-[#ff5500] text-white shadow-lg shadow-[#ff5500]/20"
                 : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
@@ -197,7 +191,8 @@ const Vault = () => {
 
           <button
             onClick={() => setActiveTab("liquidity")}
-            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
+            aria-selected={activeTab === "liquidity"}
+            className={`inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
               activeTab === "liquidity"
                 ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
                 : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
@@ -206,7 +201,7 @@ const Vault = () => {
             <Sparkles className="h-4 w-4 text-blue-400" />
             <span>Community Backing &amp; Reserves</span>
           </button>
-        </div>
+        </SwipeRail>
 
         {/* TAB 1: CLAIMED & SAVED PERKS */}
         {activeTab === "perks" && (

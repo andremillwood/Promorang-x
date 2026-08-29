@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SaveButton } from "@/components/SaveButton";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { Gift, Users, Flame, ChevronDown, Share2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 import type { AccessState } from "@/lib/access";
 
 interface StickyJoinBarProps {
@@ -51,6 +53,7 @@ export function StickyJoinBar({
     const [isExpanded, setIsExpanded] = useState(false);
 
     const { toast } = useToast();
+    const { t, formatNumber } = useI18n();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -89,13 +92,16 @@ export function StickyJoinBar({
     const isFull = spotsLeft !== null && spotsLeft <= 0;
 
     const getButtonContent = () => {
-        if (isPast) return "Moment Ended";
-        if (!isLoggedIn) return "Sign In to Join";
-        if (isHost) return "Manage Moment";
-        if (isJoined) return "You're Joined ✓";
-        if (isFull) return "Moment Full";
+        if (isPast) return t("join.ended");
+        if (!isLoggedIn) return t("join.signIn");
+        if (isHost) return t("join.manage");
+        if (isJoined) return t("join.youreIn");
+        if (isFull) return t("join.full");
+        if (isJoining) return t("join.joining");
+        if (accessState?.key === "needs_keys") return t("join.needKey");
         if (accessState && accessState.key !== "available") return accessState.ctaLabel;
-        return isJoining ? "Joining..." : "Join This Moment";
+        if (isAlmostFull && spotsLeft !== null) return t("join.spotsLeft", { count: formatNumber(spotsLeft) });
+        return t("join.showUp");
     };
 
     const getButtonVariant = () => {
@@ -187,18 +193,18 @@ export function StickyJoinBar({
                         </div>
 
                         {/* Right side - CTA */}
-                        <div className="flex w-full items-center gap-2 overflow-x-auto touch-pan-x scrollbar-none sm:w-auto">
-                        <SaveButton momentId={momentId} size="md" className="hidden shrink-0 sm:flex" />
+                        <SwipeRail compact fadeFrom="from-background" showDots={false} showChevrons={false} className="w-full min-w-0 sm:w-auto" scrollerClassName="items-center gap-2">
+                        <SaveButton momentId={momentId} size="md" className="hidden shrink-0 snap-start sm:flex" />
                             {missionCount > 0 && onExploreMissions ? (
                                 <Button
                                     type="button"
                                     variant="outline"
                                     size="lg"
                                     onClick={onExploreMissions}
-                                    className="shrink-0 whitespace-nowrap border-amber-400/40 text-amber-600 dark:text-amber-300"
+                                    className="shrink-0 snap-start whitespace-nowrap border-amber-400/40 text-amber-600 dark:text-amber-300"
                                 >
                                     <Sparkles className="mr-2 h-4 w-4" />
-                                    {missionCount} Missions · +{missionPointTotal}
+                                    {t("join.missions", { count: formatNumber(missionCount), points: formatNumber(missionPointTotal) })}
                                 </Button>
                             ) : null}
                             {isJoined && !isPast && !isHost && (
@@ -206,10 +212,10 @@ export function StickyJoinBar({
                                     variant="outline"
                                     size="lg"
                                     onClick={handlePingSquad}
-                                    className="shrink-0 whitespace-nowrap border-accent text-accent hover:bg-accent/10"
+                                    className="shrink-0 snap-start whitespace-nowrap border-accent text-accent hover:bg-accent/10"
                                 >
                                     <Share2 className="w-4 h-4 mr-2" />
-                                    Ping Squad
+                                    {t("join.bringFriends")}
                                 </Button>
                             )}
                             <Button
@@ -217,11 +223,11 @@ export function StickyJoinBar({
                                 size="lg"
                                 onClick={onJoin}
                                 disabled={isPast || isFull || isJoining || accessState?.canAttempt === false}
-                                className="flex-1 whitespace-nowrap sm:flex-none"
+                                className="shrink-0 snap-start whitespace-nowrap"
                             >
                                 {getButtonContent()}
                             </Button>
-                        </div>
+                        </SwipeRail>
                     </div>
                     {!isExpanded && (
                         <div className="mt-2 flex items-center gap-2 text-xs font-medium text-muted-foreground sm:hidden">

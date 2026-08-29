@@ -18,7 +18,7 @@ export type AccessStateKey = "available" | "needs_keys" | "requires_plus" | "ful
 
 export type AccessState = {
   key: AccessStateKey;
-  label: "Available" | "Needs Keys" | "Requires Plus" | "Full" | "Unlocked" | "Unavailable";
+  label: "Available" | "Need a pass" | "Requires Plus" | "Full" | "Unlocked" | "Unavailable";
   description: string;
   ctaLabel: string;
   canAttempt: boolean;
@@ -30,7 +30,7 @@ export function getAccessState(quote: AccessQuote | null | undefined): AccessSta
       key: "available",
       label: "Available",
       description: "This moment is open. Join when you are ready to be part of it.",
-      ctaLabel: "Join This Moment",
+      ctaLabel: "Show up",
       canAttempt: true,
     };
   }
@@ -79,9 +79,9 @@ export function getAccessState(quote: AccessQuote | null | undefined): AccessSta
     const keys = Number(quote.final_key_cost || 0);
     return {
       key: "needs_keys",
-      label: "Needs Keys",
-      description: `${keys} ${keys === 1 ? "Key" : "Keys"} required. Keys help protect limited access for people who are ready to show up.`,
-      ctaLabel: `Spend ${keys} ${keys === 1 ? "Key" : "Keys"}`,
+      label: "Need a pass",
+      description: `${keys} PromoKey${keys === 1 ? "" : "s"} required. That pass keeps this room for people who are ready to show up.`,
+      ctaLabel: keys === 1 ? "Need a PromoKey to get in" : `Need ${keys} PromoKeys to get in`,
       canAttempt: true,
     };
   }
@@ -89,8 +89,8 @@ export function getAccessState(quote: AccessQuote | null | undefined): AccessSta
   return {
     key: "available",
     label: "Available",
-    description: "No Keys required. This moment is open for participation.",
-    ctaLabel: "Join This Moment",
+    description: "No PromoKey required. This Moment is open if you can show up.",
+    ctaLabel: "Show up",
     canAttempt: true,
   };
 }

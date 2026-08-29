@@ -1,9 +1,9 @@
 import * as React from "react";
 import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-
+import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/I18nContext";
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
@@ -38,6 +38,50 @@ function useCarousel() {
   return context;
 }
 
+const CarouselFrame = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & {
+    overflows: boolean;
+    canScrollNext: boolean;
+    canScrollPrev: boolean;
+    slideIndex: number;
+    slideCount: number;
+  }
+>(({ overflows, canScrollNext, canScrollPrev, slideIndex, slideCount, className, children, ...props }, ref) => {
+  const { t } = useI18n();
+  return (
+    <div
+      ref={ref}
+      className={cn("relative", className)}
+      role="region"
+      aria-roledescription="carousel"
+      {...props}
+    >
+      {overflows && (
+        <div className="mb-2 flex justify-end">
+          <span className="flex items-center gap-1 text-[10px] font-bold text-primary">
+            {canScrollNext ? (
+              <>
+                {t("swipe.more")} <ChevronRight className="h-3 w-3" aria-hidden="true" />
+              </>
+            ) : (
+              t("swipe.position", { current: String(slideIndex + 1), total: String(Math.max(slideCount, 1)) })
+            )}
+          </span>
+        </div>
+      )}
+      {canScrollPrev && (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-y-8 left-0 z-[5] w-8 bg-gradient-to-r from-background to-transparent" />
+      )}
+      {canScrollNext && (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-y-8 right-0 z-[5] w-10 bg-gradient-to-l from-background to-transparent" />
+      )}
+      {children}
+    </div>
+  );
+});
+CarouselFrame.displayName = "CarouselFrame";
+
 const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & CarouselProps>(
   ({ orientation = "horizontal", opts, setApi, plugins, className, children, ...props }, ref) => {
     const [carouselRef, api] = useEmblaCarousel(
@@ -49,6 +93,8 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
     );
     const [canScrollPrev, setCanScrollPrev] = React.useState(false);
     const [canScrollNext, setCanScrollNext] = React.useState(false);
+    const [slideIndex, setSlideIndex] = React.useState(0);
+    const [slideCount, setSlideCount] = React.useState(0);
 
     const onSelect = React.useCallback((api: CarouselApi) => {
       if (!api) {
@@ -57,6 +103,8 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 
       setCanScrollPrev(api.canScrollPrev());
       setCanScrollNext(api.canScrollNext());
+      setSlideIndex(api.selectedScrollSnap());
+      setSlideCount(api.scrollSnapList().length);
     }, []);
 
     const scrollPrev = React.useCallback(() => {
@@ -102,6 +150,8 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
       };
     }, [api, onSelect]);
 
+    const overflows = canScrollPrev || canScrollNext;
+
     return (
       <CarouselContext.Provider
         value={{
@@ -115,16 +165,19 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
           canScrollNext,
         }}
       >
-        <div
+        <CarouselFrame
           ref={ref}
+          overflows={overflows}
+          canScrollNext={canScrollNext}
+          canScrollPrev={canScrollPrev}
+          slideIndex={slideIndex}
+          slideCount={slideCount}
           onKeyDownCapture={handleKeyDown}
-          className={cn("relative", className)}
-          role="region"
-          aria-roledescription="carousel"
+          className={className}
           {...props}
         >
           {children}
-        </div>
+        </CarouselFrame>
       </CarouselContext.Provider>
     );
   },

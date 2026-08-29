@@ -2,6 +2,8 @@ import { useState } from "react";
 import { TiltCard3D } from "@/components/ui/TiltCard3D";
 import { Sparkles, ShieldCheck, Gem, KeyRound, Coins, Flame } from "lucide-react";
 import PromoKeyForgeModal from "@/components/wallet/PromoKeyForgeModal";
+import { useI18n } from "@/i18n/I18nContext";
+import { getPromoKeyAccessState } from "@/lib/promo-key-access";
 
 interface DigitalWalletPass3DProps {
   displayName?: string | null;
@@ -24,9 +26,11 @@ export function DigitalWalletPass3D({
   userTier = "Starter",
   onBalanceUpdate,
 }: DigitalWalletPass3DProps) {
+  const { t, formatNumber } = useI18n();
   const [isForgeOpen, setIsForgeOpen] = useState(false);
   const [localPoints, setLocalPoints] = useState(points);
   const [localKeys, setLocalKeys] = useState(promoKeys);
+  const keyAccess = getPromoKeyAccessState(localPoints);
 
   // Format simulated member pass code from user ID or default
   const passIdRaw = (userId || "876049210038").replace(/[^a-zA-Z0-9]/g, "").padEnd(12, "0").toUpperCase();
@@ -120,13 +124,24 @@ export function DigitalWalletPass3D({
         </div>
       </TiltCard3D>
 
-      {/* Quick Action: Forge Keys */}
       <button
         onClick={() => setIsForgeOpen(true)}
-        className="w-full py-2.5 px-4 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+        className="w-full space-y-1.5 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-amber-300 transition-all hover:scale-[1.01] hover:bg-amber-500/20"
       >
-        <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-        <span>Forge PromoKeys (500 Pts = 1 Key)</span>
+        <span className="flex items-center justify-center gap-2 text-xs font-bold">
+          <Flame className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
+          {t("wallet.unlockOutcome")}
+        </span>
+        <span className="block text-[10px] font-semibold text-amber-200/80">
+          {keyAccess.canConvert
+            ? t(keyAccess.readyCount === 1 ? "wallet.unlockReady" : "wallet.unlockReadyPlural", { count: formatNumber(keyAccess.readyCount) })
+            : t("wallet.unlockNeed", { count: formatNumber(keyAccess.pointsNeeded) })}
+        </span>
+        {!keyAccess.canConvert && (
+          <span className="mx-auto block h-1 max-w-[180px] overflow-hidden rounded-full bg-black/40">
+            <span className="block h-full rounded-full bg-amber-400" style={{ width: `${keyAccess.progress}%` }} />
+          </span>
+        )}
       </button>
 
       <PromoKeyForgeModal
