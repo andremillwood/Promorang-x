@@ -333,6 +333,13 @@ export function CreateMoment() {
             <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">
               Host a Moment & Experience
             </h1>
+            <p className="mt-2 text-xs text-white/50">
+              Just out with people?{" "}
+              <Link to="/create/moment" className="font-bold text-[#FF5500]">
+                Start a simple Moment
+              </Link>{" "}
+              instead of this studio.
+            </p>
           </div>
 
           {/* Stepper Pills */}

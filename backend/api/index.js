@@ -322,6 +322,7 @@ app.use('/api/demand-plans', require('./demand-plans'));
 app.use('/api/rewards', require('./rewards'));
 app.use('/api/pioneer-points', require('./pioneer-points'));
 app.use('/api/missions', require('./missions'));
+app.use('/api/people-moments', require('./people-moments'));
 // app.use('/api/withdrawal', require('./withdrawal')); // DISABLED
 app.use('/api/payments', require('./payments').router);
 app.use('/api/manychat', require('./manychat'));
