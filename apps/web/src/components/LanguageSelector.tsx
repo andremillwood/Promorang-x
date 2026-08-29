@@ -8,17 +8,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useI18n } from "@/i18n/I18nContext";
 import { localeNames, supportedLocales } from "@/i18n/translations";
+import { themeChipClass, themeOverlayClass } from "@/components/nav/theme-surfaces";
 import { cn } from "@/lib/utils";
 
 const shortNames = { en: "EN", "es-419": "ES", "pt-BR": "PT" } as const;
 
 export const LanguageSelector = ({
-  tone = "marketing",
+  tone: _tone = "app",
 }: {
   tone?: "marketing" | "app";
 }) => {
   const { locale, setLocale, t } = useI18n();
-  const isApp = tone === "app";
 
   return (
     <DropdownMenu>
@@ -26,29 +26,14 @@ export const LanguageSelector = ({
         aria-label={t("language.label")}
         className={cn(
           "flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-xs font-bold outline-none transition",
-          isApp
-            ? "border-border bg-muted text-foreground hover:bg-accent"
-            : "border-white/10 bg-white/[0.05] text-white hover:bg-white/[0.1] hover:text-white",
+          themeChipClass,
         )}
       >
         <Languages className="h-3.5 w-3.5" aria-hidden="true" />
         <span>{shortNames[locale]}</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className={cn(
-          "w-44 rounded-xl p-1.5",
-          isApp
-            ? "border-border bg-popover text-popover-foreground"
-            : "border-white/10 bg-[#0e0e11] text-white",
-        )}
-      >
-        <DropdownMenuLabel
-          className={cn(
-            "text-[10px] uppercase tracking-wider",
-            isApp ? "text-muted-foreground" : "text-white/70",
-          )}
-        >
+      <DropdownMenuContent align="end" className={cn("w-44 p-1.5", themeOverlayClass)}>
+        <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
           {t("language.label")}
         </DropdownMenuLabel>
         {supportedLocales.map((option) => (
@@ -56,10 +41,7 @@ export const LanguageSelector = ({
             key={option}
             lang={option}
             onClick={() => setLocale(option)}
-            className={cn(
-              "flex cursor-pointer items-center justify-between rounded-lg text-xs",
-              isApp ? "focus:bg-accent focus:text-accent-foreground" : "focus:bg-white/10 focus:text-white",
-            )}
+            className="flex cursor-pointer items-center justify-between rounded-lg text-xs focus:bg-accent focus:text-accent-foreground"
           >
             {localeNames[option]}
             {locale === option && <Check className="h-3.5 w-3.5 text-primary" aria-hidden="true" />}

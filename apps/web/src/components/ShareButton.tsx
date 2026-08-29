@@ -110,8 +110,8 @@ export function ShareButton({
           {t("shareButton.label")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-white/10 bg-[#0e0e11] text-white rounded-3xl shadow-2xl">
-        <DialogHeader className="p-5 pb-3 border-b border-white/10">
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-border bg-popover text-popover-foreground rounded-3xl shadow-2xl">
+        <DialogHeader className="p-5 pb-3 border-b border-border">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-xl bg-primary/20 text-primary flex items-center justify-center">
@@ -119,7 +119,7 @@ export function ShareButton({
               </div>
               <div>
                 <DialogTitle className="text-base font-black">Share & Earn</DialogTitle>
-                <p className="text-[11px] text-white/50">Invite friends & earn rewards when they join</p>
+                <p className="text-[11px] text-muted-foreground">Invite friends & earn rewards when they join</p>
               </div>
             </div>
           </div>
@@ -127,18 +127,18 @@ export function ShareButton({
 
         <div className="p-5 space-y-4">
           {/* Card Preview */}
-          <div className="p-3 rounded-2xl border border-white/10 bg-white/[0.03] flex items-center gap-3.5">
+          <div className="p-3 rounded-2xl border border-border bg-muted flex items-center gap-3.5">
             {imageUrl ? (
-              <img src={imageUrl} alt="" className="h-16 w-16 rounded-xl object-cover shrink-0 border border-white/10" />
+              <img src={imageUrl} alt="" className="h-16 w-16 rounded-xl object-cover shrink-0 border border-border" />
             ) : (
               <div className="h-16 w-16 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0 font-black text-xl">
                 ✨
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-black text-white truncate">{title}</p>
+              <p className="text-xs font-black text-foreground truncate">{title}</p>
               {venueName && <p className="text-[11px] text-primary font-medium truncate mt-0.5">{venueName}</p>}
-              <p className="text-[10px] text-white/50 line-clamp-1 mt-0.5">{description || "Discover live moments on Promorang"}</p>
+              <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">{description || "Discover live moments on Promorang"}</p>
             </div>
           </div>
 
@@ -148,9 +148,9 @@ export function ShareButton({
               <Gem className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-xs font-black text-amber-200">PromoShare Reward</p>
-              <p className="text-[11px] text-white/70 leading-relaxed mt-0.5">
-                Earn <strong className="text-white">50 Gems ($0.50)</strong> for every friend who RSVPs + <strong className="text-white">10% commission</strong> on ticket passes.
+              <p className="text-xs font-black text-amber-800 dark:text-amber-200">PromoShare Reward</p>
+              <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">
+                Earn <strong className="text-foreground">50 Gems ($0.50)</strong> for every friend who RSVPs + <strong className="text-foreground">10% commission</strong> on ticket passes.
               </p>
             </div>
           </div>
@@ -173,12 +173,12 @@ export function ShareButton({
           </div>
 
           {/* Copy Link Input Bar */}
-          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/[0.05] border border-white/10">
+          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-muted border border-border">
             <input
               type="text"
               readOnly
               value={shareUrl}
-              className="flex-1 bg-transparent px-3 text-xs text-white/70 font-mono focus:outline-none truncate"
+              className="flex-1 bg-transparent px-3 text-xs text-foreground font-mono focus:outline-none truncate"
             />
             <Button
               size="sm"

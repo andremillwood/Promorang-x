@@ -81,25 +81,25 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
       <button
         onClick={() => setIsOpen(true)}
         type="button"
-        className={`w-full flex items-center justify-between gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/70 hover:border-white/20 hover:bg-white/[0.08] hover:text-white transition-all shadow-sm group focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer ${className}`}
+        className={`w-full flex items-center justify-between gap-2 rounded-full border border-border bg-muted px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/40 hover:bg-accent hover:text-foreground transition-all shadow-sm group focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer ${className}`}
       >
         <div className="flex items-center gap-2 truncate">
           <Search className="h-3.5 w-3.5 text-primary shrink-0 group-hover:scale-110 transition-transform" />
-          <span className="hidden sm:inline text-white/60 group-hover:text-white/80 transition-colors truncate">
+          <span className="hidden sm:inline text-muted-foreground group-hover:text-foreground transition-colors truncate">
             {t("headerSearch.triggerPlaceholder")}
           </span>
-          <span className="inline sm:hidden text-white/60">{t("headerSearch.triggerShort")}</span>
+          <span className="inline sm:hidden text-muted-foreground">{t("headerSearch.triggerShort")}</span>
         </div>
-        <kbd className="hidden md:inline-flex h-4 items-center gap-0.5 rounded border border-white/15 bg-white/10 px-1.5 font-mono text-[9px] font-medium text-white/50 shrink-0">
+        <kbd className="hidden md:inline-flex h-4 items-center gap-0.5 rounded border border-border bg-background px-1.5 font-mono text-[9px] font-medium text-muted-foreground shrink-0">
           ⌘K
         </kbd>
       </button>
 
       {/* Instant Search Command Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="p-0 max-w-2xl bg-[#0e0e10] border border-white/15 text-white rounded-3xl overflow-hidden shadow-2xl">
+        <DialogContent className="p-0 max-w-2xl bg-popover text-popover-foreground border border-border rounded-3xl overflow-hidden shadow-2xl">
           {/* Top Search Input Row */}
-          <div className="relative flex items-center border-b border-white/10 px-4 py-3.5">
+          <div className="relative flex items-center border-b border-border px-4 py-3.5">
             <Search className="h-5 w-5 text-primary shrink-0 mr-3" />
             <input
               ref={inputRef}
@@ -107,12 +107,12 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={t("headerSearch.inputPlaceholder")}
-              className="w-full bg-transparent text-sm sm:text-base text-white placeholder:text-white/40 focus:outline-none"
+              className="w-full bg-transparent text-sm sm:text-base text-foreground placeholder:text-muted-foreground focus:outline-none"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm("")}
-                className="p-1 text-white/40 hover:text-white"
+                className="p-1 text-muted-foreground hover:text-foreground"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -122,7 +122,7 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
           {/* Quick Filter Tag Suggestions */}
           {searchTerm.length < 2 && (
             <div className="p-6 space-y-4">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5 text-primary" /> {t("headerSearch.popularSearches")}
               </div>
               <div className="flex flex-wrap gap-2">
@@ -130,7 +130,7 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
                   <button
                     key={term}
                     onClick={() => setSearchTerm(term)}
-                    className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/80 hover:border-primary hover:text-primary transition"
+                    className="rounded-full border border-border bg-muted px-3 py-1.5 text-xs text-foreground hover:border-primary hover:text-primary transition"
                   >
                     {term}
                   </button>
@@ -141,9 +141,9 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
 
           {/* Results List */}
           {searchTerm.length >= 2 && (
-            <div className="max-h-[380px] overflow-y-auto p-3 space-y-1 divide-y divide-white/5">
+            <div className="max-h-[380px] overflow-y-auto p-3 space-y-1 divide-y divide-border">
               {isLoading ? (
-                <div className="flex items-center justify-center py-10 text-white/50 text-xs">
+                <div className="flex items-center justify-center py-10 text-muted-foreground text-xs">
                   <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" /> {t("headerSearch.searching")}
                 </div>
               ) : results && results.length > 0 ? (
@@ -151,10 +151,10 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
                   <div
                     key={`${item.result_type}-${item.id}`}
                     onClick={() => handleSelectResult(item.path)}
-                    className="group flex items-center justify-between p-3 rounded-2xl hover:bg-white/[0.06] transition cursor-pointer"
+                    className="group flex items-center justify-between p-3 rounded-2xl hover:bg-accent transition cursor-pointer"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="h-10 w-10 shrink-0 rounded-xl bg-white/10 border border-white/10 overflow-hidden flex items-center justify-center text-primary">
+                      <div className="h-10 w-10 shrink-0 rounded-xl bg-muted border border-border overflow-hidden flex items-center justify-center text-primary">
                         {item.image_url ? (
                           <img src={item.image_url} alt={item.title} className="h-full w-full object-cover" />
                         ) : (
@@ -167,20 +167,20 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
                             {item.result_type}
                           </span>
                           {item.subtitle && (
-                            <span className="text-xs text-white/40 truncate">{item.subtitle}</span>
+                            <span className="text-xs text-muted-foreground truncate">{item.subtitle}</span>
                           )}
                         </div>
-                        <h4 className="text-sm font-bold text-white group-hover:text-primary transition truncate">
+                        <h4 className="text-sm font-bold text-foreground group-hover:text-primary transition truncate">
                           {item.title}
                         </h4>
                       </div>
                     </div>
-                    <ArrowRight className="h-4 w-4 text-white/30 group-hover:text-primary group-hover:translate-x-1 transition shrink-0 ml-2" />
+                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition shrink-0 ml-2" />
                   </div>
                 ))
               ) : (
                 <div className="text-center py-10 space-y-2">
-                  <p className="text-sm text-white/70">{t("headerSearch.noResults")} "{searchTerm}"</p>
+                  <p className="text-sm text-muted-foreground">{t("headerSearch.noResults")} "{searchTerm}"</p>
                   <button
                     onClick={() => handleSelectResult(`/search?q=${encodeURIComponent(searchTerm)}`)}
                     className="text-xs font-bold text-primary hover:underline"
@@ -193,11 +193,11 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
           )}
 
           {/* Footer View All Link */}
-          <div className="border-t border-white/10 bg-white/[0.02] p-3 text-center">
+          <div className="border-t border-border bg-muted/40 p-3 text-center">
             <Link
               to={searchTerm ? `/search?q=${encodeURIComponent(searchTerm)}` : "/search"}
               onClick={() => setIsOpen(false)}
-              className="text-xs font-bold text-white/70 hover:text-primary transition"
+              className="text-xs font-bold text-muted-foreground hover:text-primary transition"
             >
               Open Full Search Hub →
             </Link>

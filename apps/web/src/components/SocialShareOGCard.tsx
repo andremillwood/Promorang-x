@@ -49,9 +49,9 @@ export const SocialShareOGCard: React.FC<SocialShareOGCardProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-[#0e0e11] border border-white/15 text-white rounded-3xl p-6 shadow-2xl">
+      <DialogContent className="max-w-md bg-popover text-popover-foreground border border-border rounded-3xl p-6 shadow-2xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
+          <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
             <Share2 className="h-5 w-5 text-[#ff5500]" /> Share Moment & Invite Friends
           </DialogTitle>
         </DialogHeader>
@@ -116,7 +116,7 @@ export const SocialShareOGCard: React.FC<SocialShareOGCardProps> = ({
             type="text"
             readOnly
             value={shareUrl}
-            className="flex-1 h-10 px-3 rounded-xl border border-white/10 bg-white/5 text-white/70 text-xs focus:outline-none"
+            className="flex-1 h-10 px-3 rounded-xl border border-border bg-muted text-foreground text-xs focus:outline-none"
           />
           <Button
             onClick={handleCopy}

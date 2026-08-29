@@ -148,7 +148,12 @@
   html {
     scroll-behavior: smooth;
     background: hsl(var(--background));
+    color-scheme: light;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   body {
