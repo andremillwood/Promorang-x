@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
+import { WeeklyMomentDrop } from "@/components/moments/WeeklyMomentDrop";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
 import { demoMoments } from "@/data/demo-moments";
 import { cultureEvents } from "@/data/culture-demo";
@@ -283,6 +284,8 @@ const ExploreMoments = () => {
               })}
             </div>
           </div>
+
+          {momentMode === "live" && !searchQuery ? <div className="mt-6"><WeeklyMomentDrop /></div> : null}
 
           <div className="mt-6">
             {isLoading ? (

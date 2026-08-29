@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useI18n } from "@/i18n/I18nContext";
+import { StewardScoutQueue } from "@/components/steward/StewardScoutQueue";
 
 export default function StewardDashboard() {
   const { t, formatNumber } = useI18n();
@@ -125,6 +126,8 @@ export default function StewardDashboard() {
             </Button>
           </div>
         </div>
+
+        <StewardScoutQueue hubId="kingston" />
 
         {/* METRICS GRID */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

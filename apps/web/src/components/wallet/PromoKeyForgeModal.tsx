@@ -113,14 +113,14 @@ export const PromoKeyForgeModal: React.FC<PromoKeyForgeModalProps> = ({
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">
-                    Effort-to-Scarcity Forge
+                    Turn Points into access
                   </span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-purple-500/20 border border-purple-500/30 text-purple-300">
                     {userTier} Tier
                   </span>
                 </div>
                 <h2 className="text-xl font-bold text-white leading-tight">
-                  Forge PromoKeys
+                  Unlock a funded Moment
                 </h2>
               </div>
             </div>

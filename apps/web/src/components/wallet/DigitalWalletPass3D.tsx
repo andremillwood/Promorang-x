@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TiltCard3D } from "@/components/ui/TiltCard3D";
-import { Sparkles, ShieldCheck, Gem, KeyRound, Coins, Flame } from "lucide-react";
+import { Sparkles, ShieldCheck, Gem, KeyRound, Coins } from "lucide-react";
 import PromoKeyForgeModal from "@/components/wallet/PromoKeyForgeModal";
+import { getPromoKeyAccessState } from "@/lib/promo-key-access";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface DigitalWalletPass3DProps {
   displayName?: string | null;
@@ -24,15 +26,25 @@ export function DigitalWalletPass3D({
   userTier = "Starter",
   onBalanceUpdate,
 }: DigitalWalletPass3DProps) {
+  const { t, formatNumber } = useI18n();
   const [isForgeOpen, setIsForgeOpen] = useState(false);
   const [localPoints, setLocalPoints] = useState(points);
   const [localKeys, setLocalKeys] = useState(promoKeys);
+  const access = getPromoKeyAccessState(localPoints);
 
-  // Format simulated member pass code from user ID or default
+  useEffect(() => {
+    setLocalPoints(points);
+    setLocalKeys(promoKeys);
+  }, [points, promoKeys]);
+
   const passIdRaw = (userId || "876049210038").replace(/[^a-zA-Z0-9]/g, "").padEnd(12, "0").toUpperCase();
   const passFormatted = `PROMO • ${passIdRaw.slice(0, 4)} • ${passIdRaw.slice(4, 8)} • ${passIdRaw.slice(8, 12)}`;
-
   const nameToShow = displayName || (userEmail ? userEmail.split("@")[0] : "Verified Member");
+  const readiness = access.canGetKey
+    ? t(access.readyKeys === 1 ? "wallet.unlockReady" : "wallet.unlockReadyPlural", {
+        count: formatNumber(access.readyKeys),
+      })
+    : t("wallet.unlockNeed", { count: formatNumber(access.pointsNeeded) });
 
   const handleForgeSuccess = (newPoints: number, newKeys: number) => {
     setLocalPoints(newPoints);
@@ -49,19 +61,15 @@ export function DigitalWalletPass3D({
         className="w-full"
       >
         <div className="relative aspect-[1.586/1] w-full select-none overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-neutral-900 via-[#16121a] to-[#0a080c] p-6 text-white shadow-[0_25px_60px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.25)] backdrop-blur-2xl">
-          {/* Holographic Mesh & Shimmer Background */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,106,0,0.28),transparent_42%),radial-gradient(circle_at_20%_85%,rgba(168,85,247,0.22),transparent_48%),linear-gradient(135deg,rgba(255,255,255,0.08)_0%,transparent_50%)]"
           />
-
-          {/* Diagonal Micro-Texture */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 opacity-[0.04] mix-blend-overlay bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"
           />
 
-          {/* Top Bar: Hologram Chip & Pass Branding */}
           <div className="relative z-10 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-9 items-center justify-center rounded-md border border-amber-400/40 bg-gradient-to-tr from-amber-500/30 via-yellow-400/20 to-amber-600/40 shadow-inner">
@@ -77,10 +85,9 @@ export function DigitalWalletPass3D({
             </div>
           </div>
 
-          {/* Middle: Member ID & Balances */}
           <div className="relative z-10 my-4 space-y-3">
             <p className="font-mono text-xs tracking-widest text-white/50">{passFormatted}</p>
-            
+
             <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-black/40 p-2.5 backdrop-blur-md">
               <div className="text-left">
                 <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-amber-400">
@@ -106,7 +113,6 @@ export function DigitalWalletPass3D({
             </div>
           </div>
 
-          {/* Bottom Bar: Holder Name & Security Foil */}
           <div className="relative z-10 flex items-end justify-between border-t border-white/10 pt-2.5">
             <div>
               <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/40">Cardholder</p>
@@ -120,13 +126,32 @@ export function DigitalWalletPass3D({
         </div>
       </TiltCard3D>
 
-      {/* Quick Action: Forge Keys */}
       <button
+        type="button"
         onClick={() => setIsForgeOpen(true)}
-        className="w-full py-2.5 px-4 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+        className={`w-full rounded-2xl border px-4 py-3 text-left transition-all hover:scale-[1.01] ${
+          access.canGetKey
+            ? "border-amber-400/50 bg-amber-500/20 text-amber-100 hover:bg-amber-500/28"
+            : "border-amber-500/30 bg-amber-500/10 text-amber-200 hover:bg-amber-500/16"
+        }`}
       >
-        <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-        <span>Forge PromoKeys (500 Pts = 1 Key)</span>
+        <span className="flex items-start gap-2.5">
+          <KeyRound className={`mt-0.5 h-4 w-4 shrink-0 ${access.canGetKey ? "text-amber-300" : "text-amber-400"}`} />
+          <span className="min-w-0 flex-1">
+            <span className="block text-xs font-black leading-tight">{t("wallet.unlockOutcome")}</span>
+            <span className={`mt-0.5 block text-[11px] font-semibold ${access.canGetKey ? "text-amber-50/80" : "text-amber-200/70"}`}>
+              {readiness}
+            </span>
+          </span>
+        </span>
+        {!access.canGetKey && (
+          <span className="mt-2 block h-1 overflow-hidden rounded-full bg-black/40" aria-hidden="true">
+            <span
+              className="block h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-300 transition-all"
+              style={{ width: `${access.progress}%` }}
+            />
+          </span>
+        )}
       </button>
 
       <PromoKeyForgeModal
@@ -139,4 +164,3 @@ export function DigitalWalletPass3D({
     </div>
   );
 }
-
