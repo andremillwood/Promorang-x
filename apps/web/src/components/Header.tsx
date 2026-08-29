@@ -135,7 +135,7 @@ const Header = () => {
                 >
                   <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border mb-1 flex items-center justify-between">
                     <span>{t("nav.exploreExperiences")}</span>
-                    <span className="text-primary text-[10px] font-normal">{t("nav.whatsHappening")}</span>
+                    <span className="text-orange-800 dark:text-orange-300 text-[10px] font-normal">{t("nav.whatsHappening")}</span>
                   </div>
 
                   <DropdownMenuItem asChild>
@@ -221,7 +221,7 @@ const Header = () => {
                 >
                   <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border mb-1 flex items-center justify-between">
                     <span>{t("nav.perksValue")}</span>
-                    <span className="text-amber-400 text-[10px] font-normal">{t("nav.earnSave")}</span>
+                    <span className="text-amber-800 dark:text-amber-300 text-[10px] font-normal">{t("nav.earnSave")}</span>
                   </div>
 
                   <DropdownMenuItem asChild>
@@ -319,7 +319,7 @@ const Header = () => {
                 >
                   <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border mb-1 flex items-center justify-between">
                     <span>{t("nav.hostMerchantTools")}</span>
-                    <span className="text-primary text-[10px] font-normal">{t("nav.growTraffic")}</span>
+                    <span className="text-orange-800 dark:text-orange-300 text-[10px] font-normal">{t("nav.growTraffic")}</span>
                   </div>
 
                   <DropdownMenuItem asChild>
@@ -701,7 +701,7 @@ const Header = () => {
                 <Link
                   to="/promoshare"
                   onClick={closeMobileMenu}
-                  className="flex items-center gap-2 p-3 rounded-2xl bg-primary/10 border border-primary/30 text-xs font-bold text-orange-950 dark:text-orange-200"
+                  className="flex items-center gap-2 p-3 rounded-2xl bg-muted border border-primary/30 text-xs font-bold text-foreground"
                 >
                   <Gem className="w-4 h-4" />
                   <span>PromoShare</span>
