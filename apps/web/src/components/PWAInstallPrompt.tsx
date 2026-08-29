@@ -82,7 +82,7 @@ export function PWAInstallPrompt() {
   if (dismissed || (!deferredPrompt && !showIOSPrompt)) return null;
 
   return (
-    <aside aria-label={t("pwa.installTitle")} className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-[9998] md:left-auto md:right-6 md:bottom-6 md:w-96 rounded-3xl bg-[#0e0e11]/95 border border-primary/30 p-4 shadow-2xl backdrop-blur-2xl text-white animate-in slide-in-from-bottom-5 duration-300">
+    <aside aria-label={t("pwa.installTitle")} className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-[9998] md:left-auto md:right-6 md:bottom-6 md:w-96 rounded-3xl bg-popover text-popover-foreground border border-primary/30 p-4 shadow-2xl animate-in slide-in-from-bottom-5 duration-300">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-amber-500 p-1.5 flex items-center justify-center shrink-0 shadow-md">
@@ -90,12 +90,12 @@ export function PWAInstallPrompt() {
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h4 className="text-xs font-black uppercase tracking-wider text-white">{t("pwa.installTitle")}</h4>
+              <h4 className="text-xs font-black uppercase tracking-wider text-foreground">{t("pwa.installTitle")}</h4>
               <span className="flex items-center gap-0.5 rounded-full bg-primary/20 px-1.5 py-0.5 text-[8px] font-black text-primary font-mono">
                 <Sparkles className="h-2 w-2" /> PWA
               </span>
             </div>
-            <p className="text-[11px] text-white/80 leading-tight mt-0.5 font-medium">
+            <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 font-medium">
               {t("pwa.installSub")}
             </p>
           </div>
@@ -105,23 +105,23 @@ export function PWAInstallPrompt() {
           type="button"
           aria-label={t("pwa.dismiss")}
           onClick={handleDismiss}
-          className="rounded-full p-1 text-white/40 hover:bg-white/10 hover:text-white transition"
+          className="rounded-full p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2">
+      <div className="mt-3 pt-2.5 border-t border-border flex items-center justify-between gap-2">
         {showIOSPrompt ? (
-          <p className="text-[11px] text-white/90 flex items-center gap-1.5 font-medium">
+          <p className="text-[11px] text-foreground flex items-center gap-1.5 font-medium">
             <span>Tap</span>
             <Share className="h-3.5 w-3.5 text-primary inline" />
             <span>then</span>
-            <strong className="text-white font-bold">Add to Home Screen</strong>
+            <strong className="text-foreground font-bold">Add to Home Screen</strong>
             <PlusSquare className="h-3.5 w-3.5 text-primary inline" />
           </p>
         ) : (
-          <p className="text-[11px] text-white/75 font-medium">{t("pwa.fastLightweight")}</p>
+          <p className="text-[11px] text-muted-foreground font-medium">{t("pwa.fastLightweight")}</p>
         )}
 
         {!showIOSPrompt && deferredPrompt && (
