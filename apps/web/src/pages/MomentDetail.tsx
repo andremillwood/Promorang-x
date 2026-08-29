@@ -49,6 +49,7 @@ import { PeopleMomentExperience } from "@/components/moments/PeopleMomentExperie
 import { isPeopleFirstOrigin } from "@promorang/shared";
 import { joinPeopleMoment } from "@/lib/people-moments-api";
 import { usePromoCard } from "@/hooks/usePromoCard";
+import { useUserBalance } from "@/hooks/useEconomy";
 import {
   ArrowLeft,
   ArrowRight,
@@ -163,6 +164,7 @@ const MomentDetail = () => {
   const { toast } = useToast();
   const { recordAttributedAction } = usePromoShareRail();
   const promoCardQuery = usePromoCard(user?.id);
+  const walletBalanceQuery = useUserBalance();
 
   const [moment, setMoment] = useState<Moment | null>(null);
   const [isJoined, setIsJoined] = useState(false);
@@ -1247,7 +1249,12 @@ const MomentDetail = () => {
                 <PromoCardMomentLoop
                   isJoined={isJoined}
                   isHost={Boolean(isHost)}
+                  hasLiveCard={Boolean(promoCardQuery.data)}
                   cardBalance={promoCardQuery.data?.availableBalance}
+                  cycleLimit={promoCardQuery.data?.monthlyLimit}
+                  spentThisCycle={promoCardQuery.data?.spentThisCycle}
+                  points={walletBalanceQuery.data?.points || 0}
+                  promoKeys={walletBalanceQuery.data?.promokeys || 0}
                 />
 
                 {/* Venue & Map Card */}

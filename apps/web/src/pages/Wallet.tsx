@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserBalance, useEconomyHistory, useGemWalletActions, useGemWithdrawals } from "@/hooks/useEconomy";
 import { useValueReceipts } from "@/hooks/useValueReceipts";
@@ -40,7 +40,7 @@ import { cultureEvents } from "@/data/culture-demo";
 import { CommerceReceiptRail } from "@/components/commerce/CommerceReceiptRail";
 import { CouponWalletRail } from "@/components/commerce/CouponWalletRail";
 import { PersonalValueNav } from "@/components/value/PersonalValueNav";
-import { DigitalWalletPass3D } from "@/components/wallet/DigitalWalletPass3D";
+import { DigitalPromoCard } from "@/components/promocard";
 import { PARTICIPANT_ECONOMY } from "@promorang/shared";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
@@ -87,6 +87,7 @@ const errorMessage = (error: unknown) => error instanceof Error ? error.message 
 
 const Wallet = () => {
   const { t, locale, formatNumber } = useI18n();
+  const location = useLocation();
   const { user, session } = useAuth();
   const { toast } = useToast();
   const { country, isFeatureEnabled } = useMarket();
@@ -127,6 +128,10 @@ const Wallet = () => {
     fetchGemsBalance();
     fetchGemsTransactions();
   }, [session?.access_token, walletRefreshTick]);
+
+  useEffect(() => {
+    if (location.hash === "#convert-keys") setConvertDialogOpen(true);
+  }, [location.hash]);
 
   const fetchGemsBalance = async () => {
     if (!session?.access_token) return;
@@ -290,7 +295,7 @@ const Wallet = () => {
       <div className="relative min-h-[500px] overflow-hidden border-b border-white/10 bg-black">
         <img src={cultureEvents[1]?.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/35" />
-        <div className="relative w-full grid min-h-[500px] gap-8 px-4 sm:px-6 lg:px-8 py-8 md:py-10 md:grid-cols-[1fr_420px] md:items-end">
+        <div className="relative w-full grid min-h-[500px] gap-8 px-4 sm:px-6 lg:px-8 py-8 md:py-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
           <div className="text-white">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">
               <WalletCards className="h-3.5 w-3.5" />
@@ -305,15 +310,13 @@ const Wallet = () => {
           </div>
 
           <div className="flex flex-col items-center gap-4">
-            <DigitalWalletPass3D
-              displayName={user.user_metadata?.full_name || user.user_metadata?.name}
-              userEmail={user.email}
-              userId={user.id}
+            <DigitalPromoCard
+              variant="hero"
               points={walletBalance?.points || 0}
               promoKeys={walletBalance?.promokeys || 0}
-              gems={gems}
+              onConvertKeys={() => setConvertDialogOpen(true)}
             />
-            <div className="flex w-full max-w-[420px] gap-2">
+            <div className="flex w-full max-w-4xl gap-2">
               <Button className="flex-1 rounded-xl shadow-lg" asChild>
                 <Link to="/discover"><Sparkles className="mr-2 h-4 w-4" />{t("wallet.earn")}</Link>
               </Button>
@@ -334,16 +337,16 @@ const Wallet = () => {
           id="wallet:economy-path"
           eyebrow="Wallet path"
           title="How participation becomes usable value"
-          summary={`Show up, verify, unlock PromoKeys, and earn Gems through funded work. ${pointsPerKey} Points becomes 1 PromoKey.`}
+          summary={`Your PromoCard shows the dollar credit you can spend. Show up to earn Points, turn Points into Keys, and restore more credit. ${pointsPerKey} Points becomes 1 PromoKey.`}
           className="mt-0"
         >
           <section className="overflow-hidden rounded-2xl border border-border bg-card">
             <div className="grid md:grid-cols-4">
               {[
-                ["01", "Show up", "Join a Moment or useful action"],
-                ["02", "Verify", "Proof turns activity into standing"],
+                ["01", "Credit", "PromoCard shows the dollars you can spend this cycle"],
+                ["02", "Show up", "Join a Moment and start earning Points"],
                 ["03", "Unlock", `${pointsPerKey} Points becomes 1 PromoKey`],
-                ["04", "Earn", "Funded work settles as Gems"],
+                ["04", "Restore", "Verified actions can put credit back on the card"],
               ].map(([number, title, text], index) => (
                 <div key={number} className={`relative p-5 ${index < 3 ? "border-b border-border md:border-b-0 md:border-r" : ""}`}>
                   <div className="text-[10px] font-black tracking-[0.25em] text-primary">{number}</div>
@@ -854,7 +857,7 @@ const Wallet = () => {
       </main>
 
       <Dialog open={convertDialogOpen} onOpenChange={setConvertDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent id="convert-keys" className="max-w-md">
           <DialogHeader>
             <DialogTitle>{t("wallet.convertTitle")}</DialogTitle>
             <DialogDescription>

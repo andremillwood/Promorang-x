@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import {
   ArrowRight,
   CheckCircle2,
+  Coins,
+  KeyRound,
   MapPin,
   QrCode,
   RefreshCw,
@@ -10,7 +12,9 @@ import {
   Store,
   WalletCards,
 } from "lucide-react";
+import { describePromoCardLoop } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/i18n/I18nContext";
 
 const steps = [
   {
@@ -32,6 +36,8 @@ const steps = [
 
 export function PromoCardGateway() {
   const { user } = useAuth();
+  const { t } = useI18n();
+  const loop = describePromoCardLoop({ hasLiveCard: false });
 
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-[#070707] text-white">
@@ -101,10 +107,20 @@ export function PromoCardGateway() {
               </div>
 
               <div className="my-6 sm:my-8">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Example member benefit</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{t("promoCardLoop.prospectiveLabel")}</p>
                 <div className="mt-1 flex items-end gap-2">
-                  <span className="text-5xl font-black tracking-[-0.05em] text-amber-200">Up to $50</span>
-                  <span className="pb-1 text-xs text-white/45">subject to eligibility</span>
+                  <span className="text-5xl font-black tracking-[-0.05em] text-amber-200">${loop.credit.cycleCredit.toFixed(0)}</span>
+                  <span className="pb-1 text-xs text-white/45">{t("promoCardLoop.ofCycle", { limit: `$${loop.credit.cycleCredit.toFixed(0)}` })}</span>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="rounded-xl border border-white/10 bg-black/30 p-3">
+                    <p className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-amber-300"><Coins className="h-3 w-3" /> {t("promoCardLoop.points")}</p>
+                    <p className="mt-1 text-xs text-white/65">{t("promoCardLoop.toNextKey", { count: String(loop.instruments.pointsPerKey) })}</p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-black/30 p-3">
+                    <p className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-orange-300"><KeyRound className="h-3 w-3" /> {t("promoCardLoop.keys")}</p>
+                    <p className="mt-1 text-xs text-white/65">{t("promoCardLoop.keysUnlock")}</p>
+                  </div>
                 </div>
               </div>
 

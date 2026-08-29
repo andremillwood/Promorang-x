@@ -1,17 +1,24 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle2, RefreshCw, Users, WalletCards } from "lucide-react";
 import {
+  describePromoCardLoop,
   getPromoCardMomentImpacts,
   PROMOCARD_MOMENT_LOOP,
   type PromoCardMomentStakeholder,
 } from "@promorang/shared";
 import { useI18n } from "@/i18n/I18nContext";
 import type { TranslationKey } from "@/i18n/translations";
+import { PromoCardNextMove } from "@/components/promocard/PromoCardNextMove";
 
 type Props = {
   isJoined: boolean;
   isHost: boolean;
   cardBalance?: number | null;
+  cycleLimit?: number | null;
+  spentThisCycle?: number | null;
+  hasLiveCard?: boolean;
+  points?: number;
+  promoKeys?: number;
 };
 
 const stageKeys = {
@@ -77,12 +84,29 @@ const roleKeys: Record<PromoCardMomentStakeholder, { label: TranslationKey; valu
   },
 };
 
-export function PromoCardMomentLoop({ isJoined, isHost, cardBalance }: Props) {
+export function PromoCardMomentLoop({
+  isJoined,
+  isHost,
+  cardBalance,
+  cycleLimit,
+  spentThisCycle,
+  hasLiveCard,
+  points = 0,
+  promoKeys = 0,
+}: Props) {
   const { t } = useI18n();
   const primaryRole: PromoCardMomentStakeholder = isHost ? "host" : "participant";
   const impacts = getPromoCardMomentImpacts(primaryRole);
   const primary = impacts[0];
   const primaryCopy = roleKeys[primary.role];
+  const loop = describePromoCardLoop({
+    hasLiveCard: Boolean(hasLiveCard),
+    availableBalance: cardBalance ?? undefined,
+    monthlyLimit: cycleLimit ?? undefined,
+    spentThisCycle: spentThisCycle ?? undefined,
+    points,
+    promoKeys,
+  });
 
   return (
     <section className="overflow-hidden rounded-3xl border border-amber-300/20 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.16),transparent_35%),#121215] shadow-xl">
@@ -97,12 +121,15 @@ export function PromoCardMomentLoop({ isJoined, isHost, cardBalance }: Props) {
               {t("promoCardMoment.copy")}
             </p>
           </div>
-          {typeof cardBalance === "number" ? (
-            <div className="shrink-0 rounded-2xl border border-amber-300/20 bg-amber-300/10 px-4 py-3">
-              <p className="text-[10px] font-black uppercase tracking-wider text-amber-200/70">{t("promoCardMoment.availableValue")}</p>
-              <p className="mt-1 text-2xl font-black text-amber-200">${cardBalance.toFixed(2)}</p>
-            </div>
-          ) : null}
+          <div className="shrink-0 rounded-2xl border border-amber-300/20 bg-amber-300/10 px-4 py-3">
+            <p className="text-[10px] font-black uppercase tracking-wider text-amber-200/70">
+              {hasLiveCard ? t("promoCardLoop.readyLabel") : t("promoCardLoop.prospectiveLabel")}
+            </p>
+            <p className="mt-1 text-2xl font-black text-amber-200">${(hasLiveCard ? loop.credit.readyToSpend : loop.credit.cycleCredit).toFixed(2)}</p>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-amber-100/60">
+              {loop.instruments.points} {t("promoCardLoop.points")} · {loop.instruments.promoKeys} {t("promoCardLoop.keys")}
+            </p>
+          </div>
         </div>
 
         <div className="mt-6 grid gap-3 md:grid-cols-3">
@@ -159,11 +186,30 @@ export function PromoCardMomentLoop({ isJoined, isHost, cardBalance }: Props) {
         </div>
 
         {isJoined ? (
-          <div className="mt-5 flex items-start gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.07] p-4">
-            <RefreshCw className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
-            <p className="text-xs leading-5 text-white/65"><strong className="text-white">{t("promoCardMoment.inLoopTitle")}</strong> {t("promoCardMoment.inLoopCopy")}</p>
+          <div className="mt-5 space-y-3">
+            <div className="flex items-start gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.07] p-4">
+              <RefreshCw className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+              <p className="text-xs leading-5 text-white/65"><strong className="text-white">{t("promoCardMoment.inLoopTitle")}</strong> {t("promoCardMoment.inLoopCopy")}</p>
+            </div>
+            <PromoCardNextMove
+              id={loop.next.id}
+              href={loop.next.href}
+              creditHint={loop.next.creditHint}
+              pointsHint={loop.next.pointsHint}
+              keysHint={loop.next.keysHint}
+            />
           </div>
-        ) : null}
+        ) : (
+          <div className="mt-5">
+            <PromoCardNextMove
+              id={loop.next.id}
+              href={loop.next.href}
+              creditHint={loop.next.creditHint}
+              pointsHint={loop.next.pointsHint}
+              keysHint={loop.next.keysHint}
+            />
+          </div>
+        )}
       </div>
     </section>
   );

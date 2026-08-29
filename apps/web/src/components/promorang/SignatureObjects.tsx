@@ -18,6 +18,9 @@ type PromoCardFaceProps = {
   limit?: string;
   holder?: string;
   places?: string;
+  points?: string;
+  keys?: string;
+  creditLabel?: string;
   className?: string;
 };
 
@@ -26,6 +29,9 @@ export function PromoCardFace({
   limit = "$40.00",
   holder = "Member card",
   places = "Partner shops nearby",
+  points,
+  keys,
+  creditLabel = "Available to spend",
   className,
 }: PromoCardFaceProps) {
   return (
@@ -39,13 +45,17 @@ export function PromoCardFace({
           <span className="h-8 w-11 rounded-md bg-gradient-to-br from-amber-200 to-amber-500 shadow-inner" aria-hidden />
         </div>
         <div>
-          <p className="text-[11px] tracking-wide text-white/55">Available to spend</p>
+          <p className="text-[11px] tracking-wide text-white/55">{creditLabel}</p>
           <p className="mt-0.5 font-serif text-4xl font-bold tracking-tight text-amber-100">{available}</p>
           <p className="mt-1 text-xs text-white/50">of {limit} this cycle · {places}</p>
         </div>
         <div className="flex items-end justify-between gap-3 text-[11px] text-white/60">
           <span>{holder}</span>
-          <span className="font-mono tracking-widest">PR · 0842</span>
+          {points || keys ? (
+            <span className="font-mono tracking-wider">{points || "0"} pts · {keys || "0"} keys</span>
+          ) : (
+            <span className="font-mono tracking-widest">PR · 0842</span>
+          )}
         </div>
       </div>
     </article>
