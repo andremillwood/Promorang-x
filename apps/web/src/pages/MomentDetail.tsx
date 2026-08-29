@@ -12,6 +12,7 @@ import { ReactionBar } from "@/components/ReactionBar";
 import { CommentSection } from "@/components/CommentSection";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShareButton } from "@/components/ShareButton";
 import { QRCodeDisplay } from "@/components/QRCodeDisplay";
@@ -766,7 +767,7 @@ const MomentDetail = () => {
     ownership: "EDITORIAL DISCOVERY",
     venueName: moment.venue_name || moment.location || "",
     location: moment.location || "",
-    dateDisplay: displayStartsAt,
+    dateDisplay: [formatDate(displayStartsAt), formatTime(displayStartsAt)].filter(Boolean).join(" · ") || displayStartsAt,
     image: galleryImages[0]?.url || "",
     promoKeysAvailable: 5,
     subMomentsCount: 3,
@@ -1027,34 +1028,27 @@ const MomentDetail = () => {
             </span>
           </div>
           <div className="relative -mr-4 sm:mr-0">
-            <div
-              role="tablist"
-              aria-label={t("momentDetail.exploreSections")}
-              className="flex gap-2 overflow-x-auto pb-1 pr-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:pr-0"
+            <Tabs
+              value={activeMomentTab}
+              onValueChange={(value) => setActiveMomentTab(value as MomentTab)}
             >
-              {momentTabs.map((tab) => {
-                const isActive = activeMomentTab === tab.id;
-                return (
-                  <button
+              <TabsList
+                aria-label={t("momentDetail.exploreSections")}
+                className="h-auto w-full justify-start gap-2 overflow-x-auto rounded-none bg-transparent p-0 pb-1 pr-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:pr-0"
+              >
+                {momentTabs.map((tab) => (
+                  <TabsTrigger
                     key={tab.id}
+                    value={tab.id}
                     id={`moment-tab-${tab.id}`}
-                    type="button"
-                    role="tab"
-                    aria-selected={isActive}
-                    aria-controls="moment-tabpanel"
-                    onClick={() => setActiveMomentTab(tab.id)}
-                    className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff8a50] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] sm:text-sm ${
-                      isActive
-                        ? "border-[#ff6a1a] bg-[#ff5500] text-white shadow-md shadow-[#ff5500]/25"
-                        : "border-white/15 bg-white/[0.06] text-white/70 hover:border-white/30 hover:bg-white/10 hover:text-white"
-                    }`}
+                    className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-4 py-2.5 text-xs font-bold text-white/70 shadow-none data-[state=active]:border-[#ff6a1a] data-[state=active]:bg-[#ff5500] data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-[#ff5500]/25 sm:text-sm"
                   >
                     <tab.Icon className="h-3.5 w-3.5" aria-hidden="true" />
                     {tab.label}
-                  </button>
-                );
-              })}
-            </div>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-y-0 right-0 flex w-12 items-center justify-end bg-gradient-to-l from-[#09090b] via-[#09090b]/90 to-transparent pr-2 sm:hidden"
