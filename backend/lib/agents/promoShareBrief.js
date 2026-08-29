@@ -220,14 +220,13 @@ function receiptLinesFromCycle(cycle, gap) {
 
   const progress = cycle.progress_to_qualify || {};
   return [
-    { label: 'Cycle', value: cycle.cycle_name || cycle.cycle_type || 'This week', strong: true },
+    { label: 'This week', value: cycle.cycle_name || cycle.cycle_type || 'Community pot', strong: true },
     { label: 'In the pot', value: cycle.eligible ? 'Yes' : 'Not yet' },
-    { label: 'Tickets', value: String(cycle.total_entries || 0) },
-    { label: 'Weight', value: String(cycle.weight || 0) },
-    { label: 'Verified visits', value: `${progress.moves?.current || 0} / ${progress.moves?.required || 0}` },
-    { label: 'Moments', value: `${progress.moments?.current || 0} / ${progress.moments?.required || 0}` },
+    { label: 'Your tickets', value: String(cycle.total_entries || 0) },
+    { label: 'Visits', value: `${progress.moves?.current || 0} / ${progress.moves?.required || 0}` },
+    { label: 'Nights', value: `${progress.moments?.current || 0} / ${progress.moments?.required || 0}` },
     { label: 'Friends who showed', value: `${progress.referrals?.current || 0} / ${progress.referrals?.required || 0}` },
-    { label: 'Nearest unlock', value: gap.remaining === 0 ? 'Already in' : `${gap.remaining} ${gap.key.replace(/s$/, '')}${gap.remaining === 1 ? '' : 's'} short` },
+    { label: 'Still needed', value: gap.remaining === 0 ? 'Already in' : `${gap.remaining} more ${gap.noun}${gap.remaining === 1 ? '' : 's'}` },
   ];
 }
 
@@ -243,9 +242,14 @@ function compileParticipantBrief({ standing, moments = [], location, userName } 
     location,
   });
 
+  const place = moment?.name || moment?.title;
   const nextMove = {
     kind: gap.kind,
-    title: gap.title,
+    title: place && gap.kind === 'check_in'
+      ? `Check in at ${place}`
+      : place && gap.kind === 'join_moment'
+        ? `Join ${place}`
+        : gap.title,
     why: gap.why,
     href: gap.kind === 'check_in' && moment?.id
       ? `/moments/${moment.id}/checkin`
@@ -253,19 +257,34 @@ function compileParticipantBrief({ standing, moments = [], location, userName } 
         ? `/moments/${moment.id}`
         : share.href,
     momentId: moment?.id || null,
-    momentName: moment?.name || moment?.title || null,
+    momentName: place || null,
+    ctaLabel: place && gap.kind === 'check_in'
+      ? `Check in at ${place}`
+      : place && gap.kind === 'join_moment'
+        ? `I'm going to ${place}`
+        : gap.kind === 'invite'
+          ? 'Invite one friend who will go'
+          : place
+            ? `Send ${place} to a friend`
+            : 'Find a night worth joining',
   };
 
   return {
     role: ROLES.PARTICIPANT,
     headline: cycle?.eligible
-      ? `${cycle.cycle_name || 'This week’s pot'} is already open to you.`
+      ? `You're already in this week's pot.`
       : gap.remaining === 1
         ? `You are one ${gap.noun} short of this week’s pot.`
         : `You are ${gap.remaining} ${gap.noun}s short of this week’s pot.`,
     summary: cycle
-      ? `Verified moves become tickets. Tickets raise odds. Nobody is owed a payout.`
-      : 'No live cycle is attached yet. Show up anyway — receipts still stack when a pot opens.',
+      ? 'Show up. Check in. That ticket can count today, this week, and for the big pot. Nobody is owed a prize.'
+      : 'Show up anyway. When a pot opens, nights you already proved still count.',
+    unlock: cycle?.eligible
+      ? 'Bring one person tonight and your standing gets stronger without chasing a payout.'
+      : place
+        ? `Go to ${place}. Check in at the door. That is the whole move.`
+        : 'One real night is the unlock. Not a share, not a click.',
+    proof: 'A check-in or approved proof. RSVPs and views do not count.',
     nextMove,
     share,
     checkIn: {
@@ -305,11 +324,16 @@ function compileHostBrief({ standing, moments = [], location } = {}) {
     summary: 'PromoShare is not extra marketing. It is whether your night produces verified joins, proofs, and return visits.',
     nextMove: {
       kind: 'nudge_check_in',
-      title: 'Text the door list to check in',
-      why: 'RSVPs do not count. Check-ins do. A short door script is the next operator move.',
+      title: 'Ask the door list to check in',
+      why: 'RSVPs do not count. Check-ins do. One sentence at the door is the move.',
       href: hosted[0]?.id ? `/moments/${hosted[0].id}` : '/hosting',
       momentId: hosted[0]?.id || null,
+      ctaLabel: hosted[0]?.name || hosted[0]?.title
+        ? `Open ${hosted[0].name || hosted[0].title}`
+        : 'Open tonight’s Moment',
     },
+    unlock: 'When they check in, your room starts filling a live pot. Interest does not.',
+    proof: 'Door check-in or a photo. Not a view count.',
     moments: hosted.map((moment) => ({
       id: moment.id,
       name: moment.name || moment.title,
@@ -347,7 +371,10 @@ function compileCreatorBrief({ moments = [], standing } = {}) {
       why: 'One attributable link. One ask. The rest is noise.',
       href: drop?.id ? `/moments/${drop.id}` : '/content-drops',
       momentId: drop?.id || null,
+      ctaLabel: drop ? `Send ${drop.name || drop.title}` : 'Pick one drop to send',
     },
+    unlock: 'Residuals attach when someone actually joins, checks in, or unlocks — not when they watch.',
+    proof: 'A verified join or unlock on your link.',
     share: buildShareDraft({ moment: drop, userName: 'I' }),
     receiptLines: [
       { label: 'What pays', value: 'Verified joins and unlocks', strong: true },
@@ -381,7 +408,10 @@ function compileSponsorBrief({ outcome, pools = [], location, budgetGems, target
       title: 'Review the drafted pot',
       why: 'Liability is capped. Proof is required. Clicks are excluded on purpose.',
       href: '/sponsor-dashboard',
+      ctaLabel: 'Review this pot',
     },
+    unlock: `You pay for ${draft.outcome.targetCount} real actions, capped at ${draft.funding.requested_gems} Gems. Views are free and worthless here.`,
+    proof: 'Verified visits, check-ins, or approved proof. Clicks never count.',
     poolDraft: draft,
     estimate: estimateLiability(draft.funding.requested_gems, draft.outcome.targetCount),
     livePools: livePools.map((pool) => ({
@@ -427,8 +457,11 @@ function compileStewardBrief({ pools = [], moments = [], location } = {}) {
       kind: 'pitch_merchant',
       title: empty.length || unfundedActivity ? 'Pitch one merchant a capped weekend pot' : 'Keep this week’s Moments dated and local',
       why: 'A funded pot on a real night beats a platform boost.',
-      href: '/promoshare',
+      href: empty.length || unfundedActivity ? '/sponsor-dashboard' : '/discover',
+      ctaLabel: empty.length || unfundedActivity ? 'Pitch one merchant' : 'Open this week’s nights',
     },
+    unlock: 'A dated night plus a capped pot is how a hub feels alive.',
+    proof: 'Dated Moments with a source. Do not invent calendars.',
     emptyPools: empty.map((pool) => ({
       id: pool.id,
       name: pool.cycle_name,
@@ -458,9 +491,12 @@ function compileAdminBrief({ pools = [], cycles = [] } = {}) {
     nextMove: {
       kind: 'review_audit',
       title: 'Open the cycle audit, do not rerun a live draw',
-      why: 'Draws are deterministic. The operator may queue a review, never silently re-roll.',
+      why: 'Draws are deterministic. You may queue a review. You never silently re-roll.',
       href: '/admin/promoshare',
+      ctaLabel: 'Open the audit',
     },
+    unlock: 'Trust holds when winners can be explained and pots stay capped.',
+    proof: 'An audit row for every draw. No silent reruns.',
     receiptLines: [
       { label: 'Live cycles', value: String(live.length), strong: true },
       { label: 'Operator power', value: 'Recommend only' },

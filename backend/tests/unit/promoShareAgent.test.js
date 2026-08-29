@@ -63,6 +63,8 @@ describe('PromoShare qualification brief', () => {
 
     expect(brief.headline).toMatch(/one visit short/i);
     expect(brief.nextMove.href).toBe('/moments/m1/checkin');
+    expect(brief.nextMove.ctaLabel).toMatch(/Check in at Thursday tasting/);
+    expect(brief.unlock).toMatch(/Thursday tasting/);
     expect(brief.share.posted).toBe(false);
     expect(brief.share.message).toMatch(/Tia is going/);
     expect(brief.summary).not.toMatch(/guaranteed|income|yield/i);
@@ -85,8 +87,9 @@ describe('PromoShare qualification brief', () => {
       moments: [{ id: 'm1', name: 'Thursday tasting' }],
     });
 
-    expect(brief.headline).toMatch(/already open/i);
+    expect(brief.headline).toMatch(/already in/i);
     expect(brief.nextMove.kind).toBe('share');
+    expect(brief.nextMove.ctaLabel).toMatch(/friend|tasting/i);
   });
 });
 

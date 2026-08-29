@@ -320,7 +320,8 @@ const PromoShare = () => {
         title="PromoShare - Verified Distribution"
         description="Track how content and sharing generate verified participation and attributable outcomes across Promorang."
       />
-      {/* Featured Pool Banner - PromoShare Homepage Banner ($200/day) */}
+      {user ? <PromoShareOperator asPageHero /> : null}
+
       {featuredPools.length > 0 && (
         <div className="mb-8">
           {featuredPools.map((pool) => (
@@ -341,24 +342,25 @@ const PromoShare = () => {
           ))}
         </div>
       )}
-      {/* Top Story & Daily Gamification Rail */}
-      <StoryGamificationRail
-        onOpenWheel={() => setWheelOpen(true)}
-        onOpenStreak={() => setStreakOpen(true)}
-      />
 
-      {/* Unified Dynamic PromoShare Hero */}
-      <PromoShareHero
-        totalTickets={totalEntries > 0 ? totalEntries : 14}
-        multiplier={3.5}
-        onOpenSlash={() => setSlashOpen(true)}
-      />
-
-      {user ? (
-        <div className="mb-10">
-          <PromoShareOperator />
-        </div>
-      ) : null}
+      {!user ? (
+        <>
+          <StoryGamificationRail
+            onOpenWheel={() => setWheelOpen(true)}
+            onOpenStreak={() => setStreakOpen(true)}
+          />
+          <PromoShareHero
+            totalTickets={totalEntries > 0 ? totalEntries : 14}
+            multiplier={3.5}
+            onOpenSlash={() => setSlashOpen(true)}
+          />
+        </>
+      ) : (
+        <StoryGamificationRail
+          onOpenWheel={() => setWheelOpen(true)}
+          onOpenStreak={() => setStreakOpen(true)}
+        />
+      )}
 
       {/* Pre-Loaded Card Drop Creator */}
       <div className="mb-8">
@@ -368,13 +370,6 @@ const PromoShare = () => {
       {/* Main 3-Column Desktop Layout */}
       <div className="flex gap-8 items-start">
         <div className="flex-1 min-w-0 space-y-8">
-          {primaryCycle ? (
-            <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
-              <p className="text-xs font-bold text-white/45">{t("promoshare.nearestUnlock")}</p>
-              <p className="mt-2 text-sm font-semibold">{primaryCycle.eligible ? `${primaryCycle.cycle_name} is open to you.` : 'Complete another verified move, moment, or referral to increase your weight.'}</p>
-            </div>
-          ) : null}
-
           {(isSponsorView || isHostView) && (
         <div className="mb-8 grid gap-4 lg:grid-cols-2">
           {isSponsorView && (
