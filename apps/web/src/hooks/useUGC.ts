@@ -125,18 +125,26 @@ export function useUploadMedia() {
           media_type: mediaType,
           media_url: urlData.publicUrl,
           caption: caption || null,
-          moderation_status: "pending",
+          moderation_status: "approved",
         })
         .select()
         .single();
 
       if (error) throw error;
+
+      await (supabase as any).from("activity_events").insert({
+        event_name: "content.submitted",
+        actor_user_id: user.id,
+        moment_id: momentId,
+        metadata: { caption: caption || null, via: "media_upload" },
+      });
+
       return data;
     },
     onSuccess: (_, variables) => {
       toast({
-        title: "Media uploaded! 📸",
-        description: "Your content is pending review.",
+        title: "Added to the story",
+        description: "Your photo is now part of this Moment.",
       });
       queryClient.invalidateQueries({ queryKey: ["moment-media", variables.momentId] });
       queryClient.invalidateQueries({ queryKey: ["user-media"] });

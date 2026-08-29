@@ -45,6 +45,9 @@ import { PromoShareAction } from "@/components/promoshare/PromoShareAction";
 import { PromoShareOperator } from "@/components/promoshare/PromoShareOperator";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
 import { PromoCardMomentLoop } from "@/components/moments/PromoCardMomentLoop";
+import { PeopleMomentExperience } from "@/components/moments/PeopleMomentExperience";
+import { isPeopleFirstOrigin } from "@promorang/shared";
+import { joinPeopleMoment } from "@/lib/people-moments-api";
 import { usePromoCard } from "@/hooks/usePromoCard";
 import {
   ArrowLeft,
@@ -111,6 +114,11 @@ type Moment = Tables<"moments"> & {
   gallery_images?: Array<{ url: string; alt?: string; caption?: string; media_type?: string }> | null;
   latitude?: number | null;
   longitude?: number | null;
+  origin_type?: string | null;
+  here_now?: boolean | null;
+  claim_status?: string | null;
+  claimed_by_stakeholder_id?: string | null;
+  creator_user_id?: string | null;
 };
 
 type ProofRequirement = {
@@ -558,6 +566,23 @@ const MomentDetail = () => {
         });
         return;
       }
+      const peopleFirst = isPeopleFirstOrigin(moment.origin_type) || Boolean(moment.here_now);
+      if (peopleFirst || response.status === 409) {
+        await joinPeopleMoment(moment.id, {
+          invited_by_user_id: searchParams.get("invitedBy"),
+          referral_code: searchParams.get("ref") || searchParams.get("referral_code"),
+          source: searchParams.get("source") || "moment_page",
+          campaign: searchParams.get("campaign"),
+        });
+        setIsJoined(true);
+        setParticipantCount((prev) => prev + 1);
+        recordAttributedAction("moment.rsvp", moment.title);
+        toast({
+          title: "You're in",
+          description: "See who else is here, then invite someone.",
+        });
+        return;
+      }
       throw new Error(payload?.error || "Failed to join event");
     }
 
@@ -602,6 +627,23 @@ const MomentDetail = () => {
         const entryFee = Number(economy?.economics?.entry_fee_jmd || 0);
         if ((economy?.economics?.money_source === "entry" || economy?.economics?.money_source === "hybrid") && entryFee > 0) {
           setShowEntryPayment(true);
+          return;
+        }
+
+        if (isPeopleFirstOrigin(moment.origin_type) || moment.here_now) {
+          await joinPeopleMoment(moment.id, {
+            invited_by_user_id: searchParams.get("invitedBy"),
+            referral_code: searchParams.get("ref") || searchParams.get("referral_code"),
+            source: searchParams.get("source") || "moment_page",
+            campaign: searchParams.get("campaign"),
+          });
+          setIsJoined(true);
+          setParticipantCount((prev) => prev + 1);
+          recordAttributedAction("moment.rsvp", moment.title);
+          toast({
+            title: "You're in",
+            description: "See who else is here, then invite someone.",
+          });
           return;
         }
 
@@ -932,7 +974,13 @@ const MomentDetail = () => {
                     disabled={isJoining || isFull}
                     className="w-full rounded-2xl bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold text-base py-5 shadow-lg shadow-[#ff5500]/25 transition-all hover:scale-[1.01]"
                   >
-                    {isJoining ? t("momentDetail.reserving") : isFull ? t("momentDetail.eventFull") : t("momentDetail.rsvpNowFree")}
+                    {isJoining
+                      ? t("momentDetail.reserving")
+                      : isFull
+                        ? t("momentDetail.eventFull")
+                        : isPeopleFirstOrigin(moment.origin_type) || moment.here_now
+                          ? "Join Moment"
+                          : t("momentDetail.rsvpNowFree")}
                   </Button>
                 )}
 
@@ -1041,6 +1089,23 @@ const MomentDetail = () => {
             {/* TAB 1: OVERVIEW & DETAILS */}
             {activeMomentTab === "overview" && (
               <div className="space-y-8 animate-in fade-in duration-300">
+                <PeopleMomentExperience
+                  momentId={moment.id}
+                  title={moment.title}
+                  originType={moment.origin_type}
+                  claimStatus={moment.claim_status}
+                  claimedByStakeholderId={moment.claimed_by_stakeholder_id}
+                  hereNow={moment.here_now}
+                  isHost={Boolean(isHost)}
+                  isJoined={isJoined}
+                  invitedBy={searchParams.get("invitedBy")}
+                  referralCode={searchParams.get("ref") || searchParams.get("referral_code")}
+                  source={searchParams.get("source") || "moment_page"}
+                  onJoined={() => {
+                    setIsJoined(true);
+                    setParticipantCount((prev) => prev + 1);
+                  }}
+                />
                 {/* Event Description */}
                 <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
                   <div className="flex items-center gap-2 text-[#ff5500] font-bold text-xs uppercase tracking-wider">

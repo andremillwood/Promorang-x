@@ -380,6 +380,12 @@ const Discover = () => {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
             {/* Global Ticket & Points Balance Ticker */}
             <GlobalTicketBalancePill />
+            <Button asChild className="h-10 rounded-2xl bg-[#FF5500] text-white font-black text-xs">
+              <Link to="/create/moment">
+                <Plus className="w-4 h-4" />
+                Start a Moment
+              </Link>
+            </Button>
 
             {/* Merchant Post a Perk Quick Button */}
             <Button

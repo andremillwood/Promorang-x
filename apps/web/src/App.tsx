@@ -75,6 +75,9 @@ const GuestPass = lazy(() => import("./pages/GuestPass"));
 const HostGuestOperations = lazy(() => import("./pages/HostGuestOperations"));
 const ProposeLanding = lazy(() => import("@/pages/ProposeLanding"));
 const CreateMoment = lazy(() => import("./pages/CreateMoment"));
+const CreatePeopleMoment = lazy(() => import("./pages/CreatePeopleMoment"));
+const PlanComposer = lazy(() => import("./pages/PlanComposer"));
+const PlanDetail = lazy(() => import("./pages/PlanDetail"));
 const Discover = lazy(() => import("./pages/Discover"));
 const DiscoveryDetail = lazy(() => import("./pages/DiscoveryDetail"));
 const DiscoveryAcquisitionPage = lazy(() => import("./pages/DiscoveryAcquisitionPage"));
@@ -305,7 +308,10 @@ const App = () => (
                     <Route path="/why-join" element={<Navigate to="/" replace />} />
                     <Route path="/propose" element={<ProposeLanding />} />
                     <Route path="/create" element={<Navigate to="/create/moment" replace />} />
-                    <Route path="/create/moment" element={<ProtectedRoute><CreateMoment /></ProtectedRoute>} />
+                    <Route path="/create/moment" element={<ProtectedRoute><CreatePeopleMoment /></ProtectedRoute>} />
+                    <Route path="/create/hosted" element={<ProtectedRoute><CreateMoment /></ProtectedRoute>} />
+                    <Route path="/create/plan" element={<ProtectedRoute><PlanComposer /></ProtectedRoute>} />
+                    <Route path="/plans/:id" element={<PlanDetail />} />
                     <Route path="/create/campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
                     <Route path="/create/bounty" element={<ProtectedRoute><CreateBounty /></ProtectedRoute>} />
                     <Route path="/create-moment" element={<Navigate to="/create/moment" replace />} />
