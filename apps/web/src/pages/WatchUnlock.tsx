@@ -10,6 +10,7 @@ import SEO from "@/components/SEO";
 import { CAMERA_CONSENT, MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
 import { getSafeMediaUrl } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -142,13 +143,13 @@ const WatchUnlock = () => {
         </div>
       </div>
 
-      <section aria-label="Filter missions by role" className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+      <SwipeRail compact fadeFrom="from-black" showDots={false} scrollerClassName="gap-2">
         <button onClick={() => setSearchParams({})} className={`shrink-0 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.14em] ${!selectedRole ? "border-primary bg-primary text-white" : "border-white/10 bg-white/[0.04] text-white/50"}`}>{t("watchUnlock.allRoles")}</button>
         {Object.entries(MISSION_ARCHETYPES).map(([id, role]) => {
           const RoleIcon = role.icon;
           return <button key={id} onClick={() => setSearchParams({ role: id })} className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.14em] ${selectedRole === id ? role.tone : "border-white/10 bg-white/[0.04] text-white/50 hover:text-white"}`}><RoleIcon className="h-3.5 w-3.5" />{role.label}</button>;
         })}
-      </section>
+      </SwipeRail>
 
       {error ? (
         <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-5 text-sm text-destructive">

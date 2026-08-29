@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -393,7 +394,7 @@ const Discover = () => {
         </div>
 
         {/* 3-Sided Market Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-white/10 pb-4 overflow-x-auto scrollbar-none">
+        <SwipeRail compact fadeFrom="from-black" showDots={false} className="border-b border-white/10 pb-4" scrollerClassName="items-center gap-2">
           <button
             onClick={() => handleTabChange("discoveries")}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
@@ -465,7 +466,7 @@ const Discover = () => {
             <Store className="h-4 w-4" />
             <span>Places & Venues</span>
           </button>
-        </div>
+        </SwipeRail>
 
         {/* Gamification Highlights */}
         <StoryGamificationRail
@@ -555,7 +556,7 @@ const Discover = () => {
                 </div>
 
                 {/* Category Pills Bar */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <SwipeRail compact fadeFrom="from-black" showDots={false} scrollerClassName="items-center gap-2">
                   {categoryFilters.map((cat) => {
                     const isActive = activeCategory === cat.id;
                     const Icon = cat.icon;
@@ -563,7 +564,7 @@ const Discover = () => {
                       <button
                         key={cat.id}
                         onClick={() => setActiveCategory(cat.id)}
-                        className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all shrink-0 ${
+                        className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all shrink-0 snap-start ${
                           isActive
                             ? "bg-emerald-500 text-black shadow-md font-black"
                             : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/5"
@@ -574,7 +575,7 @@ const Discover = () => {
                       </button>
                     );
                   })}
-                </div>
+                </SwipeRail>
 
                 {perksLoading ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -602,7 +603,7 @@ const Discover = () => {
             {/* TAB 3: MOMENTS & EVENTS */}
             {activeTab === "moments" && (
               <>
-                <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <SwipeRail compact fadeFrom="from-black" showDots={false} scrollerClassName="items-center gap-2">
                   {categoryFilters.map((cat) => {
                     const isActive = activeCategory === cat.id;
                     const Icon = cat.icon;
@@ -610,7 +611,7 @@ const Discover = () => {
                       <button
                         key={cat.id}
                         onClick={() => setActiveCategory(cat.id)}
-                        className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all shrink-0 ${
+                        className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all shrink-0 snap-start ${
                           isActive
                             ? "bg-white text-black shadow-md"
                             : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/5"
@@ -621,7 +622,7 @@ const Discover = () => {
                       </button>
                     );
                   })}
-                </div>
+                </SwipeRail>
 
                 {featuredMoment && !searchQuery && activeCategory === "all" && viewMode === "grid" && (
                   <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-black min-h-[340px] sm:min-h-[380px] flex items-end p-5 sm:p-8">

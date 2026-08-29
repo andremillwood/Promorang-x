@@ -23,6 +23,7 @@ import { SubmitDiscoveryModal } from "./SubmitDiscoveryModal";
 import { AskQuestionModal } from "./AskQuestionModal";
 import { PromoAcceptanceBadge } from "@/components/promocard";
 import { Button } from "@/components/ui/button";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserBalance } from "@/hooks/useEconomy";
@@ -211,7 +212,7 @@ export function DiscoveriesFeedSection() {
 
       {/* Navigation Tabs - Horizontal scrolling with no scrollbar */}
       <div className="mt-5 sm:mt-6 flex items-center justify-between gap-3 border-b border-white/5 pb-3">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none max-w-full">
+        <SwipeRail compact fadeFrom="from-black" showDots={false} className="max-w-full" scrollerClassName="items-center gap-2">
           <button
             onClick={() => setActiveTab("polls")}
             className={`flex items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold transition shrink-0 ${
@@ -259,7 +260,7 @@ export function DiscoveriesFeedSection() {
               <span>{t("scout.myScoutLog")}</span>
             </button>
           )}
-        </div>
+        </SwipeRail>
 
         <Link
           to="/discover"

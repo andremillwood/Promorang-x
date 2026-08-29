@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Trophy, Star, Award, Lock, CheckCircle, Gift } from 'lucide-react';
+import { SwipeRail } from '@/components/ui/SwipeRail';
 import { UserType } from '@/shared/types';
 
 interface Achievement {
@@ -171,12 +172,13 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
 
         {/* Category Tabs */}
         <div className="border-b border-gray-200 px-6">
-          <div className="flex space-x-8 overflow-x-auto py-4">
+          <SwipeRail compact fadeFrom="from-white" showDots={false} scrollerClassName="gap-8 py-4">
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors ${
+                aria-selected={activeCategory === category}
+                className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap snap-start transition-colors ${
                   activeCategory === category
                     ? 'bg-orange-100 text-orange-700'
                     : 'text-gray-600 hover:text-gray-900'
@@ -185,7 +187,7 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
                 {category.charAt(0).toUpperCase() + category.slice(1)}
               </button>
             ))}
-          </div>
+          </SwipeRail>
         </div>
 
         {/* Achievements Grid */}

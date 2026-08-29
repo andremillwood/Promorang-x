@@ -18,6 +18,7 @@ import {
     Bookmark,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
@@ -364,7 +365,7 @@ const UserProfilePage = () => {
                     </div>
 
                     {/* Tabs */}
-                    <div className="mb-6 flex gap-1 overflow-x-auto border-b border-white/10">
+                    <SwipeRail compact fadeFrom="from-black" showDots={false} showChevrons={false} className="mb-6 border-b border-white/10" scrollerClassName="gap-1">
                         {[
                             { id: "hosted" as const, label: t("profile.hosted"), icon: Grid },
                             { id: "attended" as const, label: t("profile.attended"), icon: Calendar },
@@ -373,8 +374,9 @@ const UserProfilePage = () => {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
+                                aria-selected={activeTab === tab.id}
                                 className={cn(
-                                    "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors",
+                                    "flex shrink-0 snap-start items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors",
                                     activeTab === tab.id
                                         ? "border-orange-500 text-white"
                                         : "border-transparent text-white/40 hover:text-white"
@@ -384,7 +386,7 @@ const UserProfilePage = () => {
                                 {tab.label}
                             </button>
                         ))}
-                    </div>
+                    </SwipeRail>
 
                     {/* Content */}
                     {moments.length > 0 ? (

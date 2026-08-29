@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useI18n } from '@/i18n/I18nContext';
+import { SwipeRail } from '@/components/ui/SwipeRail';
 
 type CouponRedemption = {
   id: string;
@@ -56,7 +57,7 @@ export function CouponWalletRail() {
         </div>
         <Badge variant="secondary">{q.data.length}</Badge>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-2">
+      <SwipeRail fadeFrom="from-background" scrollerClassName="gap-3 pb-2">
         {q.data.slice(0, 10).map((item) => {
           const coupon = item.coupons;
           const claimed = item.status === 'claimed';
@@ -92,7 +93,7 @@ export function CouponWalletRail() {
             </Card>
           );
         })}
-      </div>
+      </SwipeRail>
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent>
           <DialogHeader>

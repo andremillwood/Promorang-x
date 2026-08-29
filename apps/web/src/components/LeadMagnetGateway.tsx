@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Building2, Clock3, Compass, Lightbulb, Sparkles, Store, Users, Zap } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { TranslationKey } from "@/i18n/translations";
 
 export type GatewayAudience = "all" | "participant" | "host" | "merchant" | "creator" | "brand";
@@ -154,7 +155,7 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
         </div>
 
         {/* Elevated 5-Column Interactive Cards Grid */}
-        <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-12 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3 xl:grid-cols-5">
+        <SwipeRail collapseAt="sm" fadeFrom="from-[#0a0a0a]" className="-mx-5 mt-8 px-5 sm:mx-0 sm:mt-12 sm:px-0" scrollerClassName="gap-3 pb-3 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {toolsConfig.map(tool => {
             const Icon = tool.icon;
             return (
@@ -207,7 +208,7 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
               </Link>
             );
           })}
-        </div>
+        </SwipeRail>
 
         {/* Bottom Banner */}
         <div className="mt-8 flex items-center gap-3.5 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">

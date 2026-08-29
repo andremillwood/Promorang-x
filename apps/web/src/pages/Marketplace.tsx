@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { Store, ShoppingBag, MapPin, Search, Filter, ArrowRight, Sparkles, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
@@ -242,17 +243,17 @@ const Marketplace = () => {
             </div>
 
             {/* Categories / Tags */}
-            <nav aria-label="Shop categories" className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <SwipeRail compact fadeFrom="from-black" showDots={false} scrollerClassName="gap-2 pb-2">
                 {categories.map((cat) => (
                     <Link
                         key={cat}
                         to={cat === "All" ? "/shop" : `/shop/category/${commerceCategorySlug(cat)}`}
-                        className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs font-black transition ${activeCategory === commerceCategorySlug(cat) || (cat === "All" && activeCategory === "all") ? "border-primary bg-primary text-white" : "border-white/10 bg-white/[0.05] text-white/65 hover:border-primary/50 hover:text-white"}`}
+                        className={`shrink-0 snap-start whitespace-nowrap rounded-full border px-4 py-2 text-xs font-black transition ${activeCategory === commerceCategorySlug(cat) || (cat === "All" && activeCategory === "all") ? "border-primary bg-primary text-white" : "border-white/10 bg-white/[0.05] text-white/65 hover:border-primary/50 hover:text-white"}`}
                     >
                         {cat === "All" ? t("market.all") : cat === "Products" ? t("market.products") : cat === "Services" ? t("market.services") : cat}
                     </Link>
                 ))}
-            </nav>
+            </SwipeRail>
 
             {realListings.length === 0 && !commerceQuery.isLoading ? (
                 <section className="rounded-3xl border border-dashed border-white/15 bg-white/[0.025] px-6 py-10 text-center">

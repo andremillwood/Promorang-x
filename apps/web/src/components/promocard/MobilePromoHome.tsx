@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Check, MapPin, ScanLine, Sparkles, WalletCards, Zap } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 
 type MobileOffer = {
   id: string;
@@ -37,7 +38,7 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
           <Link to="/shop" className="mb-1 shrink-0 text-xs font-black text-[#a34a1a]">See all</Link>
         </div>
 
-        <div className="-mx-5 mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <SwipeRail fadeFrom="from-[#f3efe6]" className="-mx-5 mt-6 px-5" scrollerClassName="gap-3 pb-2">
           {(offers.length ? offers.slice(0, 4) : fallbackOffers).map((offer) => (
             <Link key={offer.id} to={offer.href} className="group w-[78vw] max-w-[19rem] shrink-0 snap-start overflow-hidden rounded-[1.35rem] bg-[#171512] shadow-[0_18px_45px_rgba(46,31,17,0.16)]">
               <div className="relative aspect-[16/10] overflow-hidden">
@@ -55,7 +56,7 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
               </div>
             </Link>
           ))}
-        </div>
+        </SwipeRail>
         <p className="mt-3 text-xs leading-5 text-[#625a50]">Offers, minimum spend and availability are always shown before checkout.</p>
       </section>
 

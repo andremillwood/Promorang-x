@@ -11,6 +11,7 @@ import { PublicContentCard, type PublicContentItem } from "@/components/content/
 import { demoMoments } from "@/data/demo-moments";
 import { cultureEvents } from "@/data/culture-demo";
 import { Button } from "@/components/ui/button";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -201,7 +202,7 @@ const ExploreMoments = () => {
                 />
               </div>
 
-              <div className="flex gap-2 overflow-x-auto pb-1 xl:pb-0">
+              <SwipeRail compact collapseAt="xl" fadeFrom="from-background" showDots={false} showChevrons={false} scrollerClassName="gap-2 pb-1">
                 {categories.map((category) => (
                   <button
                     key={category.value}
@@ -217,7 +218,7 @@ const ExploreMoments = () => {
                     {category.label}
                   </button>
                 ))}
-              </div>
+              </SwipeRail>
 
               <div className="flex shrink-0 gap-2">
                 <button

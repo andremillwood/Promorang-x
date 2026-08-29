@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
+import { SwipeRail } from '@/components/ui/SwipeRail';
 import { useAuth } from '@getmocha/users-service/react';
 import { 
   Home, 
@@ -727,14 +728,15 @@ export default function Layout({ children }: LayoutProps) {
       {/* Desktop Navigation */}
       <nav className="hidden md:block bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-1 overflow-x-auto">
+          <SwipeRail compact fadeFrom="from-white" showDots={false} showChevrons={false} scrollerClassName="gap-1">
             {navigation.map((item) => {
               const Icon = item.icon;
               return (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`flex shrink-0 items-center space-x-2 px-3 py-4 text-sm font-medium border-b-2 transition-colors ${
+                  aria-current={isActive(item.href) ? 'page' : undefined}
+                  className={`flex shrink-0 snap-start items-center space-x-2 px-3 py-4 text-sm font-medium border-b-2 transition-colors ${
                     isActive(item.href)
                       ? 'border-orange-500 text-orange-600'
                       : 'border-transparent text-gray-700 hover:text-gray-900 hover:border-gray-300'
@@ -745,7 +747,7 @@ export default function Layout({ children }: LayoutProps) {
                 </Link>
               );
             })}
-          </div>
+          </SwipeRail>
         </div>
       </nav>
 

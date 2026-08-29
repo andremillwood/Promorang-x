@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, BookOpen, ChefHat, Sparkles, Clock, Users, ShieldAlert, CheckCircle2, Download, Share2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { SwipeRail } from '@/components/ui/SwipeRail';
 import { toast } from 'sonner';
 
 interface Recipe {
@@ -216,14 +217,15 @@ export const ArlaRecipePackModal: React.FC<ArlaRecipePackModalProps> = ({
         </div>
 
         {/* Recipe Selector Tabs */}
-        <div className="flex overflow-x-auto border-b border-white/10 bg-white/[0.02] p-2 gap-2 scrollbar-none">
+        <SwipeRail compact fadeFrom="from-black" showDots={false} className="border-b border-white/10 bg-white/[0.02] p-2" scrollerClassName="gap-2">
           {ARLA_CONCEPT_RECIPES.map((recipe, index) => {
             const isSelected = selectedRecipeIndex === index;
             return (
               <button
                 key={recipe.id}
                 onClick={() => setSelectedRecipeIndex(index)}
-                className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 ${
+                aria-selected={isSelected}
+                className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 snap-start ${
                   isSelected
                     ? 'bg-gradient-to-r from-[#8A1538] to-[#008543] text-white shadow-lg'
                     : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
@@ -234,7 +236,7 @@ export const ArlaRecipePackModal: React.FC<ArlaRecipePackModalProps> = ({
               </button>
             );
           })}
-        </div>
+        </SwipeRail>
 
         {/* Main Recipe Content */}
         <div className="p-6 sm:p-8 max-h-[55vh] overflow-y-auto space-y-6">

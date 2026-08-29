@@ -8,6 +8,7 @@ import { useModerateMedia, type MomentMedia } from "@/hooks/useUGC";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { format } from "date-fns";
 
 type StatusFilter = "pending" | "approved" | "rejected" | "all";
@@ -110,12 +111,13 @@ const UGCReview = () => {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <SwipeRail compact fadeFrom="from-background" showDots={false} scrollerClassName="items-center gap-2 pb-1">
                 {filterOptions.map((option) => (
                     <button
                         key={option.value}
                         onClick={() => setStatusFilter(option.value)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${statusFilter === option.value
+                        aria-selected={statusFilter === option.value}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap snap-start transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${statusFilter === option.value
                                 ? "bg-primary text-primary-foreground shadow-soft"
                                 : "bg-card border border-border hover:bg-muted"
                             }`}
@@ -124,7 +126,7 @@ const UGCReview = () => {
                         <span className="text-[10px] opacity-70">({option.count})</span>
                     </button>
                 ))}
-            </div>
+            </SwipeRail>
 
             {/* Content Grid */}
             {isLoading ? (

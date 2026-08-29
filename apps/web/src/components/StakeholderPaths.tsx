@@ -10,6 +10,7 @@ import {
   Ticket,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { cn } from "@/lib/utils";
 
 const paths = [
@@ -116,15 +117,15 @@ export function StakeholderPaths() {
           </p>
         </div>
 
-        <div className="-mx-6 mb-8 overflow-x-auto px-6 pb-2 md:hidden">
-          <div className="flex min-w-max gap-3">
+        <SwipeRail fadeFrom="from-background" className="-mx-6 mb-8 px-6 md:hidden" scrollerClassName="gap-3 pb-2">
             {paths.map((path) => (
               <button
                 key={path.id}
                 type="button"
                 onClick={() => setActivePath(path)}
+                aria-selected={activePath.id === path.id}
                 className={cn(
-                  "w-48 rounded-2xl border p-4 text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
+                  "w-48 shrink-0 snap-start rounded-2xl border p-4 text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
                   activePath.id === path.id
                     ? "border-primary bg-primary text-primary-foreground shadow-glow"
                     : "border-border bg-card text-card-foreground shadow-sm",
@@ -137,8 +138,7 @@ export function StakeholderPaths() {
                 </p>
               </button>
             ))}
-          </div>
-        </div>
+        </SwipeRail>
 
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[0.38fr_0.62fr]">
           <div className="hidden rounded-3xl border border-border bg-card p-3 shadow-card md:grid md:grid-cols-5 lg:grid-cols-1 lg:self-stretch">

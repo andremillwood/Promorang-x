@@ -18,6 +18,7 @@ import { generateLocationCollectionSchema } from "@/lib/seo-schemas";
 import { COUNTRY_MARKETS, getCityMarket, getCountryMarket } from "@promorang/shared";
 import { useCityDiscoveryPolls } from "@/hooks/useCityDiscoveryPolls";
 import { useI18n } from "@/i18n/I18nContext";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 
 interface PublicMomentDirectoryRow {
   id: string;
@@ -214,11 +215,11 @@ export default function LocationArchive() {
         )}
       </section>
 
-      <nav aria-label="City discovery feeds" className="mt-5 flex gap-2 overflow-x-auto pb-2">
+      <SwipeRail compact fadeFrom="from-background" showDots={false} className="mt-5" scrollerClassName="gap-2 pb-2">
         {[["#polls", Vote, t("locationArchivePage.tabCityPolls")], ["#moments", CalendarDays, t("locationArchivePage.tabMoments")], ["#discoveries", Compass, t("locationArchivePage.tabDiscoveries")], ["#scenes", Users, t("locationArchivePage.tabScenes")], ["#places", MapPin, t("locationArchivePage.tabPlaces")]].map(([href, Icon, label]) => (
-          <Button key={String(href)} asChild variant="outline" className="shrink-0 rounded-full"><a href={String(href)}><Icon className="mr-2 h-4 w-4" />{String(label)}</a></Button>
+          <Button key={String(href)} asChild variant="outline" className="shrink-0 snap-start rounded-full"><a href={String(href)}><Icon className="mr-2 h-4 w-4" />{String(label)}</a></Button>
         ))}
-      </nav>
+      </SwipeRail>
 
       {/* Interactive City Hub Map */}
       {mapCenter && mappedMoments.length > 0 && (
@@ -375,7 +376,7 @@ export default function LocationArchive() {
       <section className="mt-12 border-t border-border pt-8">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div><p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("locationArchivePage.acrossRegions")}</p><h2 className="mt-2 font-serif text-2xl font-bold">{t("locationArchivePage.moveBetweenFeeds")}</h2></div>
-          <div className="flex max-w-3xl gap-2 overflow-x-auto pb-2">{COUNTRY_MARKETS.map((item) => <Button key={item.code} asChild variant={item.code === market.code ? "default" : "outline"} size="sm" className="shrink-0 rounded-full"><Link to={buildLocationPath(item.slug)}>{item.name}</Link></Button>)}</div>
+          <SwipeRail compact fadeFrom="from-background" showDots={false} className="max-w-3xl" scrollerClassName="gap-2 pb-2">{COUNTRY_MARKETS.map((item) => <Button key={item.code} asChild variant={item.code === market.code ? "default" : "outline"} size="sm" className="shrink-0 snap-start rounded-full"><Link to={buildLocationPath(item.slug)}>{item.name}</Link></Button>)}</SwipeRail>
         </div>
       </section>
     </main>

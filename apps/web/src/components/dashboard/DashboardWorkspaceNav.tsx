@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 
 type WorkspaceItem = {
   value: string;
@@ -41,10 +42,12 @@ export function DashboardWorkspaceNav({
           <h2 className="mt-1 font-serif text-lg font-bold text-white sm:text-xl">{title}</h2>
         </div>
 
-        <div
-          className="flex min-w-0 gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          role="tablist"
-          aria-label={`${title} sections`}
+        <SwipeRail
+          compact
+          fadeFrom="from-[#111111]"
+          showDots={false}
+          className="min-w-0"
+          scrollerClassName="gap-2 pb-1"
         >
           {visibleItems.map((item) => {
             const Icon = item.icon;
@@ -58,7 +61,7 @@ export function DashboardWorkspaceNav({
                 aria-selected={isActive}
                 aria-controls={`${anchorId}-${item.value}`}
                 onClick={() => openWorkspace(item.value)}
-                className={`group flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-xs font-bold transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111] sm:text-sm ${
+                className={`group flex shrink-0 snap-start items-center gap-2 border-b-2 px-3 py-3 text-xs font-bold transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111] sm:text-sm ${
                   isActive
                     ? "border-primary text-primary"
                     : "border-transparent text-white/55 hover:border-white/20 hover:text-white"
@@ -69,7 +72,7 @@ export function DashboardWorkspaceNav({
               </button>
             );
           })}
-        </div>
+        </SwipeRail>
       </div>
     </section>
   );

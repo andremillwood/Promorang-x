@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { useToast } from "@/hooks/use-toast";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 
@@ -108,7 +109,7 @@ export function BrandOpportunityRadar() {
       </div>
 
       {/* 2. Category Filter Strip */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+      <SwipeRail compact fadeFrom="from-black" showDots={false} scrollerClassName="items-center gap-2 pb-1">
         {[
           { id: "all", label: "All Opportunities" },
           { id: "art", label: "Art & Culture" },
@@ -118,7 +119,8 @@ export function BrandOpportunityRadar() {
           <button
             key={tab.id}
             onClick={() => setActiveCategory(tab.id)}
-            className={`px-4 py-2 rounded-2xl text-xs font-bold transition shrink-0 ${
+            aria-selected={activeCategory === tab.id}
+            className={`px-4 py-2 rounded-2xl text-xs font-bold transition shrink-0 snap-start ${
               activeCategory === tab.id
                 ? "bg-primary text-black shadow-md shadow-primary/20"
                 : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/5"
@@ -127,7 +129,7 @@ export function BrandOpportunityRadar() {
             {tab.label}
           </button>
         ))}
-      </div>
+      </SwipeRail>
 
       {/* 3. Opportunities Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

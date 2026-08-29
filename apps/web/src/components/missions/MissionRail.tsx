@@ -2,6 +2,7 @@ import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowRight, Check, Clock3, ExternalLink, Gift, Loader2, LockKeyhole, ShieldCheck, Target, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SwipeRail } from "@/components/ui/SwipeRail";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,7 +72,7 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
         <p className="hidden max-w-xs text-right text-xs leading-5 text-white/45 sm:block">Simple actions. Visible contribution. Value you can keep.</p>
       </div>
 
-      <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-6 sm:px-7">
+      <SwipeRail fadeFrom="from-black" className="px-5 pb-6 sm:px-7" scrollerClassName="gap-3">
         {missions.data.map((mission, index) => {
           const participation = participationFor(mission.id);
           const submitted = participation && ["submitted", "verified", "rewarded"].includes(participation.status);
@@ -147,7 +148,7 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
             </article>
           );
         })}
-      </div>
+      </SwipeRail>
 
       <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent className="border-white/10 bg-zinc-950 text-white sm:max-w-lg">
