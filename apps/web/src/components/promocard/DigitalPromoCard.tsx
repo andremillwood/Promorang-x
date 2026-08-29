@@ -109,7 +109,7 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({
     navigate(loop.next.href);
   };
 
-  const heroAmount = isPreview ? loop.credit.cycleCredit : loop.credit.readyToSpend;
+  const heroAmount = isPreview ? loop.credit.networkCapacity : loop.credit.readyToSpend;
   const heroLabel = isPreview ? t("promoCardLoop.prospectiveLabel") : t("promoCardLoop.readyLabel");
 
   return (
@@ -165,9 +165,15 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({
                 ${heroAmount.toFixed(2)}
               </span>
               <span className="text-xs text-zinc-400 font-normal">
-                {t("promoCardLoop.ofCycle", { limit: `$${loop.credit.cycleCredit.toFixed(2)}` })}
+                {isPreview
+                  ? t("promoCardLoop.firstReady", { amount: `$${loop.credit.cycleCredit.toFixed(0)}` })
+                  : t("promoCardLoop.ofCapacity", {
+                      ready: `$${loop.credit.cycleCredit.toFixed(0)}`,
+                      capacity: `$${loop.credit.networkCapacity.toFixed(0)}`,
+                    })}
               </span>
             </div>
+            <p className="mt-1 text-xs text-white/50">{t("promoCardLoop.whoFunds")}</p>
             {loop.credit.stillRestorable > 0 ? (
               <p className="mt-1 text-xs font-medium text-amber-200">
                 {t("promoCardLoop.stillRestore", { amount: `$${loop.credit.stillRestorable.toFixed(2)}` })}

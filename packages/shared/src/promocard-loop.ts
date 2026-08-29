@@ -1,6 +1,13 @@
-export const PROMOCARD_STARTER_CYCLE_CREDIT = 50;
-export const PROMOCARD_DEFAULT_RECHARGE = 15;
+import {
+  PROMOCARD_FIRST_READY_CREDIT,
+  PROMOCARD_NETWORK_CAPACITY,
+  PROMOCARD_TYPICAL_VISIT_ALLOWANCE,
+} from "./promocard-economy";
+
+export const PROMOCARD_STARTER_CYCLE_CREDIT = PROMOCARD_FIRST_READY_CREDIT;
+export const PROMOCARD_DEFAULT_RECHARGE = PROMOCARD_TYPICAL_VISIT_ALLOWANCE;
 export const PROMOCARD_POINTS_PER_KEY = 500;
+export { PROMOCARD_NETWORK_CAPACITY, PROMOCARD_FIRST_READY_CREDIT };
 
 export type PromoCardNextSuccessId =
   | "claim_card"
@@ -14,6 +21,7 @@ export type PromoCardNextSuccessId =
 export type PromoCardCreditSnapshot = {
   readyToSpend: number;
   cycleCredit: number;
+  networkCapacity: number;
   spentThisCycle: number;
   stillRestorable: number;
   nextRechargeAmount: number;
@@ -61,6 +69,7 @@ export function describePromoCardCredit(input: PromoCardLoopInput = {}): PromoCa
   return {
     readyToSpend,
     cycleCredit,
+    networkCapacity: PROMOCARD_NETWORK_CAPACITY,
     spentThisCycle,
     stillRestorable,
     nextRechargeAmount,
@@ -94,7 +103,7 @@ export function pickPromoCardNextSuccess(input: PromoCardLoopInput = {}): PromoC
     return {
       id: "claim_card",
       href: "/auth?mode=signup&next=/wallet",
-      creditHint: credit.cycleCredit,
+      creditHint: credit.networkCapacity,
       pointsHint: 0,
       keysHint: 0,
     };
