@@ -22,6 +22,7 @@ describe("PromoCard credit and next-success loop", () => {
     const credit = describePromoCardCredit({ hasLiveCard: false });
     expect(credit.readyToSpend).toBe(50);
     expect(credit.cycleCredit).toBe(50);
+    expect(credit.networkCapacity).toBe(500);
     expect(credit.stillRestorable).toBe(0);
     expect(credit.nextRechargeAmount).toBe(15);
     expect(pickPromoCardNextSuccess({ hasLiveCard: false }).id).toBe("claim_card");

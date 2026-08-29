@@ -109,9 +109,10 @@ export function PromoCardGateway() {
               <div className="my-6 sm:my-8">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{t("promoCardLoop.prospectiveLabel")}</p>
                 <div className="mt-1 flex items-end gap-2">
-                  <span className="text-5xl font-black tracking-[-0.05em] text-amber-200">${loop.credit.cycleCredit.toFixed(0)}</span>
-                  <span className="pb-1 text-xs text-white/45">{t("promoCardLoop.ofCycle", { limit: `$${loop.credit.cycleCredit.toFixed(0)}` })}</span>
+                  <span className="text-5xl font-black tracking-[-0.05em] text-amber-200">${loop.credit.networkCapacity.toFixed(0)}</span>
+                  <span className="pb-1 text-xs text-white/45">{t("promoCardLoop.firstReady", { amount: `$${loop.credit.cycleCredit.toFixed(0)}` })}</span>
                 </div>
+                <p className="mt-2 text-[11px] leading-4 text-white/50">{t("promoCardLoop.whoFunds")}</p>
                 <div className="mt-4 grid grid-cols-2 gap-2">
                   <div className="rounded-xl border border-white/10 bg-black/30 p-3">
                     <p className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-amber-300"><Coins className="h-3 w-3" /> {t("promoCardLoop.points")}</p>

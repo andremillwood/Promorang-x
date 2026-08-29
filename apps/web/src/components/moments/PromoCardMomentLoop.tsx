@@ -125,7 +125,12 @@ export function PromoCardMomentLoop({
             <p className="text-[10px] font-black uppercase tracking-wider text-amber-200/70">
               {hasLiveCard ? t("promoCardLoop.readyLabel") : t("promoCardLoop.prospectiveLabel")}
             </p>
-            <p className="mt-1 text-2xl font-black text-amber-200">${(hasLiveCard ? loop.credit.readyToSpend : loop.credit.cycleCredit).toFixed(2)}</p>
+            <p className="mt-1 text-2xl font-black text-amber-200">${(hasLiveCard ? loop.credit.readyToSpend : loop.credit.networkCapacity).toFixed(2)}</p>
+            <p className="mt-1 text-[10px] leading-4 text-amber-100/55">
+              {hasLiveCard
+                ? t("promoCardLoop.ofCapacity", { ready: `$${loop.credit.cycleCredit.toFixed(0)}`, capacity: `$${loop.credit.networkCapacity.toFixed(0)}` })
+                : t("promoCardLoop.firstReady", { amount: `$${loop.credit.cycleCredit.toFixed(0)}` })}
+            </p>
             <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-amber-100/60">
               {loop.instruments.points} {t("promoCardLoop.points")} · {loop.instruments.promoKeys} {t("promoCardLoop.keys")}
             </p>
