@@ -722,7 +722,7 @@ const Header = () => {
                 <Link
                   to="/promoshare"
                   onClick={closeMobileMenu}
-                  className="flex items-center gap-2 p-3 rounded-2xl bg-primary/10 border border-primary/30 text-xs font-bold text-primary"
+                  className="flex items-center gap-2 p-3 rounded-2xl bg-primary/10 border border-primary/30 text-xs font-bold text-orange-950 dark:text-orange-200"
                 >
                   <Gem className="w-4 h-4" />
                   <span>PromoShare</span>
@@ -778,7 +778,7 @@ const Header = () => {
                   <Link
                     to="/nodes"
                     onClick={closeMobileMenu}
-                    className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/15 border border-amber-700/35 text-amber-900 dark:text-amber-200 font-semibold transition col-span-2"
+                    className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/15 border border-amber-800/40 text-amber-950 dark:text-amber-100 font-semibold transition col-span-2"
                   >
                     <Coins className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                     <span>Save &amp; Win Vaults</span>
