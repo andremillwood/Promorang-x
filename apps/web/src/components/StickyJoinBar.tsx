@@ -1,10 +1,28 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { TactileButton } from "@/components/ui/TactileButton";
+import {
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from "@/components/ui/drawer";
 import { SaveButton } from "@/components/SaveButton";
-import { Gift, Users, Flame, ChevronDown, Share2, Sparkles } from "lucide-react";
+import { Gift, Users, Flame, ChevronUp, Share2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { AccessState } from "@/lib/access";
+import {
+    canAttemptStickyJoin,
+    getStickyJoinCtaLabel,
+    getStickyJoinStatusLine,
+    getStickyJoinTactileVariant,
+    shouldShowStickyMissions,
+    shouldShowStickyPingSquad,
+} from "@/components/stickyJoinBarModel";
 
 interface StickyJoinBarProps {
     momentId: string;
@@ -26,8 +44,8 @@ interface StickyJoinBarProps {
 }
 
 /**
- * Airbnb-style sticky booking/join bar
- * Appears when scrolled past the main CTA
+ * Sticky action rail for Moment detail.
+ * Essential join/sign-in stays on the rail. Extra squad actions open in Drawer.
  */
 export function StickyJoinBar({
     momentId,
@@ -54,7 +72,6 @@ export function StickyJoinBar({
 
     useEffect(() => {
         const handleScroll = () => {
-            // Show sticky bar after scrolling past 400px
             const shouldShow = window.scrollY > 400;
             setIsVisible(shouldShow);
         };
@@ -68,12 +85,12 @@ export function StickyJoinBar({
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: 'Join my Squad on Promorang!',
+                    title: "Join my Squad on Promorang!",
                     text: text,
-                    url: window.location.href
+                    url: window.location.href,
                 });
             } catch (err) {
-                console.log('Error sharing', err);
+                console.log("Error sharing", err);
             }
         } else {
             await navigator.clipboard.writeText(`${text} ${window.location.href}`);
@@ -84,151 +101,176 @@ export function StickyJoinBar({
         }
     };
 
+    const railState = {
+        participantCount,
+        maxParticipants,
+        isJoined,
+        isPast,
+        isHost,
+        isLoggedIn,
+        isJoining,
+        accessState,
+        missionCount,
+        onExploreMissions,
+    };
     const spotsLeft = maxParticipants ? maxParticipants - participantCount : null;
     const isAlmostFull = spotsLeft !== null && spotsLeft <= 5;
-    const isFull = spotsLeft !== null && spotsLeft <= 0;
+    const canJoin = canAttemptStickyJoin(railState);
+    const showMissions = shouldShowStickyMissions(railState);
+    const showPingSquad = shouldShowStickyPingSquad(railState);
+    const buttonContent = getStickyJoinCtaLabel(railState);
+    const tactileVariant = getStickyJoinTactileVariant(railState);
+    const statusLine = getStickyJoinStatusLine(railState);
 
-    const getButtonContent = () => {
-        if (isPast) return "Moment Ended";
-        if (!isLoggedIn) return "Sign In to Join";
-        if (isHost) return "Manage Moment";
-        if (isJoined) return "You're Joined ✓";
-        if (isFull) return "Moment Full";
-        if (accessState && accessState.key !== "available") return accessState.ctaLabel;
-        return isJoining ? "Joining..." : "Join This Moment";
+    const handleExploreMissions = () => {
+        setIsExpanded(false);
+        onExploreMissions?.();
     };
 
-    const getButtonVariant = () => {
-        if (isPast || isFull) return "secondary" as const;
-        if (isJoined) return "outline" as const;
-        if (accessState?.key === "requires_plus" || accessState?.key === "blocked") return "secondary" as const;
-        if (accessState?.key === "needs_keys") return "default" as const;
-        return "hero" as const;
+    const handlePrimaryAction = () => {
+        setIsExpanded(false);
+        onJoin();
     };
+
+    const detailsDrawer = (
+        <Drawer open={isExpanded} onOpenChange={setIsExpanded} shouldScaleBackground={false}>
+            <DrawerTrigger asChild>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0 text-muted-foreground hover:text-foreground"
+                    aria-expanded={isExpanded}
+                    aria-label={isExpanded ? "Close moment quick details" : "Open moment quick details"}
+                >
+                    <ChevronUp className={cn("h-5 w-5 transition-transform", isExpanded && "rotate-180")} />
+                </Button>
+            </DrawerTrigger>
+            <DrawerContent className="z-[60]">
+                <DrawerHeader className="text-left">
+                    <DrawerTitle className="line-clamp-2">{title}</DrawerTitle>
+                    <DrawerDescription className="flex flex-wrap items-center gap-3 pt-1">
+                        <span className="inline-flex items-center gap-1">
+                            <Users className="h-4 w-4" />
+                            {participantCount} joined
+                        </span>
+                        {accessState && !isJoined ? <span className="font-medium text-foreground">{accessState.label}</span> : null}
+                        {reward ? (
+                            <span className="inline-flex items-center gap-1 text-accent">
+                                <Gift className="h-4 w-4" />
+                                {reward}
+                            </span>
+                        ) : null}
+                    </DrawerDescription>
+                </DrawerHeader>
+                <div className="flex flex-col gap-3 px-4 pb-2">
+                    <SaveButton momentId={momentId} variant="full" size="sm" />
+                    {showMissions ? (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="lg"
+                            onClick={handleExploreMissions}
+                            className="w-full border-amber-400/40 text-amber-700 dark:text-amber-300"
+                        >
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            {missionCount} Missions · +{missionPointTotal}
+                        </Button>
+                    ) : null}
+                    {showPingSquad ? (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="lg"
+                            onClick={handlePingSquad}
+                            className="w-full border-accent text-accent hover:bg-accent/10"
+                        >
+                            <Share2 className="mr-2 h-4 w-4" />
+                            Ping Squad
+                        </Button>
+                    ) : null}
+                </div>
+                <DrawerFooter>
+                    <TactileButton
+                        type="button"
+                        variant={tactileVariant}
+                        size="lg"
+                        fullWidth
+                        onClick={handlePrimaryAction}
+                        disabled={!canJoin}
+                    >
+                        {buttonContent}
+                    </TactileButton>
+                </DrawerFooter>
+            </DrawerContent>
+        </Drawer>
+    );
 
     return (
         <div
             className={cn(
                 "fixed bottom-0 left-0 right-0 z-40 transform transition-transform duration-300 px-safe",
                 isVisible ? "translate-y-0" : "translate-y-full",
-                className
+                className,
             )}
         >
-            {/* Expanded details panel */}
-            {isExpanded && (
-                <div className="bg-card border-t border-border px-4 py-3">
-                    <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-4">
-                        <div>
-                            <h4 className="font-medium text-foreground line-clamp-1">{title}</h4>
-                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                    <Users className="h-4 w-4" />
-                                    {participantCount} joined
-                                </span>
-                                {accessState && !isJoined && (
-                                    <span className="font-medium text-foreground">
-                                        {accessState.label}
-                                    </span>
-                                )}
-                                {reward && (
-                                    <span className="flex items-center gap-1 text-accent">
-                                        <Gift className="h-4 w-4" />
-                                        {reward}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                        <SaveButton momentId={momentId} variant="full" size="sm" />
-                    </div>
-                </div>
-            )}
-
-            {/* Main bar */}
             <div className="bg-card/95 backdrop-blur-lg border-t border-border shadow-elevated pb-safe">
-                <div className="max-w-4xl mx-auto px-4 py-3">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                        {/* Left side - info */}
-                        <div className="flex items-center gap-3 min-w-0">
-                            <button
-                                onClick={() => setIsExpanded(!isExpanded)}
-                                className="flex min-h-[44px] items-center gap-2 rounded-full px-2 text-muted-foreground transition-colors hover:text-foreground"
-                                aria-expanded={isExpanded}
-                                aria-label={isExpanded ? "Collapse moment quick details" : "Expand moment quick details"}
-                            >
-                                <ChevronDown
-                                    className={cn(
-                                        "h-5 w-5 transition-transform",
-                                        isExpanded && "rotate-180"
-                                    )}
-                                />
-                            </button>
-
-                            <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    {isAlmostFull && !isJoined && !isPast && (
-                                        <span className="flex items-center gap-1 text-xs font-medium text-red-500 animate-pulse">
-                                            <Flame className="h-3 w-3" />
-                                            {spotsLeft} spots left
-                                        </span>
-                                    )}
-                                    {participantCount > 10 && !isAlmostFull && (
-                                        <span className="flex items-center gap-1 text-xs font-medium text-orange-500">
-                                            <Flame className="h-3 w-3" />
-                                            Trending
-                                        </span>
-                                    )}
-                                </div>
-                                <p className="text-sm text-muted-foreground truncate">
-                                    {participantCount} {participantCount === 1 ? "person" : "people"} joined
-                                    {maxParticipants && ` • ${maxParticipants - participantCount} spots left`}
-                                    {accessState && !isJoined && ` • ${accessState.label}`}
-                                </p>
+                <div className="mx-auto max-w-4xl px-4 py-3">
+                    <div className="flex items-center gap-2">
+                        {detailsDrawer}
+                        <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                                {isAlmostFull && !isJoined && !isPast ? (
+                                    <span className="flex items-center gap-1 text-xs font-medium text-red-500 animate-pulse">
+                                        <Flame className="h-3 w-3" />
+                                        {spotsLeft} spots left
+                                    </span>
+                                ) : null}
+                                {participantCount > 10 && !isAlmostFull ? (
+                                    <span className="flex items-center gap-1 text-xs font-medium text-orange-500">
+                                        <Flame className="h-3 w-3" />
+                                        Trending
+                                    </span>
+                                ) : null}
                             </div>
-                        </div>
-
-                        {/* Right side - CTA */}
-                        <div className="flex w-full items-center gap-2 overflow-x-auto touch-pan-x scrollbar-none sm:w-auto">
-                        <SaveButton momentId={momentId} size="md" className="hidden shrink-0 sm:flex" />
-                            {missionCount > 0 && onExploreMissions ? (
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="lg"
-                                    onClick={onExploreMissions}
-                                    className="shrink-0 whitespace-nowrap border-amber-400/40 text-amber-600 dark:text-amber-300"
-                                >
-                                    <Sparkles className="mr-2 h-4 w-4" />
-                                    {missionCount} Missions · +{missionPointTotal}
-                                </Button>
-                            ) : null}
-                            {isJoined && !isPast && !isHost && (
-                                <Button
-                                    variant="outline"
-                                    size="lg"
-                                    onClick={handlePingSquad}
-                                    className="shrink-0 whitespace-nowrap border-accent text-accent hover:bg-accent/10"
-                                >
-                                    <Share2 className="w-4 h-4 mr-2" />
-                                    Ping Squad
-                                </Button>
-                            )}
-                            <Button
-                                variant={getButtonVariant()}
-                                size="lg"
-                                onClick={onJoin}
-                                disabled={isPast || isFull || isJoining || accessState?.canAttempt === false}
-                                className="flex-1 whitespace-nowrap sm:flex-none"
-                            >
-                                {getButtonContent()}
-                            </Button>
+                            <p className="truncate text-sm text-muted-foreground">{statusLine}</p>
                         </div>
                     </div>
-                    {!isExpanded && (
-                        <div className="mt-2 flex items-center gap-2 text-xs font-medium text-muted-foreground sm:hidden">
-                            <Sparkles className="h-3.5 w-3.5 text-primary" />
-                            Tap the chevron for quick details and squad actions.
-                        </div>
-                    )}
+
+                    <div
+                        className={cn(
+                            "mt-3 grid items-center gap-2",
+                            showMissions ? "grid-cols-[auto_minmax(0,1fr)]" : "grid-cols-1",
+                        )}
+                    >
+                        {showMissions ? (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="lg"
+                                onClick={onExploreMissions}
+                                className="shrink-0 whitespace-nowrap border-amber-400/40 text-amber-600 dark:text-amber-300"
+                            >
+                                <Sparkles className="mr-2 h-4 w-4" />
+                                {missionCount} Missions · +{missionPointTotal}
+                            </Button>
+                        ) : null}
+                        <TactileButton
+                            type="button"
+                            variant={tactileVariant}
+                            size="lg"
+                            fullWidth
+                            onClick={onJoin}
+                            disabled={!canJoin}
+                        >
+                            {buttonContent}
+                        </TactileButton>
+                    </div>
+
+                    <p className="mt-2 flex items-center gap-2 text-xs font-medium text-muted-foreground sm:hidden">
+                        <Sparkles className="h-3.5 w-3.5 text-primary" />
+                        Swipe up or tap the chevron for save, squad, and extra actions.
+                    </p>
                 </div>
             </div>
         </div>
