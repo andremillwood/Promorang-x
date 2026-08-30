@@ -36,6 +36,7 @@ import {
 import { useState } from "react";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 import { PrimaryDestinationNav } from "@/components/nav/PrimaryDestinationNav";
+import { isCinematicPublicPath } from "@/lib/marketing-shell";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,23 +66,8 @@ const Header = () => {
   const activeOrg = organizations?.find((o) => o.id === activeOrgId);
   const isAgencyMode = roles?.includes("brand") || roles?.includes("merchant") || roles?.includes("admin");
 
-  const isPublicHome = location.pathname === "/";
-  const isCinematicPublicPage =
-    isPublicHome ||
-    location.pathname === "/how-it-works" ||
-    location.pathname.startsWith("/economy") ||
-    location.pathname === "/growth" ||
-    location.pathname === "/pioneers" ||
-    location.pathname === "/organizer" ||
-    location.pathname === "/live" ||
-    location.pathname.startsWith("/radar") ||
-    location.pathname.startsWith("/opportunity-radar") ||
-    location.pathname.startsWith("/scenes") ||
-    location.pathname.startsWith("/communities") ||
-    location.pathname.startsWith("/creators") ||
-    location.pathname.startsWith("/events");
   const isLeadMagnetPage = location.pathname.startsWith("/free/");
-  const hasDarkHeader = isCinematicPublicPage || isLeadMagnetPage;
+  const hasDarkHeader = isCinematicPublicPath(location.pathname) || isLeadMagnetPage;
 
   const handleSignOut = async () => {
     await signOut();

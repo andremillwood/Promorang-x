@@ -7,6 +7,11 @@ import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { useState, useEffect } from "react";
+import {
+    isCinematicPublicPath,
+    shouldHideMarketingFooterOnMobile,
+    shouldShowMarketingFooterCta,
+} from "@/lib/marketing-shell";
 
 interface AppLayoutProps {
     children?: React.ReactNode;
@@ -54,7 +59,15 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     const isOrganizerWorkspace = location.pathname.startsWith("/organizer/");
     const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname);
-    const showFooterCta = !["/live", "/pulse"].includes(location.pathname);
+    const showFooterCta = shouldShowMarketingFooterCta(location.pathname);
+    const cinematicFooter = isCinematicPublicPath(location.pathname);
+    const footerClassName = shouldHideMarketingFooterOnMobile(location.pathname) ? "hidden md:block" : undefined;
+
+    const marketingFooter = !isCleanPage ? (
+        <div className={footerClassName}>
+            <Footer showCta={showFooterCta} dark={cinematicFooter} />
+        </div>
+    ) : null;
 
     if (isConsumerPreview || isOrganizerWorkspace) {
         return <>{children || <Outlet />}</>;
@@ -67,7 +80,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 <main className="flex-1 overflow-x-clip">
                     {children || <Outlet />}
                 </main>
-                {!isCleanPage && <Footer showCta={showFooterCta} />}
+                {marketingFooter}
             </div>
         );
     }
@@ -95,7 +108,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             <main className="flex-1 overflow-x-clip">
                 {children || <Outlet />}
             </main>
-            {!isCleanPage && <Footer showCta={showFooterCta} />}
+            {marketingFooter}
 
             <RankCelebrationModal
                 isOpen={showRankCelebration}

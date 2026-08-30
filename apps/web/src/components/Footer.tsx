@@ -54,17 +54,20 @@ const footerLinks = {
   ],
 };
 
-const Footer = ({ showCta = true }: { showCta?: boolean }) => {
+const Footer = ({ showCta = true, dark = false }: { showCta?: boolean; dark?: boolean }) => {
   const { t } = useI18n();
+  const muted = dark ? "text-white/55" : "text-muted-foreground";
+  const heading = dark ? "text-white" : "text-foreground";
+  const hover = dark ? "hover:text-white" : "hover:text-foreground";
   return (
-    <footer className="bg-background border-t border-border">
+    <footer className={dark ? "border-t border-white/10 bg-black" : "border-t border-border bg-background"}>
       {/* CTA Section */}
       {showCta ? <div className="w-full px-4 py-14 sm:px-6 md:py-24">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className={`font-serif text-3xl md:text-4xl font-bold mb-4 ${heading}`}>
             {t("footer.ctaTitle")}
           </h2>
-          <p className="mb-8 text-base text-muted-foreground sm:text-lg">
+          <p className={`mb-8 text-base sm:text-lg ${muted}`}>
             {t("footer.ctaCopy")}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -79,7 +82,7 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
       </div> : null}
 
       {/* Footer Links */}
-      <div className="border-t border-border">
+      <div className={dark ? "border-t border-white/10" : "border-t border-border"}>
         <div className="w-full px-4 py-12 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-8 lg:grid-cols-6">
             {/* Brand Column */}
@@ -87,20 +90,20 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
               <Link to="/">
                 <img src={logo} alt="Promorang" className="h-8 w-auto mb-4" />
               </Link>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className={`text-sm leading-relaxed ${muted}`}>
                 {t("footer.tagline")}
               </p>
             </div>
 
             {/* Discover Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">{t("footer.explore")}</h4>
+              <h4 className={`font-semibold mb-4 ${heading}`}>{t("footer.explore")}</h4>
               <ul className="space-y-3">
                 {footerLinks.discover.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className={`text-sm transition-colors ${muted} ${hover}`}
                     >
                       {link.label}
                     </Link>
@@ -111,13 +114,13 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
 
             {/* How It Works Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">{t("footer.how")}</h4>
+              <h4 className={`font-semibold mb-4 ${heading}`}>{t("footer.how")}</h4>
               <ul className="space-y-3">
                 {footerLinks.how.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className={`text-sm transition-colors ${muted} ${hover}`}
                     >
                       {link.label}
                     </Link>
@@ -128,13 +131,13 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
 
             {/* Partner Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">{t("footer.partners")}</h4>
+              <h4 className={`font-semibold mb-4 ${heading}`}>{t("footer.partners")}</h4>
               <ul className="space-y-3">
                 {footerLinks.partners.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className={`text-sm transition-colors ${muted} ${hover}`}
                     >
                       {link.label}
                     </Link>
@@ -144,19 +147,19 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-foreground mb-4">{t("footer.tools")}</h4>
-              <ul className="space-y-3">{footerLinks.tools.map(link=><li key={link.label}><Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link></li>)}</ul>
+              <h4 className={`font-semibold mb-4 ${heading}`}>{t("footer.tools")}</h4>
+              <ul className="space-y-3">{footerLinks.tools.map(link=><li key={link.label}><Link to={link.href} className={`text-sm transition-colors ${muted} ${hover}`}>{link.label}</Link></li>)}</ul>
             </div>
 
             {/* Support Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">{t("footer.support")}</h4>
+              <h4 className={`font-semibold mb-4 ${heading}`}>{t("footer.support")}</h4>
               <ul className="space-y-3">
                 {footerLinks.support.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className={`text-sm transition-colors ${muted} ${hover}`}
                     >
                       {link.label}
                     </Link>
@@ -169,10 +172,10 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-border">
+      <div className={dark ? "border-t border-white/10" : "border-t border-border"}>
         <div className="container px-4 py-6 sm:px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">
+            <p className={`text-sm ${muted}`}>
               {t("footer.rights")}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
@@ -186,7 +189,7 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className={`text-sm transition-colors ${muted} ${hover}`}
                 >
                   {social.name}
                 </a>
