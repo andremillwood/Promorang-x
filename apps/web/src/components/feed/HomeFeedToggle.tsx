@@ -1,4 +1,4 @@
-import { Sparkles, Calendar, Settings } from "lucide-react";
+import { Sparkles, Calendar } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useLandingPreference } from "@/hooks/useLandingPreference";
 import { cn } from "@/lib/utils";
