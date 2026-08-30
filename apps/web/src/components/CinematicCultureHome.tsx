@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { TiltCard3D } from "@/components/ui/TiltCard3D";
-import { HeroFloatingBadges } from "@/components/hero/HeroFloatingBadges";
+import { CultureHomeHero } from "@/components/hero/CultureHomeHero";
+import { formatHeroMoney } from "@/components/hero/cultureHomeHero";
 import {
   ArrowRight,
   CalendarDays,
@@ -18,15 +17,10 @@ import {
   Utensils,
   Zap,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  Pause,
-  Play,
   Coins,
   KeyRound,
   Gift,
   Building2,
-  Gem,
   PlayCircle,
   ShieldCheck,
   Store,
@@ -40,13 +34,11 @@ import {
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
-import { MobilePromoHome, PromoCardGateway } from "@/components/promocard";
+import { MobilePromoHome } from "@/components/promocard";
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
 import { SampleContentNotice } from "@/components/content/ContentProvenance";
-import { possessiveLocation, useVisitorLocation } from "@/hooks/useVisitorLocation";
 import { InteractiveReceiptStudio } from "@/components/value/InteractiveReceiptStudio";
 import { StakeholderValueHub } from "@/components/value/StakeholderValueHub";
-import heroImage from "@/assets/hero-moments.jpg";
 import momentConcert from "@/assets/moment-concert.jpg";
 import momentFoodFestival from "@/assets/moment-food-festival.jpg";
 import momentCoffee from "@/assets/moment-coffee-meetup.jpg";
@@ -62,16 +54,15 @@ import sunsetPhoto from "@/assets/moments/sunset-photo.jpg";
 import { MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
 import { rememberMarketingIntent } from "@/lib/marketing-attribution";
 import { isSampleCommerceListing } from "@/lib/commerce-provenance";
-import { getSafeMediaUrl } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import { useI18n } from "@/i18n/I18nContext";
-import { OpsTheatreStatusPill } from "@/components/theater/OpsTheatreStatusPill";
 import { OpsTheatreOrientationModal } from "@/components/onboarding/OpsTheatreOrientationModal";
 import { BrandCaseStudies } from "@/components/brands/BrandCaseStudies";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePromoCard } from "@/hooks/usePromoCard";
 import { PromoShareOperator } from "@/components/promoshare/PromoShareOperator";
 import { NextMoveStrip } from "@/components/journey/NextMoveStrip";
 import { getMemberNextMove } from "@/lib/member-next-move";
@@ -318,15 +309,10 @@ function SampleOptIn({ onShow, noun, loading = false }: { onShow: () => void; no
 export default function CinematicCultureHome() {
   const { user } = useAuth();
   const { t } = useI18n();
+  const cardQuery = usePromoCard(user?.id);
   const [showSamples, setShowSamples] = useState(false);
-  const [heroItemIndex, setHeroItemIndex] = useState(0);
-  const [heroRotationPaused, setHeroRotationPaused] = useState(false);
-  const [heroInteractionPaused, setHeroInteractionPaused] = useState(false);
-  const [pageVisible, setPageVisible] = useState(true);
-  const [shouldReduceMotion, setShouldReduceMotion] = useState(false);
   const [orientationOpen, setOrientationOpen] = useState(false);
   const [selectedRoleArchetype, setSelectedRoleArchetype] = useState<MissionArchetype>("aura");
-  const visitorLocation = useVisitorLocation();
   const discoveryQuery = useQuery({
     queryKey: ["homepage-public-discovery"],
     queryFn: async () => {
@@ -412,64 +398,29 @@ export default function CinematicCultureHome() {
       }))
     : [];
 
-  const heroItems = [
-    ...(discoveryQuery.data?.moments || []).map((moment) => ({
-      id: `moment-${moment.id}`, kind: "Moment", title: moment.title || "Live Moment", image: moment.image_url,
-      detail: moment.venue_name || moment.city || moment.location || "Location coming soon",
-      value: moment.starts_at ? new Intl.DateTimeFormat("en", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/Jamaica" }).format(new Date(resolveMomentOccurrence(moment).startsAt)) : "Coming up",
-      href: `/moments/${moment.id}`, action: "View Moment",
-    })),
-    ...liveCommerceListings.map((listing) => ({
-      id: `commerce-${listing.listing_id || listing.source_id}`, kind: commerceKind(listing), title: listing.name || "Local offer", image: listing.image_url,
-      detail: listing.merchant_name || listing.venue_name || "Promorang merchant", value: formatCommercePrice(listing),
-      href: listing.listing_id ? `/shop/${listing.listing_id}` : "/shop", action: listing.listing_kind === "service" ? "View service" : "View offer",
-    })),
-    ...(discoveryQuery.data?.content || []).map((content) => ({
-      id: `content-${content.id}`, kind: "Content", title: content.title || "Creator signal", image: getSafeMediaUrl(content.media_url),
-      detail: content.venue_name || content.platform || "Promorang creator", value: "Worth sharing",
-      href: content.slug ? `/content/${content.slug}` : "/content-drops", action: "View content",
-    })),
-    ...(discoveryQuery.data?.missions || []).map((mission) => ({
-      id: `mission-${mission.id}`, kind: "Mission", title: mission.title, image: null,
-      detail: mission.target_category || "Open mission", value: mission.payout_amount ? `$${mission.payout_amount} funded` : "Open action",
-      href: "/missions", action: "View mission",
-    })),
-  ].slice(0, 10);
-  const activeHeroItem = heroItems[heroItemIndex % Math.max(heroItems.length, 1)];
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const updateMotionPreference = () => setShouldReduceMotion(mediaQuery.matches);
-    updateMotionPreference();
-    mediaQuery.addEventListener("change", updateMotionPreference);
-    return () => mediaQuery.removeEventListener("change", updateMotionPreference);
-  }, []);
-
-  useEffect(() => {
-    const updateVisibility = () => setPageVisible(document.visibilityState === "visible");
-    updateVisibility();
-    document.addEventListener("visibilitychange", updateVisibility);
-    return () => document.removeEventListener("visibilitychange", updateVisibility);
-  }, []);
-
-  useEffect(() => {
-    if (heroItems.length < 2 || heroRotationPaused || heroInteractionPaused || shouldReduceMotion || !pageVisible) return;
-    const timer = window.setInterval(() => setHeroItemIndex((index) => (index + 1) % heroItems.length), 7000);
-    return () => window.clearInterval(timer);
-  }, [heroItems.length, heroInteractionPaused, heroRotationPaused, pageVisible, shouldReduceMotion]);
-
-  const heroRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "26%"]);
-  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
-  const ambientY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
-  const contentY = useTransform(scrollYProgress, [0, 1], ["0px", "-35px"]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0.2]);
-  const cardParallaxY = useTransform(scrollYProgress, [0, 1], ["0px", "45px"]);
+  const liveMoment = discoveryQuery.data?.moments?.[0];
+  const featuredMoment = liveMoment
+    ? {
+        title: liveMoment.title || "Live Moment",
+        image: liveMoment.image_url,
+        detail: liveMoment.venue_name || liveMoment.city || liveMoment.location || "Location coming soon",
+        value: liveMoment.starts_at
+          ? new Intl.DateTimeFormat("en", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/Jamaica" }).format(new Date(resolveMomentOccurrence(liveMoment).startsAt))
+          : "Coming up",
+        href: `/moments/${liveMoment.id}`,
+        checkIns: liveMoment.participant_count || 0,
+      }
+    : null;
+  const heroCard = cardQuery.data
+    ? {
+        available: formatHeroMoney(cardQuery.data.availableBalance),
+        limit: formatHeroMoney(cardQuery.data.monthlyLimit),
+        holder: cardQuery.data.cardHolderName || "Your card",
+        places: cardQuery.data.acceptedLocationsCount
+          ? `${cardQuery.data.acceptedLocationsCount} partner places`
+          : "Partner shops nearby",
+      }
+    : null;
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -482,157 +433,14 @@ export default function CinematicCultureHome() {
           <PromoShareOperator variant="rail" />
         </div>
       ) : null}
-      <PromoCardGateway />
+      <CultureHomeHero
+        featuredMoment={featuredMoment}
+        card={heroCard}
+        signedIn={Boolean(user)}
+        onOpenOrientation={() => setOrientationOpen(true)}
+      />
       <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} />
       <div className="hidden md:block">
-      <section ref={heroRef} className="relative overflow-hidden border-b border-white/10 md:min-h-[92svh]">
-        {/* Parallax Background Layer */}
-        <motion.div
-          style={{ y: shouldReduceMotion ? 0 : bgY, scale: shouldReduceMotion ? 1 : bgScale }}
-          className="absolute inset-0 h-full w-full will-change-transform"
-        >
-          <img src={heroImage} alt="People gathered around a live culture moment" className="h-full w-full object-cover object-[62%_center]" />
-        </motion.div>
-
-        {/* Ambient Gradient Glows with Parallax Motion */}
-        <motion.div
-          style={{ y: shouldReduceMotion ? 0 : ambientY }}
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(255,106,0,0.22),transparent_34%),linear-gradient(180deg,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.82)_42%,rgba(0,0,0,0.92)_100%)] md:bg-[radial-gradient(circle_at_70%_20%,rgba(255,106,0,0.22),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.94)_0%,rgba(0,0,0,0.72)_45%,rgba(0,0,0,0.2)_100%)]"
-        />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black to-transparent" />
-
-        {/* 3D Floating Ecosystem Badges */}
-        <div className="hidden md:block">
-          <HeroFloatingBadges scrollYProgress={scrollYProgress} reducedMotion={shouldReduceMotion} />
-        </div>
-
-        <div className="container relative z-10 flex flex-col px-5 pb-24 pt-24 md:min-h-[92svh] md:justify-start md:px-6 md:pb-16 md:pt-44 lg:pt-52">
-          <motion.div
-            style={{ y: shouldReduceMotion ? 0 : contentY, opacity: shouldReduceMotion ? 1 : contentOpacity }}
-            className="w-full max-w-full space-y-3 will-change-transform md:max-w-4xl md:space-y-4"
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex max-w-full items-center space-x-2 rounded-full border border-orange-500/40 bg-orange-500/20 px-3 py-1.5 text-[11px] font-black leading-4 text-orange-300 md:px-3.5 md:text-xs">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-                </span>
-                <span className="line-clamp-2">{t("home.pulse")}</span>
-              </div>
-              <OpsTheatreStatusPill onOpenOrientation={() => setOrientationOpen(true)} showDetails />
-            </div>
-
-            <h2 className="max-w-4xl font-sans text-[clamp(2.45rem,11.5vw,7.5rem)] font-black uppercase leading-[0.86] tracking-[-0.065em] text-white md:leading-[0.82] md:tracking-[-0.075em]">
-              <span className="block">{t("home.heroLine1")}</span>
-              <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">{t("home.heroLine2")}</span>
-              <span className="block">{t("home.heroLine3")}</span>
-            </h2>
-            <p className="mt-4 max-w-xl text-sm leading-6 text-white/75 md:mt-5 md:text-lg md:leading-7">
-              {t("home.heroCopy")}
-            </p>
-            <p className="hidden mt-3 max-w-xl text-xs font-black uppercase tracking-[0.16em] text-primary sm:block">
-              {t("home.heroRhythm")}
-            </p>
-            <div className="mt-5 grid w-full grid-cols-2 gap-2.5 sm:mt-7 sm:flex sm:max-w-2xl sm:flex-wrap sm:gap-3">
-              <Link
-                to="/discover"
-                onClick={() => rememberMarketingIntent("hero_explore_discover", "/discover", "participant")}
-                className="col-span-2 inline-flex min-h-12 min-w-0 items-center justify-center gap-2.5 rounded-xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-wider text-white shadow-[0_16px_40px_rgba(255,85,0,0.3)] transition-all hover:bg-orange-600 active:scale-[0.98] sm:col-auto sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm"
-              >
-                <Compass className="h-4 w-4" />
-                <span>{t("home.exploreMoments")}</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/hosting"
-                onClick={() => rememberMarketingIntent("hero_host_moment", "/hosting", "host")}
-                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
-              >
-                <Store className="h-4 w-4 text-amber-400" />
-                <span>Host / Venue Pass</span>
-              </Link>
-              <Link
-                to="/for-brands"
-                onClick={() => rememberMarketingIntent("hero_brands", "/for-brands", "brand")}
-                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
-              >
-                <Building2 className="h-4 w-4 text-cyan-400" />
-                <span>Brands &amp; Retail</span>
-              </Link>
-            </div>
-
-            {/* Live Social Proof & Outcomes Ticker */}
-            <div className="hidden pt-2 flex-wrap items-center gap-3 text-xs sm:flex">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-zinc-300">
-                <Flame className="w-3.5 h-3.5 text-orange-400" />
-                <span className="font-bold text-white">0 ➔ 230+</span>
-                <span className="text-zinc-400">Nightlife Footfall</span>
-              </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-zinc-300">
-                <Camera className="w-3.5 h-3.5 text-pink-400" />
-                <span className="font-bold text-white">800+</span>
-                <span className="text-zinc-400">Expo UGC Signups</span>
-              </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-zinc-300">
-                <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="text-zinc-400">Proven by</span>
-                <span className="font-bold text-white">Lifespan &amp; Sunshine Snacks</span>
-              </div>
-            </div>
-          </motion.div>
-
-          {activeHeroItem ? (
-            <motion.div
-              style={{ y: shouldReduceMotion ? 0 : cardParallaxY }}
-              className="mt-7 w-full max-w-sm md:mt-12 lg:absolute lg:bottom-16 lg:right-6 xl:right-8 will-change-transform z-20"
-            >
-              <TiltCard3D
-                maxTilt={shouldReduceMotion ? 0 : 12}
-                scaleOnHover={1.03}
-                onMouseEnter={() => setHeroInteractionPaused(true)}
-                onMouseLeave={() => setHeroInteractionPaused(false)}
-                onFocusCapture={() => setHeroInteractionPaused(true)}
-                onBlurCapture={(event) => {
-                  if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setHeroInteractionPaused(false);
-                }}
-              >
-                <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-white/25 bg-black/80 shadow-[0_24px_80px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-300">
-                  {activeHeroItem.image ? (
-                    <img src={activeHeroItem.image} alt="" className="h-28 w-full object-cover sm:h-36" />
-                  ) : (
-                    <div className="h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(255,106,0,0.35),transparent_38%),linear-gradient(135deg,#28160b,#080808)]" />
-                  )}
-                  <div className="p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("home.live")}</p>
-                      <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-300">{activeHeroItem.kind}</span>
-                    </div>
-                    <Link to={activeHeroItem.href} className="group block">
-                      <h2 className="mt-3 text-2xl font-black leading-none tracking-[-0.04em] text-white transition group-hover:text-primary">{activeHeroItem.title}</h2>
-                      <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3 text-xs">
-                        <span className="min-w-0 truncate text-white/50">{activeHeroItem.detail}</span>
-                        <span className="shrink-0 font-bold text-white/80">{activeHeroItem.value}</span>
-                      </div>
-                      <span className="mt-3 inline-flex items-center gap-2 text-xs font-black text-primary">{activeHeroItem.action}<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
-                    </Link>
-                    {heroItems.length > 1 ? (
-                      <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
-                        <span className="text-[10px] font-bold text-white/35">{heroItemIndex % heroItems.length + 1} / {heroItems.length}</span>
-                        <div className="flex gap-2">
-                          <button type="button" aria-label={t("home.previous")} onClick={() => setHeroItemIndex((index) => (index - 1 + heroItems.length) % heroItems.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronLeft className="h-4 w-4" /></button>
-                          <button type="button" aria-label={heroRotationPaused ? t("home.resume") : t("home.pause")} aria-pressed={heroRotationPaused} onClick={() => setHeroRotationPaused((paused) => !paused)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary">{heroRotationPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}</button>
-                          <button type="button" aria-label={t("home.next")} onClick={() => setHeroItemIndex((index) => (index + 1) % heroItems.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronRight className="h-4 w-4" /></button>
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              </TiltCard3D>
-            </motion.div>
-          ) : null}
-        </div>
-      </section>
-
       <LeadMagnetGateway />
 
       <section className="relative overflow-hidden border-b border-white/10 bg-[#070707]">
