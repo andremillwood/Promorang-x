@@ -1,3 +1,5 @@
+import { matchesCityHub, type CityOption } from "@/lib/city-hubs";
+
 export type DiscoverLensId = "eat" | "go_out" | "hang" | "try";
 
 export type PathablePoll = {
@@ -167,6 +169,10 @@ export function discoveryPollLocationHint(poll: PathablePoll): {
     title: poll.question,
     description: [poll.description, poll.targetUnlockPerk, ...(poll.tags || [])].filter(Boolean).join(" "),
   };
+}
+
+export function filterDiscoveryPollsForHub<T extends PathablePoll>(polls: T[], city: CityOption): T[] {
+  return polls.filter((poll) => matchesCityHub(discoveryPollLocationHint(poll), city));
 }
 
 export function mergeDiscoveryPolls<T extends { id: string }>(...groups: T[][]): T[] {

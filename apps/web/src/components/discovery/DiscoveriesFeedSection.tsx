@@ -28,12 +28,12 @@ import { useMarket } from "@/contexts/MarketContext";
 import { useUserBalance } from "@/hooks/useEconomy";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { DISCOVERY_POLLS, type DiscoveryPoll } from "@/data/discoveriesData";
-import { useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
-import { matchesCityHub } from "@/lib/city-hubs";
+import { toast } from "sonner";
+import { castListingDiscoveryVote, useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
 import { useI18n } from "@/i18n/I18nContext";
 import {
   DISCOVER_VOTED_STORAGE_KEY,
-  discoveryPollLocationHint,
+  filterDiscoveryPollsForHub,
   mergeDiscoveryPolls,
   readStoredIdList,
 } from "@/lib/discovery-path";
@@ -55,10 +55,7 @@ export function DiscoveriesFeedSection() {
     () => mergeDiscoveryPolls(livePolls, listingPolls, DISCOVERY_POLLS),
     [livePolls, listingPolls],
   );
-  const hubPolls = useMemo(
-    () => catalog.filter((poll) => matchesCityHub(discoveryPollLocationHint(poll), city)),
-    [catalog, city],
-  );
+  const hubPolls = useMemo(() => filterDiscoveryPollsForHub(catalog, city), [catalog, city]);
 
   useEffect(() => {
     setVotedCount(readStoredIdList(DISCOVER_VOTED_STORAGE_KEY).length);
@@ -69,7 +66,10 @@ export function DiscoveriesFeedSection() {
   const userKeys = balance?.promokeys || 3;
 
   return (
-    <section className="my-6 sm:my-10 rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-black/40 p-4 sm:p-6 md:p-8 backdrop-blur-md shadow-2xl relative overflow-hidden">
+    <section
+      id="home-discover-path"
+      className="my-6 sm:my-10 scroll-mt-24 rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-black/40 p-4 sm:p-6 md:p-8 backdrop-blur-md shadow-2xl relative overflow-hidden"
+    >
       <div className="pointer-events-none absolute -left-32 -top-32 h-60 w-60 sm:h-72 sm:w-72 rounded-full bg-primary/10 blur-[80px] sm:blur-[100px]" />
       <div className="pointer-events-none absolute -right-32 -bottom-32 h-60 w-60 sm:h-72 sm:w-72 rounded-full bg-amber-500/10 blur-[80px] sm:blur-[100px]" />
 
@@ -252,6 +252,18 @@ export function DiscoveriesFeedSection() {
                 setLivePolls((prev) => [newQ, ...prev]);
               }}
               onVoted={() => setVotedCount(readStoredIdList(DISCOVER_VOTED_STORAGE_KEY).length)}
+              onCastVote={async (poll, optionId) => {
+                if (!poll.detailUrl) return;
+                if (!user) {
+                  toast.info("Sign in to verify local place information.");
+                  return;
+                }
+                try {
+                  await castListingDiscoveryVote(poll.id, optionId);
+                } catch (error: any) {
+                  toast.error(error?.message?.includes("duplicate") ? "You already voted on this place." : "We couldn't record that vote.");
+                }
+              }}
             />
           ) : (
             <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-6 sm:p-8">

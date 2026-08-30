@@ -73,6 +73,7 @@ type DiscoveryPathProps = {
   initialQuery?: string | null;
   onQuestionCreated?: (poll: DiscoveryPoll) => void;
   onVoted?: (pollId: string) => void;
+  onCastVote?: (poll: DiscoveryPoll, optionId: string) => void | Promise<void>;
   syncUrl?: boolean;
   surface?: "page" | "home";
 };
@@ -85,6 +86,7 @@ export function DiscoveryPath({
   initialQuery = null,
   onQuestionCreated,
   onVoted,
+  onCastVote,
   syncUrl = true,
   surface = "page",
 }: DiscoveryPathProps) {
@@ -344,7 +346,7 @@ export function DiscoveryPath({
         </form>
       </header>
 
-      {!namedIntent ? (
+      {!namedIntent && surface === "page" ? (
         <NightTrail
           eyebrow={t("discover.pathHowEyebrow")}
           title={t("discover.pathHowTitle")}
@@ -355,7 +357,7 @@ export function DiscoveryPath({
             { label: "04", title: t("discover.pathStep4Title"), text: t("discover.pathStep4Copy") },
           ]}
         />
-      ) : current ? (
+      ) : namedIntent && current ? (
         <section ref={currentRef} className="space-y-5 scroll-mt-24" aria-labelledby="discover-current-move">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -391,7 +393,10 @@ export function DiscoveryPath({
           <DiscoveryWidget
             key={current.poll.id}
             {...current.poll}
-            onVote={(pollId) => markVoted(pollId)}
+            onVote={(pollId, optionId) => {
+              void onCastVote?.(current.poll, optionId);
+              markVoted(pollId);
+            }}
           />
 
           {votedIds.includes(current.poll.id) ? (
@@ -460,7 +465,7 @@ export function DiscoveryPath({
             </ol>
           ) : null}
         </section>
-      ) : (
+      ) : namedIntent ? (
         <section className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-6 sm:p-8">
           {hasLiveMatch ? (
             <>
@@ -512,50 +517,54 @@ export function DiscoveryPath({
             </>
           )}
         </section>
-      )}
+      ) : null}
 
-      <section className="border-t border-white/10 pt-6">
-        <button
-          type="button"
-          onClick={() => setBrowseOpen((open) => !open)}
-          className="flex w-full items-center justify-between gap-3 text-left"
-          aria-expanded={browseOpen}
-        >
-          <span>
-            <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
-              {t("discover.pathBrowseEyebrow")}
-            </span>
-            <span className="mt-1 block font-serif text-xl font-bold text-white">{t("discover.pathBrowseRest")}</span>
-            <span className="mt-1 block text-xs text-white/45">{t("discover.pathBrowseCopy")}</span>
-          </span>
-          <span className="text-xs font-bold text-orange-300">{browseOpen ? t("discover.pathHide") : t("discover.pathShow")}</span>
-        </button>
+      <section className={surface === "home" && !namedIntent ? "pt-1" : "border-t border-white/10 pt-6"}>
+        {surface === "page" || namedIntent ? (
+          <>
+            <button
+              type="button"
+              onClick={() => setBrowseOpen((open) => !open)}
+              className="flex w-full items-center justify-between gap-3 text-left"
+              aria-expanded={browseOpen}
+            >
+              <span>
+                <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
+                  {t("discover.pathBrowseEyebrow")}
+                </span>
+                <span className="mt-1 block font-serif text-xl font-bold text-white">{t("discover.pathBrowseRest")}</span>
+                <span className="mt-1 block text-xs text-white/45">{t("discover.pathBrowseCopy")}</span>
+              </span>
+              <span className="text-xs font-bold text-orange-300">{browseOpen ? t("discover.pathHide") : t("discover.pathShow")}</span>
+            </button>
 
-        {browseOpen ? (
-          <ul className="mt-4 space-y-2">
-            {rest.map((poll) => (
-              <li key={poll.id}>
-                <Link
-                  to={`/discoveries/${poll.slug || poll.id}`}
-                  className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 hover:border-orange-400/40"
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-bold text-white">{poll.question}</span>
-                    <span className="mt-0.5 block truncate text-[11px] text-white/40">
-                      {poll.targetUnlockPerk}
-                    </span>
-                  </span>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-orange-300" />
-                </Link>
-              </li>
-            ))}
-            {rest.length === 0 ? (
-              <li className="text-sm text-white/45">{t("discover.pathBrowseEmpty")}</li>
+            {browseOpen ? (
+              <ul className="mt-4 space-y-2">
+                {rest.map((poll) => (
+                  <li key={poll.id}>
+                    <Link
+                      to={`/discoveries/${poll.slug || poll.id}`}
+                      className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 hover:border-orange-400/40"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-bold text-white">{poll.question}</span>
+                        <span className="mt-0.5 block truncate text-[11px] text-white/40">
+                          {poll.targetUnlockPerk}
+                        </span>
+                      </span>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-orange-300" />
+                    </Link>
+                  </li>
+                ))}
+                {rest.length === 0 ? (
+                  <li className="text-sm text-white/45">{t("discover.pathBrowseEmpty")}</li>
+                ) : null}
+              </ul>
             ) : null}
-          </ul>
+          </>
         ) : null}
 
-        <div className="mt-5 flex flex-wrap items-center gap-3">
+        <div className={surface === "home" && !namedIntent ? "flex flex-wrap items-center gap-3" : "mt-5 flex flex-wrap items-center gap-3"}>
           <AskQuestionModal
             trigger={
               <button

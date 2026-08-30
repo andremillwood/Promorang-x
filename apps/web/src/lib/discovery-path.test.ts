@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { resolveCityHub } from "./city-hubs";
 import {
   buildDiscoveryPath,
   discoverPathHref,
   discoveryPollLocationHint,
+  filterDiscoveryPollsForHub,
   inferLensesFromPreferences,
   isDiscoverLensId,
   mergeDiscoveryPolls,
@@ -159,6 +161,21 @@ describe("discoveryPollLocationHint", () => {
       title: eatPoll.question,
       description: "Vote to back your spot and unlock a tasting pass. 25% Off Jerk Platter Jerk Chicken Kingston Food Foodies",
     });
+  });
+});
+
+describe("filterDiscoveryPollsForHub", () => {
+  it("keeps Kingston eat and night polls in Kingston", () => {
+    const kingston = resolveCityHub("kingston")!;
+    expect(filterDiscoveryPollsForHub([eatPoll, nightPoll], kingston).map((poll) => poll.id)).toEqual([
+      "jerk",
+      "night",
+    ]);
+  });
+
+  it("drops Kingston-named polls from Miami", () => {
+    const miami = resolveCityHub("miami")!;
+    expect(filterDiscoveryPollsForHub([eatPoll, nightPoll], miami)).toEqual([]);
   });
 });
 

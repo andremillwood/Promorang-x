@@ -31,7 +31,9 @@ import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getMomentStatus } from "@/lib/moment-recurrence";
 import { DISCOVERY_POLLS, type DiscoveryPoll } from "@/data/discoveriesData";
 import { DiscoveryPath } from "@/components/discovery/DiscoveryPath";
-import { discoveryPollLocationHint, isDiscoverLensId } from "@/lib/discovery-path";
+import { filterDiscoveryPollsForHub, isDiscoverLensId, mergeDiscoveryPolls } from "@/lib/discovery-path";
+import { toast } from "sonner";
+import { castListingDiscoveryVote, useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { VERIFIED_VENUES } from "@/data/venuesData";
 import { usePerks } from "@/hooks/usePerks";
@@ -137,8 +139,10 @@ type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places"
 
 const Discover = () => {
   const { t } = useI18n();
+  const { user } = useAuth();
   const { city, setCity } = useMarket();
   const { data: preferences } = useUserPreferences();
+  const { data: listingPolls = [] } = useListingDiscoveryPolls(12);
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as DiscoverTab) || "discoveries";
   const lensParam = searchParams.get("lens");
@@ -251,9 +255,13 @@ const Discover = () => {
     () => VERIFIED_VENUES.filter((venue) => matchesCityHub(venue, city)),
     [city],
   );
+  const catalog = useMemo(
+    () => mergeDiscoveryPolls(livePolls, listingPolls),
+    [livePolls, listingPolls],
+  );
   const hubDiscoveries = useMemo(
-    () => livePolls.filter((poll) => matchesCityHub(discoveryPollLocationHint(poll), city)),
-    [livePolls, city],
+    () => filterDiscoveryPollsForHub(catalog, city),
+    [catalog, city],
   );
   const hubPerks = useMemo(
     () =>
@@ -493,6 +501,18 @@ const Discover = () => {
                     initialQuery={searchParams.get("q")}
                     onQuestionCreated={(newQ) => {
                       setLivePolls((prev) => [newQ as DiscoveryPoll, ...prev]);
+                    }}
+                    onCastVote={async (poll, optionId) => {
+                      if (!poll.detailUrl) return;
+                      if (!user) {
+                        toast.info("Sign in to verify local place information.");
+                        return;
+                      }
+                      try {
+                        await castListingDiscoveryVote(poll.id, optionId);
+                      } catch (error: any) {
+                        toast.error(error?.message?.includes("duplicate") ? "You already voted on this place." : "We couldn't record that vote.");
+                      }
                     }}
                   />
                 ) : (
