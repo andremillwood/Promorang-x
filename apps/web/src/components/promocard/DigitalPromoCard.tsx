@@ -28,6 +28,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePromoCard } from "@/hooks/usePromoCard";
 import { useUserBalance } from "@/hooks/useEconomy";
 import { useI18n } from "@/i18n/I18nContext";
+import { useMembershipStanding } from "@/hooks/useMembershipStanding";
+import { useTonightPartner } from "@/hooks/useTonightPartner";
 import { PromoCardNextMove } from "./PromoCardNextMove";
 
 interface DigitalPromoCardProps {
@@ -37,6 +39,7 @@ interface DigitalPromoCardProps {
   points?: number;
   promoKeys?: number;
   onConvertKeys?: () => void;
+  onOpenPackage?: () => void;
 }
 
 export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({
@@ -46,6 +49,7 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({
   points,
   promoKeys,
   onConvertKeys,
+  onOpenPackage,
 }) => {
   const { t } = useI18n();
   const { toast } = useToast();
@@ -63,6 +67,8 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({
     PromoCardService.getRechargeActions()
   );
 
+  const { standing } = useMembershipStanding();
+  const tonightPlace = useTonightPartner();
   const nextRechargeAmount = rechargeActions.find((action) => !action.completed)?.rewardAmount ?? 15;
   const resolvedPoints = points ?? Number(balanceQuery.data?.points || 0);
   const resolvedKeys = promoKeys ?? Number(balanceQuery.data?.promokeys || 0);
@@ -76,8 +82,11 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({
         nextRechargeAmount,
         points: resolvedPoints,
         promoKeys: resolvedKeys,
+        hasSealedPackage: Boolean(standing.nextPackage),
+        pendingReferrals: standing.pot.pendingReferrals,
+        tonightPlace,
       }),
-    [isPreview, card.monthlyLimit, card.availableBalance, card.spentThisCycle, nextRechargeAmount, resolvedPoints, resolvedKeys]
+    [isPreview, card.monthlyLimit, card.availableBalance, card.spentThisCycle, nextRechargeAmount, resolvedPoints, resolvedKeys, standing.nextPackage, standing.pot.pendingReferrals, tonightPlace]
   );
 
   useEffect(() => {
@@ -104,6 +113,10 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({
     }
     if (loop.next.id === "recharge") {
       setShowRechargeModal(true);
+      return;
+    }
+    if (loop.next.id === "open_package" && onOpenPackage) {
+      onOpenPackage();
       return;
     }
     navigate(loop.next.href);
@@ -254,6 +267,7 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({
         creditHint={loop.next.creditHint}
         pointsHint={loop.next.pointsHint}
         keysHint={loop.next.keysHint}
+        placeHint={loop.next.placeHint}
         onAction={handleNextMove}
       />
 

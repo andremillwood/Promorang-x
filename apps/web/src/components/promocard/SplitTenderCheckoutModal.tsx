@@ -20,12 +20,13 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { describePromoCardSpendReceipt, settlePromoCardVisit } from "@promorang/shared";
 import {
   SplitTenderService,
   SplitTenderCalculation,
   SplitTenderReceipt,
-  PromoCardService,
 } from "@/lib/promocard";
+import { PromoCardSpendReceipt } from "./PromoCardSpendReceipt";
 
 interface SplitTenderCheckoutModalProps {
   isOpen: boolean;
@@ -200,24 +201,17 @@ export const SplitTenderCheckoutModal: React.FC<SplitTenderCheckoutModalProps> =
               </DialogDescription>
             </div>
 
-            <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-left space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-zinc-400">Merchant</span>
-                <span className="text-white font-semibold">{completedReceipt.merchantName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-400">Total Charged to Card</span>
-                <span className="text-white font-semibold">${completedReceipt.fiatCashCharged.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-emerald-400">
-                <span>PromoCard Savings</span>
-                <span className="font-bold">-${completedReceipt.promoDiscountApplied.toFixed(2)}</span>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300">
-              ⚡ <strong>Recharge Tip:</strong> Post a Moment photo from this visit to recharge +$15 back onto your Promorang Card!
-            </div>
+            <PromoCardSpendReceipt
+              receipt={describePromoCardSpendReceipt({
+                settlement: settlePromoCardVisit({
+                  basket: completedReceipt.grossAmount,
+                  cardReady: completedReceipt.promoDiscountApplied,
+                  merchantAllowance: completedReceipt.promoDiscountApplied,
+                }),
+                placeName: completedReceipt.merchantName,
+                basket: completedReceipt.grossAmount,
+              })}
+            />
 
             <Button
               onClick={handleModalClose}

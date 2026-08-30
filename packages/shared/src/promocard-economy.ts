@@ -83,6 +83,48 @@ export function settlePromoCardVisit(input: {
   };
 }
 
+export type PromoCardSpendReceipt = {
+  eyebrow: string;
+  headline: string;
+  placeName: string;
+  eligible: boolean;
+  reason: PromoCardVisitSettlement["reason"];
+  basket: number;
+  promoApplied: number;
+  cashRemainder: number;
+  youSaved: number;
+  nextHint: string;
+};
+
+const RECEIPT_HINT: Record<PromoCardVisitSettlement["reason"], string> = {
+  ok: "Show up again. Verified actions can restore the next outing.",
+  inactive_pool: "This place is not funding PromoCard credit right now.",
+  below_minimum: "Add a little more to the bill to unlock the partner allowance.",
+  no_ready_credit: "Restore card credit, then come back to this place.",
+  no_allowance: "Ask the partner to authorize this visit before checkout.",
+};
+
+export function describePromoCardSpendReceipt(input: {
+  settlement: PromoCardVisitSettlement;
+  placeName?: string;
+  basket?: number;
+}): PromoCardSpendReceipt {
+  const settlement = input.settlement;
+  const basket = Math.max(0, Number(input.basket ?? settlement.promoApplied + settlement.cashRemainder) || 0);
+  return {
+    eyebrow: "PromoCard receipt",
+    headline: settlement.eligible ? "The bill split" : "Credit not applied",
+    placeName: input.placeName || "Participating place",
+    eligible: settlement.eligible,
+    reason: settlement.reason,
+    basket,
+    promoApplied: settlement.promoApplied,
+    cashRemainder: settlement.cashRemainder,
+    youSaved: settlement.memberSavings,
+    nextHint: RECEIPT_HINT[settlement.reason],
+  };
+}
+
 function blankSettlement(basket: number, reason: PromoCardVisitSettlement["reason"]): PromoCardVisitSettlement {
   return {
     eligible: false,

@@ -7,6 +7,7 @@ import {
   PROMOCARD_TYPICAL_VISIT_ALLOWANCE,
   describePromoCardCredit,
   describePromoCardIssuance,
+  describePromoCardSpendReceipt,
   pickPromoCardNextSuccess,
   settlePromoCardVisit,
 } from "../src/index";
@@ -85,5 +86,25 @@ describe("PromoCard issuance and partner-funded capacity", () => {
     });
     expect(noPool.eligible).toBe(false);
     expect(noPool.reason).toBe("inactive_pool");
+  });
+
+  it("turns a settled visit into a holdable spend receipt", () => {
+    const settlement = settlePromoCardVisit({
+      basket: 40,
+      cardReady: 50,
+      merchantAllowance: 15,
+    });
+    const receipt = describePromoCardSpendReceipt({
+      settlement,
+      placeName: "Kingston Dub Club",
+      basket: 40,
+    });
+
+    expect(receipt.headline).toBe("The bill split");
+    expect(receipt.placeName).toBe("Kingston Dub Club");
+    expect(receipt.promoApplied).toBe(15);
+    expect(receipt.cashRemainder).toBe(25);
+    expect(receipt.youSaved).toBe(15);
+    expect(receipt.nextHint).toMatch(/restore/i);
   });
 });
