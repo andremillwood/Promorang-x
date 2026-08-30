@@ -6,13 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ArrowRight,
   Calendar,
   Compass,
   Gift,
-  HelpCircle,
   LayoutGrid,
   Map,
   MapPin,
@@ -21,11 +19,9 @@ import {
   Search,
   Sparkles,
   Store,
-  Ticket,
   Users,
   Zap,
   Tag,
-  Share2,
 } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
 import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModal";
@@ -48,6 +44,8 @@ import { PerkCard } from "@/components/perks/PerkCard";
 import { PostPerkModal } from "@/components/merchant/PostPerkModal";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { DiscoverMarketTabs } from "@/components/discovery/DiscoverMarketTabs";
+import { isDiscoverTab, type DiscoverTab } from "@/components/discovery/discover-tabs";
 
 const categoryFilters = [
   { id: "all", label: "All Drops", icon: Sparkles },
@@ -129,22 +127,6 @@ const HubEmptyState = ({
   );
 };
 
-type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
-
-const DISCOVER_TAB_IDS: DiscoverTab[] = ["discoveries", "perks", "moments", "distribute", "places"];
-
-const DISCOVER_TABS: Array<{
-  id: DiscoverTab;
-  label: string;
-  icon: typeof HelpCircle;
-}> = [
-  { id: "discoveries", label: "Discoveries", icon: HelpCircle },
-  { id: "perks", label: "Perks", icon: Gift },
-  { id: "moments", label: "Moments", icon: Ticket },
-  { id: "distribute", label: "Share", icon: Share2 },
-  { id: "places", label: "Places", icon: Store },
-];
-
 const Discover = () => {
   const { city, setCity } = useMarket();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -163,14 +145,13 @@ const Discover = () => {
 
   useEffect(() => {
     const tabParam = searchParams.get("tab") as DiscoverTab;
-    if (tabParam && DISCOVER_TAB_IDS.includes(tabParam)) {
+    if (isDiscoverTab(tabParam)) {
       setActiveTab(tabParam);
     }
   }, [searchParams]);
 
-  const handleTabChange = (tab: string) => {
-    if (!DISCOVER_TAB_IDS.includes(tab as DiscoverTab)) return;
-    setActiveTab(tab as DiscoverTab);
+  const handleTabChange = (tab: DiscoverTab) => {
+    setActiveTab(tab);
     setSearchParams({ tab });
   };
 
@@ -414,36 +395,12 @@ const Discover = () => {
           </div>
         </div>
 
-        <Tabs
+        <DiscoverMarketTabs
           value={activeTab}
           onValueChange={handleTabChange}
-          className="w-full border-b border-white/10 pb-4"
-        >
-          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 overflow-x-visible rounded-lg border border-white/10 bg-white/[0.04] p-1">
-            {DISCOVER_TABS.map((tab) => {
-              const count =
-                tab.id === "perks" ? hubPerks.length : tab.id === "moments" ? hubMoments.length : undefined;
-              return (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  className="min-w-[calc(50%-0.125rem)] flex-1 gap-1.5 rounded-md px-3 text-xs font-semibold text-white/70 data-[state=active]:bg-primary data-[state=active]:text-white sm:min-w-0 sm:flex-none sm:text-sm"
-                >
-                  <tab.icon className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span>{tab.label}</span>
-                  {count != null && (
-                    <Badge
-                      variant="secondary"
-                      className="h-5 min-w-5 border-none bg-black/30 px-1.5 text-[10px] font-bold text-current"
-                    >
-                      {count}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
-        </Tabs>
+          perkCount={hubPerks.length}
+          momentCount={hubMoments.length}
+        />
 
         {/* Gamification Highlights */}
         <StoryGamificationRail
