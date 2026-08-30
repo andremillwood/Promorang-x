@@ -23,6 +23,7 @@ import {
 } from "@/lib/shop/partner-offer";
 import { KINGSTON_EXPERIENCE_LISTINGS, type CommerceListing } from "@/lib/shop/preview-partners";
 import { PartnerPlaceCard } from "@/components/shop/PartnerPlaceCard";
+import { ShopAccountLoop } from "@/components/shop/ShopAccountLoop";
 import { ShopLoopContinue } from "@/components/shop/ShopLoopContinue";
 import { ShopPromoHero } from "@/components/shop/ShopPromoHero";
 
@@ -132,6 +133,12 @@ const Marketplace = () => {
         cardNumber={card.cardNumber}
         preview={cardIsPreview}
         walletHref={walletHref}
+      />
+
+      <ShopAccountLoop
+        signedIn={Boolean(user)}
+        walletHref={walletHref}
+        example={listings[0] ? partnerOfferTerms(listings[0], card.availableBalance) : null}
       />
 
       <div id="shop-places" className="space-y-4 scroll-mt-24">

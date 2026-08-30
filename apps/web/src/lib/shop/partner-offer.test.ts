@@ -25,10 +25,53 @@ describe("partnerOfferTerms", () => {
     expect(terms.remainder).toBe(24);
   });
 
-  it("falls back to a share of price when no discount is set", () => {
+  it("falls back to a modest shop-funded save when no discount is set", () => {
     const terms = partnerOfferTerms({ price: 20 });
-    expect(terms.allowance).toBe(7);
+    expect(terms.allowance).toBe(2.4);
     expect(terms.minSpend).toBe(20);
+    expect(terms.funding).toBe("shop");
+    expect(terms.gemPrice).toBe(17.6);
+    expect(terms.platformFee).toBe(0.51);
+    expect(terms.shopNets).toBe(17.09);
+    expect(terms.shopNets + terms.platformFee).toBeCloseTo(terms.gemPrice, 2);
+  });
+
+  it("lets a shop fund the save and keeps Promorang to a card-like rail fee", () => {
+    const terms = partnerOfferTerms({
+      price: 24,
+      discount_type: "fixed",
+      discount_value: 8,
+      currency: "USD",
+      funding: "shop",
+    });
+    expect(terms.cashPrice).toBe(24);
+    expect(terms.gemPrice).toBe(16);
+    expect(terms.memberSave).toBe(8);
+    expect(terms.potCovers).toBe(0);
+    expect(terms.platformFee).toBe(0.46);
+    expect(terms.shopNets).toBe(15.54);
+    expect(terms.merchantGets).toBe(15.54);
+  });
+
+  it("pays the shop in full when a brand pot covers the save", () => {
+    const terms = partnerOfferTerms({
+      price: 24,
+      discount_type: "fixed",
+      discount_value: 8,
+      currency: "USD",
+      funding: "brand",
+    });
+    expect(terms.gemPrice).toBe(16);
+    expect(terms.potCovers).toBe(8);
+    expect(terms.platformFee).toBe(0.8);
+    expect(terms.shopNets).toBe(24);
+    expect(terms.gemPrice + terms.potCovers).toBe(terms.cashPrice);
+  });
+
+  it("treats Kingston night and experience previews as brand-funded", () => {
+    expect(partnerOfferTerms(KINGSTON_EXPERIENCE_LISTINGS[0]).funding).toBe("shop");
+    expect(partnerOfferTerms(KINGSTON_EXPERIENCE_LISTINGS[1]).funding).toBe("brand");
+    expect(partnerOfferTerms(KINGSTON_EXPERIENCE_LISTINGS[3]).funding).toBe("brand");
   });
 });
 

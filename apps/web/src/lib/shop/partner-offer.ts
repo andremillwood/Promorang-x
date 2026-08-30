@@ -5,6 +5,8 @@ export type ShopPlaceLens = "all" | "food" | "nights" | "experiences" | "service
 
 export const SHOP_PLACE_LENSES: ShopPlaceLens[] = ["all", "food", "nights", "experiences", "services"];
 
+export type OfferFunding = "shop" | "brand";
+
 export type PartnerOfferInput = {
   listing_id?: string | null;
   source_id?: string | null;
@@ -17,7 +19,15 @@ export type PartnerOfferInput = {
   name?: string | null;
   description?: string | null;
   sku?: string | null;
+  funding?: OfferFunding | null;
+  linked_moment_id?: string | null;
 };
+
+export const SHOP_RAIL_FEE_RATE = 0.029;
+export const BRAND_POT_FEE_RATE = 0.1;
+export const DEFAULT_SAVE_RATE = 0.12;
+export const DEFAULT_SAVE_MIN = 2;
+export const DEFAULT_SAVE_MAX = 8;
 
 export type PartnerOfferTerms = {
   minSpend: number;
@@ -25,7 +35,40 @@ export type PartnerOfferTerms = {
   applies: number;
   remainder: number;
   currency: string;
+  cashPrice: number;
+  gemPrice: number;
+  memberSave: number;
+  funding: OfferFunding;
+  potCovers: number;
+  platformFee: number;
+  shopNets: number;
+  merchantGets: number;
 };
+
+function roundMoney(value: number) {
+  return Math.round(value * 100) / 100;
+}
+
+export function shopRailFee(gemPrice: number) {
+  if (gemPrice <= 0) return 0;
+  return roundMoney(Math.max(0.25, gemPrice * SHOP_RAIL_FEE_RATE));
+}
+
+export function brandPotFee(memberSave: number) {
+  if (memberSave <= 0) return 0;
+  return roundMoney(Math.max(0.5, memberSave * BRAND_POT_FEE_RATE));
+}
+
+export function offerFundingSource(listing: PartnerOfferInput): OfferFunding {
+  if (listing.funding === "brand" || listing.funding === "shop") return listing.funding;
+  if (listing.linked_moment_id) return "brand";
+  if (listing.listing_kind === "campaign") return "brand";
+  if (isPreviewPartnerListing(listing)) {
+    const lens = shopPlaceLens(listing);
+    if (lens === "nights" || lens === "experiences") return "brand";
+  }
+  return "shop";
+}
 
 export function isPreviewPartnerListing(listing: PartnerOfferInput): boolean {
   const id = listing.listing_id || listing.source_id || "";
@@ -57,25 +100,40 @@ export function partnerOfferTerms(
   const minSpend = price > 0 ? price : 25;
   const discountValue = Number(listing.discount_value || 0);
 
-  let allowance = 15;
+  let allowance = 0;
   if (discountValue > 0) {
     allowance =
       listing.discount_type === "percentage"
-        ? Math.round(minSpend * (discountValue / 100) * 100) / 100
+        ? roundMoney(minSpend * (discountValue / 100))
         : discountValue;
   } else if (price > 0) {
-    allowance = Math.min(15, Math.max(5, Math.round(price * 0.35 * 100) / 100));
+    allowance = Math.min(DEFAULT_SAVE_MAX, Math.max(DEFAULT_SAVE_MIN, roundMoney(price * DEFAULT_SAVE_RATE)));
   }
 
   const applies =
     cardBalance == null ? allowance : Math.min(Math.max(0, Number(cardBalance) || 0), allowance);
+  const cashPrice = minSpend;
+  const memberSave = allowance;
+  const gemPrice = roundMoney(Math.max(0, cashPrice - memberSave));
+  const funding = offerFundingSource(listing);
+  const potCovers = funding === "brand" ? memberSave : 0;
+  const platformFee = funding === "brand" ? brandPotFee(memberSave) : shopRailFee(gemPrice);
+  const shopNets = funding === "brand" ? cashPrice : roundMoney(Math.max(0, gemPrice - platformFee));
 
   return {
     minSpend,
     allowance,
     applies,
-    remainder: Math.max(0, Math.round((minSpend - applies) * 100) / 100),
+    remainder: Math.max(0, roundMoney(minSpend - applies)),
     currency,
+    cashPrice,
+    gemPrice,
+    memberSave,
+    funding,
+    potCovers,
+    platformFee,
+    shopNets,
+    merchantGets: shopNets,
   };
 }
 
@@ -104,6 +162,10 @@ export function formatShopMoney(amount: number, currency = "USD", locale = "en")
     currency,
     maximumFractionDigits: 2,
   }).format(amount);
+}
+
+export function formatShopGems(amount: number, locale = "en") {
+  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(amount)} Gems`;
 }
 
 export function resolveShopLens(categoryParam?: string | null, lensParam?: string | null): string {

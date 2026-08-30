@@ -55,7 +55,7 @@ export function ShopPromoHero({
             <TactileButton variant="obsidian" size="lg" asChild>
               <Link to={walletHref}>
                 <WalletCards className="h-4 w-4" />
-                {signedIn ? t("market.openCard") : t("market.getCard")}
+                {signedIn ? t("market.openCard") : t("market.getAccount")}
               </Link>
             </TactileButton>
           </div>
