@@ -26,6 +26,19 @@ try {
 }
 
 const automatedWorkflowService = require('../services/automatedWorkflowService');
+let weeklyMomentDropService;
+try {
+    weeklyMomentDropService = require('../services/weeklyMomentDropService');
+} catch (e) {
+    console.warn('[Cron] Weekly moment drop service not available');
+}
+
+let stakeholderScoutService;
+try {
+    stakeholderScoutService = require('../services/stakeholderScoutService');
+} catch (e) {
+    console.warn('[Cron] Stakeholder scout service not available');
+}
 
 // Import Life Event Service (with graceful fallback)
 let lifeEventService;
@@ -294,6 +307,53 @@ const dailyWeatherRecommendations = cron.schedule('30 8 * * *', async () => {
 });
 
 /**
+ * Publish dated calendar events inside the 90-day window and announce the week.
+ * Mondays at 09:00 America/Jamaica.
+ */
+const weeklyMomentDrop = cron.schedule('0 9 * * 1', async () => {
+    console.log('[Cron] Running weekly moment drop...');
+    if (!weeklyMomentDropService) {
+        console.log('[Cron] Weekly moment drop service not available, skipping');
+        return;
+    }
+    try {
+        const result = await weeklyMomentDropService.runWeeklyMomentDrop();
+        console.log('[Cron] Weekly moment drop complete:', result);
+    } catch (error) {
+        console.error('[Cron] Error in weekly moment drop:', error);
+    }
+}, {
+    scheduled: false,
+    timezone: 'America/Jamaica'
+});
+
+/**
+ * Score and queue steward invites against the weekly calendar.
+ * Never sends email. Mondays at 10:00 America/Jamaica, after the drop.
+ */
+const weeklyStakeholderScout = cron.schedule('0 10 * * 1', async () => {
+    console.log('[Cron] Running stakeholder scout (score and queue only)...');
+    if (!stakeholderScoutService) {
+        console.log('[Cron] Stakeholder scout service not available, skipping');
+        return;
+    }
+    try {
+        const result = await stakeholderScoutService.runWeeklyScout();
+        console.log('[Cron] Stakeholder scout complete:', {
+            scored: result.scored,
+            queued: result.queued,
+            sent: 0,
+            autoSend: false,
+        });
+    } catch (error) {
+        console.error('[Cron] Error in stakeholder scout:', error);
+    }
+}, {
+    scheduled: false,
+    timezone: 'America/Jamaica'
+});
+
+/**
  * Start all cron jobs
  */
 function startCronJobs() {
@@ -316,6 +376,8 @@ function startCronJobs() {
     weeklyEventAlerts.start();
     dailyHolidayCampaigns.start();
     dailyWeatherRecommendations.start();
+    weeklyMomentDrop.start();
+    weeklyStakeholderScout.start();
 
     console.log('[Cron] All jobs scheduled');
     console.log('[Cron] - Daily buffer drops: 00:05 AM');
@@ -331,6 +393,8 @@ function startCronJobs() {
     console.log('[Cron] - Weekly event alerts: Mondays 11:00 AM');
     console.log('[Cron] - Daily holiday campaigns: 08:00 AM');
     console.log('[Cron] - Daily weather recommendations: 08:30 AM');
+    console.log('[Cron] - Weekly moment drop: Mondays 09:00 AM Jamaica');
+    console.log('[Cron] - Stakeholder scout queue: Mondays 10:00 AM Jamaica (never sends)');
 }
 
 /**
@@ -356,6 +420,8 @@ function stopCronJobs() {
     weeklyEventAlerts.stop();
     dailyHolidayCampaigns.stop();
     dailyWeatherRecommendations.stop();
+    weeklyMomentDrop.stop();
+    weeklyStakeholderScout.stop();
 }
 
 /**
@@ -388,6 +454,8 @@ module.exports = {
         weeklySeasonalRecommendations,
         weeklyEventAlerts,
         dailyHolidayCampaigns,
-        dailyWeatherRecommendations
+        dailyWeatherRecommendations,
+        weeklyMomentDrop,
+        weeklyStakeholderScout
     }
 };

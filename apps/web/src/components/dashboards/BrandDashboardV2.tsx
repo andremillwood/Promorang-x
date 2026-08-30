@@ -16,6 +16,7 @@ import {
   Building2,
   ChevronRight,
   Flame,
+  Vote,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBrandCampaigns, useBrandStats } from "@/hooks/useCampaigns";
@@ -33,6 +34,7 @@ import BrandOpportunityRadar from "@/components/brand/BrandOpportunityRadar";
 import BrandCreatorBureau from "@/components/brand/BrandCreatorBureau";
 import BrandCorrelationMap from "@/components/brand/BrandCorrelationMap";
 import BrandIntelligenceConsole from "@/components/brand/BrandIntelligenceConsole";
+import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 
 export function BrandDashboardV2() {
   const { user, organizations, activeOrgId, profile } = useAuth();
@@ -180,8 +182,9 @@ export function BrandDashboardV2() {
       </div>
 
       {/* 3. The 5 Operational Brand Navigation Arenas */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
         {[
+          { id: "demand", label: "City Asks", icon: Vote, hint: "What people named", count: "Live asks" },
           { id: "campaigns", label: "Active Promotions", icon: Megaphone, hint: "Live campaigns & budget", count: `${activeCampaigns.length || 2} Live` },
           { id: "opportunities", label: "Find Events to Sponsor", icon: Target, hint: "Top local events & venues", count: "3 Ready" },
           { id: "creators", label: "Creator Posts", icon: Users, hint: "Review photo & video posts", count: "1 Ready" },
@@ -224,12 +227,17 @@ export function BrandDashboardV2() {
         <div className="min-w-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <TabsList className="sr-only">
+              <TabsTrigger value="demand">Demand</TabsTrigger>
               <TabsTrigger value="campaigns">Flight Deck</TabsTrigger>
               <TabsTrigger value="opportunities">Radar</TabsTrigger>
               <TabsTrigger value="creators">Creators</TabsTrigger>
               <TabsTrigger value="correlation">Proof Map</TabsTrigger>
               <TabsTrigger value="insights">Treasury</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="demand" className="mt-0">
+              <DiscoveryDemandInbox role="brand" />
+            </TabsContent>
 
             <TabsContent value="campaigns" className="mt-0">
               <BrandCampaignFlightDeck

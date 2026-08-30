@@ -2,7 +2,15 @@ import { motion } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export const CheckInCelebration = ({ onComplete }: { onComplete: () => void }) => {
+export const CheckInCelebration = ({
+    onComplete,
+    title = "It counted",
+    copy = "That visit is a ticket.",
+}: {
+    onComplete: () => void;
+    title?: string;
+    copy?: string;
+}) => {
     useEffect(() => {
         const timer = setTimeout(onComplete, 3000);
         return () => clearTimeout(timer);
@@ -53,9 +61,9 @@ export const CheckInCelebration = ({ onComplete }: { onComplete: () => void }) =
                     className="text-center mt-8"
                 >
                     <h2 className="text-3xl font-serif font-bold text-foreground flex items-center justify-center gap-2">
-                        Verified <Sparkles className="text-primary w-6 h-6" />
+                        {title} <Sparkles className="text-primary w-6 h-6" />
                     </h2>
-                    <p className="text-muted-foreground mt-2 font-medium">Your rewards are on the way!</p>
+                    <p className="text-muted-foreground mt-2 font-medium">{copy}</p>
                 </motion.div>
             </div>
         </motion.div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { usePerks } from '@/hooks/usePerks';
 import { DISCOVERY_POLLS } from '@/data/discoveriesData';
+import { toDemandQuestion, demandPollFromDiscovery } from '@/lib/discovery-demand';
 import { CURATED_KINGSTON_MOMENTS } from '@/lib/curated-radar';
 import { PromoShareAction } from '@/components/promoshare/PromoShareAction';
 import { PerkCard } from '@/components/perks/PerkCard';
@@ -112,8 +113,21 @@ export const ThingsWorthSharingFeed: React.FC = () => {
                 </div>
                 <h3 className="text-base font-black text-white leading-snug">{disc.question}</h3>
                 <p className="text-xs text-zinc-400 mt-2">
-                  Share this debate to rally your community. Attributed participants earn you draw tickets!
+                  How people are answering — share the one that is heating up.
                 </p>
+                <ul className="mt-3 space-y-1.5">
+                  {toDemandQuestion(demandPollFromDiscovery(disc)).options.slice(0, 3).map((option) => (
+                    <li key={option.text}>
+                      <div className="flex justify-between gap-2 text-[11px] font-bold text-zinc-300">
+                        <span className="truncate">{option.text}</span>
+                        <span className="shrink-0 font-mono text-zinc-500">{option.share}%</span>
+                      </div>
+                      <div className="mt-0.5 h-1 overflow-hidden rounded-full bg-white/10">
+                        <div className="h-full rounded-full bg-purple-400" style={{ width: `${option.share}%` }} />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">

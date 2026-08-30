@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import SEO from "@/components/SEO";
 import { TactileButton } from "@/components/ui/TactileButton";
+import { PromoCardCheckoutDemo } from "@/components/promocard/PromoCardCheckoutDemo";
 import {
   CollectibleRelic,
   MoneyPots,
@@ -18,7 +19,6 @@ import {
   ObjectShelf,
   PaperReceipt,
   PlainEnglish,
-  PromoCardFace,
   RoleLens,
   StatusChip,
   TicketPass,
@@ -54,7 +54,7 @@ const navigationLinks: Array<{ label: TranslationKey; slug: string; path: string
 ];
 
 const objectShelf = [
-  { href: "/economy/promocard", name: "PromoCard", like: "A local gift card you can refill.", use: "Comes off the bill at partner shops." },
+  { href: "/promocard", name: "PromoCard", like: "A local gift card you can refill.", use: "Comes off the bill at partner shops." },
   { href: "/economy/points", name: "Points", like: "A punch card for showing up.", use: "500 Points can become 1 Key." },
   { href: "/economy/keys", name: "Keys", like: "A ticket you earn, not buy.", use: "Opens a limited prize or VIP table." },
   { href: "/economy/master-key", name: "Daily streak", like: "One real action keeps it on for 24 hours.", use: "Can boost what you earn that day." },
@@ -509,41 +509,7 @@ const conceptData: Record<
 };
 
 function PromoCardDemo() {
-  const [applied, setApplied] = useState(false);
-  return (
-    <div className="space-y-4">
-      <PromoCardFace available={applied ? "$16.00" : "$24.00"} holder="Maya · East Austin" />
-      <PaperReceipt
-        heading={applied ? "Velvet Lounge" : "Ready at checkout"}
-        lines={
-          applied
-            ? [
-                { label: "Tasting flight", value: "$24.00" },
-                { label: "PromoCard", value: "−$8.00", strong: true },
-                { label: "You pay", value: "$16.00", strong: true },
-              ]
-            : [
-                { label: "Tonight's bill", value: "$24.00" },
-                { label: "Card ready", value: "$8.00 off" },
-                { label: "You would pay", value: "$16.00" },
-              ]
-        }
-        footer={applied ? "Saved $8. Check in to refill." : "Not a bank card. Just savings at partners."}
-      />
-      <TactileButton variant={applied ? "success" : "vault"} size="lg" fullWidth onClick={() => setApplied((v) => !v)}>
-        {applied ? (
-          <>
-            <CheckCircle2 className="h-4 w-4" /> Saved on the bill
-          </>
-        ) : (
-          "Apply $8 at checkout"
-        )}
-      </TactileButton>
-      <p className="sr-only" aria-live="polite">
-        {applied ? "PromoCard applied. You pay 16 dollars." : "PromoCard not yet applied."}
-      </p>
-    </div>
-  );
+  return <PromoCardCheckoutDemo />;
 }
 
 function MomentDemo() {

@@ -64,6 +64,7 @@ import { DemoCoachmark } from "@/components/demo/DemoCoachmark";
 import { CityQuickSwitcher } from "@/components/location/CityQuickSwitcher";
 import { useI18n } from "@/i18n/I18nContext";
 import { useMarket } from "@/contexts/MarketContext";
+import { isPrimaryDestinationActive, isPrimaryDestinationHref, PRIMARY_DESTINATIONS } from "@/lib/primary-destinations";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "promoter" | "marketing" | "admin";
 
@@ -95,7 +96,7 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/scenes", label: "Scenes", description: "The rooms, rituals, creators, and places that turn moments into belonging." },
   { match: "/creators", label: "Creators", description: "Discover the people shaping culture and carrying its stories forward." },
   { match: "/discover", label: "Discover", description: "Browse moments, venues, rewards, and content worth acting on." },
-  { match: "/shop", label: "Shop", description: "Browse verified merchant products, services, offers, and clearly separated sample previews." },
+  { match: "/shop", label: "Shop", description: "Places that take your PromoCard — offer and minimum shown before you go." },
   { match: "/create", label: "Create", description: "Launch a Moment, contribution prompt, or activation with clear human and commercial return." },
   { match: "/vault", label: "Vault", description: "Memories, active perks, and the value that stays with the participant." },
   { match: "/wallet", label: "Wallet", description: "Balances, transactions, and advanced value tools." },
@@ -104,7 +105,8 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/liquidity", label: "Liquidity", description: "Pools, LP positions, and the layer that keeps value moving." },
   { match: "/promoshare", label: "PromoShare", description: "Qualified actions, creator movement, Gems-funded value, and sponsor-backed return." },
   { match: "/missions", label: "Missions", description: "Contribution prompts linked to creator, host, or sponsor value." },
-  { match: "/activity", label: "Activity", description: "Notifications, updates, and the recent pulse around your account." },
+  { match: "/progress", label: "Progress", description: "What happened because of you, and how close you are to the result you want." },
+  { match: "/activity", label: "Progress", description: "What happened because of you, and how close you are to the result you want." },
   { match: "/saved", label: "Saved", description: "Things worth returning to without having to rediscover them." },
   { match: "/dashboard/analytics", label: "Analytics", description: "Operational reporting for the active hub." },
   { match: "/dashboard/settings", label: "Settings", description: "Personal, role, and hub-level configuration." },
@@ -141,10 +143,29 @@ const getPageMeta = (pathname: string, search: string, role: UserRole) => {
 
 const isNavItemActive = (pathname: string, href: string, search: string) => {
   const [itemPath, itemQuery] = href.split("?");
+  if (itemPath === "/") return pathname === "/";
+  if (isPrimaryDestinationHref(itemPath)) {
+    return isPrimaryDestinationActive(pathname, itemPath);
+  }
   if (itemQuery) {
     return pathname === itemPath && search.includes(itemQuery);
   }
   return pathname === itemPath || pathname.startsWith(itemPath + "/");
+};
+
+const canonicalPrimaryNav: NavItem[] = [
+  { icon: Home, label: "Today", href: "/", group: "primary" },
+  { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
+  { icon: Plus, label: "Create", href: "/create", group: "primary" },
+  { icon: Activity, label: "Progress", href: "/progress", group: "primary" },
+  { icon: Archive, label: "Vault", href: "/vault", group: "primary" },
+];
+
+const composeRoleNav = (items: NavItem[]): NavItem[] => {
+  const tools = items
+    .filter((item) => !isPrimaryDestinationHref(item.href))
+    .map((item) => (item.group === "primary" ? { ...item, group: "manage" as const } : item));
+  return [...canonicalPrimaryNav, ...tools];
 };
 
 const roleNavItems: Record<UserRole, NavItem[]> = {
@@ -239,7 +260,7 @@ const roleLabels: Record<UserRole, { icon: typeof Users; label: string; color: s
 
 // Version: 1.1.0-STABILIZED - Crash-Proof Role Resolution
 const FALLBACK_ROLE_INFO = { icon: Users, label: "Participant", color: "bg-blue-500" };
-const FALLBACK_NAV = roleNavItems.participant;
+const FALLBACK_NAV = composeRoleNav(roleNavItems.participant);
 
 const safeRoleInfo = (role: string | undefined | null) => {
   if (!role) return FALLBACK_ROLE_INFO;
@@ -269,14 +290,14 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
   // Safe role resolution — never crashes, always falls back to participant
   const safeRole = currentRole && roleNavItems[currentRole] ? currentRole : 'participant';
-  const roleItems = roleNavItems[safeRole] || FALLBACK_NAV;
+  const roleItems = composeRoleNav(roleNavItems[safeRole] || roleNavItems.participant);
   const navItems = filterReleaseNav(roleItems);
   const primaryNavItems = navItems.filter((item) => !item.group || item.group === "primary");
   const growthNavItems = navItems.filter((item) => item.group === "growth");
   const manageNavItems = navItems.filter((item) => item.group === "manage");
   const utilityNavItems = navItems.filter((item) => item.group === "utility");
   const roleInfo = safeRoleInfo(safeRole);
-  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet", "/admin", "/organizer"];
+  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/progress", "/shop", "/wallet", "/admin", "/organizer"];
   const isImmersiveProductRoute = immersiveProductRoutes.some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
@@ -356,9 +377,13 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
     ],
   };
 
-  const currentMobileNav = safeRole === "participant"
-    ? filterReleaseNav(mobileNavItems.participant).slice(0, 5)
-    : [...filterReleaseNav(mobileNavItems[safeRole]).slice(0, 4), { icon: ShoppingBag, label: "Shop", href: "/shop" }];
+  const currentMobileNav = canonicalPrimaryNav.map((item) => {
+    const dest = PRIMARY_DESTINATIONS.find((entry) => entry.href === item.href);
+    return {
+      ...item,
+      label: dest ? t(dest.labelKey) : item.label,
+    };
+  });
 
   return (
     <div className="app-shell-mobile relative flex min-h-screen min-h-dvh overflow-x-clip bg-background transition-colors duration-300">

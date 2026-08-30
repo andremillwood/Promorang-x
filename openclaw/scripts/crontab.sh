@@ -32,8 +32,11 @@
 # Monday 9:00 AM — Weekly roundup content
 0 9 * * 1 cd ~/openclaw && node skills/promorang-content/content.js --action weekly-roundup >> /var/log/openclaw/roundup.log 2>&1
 
-# Monday 10:00 AM — Upcoming moments hype
-0 10 * * 1 cd ~/openclaw && node skills/promorang-content/content.js --action upcoming-hype --days 7 >> /var/log/openclaw/hype.log 2>&1
+# Monday 9:00 AM — Weekly moment drop (90-day lead window)
+0 9 * * 1 cd ~/openclaw && node skills/promorang-weekly-moments/weekly-moments.js --action run-drop >> /var/log/openclaw/weekly-moments.log 2>&1
+
+# Monday 10:00 AM — Upcoming moments hype (90-day horizon)
+0 10 * * 1 cd ~/openclaw && node skills/promorang-content/content.js --action upcoming-hype --days 90 >> /var/log/openclaw/hype.log 2>&1
 
 # Wednesday 8:00 AM — Churn alert check
 0 8 * * 3 cd ~/openclaw && node skills/promorang-analytics/analytics.js --action churn-alert --threshold 14 >> /var/log/openclaw/churn.log 2>&1

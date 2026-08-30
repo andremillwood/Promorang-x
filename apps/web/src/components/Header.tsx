@@ -35,6 +35,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { PrimaryDestinationNav } from "@/components/nav/PrimaryDestinationNav";
+import { isCinematicPublicPath } from "@/lib/marketing-shell";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,23 +66,8 @@ const Header = () => {
   const activeOrg = organizations?.find((o) => o.id === activeOrgId);
   const isAgencyMode = roles?.includes("brand") || roles?.includes("merchant") || roles?.includes("admin");
 
-  const isPublicHome = location.pathname === "/";
-  const isCinematicPublicPage =
-    isPublicHome ||
-    location.pathname === "/how-it-works" ||
-    location.pathname.startsWith("/economy") ||
-    location.pathname === "/growth" ||
-    location.pathname === "/pioneers" ||
-    location.pathname === "/organizer" ||
-    location.pathname === "/live" ||
-    location.pathname.startsWith("/radar") ||
-    location.pathname.startsWith("/opportunity-radar") ||
-    location.pathname.startsWith("/scenes") ||
-    location.pathname.startsWith("/communities") ||
-    location.pathname.startsWith("/creators") ||
-    location.pathname.startsWith("/events");
   const isLeadMagnetPage = location.pathname.startsWith("/free/");
-  const hasDarkHeader = isCinematicPublicPage || isLeadMagnetPage;
+  const hasDarkHeader = isCinematicPublicPath(location.pathname) || isLeadMagnetPage;
 
   const handleSignOut = async () => {
     await signOut();
@@ -126,7 +113,8 @@ const Header = () => {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden lg:flex items-center gap-1 bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-full px-1.5 py-1 shadow-inner">
+            {user ? <PrimaryDestinationNav dark={hasDarkHeader} /> : null}
+            <div className={user ? "hidden" : "hidden lg:flex items-center gap-1 bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-full px-1.5 py-1 shadow-inner"}>
               {/* 1. Explore Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -252,7 +240,7 @@ const Header = () => {
 
                   <DropdownMenuItem asChild>
                     <Link
-                      to="/shop"
+                      to="/shop?from=promocard"
                       className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
                     >
                       <div className="h-8 w-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
@@ -695,6 +683,8 @@ const Header = () => {
                 <CityQuickSwitcher className="w-full justify-between py-2.5 px-4" />
               </div>
 
+              {user ? <PrimaryDestinationNav variant="drawer" dark onNavigate={closeMobileMenu} /> : null}
+
               {/* Quick Action Pill Row */}
               <div className="grid grid-cols-2 gap-2">
                 <Link
@@ -754,7 +744,7 @@ const Header = () => {
                     <span>{t("nav.rewardsHub")}</span>
                   </Link>
                   <Link
-                    to="/shop"
+                    to="/shop?from=promocard"
                     onClick={closeMobileMenu}
                     className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
                   >

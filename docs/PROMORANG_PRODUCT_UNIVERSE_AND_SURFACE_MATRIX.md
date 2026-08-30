@@ -220,6 +220,7 @@ Legend:
 | Gems | Contextual | Earn / withdraw/spend | Wallet | Finance / campaign ops | Liquid reward unit |
 | Rewards / Member Perks | Primary | Claim / redeem | Yes | Merchant / campaign ops | Consumer value |
 | PromoKeys / Access | Contextual | Claim / present | Access wallet / pass | Host / merchant verification | Prestige access |
+| PromoCard | Dedicated public object | Learn / get / apply at checkout | Yes (`/promocard`); live card in Wallet | Merchant terms / margin ops | Everyday promotional spending value |
 | Wallet | Contextual + dedicated | View balance / withdraw | Yes | Finance / compliance | Money layer |
 | Vault | Dedicated, advanced | Store / view assets | Yes | Finance | Advanced value storage |
 | Pieces | Contextual + dedicated collection | Collect / view / share | Yes | Issuance / economy | Cultural proof / contribution record |

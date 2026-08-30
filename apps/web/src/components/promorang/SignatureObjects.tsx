@@ -18,6 +18,8 @@ type PromoCardFaceProps = {
   limit?: string;
   holder?: string;
   places?: string;
+  cardNumber?: string;
+  preview?: boolean;
   className?: string;
 };
 
@@ -26,6 +28,8 @@ export function PromoCardFace({
   limit = "$40.00",
   holder = "Member card",
   places = "Partner shops nearby",
+  cardNumber = "PR · 0842",
+  preview = false,
   className,
 }: PromoCardFaceProps) {
   return (
@@ -36,7 +40,14 @@ export function PromoCardFace({
             <p className="text-[10px] font-bold tracking-[0.22em] text-amber-200/80">PROMORANG</p>
             <h3 className="mt-1 font-serif text-2xl font-bold tracking-tight">PromoCard</h3>
           </div>
-          <span className="h-8 w-11 rounded-md bg-gradient-to-br from-amber-200 to-amber-500 shadow-inner" aria-hidden />
+          <div className="flex flex-col items-end gap-2">
+            <span className="h-8 w-11 rounded-md bg-gradient-to-br from-amber-200 to-amber-500 shadow-inner" aria-hidden />
+            {preview ? (
+              <span className="rounded-full border border-white/15 bg-black/40 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white/65">
+                Preview
+              </span>
+            ) : null}
+          </div>
         </div>
         <div>
           <p className="text-[11px] tracking-wide text-white/55">Available to spend</p>
@@ -45,7 +56,7 @@ export function PromoCardFace({
         </div>
         <div className="flex items-end justify-between gap-3 text-[11px] text-white/60">
           <span>{holder}</span>
-          <span className="font-mono tracking-widest">PR · 0842</span>
+          <span className="font-mono tracking-widest">{cardNumber}</span>
         </div>
       </div>
     </article>

@@ -17,3 +17,4 @@
 - Google Maps venue scraping for Kingston
 - Weekly stakeholder digest emails
 - Brand mention tracking
+- Weekly Moment drop: publish dated events inside a 90-day lead window every Monday and announce them on Explore.

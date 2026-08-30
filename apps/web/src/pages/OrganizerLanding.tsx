@@ -35,6 +35,9 @@ export default function OrganizerLanding() {
               <Link to="/organizer/events" className="inline-flex items-center rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground">
                 Open your workspace <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
+              <Link to="/today" className="rounded-xl border border-white/20 bg-black/35 px-5 py-3 text-sm font-black">
+                Back to Today
+              </Link>
               <Link to="/create/moment" className="rounded-xl border border-white/20 bg-black/35 px-5 py-3 text-sm font-black">
                 Create a moment
               </Link>
