@@ -32,6 +32,7 @@ import {
   LogOut,
   ArrowUpRight,
   Tag,
+  WalletCards,
 } from "lucide-react";
 import { useState } from "react";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
@@ -69,6 +70,7 @@ const Header = () => {
   const isCinematicPublicPage =
     isPublicHome ||
     location.pathname === "/how-it-works" ||
+    location.pathname === "/promocard" ||
     location.pathname.startsWith("/economy") ||
     location.pathname === "/growth" ||
     location.pathname === "/pioneers" ||
@@ -219,7 +221,7 @@ const Header = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger
                   className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all outline-none cursor-pointer ${
-                    isActive(["/rewards", "/shop", "/promoshare", "/wallet"])
+                    isActive(["/rewards", "/shop", "/promoshare", "/wallet", "/promocard"])
                       ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
                       : "text-white/80 hover:text-white hover:bg-white/[0.08]"
                   }`}
@@ -236,6 +238,21 @@ const Header = () => {
                     <span>{t("nav.perksValue")}</span>
                     <span className="text-amber-400 text-[10px] font-normal">{t("nav.earnSave")}</span>
                   </div>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/promocard"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-amber-500/20 text-amber-200 flex items-center justify-center shrink-0">
+                        <WalletCards className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{t("promoCardPage.navLabel")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("promoCardPage.navDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
 
                   <DropdownMenuItem asChild>
                     <Link
@@ -749,6 +766,14 @@ const Header = () => {
               <div className="space-y-2">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">{t("nav.rewardsDeals")}</p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs">
+                  <Link
+                    to="/promocard"
+                    onClick={closeMobileMenu}
+                    className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
+                  >
+                    <WalletCards className="w-3.5 h-3.5 text-amber-300" />
+                    <span>{t("promoCardPage.navLabel")}</span>
+                  </Link>
                   <Link
                     to="/rewards"
                     onClick={closeMobileMenu}

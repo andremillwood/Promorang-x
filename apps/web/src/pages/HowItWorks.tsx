@@ -352,14 +352,14 @@ export default function HowItWorks() {
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
-                to="/radar?tab=discover"
+                to="/promocard"
                 className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-orange-500 px-6 py-3 text-sm font-black text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-primary/40 active:scale-[0.98]"
               >
                 <span>{t("how.getCard")}</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                to="/economy/promocard"
+                to="/promocard"
                 className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] px-6 py-3 text-sm font-black text-white transition-all duration-200 hover:border-primary/60 hover:bg-white/[0.08] active:scale-[0.98]"
               >
                 <span>{t("how.seeValueFlow")}</span>

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Check, MapPin, ScanLine, Sparkles, WalletCards, Zap } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { promoCardActionHref } from "@/lib/promocard/public-path";
 
 type MobileOffer = {
   id: string;
@@ -22,7 +23,7 @@ type MobileMoment = {
 
 export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; moments: MobileMoment[] }) {
   const { user } = useAuth();
-  const primaryHref = user ? "/wallet" : "/auth?mode=signup&next=/wallet";
+  const primaryHref = promoCardActionHref(Boolean(user));
 
   return (
     <div className="bg-[#f3efe6] text-[#14120f] md:hidden">

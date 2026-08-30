@@ -18,6 +18,7 @@ const footerLinks = {
   how: [
     { label: "What is Promorang?", href: "/what-is-promorang" },
     { label: "How It Works", href: "/how-it-works" },
+    { label: "PromoCard", href: "/promocard" },
     { label: "Overview", href: "/economy" },
     { label: "Community Vaults", href: "/nodes" },
     { label: "Moments", href: "/economy/moments" },
