@@ -75,6 +75,7 @@ const GuestPass = lazy(() => import("./pages/GuestPass"));
 const HostGuestOperations = lazy(() => import("./pages/HostGuestOperations"));
 const ProposeLanding = lazy(() => import("@/pages/ProposeLanding"));
 const CreateMoment = lazy(() => import("./pages/CreateMoment"));
+const CreateHub = lazy(() => import("./pages/CreateHub"));
 const Discover = lazy(() => import("./pages/Discover"));
 const DiscoveryDetail = lazy(() => import("./pages/DiscoveryDetail"));
 const DiscoveryAcquisitionPage = lazy(() => import("./pages/DiscoveryAcquisitionPage"));
@@ -304,7 +305,7 @@ const App = () => (
                     <Route path="/host" element={<Navigate to="/hosting" replace />} />
                     <Route path="/why-join" element={<Navigate to="/" replace />} />
                     <Route path="/propose" element={<ProposeLanding />} />
-                    <Route path="/create" element={<Navigate to="/create/moment" replace />} />
+                    <Route path="/create" element={<CreateHub />} />
                     <Route path="/create/moment" element={<ProtectedRoute><CreateMoment /></ProtectedRoute>} />
                     <Route path="/create/campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
                     <Route path="/create/bounty" element={<ProtectedRoute><CreateBounty /></ProtectedRoute>} />
@@ -413,6 +414,7 @@ const App = () => (
                     <Route path="/dashboard/activity" element={<Activity />} />
                     <Route path="/dashboard/following" element={<Following />} />
                     <Route path="/dashboard/saved" element={<Saved />} />
+                    <Route path="/progress" element={<ProtectedRoute><Activity /></ProtectedRoute>} />
                     <Route path="/activity" element={<ProtectedRoute><Activity /></ProtectedRoute>} />
                     <Route path="/saved" element={<ProtectedRoute><Saved /></ProtectedRoute>} />
                     <Route path="/dashboard/settings" element={<Settings />} />

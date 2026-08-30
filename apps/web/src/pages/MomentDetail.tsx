@@ -43,6 +43,8 @@ import { MomentLineupShowcase } from "@/components/moments/MomentLineupShowcase"
 import { Collaborator } from "@/components/moments/MomentLineupBuilder";
 import { PromoShareAction } from "@/components/promoshare/PromoShareAction";
 import { PromoShareOperator } from "@/components/promoshare/PromoShareOperator";
+import { NextMoveStrip } from "@/components/journey/NextMoveStrip";
+import { getMemberNextMove } from "@/lib/member-next-move";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
 import { PromoCardMomentLoop } from "@/components/moments/PromoCardMomentLoop";
 import { usePromoCard } from "@/hooks/usePromoCard";
@@ -1031,6 +1033,17 @@ const MomentDetail = () => {
             momentId={moment.id}
             momentName={moment.title}
           />
+        ) : user ? (
+          <div className="mb-6">
+            <NextMoveStrip
+              move={getMemberNextMove({
+                signedIn: true,
+                hasUpcomingMoment: true,
+                upcomingMomentHref: `/moments/${moment.id}`,
+                upcomingMomentName: moment.title,
+              })}
+            />
+          </div>
         ) : null}
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">

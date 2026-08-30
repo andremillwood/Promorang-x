@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { FollowButton } from "@/components/FollowButton";
 import { cultureImages } from "@/data/culture-demo";
 import { useI18n } from "@/i18n/I18nContext";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface FollowingUser {
     id: string;
@@ -474,21 +475,18 @@ const Following = () => {
                             ))}
                         </MasonryGrid>
                     ) : (
-                        <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.03] py-16 text-center">
-                            <Users className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
-                            <h3 className="font-medium text-lg mb-2">
-                                {followingUsers.length === 0 ? t("following.start") : t("following.noMoments")}
-                            </h3>
-                            <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-                                {followingUsers.length === 0 
-                                    ? t("following.emptyCopy")
-                                    : "People you follow haven't posted any upcoming moments matching this filter"
-                                }
-                            </p>
-                            <Button asChild>
-                                <Link to="/discover">{t("saved.explore")}</Link>
-                            </Button>
-                        </div>
+                        <EmptyState
+                            icon={Users}
+                            title={followingUsers.length === 0 ? t("empty.followingTitle") : t("following.noMoments")}
+                            description={followingUsers.length === 0
+                                ? t("empty.followingCopy")
+                                : "People you follow haven't posted any upcoming moments matching this filter"
+                            }
+                            unlock={followingUsers.length === 0 ? t("empty.followingUnlock") : undefined}
+                            actionLabel={followingUsers.length === 0 ? t("empty.followingCta") : t("saved.explore")}
+                            actionHref={followingUsers.length === 0 ? "/creators" : "/discover"}
+                            className="border-white/15 bg-white/[0.03] text-white"
+                        />
                     )}
                 </div>
             </main>

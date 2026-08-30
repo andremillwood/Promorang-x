@@ -73,6 +73,8 @@ import { OpsTheatreOrientationModal } from "@/components/onboarding/OpsTheatreOr
 import { BrandCaseStudies } from "@/components/brands/BrandCaseStudies";
 import { useAuth } from "@/contexts/AuthContext";
 import { PromoShareOperator } from "@/components/promoshare/PromoShareOperator";
+import { NextMoveStrip } from "@/components/journey/NextMoveStrip";
+import { getMemberNextMove } from "@/lib/member-next-move";
 
 type PublicMoment = Tables<"moments"> & { participant_count?: number | null };
 type PublicCommerceListing = Tables<"view_public_commerce_directory">;
@@ -472,6 +474,9 @@ export default function CinematicCultureHome() {
   return (
     <main className="min-h-screen bg-black text-white">
       {user ? <HomeFeedToggle /> : null}
+      <div className="container px-5 pt-3 md:px-6">
+        <NextMoveStrip move={getMemberNextMove({ signedIn: Boolean(user), canCreate: Boolean(user) })} />
+      </div>
       {user ? (
         <div className="container px-5 pt-3 md:px-6">
           <PromoShareOperator variant="rail" />
