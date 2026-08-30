@@ -4,19 +4,19 @@ import { useI18n } from "@/i18n/I18nContext";
 import type { TranslationKey } from "@/i18n/translations";
 import { intentWords, type DiscoverLensId } from "@/lib/discovery-path";
 import { cn } from "@/lib/utils";
-import cookingClass from "@/assets/moments/cooking-class.jpg";
-import jazzNight from "@/assets/moments/jazz-night.jpg";
-import coffeeMeetup from "@/assets/moment-coffee-meetup.jpg";
-import streetArt from "@/assets/moments/street-art.jpg";
+import foodFestival from "@/assets/moment-food-festival.jpg";
+import openMic from "@/assets/moments/open-mic.jpg";
+import pottery from "@/assets/moments/pottery.jpg";
+import hiking from "@/assets/moments/hiking.jpg";
 
 const STILLS: Record<
   DiscoverLensId,
   { image: string; stamp: string; tilt: string; focus: string }
 > = {
-  eat: { image: cookingClass, stamp: "01", tilt: "-rotate-[1.6deg]", focus: "object-[50%_60%]" },
-  go_out: { image: jazzNight, stamp: "02", tilt: "rotate-[1.2deg]", focus: "object-[50%_28%]" },
-  hang: { image: coffeeMeetup, stamp: "03", tilt: "-rotate-[0.8deg]", focus: "object-center" },
-  try: { image: streetArt, stamp: "04", tilt: "rotate-[1.8deg]", focus: "object-[40%_40%]" },
+  eat: { image: foodFestival, stamp: "01", tilt: "-rotate-[1.6deg]", focus: "object-[50%_55%]" },
+  go_out: { image: openMic, stamp: "02", tilt: "rotate-[1.2deg]", focus: "object-[50%_30%]" },
+  hang: { image: pottery, stamp: "03", tilt: "-rotate-[0.8deg]", focus: "object-center" },
+  try: { image: hiking, stamp: "04", tilt: "rotate-[1.8deg]", focus: "object-[45%_40%]" },
 };
 
 export const INTENT_LENSES: Array<{
@@ -65,9 +65,9 @@ export function DiscoveryIntentStage({
   const showTasteHint = inferred.length > 0 && inferred.length < INTENT_LENSES.length;
 
   return (
-    <header className="relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#0a0807] shadow-[0_30px_80px_-32px_rgba(0,0,0,.85)]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,85,0,.22),transparent_36%),radial-gradient(circle_at_92%_100%,rgba(255,180,40,.1),transparent_38%)]" />
-      <div className="pr-night-grain pointer-events-none absolute inset-0 opacity-50" />
+    <header className="relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#12100d] shadow-[0_30px_80px_-32px_rgba(0,0,0,.85)]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_14%_0%,rgba(255,170,70,.2),transparent_38%),radial-gradient(circle_at_88%_100%,rgba(80,160,140,.12),transparent_36%)]" />
+      <div className="pr-path-grain pointer-events-none absolute inset-0 opacity-45" />
 
       <div className="relative px-5 pb-5 pt-6 sm:px-8 sm:pb-6 sm:pt-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
@@ -162,7 +162,7 @@ export function DiscoveryIntentStage({
 
         <form
           className={cn(
-            "pr-night-stub mt-4 overflow-hidden rounded-[1.2rem] border",
+            "pr-path-stub mt-4 overflow-hidden rounded-[1.2rem] border",
             otherActive ? "border-orange-400 bg-orange-500/10" : "border-white/12 bg-black/45",
           )}
           onSubmit={(event) => {

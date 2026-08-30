@@ -633,14 +633,14 @@
   .pr-receipt::before { top: -1px; }
   .pr-receipt::after { bottom: -1px; transform: rotate(180deg); }
 
-  .pr-night-grain {
+  .pr-path-grain {
     background-image:
       radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.05), transparent 32%),
       repeating-radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.045) 0, rgba(255, 255, 255, 0.045) 1px, transparent 1px, transparent 3px);
     mix-blend-mode: overlay;
   }
 
-  .pr-night-stub {
+  .pr-path-stub {
     background-image: repeating-linear-gradient(
       90deg,
       transparent,
