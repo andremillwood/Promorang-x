@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { castListingDiscoveryVote, useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
 
 import { useI18n } from "@/i18n/I18nContext";
+import { discoverPathHref, readStoredDiscoverQuery } from "@/lib/discovery-path";
 
 export function DiscoveriesFeedSection() {
   const { t } = useI18n();
@@ -40,6 +41,10 @@ export function DiscoveriesFeedSection() {
   const { data: listingPolls = [] } = useListingDiscoveryPolls(6);
 
   const [activeTab, setActiveTab] = useState<"polls" | "discoveries" | "my_scout">("polls");
+  const [savedAsk, setSavedAsk] = useState("");
+  useEffect(() => {
+    setSavedAsk(readStoredDiscoverQuery());
+  }, []);
   const [polls, setPolls] = useState<DiscoveryPoll[]>(DISCOVERY_POLLS);
   useEffect(() => {
     if (listingPolls.length) {
@@ -275,13 +280,17 @@ export function DiscoveriesFeedSection() {
       {activeTab === "polls" && (
         <div className="mt-5 sm:mt-6 space-y-5">
         <Link
-          to="/discover?tab=discoveries"
+          to={discoverPathHref(savedAsk)}
           className="flex flex-col gap-2 rounded-[1.4rem] border border-orange-400/25 bg-gradient-to-r from-orange-500/15 to-transparent px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-300">{t("discover.pathTabBadge")}</p>
-            <p className="mt-1 font-serif text-lg font-bold text-white">{t("discover.pathTitle")}</p>
-            <p className="mt-1 max-w-xl text-xs leading-5 text-white/55">{t("discover.pathCopy")}</p>
+            <p className="mt-1 font-serif text-lg font-bold text-white">
+              {savedAsk ? t("discover.pathContinueAsk", { query: savedAsk }) : t("discover.pathTitle")}
+            </p>
+            <p className="mt-1 max-w-xl text-xs leading-5 text-white/55">
+              {savedAsk ? t("discover.pathContinueAskCopy") : t("discover.pathCopy")}
+            </p>
           </div>
           <span className="inline-flex items-center gap-1.5 text-xs font-black text-orange-300">
             {t("discover.pathPageTitle")} <ArrowRight className="h-3.5 w-3.5" />

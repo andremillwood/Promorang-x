@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildDiscoveryPath,
+  discoverPathHref,
   inferLensesFromPreferences,
   isDiscoverLensId,
   scorePollForLenses,
@@ -147,6 +148,15 @@ describe("buildDiscoveryPath", () => {
     }));
 
     expect(buildDiscoveryPath({ polls, lenses: ["eat"] })).toHaveLength(4);
+  });
+});
+
+describe("discoverPathHref", () => {
+  it("keeps a matching write-in on the Discover path so we can use it again", () => {
+    expect(discoverPathHref("cocktails after work")).toBe(
+      "/discover?tab=discoveries&q=cocktails%20after%20work",
+    );
+    expect(discoverPathHref("")).toBe("/discover?tab=discoveries");
   });
 });
 

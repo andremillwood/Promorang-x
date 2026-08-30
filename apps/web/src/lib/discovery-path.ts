@@ -109,6 +109,37 @@ const PREFERENCE_TO_LENS: Record<string, DiscoverLensId> = {
 
 const QUERY_STOP_WORDS = new Set(["a", "an", "and", "for", "in", "of", "on", "the", "to", "with"]);
 
+export const DISCOVER_QUERY_STORAGE_KEY = "promorang.discover.query";
+
+export function readStoredDiscoverQuery(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    return (window.localStorage.getItem(DISCOVER_QUERY_STORAGE_KEY) || "").trim();
+  } catch {
+    return "";
+  }
+}
+
+export function writeStoredDiscoverQuery(query: string) {
+  if (typeof window === "undefined") return;
+  const next = query.trim();
+  if (intentWords(next).length) {
+    window.localStorage.setItem(DISCOVER_QUERY_STORAGE_KEY, next);
+    return;
+  }
+  window.localStorage.removeItem(DISCOVER_QUERY_STORAGE_KEY);
+}
+
+export function discoveryHref(poll: { id: string; slug?: string }): string {
+  return `/discoveries/${poll.slug || poll.id}`;
+}
+
+export function discoverPathHref(query?: string | null): string {
+  const next = (query || "").trim();
+  if (!intentWords(next).length) return "/discover?tab=discoveries";
+  return `/discover?tab=discoveries&q=${encodeURIComponent(next)}`;
+}
+
 export function isDiscoverLensId(value: string | null | undefined): value is DiscoverLensId {
   return DISCOVER_LENS_IDS.includes(value as DiscoverLensId);
 }

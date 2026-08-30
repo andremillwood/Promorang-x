@@ -164,7 +164,9 @@ const Discover = () => {
 
   const handleTabChange = (tab: DiscoverTab) => {
     setActiveTab(tab);
-    setSearchParams({ tab });
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", tab);
+    setSearchParams(next);
   };
 
   const discoveryQuery = useQuery({
@@ -497,6 +499,7 @@ const Discover = () => {
                     cityName={city.name}
                     preferredCategories={preferences?.preferred_categories || []}
                     initialLens={isDiscoverLensId(lensParam) ? lensParam : null}
+                    initialQuery={searchParams.get("q")}
                     onQuestionCreated={(newQ) => {
                       setLivePolls((prev) => [newQ as DiscoveryPoll, ...prev]);
                     }}

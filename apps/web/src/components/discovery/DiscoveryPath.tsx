@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight, Compass, PenLine, SkipForward, Utensils, MoonStar, Users, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { ArrowRight, Compass, PenLine, SkipForward, Utensils, MoonStar, Users, Sparkles, X } from "lucide-react";
 import { NightTrail, PaperReceipt } from "@/components/promorang/SignatureObjects";
 import { TactileButton } from "@/components/ui/TactileButton";
 import { DiscoveryWidget } from "@/components/radar/DiscoveryWidget";
@@ -10,17 +10,19 @@ import type { TranslationKey } from "@/i18n/translations";
 import type { DiscoveryPoll } from "@/data/discoveriesData";
 import {
   buildDiscoveryPath,
+  DISCOVER_QUERY_STORAGE_KEY,
+  discoveryHref,
   inferLensesFromPreferences,
   intentMatchCount,
   intentWords,
   isDiscoverLensId,
+  writeStoredDiscoverQuery,
   type DiscoverLensId,
   type PathWhy,
 } from "@/lib/discovery-path";
 import { cn } from "@/lib/utils";
 
 const LENS_STORAGE_KEY = "promorang.discover.lens";
-const QUERY_STORAGE_KEY = "promorang.discover.query";
 const VOTED_STORAGE_KEY = "promorang.discover.voted";
 const SKIPPED_STORAGE_KEY = "promorang.discover.skipped";
 
@@ -82,6 +84,7 @@ type DiscoveryPathProps = {
   cityName: string;
   preferredCategories?: string[];
   initialLens?: string | null;
+  initialQuery?: string | null;
   onQuestionCreated?: (poll: DiscoveryPoll) => void;
 };
 
@@ -90,11 +93,15 @@ export function DiscoveryPath({
   cityName,
   preferredCategories = [],
   initialLens = null,
+  initialQuery = null,
   onQuestionCreated,
 }: DiscoveryPathProps) {
   const { t } = useI18n();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentRef = useRef<HTMLElement | null>(null);
   const inferred = inferLensesFromPreferences(preferredCategories);
   const [lens, setLens] = useState<DiscoverLensId | null>(() => {
+    if (intentWords(initialQuery).length) return null;
     if (isDiscoverLensId(initialLens)) return initialLens;
     if (typeof window !== "undefined") {
       const stored = window.localStorage.getItem(LENS_STORAGE_KEY);
@@ -103,28 +110,58 @@ export function DiscoveryPath({
     return null;
   });
   const [query, setQuery] = useState(() => {
+    if (intentWords(initialQuery).length) return (initialQuery || "").trim();
     if (typeof window === "undefined") return "";
-    return window.localStorage.getItem(QUERY_STORAGE_KEY) || "";
+    return window.localStorage.getItem(DISCOVER_QUERY_STORAGE_KEY) || "";
   });
   const [draftQuery, setDraftQuery] = useState(query);
   const [votedIds, setVotedIds] = useState<string[]>(() => readList(VOTED_STORAGE_KEY));
   const [skippedIds, setSkippedIds] = useState<string[]>(() => readList(SKIPPED_STORAGE_KEY));
   const [justVotedId, setJustVotedId] = useState<string | null>(null);
   const [browseOpen, setBrowseOpen] = useState(false);
+  const [intentTick, setIntentTick] = useState(0);
+
+  const syncQueryParam = (nextQuery: string, nextLens: DiscoverLensId | null) => {
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", "discoveries");
+    if (intentWords(nextQuery).length) {
+      next.set("q", nextQuery.trim());
+      next.delete("lens");
+    } else {
+      next.delete("q");
+      if (nextLens) next.set("lens", nextLens);
+      else next.delete("lens");
+    }
+    setSearchParams(next, { replace: true });
+  };
 
   useEffect(() => {
-    if (isDiscoverLensId(initialLens)) {
+    if (intentWords(initialQuery).length) {
+      const next = (initialQuery || "").trim();
+      setLens(null);
+      setQuery(next);
+      setDraftQuery(next);
+    }
+  }, [initialQuery]);
+
+  useEffect(() => {
+    if (isDiscoverLensId(initialLens) && !intentWords(initialQuery).length) {
       setLens(initialLens);
       setQuery("");
     }
-  }, [initialLens]);
+  }, [initialLens, initialQuery]);
 
   useEffect(() => {
     if (lens) {
       window.localStorage.setItem(LENS_STORAGE_KEY, lens);
-      window.localStorage.removeItem(QUERY_STORAGE_KEY);
+      writeStoredDiscoverQuery("");
     }
   }, [lens]);
+
+  useEffect(() => {
+    if (!intentTick) return;
+    currentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [intentTick]);
 
   const namedIntent = Boolean(lens || intentWords(query).length);
   const otherActive = !lens && intentWords(query).length > 0;
@@ -161,6 +198,9 @@ export function DiscoveryPath({
     setJustVotedId(null);
     setSkippedIds([]);
     writeList(SKIPPED_STORAGE_KEY, []);
+    writeStoredDiscoverQuery("");
+    syncQueryParam("", next);
+    setIntentTick((tick) => tick + 1);
   };
 
   const chooseQuery = (value: string) => {
@@ -173,7 +213,17 @@ export function DiscoveryPath({
     setSkippedIds([]);
     writeList(SKIPPED_STORAGE_KEY, []);
     window.localStorage.removeItem(LENS_STORAGE_KEY);
-    window.localStorage.setItem(QUERY_STORAGE_KEY, next);
+    writeStoredDiscoverQuery(next);
+    syncQueryParam(next, null);
+    setIntentTick((tick) => tick + 1);
+  };
+
+  const clearQuery = () => {
+    setQuery("");
+    setDraftQuery("");
+    setJustVotedId(null);
+    writeStoredDiscoverQuery("");
+    syncQueryParam("", null);
   };
 
   const markVoted = (pollId: string) => {
@@ -280,6 +330,19 @@ export function DiscoveryPath({
               {t("discover.pathOtherCta")}
             </TactileButton>
           </div>
+          {otherActive ? (
+            <p className="mt-3 inline-flex items-center gap-2 text-xs text-orange-200">
+              <span>{t("discover.pathUsing", { query })}</span>
+              <button
+                type="button"
+                onClick={clearQuery}
+                className="inline-flex items-center gap-1 font-bold text-white/60 hover:text-white"
+              >
+                <X className="h-3 w-3" />
+                {t("discover.pathClearAsk")}
+              </button>
+            </p>
+          ) : null}
         </form>
       </header>
 
@@ -295,16 +358,27 @@ export function DiscoveryPath({
           ]}
         />
       ) : current ? (
-        <section className="space-y-5" aria-labelledby="discover-current-move">
+        <section ref={currentRef} className="space-y-5 scroll-mt-24" aria-labelledby="discover-current-move">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200/80">
-                {t("discover.pathPosition", { current: 1, total: path.length })}
+                {otherActive
+                  ? t(votedIds.includes(current.poll.id) ? "discover.pathUsedEyebrow" : "discover.pathHitEyebrow")
+                  : t("discover.pathPosition", { current: 1, total: path.length })}
               </p>
               <h3 id="discover-current-move" className="mt-1 font-serif text-2xl font-bold text-white">
-                {t("discover.pathCurrent")}
+                {otherActive
+                  ? t(votedIds.includes(current.poll.id) ? "discover.pathUsedTitle" : "discover.pathHitTitle")
+                  : t("discover.pathCurrent")}
               </h3>
-              <p className="mt-1 max-w-xl text-sm leading-6 text-white/55">{whyCopy(current.why, t)}</p>
+              <p className="mt-1 max-w-xl text-sm leading-6 text-white/55">
+                {otherActive && votedIds.includes(current.poll.id)
+                  ? t("discover.pathUsedCopy", {
+                      query,
+                      perk: current.poll.targetUnlockPerk || t("discover.pathFallbackPerk"),
+                    })
+                  : whyCopy(current.why, t)}
+              </p>
             </div>
             <button
               type="button"
@@ -341,11 +415,32 @@ export function DiscoveryPath({
                 footer={t("discover.pathReceiptFooter", { city: cityName })}
               />
               <div className="space-y-3">
-                <p className="text-sm leading-6 text-white/60">{t("discover.pathAfterVote")}</p>
-                <TactileButton variant="primary" onClick={continuePath}>
-                  {upcoming[0] ? t("discover.pathContinue") : t("discover.pathFinish")}
-                  <ArrowRight className="h-4 w-4" />
-                </TactileButton>
+                <p className="text-sm leading-6 text-white/60">
+                  {otherActive ? t("discover.pathUsedNext") : t("discover.pathAfterVote")}
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <TactileButton variant="primary" asChild>
+                    <Link to={discoveryHref(current.poll)}>
+                      {t("discover.pathOpenMatch")}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </TactileButton>
+                  {upcoming[0] ? (
+                    <TactileButton variant="obsidian" onClick={continuePath}>
+                      {t("discover.pathContinue")}
+                    </TactileButton>
+                  ) : current.poll.connectedScene?.slug ? (
+                    <TactileButton variant="obsidian" asChild>
+                      <Link to={`/scenes/${current.poll.connectedScene.slug}`}>
+                        {t("discover.pathOpenScene", { scene: current.poll.connectedScene.title })}
+                      </Link>
+                    </TactileButton>
+                  ) : (
+                    <TactileButton variant="obsidian" asChild>
+                      <Link to="/discover?tab=perks">{t("discover.pathDonePerks")}</Link>
+                    </TactileButton>
+                  )}
+                </div>
               </div>
             </div>
           ) : null}
