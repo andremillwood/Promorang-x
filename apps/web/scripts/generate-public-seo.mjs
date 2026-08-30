@@ -97,8 +97,9 @@ async function emit(page, locale) {
   await writeFile(destination, inject(page, locale));
 }
 
-const staticUrls = ["/", "/discover", "/discover/moments", "/discover/venues", "/discover/content", "/scenes", "/brands", "/creators", "/merchants", "/for-communities", "/for-brands", "/for-creators", "/how-it-works", "/campaigns/arla-whip-and-cook", "/proposals/arla-pro"];
+const staticUrls = ["/", "/discover", "/discover/moments", "/discover/venues", "/discover/content", "/scenes", "/brands", "/creators", "/merchants", "/for-communities", "/for-brands", "/for-creators", "/how-it-works", "/promocard", "/campaigns/arla-whip-and-cook", "/proposals/arla-pro"];
 const pages = [
+  { path: "/promocard", title: "PromoCard", description: "PromoCard is promotional spending value at participating shops. Apply it at checkout, pay the rest normally, then refill it by showing up.", schema: { "@context": "https://schema.org", "@type": "WebPage", name: "PromoCard", url: `${site}/promocard` } },
   { path: "/discover", title: "Discover what is happening around you", description: "Explore local Moments, Scenes, trusted Discoveries, venues, and creator stories on Promorang.", schema: { "@context": "https://schema.org", "@type": "CollectionPage", name: "Discover on Promorang", url: `${site}/discover` } },
   { path: "/discover/moments", title: "Discover local Moments", description: "Find upcoming events and real-world experiences on Promorang.", schema: { "@context": "https://schema.org", "@type": "CollectionPage", name: "Promorang Moments", url: `${site}/discover/moments` } },
   { path: "/discover/venues", title: "Discover local venues", description: "Explore venues and the Moments happening at them on Promorang.", schema: { "@context": "https://schema.org", "@type": "CollectionPage", name: "Promorang Venues", url: `${site}/discover/venues` } },
