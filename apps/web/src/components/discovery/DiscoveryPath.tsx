@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Compass, SkipForward, Utensils, MoonStar, Users, Sparkles } from "lucide-react";
+import { ArrowRight, Compass, PenLine, SkipForward, Utensils, MoonStar, Users, Sparkles } from "lucide-react";
 import { NightTrail, PaperReceipt } from "@/components/promorang/SignatureObjects";
 import { TactileButton } from "@/components/ui/TactileButton";
 import { DiscoveryWidget } from "@/components/radar/DiscoveryWidget";
@@ -11,6 +11,8 @@ import type { DiscoveryPoll } from "@/data/discoveriesData";
 import {
   buildDiscoveryPath,
   inferLensesFromPreferences,
+  intentMatchCount,
+  intentWords,
   isDiscoverLensId,
   type DiscoverLensId,
   type PathWhy,
@@ -18,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const LENS_STORAGE_KEY = "promorang.discover.lens";
+const QUERY_STORAGE_KEY = "promorang.discover.query";
 const VOTED_STORAGE_KEY = "promorang.discover.voted";
 const SKIPPED_STORAGE_KEY = "promorang.discover.skipped";
 
@@ -68,6 +71,9 @@ function whyCopy(
   if (why.kind === "taste") {
     return t("discover.pathWhyTaste", { lens: lensLabel, city: why.city });
   }
+  if (why.kind === "query") {
+    return t("discover.pathWhyQuery", { query: why.query, city: why.city });
+  }
   return t("discover.pathWhyCity", { city: why.city, perk });
 }
 
@@ -96,30 +102,50 @@ export function DiscoveryPath({
     }
     return null;
   });
+  const [query, setQuery] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return window.localStorage.getItem(QUERY_STORAGE_KEY) || "";
+  });
+  const [draftQuery, setDraftQuery] = useState(query);
   const [votedIds, setVotedIds] = useState<string[]>(() => readList(VOTED_STORAGE_KEY));
   const [skippedIds, setSkippedIds] = useState<string[]>(() => readList(SKIPPED_STORAGE_KEY));
   const [justVotedId, setJustVotedId] = useState<string | null>(null);
   const [browseOpen, setBrowseOpen] = useState(false);
 
   useEffect(() => {
-    if (isDiscoverLensId(initialLens)) setLens(initialLens);
+    if (isDiscoverLensId(initialLens)) {
+      setLens(initialLens);
+      setQuery("");
+    }
   }, [initialLens]);
 
   useEffect(() => {
-    if (lens) window.localStorage.setItem(LENS_STORAGE_KEY, lens);
+    if (lens) {
+      window.localStorage.setItem(LENS_STORAGE_KEY, lens);
+      window.localStorage.removeItem(QUERY_STORAGE_KEY);
+    }
   }, [lens]);
+
+  const namedIntent = Boolean(lens || intentWords(query).length);
+  const otherActive = !lens && intentWords(query).length > 0;
+  const showTasteHint = inferred.length > 0 && inferred.length < LENSES.length;
 
   const path = useMemo(
     () =>
       buildDiscoveryPath({
         polls,
         lenses: lens ? [lens] : [],
+        query,
         votedIds: votedIds.filter((id) => id !== justVotedId),
         skippedIds,
         cityName,
         limit: 4,
       }),
-    [polls, lens, votedIds, skippedIds, cityName, justVotedId],
+    [polls, lens, query, votedIds, skippedIds, cityName, justVotedId],
+  );
+
+  const hasLiveMatch = polls.some(
+    (poll) => intentMatchCount(poll, lens ? [lens] : [], query) > 0,
   );
 
   const current = path[0] || null;
@@ -130,9 +156,24 @@ export function DiscoveryPath({
 
   const chooseLens = (next: DiscoverLensId) => {
     setLens(next);
+    setQuery("");
+    setDraftQuery("");
     setJustVotedId(null);
     setSkippedIds([]);
     writeList(SKIPPED_STORAGE_KEY, []);
+  };
+
+  const chooseQuery = (value: string) => {
+    const next = value.trim();
+    if (!intentWords(next).length) return;
+    setLens(null);
+    setQuery(next);
+    setDraftQuery(next);
+    setJustVotedId(null);
+    setSkippedIds([]);
+    writeList(SKIPPED_STORAGE_KEY, []);
+    window.localStorage.removeItem(LENS_STORAGE_KEY);
+    window.localStorage.setItem(QUERY_STORAGE_KEY, next);
   };
 
   const markVoted = (pollId: string) => {
@@ -169,7 +210,7 @@ export function DiscoveryPath({
         </h2>
         <p className="mt-3 max-w-xl text-sm leading-6 text-white/60">{t("discover.pathCopy")}</p>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <div className={cn("mt-6 grid gap-3", namedIntent ? "grid-cols-2 sm:grid-cols-4" : "sm:grid-cols-2")}>
           {LENSES.map((item) => {
             const Icon = item.icon;
             const active = lens === item.id;
@@ -180,7 +221,8 @@ export function DiscoveryPath({
                 onClick={() => chooseLens(item.id)}
                 aria-pressed={active}
                 className={cn(
-                  "flex min-h-[5.5rem] items-start gap-3 rounded-[1.3rem] border px-4 py-3.5 text-left transition",
+                  "flex items-start gap-3 rounded-[1.3rem] border text-left transition",
+                  namedIntent ? "min-h-[3.4rem] px-3 py-2.5" : "min-h-[5.5rem] px-4 py-3.5",
                   active
                     ? "border-orange-400 bg-orange-500 text-black shadow-[0_0_28px_rgba(255,85,0,.28)]"
                     : "border-white/10 bg-black/40 text-white hover:border-white/25 hover:bg-white/[0.05]",
@@ -188,26 +230,60 @@ export function DiscoveryPath({
               >
                 <span
                   className={cn(
-                    "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+                    "mt-0.5 flex shrink-0 items-center justify-center rounded-full",
+                    namedIntent ? "h-7 w-7" : "h-9 w-9",
                     active ? "bg-black text-orange-300" : "bg-white/10 text-orange-300",
                   )}
                 >
                   <Icon className="h-4 w-4" />
                 </span>
                 <span>
-                  <span className="block font-serif text-lg font-bold">{t(item.titleKey)}</span>
-                  <span className={cn("mt-0.5 block text-xs leading-5", active ? "text-black/70" : "text-white/50")}>
-                    {t(item.descKey)}
-                    {inferred.includes(item.id) ? ` · ${t("discover.pathFromTaste")}` : ""}
+                  <span className={cn("block font-serif font-bold", namedIntent ? "text-sm" : "text-lg")}>
+                    {t(item.titleKey)}
                   </span>
+                  {namedIntent ? null : (
+                    <span className={cn("mt-0.5 block text-xs leading-5", active ? "text-black/70" : "text-white/50")}>
+                      {t(item.descKey)}
+                      {showTasteHint && inferred.includes(item.id) ? ` · ${t("discover.pathFromTaste")}` : ""}
+                    </span>
+                  )}
                 </span>
               </button>
             );
           })}
         </div>
+
+        <form
+          className={cn(
+            "mt-3 rounded-[1.3rem] border px-4 py-3",
+            otherActive ? "border-orange-400 bg-orange-500/10" : "border-white/10 bg-black/30",
+          )}
+          onSubmit={(event) => {
+            event.preventDefault();
+            chooseQuery(draftQuery);
+          }}
+        >
+          <label htmlFor="discover-intent" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-orange-300">
+            <PenLine className="h-3.5 w-3.5" />
+            {t("discover.pathOtherTitle")}
+          </label>
+          <p className="mt-1 text-xs leading-5 text-white/50">{t("discover.pathOtherCopy")}</p>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <input
+              id="discover-intent"
+              value={draftQuery}
+              onChange={(event) => setDraftQuery(event.target.value)}
+              placeholder={t("discover.pathOtherPlaceholder")}
+              className="min-h-11 flex-1 rounded-xl border border-white/15 bg-black/60 px-3 text-sm text-white placeholder:text-white/30 focus:border-orange-400 focus:outline-none"
+            />
+            <TactileButton type="submit" variant="primary" disabled={!intentWords(draftQuery).length}>
+              {t("discover.pathOtherCta")}
+            </TactileButton>
+          </div>
+        </form>
       </header>
 
-      {!lens ? (
+      {!namedIntent ? (
         <NightTrail
           eyebrow={t("discover.pathHowEyebrow")}
           title={t("discover.pathHowTitle")}
@@ -293,24 +369,55 @@ export function DiscoveryPath({
         </section>
       ) : (
         <section className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-6 sm:p-8">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">
-            {t("discover.pathDoneEyebrow")}
-          </p>
-          <h3 className="mt-2 font-serif text-2xl font-bold text-white">{t("discover.pathDoneTitle")}</h3>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-white/55">
-            {t("discover.pathDoneCopy", { city: cityName })}
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <TactileButton variant="primary" asChild>
-              <Link to="/discover?tab=perks">
-                {t("discover.pathDonePerks")}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </TactileButton>
-            <TactileButton variant="obsidian" onClick={() => setBrowseOpen(true)}>
-              {t("discover.pathBrowseRest")}
-            </TactileButton>
-          </div>
+          {hasLiveMatch ? (
+            <>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">
+                {t("discover.pathDoneEyebrow")}
+              </p>
+              <h3 className="mt-2 font-serif text-2xl font-bold text-white">{t("discover.pathDoneTitle")}</h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/55">
+                {t("discover.pathDoneCopy", { city: cityName })}
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <TactileButton variant="primary" asChild>
+                  <Link to="/discover?tab=perks">
+                    {t("discover.pathDonePerks")}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </TactileButton>
+                <TactileButton variant="obsidian" onClick={() => setBrowseOpen(true)}>
+                  {t("discover.pathBrowseRest")}
+                </TactileButton>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">
+                {t("discover.pathMissEyebrow")}
+              </p>
+              <h3 className="mt-2 font-serif text-2xl font-bold text-white">{t("discover.pathMissTitle")}</h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/55">
+                {t("discover.pathMissCopy", {
+                  city: cityName,
+                  want: query || (lens ? t(LENSES.find((item) => item.id === lens)?.titleKey || "discover.pathLensTry") : t("discover.pathOtherTitle")),
+                })}
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <AskQuestionModal
+                  trigger={
+                    <TactileButton variant="primary">
+                      {t("discover.pathMissAsk")}
+                      <ArrowRight className="h-4 w-4" />
+                    </TactileButton>
+                  }
+                  onQuestionCreated={onQuestionCreated}
+                />
+                <TactileButton variant="obsidian" onClick={() => setBrowseOpen(true)}>
+                  {t("discover.pathMissBrowse")}
+                </TactileButton>
+              </div>
+            </>
+          )}
         </section>
       )}
 

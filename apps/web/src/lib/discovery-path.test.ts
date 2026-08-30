@@ -99,7 +99,7 @@ describe("buildDiscoveryPath", () => {
     expect(path).toEqual([]);
   });
 
-  it("falls back to city-closest polls when nothing matches the lens", () => {
+  it("returns no path when a named lens matches nothing live", () => {
     const unknown: PathablePoll = {
       id: "other",
       question: "Which mural should get the next wall?",
@@ -109,15 +109,35 @@ describe("buildDiscoveryPath", () => {
       thresholdForMoment: 20,
     };
 
+    expect(
+      buildDiscoveryPath({
+        polls: [unknown],
+        lenses: ["eat"],
+        cityName: "Kingston",
+      }),
+    ).toEqual([]);
+  });
+
+  it("ranks a write-in intent over the four starter lenses", () => {
     const path = buildDiscoveryPath({
-      polls: [unknown],
-      lenses: ["eat"],
+      polls: [eatPoll, nightPoll],
+      lenses: [],
+      query: "cocktails after work",
       cityName: "Kingston",
     });
 
-    expect(path).toHaveLength(1);
-    expect(path[0].why.kind).toBe("city");
-    expect(path[0].why.city).toBe("Kingston");
+    expect(path.map((item) => item.poll.id)).toEqual(["night"]);
+    expect(path[0].why.kind).toBe("query");
+  });
+
+  it("returns no path when a write-in matches nothing live", () => {
+    expect(
+      buildDiscoveryPath({
+        polls: [eatPoll, nightPoll],
+        lenses: [],
+        query: "hiking with kids",
+      }),
+    ).toEqual([]);
   });
 
   it("keeps the path short", () => {
@@ -136,5 +156,6 @@ describe("whyForPoll", () => {
     expect(why.kind).toBe("close");
     expect(why.lens).toBe("eat");
     expect(why.perk).toContain("Jerk");
+    expect(why.query).toBe("");
   });
 });
