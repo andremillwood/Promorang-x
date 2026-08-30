@@ -68,6 +68,7 @@ const Header = () => {
   const isPublicHome = location.pathname === "/";
   const isCinematicPublicPage =
     isPublicHome ||
+    location.pathname === "/today" ||
     location.pathname === "/how-it-works" ||
     location.pathname.startsWith("/economy") ||
     location.pathname === "/growth" ||
@@ -115,7 +116,7 @@ const Header = () => {
           {/* 1. Left Zone: Brand Logo & Desktop Nav */}
           <div className="flex items-center gap-3 xl:gap-6 shrink-0">
             <Link
-              to="/"
+              to={user ? "/today" : "/"}
               className="flex items-center gap-2 shrink-0 active:scale-95 transition-all group focus:outline-none"
             >
               <div className="h-8 w-8 rounded-xl p-0.5 flex items-center justify-center transition-transform group-hover:scale-105 sm:h-9 sm:w-9">

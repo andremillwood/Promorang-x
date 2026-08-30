@@ -76,6 +76,7 @@ const HostGuestOperations = lazy(() => import("./pages/HostGuestOperations"));
 const ProposeLanding = lazy(() => import("@/pages/ProposeLanding"));
 const CreateMoment = lazy(() => import("./pages/CreateMoment"));
 const CreateHub = lazy(() => import("./pages/CreateHub"));
+const Today = lazy(() => import("./pages/Today"));
 const Discover = lazy(() => import("./pages/Discover"));
 const DiscoveryDetail = lazy(() => import("./pages/DiscoveryDetail"));
 const DiscoveryAcquisitionPage = lazy(() => import("./pages/DiscoveryAcquisitionPage"));
@@ -305,6 +306,7 @@ const App = () => (
                     <Route path="/host" element={<Navigate to="/hosting" replace />} />
                     <Route path="/why-join" element={<Navigate to="/" replace />} />
                     <Route path="/propose" element={<ProposeLanding />} />
+                    <Route path="/today" element={<Today />} />
                     <Route path="/create" element={<CreateHub />} />
                     <Route path="/create/moment" element={<ProtectedRoute><CreateMoment /></ProtectedRoute>} />
                     <Route path="/create/campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />

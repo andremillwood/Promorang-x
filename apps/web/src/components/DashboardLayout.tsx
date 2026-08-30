@@ -95,6 +95,7 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/content-drops", label: "Content Drops", description: "Creator content wrapped in attribution, distribution incentives, and contributor rank." },
   { match: "/scenes", label: "Scenes", description: "The rooms, rituals, creators, and places that turn moments into belonging." },
   { match: "/creators", label: "Creators", description: "Discover the people shaping culture and carrying its stories forward." },
+  { match: "/today", label: "Today", description: "The next move that needs you, then anything waiting or close to unlocking." },
   { match: "/discover", label: "Discover", description: "Browse moments, venues, rewards, and content worth acting on." },
   { match: "/shop", label: "Shop", description: "Browse verified merchant products, services, offers, and clearly separated sample previews." },
   { match: "/create", label: "Create", description: "Launch a Moment, contribution prompt, or activation with clear human and commercial return." },
@@ -154,7 +155,7 @@ const isNavItemActive = (pathname: string, href: string, search: string) => {
 };
 
 const canonicalPrimaryNav: NavItem[] = [
-  { icon: Home, label: "Today", href: "/", group: "primary" },
+  { icon: Home, label: "Today", href: "/today", group: "primary" },
   { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
   { icon: Plus, label: "Create", href: "/create", group: "primary" },
   { icon: Activity, label: "Progress", href: "/progress", group: "primary" },
@@ -170,7 +171,7 @@ const composeRoleNav = (items: NavItem[]): NavItem[] => {
 
 const roleNavItems: Record<UserRole, NavItem[]> = {
   participant: [
-    { icon: Home, label: "Today", href: "/dashboard", group: "primary" },
+    { icon: Home, label: "Today", href: "/today", group: "primary" },
     { icon: Compass, label: "Explore & Discover", href: "/discover", group: "primary" },
     { icon: Gift, label: "Rewards & Deals", href: "/rewards", group: "primary" },
     { icon: Coins, label: "Save & Win Vaults", href: "/nodes", group: "primary" },
@@ -297,7 +298,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const manageNavItems = navItems.filter((item) => item.group === "manage");
   const utilityNavItems = navItems.filter((item) => item.group === "utility");
   const roleInfo = safeRoleInfo(safeRole);
-  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/progress", "/shop", "/wallet", "/admin", "/organizer"];
+  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/today", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/progress", "/shop", "/wallet", "/admin", "/organizer"];
   const isImmersiveProductRoute = immersiveProductRoutes.some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
@@ -316,7 +317,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
   const mobileNavItems: Record<UserRole, (NavItem & { accent?: boolean })[]> = {
     participant: [
-      { icon: Home, label: "Today", href: "/dashboard" },
+      { icon: Home, label: "Today", href: "/today" },
       { icon: Search, label: "Discover", href: "/discover" },
       { icon: Gift, label: "Draws", href: "/promoshare" },
       { icon: Users, label: "Scenes", href: "/scenes" },
@@ -405,7 +406,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
         <div className="flex flex-col h-full relative z-10">
           {/* Sidebar Header: Logo & Branding */}
           <div className={cn("relative flex h-20 items-center border-b border-border/70 px-8", sidebarCollapsed && "lg:justify-center lg:px-3")}>
-            <Link to="/" className="flex items-center gap-3 active:scale-95 transition-transform group">
+            <Link to="/today" className="flex items-center gap-3 active:scale-95 transition-transform group">
               <div className="h-10 w-10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <img src={logo} alt="Promorang" className="h-10 w-10 object-contain rounded-xl" />
               </div>
