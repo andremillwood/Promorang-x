@@ -7,40 +7,32 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  ArrowRight,
   Calendar,
   Compass,
   Gift,
-  HelpCircle,
-  LayoutGrid,
-  Map,
   MapPin,
   Plus,
   Radio,
-  Search,
   Sparkles,
   Store,
   Ticket,
   Users,
-  Zap,
-  Tag,
   Share2,
 } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
-import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModal";
 import { PromorangMap, MapMarkerItem } from "@/components/PromorangMap";
 import { StoryGamificationRail } from "@/components/StoryGamificationRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { DiscoverRightRail } from "@/components/discovery/DiscoverRightRail";
-import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
 import { useMarket } from "@/contexts/MarketContext";
 import { getCityHubCenter, getDefaultCityHub, matchesCityHub } from "@/lib/city-hubs";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getMomentStatus } from "@/lib/moment-recurrence";
-import { DiscoveryWidget, DiscoveryProps } from "@/components/radar/DiscoveryWidget";
-import { AskQuestionModal } from "@/components/discovery/AskQuestionModal";
-import { DISCOVERY_POLLS, CURATED_DISCOVERIES } from "@/data/discoveriesData";
+import { DISCOVERY_POLLS, type DiscoveryPoll } from "@/data/discoveriesData";
+import { DiscoveryPath } from "@/components/discovery/DiscoveryPath";
+import { isDiscoverLensId } from "@/lib/discovery-path";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { VERIFIED_VENUES } from "@/data/venuesData";
 import { usePerks } from "@/hooks/usePerks";
 import { PerkCard } from "@/components/perks/PerkCard";
@@ -88,7 +80,6 @@ const CURATED_COORDINATES: Record<string, { lat: number; lng: number }> = {
 
 const DEFAULT_DISCOVER_CENTER = { lat: 18.0179, lng: -76.8099 };
 
-const DISCOVERY_QUESTIONS_FEED: DiscoveryProps[] = [...DISCOVERY_POLLS];
 
 const formatMomentDate = (value?: string | null) => {
   if (!value) return "TBA";
@@ -145,14 +136,18 @@ const HubEmptyState = ({
 type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
 
 const Discover = () => {
+  const { t } = useI18n();
   const { city, setCity } = useMarket();
+  const { data: preferences } = useUserPreferences();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as DiscoverTab) || "discoveries";
+  const lensParam = searchParams.get("lens");
 
   const [activeTab, setActiveTab] = useState<DiscoverTab>(initialTab);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
+  const [livePolls, setLivePolls] = useState<DiscoveryPoll[]>(DISCOVERY_POLLS);
 
   const [wheelOpen, setWheelOpen] = useState(false);
   const [streakOpen, setStreakOpen] = useState(false);
@@ -256,17 +251,16 @@ const Discover = () => {
   );
   const hubDiscoveries = useMemo(
     () =>
-      DISCOVERY_QUESTIONS_FEED.filter((q) => {
-        const poll = q as { question?: string; description?: string; targetUnlockPerk?: string; tags?: string[] };
-        return matchesCityHub(
+      livePolls.filter((poll) =>
+        matchesCityHub(
           {
             title: poll.question,
             description: [poll.description, poll.targetUnlockPerk, ...(poll.tags || [])].filter(Boolean).join(" "),
           },
           city,
-        );
-      }),
-    [city],
+        ),
+      ),
+    [livePolls, city],
   );
   const hubPerks = useMemo(
     () =>
@@ -384,10 +378,14 @@ const Discover = () => {
               <span className="text-xs text-white/50 font-semibold">{city.name}</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-              Discover What's Worth Doing & Choosing
+              {activeTab === "discoveries"
+                ? t("discover.pathPageTitle")
+                : "Discover What's Worth Doing & Choosing"}
             </h1>
             <p className="text-white/60 text-xs sm:text-sm max-w-xl">
-              Answer signals, unlock partner Perks, RSVP to live moments, or promote them to earn PromoShare draw tickets.
+              {activeTab === "discoveries"
+                ? t("discover.pathPageCopy")
+                : "Answer one relevant choice, unlock partner Perks, RSVP to live moments, or share them to earn draw tickets."}
             </p>
           </div>
 
@@ -416,10 +414,10 @@ const Discover = () => {
                 : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <HelpCircle className="h-4 w-4 text-amber-400" />
-            <span>1. Discoveries & Polls</span>
+            <Compass className="h-4 w-4 text-amber-400" />
+            <span>{t("discover.pathTab")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-bold">
-              Acquire Signal
+              {t("discover.pathTabBadge")}
             </span>
           </button>
 
@@ -491,51 +489,22 @@ const Discover = () => {
         <div className="flex gap-8 items-start">
           <div className="flex-1 space-y-8 min-w-0">
 
-            {/* TAB 1: DISCOVERIES & COMMUNITY DEMAND SIGNALS (PARTICIPANT WEDGE) */}
             {activeTab === "discoveries" && (
               <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-                  <div>
-                    <span className="px-3 py-1 bg-gradient-to-r from-primary/20 to-amber-500/20 text-primary border border-primary/40 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm inline-flex">
-                      <Zap className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                      ⚡ Demand Signals & City Unlock Quests
-                    </span>
-                    <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">
-                      Vote, Charge the City Meter & Unlock Secret Perks
-                    </h3>
-                    <p className="text-xs text-white/60">
-                      Participate in live choices. Your vote instantly awards +25 PromoPoints, +1 PromoShare Draw Ticket, and surfaces exclusive partner loot.
-                    </p>
-                  </div>
-
-                  <AskQuestionModal
-                    trigger={
-                      <Button className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs shadow-lg shadow-primary/20 flex items-center gap-1.5 px-4 h-10 shrink-0">
-                        <Plus className="w-4 h-4" />
-                        <span>Launch a Signal</span>
-                      </Button>
-                    }
+                {hubDiscoveries.length > 0 ? (
+                  <DiscoveryPath
+                    polls={hubDiscoveries}
+                    cityName={city.name}
+                    preferredCategories={preferences?.preferred_categories || []}
+                    initialLens={isDiscoverLensId(lensParam) ? lensParam : null}
                     onQuestionCreated={(newQ) => {
-                      DISCOVERY_QUESTIONS_FEED.unshift(newQ);
+                      setLivePolls((prev) => [newQ as DiscoveryPoll, ...prev]);
                     }}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {hubDiscoveries.map((q) => (
-                    <DiscoveryWidget
-                      key={q.id}
-                      {...q}
-                      onVote={(qId, optId) => {
-                        console.log("Voted on discovery:", qId, optId);
-                      }}
-                    />
-                  ))}
-                </div>
-                {hubDiscoveries.length === 0 && (
+                ) : (
                   <HubEmptyState
                     cityName={city.name}
-                    noun="discovery signals"
+                    noun="choices for you"
                     onShowLiveHub={() => setCity(getDefaultCityHub())}
                   />
                 )}
