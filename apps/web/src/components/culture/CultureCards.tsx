@@ -1,5 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { Bell, Bookmark, Flame, Home, MapPin, Search, User, WalletCards } from "lucide-react";
+import { Archive, Bookmark, Compass, Flame, Home, MapPin, Plus, Radio } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
+import { destinationHrefForSession, isPrimaryDestinationActive, PRIMARY_DESTINATIONS } from "@/lib/primary-destinations";
+import { useAuth } from "@/contexts/AuthContext";
 import { ContentProvenanceBadge } from "@/components/content/ContentProvenance";
 
 type CultureEvent = {
@@ -144,25 +147,30 @@ export function CreatorCard({ creator }: { creator: Creator }) {
   );
 }
 
+const MOBILE_DEST_ICONS = {
+  today: Home,
+  discover: Compass,
+  create: Plus,
+  progress: Radio,
+  vault: Archive,
+} as const;
+
 export function MobileBottomNav() {
   const location = useLocation();
-  const items = [
-    { label: "Home", icon: Home, href: "/" },
-    { label: "PromoCard", icon: WalletCards, href: "/wallet" },
-    { label: "Discover", icon: Search, href: "/discover" },
-    { label: "Inbox", icon: Bell, href: "/notifications" },
-    { label: "Profile", icon: User, href: "/profile" },
-  ];
+  const { t } = useI18n();
+  const { user } = useAuth();
 
   return (
-    <nav aria-label="Primary mobile navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/95 px-safe pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl md:hidden">
+    <nav aria-label={t("dest.map")} className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/95 px-safe pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl md:hidden">
       <div className="grid h-16 grid-cols-5 px-2 text-[10px] font-bold text-white/55">
-        {items.map((item) => {
-          const active = item.href === "/" ? location.pathname === "/" : location.pathname.startsWith(item.href);
+        {PRIMARY_DESTINATIONS.map((dest) => {
+          const Icon = MOBILE_DEST_ICONS[dest.id];
+          const href = destinationHrefForSession(dest.href, Boolean(user));
+          const active = isPrimaryDestinationActive(location.pathname, dest.href);
           return (
-            <Link key={item.label} to={item.href} aria-current={active ? "page" : undefined} className={`flex min-h-11 flex-col items-center justify-center gap-1 rounded-xl px-1 transition active:bg-white/10 ${active ? "text-primary" : ""}`}>
-              <item.icon className="h-[19px] w-[19px]" />
-              {item.label}
+            <Link key={dest.id} to={href} aria-current={active ? "page" : undefined} className={`flex min-h-11 flex-col items-center justify-center gap-1 rounded-xl px-1 transition active:bg-white/10 ${active ? "text-primary" : ""}`}>
+              <Icon className="h-[19px] w-[19px]" />
+              {t(dest.labelKey)}
             </Link>
           );
         })}

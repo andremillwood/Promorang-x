@@ -13,6 +13,8 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 import { ImageUpload } from "@/components/ImageUpload";
 import { CheckInCelebration } from '@/components/CheckInCelebration';
 import { PromoShareOperator } from "@/components/promoshare/PromoShareOperator";
+import { ActionUnlockReceipt } from "@/components/journey/ActionUnlockReceipt";
+import { buildActionUnlockReceipt } from "@/lib/action-unlock-receipt";
 import { AnimatePresence } from 'framer-motion';
 import { demoMoments } from "@/data/demo-moments";
 import { useI18n } from "@/i18n/I18nContext";
@@ -298,6 +300,18 @@ const CheckIn = () => {
       <main className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
         {success ? (
           <div className="mx-auto max-w-3xl space-y-6 pt-4 animate-in fade-in duration-300">
+            <ActionUnlockReceipt
+              receipt={buildActionUnlockReceipt(
+                { action: "check_in", momentName: moment.title, perk: moment.reward || undefined },
+                {
+                  checkInHeading: t("receipt.checkInHeading"),
+                  checkInProved: t("receipt.checkInProved"),
+                  checkInUnlocked: t("receipt.checkInUnlocked"),
+                  checkInNext: t("receipt.checkInNext"),
+                  checkInCta: t("receipt.checkInCta"),
+                },
+              )}
+            />
             <PromoShareOperator
               variant="handoff"
               lastAction="check_in"

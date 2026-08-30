@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { PrimaryDestinationNav } from "@/components/nav/PrimaryDestinationNav";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -126,7 +127,8 @@ const Header = () => {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden lg:flex items-center gap-1 bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-full px-1.5 py-1 shadow-inner">
+            {user ? <PrimaryDestinationNav dark={hasDarkHeader} /> : null}
+            <div className={user ? "hidden" : "hidden lg:flex items-center gap-1 bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-full px-1.5 py-1 shadow-inner"}>
               {/* 1. Explore Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -694,6 +696,8 @@ const Header = () => {
               <div className="px-1">
                 <CityQuickSwitcher className="w-full justify-between py-2.5 px-4" />
               </div>
+
+              {user ? <PrimaryDestinationNav variant="drawer" dark onNavigate={closeMobileMenu} /> : null}
 
               {/* Quick Action Pill Row */}
               <div className="grid grid-cols-2 gap-2">
