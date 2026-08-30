@@ -50,4 +50,9 @@ describe("primary destinations", () => {
     expect(destinationHrefForSession("/progress", false)).toBe("/auth?next=/progress");
     expect(destinationHrefForSession("/progress", true)).toBe("/progress");
   });
+
+  it("keeps a leftover home link on Today for signed-in members", () => {
+    expect(destinationHrefForSession("/", true)).toBe("/today");
+    expect(destinationHrefForSession("/", false)).toBe("/");
+  });
 });

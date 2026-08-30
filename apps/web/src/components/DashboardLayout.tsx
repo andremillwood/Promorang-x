@@ -406,7 +406,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
         <div className="flex flex-col h-full relative z-10">
           {/* Sidebar Header: Logo & Branding */}
           <div className={cn("relative flex h-20 items-center border-b border-border/70 px-8", sidebarCollapsed && "lg:justify-center lg:px-3")}>
-            <Link to="/" className="flex items-center gap-3 active:scale-95 transition-transform group">
+            <Link to="/today" className="flex items-center gap-3 active:scale-95 transition-transform group">
               <div className="h-10 w-10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <img src={logo} alt="Promorang" className="h-10 w-10 object-contain rounded-xl" />
               </div>

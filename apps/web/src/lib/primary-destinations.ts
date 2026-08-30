@@ -53,6 +53,7 @@ export function matchPrimaryDestination(pathname: string): PrimaryDestinationId 
 }
 
 export function destinationHrefForSession(href: string, signedIn: boolean): string {
+  if (href === "/" && signedIn) return "/today";
   if (href === "/progress" && !signedIn) return "/auth?next=/progress";
   return href;
 }
