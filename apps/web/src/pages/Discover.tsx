@@ -11,7 +11,6 @@ import {
   Calendar,
   Compass,
   Gift,
-  HelpCircle,
   LayoutGrid,
   Map,
   MapPin,
@@ -20,11 +19,9 @@ import {
   Search,
   Sparkles,
   Store,
-  Ticket,
   Users,
   Zap,
   Tag,
-  Share2,
 } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
 import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModal";
@@ -47,6 +44,8 @@ import { PerkCard } from "@/components/perks/PerkCard";
 import { PostPerkModal } from "@/components/merchant/PostPerkModal";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { DiscoverMarketTabs } from "@/components/discovery/DiscoverMarketTabs";
+import { isDiscoverTab, type DiscoverTab } from "@/components/discovery/discover-tabs";
 
 const categoryFilters = [
   { id: "all", label: "All Drops", icon: Sparkles },
@@ -128,8 +127,6 @@ const HubEmptyState = ({
   );
 };
 
-type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
-
 const Discover = () => {
   const { city, setCity } = useMarket();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -148,7 +145,7 @@ const Discover = () => {
 
   useEffect(() => {
     const tabParam = searchParams.get("tab") as DiscoverTab;
-    if (tabParam && ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam)) {
+    if (isDiscoverTab(tabParam)) {
       setActiveTab(tabParam);
     }
   }, [searchParams]);
@@ -398,80 +395,12 @@ const Discover = () => {
           </div>
         </div>
 
-        {/* 3-Sided Market Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-white/10 pb-4 overflow-x-auto scrollbar-none">
-          <button
-            onClick={() => handleTabChange("discoveries")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "discoveries"
-                ? "bg-primary text-white shadow-lg shadow-primary/25"
-                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <HelpCircle className="h-4 w-4 text-amber-400" />
-            <span>1. Discoveries & Polls</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-bold">
-              Acquire Signal
-            </span>
-          </button>
-
-          <button
-            onClick={() => handleTabChange("perks")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "perks"
-                ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/25 font-black"
-                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Gift className="h-4 w-4" />
-            <span>2. Perks & Drops</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
-              {hubPerks.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => handleTabChange("moments")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "moments"
-                ? "bg-primary text-white shadow-lg shadow-primary/25"
-                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Ticket className="h-4 w-4" />
-            <span>3. Moments & Events</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
-              {hubMoments.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => handleTabChange("distribute")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "distribute"
-                ? "bg-purple-600 text-white shadow-lg shadow-purple-600/25 font-black"
-                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Share2 className="h-4 w-4 text-purple-300" />
-            <span>4. Things to Share</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">
-              Earn Tickets
-            </span>
-          </button>
-
-          <button
-            onClick={() => handleTabChange("places")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "places"
-                ? "bg-primary text-white shadow-lg shadow-primary/25"
-                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Store className="h-4 w-4" />
-            <span>Places & Venues</span>
-          </button>
-        </div>
+        <DiscoverMarketTabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          perkCount={hubPerks.length}
+          momentCount={hubMoments.length}
+        />
 
         {/* Gamification Highlights */}
         <StoryGamificationRail
