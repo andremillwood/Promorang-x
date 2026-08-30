@@ -10,22 +10,23 @@ import type { TranslationKey } from "@/i18n/translations";
 import type { DiscoveryPoll } from "@/data/discoveriesData";
 import {
   buildDiscoveryPath,
+  DISCOVER_LENS_STORAGE_KEY,
   DISCOVER_QUERY_STORAGE_KEY,
+  DISCOVER_SKIPPED_STORAGE_KEY,
+  DISCOVER_VOTED_STORAGE_KEY,
   discoveryHref,
   inferLensesFromPreferences,
   intentMatchCount,
   intentWords,
   isDiscoverLensId,
+  readStoredIdList,
   writeStoredDiscoverQuery,
+  writeStoredIdList,
   type DiscoverLensId,
   type PathWhy,
 } from "@/lib/discovery-path";
 import { recordDiscoveryNamedIntent } from "@/hooks/useDiscoveryDemand";
 import { cn } from "@/lib/utils";
-
-const LENS_STORAGE_KEY = "promorang.discover.lens";
-const VOTED_STORAGE_KEY = "promorang.discover.voted";
-const SKIPPED_STORAGE_KEY = "promorang.discover.skipped";
 
 const LENSES: Array<{
   id: DiscoverLensId;
@@ -38,22 +39,6 @@ const LENSES: Array<{
   { id: "hang", icon: Users, titleKey: "discover.pathLensHang", descKey: "discover.pathLensHangDesc" },
   { id: "try", icon: Sparkles, titleKey: "discover.pathLensTry", descKey: "discover.pathLensTryDesc" },
 ];
-
-function readList(key: string): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(key);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed.filter((item) => typeof item === "string") : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeList(key: string, value: string[]) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(key, JSON.stringify(value));
-}
 
 function whyCopy(
   why: PathWhy,
@@ -87,6 +72,9 @@ type DiscoveryPathProps = {
   initialLens?: string | null;
   initialQuery?: string | null;
   onQuestionCreated?: (poll: DiscoveryPoll) => void;
+  onVoted?: (pollId: string) => void;
+  syncUrl?: boolean;
+  surface?: "page" | "home";
 };
 
 export function DiscoveryPath({
@@ -96,16 +84,20 @@ export function DiscoveryPath({
   initialLens = null,
   initialQuery = null,
   onQuestionCreated,
+  onVoted,
+  syncUrl = true,
+  surface = "page",
 }: DiscoveryPathProps) {
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentRef = useRef<HTMLElement | null>(null);
   const inferred = inferLensesFromPreferences(preferredCategories);
+  const intentFieldId = surface === "home" ? "home-discover-intent" : "discover-intent";
   const [lens, setLens] = useState<DiscoverLensId | null>(() => {
     if (intentWords(initialQuery).length) return null;
     if (isDiscoverLensId(initialLens)) return initialLens;
     if (typeof window !== "undefined") {
-      const stored = window.localStorage.getItem(LENS_STORAGE_KEY);
+      const stored = window.localStorage.getItem(DISCOVER_LENS_STORAGE_KEY);
       if (isDiscoverLensId(stored)) return stored;
     }
     return null;
@@ -116,13 +108,14 @@ export function DiscoveryPath({
     return window.localStorage.getItem(DISCOVER_QUERY_STORAGE_KEY) || "";
   });
   const [draftQuery, setDraftQuery] = useState(query);
-  const [votedIds, setVotedIds] = useState<string[]>(() => readList(VOTED_STORAGE_KEY));
-  const [skippedIds, setSkippedIds] = useState<string[]>(() => readList(SKIPPED_STORAGE_KEY));
+  const [votedIds, setVotedIds] = useState<string[]>(() => readStoredIdList(DISCOVER_VOTED_STORAGE_KEY));
+  const [skippedIds, setSkippedIds] = useState<string[]>(() => readStoredIdList(DISCOVER_SKIPPED_STORAGE_KEY));
   const [justVotedId, setJustVotedId] = useState<string | null>(null);
   const [browseOpen, setBrowseOpen] = useState(false);
   const [intentTick, setIntentTick] = useState(0);
 
   const syncQueryParam = (nextQuery: string, nextLens: DiscoverLensId | null) => {
+    if (!syncUrl) return;
     const next = new URLSearchParams(searchParams);
     next.set("tab", "discoveries");
     if (intentWords(nextQuery).length) {
@@ -154,7 +147,7 @@ export function DiscoveryPath({
 
   useEffect(() => {
     if (lens) {
-      window.localStorage.setItem(LENS_STORAGE_KEY, lens);
+      window.localStorage.setItem(DISCOVER_LENS_STORAGE_KEY, lens);
       writeStoredDiscoverQuery("");
     }
   }, [lens]);
@@ -198,7 +191,7 @@ export function DiscoveryPath({
     setDraftQuery("");
     setJustVotedId(null);
     setSkippedIds([]);
-    writeList(SKIPPED_STORAGE_KEY, []);
+    writeStoredIdList(DISCOVER_SKIPPED_STORAGE_KEY, []);
     writeStoredDiscoverQuery("");
     syncQueryParam("", next);
     setIntentTick((tick) => tick + 1);
@@ -212,8 +205,8 @@ export function DiscoveryPath({
     setDraftQuery(next);
     setJustVotedId(null);
     setSkippedIds([]);
-    writeList(SKIPPED_STORAGE_KEY, []);
-    window.localStorage.removeItem(LENS_STORAGE_KEY);
+    writeStoredIdList(DISCOVER_SKIPPED_STORAGE_KEY, []);
+    window.localStorage.removeItem(DISCOVER_LENS_STORAGE_KEY);
     writeStoredDiscoverQuery(next);
     syncQueryParam(next, null);
     setIntentTick((tick) => tick + 1);
@@ -233,7 +226,8 @@ export function DiscoveryPath({
     setVotedIds((prev) => {
       if (prev.includes(pollId)) return prev;
       const next = [...prev, pollId];
-      writeList(VOTED_STORAGE_KEY, next);
+      writeStoredIdList(DISCOVER_VOTED_STORAGE_KEY, next);
+      onVoted?.(pollId);
       return next;
     });
   };
@@ -244,7 +238,7 @@ export function DiscoveryPath({
     setSkippedIds((prev) => {
       if (prev.includes(current.poll.id)) return prev;
       const next = [...prev, current.poll.id];
-      writeList(SKIPPED_STORAGE_KEY, next);
+      writeStoredIdList(DISCOVER_SKIPPED_STORAGE_KEY, next);
       return next;
     });
   };
@@ -255,12 +249,14 @@ export function DiscoveryPath({
     <div className="space-y-8">
       <header className="relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[radial-gradient(circle_at_12%_0%,rgba(255,85,0,.16),transparent_42%),linear-gradient(180deg,#141210,#0a0a0b)] px-5 py-6 sm:px-8 sm:py-8">
         <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">
-          {t("discover.pathEyebrow", { city: cityName })}
+          {t(surface === "home" ? "discover.pathHomeEyebrow" : "discover.pathEyebrow", { city: cityName })}
         </p>
         <h2 className="mt-2 max-w-2xl font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          {t("discover.pathTitle")}
+          {t(surface === "home" ? "discover.pathHomeTitle" : "discover.pathTitle")}
         </h2>
-        <p className="mt-3 max-w-xl text-sm leading-6 text-white/60">{t("discover.pathCopy")}</p>
+        <p className="mt-3 max-w-xl text-sm leading-6 text-white/60">
+          {t(surface === "home" ? "discover.pathHomeCopy" : "discover.pathCopy")}
+        </p>
 
         <div className={cn("mt-6 grid gap-3", namedIntent ? "grid-cols-2 sm:grid-cols-4" : "sm:grid-cols-2")}>
           {LENSES.map((item) => {
@@ -315,14 +311,14 @@ export function DiscoveryPath({
             chooseQuery(draftQuery);
           }}
         >
-          <label htmlFor="discover-intent" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-orange-300">
+          <label htmlFor={intentFieldId} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-orange-300">
             <PenLine className="h-3.5 w-3.5" />
             {t("discover.pathOtherTitle")}
           </label>
           <p className="mt-1 text-xs leading-5 text-white/50">{t("discover.pathOtherCopy")}</p>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             <input
-              id="discover-intent"
+              id={intentFieldId}
               value={draftQuery}
               onChange={(event) => setDraftQuery(event.target.value)}
               placeholder={t("discover.pathOtherPlaceholder")}

@@ -110,6 +110,25 @@ const PREFERENCE_TO_LENS: Record<string, DiscoverLensId> = {
 const QUERY_STOP_WORDS = new Set(["a", "an", "and", "for", "in", "of", "on", "the", "to", "with"]);
 
 export const DISCOVER_QUERY_STORAGE_KEY = "promorang.discover.query";
+export const DISCOVER_VOTED_STORAGE_KEY = "promorang.discover.voted";
+export const DISCOVER_SKIPPED_STORAGE_KEY = "promorang.discover.skipped";
+export const DISCOVER_LENS_STORAGE_KEY = "promorang.discover.lens";
+
+export function readStoredIdList(key: string): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((item) => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+export function writeStoredIdList(key: string, value: string[]) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(key, JSON.stringify(value));
+}
 
 export function readStoredDiscoverQuery(): string {
   if (typeof window === "undefined") return "";
@@ -138,6 +157,29 @@ export function discoverPathHref(query?: string | null): string {
   const next = (query || "").trim();
   if (!intentWords(next).length) return "/discover?tab=discoveries";
   return `/discover?tab=discoveries&q=${encodeURIComponent(next)}`;
+}
+
+export function discoveryPollLocationHint(poll: PathablePoll): {
+  title: string;
+  description: string;
+} {
+  return {
+    title: poll.question,
+    description: [poll.description, poll.targetUnlockPerk, ...(poll.tags || [])].filter(Boolean).join(" "),
+  };
+}
+
+export function mergeDiscoveryPolls<T extends { id: string }>(...groups: T[][]): T[] {
+  const seen = new Set<string>();
+  const merged: T[] = [];
+  for (const group of groups) {
+    for (const poll of group) {
+      if (seen.has(poll.id)) continue;
+      seen.add(poll.id);
+      merged.push(poll);
+    }
+  }
+  return merged;
 }
 
 export function isDiscoverLensId(value: string | null | undefined): value is DiscoverLensId {

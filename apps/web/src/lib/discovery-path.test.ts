@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   buildDiscoveryPath,
   discoverPathHref,
+  discoveryPollLocationHint,
   inferLensesFromPreferences,
   isDiscoverLensId,
+  mergeDiscoveryPolls,
   scorePollForLenses,
   whyForPoll,
   type PathablePoll,
@@ -148,6 +150,25 @@ describe("buildDiscoveryPath", () => {
     }));
 
     expect(buildDiscoveryPath({ polls, lenses: ["eat"] })).toHaveLength(4);
+  });
+});
+
+describe("discoveryPollLocationHint", () => {
+  it("packs question, perk, and tags so city hubs can match a poll", () => {
+    expect(discoveryPollLocationHint(eatPoll)).toEqual({
+      title: eatPoll.question,
+      description: "Vote to back your spot and unlock a tasting pass. 25% Off Jerk Platter Jerk Chicken Kingston Food Foodies",
+    });
+  });
+});
+
+describe("mergeDiscoveryPolls", () => {
+  it("keeps the first copy of a poll and does not dump duplicates", () => {
+    const live = { ...eatPoll, question: "Live jerk question" };
+    const merged = mergeDiscoveryPolls([live], [eatPoll, nightPoll], [nightPoll]);
+
+    expect(merged.map((poll) => poll.id)).toEqual(["jerk", "night"]);
+    expect(merged[0].question).toBe("Live jerk question");
   });
 });
 

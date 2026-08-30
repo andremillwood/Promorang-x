@@ -31,7 +31,7 @@ import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getMomentStatus } from "@/lib/moment-recurrence";
 import { DISCOVERY_POLLS, type DiscoveryPoll } from "@/data/discoveriesData";
 import { DiscoveryPath } from "@/components/discovery/DiscoveryPath";
-import { isDiscoverLensId } from "@/lib/discovery-path";
+import { discoveryPollLocationHint, isDiscoverLensId } from "@/lib/discovery-path";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { VERIFIED_VENUES } from "@/data/venuesData";
 import { usePerks } from "@/hooks/usePerks";
@@ -252,16 +252,7 @@ const Discover = () => {
     [city],
   );
   const hubDiscoveries = useMemo(
-    () =>
-      livePolls.filter((poll) =>
-        matchesCityHub(
-          {
-            title: poll.question,
-            description: [poll.description, poll.targetUnlockPerk, ...(poll.tags || [])].filter(Boolean).join(" "),
-          },
-          city,
-        ),
-      ),
+    () => livePolls.filter((poll) => matchesCityHub(discoveryPollLocationHint(poll), city)),
     [livePolls, city],
   );
   const hubPerks = useMemo(
