@@ -18,10 +18,19 @@ describe("primary destinations", () => {
     ]);
   });
 
+  it("sends Today to /today, not the marketing homepage", () => {
+    expect(PRIMARY_DESTINATIONS.find((item) => item.id === "today")?.href).toBe("/today");
+    expect(matchPrimaryDestination("/today")).toBe("today");
+    expect(matchPrimaryDestination("/")).toBeNull();
+    expect(isPrimaryDestinationHref("/")).toBe(false);
+    expect(isPrimaryDestinationHref("/today")).toBe(true);
+  });
+
   it("does not treat Today as active on every route", () => {
-    expect(isPrimaryDestinationActive("/", "/")).toBe(true);
-    expect(isPrimaryDestinationActive("/discover", "/")).toBe(false);
-    expect(isPrimaryDestinationActive("/vault", "/")).toBe(false);
+    expect(isPrimaryDestinationActive("/today", "/today")).toBe(true);
+    expect(isPrimaryDestinationActive("/", "/today")).toBe(false);
+    expect(isPrimaryDestinationActive("/discover", "/today")).toBe(false);
+    expect(isPrimaryDestinationActive("/vault", "/today")).toBe(false);
   });
 
   it("treats Activity and notifications as Progress", () => {
