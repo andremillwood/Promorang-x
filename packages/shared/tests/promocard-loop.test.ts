@@ -111,4 +111,46 @@ describe("PromoCard credit and next-success loop", () => {
     expect(recharge.creditHint).toBe(30);
     expect(recharge.href).toBe("/wallet#recharge");
   });
+
+  it("opens an earned standing package before hunting for another Moment", () => {
+    const next = pickPromoCardNextSuccess({
+      hasLiveCard: true,
+      availableBalance: 45,
+      points: 80,
+      promoKeys: 1,
+      hasSealedPackage: true,
+    });
+
+    expect(next.id).toBe("open_package");
+    expect(next.href).toBe("/wallet#standing-package");
+  });
+
+  it("pushes pending referrals to activate so their earnings can unlock a tier", () => {
+    const next = pickPromoCardNextSuccess({
+      hasLiveCard: true,
+      availableBalance: 50,
+      points: 0,
+      promoKeys: 0,
+      pendingReferrals: 2,
+    });
+
+    expect(next.id).toBe("activate_referrals");
+    expect(next.href).toBe("/referrals");
+    expect(next.pointsHint).toBe(2);
+  });
+
+  it("names a live place when the card is ready and no Key is waiting", () => {
+    const next = pickPromoCardNextSuccess({
+      hasLiveCard: true,
+      availableBalance: 50,
+      points: 0,
+      promoKeys: 0,
+      tonightPlace: { name: "Kingston Dub Club", href: "/discover?place=venue-dubclub", allowance: 15 },
+    });
+
+    expect(next.id).toBe("use_here");
+    expect(next.placeHint).toBe("Kingston Dub Club");
+    expect(next.href).toContain("venue-dubclub");
+    expect(next.creditHint).toBe(15);
+  });
 });

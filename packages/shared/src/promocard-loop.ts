@@ -9,12 +9,21 @@ export const PROMOCARD_DEFAULT_RECHARGE = PROMOCARD_TYPICAL_VISIT_ALLOWANCE;
 export const PROMOCARD_POINTS_PER_KEY = 500;
 export { PROMOCARD_NETWORK_CAPACITY, PROMOCARD_FIRST_READY_CREDIT };
 
+export type PromoCardTonightPlace = {
+  name: string;
+  href: string;
+  allowance: number;
+};
+
 export type PromoCardNextSuccessId =
   | "claim_card"
+  | "open_package"
+  | "use_here"
   | "show_up"
   | "earn_points"
   | "convert_key"
   | "use_key"
+  | "activate_referrals"
   | "recharge"
   | "keep_loop";
 
@@ -43,6 +52,7 @@ export type PromoCardNextSuccess = {
   creditHint: number;
   pointsHint: number;
   keysHint: number;
+  placeHint?: string;
 };
 
 export type PromoCardLoopInput = {
@@ -54,6 +64,9 @@ export type PromoCardLoopInput = {
   points?: number;
   promoKeys?: number;
   pointsPerKey?: number;
+  hasSealedPackage?: boolean;
+  pendingReferrals?: number;
+  tonightPlace?: PromoCardTonightPlace | null;
 };
 
 const money = (value: number) => Math.max(0, Number.isFinite(value) ? value : 0);
@@ -94,10 +107,31 @@ export function describePromoCardInstruments(input: PromoCardLoopInput = {}): Pr
   };
 }
 
+export function pickPromoCardTonightPlace(
+  places: Array<{ name: string; href: string; allowance?: number; city?: string }>,
+  preferredCity?: string,
+): PromoCardTonightPlace | null {
+  const usable = places.filter((place) => (place.allowance ?? PROMOCARD_TYPICAL_VISIT_ALLOWANCE) > 0);
+  const inCity = preferredCity
+    ? usable.filter((place) => place.city && place.city.toLowerCase() === preferredCity.toLowerCase())
+    : usable;
+  const pick = inCity[0] ?? usable[0];
+  if (!pick) return null;
+  return {
+    name: pick.name,
+    href: pick.href,
+    allowance: pick.allowance ?? PROMOCARD_TYPICAL_VISIT_ALLOWANCE,
+  };
+}
+
 export function pickPromoCardNextSuccess(input: PromoCardLoopInput = {}): PromoCardNextSuccess {
   const credit = describePromoCardCredit(input);
   const instruments = describePromoCardInstruments(input);
   const hasLiveCard = Boolean(input.hasLiveCard);
+  const tonight = input.tonightPlace ?? null;
+  const placeHref = tonight?.href || "/discover";
+  const placeHint = tonight?.name;
+  const placeCredit = tonight?.allowance ?? credit.nextRechargeAmount;
 
   if (!hasLiveCard) {
     return {
@@ -109,13 +143,24 @@ export function pickPromoCardNextSuccess(input: PromoCardLoopInput = {}): PromoC
     };
   }
 
+  if (input.hasSealedPackage) {
+    return {
+      id: "open_package",
+      href: "/wallet#standing-package",
+      creditHint: credit.readyToSpend,
+      pointsHint: instruments.points,
+      keysHint: instruments.promoKeys,
+    };
+  }
+
   if (instruments.promoKeys >= 1) {
     return {
       id: "use_key",
-      href: "/discover",
-      creditHint: credit.nextRechargeAmount,
+      href: placeHref,
+      creditHint: placeCredit,
       pointsHint: instruments.points,
       keysHint: instruments.promoKeys,
+      placeHint,
     };
   }
 
@@ -129,13 +174,35 @@ export function pickPromoCardNextSuccess(input: PromoCardLoopInput = {}): PromoC
     };
   }
 
+  if ((input.pendingReferrals ?? 0) > 0) {
+    return {
+      id: "activate_referrals",
+      href: "/referrals",
+      creditHint: credit.nextRechargeAmount,
+      pointsHint: input.pendingReferrals ?? 0,
+      keysHint: instruments.promoKeys,
+    };
+  }
+
+  if (instruments.points === 0 && tonight && credit.readyToSpend > 0) {
+    return {
+      id: "use_here",
+      href: tonight.href,
+      creditHint: tonight.allowance,
+      pointsHint: instruments.pointsPerKey,
+      keysHint: 0,
+      placeHint: tonight.name,
+    };
+  }
+
   if (instruments.points === 0) {
     return {
       id: "show_up",
-      href: "/discover",
-      creditHint: credit.nextRechargeAmount,
+      href: placeHref,
+      creditHint: placeCredit,
       pointsHint: instruments.pointsPerKey,
       keysHint: 0,
+      placeHint,
     };
   }
 
@@ -152,19 +219,21 @@ export function pickPromoCardNextSuccess(input: PromoCardLoopInput = {}): PromoC
   if (instruments.pointsToNextKey > 0) {
     return {
       id: "earn_points",
-      href: "/discover",
-      creditHint: credit.nextRechargeAmount,
+      href: placeHref,
+      creditHint: placeCredit,
       pointsHint: instruments.pointsToNextKey,
       keysHint: 0,
+      placeHint,
     };
   }
 
   return {
     id: "keep_loop",
-    href: "/discover",
+    href: placeHref,
     creditHint: credit.readyToSpend,
     pointsHint: instruments.points,
     keysHint: instruments.promoKeys,
+    placeHint,
   };
 }
 

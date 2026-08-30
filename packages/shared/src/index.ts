@@ -18,6 +18,7 @@ export * from "./gem-ledger";
 export * from "./promocard-moment";
 export * from "./promocard-loop";
 export * from "./promocard-economy";
+export * from "./membership-standing";
 export * from "./weekly-moment-drop";
 export * from "./stakeholder-scout";
 export * from "./people-moments";
