@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, Compass, PenLine, SkipForward, Utensils, MoonStar, Users, Sparkles, X } from "lucide-react";
+import { ArrowRight, Compass, SkipForward } from "lucide-react";
 import { NightTrail, PaperReceipt } from "@/components/promorang/SignatureObjects";
 import { TactileButton } from "@/components/ui/TactileButton";
 import { DiscoveryWidget } from "@/components/radar/DiscoveryWidget";
 import { AskQuestionModal } from "@/components/discovery/AskQuestionModal";
+import { DiscoveryIntentStage, INTENT_LENSES } from "@/components/discovery/DiscoveryIntentStage";
 import { useI18n } from "@/i18n/I18nContext";
 import type { TranslationKey } from "@/i18n/translations";
 import type { DiscoveryPoll } from "@/data/discoveriesData";
@@ -28,24 +29,12 @@ import {
 import { recordDiscoveryNamedIntent } from "@/hooks/useDiscoveryDemand";
 import { cn } from "@/lib/utils";
 
-const LENSES: Array<{
-  id: DiscoverLensId;
-  icon: typeof Utensils;
-  titleKey: TranslationKey;
-  descKey: TranslationKey;
-}> = [
-  { id: "eat", icon: Utensils, titleKey: "discover.pathLensEat", descKey: "discover.pathLensEatDesc" },
-  { id: "go_out", icon: MoonStar, titleKey: "discover.pathLensGoOut", descKey: "discover.pathLensGoOutDesc" },
-  { id: "hang", icon: Users, titleKey: "discover.pathLensHang", descKey: "discover.pathLensHangDesc" },
-  { id: "try", icon: Sparkles, titleKey: "discover.pathLensTry", descKey: "discover.pathLensTryDesc" },
-];
-
 function whyCopy(
   why: PathWhy,
   t: (key: TranslationKey, vars?: Record<string, string | number>) => string,
 ): string {
   const lensLabel = why.lens
-    ? t(LENSES.find((lens) => lens.id === why.lens)?.titleKey || "discover.pathLensTry")
+    ? t(INTENT_LENSES.find((lens) => lens.id === why.lens)?.titleKey || "discover.pathLensTry")
     : t("discover.pathLensTry");
   const perk = why.perk || t("discover.pathFallbackPerk");
   if (why.kind === "close") {
@@ -161,7 +150,6 @@ export function DiscoveryPath({
 
   const namedIntent = Boolean(lens || intentWords(query).length);
   const otherActive = !lens && intentWords(query).length > 0;
-  const showTasteHint = inferred.length > 0 && inferred.length < LENSES.length;
 
   const path = useMemo(
     () =>
@@ -249,102 +237,21 @@ export function DiscoveryPath({
 
   return (
     <div className="space-y-8">
-      <header className="relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[radial-gradient(circle_at_12%_0%,rgba(255,85,0,.16),transparent_42%),linear-gradient(180deg,#141210,#0a0a0b)] px-5 py-6 sm:px-8 sm:py-8">
-        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">
-          {t(surface === "home" ? "discover.pathHomeEyebrow" : "discover.pathEyebrow", { city: cityName })}
-        </p>
-        <h2 className="mt-2 max-w-2xl font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          {t(surface === "home" ? "discover.pathHomeTitle" : "discover.pathTitle")}
-        </h2>
-        <p className="mt-3 max-w-xl text-sm leading-6 text-white/60">
-          {t(surface === "home" ? "discover.pathHomeCopy" : "discover.pathCopy")}
-        </p>
-
-        <div className={cn("mt-6 grid gap-3", namedIntent ? "grid-cols-2 sm:grid-cols-4" : "sm:grid-cols-2")}>
-          {LENSES.map((item) => {
-            const Icon = item.icon;
-            const active = lens === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => chooseLens(item.id)}
-                aria-pressed={active}
-                className={cn(
-                  "flex items-start gap-3 rounded-[1.3rem] border text-left transition",
-                  namedIntent ? "min-h-[3.4rem] px-3 py-2.5" : "min-h-[5.5rem] px-4 py-3.5",
-                  active
-                    ? "border-orange-400 bg-orange-500 text-black shadow-[0_0_28px_rgba(255,85,0,.28)]"
-                    : "border-white/10 bg-black/40 text-white hover:border-white/25 hover:bg-white/[0.05]",
-                )}
-              >
-                <span
-                  className={cn(
-                    "mt-0.5 flex shrink-0 items-center justify-center rounded-full",
-                    namedIntent ? "h-7 w-7" : "h-9 w-9",
-                    active ? "bg-black text-orange-300" : "bg-white/10 text-orange-300",
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                </span>
-                <span>
-                  <span className={cn("block font-serif font-bold", namedIntent ? "text-sm" : "text-lg")}>
-                    {t(item.titleKey)}
-                  </span>
-                  {namedIntent ? null : (
-                    <span className={cn("mt-0.5 block text-xs leading-5", active ? "text-black/70" : "text-white/50")}>
-                      {t(item.descKey)}
-                      {showTasteHint && inferred.includes(item.id) ? ` · ${t("discover.pathFromTaste")}` : ""}
-                    </span>
-                  )}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        <form
-          className={cn(
-            "mt-3 rounded-[1.3rem] border px-4 py-3",
-            otherActive ? "border-orange-400 bg-orange-500/10" : "border-white/10 bg-black/30",
-          )}
-          onSubmit={(event) => {
-            event.preventDefault();
-            chooseQuery(draftQuery);
-          }}
-        >
-          <label htmlFor={intentFieldId} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-orange-300">
-            <PenLine className="h-3.5 w-3.5" />
-            {t("discover.pathOtherTitle")}
-          </label>
-          <p className="mt-1 text-xs leading-5 text-white/50">{t("discover.pathOtherCopy")}</p>
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-            <input
-              id={intentFieldId}
-              value={draftQuery}
-              onChange={(event) => setDraftQuery(event.target.value)}
-              placeholder={t("discover.pathOtherPlaceholder")}
-              className="min-h-11 flex-1 rounded-xl border border-white/15 bg-black/60 px-3 text-sm text-white placeholder:text-white/30 focus:border-orange-400 focus:outline-none"
-            />
-            <TactileButton type="submit" variant="primary" disabled={!intentWords(draftQuery).length}>
-              {t("discover.pathOtherCta")}
-            </TactileButton>
-          </div>
-          {otherActive ? (
-            <p className="mt-3 inline-flex items-center gap-2 text-xs text-orange-200">
-              <span>{t("discover.pathUsing", { query })}</span>
-              <button
-                type="button"
-                onClick={clearQuery}
-                className="inline-flex items-center gap-1 font-bold text-white/60 hover:text-white"
-              >
-                <X className="h-3 w-3" />
-                {t("discover.pathClearAsk")}
-              </button>
-            </p>
-          ) : null}
-        </form>
-      </header>
+      <DiscoveryIntentStage
+        cityName={cityName}
+        surface={surface}
+        lens={lens}
+        namedIntent={namedIntent}
+        otherActive={otherActive}
+        inferred={inferred}
+        intentFieldId={intentFieldId}
+        draftQuery={draftQuery}
+        query={query}
+        onDraftQuery={setDraftQuery}
+        onChooseLens={chooseLens}
+        onChooseQuery={chooseQuery}
+        onClearQuery={clearQuery}
+      />
 
       {!namedIntent && surface === "page" ? (
         <NightTrail
@@ -497,7 +404,7 @@ export function DiscoveryPath({
               <p className="mt-2 max-w-xl text-sm leading-6 text-white/55">
                 {t("discover.pathMissCopy", {
                   city: cityName,
-                  want: query || (lens ? t(LENSES.find((item) => item.id === lens)?.titleKey || "discover.pathLensTry") : t("discover.pathOtherTitle")),
+                  want: query || (lens ? t(INTENT_LENSES.find((item) => item.id === lens)?.titleKey || "discover.pathLensTry") : t("discover.pathOtherTitle")),
                 })}
               </p>
               <div className="mt-5 flex flex-wrap gap-3">

@@ -31,6 +31,7 @@ import { DISCOVERY_POLLS, type DiscoveryPoll } from "@/data/discoveriesData";
 import { toast } from "sonner";
 import { castListingDiscoveryVote, useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
 import { useI18n } from "@/i18n/I18nContext";
+import { cn } from "@/lib/utils";
 import {
   DISCOVER_VOTED_STORAGE_KEY,
   filterDiscoveryPollsForHub,
@@ -64,37 +65,40 @@ export function DiscoveriesFeedSection() {
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "Scout";
   const userPoints = balance?.points || 420;
   const userKeys = balance?.promokeys || 3;
+  const isPath = activeTab === "polls";
 
   return (
     <section
       id="home-discover-path"
-      className="my-6 sm:my-10 scroll-mt-24 rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-black/40 p-4 sm:p-6 md:p-8 backdrop-blur-md shadow-2xl relative overflow-hidden"
+      className={cn(
+        "relative my-6 scroll-mt-24 sm:my-10",
+        isPath
+          ? ""
+          : "overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-black/40 p-4 shadow-2xl backdrop-blur-md sm:p-6 md:p-8",
+      )}
     >
-      <div className="pointer-events-none absolute -left-32 -top-32 h-60 w-60 sm:h-72 sm:w-72 rounded-full bg-primary/10 blur-[80px] sm:blur-[100px]" />
-      <div className="pointer-events-none absolute -right-32 -bottom-32 h-60 w-60 sm:h-72 sm:w-72 rounded-full bg-amber-500/10 blur-[80px] sm:blur-[100px]" />
+      {isPath ? null : (
+        <>
+          <div className="pointer-events-none absolute -left-32 -top-32 h-60 w-60 rounded-full bg-primary/10 blur-[80px] sm:h-72 sm:w-72 sm:blur-[100px]" />
+          <div className="pointer-events-none absolute -right-32 -bottom-32 h-60 w-60 rounded-full bg-amber-500/10 blur-[80px] sm:h-72 sm:w-72 sm:blur-[100px]" />
+        </>
+      )}
 
-      <div className="flex flex-col gap-4 sm:gap-6 border-b border-white/10 pb-5 sm:pb-6 lg:flex-row lg:items-center lg:justify-between">
+      {isPath ? null : (
+      <div className="flex flex-col gap-4 border-b border-white/10 pb-5 sm:gap-6 sm:pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary">
             <Compass className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t("home.scoutNetworkEyebrow")}
           </div>
-          {activeTab === "polls" ? (
-            <p className="mt-2 max-w-2xl text-xs sm:text-sm text-white/60 leading-relaxed">
-              {t("home.scoutNetworkCopy")}
-            </p>
-          ) : (
-            <>
-              <h2 className="mt-1 font-serif text-xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">
-                {t("home.scoutNetworkTitle")}
-              </h2>
-              <Link to="/scout/events" className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline">
-                {t("home.scoutNetworkVerify")} <CalendarCheck className="h-4 w-4" />
-              </Link>
-              <p className="mt-1 max-w-2xl text-xs sm:text-sm text-white/60 leading-relaxed">
-                {t("home.scoutNetworkFindsCopy")}
-              </p>
-            </>
-          )}
+          <h2 className="mt-1 font-serif text-xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl">
+            {t("home.scoutNetworkTitle")}
+          </h2>
+          <Link to="/scout/events" className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline">
+            {t("home.scoutNetworkVerify")} <CalendarCheck className="h-4 w-4" />
+          </Link>
+          <p className="mt-1 max-w-2xl text-xs leading-relaxed text-white/60 sm:text-sm">
+            {t("home.scoutNetworkFindsCopy")}
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
@@ -125,8 +129,9 @@ export function DiscoveriesFeedSection() {
           />
         </div>
       </div>
+      )}
 
-      {user ? (
+      {isPath ? null : user ? (
         <div className="mt-4 sm:mt-5 flex flex-col gap-3.5 rounded-2xl border border-primary/20 bg-primary/5 p-3.5 sm:p-4 backdrop-blur-md md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <div className="relative flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-amber-300 text-xs sm:text-sm font-black text-black ring-2 ring-primary/40">
@@ -185,7 +190,7 @@ export function DiscoveriesFeedSection() {
         </div>
       )}
 
-      <div className="mt-5 sm:mt-6 flex items-center justify-between gap-3 border-b border-white/5 pb-3">
+      <div className={cn("flex items-center justify-between gap-3", isPath ? "mb-4" : "mt-5 border-b border-white/5 pb-3 sm:mt-6")}>
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none max-w-full">
           <button
             onClick={() => setActiveTab("polls")}
@@ -240,7 +245,7 @@ export function DiscoveriesFeedSection() {
       </div>
 
       {activeTab === "polls" && (
-        <div className="mt-5 sm:mt-6">
+        <div>
           {hubPolls.length > 0 ? (
             <DiscoveryPath
               polls={hubPolls}
