@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ArrowRight,
   Calendar,
@@ -130,6 +131,20 @@ const HubEmptyState = ({
 
 type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
 
+const DISCOVER_TAB_IDS: DiscoverTab[] = ["discoveries", "perks", "moments", "distribute", "places"];
+
+const DISCOVER_TABS: Array<{
+  id: DiscoverTab;
+  label: string;
+  icon: typeof HelpCircle;
+}> = [
+  { id: "discoveries", label: "Discoveries", icon: HelpCircle },
+  { id: "perks", label: "Perks", icon: Gift },
+  { id: "moments", label: "Moments", icon: Ticket },
+  { id: "distribute", label: "Share", icon: Share2 },
+  { id: "places", label: "Places", icon: Store },
+];
+
 const Discover = () => {
   const { city, setCity } = useMarket();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -148,13 +163,14 @@ const Discover = () => {
 
   useEffect(() => {
     const tabParam = searchParams.get("tab") as DiscoverTab;
-    if (tabParam && ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam)) {
+    if (tabParam && DISCOVER_TAB_IDS.includes(tabParam)) {
       setActiveTab(tabParam);
     }
   }, [searchParams]);
 
-  const handleTabChange = (tab: DiscoverTab) => {
-    setActiveTab(tab);
+  const handleTabChange = (tab: string) => {
+    if (!DISCOVER_TAB_IDS.includes(tab as DiscoverTab)) return;
+    setActiveTab(tab as DiscoverTab);
     setSearchParams({ tab });
   };
 
@@ -398,80 +414,36 @@ const Discover = () => {
           </div>
         </div>
 
-        {/* 3-Sided Market Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-white/10 pb-4 overflow-x-auto scrollbar-none">
-          <button
-            onClick={() => handleTabChange("discoveries")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "discoveries"
-                ? "bg-primary text-white shadow-lg shadow-primary/25"
-                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <HelpCircle className="h-4 w-4 text-amber-400" />
-            <span>1. Discoveries & Polls</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-bold">
-              Acquire Signal
-            </span>
-          </button>
-
-          <button
-            onClick={() => handleTabChange("perks")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "perks"
-                ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/25 font-black"
-                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Gift className="h-4 w-4" />
-            <span>2. Perks & Drops</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
-              {hubPerks.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => handleTabChange("moments")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "moments"
-                ? "bg-primary text-white shadow-lg shadow-primary/25"
-                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Ticket className="h-4 w-4" />
-            <span>3. Moments & Events</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
-              {hubMoments.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => handleTabChange("distribute")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "distribute"
-                ? "bg-purple-600 text-white shadow-lg shadow-purple-600/25 font-black"
-                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Share2 className="h-4 w-4 text-purple-300" />
-            <span>4. Things to Share</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">
-              Earn Tickets
-            </span>
-          </button>
-
-          <button
-            onClick={() => handleTabChange("places")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "places"
-                ? "bg-primary text-white shadow-lg shadow-primary/25"
-                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Store className="h-4 w-4" />
-            <span>Places & Venues</span>
-          </button>
-        </div>
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full border-b border-white/10 pb-4"
+        >
+          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 overflow-x-visible rounded-lg border border-white/10 bg-white/[0.04] p-1">
+            {DISCOVER_TABS.map((tab) => {
+              const count =
+                tab.id === "perks" ? hubPerks.length : tab.id === "moments" ? hubMoments.length : undefined;
+              return (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="min-w-[calc(50%-0.125rem)] flex-1 gap-1.5 rounded-md px-3 text-xs font-semibold text-white/70 data-[state=active]:bg-primary data-[state=active]:text-white sm:min-w-0 sm:flex-none sm:text-sm"
+                >
+                  <tab.icon className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>{tab.label}</span>
+                  {count != null && (
+                    <Badge
+                      variant="secondary"
+                      className="h-5 min-w-5 border-none bg-black/30 px-1.5 text-[10px] font-bold text-current"
+                    >
+                      {count}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+        </Tabs>
 
         {/* Gamification Highlights */}
         <StoryGamificationRail
