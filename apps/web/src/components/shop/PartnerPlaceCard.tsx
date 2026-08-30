@@ -16,8 +16,8 @@ type PartnerPlaceCardProps = {
 export function PartnerPlaceCard({ href, name, place, image, preview, terms }: PartnerPlaceCardProps) {
   const { t, locale } = useI18n();
   const gemPrice = formatShopGems(terms.gemPrice, locale);
-  const cashPrice = formatShopMoney(terms.cashPrice, terms.currency, locale);
-  const shopGets = formatShopMoney(terms.merchantGets, terms.currency, locale);
+  const shopKeeps = formatShopMoney(terms.shopNets, terms.currency, locale);
+  const fundedBy = terms.funding === "brand" ? t("market.fundedByBrand") : t("market.fundedByShop");
 
   return (
     <article className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#12100d]">
@@ -32,6 +32,9 @@ export function PartnerPlaceCard({ href, name, place, image, preview, terms }: P
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/15" />
         <span className="absolute left-3 top-3 rounded-full bg-[#f3efe6]/95 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-[#3d2a1e]">
           {preview ? t("market.previewPlace") : t("market.gemPlace")}
+        </span>
+        <span className="absolute right-3 top-3 rounded-full bg-black/70 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-amber-100">
+          {fundedBy}
         </span>
       </Link>
       <div className="p-5">
@@ -48,12 +51,12 @@ export function PartnerPlaceCard({ href, name, place, image, preview, terms }: P
             <dd className="mt-1 text-sm font-black text-amber-200">{gemPrice}</dd>
           </div>
           <div>
-            <dt className="text-[9px] font-black uppercase tracking-wider text-white/40">{t("market.cashPrice")}</dt>
-            <dd className="mt-1 text-sm font-black text-white">{cashPrice}</dd>
+            <dt className="text-[9px] font-black uppercase tracking-wider text-white/40">{t("market.shopKeeps")}</dt>
+            <dd className="mt-1 text-sm font-black text-emerald-200">{shopKeeps}</dd>
           </div>
           <div>
-            <dt className="text-[9px] font-black uppercase tracking-wider text-white/40">{t("market.shopEarns")}</dt>
-            <dd className="mt-1 text-sm font-black text-emerald-200">{shopGets}</dd>
+            <dt className="text-[9px] font-black uppercase tracking-wider text-white/40">{t("market.platformFee")}</dt>
+            <dd className="mt-1 text-sm font-black text-white">{formatShopMoney(terms.platformFee, terms.currency, locale)}</dd>
           </div>
         </dl>
         <TactileButton variant="primary" className="mt-4 w-full" asChild>

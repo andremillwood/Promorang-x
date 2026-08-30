@@ -1,15 +1,20 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MoneyPots, NightTrail } from "@/components/promorang/SignatureObjects";
+import { MoneyPots, NightTrail, PaperReceipt, RoleLens } from "@/components/promorang/SignatureObjects";
 import { TactileButton } from "@/components/ui/TactileButton";
 import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
+import { formatShopGems, formatShopMoney, type PartnerOfferTerms } from "@/lib/shop/partner-offer";
 
 type ShopAccountLoopProps = {
   signedIn: boolean;
   walletHref: string;
+  example?: PartnerOfferTerms | null;
 };
 
-export function ShopAccountLoop({ signedIn, walletHref }: ShopAccountLoopProps) {
-  const { t } = useI18n();
+export function ShopAccountLoop({ signedIn, walletHref, example }: ShopAccountLoopProps) {
+  const { t, locale } = useI18n();
+  const [role, setRole] = useState(0);
 
   return (
     <section className="space-y-8 rounded-[2rem] border border-white/10 bg-[#0b0a09] p-5 md:p-8">
@@ -40,6 +45,34 @@ export function ShopAccountLoop({ signedIn, walletHref }: ShopAccountLoopProps) 
         ]}
       />
 
+      <RoleLens
+        selectedIndex={role}
+        onSelect={setRole}
+        roles={[
+          {
+            role: t("market.roleMember"),
+            why: t("market.roleMemberWhy"),
+            outcome: t("market.roleMemberOutcome"),
+            action: signedIn ? t("market.seePlaces") : t("market.getAccount"),
+            href: signedIn ? "/shop#shop-places" : walletHref,
+          },
+          {
+            role: t("market.roleShop"),
+            why: t("market.roleShopWhy"),
+            outcome: t("market.roleShopOutcome"),
+            action: t("market.merchantLaterShort"),
+            href: "/for-merchants",
+          },
+          {
+            role: t("market.roleBrand"),
+            why: t("market.roleBrandWhy"),
+            outcome: t("market.roleBrandOutcome"),
+            action: t("market.fundANight"),
+            href: "/for-brands",
+          },
+        ]}
+      />
+
       <MoneyPots
         pots={[
           { label: t("market.potYou"), detail: t("market.potYouDetail"), mark: t("market.potYouMark") },
@@ -47,6 +80,16 @@ export function ShopAccountLoop({ signedIn, walletHref }: ShopAccountLoopProps) 
           { label: t("market.potNights"), detail: t("market.potNightsDetail"), mark: t("market.potNightsMark") },
         ]}
       />
+
+      {example ? (
+        <div className="max-w-sm">
+          <PaperReceipt
+            heading={t("market.receiptHeading")}
+            lines={offerReceiptLines(example, t, locale)}
+            footer={example.funding === "brand" ? t("market.receiptFooterBrand") : t("market.receiptFooterShop")}
+          />
+        </div>
+      ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <TactileButton variant="primary" asChild>
@@ -58,4 +101,23 @@ export function ShopAccountLoop({ signedIn, walletHref }: ShopAccountLoopProps) 
       </div>
     </section>
   );
+}
+
+export function offerReceiptLines(
+  terms: PartnerOfferTerms,
+  t: (key: TranslationKey) => string,
+  locale: string,
+) {
+  const money = (amount: number) => formatShopMoney(amount, terms.currency, locale);
+  const lines = [
+    { label: t("market.cashPrice"), value: money(terms.cashPrice) },
+    { label: t("market.payWithGems"), value: formatShopGems(terms.gemPrice, locale), strong: true },
+    { label: t("market.youSave"), value: `−${money(terms.memberSave)}` },
+  ];
+  if (terms.funding === "brand") {
+    lines.push({ label: t("market.potCovers"), value: money(terms.potCovers) });
+  }
+  lines.push({ label: t("market.platformFee"), value: money(terms.platformFee) });
+  lines.push({ label: t("market.shopKeeps"), value: money(terms.shopNets), strong: true });
+  return lines;
 }

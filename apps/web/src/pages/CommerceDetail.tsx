@@ -11,7 +11,8 @@ import { useCommerceActions } from '@/hooks/useCommerceActions';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePromoCard } from '@/hooks/usePromoCard';
 import { KINGSTON_EXPERIENCE_LISTINGS } from '@/lib/shop/preview-partners';
-import { formatShopGems, formatShopMoney, isPreviewPartnerListing, partnerOfferTerms, shopIndexHref } from '@/lib/shop/partner-offer';
+import { offerReceiptLines } from '@/components/shop/ShopAccountLoop';
+import { isPreviewPartnerListing, partnerOfferTerms, shopIndexHref } from '@/lib/shop/partner-offer';
 import { PaperReceipt } from '@/components/promorang/SignatureObjects';
 import { useI18n } from '@/i18n/I18nContext';
 import { PromoCardService } from '@/lib/promocard';
@@ -234,13 +235,8 @@ export default function CommerceDetail() {
             <div className="mt-4 max-w-sm">
               <PaperReceipt
                 heading={t("market.receiptHeading")}
-                lines={[
-                  { label: t("market.cashPrice"), value: formatShopMoney(terms.cashPrice, terms.currency, locale) },
-                  { label: t("market.payWithGems"), value: formatShopGems(terms.gemPrice, locale), strong: true },
-                  { label: t("market.youSave"), value: `−${formatShopMoney(terms.memberSave, terms.currency, locale)}` },
-                  { label: t("market.shopEarns"), value: formatShopMoney(terms.merchantGets, terms.currency, locale) },
-                ]}
-                footer={isSample ? t("market.previewOnlyCopy") : t("market.receiptFooter")}
+                lines={offerReceiptLines(terms, t, locale)}
+                footer={isSample ? t("market.previewOnlyCopy") : terms.funding === "brand" ? t("market.receiptFooterBrand") : t("market.receiptFooterShop")}
               />
             </div>
 

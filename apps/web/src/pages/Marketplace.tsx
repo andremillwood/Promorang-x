@@ -135,7 +135,11 @@ const Marketplace = () => {
         walletHref={walletHref}
       />
 
-      <ShopAccountLoop signedIn={Boolean(user)} walletHref={walletHref} />
+      <ShopAccountLoop
+        signedIn={Boolean(user)}
+        walletHref={walletHref}
+        example={listings[0] ? partnerOfferTerms(listings[0], card.availableBalance) : null}
+      />
 
       <div id="shop-places" className="space-y-4 scroll-mt-24">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
