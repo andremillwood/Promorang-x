@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  HERO_LAYER_IDS,
+  INITIAL_HERO_LAYER,
   buildKeepRelic,
   buildProofReceipt,
   formatHeroMoney,
@@ -8,13 +10,18 @@ import {
 } from "./cultureHomeHero";
 
 describe("cultureHomeHero", () => {
+  it("opens on the PromoCard spend layer", () => {
+    expect(INITIAL_HERO_LAYER).toBe("spend");
+    expect(HERO_LAYER_IDS[0]).toBe("spend");
+  });
+
   it("rotates layers in a closed loop", () => {
-    expect(nextHeroLayer("tonight")).toBe("spend");
-    expect(nextHeroLayer("spend")).toBe("proof");
+    expect(nextHeroLayer("spend")).toBe("tonight");
+    expect(nextHeroLayer("tonight")).toBe("proof");
     expect(nextHeroLayer("proof")).toBe("keep");
-    expect(nextHeroLayer("keep")).toBe("tonight");
-    expect(previousHeroLayer("tonight")).toBe("keep");
-    expect(previousHeroLayer("spend")).toBe("tonight");
+    expect(nextHeroLayer("keep")).toBe("spend");
+    expect(previousHeroLayer("spend")).toBe("keep");
+    expect(previousHeroLayer("tonight")).toBe("spend");
   });
 
   it("formats spendable card amounts", () => {

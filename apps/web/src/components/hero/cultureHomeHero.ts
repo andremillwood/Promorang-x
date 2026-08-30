@@ -1,5 +1,6 @@
-export const HERO_LAYER_IDS = ["tonight", "spend", "proof", "keep"] as const;
+export const HERO_LAYER_IDS = ["spend", "tonight", "proof", "keep"] as const;
 export type HeroLayerId = (typeof HERO_LAYER_IDS)[number];
+export const INITIAL_HERO_LAYER: HeroLayerId = "spend";
 
 export type LiveHeroMoment = {
   title: string;

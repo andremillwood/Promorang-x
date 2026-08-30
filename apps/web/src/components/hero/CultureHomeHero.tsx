@@ -11,6 +11,7 @@ import {
 import { HeroFloatingBadges } from "@/components/hero/HeroFloatingBadges";
 import {
   HERO_LAYER_IDS,
+  INITIAL_HERO_LAYER,
   buildKeepRelic,
   buildProofReceipt,
   nextHeroLayer,
@@ -52,7 +53,7 @@ export function CultureHomeHero({
   onOpenOrientation,
 }: CultureHomeHeroProps) {
   const { t } = useI18n();
-  const [layer, setLayer] = useState<HeroLayerId>("tonight");
+  const [layer, setLayer] = useState<HeroLayerId>(INITIAL_HERO_LAYER);
   const [roleIndex, setRoleIndex] = useState(0);
   const [rotationPaused, setRotationPaused] = useState(false);
   const [interactionPaused, setInteractionPaused] = useState(false);
@@ -98,6 +99,13 @@ export function CultureHomeHero({
   const spendHref = signedIn ? "/wallet" : "/auth?mode=signup&next=/wallet";
 
   const roles = [
+    {
+      role: t("home.heroWhoSpend"),
+      why: t("home.heroWhoSpendWhy"),
+      outcome: t("home.heroWhoSpendOutcome"),
+      action: signedIn ? t("home.heroCardCtaSignedIn") : t("home.heroCardCta"),
+      href: spendHref,
+    },
     {
       role: t("home.heroWhoJoin"),
       why: t("home.heroWhoJoinWhy"),
@@ -318,7 +326,7 @@ export function CultureHomeHero({
             onSelect={(index) => {
               setRoleIndex(index);
               const picked = roles[index];
-              if (picked) rememberMarketingIntent(`hero_role_${index + 1}`, picked.href, ["participant", "host", "brand"][index]);
+              if (picked) rememberMarketingIntent(`hero_role_${index + 1}`, picked.href, ["participant", "participant", "host", "brand"][index]);
             }}
           />
         </div>
