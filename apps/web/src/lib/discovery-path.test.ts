@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { resolveCityHub } from "./city-hubs";
 import {
   buildDiscoveryPath,
   discoverPathHref,
+  discoveryPollLocationHint,
+  filterDiscoveryPollsForHub,
   inferLensesFromPreferences,
   isDiscoverLensId,
+  mergeDiscoveryPolls,
   scorePollForLenses,
   whyForPoll,
   type PathablePoll,
@@ -148,6 +152,40 @@ describe("buildDiscoveryPath", () => {
     }));
 
     expect(buildDiscoveryPath({ polls, lenses: ["eat"] })).toHaveLength(4);
+  });
+});
+
+describe("discoveryPollLocationHint", () => {
+  it("packs question, perk, and tags so city hubs can match a poll", () => {
+    expect(discoveryPollLocationHint(eatPoll)).toEqual({
+      title: eatPoll.question,
+      description: "Vote to back your spot and unlock a tasting pass. 25% Off Jerk Platter Jerk Chicken Kingston Food Foodies",
+    });
+  });
+});
+
+describe("filterDiscoveryPollsForHub", () => {
+  it("keeps Kingston eat and night polls in Kingston", () => {
+    const kingston = resolveCityHub("kingston")!;
+    expect(filterDiscoveryPollsForHub([eatPoll, nightPoll], kingston).map((poll) => poll.id)).toEqual([
+      "jerk",
+      "night",
+    ]);
+  });
+
+  it("drops Kingston-named polls from Miami", () => {
+    const miami = resolveCityHub("miami")!;
+    expect(filterDiscoveryPollsForHub([eatPoll, nightPoll], miami)).toEqual([]);
+  });
+});
+
+describe("mergeDiscoveryPolls", () => {
+  it("keeps the first copy of a poll and does not dump duplicates", () => {
+    const live = { ...eatPoll, question: "Live jerk question" };
+    const merged = mergeDiscoveryPolls([live], [eatPoll, nightPoll], [nightPoll]);
+
+    expect(merged.map((poll) => poll.id)).toEqual(["jerk", "night"]);
+    expect(merged[0].question).toBe("Live jerk question");
   });
 });
 
