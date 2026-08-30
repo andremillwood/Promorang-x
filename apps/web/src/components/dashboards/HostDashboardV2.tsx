@@ -15,6 +15,7 @@ import {
   Radio,
   Users,
   ChevronRight,
+  Vote,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHostedMoments, useHostStats } from "@/hooks/useMoments";
@@ -33,6 +34,7 @@ import HostLivePulseConsole from "@/components/host/HostLivePulseConsole";
 import HostProofReviewConsole from "@/components/host/HostProofReviewConsole";
 import HostSponsorshipConsole from "@/components/host/HostSponsorshipConsole";
 import HostImpactYieldConsole from "@/components/host/HostImpactYieldConsole";
+import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 
 export function HostDashboardV2() {
   const { user } = useAuth();
@@ -176,8 +178,9 @@ export function HostDashboardV2() {
       </div>
 
       {/* 3. The 5 Operational Host Arenas */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
         {[
+          { id: "demand", label: "City Demand", icon: Vote, hint: "What people named", count: "Live asks" },
           { id: "moments", label: "Stage Lineup", icon: Calendar, hint: "Moments & RSVP", count: `${hostedMoments?.length || 2} Staged` },
           { id: "pulse", label: "Live Room Pulse", icon: Radio, hint: "In-venue beacon", count: "Live Beacon" },
           { id: "review", label: "Proof Review", icon: ShieldCheck, hint: "Check-in audits", count: "2 Pending" },
@@ -220,12 +223,17 @@ export function HostDashboardV2() {
         <div className="min-w-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <TabsList className="sr-only">
+              <TabsTrigger value="demand">Demand</TabsTrigger>
               <TabsTrigger value="moments">Moments</TabsTrigger>
               <TabsTrigger value="pulse">Pulse</TabsTrigger>
               <TabsTrigger value="review">Review</TabsTrigger>
               <TabsTrigger value="sponsorships">Sponsors</TabsTrigger>
               <TabsTrigger value="impact">Impact</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="demand" className="mt-0">
+              <DiscoveryDemandInbox role="host" />
+            </TabsContent>
 
             <TabsContent value="moments" className="mt-0">
               <HostMomentsStagingConsole />

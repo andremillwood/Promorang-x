@@ -7,6 +7,12 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const { runCampaignOperator, runCampaignDiagnostics } = require('../lib/agents/campaignOperatorAgent');
+const {
+  runPromoShareOperator,
+  runPromoShareShareDraft,
+  runPromoSharePoolDraft,
+  runPromoShareHandoff,
+} = require('../lib/agents/promoShareAgent');
 const { 
   createCampaignDraftTool, 
   approveAndPublishCampaignTool, 
@@ -203,6 +209,141 @@ router.post('/campaign-operator/diagnose', async (req, res) => {
   } catch (err) {
     console.error('Error running campaign diagnostics:', err);
     return sendError(res, 500, err.message || 'Failed to run campaign diagnostics', 'DIAGNOSTICS_FAILED');
+  }
+});
+
+function promoShareUserContext(req, body = {}) {
+  return {
+    userId: req.user?.id,
+    userType: req.user?.user_type || req.user?.role,
+    activeRole: body.role || req.user?.role || req.user?.user_type,
+    userName: req.user?.display_name || req.user?.username,
+    displayName: req.user?.display_name,
+    organizationId: body.organizationId || req.advertiserAccount?.id || null,
+    location: body.location || '',
+  };
+}
+
+/**
+ * POST /api/agent/promoshare/brief
+ * Run the role-scoped PromoShare operator. Always returns a deterministic brief.
+ */
+router.post('/promoshare/brief', async (req, res) => {
+  try {
+    const body = req.body || {};
+    const result = await runPromoShareOperator(
+      {
+        objective: body.objective || body.outcome,
+        outcome: body.outcome,
+        location: body.location,
+        role: body.role,
+        organizationId: body.organizationId,
+        budgetGems: body.budgetGems,
+        targetCount: body.targetCount,
+      },
+      promoShareUserContext(req, body)
+    );
+
+    return sendSuccess(res, result, 'PromoShare brief compiled');
+  } catch (err) {
+    console.error('Error running PromoShare operator:', err);
+    return sendError(res, 500, err.message || 'Failed to run PromoShare operator', 'PROMOSHARE_AGENT_FAILED');
+  }
+});
+
+/**
+ * POST /api/agent/promoshare/draft-share
+ * Draft one attributable share. Never posts.
+ */
+router.post('/promoshare/draft-share', async (req, res) => {
+  try {
+    const body = req.body || {};
+    const result = await runPromoShareShareDraft(
+      {
+        momentId: body.momentId,
+        momentName: body.momentName,
+        location: body.location,
+        cycleName: body.cycleName,
+      },
+      promoShareUserContext(req, body)
+    );
+
+    if (result.draft?.posted) {
+      return sendError(res, 500, 'Share drafts must never be marked posted', 'SHARE_DRAFT_INTEGRITY');
+    }
+
+    return sendSuccess(res, result, 'Share draft compiled');
+  } catch (err) {
+    console.error('Error drafting PromoShare share:', err);
+    return sendError(res, 500, err.message || 'Failed to draft share', 'PROMOSHARE_SHARE_DRAFT_FAILED');
+  }
+});
+
+/**
+ * POST /api/agent/promoshare/draft-pool
+ * Compile DRAFT pool rules from an outcome. Does not fund or publish.
+ */
+router.post('/promoshare/draft-pool', async (req, res) => {
+  try {
+    const body = req.body || {};
+    const result = await runPromoSharePoolDraft(
+      {
+        outcome: body.outcome || body.objective,
+        location: body.location,
+        budgetGems: body.budgetGems,
+        targetCount: body.targetCount,
+        organizationId: body.organizationId,
+        role: body.role,
+      },
+      promoShareUserContext(req, body)
+    );
+
+    if (result.draft?.funded || result.draft?.published) {
+      return sendError(res, 500, 'Pool drafts must not be funded or published by the agent', 'POOL_DRAFT_INTEGRITY');
+    }
+
+    return sendSuccess(res, result, 'Pool draft compiled');
+  } catch (err) {
+    if (err.code === 'FORBIDDEN_ROLE') {
+      return sendError(res, 403, err.message, err.code);
+    }
+    if (err.code === 'INVALID_OUTCOME') {
+      return sendError(res, 400, err.message, err.code);
+    }
+    console.error('Error drafting PromoShare pool:', err);
+    return sendError(res, 500, err.message || 'Failed to draft pool', 'PROMOSHARE_POOL_DRAFT_FAILED');
+  }
+});
+
+/**
+ * POST /api/agent/promoshare/handoff
+ * After a verified action: "it counted" plus the next move.
+ * Never sends someone back to check in at the same door.
+ */
+router.post('/promoshare/handoff', async (req, res) => {
+  try {
+    const body = req.body || {};
+    const result = await runPromoShareHandoff(
+      {
+        lastAction: body.lastAction,
+        momentId: body.momentId,
+        momentName: body.momentName,
+        location: body.location,
+        role: body.role,
+        organizationId: body.organizationId,
+      },
+      promoShareUserContext(req, body)
+    );
+
+    const href = result.brief?.nextMove?.href;
+    if (body.lastAction === 'check_in' && body.momentId && href === `/moments/${body.momentId}/checkin`) {
+      return sendError(res, 500, 'Handoff must not send someone back to the same door', 'HANDOFF_INTEGRITY');
+    }
+
+    return sendSuccess(res, result, 'PromoShare handoff compiled');
+  } catch (err) {
+    console.error('Error running PromoShare handoff:', err);
+    return sendError(res, 500, err.message || 'Failed to compile PromoShare handoff', 'PROMOSHARE_HANDOFF_FAILED');
   }
 });
 

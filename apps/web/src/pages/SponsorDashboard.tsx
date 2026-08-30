@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
+import { PromoShareOperator } from '@/components/promoshare/PromoShareOperator';
 import {
   DollarSign,
   TrendingUp,
@@ -306,6 +307,10 @@ const SponsorDashboard = () => {
           <Plus className="w-4 h-4 mr-2" />
           Create Pool
         </Button>
+      </div>
+
+      <div className="mb-8">
+        <PromoShareOperator defaultRole="sponsor" compact />
       </div>
 
       {/* Quick Stats */}

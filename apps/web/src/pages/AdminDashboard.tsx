@@ -67,6 +67,8 @@ import { AdminLeadsCRM } from "@/components/admin/AdminLeadsCRM";
 import { AdminPresentsPanel } from "@/components/admin/AdminPresentsPanel";
 import { AdminEnrichmentReviewTab } from "@/components/admin/AdminEnrichmentReviewTab";
 import { AdminEventVerificationReviewTab } from "@/components/admin/AdminEventVerificationReviewTab";
+import { AdminWeeklyMomentDropTab } from "@/components/admin/AdminWeeklyMomentDropTab";
+import { AdminStakeholderScoutTab } from "@/components/admin/AdminStakeholderScoutTab";
 import { AdminDiscoveryAcquisitionTab } from "@/components/admin/AdminDiscoveryAcquisitionTab";
 import { PromoPilotCompiler } from "@/components/campaigns/PromoPilotCompiler";
 import { AdminVerificationHub } from "@/components/admin/AdminVerificationHub";
@@ -84,6 +86,8 @@ const ADMIN_TABS = new Set([
   "operations",
   "enrichment-review",
   "event-review",
+  "weekly-drops",
+  "scout",
   "promopush",
   "catalog",
   "commerce",
@@ -131,6 +135,8 @@ const ADMIN_NAV_GROUPS: Array<{ label: string; items: AdminNavItem[] }> = [
       { value: "pioneer", label: "Pioneer Audit", icon: Target },
       { value: "enrichment-review", label: "Scout Proof Review", icon: ClipboardCheck },
       { value: "event-review", label: "Event Evidence", icon: Calendar },
+      { value: "weekly-drops", label: "Weekly Drops", icon: Megaphone },
+      { value: "scout", label: "Stakeholder Scout", icon: Store },
       { value: "operations", label: "Live Operations", icon: Activity },
     ],
   },
@@ -395,6 +401,14 @@ const AdminDashboard = () => {
 
             <TabsContent value="event-review" className="mt-0">
               <AdminEventVerificationReviewTab />
+            </TabsContent>
+
+            <TabsContent value="weekly-drops" className="mt-0">
+              <AdminWeeklyMomentDropTab />
+            </TabsContent>
+
+            <TabsContent value="scout" className="mt-0">
+              <AdminStakeholderScoutTab />
             </TabsContent>
 
             <TabsContent value="operations" className="mt-0">

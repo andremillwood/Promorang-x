@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Compass, Coins, MapPin, MoonStar, SlidersHorizontal, Sparkles, Gift, Share2, Store, QrCode } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,9 +8,11 @@ import { FeedStream } from "@/components/feed/FeedStream";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { PromoShareOperator } from "@/components/promoshare/PromoShareOperator";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
+import { readStoredDiscoverQuery } from "@/lib/discovery-path";
 
 const lenses: Array<{
   value: FeedIntent | null;
@@ -30,6 +32,10 @@ const ForYou = () => {
   const [activeIntent, setActiveIntent] = useState<FeedIntent | null>(null);
   const feedQuery = useForYouFeed(activeIntent);
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || t("forYou.explorer");
+  const [savedAsk, setSavedAsk] = useState("");
+  useEffect(() => {
+    setSavedAsk(readStoredDiscoverQuery());
+  }, []);
   const rankedItems = useMemo(
     () => feedQuery.data?.feed || [],
     [feedQuery.data],
@@ -57,11 +63,11 @@ const ForYou = () => {
             {/* 3-Sided Market Quick Navigation Strip */}
             <div className="flex flex-wrap gap-2 pt-2">
               <Link
-                to="/discover?tab=discoveries"
+                to="#home-discover-path"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 text-xs font-bold transition"
               >
                 <Compass className="w-3.5 h-3.5" />
-                <span>Vote &amp; Unlock Perks (+25 Pts)</span>
+                <span>{savedAsk ? t("discover.pathContinueAsk", { query: savedAsk }) : t("discover.pathPageTitle")}</span>
               </Link>
 
               <Link
@@ -96,6 +102,12 @@ const ForYou = () => {
           </div>
         </div>
       </header>
+
+      {user ? (
+        <div className="px-4 pt-4 sm:px-6">
+          <PromoShareOperator variant="rail" />
+        </div>
+      ) : null}
 
       <DiscoveriesFeedSection />
 

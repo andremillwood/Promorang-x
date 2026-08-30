@@ -7,6 +7,7 @@ import { MomentCard } from "@/components/MomentCard";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
 import { useI18n } from "@/i18n/I18nContext";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type Moment = Tables<"moments">;
 
@@ -214,29 +215,28 @@ export function SavedCollections({
                             ))}
                         </MasonryGrid>
                     ) : (
-                        <div className="text-center py-12">
-                            <Bookmark className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                            <p className="text-muted-foreground">{t("saved.emptyCollection")}</p>
-                            <Button variant="outline" asChild className="mt-4">
-                                <Link to="/discover">{t("saved.explore")}</Link>
-                            </Button>
-                        </div>
+                        <EmptyState
+                            icon={Bookmark}
+                            title={t("empty.savedTitle")}
+                            description={t("saved.emptyCollection")}
+                            unlock={t("empty.savedUnlock")}
+                            actionLabel={t("empty.savedCta")}
+                            actionHref="/discover"
+                        />
                     )}
                 </div>
             )}
 
             {/* Empty State */}
             {collections.length === 0 && (
-                <div className="text-center py-12">
-                    <Bookmark className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
-                    <h3 className="font-medium text-lg mb-2">{t("saved.empty")}</h3>
-                    <p className="text-muted-foreground mb-4">
-                        {t("saved.emptyCopy")}
-                    </p>
-                    <Button asChild>
-                        <Link to="/discover">{t("saved.explore")}</Link>
-                    </Button>
-                </div>
+                <EmptyState
+                    icon={Bookmark}
+                    title={t("empty.savedTitle")}
+                    description={t("empty.savedCopy")}
+                    unlock={t("empty.savedUnlock")}
+                    actionLabel={t("empty.savedCta")}
+                    actionHref="/discover"
+                />
             )}
         </div>
     );
