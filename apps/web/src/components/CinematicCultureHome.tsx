@@ -38,7 +38,6 @@ import {
   Share2,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
-import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
 import { MobilePromoHome, PromoCardGateway } from "@/components/promocard";
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
@@ -72,9 +71,6 @@ import { OpsTheatreStatusPill } from "@/components/theater/OpsTheatreStatusPill"
 import { OpsTheatreOrientationModal } from "@/components/onboarding/OpsTheatreOrientationModal";
 import { BrandCaseStudies } from "@/components/brands/BrandCaseStudies";
 import { useAuth } from "@/contexts/AuthContext";
-import { PromoShareOperator } from "@/components/promoshare/PromoShareOperator";
-import { NextMoveStrip } from "@/components/journey/NextMoveStrip";
-import { getMemberNextMove } from "@/lib/member-next-move";
 
 type PublicMoment = Tables<"moments"> & { participant_count?: number | null };
 type PublicCommerceListing = Tables<"view_public_commerce_directory">;
@@ -472,18 +468,11 @@ export default function CinematicCultureHome() {
   const cardParallaxY = useTransform(scrollYProgress, [0, 1], ["0px", "45px"]);
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      {user ? <HomeFeedToggle /> : null}
-      <div className="container px-5 pt-3 md:px-6">
-        <NextMoveStrip move={getMemberNextMove({ signedIn: Boolean(user), canCreate: Boolean(user) })} />
+    <div className="min-h-screen bg-black text-white">
+      <div className="md:hidden">
+        <PromoCardGateway />
+        <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} />
       </div>
-      {user ? (
-        <div className="container px-5 pt-3 md:px-6">
-          <PromoShareOperator variant="rail" />
-        </div>
-      ) : null}
-      <PromoCardGateway />
-      <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} />
       <div className="hidden md:block">
       <section ref={heroRef} className="relative overflow-hidden border-b border-white/10 md:min-h-[92svh]">
         {/* Parallax Background Layer */}
@@ -1417,6 +1406,6 @@ export default function CinematicCultureHome() {
         isOpen={orientationOpen}
         onClose={() => setOrientationOpen(false)}
       />
-    </main>
+    </div>
   );
 }
