@@ -20,6 +20,7 @@ import {
   type DiscoverLensId,
   type PathWhy,
 } from "@/lib/discovery-path";
+import { recordDiscoveryNamedIntent } from "@/hooks/useDiscoveryDemand";
 import { cn } from "@/lib/utils";
 
 const LENS_STORAGE_KEY = "promorang.discover.lens";
@@ -216,6 +217,7 @@ export function DiscoveryPath({
     writeStoredDiscoverQuery(next);
     syncQueryParam(next, null);
     setIntentTick((tick) => tick + 1);
+    void recordDiscoveryNamedIntent(cityName, next);
   };
 
   const clearQuery = () => {
