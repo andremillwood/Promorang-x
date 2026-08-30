@@ -8,6 +8,7 @@ import { FeedStream } from "@/components/feed/FeedStream";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { PromoShareOperator } from "@/components/promoshare/PromoShareOperator";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
@@ -61,7 +62,7 @@ const ForYou = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 text-xs font-bold transition"
               >
                 <Compass className="w-3.5 h-3.5" />
-                <span>Vote &amp; Unlock Perks (+25 Pts)</span>
+                <span>Find what's for you</span>
               </Link>
 
               <Link
@@ -96,6 +97,12 @@ const ForYou = () => {
           </div>
         </div>
       </header>
+
+      {user ? (
+        <div className="px-4 pt-4 sm:px-6">
+          <PromoShareOperator variant="rail" />
+        </div>
+      ) : null}
 
       <DiscoveriesFeedSection />
 

@@ -1,0 +1,99 @@
+{
+  "market": "Jamaica",
+  "lead_days": 90,
+  "as_of": "2026-08-28",
+  "horizon_ends": "2026-11-26",
+  "sources": [
+    "https://www.visitjamaica.com/experiences/events/",
+    "https://www.visitjamaica.com/experiences/events/events-calendar/",
+    "https://kingstoncreative.org/artwalk/"
+  ],
+  "events": [
+    {
+      "event_key": "amalgamation-global-gala-2026-08-28",
+      "title": "Amalgamation – The Global Gala",
+      "starts_at": "2026-08-28T19:00:00-05:00",
+      "city": "Kingston",
+      "source_name": "Visit Jamaica"
+    },
+    {
+      "event_key": "lovers-leap-lighthouse-2026-08-29",
+      "title": "Lover's Leap Lighthouse Series",
+      "starts_at": "2026-08-29T18:00:00-05:00",
+      "city": "St. Elizabeth",
+      "source_name": "Visit Jamaica"
+    },
+    {
+      "event_key": "mobay-creative-arts-2026-08-30",
+      "title": "Montego Bay Creative Arts Festival",
+      "starts_at": "2026-08-30T11:00:00-05:00",
+      "city": "Montego Bay",
+      "source_name": "Kingston Creative"
+    },
+    {
+      "event_key": "mbj-team-sangster-run-2026-09-06",
+      "title": "MBJ Team Sangster Charity Run/Walk for Education",
+      "starts_at": "2026-09-06T06:00:00-05:00",
+      "city": "Montego Bay",
+      "source_name": "Visit Jamaica"
+    },
+    {
+      "event_key": "jamaica-bridal-expo-2026-09-13",
+      "title": "Jamaica Bridal Expo",
+      "starts_at": "2026-09-13T10:00:00-05:00",
+      "city": "Kingston",
+      "source_name": "Visit Jamaica"
+    },
+    {
+      "event_key": "kingston-creative-artwalk-2026-09-27",
+      "title": "Kingston Creative Artwalk — September",
+      "starts_at": "2026-09-27T11:00:00-05:00",
+      "city": "Kingston",
+      "source_name": "Kingston Creative"
+    },
+    {
+      "event_key": "national-heroes-day-2026-10-19",
+      "title": "National Heroes Day",
+      "starts_at": "2026-10-19T09:00:00-05:00",
+      "city": "Kingston",
+      "source_name": "Government of Jamaica"
+    },
+    {
+      "event_key": "heroes-weekend-2026-10-17",
+      "title": "Heroes Weekend",
+      "starts_at": "2026-10-17T18:00:00-05:00",
+      "city": "Kingston",
+      "source_name": "Visit Jamaica"
+    },
+    {
+      "event_key": "kingston-creative-artwalk-2026-10-25",
+      "title": "Kingston Creative Artwalk — October",
+      "starts_at": "2026-10-25T11:00:00-05:00",
+      "city": "Kingston",
+      "source_name": "Kingston Creative"
+    },
+    {
+      "event_key": "treasure-beach-food-rum-reggae-2026-11-06",
+      "title": "Treasure Beach Food, Rum & Reggae Festival",
+      "starts_at": "2026-11-06T12:00:00-05:00",
+      "city": "Treasure Beach",
+      "source_name": "Visit Jamaica"
+    },
+    {
+      "event_key": "jamaica-restaurant-week-2026-11",
+      "title": "Jamaica Restaurant Week",
+      "starts_at": "2026-11-01T12:00:00-05:00",
+      "city": "Kingston",
+      "source_name": "Visit Jamaica",
+      "schedule_precision": "month"
+    },
+    {
+      "event_key": "kingston-creative-artwalk-2026-11-29",
+      "title": "Kingston Creative Artwalk — November",
+      "starts_at": "2026-11-29T11:00:00-05:00",
+      "city": "Kingston",
+      "source_name": "Kingston Creative",
+      "note": "Queued until it enters the 90-day window"
+    }
+  ]
+}

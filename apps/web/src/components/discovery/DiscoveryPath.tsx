@@ -1,0 +1,375 @@
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Compass, SkipForward, Utensils, MoonStar, Users, Sparkles } from "lucide-react";
+import { NightTrail, PaperReceipt } from "@/components/promorang/SignatureObjects";
+import { TactileButton } from "@/components/ui/TactileButton";
+import { DiscoveryWidget } from "@/components/radar/DiscoveryWidget";
+import { AskQuestionModal } from "@/components/discovery/AskQuestionModal";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
+import type { DiscoveryPoll } from "@/data/discoveriesData";
+import {
+  buildDiscoveryPath,
+  inferLensesFromPreferences,
+  isDiscoverLensId,
+  type DiscoverLensId,
+  type PathWhy,
+} from "@/lib/discovery-path";
+import { cn } from "@/lib/utils";
+
+const LENS_STORAGE_KEY = "promorang.discover.lens";
+const VOTED_STORAGE_KEY = "promorang.discover.voted";
+const SKIPPED_STORAGE_KEY = "promorang.discover.skipped";
+
+const LENSES: Array<{
+  id: DiscoverLensId;
+  icon: typeof Utensils;
+  titleKey: TranslationKey;
+  descKey: TranslationKey;
+}> = [
+  { id: "eat", icon: Utensils, titleKey: "discover.pathLensEat", descKey: "discover.pathLensEatDesc" },
+  { id: "go_out", icon: MoonStar, titleKey: "discover.pathLensGoOut", descKey: "discover.pathLensGoOutDesc" },
+  { id: "hang", icon: Users, titleKey: "discover.pathLensHang", descKey: "discover.pathLensHangDesc" },
+  { id: "try", icon: Sparkles, titleKey: "discover.pathLensTry", descKey: "discover.pathLensTryDesc" },
+];
+
+function readList(key: string): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((item) => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeList(key: string, value: string[]) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(key, JSON.stringify(value));
+}
+
+function whyCopy(
+  why: PathWhy,
+  t: (key: TranslationKey, vars?: Record<string, string | number>) => string,
+): string {
+  const lensLabel = why.lens
+    ? t(LENSES.find((lens) => lens.id === why.lens)?.titleKey || "discover.pathLensTry")
+    : t("discover.pathLensTry");
+  const perk = why.perk || t("discover.pathFallbackPerk");
+  if (why.kind === "close") {
+    return t("discover.pathWhyClose", {
+      lens: lensLabel,
+      city: why.city,
+      votes: why.votesRemaining,
+      perk,
+    });
+  }
+  if (why.kind === "taste") {
+    return t("discover.pathWhyTaste", { lens: lensLabel, city: why.city });
+  }
+  return t("discover.pathWhyCity", { city: why.city, perk });
+}
+
+type DiscoveryPathProps = {
+  polls: DiscoveryPoll[];
+  cityName: string;
+  preferredCategories?: string[];
+  initialLens?: string | null;
+  onQuestionCreated?: (poll: DiscoveryPoll) => void;
+};
+
+export function DiscoveryPath({
+  polls,
+  cityName,
+  preferredCategories = [],
+  initialLens = null,
+  onQuestionCreated,
+}: DiscoveryPathProps) {
+  const { t } = useI18n();
+  const inferred = inferLensesFromPreferences(preferredCategories);
+  const [lens, setLens] = useState<DiscoverLensId | null>(() => {
+    if (isDiscoverLensId(initialLens)) return initialLens;
+    if (typeof window !== "undefined") {
+      const stored = window.localStorage.getItem(LENS_STORAGE_KEY);
+      if (isDiscoverLensId(stored)) return stored;
+    }
+    return null;
+  });
+  const [votedIds, setVotedIds] = useState<string[]>(() => readList(VOTED_STORAGE_KEY));
+  const [skippedIds, setSkippedIds] = useState<string[]>(() => readList(SKIPPED_STORAGE_KEY));
+  const [justVotedId, setJustVotedId] = useState<string | null>(null);
+  const [browseOpen, setBrowseOpen] = useState(false);
+
+  useEffect(() => {
+    if (isDiscoverLensId(initialLens)) setLens(initialLens);
+  }, [initialLens]);
+
+  useEffect(() => {
+    if (lens) window.localStorage.setItem(LENS_STORAGE_KEY, lens);
+  }, [lens]);
+
+  const path = useMemo(
+    () =>
+      buildDiscoveryPath({
+        polls,
+        lenses: lens ? [lens] : [],
+        votedIds: votedIds.filter((id) => id !== justVotedId),
+        skippedIds,
+        cityName,
+        limit: 4,
+      }),
+    [polls, lens, votedIds, skippedIds, cityName, justVotedId],
+  );
+
+  const current = path[0] || null;
+  const upcoming = path.slice(1);
+  const rest = polls.filter(
+    (poll) => !path.some((item) => item.poll.id === poll.id) && !votedIds.includes(poll.id),
+  );
+
+  const chooseLens = (next: DiscoverLensId) => {
+    setLens(next);
+    setJustVotedId(null);
+    setSkippedIds([]);
+    writeList(SKIPPED_STORAGE_KEY, []);
+  };
+
+  const markVoted = (pollId: string) => {
+    setJustVotedId(pollId);
+    setVotedIds((prev) => {
+      if (prev.includes(pollId)) return prev;
+      const next = [...prev, pollId];
+      writeList(VOTED_STORAGE_KEY, next);
+      return next;
+    });
+  };
+
+  const skipCurrent = () => {
+    if (!current) return;
+    setJustVotedId(null);
+    setSkippedIds((prev) => {
+      if (prev.includes(current.poll.id)) return prev;
+      const next = [...prev, current.poll.id];
+      writeList(SKIPPED_STORAGE_KEY, next);
+      return next;
+    });
+  };
+
+  const continuePath = () => setJustVotedId(null);
+
+  return (
+    <div className="space-y-8">
+      <header className="relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[radial-gradient(circle_at_12%_0%,rgba(255,85,0,.16),transparent_42%),linear-gradient(180deg,#141210,#0a0a0b)] px-5 py-6 sm:px-8 sm:py-8">
+        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">
+          {t("discover.pathEyebrow", { city: cityName })}
+        </p>
+        <h2 className="mt-2 max-w-2xl font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          {t("discover.pathTitle")}
+        </h2>
+        <p className="mt-3 max-w-xl text-sm leading-6 text-white/60">{t("discover.pathCopy")}</p>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          {LENSES.map((item) => {
+            const Icon = item.icon;
+            const active = lens === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => chooseLens(item.id)}
+                aria-pressed={active}
+                className={cn(
+                  "flex min-h-[5.5rem] items-start gap-3 rounded-[1.3rem] border px-4 py-3.5 text-left transition",
+                  active
+                    ? "border-orange-400 bg-orange-500 text-black shadow-[0_0_28px_rgba(255,85,0,.28)]"
+                    : "border-white/10 bg-black/40 text-white hover:border-white/25 hover:bg-white/[0.05]",
+                )}
+              >
+                <span
+                  className={cn(
+                    "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+                    active ? "bg-black text-orange-300" : "bg-white/10 text-orange-300",
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                </span>
+                <span>
+                  <span className="block font-serif text-lg font-bold">{t(item.titleKey)}</span>
+                  <span className={cn("mt-0.5 block text-xs leading-5", active ? "text-black/70" : "text-white/50")}>
+                    {t(item.descKey)}
+                    {inferred.includes(item.id) ? ` · ${t("discover.pathFromTaste")}` : ""}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </header>
+
+      {!lens ? (
+        <NightTrail
+          eyebrow={t("discover.pathHowEyebrow")}
+          title={t("discover.pathHowTitle")}
+          steps={[
+            { label: "01", title: t("discover.pathStep1Title"), text: t("discover.pathStep1Copy") },
+            { label: "02", title: t("discover.pathStep2Title"), text: t("discover.pathStep2Copy") },
+            { label: "03", title: t("discover.pathStep3Title"), text: t("discover.pathStep3Copy") },
+            { label: "04", title: t("discover.pathStep4Title"), text: t("discover.pathStep4Copy") },
+          ]}
+        />
+      ) : current ? (
+        <section className="space-y-5" aria-labelledby="discover-current-move">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200/80">
+                {t("discover.pathPosition", { current: 1, total: path.length })}
+              </p>
+              <h3 id="discover-current-move" className="mt-1 font-serif text-2xl font-bold text-white">
+                {t("discover.pathCurrent")}
+              </h3>
+              <p className="mt-1 max-w-xl text-sm leading-6 text-white/55">{whyCopy(current.why, t)}</p>
+            </div>
+            <button
+              type="button"
+              onClick={skipCurrent}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-white/50 hover:text-white"
+            >
+              <SkipForward className="h-3.5 w-3.5" />
+              {t("discover.pathSkip")}
+            </button>
+          </div>
+
+          <DiscoveryWidget
+            key={current.poll.id}
+            {...current.poll}
+            onVote={(pollId) => markVoted(pollId)}
+          />
+
+          {votedIds.includes(current.poll.id) ? (
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,280px)_1fr] lg:items-center">
+              <PaperReceipt
+                heading={t("discover.pathReceiptHeading")}
+                lines={[
+                  { label: t("discover.pathReceiptChose"), value: current.poll.question, strong: true },
+                  {
+                    label: t("discover.pathReceiptUnlock"),
+                    value: current.poll.targetUnlockPerk || t("discover.pathFallbackPerk"),
+                    strong: true,
+                  },
+                  {
+                    label: t("discover.pathReceiptNext"),
+                    value: upcoming[0]?.poll.question || t("discover.pathReceiptBrowse"),
+                  },
+                ]}
+                footer={t("discover.pathReceiptFooter", { city: cityName })}
+              />
+              <div className="space-y-3">
+                <p className="text-sm leading-6 text-white/60">{t("discover.pathAfterVote")}</p>
+                <TactileButton variant="primary" onClick={continuePath}>
+                  {upcoming[0] ? t("discover.pathContinue") : t("discover.pathFinish")}
+                  <ArrowRight className="h-4 w-4" />
+                </TactileButton>
+              </div>
+            </div>
+          ) : null}
+
+          {upcoming.length > 0 ? (
+            <ol className="space-y-0 border-t border-white/10 pt-5">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-white/40">
+                {t("discover.pathComing")}
+              </p>
+              {upcoming.map((item, index) => (
+                <li key={item.poll.id} className="border-l border-white/10 py-3 pl-4">
+                  <p className="text-[11px] font-bold tracking-[0.16em] text-amber-200/70">
+                    {t("discover.pathUpNext", { n: index + 2 })}
+                  </p>
+                  <p className="mt-1 font-serif text-lg font-bold text-white">{item.poll.question}</p>
+                  <p className="mt-1 text-xs leading-5 text-white/45">{whyCopy(item.why, t)}</p>
+                </li>
+              ))}
+            </ol>
+          ) : null}
+        </section>
+      ) : (
+        <section className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">
+            {t("discover.pathDoneEyebrow")}
+          </p>
+          <h3 className="mt-2 font-serif text-2xl font-bold text-white">{t("discover.pathDoneTitle")}</h3>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-white/55">
+            {t("discover.pathDoneCopy", { city: cityName })}
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <TactileButton variant="primary" asChild>
+              <Link to="/discover?tab=perks">
+                {t("discover.pathDonePerks")}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </TactileButton>
+            <TactileButton variant="obsidian" onClick={() => setBrowseOpen(true)}>
+              {t("discover.pathBrowseRest")}
+            </TactileButton>
+          </div>
+        </section>
+      )}
+
+      <section className="border-t border-white/10 pt-6">
+        <button
+          type="button"
+          onClick={() => setBrowseOpen((open) => !open)}
+          className="flex w-full items-center justify-between gap-3 text-left"
+          aria-expanded={browseOpen}
+        >
+          <span>
+            <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
+              {t("discover.pathBrowseEyebrow")}
+            </span>
+            <span className="mt-1 block font-serif text-xl font-bold text-white">{t("discover.pathBrowseRest")}</span>
+            <span className="mt-1 block text-xs text-white/45">{t("discover.pathBrowseCopy")}</span>
+          </span>
+          <span className="text-xs font-bold text-orange-300">{browseOpen ? t("discover.pathHide") : t("discover.pathShow")}</span>
+        </button>
+
+        {browseOpen ? (
+          <ul className="mt-4 space-y-2">
+            {rest.map((poll) => (
+              <li key={poll.id}>
+                <Link
+                  to={`/discoveries/${poll.slug || poll.id}`}
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 hover:border-orange-400/40"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-bold text-white">{poll.question}</span>
+                    <span className="mt-0.5 block truncate text-[11px] text-white/40">
+                      {poll.targetUnlockPerk}
+                    </span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-orange-300" />
+                </Link>
+              </li>
+            ))}
+            {rest.length === 0 ? (
+              <li className="text-sm text-white/45">{t("discover.pathBrowseEmpty")}</li>
+            ) : null}
+          </ul>
+        ) : null}
+
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <AskQuestionModal
+            trigger={
+              <button
+                type="button"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-white/55 hover:text-white"
+              >
+                <Compass className="h-3.5 w-3.5 text-orange-300" />
+                {t("discover.pathAskOwn")}
+              </button>
+            }
+            onQuestionCreated={onQuestionCreated}
+          />
+        </div>
+      </section>
+    </div>
+  );
+}

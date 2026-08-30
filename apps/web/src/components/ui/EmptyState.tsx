@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ export interface EmptyStateProps {
   icon?: LucideIcon | React.ComponentType<{ className?: string }>;
   title: string;
   description?: string;
+  unlock?: string;
   actionLabel?: string;
   onAction?: () => void;
   actionHref?: string;
@@ -19,6 +21,7 @@ export function EmptyState({
   icon: Icon,
   title,
   description,
+  unlock,
   actionLabel,
   onAction,
   actionHref,
@@ -46,11 +49,16 @@ export function EmptyState({
           {description}
         </p>
       )}
+      {unlock ? (
+        <p className="mt-3 max-w-md text-sm font-semibold text-foreground">
+          {unlock}
+        </p>
+      ) : null}
       {actionLabel && (actionHref || onAction) && (
         <div className="mt-6">
           {actionHref ? (
             <Button asChild variant={actionVariant} className="rounded-xl font-bold">
-              <a href={actionHref}>{actionLabel}</a>
+              <Link to={actionHref}>{actionLabel}</Link>
             </Button>
           ) : (
             <Button

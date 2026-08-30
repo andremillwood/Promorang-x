@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { cultureImages } from "@/data/culture-demo";
 import { useI18n } from "@/i18n/I18nContext";
+import { NextMoveStrip } from "@/components/journey/NextMoveStrip";
+import { getMemberNextMove } from "@/lib/member-next-move";
 
 const Activity = () => {
     const { t, formatNumber } = useI18n();
@@ -123,6 +125,9 @@ const Activity = () => {
             </section>
 
             <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+                <div className="mb-6">
+                    <NextMoveStrip move={getMemberNextMove({ signedIn: Boolean(user), canCreate: Boolean(user) })} />
+                </div>
                 <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
                     {filterOptions.map(option => (
                         <button

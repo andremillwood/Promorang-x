@@ -188,6 +188,29 @@ router.get('/promoshare/maintenance', async (req, res) => {
   res.status(200).json({ success: true, result });
 });
 
+router.all('/weekly-moments', async (req, res) => {
+  try {
+    const weeklyMomentDropService = require('../services/weeklyMomentDropService');
+    const asOf = req.body?.asOf || req.query?.asOf || new Date().toISOString();
+    const result = await weeklyMomentDropService.runWeeklyMomentDrop(new Date(asOf));
+    const current = await weeklyMomentDropService.getCurrentDrop();
+    res.json({ success: true, job: 'weekly-moments', result, current });
+  } catch (error) {
+    res.status(500).json({ success: false, job: 'weekly-moments', error: error.message });
+  }
+});
+
+router.all('/stakeholder-scout', async (req, res) => {
+  try {
+    const stakeholderScoutService = require('../services/stakeholderScoutService');
+    const asOf = req.body?.asOf || req.query?.asOf || new Date().toISOString();
+    const result = await stakeholderScoutService.runWeeklyScout(new Date(asOf));
+    res.json({ success: true, job: 'stakeholder-scout', autoSend: false, sent: 0, result });
+  } catch (error) {
+    res.status(500).json({ success: false, job: 'stakeholder-scout', autoSend: false, error: error.message });
+  }
+});
+
 router.post('/email-campaigns/:job', async (req, res) => {
   const result = await emailScheduler.runManually(req.params.job);
   res.status(result.success ? 200 : 400).json(result);
