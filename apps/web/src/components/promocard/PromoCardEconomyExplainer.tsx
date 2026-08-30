@@ -75,7 +75,7 @@ export function PromoCardEconomyExplainer({ audience = "member", compact = false
               <Link to="/auth?mode=signup" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-black text-primary-foreground transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#090909]">
                 {t("promoCardExplainer.getCard")} <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link to="/economy/promocard" className="inline-flex min-h-11 items-center rounded-full border border-white/15 px-5 py-3 text-sm font-black text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+              <Link to="/promocard" className="inline-flex min-h-11 items-center rounded-full border border-white/15 px-5 py-3 text-sm font-black text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
                 {t("promoCardExplainer.seeMoneyFlow")}
               </Link>
             </div>
