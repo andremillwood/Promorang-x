@@ -23,6 +23,7 @@ import {
 } from "@/lib/shop/partner-offer";
 import { KINGSTON_EXPERIENCE_LISTINGS, type CommerceListing } from "@/lib/shop/preview-partners";
 import { PartnerPlaceCard } from "@/components/shop/PartnerPlaceCard";
+import { ShopAccountLoop } from "@/components/shop/ShopAccountLoop";
 import { ShopLoopContinue } from "@/components/shop/ShopLoopContinue";
 import { ShopPromoHero } from "@/components/shop/ShopPromoHero";
 
@@ -133,6 +134,8 @@ const Marketplace = () => {
         preview={cardIsPreview}
         walletHref={walletHref}
       />
+
+      <ShopAccountLoop signedIn={Boolean(user)} walletHref={walletHref} />
 
       <div id="shop-places" className="space-y-4 scroll-mt-24">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">

@@ -11,7 +11,7 @@ import { useCommerceActions } from '@/hooks/useCommerceActions';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePromoCard } from '@/hooks/usePromoCard';
 import { KINGSTON_EXPERIENCE_LISTINGS } from '@/lib/shop/preview-partners';
-import { formatShopMoney, isPreviewPartnerListing, partnerOfferTerms, shopIndexHref } from '@/lib/shop/partner-offer';
+import { formatShopGems, formatShopMoney, isPreviewPartnerListing, partnerOfferTerms, shopIndexHref } from '@/lib/shop/partner-offer';
 import { PaperReceipt } from '@/components/promorang/SignatureObjects';
 import { useI18n } from '@/i18n/I18nContext';
 import { PromoCardService } from '@/lib/promocard';
@@ -235,21 +235,25 @@ export default function CommerceDetail() {
               <PaperReceipt
                 heading={t("market.receiptHeading")}
                 lines={[
-                  { label: x.name || t("market.localMerchant"), value: formatShopMoney(terms.minSpend, terms.currency, locale) },
-                  { label: t("market.cardApplies"), value: `−${formatShopMoney(terms.applies, terms.currency, locale)}` },
-                  { label: t("market.youPay"), value: formatShopMoney(terms.remainder, terms.currency, locale), strong: true },
+                  { label: t("market.cashPrice"), value: formatShopMoney(terms.cashPrice, terms.currency, locale) },
+                  { label: t("market.payWithGems"), value: formatShopGems(terms.gemPrice, locale), strong: true },
+                  { label: t("market.youSave"), value: `−${formatShopMoney(terms.memberSave, terms.currency, locale)}` },
+                  { label: t("market.shopEarns"), value: formatShopMoney(terms.merchantGets, terms.currency, locale) },
                 ]}
-                footer={isSample ? t("market.previewOnlyCopy") : t("market.placesCopy")}
+                footer={isSample ? t("market.previewOnlyCopy") : t("market.receiptFooter")}
               />
             </div>
 
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
+              <Button size="lg" variant="secondary" disabled={!canCheckout || isSample || gemCheckoutBusy} onClick={payWithGems} className="sm:col-span-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold h-12 rounded-xl text-sm shadow-lg shadow-amber-500/20">
+                {gemCheckoutBusy ? t("commerce.gemsBusy") : t("commerce.gems", { count: formatNumber(terms.gemPrice) })}
+              </Button>
               <Button
                 size="lg"
                 onClick={() => setSplitTenderOpen(true)}
-                className="sm:col-span-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold h-12 rounded-xl text-sm shadow-lg shadow-amber-500/20 gap-2"
+                className="border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
               >
-                <CreditCard className="h-5 w-5 fill-black" />
+                <CreditCard className="h-5 w-5" />
                 <span>{t("market.useHere")}</span>
               </Button>
               <Button size="lg" disabled={isSample || !!actions.busy} onClick={() => actions.purchase(sourceId, amount, 'reservation')}>
@@ -260,9 +264,6 @@ export default function CommerceDetail() {
               </Button>
               <Button size="lg" variant="secondary" disabled={isSample || !merchantMethods.data?.methods.length} onClick={() => setMerchantPayOpen(true)} className="sm:col-span-2">
                 {t("commerce.direct")}
-              </Button>
-              <Button size="lg" variant="secondary" disabled={!canCheckout || isSample || gemCheckoutBusy} onClick={payWithGems} className="sm:col-span-2">
-                {gemCheckoutBusy ? t("commerce.gemsBusy") : t("commerce.gems", { count: formatNumber(amount) })}
               </Button>
             </div>
             {reservationMessage ? <p className="mt-3 rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white/70">{reservationMessage}</p> : null}

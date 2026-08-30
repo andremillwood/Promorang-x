@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { MapPin } from "lucide-react";
 import { TactileButton } from "@/components/ui/TactileButton";
 import { useI18n } from "@/i18n/I18nContext";
-import { formatShopMoney, type PartnerOfferTerms } from "@/lib/shop/partner-offer";
+import { formatShopGems, formatShopMoney, type PartnerOfferTerms } from "@/lib/shop/partner-offer";
 
 type PartnerPlaceCardProps = {
   href: string;
@@ -15,9 +15,9 @@ type PartnerPlaceCardProps = {
 
 export function PartnerPlaceCard({ href, name, place, image, preview, terms }: PartnerPlaceCardProps) {
   const { t, locale } = useI18n();
-  const applies = formatShopMoney(terms.applies, terms.currency, locale);
-  const minSpend = formatShopMoney(terms.minSpend, terms.currency, locale);
-  const remainder = formatShopMoney(terms.remainder, terms.currency, locale);
+  const gemPrice = formatShopGems(terms.gemPrice, locale);
+  const cashPrice = formatShopMoney(terms.cashPrice, terms.currency, locale);
+  const shopGets = formatShopMoney(terms.merchantGets, terms.currency, locale);
 
   return (
     <article className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#12100d]">
@@ -31,7 +31,7 @@ export function PartnerPlaceCard({ href, name, place, image, preview, terms }: P
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/15" />
         <span className="absolute left-3 top-3 rounded-full bg-[#f3efe6]/95 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-[#3d2a1e]">
-          {preview ? t("market.previewPlace") : t("market.cardPlace")}
+          {preview ? t("market.previewPlace") : t("market.gemPlace")}
         </span>
       </Link>
       <div className="p-5">
@@ -44,16 +44,16 @@ export function PartnerPlaceCard({ href, name, place, image, preview, terms }: P
         </h2>
         <dl className="mt-4 grid grid-cols-3 gap-2 border-y border-white/10 py-3 text-center">
           <div>
-            <dt className="text-[9px] font-black uppercase tracking-wider text-white/40">{t("market.cardApplies")}</dt>
-            <dd className="mt-1 text-sm font-black text-amber-200">{applies}</dd>
+            <dt className="text-[9px] font-black uppercase tracking-wider text-white/40">{t("market.payWithGems")}</dt>
+            <dd className="mt-1 text-sm font-black text-amber-200">{gemPrice}</dd>
           </div>
           <div>
-            <dt className="text-[9px] font-black uppercase tracking-wider text-white/40">{t("market.minSpend")}</dt>
-            <dd className="mt-1 text-sm font-black text-white">{minSpend}</dd>
+            <dt className="text-[9px] font-black uppercase tracking-wider text-white/40">{t("market.cashPrice")}</dt>
+            <dd className="mt-1 text-sm font-black text-white">{cashPrice}</dd>
           </div>
           <div>
-            <dt className="text-[9px] font-black uppercase tracking-wider text-white/40">{t("market.youPay")}</dt>
-            <dd className="mt-1 text-sm font-black text-white">{remainder}</dd>
+            <dt className="text-[9px] font-black uppercase tracking-wider text-white/40">{t("market.shopEarns")}</dt>
+            <dd className="mt-1 text-sm font-black text-emerald-200">{shopGets}</dd>
           </div>
         </dl>
         <TactileButton variant="primary" className="mt-4 w-full" asChild>

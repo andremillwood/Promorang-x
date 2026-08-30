@@ -53,7 +53,7 @@ export function ShopLoopContinue({ showingPreviews, signedIn, nearbyMoment }: Sh
         </TactileButton>
         {!signedIn ? (
           <TactileButton variant="outline" asChild>
-            <Link to="/auth?mode=signup&next=/wallet">{t("market.getCard")}</Link>
+            <Link to="/auth?mode=signup&next=/wallet">{t("market.getAccount")}</Link>
           </TactileButton>
         ) : (
           <TactileButton variant="outline" asChild>

@@ -25,7 +25,22 @@ export type PartnerOfferTerms = {
   applies: number;
   remainder: number;
   currency: string;
+  cashPrice: number;
+  gemPrice: number;
+  memberSave: number;
+  merchantBonus: number;
+  merchantGets: number;
+  financeShare: number;
 };
+
+function roundMoney(value: number) {
+  return Math.round(value * 100) / 100;
+}
+
+export function merchantGemBonus(cashPrice: number) {
+  if (cashPrice <= 0) return 2;
+  return roundMoney(Math.min(6, Math.max(1.5, cashPrice * 0.08)));
+}
 
 export function isPreviewPartnerListing(listing: PartnerOfferInput): boolean {
   const id = listing.listing_id || listing.source_id || "";
@@ -69,13 +84,24 @@ export function partnerOfferTerms(
 
   const applies =
     cardBalance == null ? allowance : Math.min(Math.max(0, Number(cardBalance) || 0), allowance);
+  const cashPrice = minSpend;
+  const memberSave = allowance;
+  const gemPrice = roundMoney(Math.max(0, cashPrice - memberSave));
+  const merchantBonus = merchantGemBonus(cashPrice);
+  const merchantGets = roundMoney(cashPrice + merchantBonus);
 
   return {
     minSpend,
     allowance,
     applies,
-    remainder: Math.max(0, Math.round((minSpend - applies) * 100) / 100),
+    remainder: Math.max(0, roundMoney(minSpend - applies)),
     currency,
+    cashPrice,
+    gemPrice,
+    memberSave,
+    merchantBonus,
+    merchantGets,
+    financeShare: roundMoney(memberSave + merchantBonus),
   };
 }
 
@@ -104,6 +130,10 @@ export function formatShopMoney(amount: number, currency = "USD", locale = "en")
     currency,
     maximumFractionDigits: 2,
   }).format(amount);
+}
+
+export function formatShopGems(amount: number, locale = "en") {
+  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(amount)} Gems`;
 }
 
 export function resolveShopLens(categoryParam?: string | null, lensParam?: string | null): string {

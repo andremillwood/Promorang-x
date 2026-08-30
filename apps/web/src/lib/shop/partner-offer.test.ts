@@ -30,6 +30,16 @@ describe("partnerOfferTerms", () => {
     expect(terms.allowance).toBe(7);
     expect(terms.minSpend).toBe(20);
   });
+
+  it("lets members pay less in Gems while the shop earns extra for taking them", () => {
+    const terms = partnerOfferTerms({ price: 24, discount_type: "fixed", discount_value: 8, currency: "USD" });
+    expect(terms.cashPrice).toBe(24);
+    expect(terms.gemPrice).toBe(16);
+    expect(terms.memberSave).toBe(8);
+    expect(terms.merchantBonus).toBe(1.92);
+    expect(terms.merchantGets).toBe(25.92);
+    expect(terms.financeShare).toBe(9.92);
+  });
 });
 
 describe("shop place lenses", () => {
