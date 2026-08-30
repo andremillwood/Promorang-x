@@ -43,6 +43,7 @@ const ForCauses = lazy(() => import("./pages/ForCauses"));
 const ForDevelopers = lazy(() => import("./pages/ForDevelopers"));
 const DeveloperConsole = lazy(() => import("./pages/DeveloperConsole"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
+const PromoCardPage = lazy(() => import("./pages/PromoCard"));
 const ValueStudioPage = lazy(() => import("./pages/ValueStudioPage"));
 const WhatIsPromorang = lazy(() => import("./pages/WhatIsPromorang"));
 const Communities = lazy(() => import("./pages/Communities"));
@@ -75,6 +76,8 @@ const GuestPass = lazy(() => import("./pages/GuestPass"));
 const HostGuestOperations = lazy(() => import("./pages/HostGuestOperations"));
 const ProposeLanding = lazy(() => import("@/pages/ProposeLanding"));
 const CreateMoment = lazy(() => import("./pages/CreateMoment"));
+const CreateHub = lazy(() => import("./pages/CreateHub"));
+const Today = lazy(() => import("./pages/Today"));
 const Discover = lazy(() => import("./pages/Discover"));
 const DiscoveryDetail = lazy(() => import("./pages/DiscoveryDetail"));
 const DiscoveryAcquisitionPage = lazy(() => import("./pages/DiscoveryAcquisitionPage"));
@@ -261,6 +264,8 @@ const App = () => (
                     <Route path="/developers/keys" element={<DeveloperConsole />} />
                     <Route path="/developers/console" element={<DeveloperConsole />} />
                     <Route path="/how-it-works" element={<HowItWorks />} />
+                    <Route path="/promocard" element={<PromoCardPage />} />
+                    <Route path="/promo-card" element={<Navigate to="/promocard" replace />} />
                     <Route path="/value-studio" element={<ValueStudioPage />} />
                     <Route path="/simulator" element={<ValueStudioPage />} />
                     <Route path="/sandbox" element={<ValueStudioPage />} />
@@ -304,7 +309,8 @@ const App = () => (
                     <Route path="/host" element={<Navigate to="/hosting" replace />} />
                     <Route path="/why-join" element={<Navigate to="/" replace />} />
                     <Route path="/propose" element={<ProposeLanding />} />
-                    <Route path="/create" element={<Navigate to="/create/moment" replace />} />
+                    <Route path="/today" element={<Today />} />
+                    <Route path="/create" element={<CreateHub />} />
                     <Route path="/create/moment" element={<ProtectedRoute><CreateMoment /></ProtectedRoute>} />
                     <Route path="/create/campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
                     <Route path="/create/bounty" element={<ProtectedRoute><CreateBounty /></ProtectedRoute>} />
@@ -413,6 +419,7 @@ const App = () => (
                     <Route path="/dashboard/activity" element={<Activity />} />
                     <Route path="/dashboard/following" element={<Following />} />
                     <Route path="/dashboard/saved" element={<Saved />} />
+                    <Route path="/progress" element={<ProtectedRoute><Activity /></ProtectedRoute>} />
                     <Route path="/activity" element={<ProtectedRoute><Activity /></ProtectedRoute>} />
                     <Route path="/saved" element={<ProtectedRoute><Saved /></ProtectedRoute>} />
                     <Route path="/dashboard/settings" element={<Settings />} />

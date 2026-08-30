@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
+import { PromoShareOperator } from '@/components/promoshare/PromoShareOperator';
 import { toast } from 'sonner';
 import { API_BASE_URL } from '@/lib/api';
 import {
@@ -307,6 +308,10 @@ const PromoShareAdmin = () => {
           <Plus className="w-4 h-4 mr-2" />
           New Cycle
         </Button>
+      </div>
+
+      <div className="mb-8">
+        <PromoShareOperator defaultRole="admin" compact />
       </div>
 
       {/* Cycle Selector */}

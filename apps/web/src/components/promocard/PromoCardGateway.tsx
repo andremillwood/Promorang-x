@@ -11,6 +11,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { promoCardActionHref } from "@/lib/promocard/public-path";
 
 const steps = [
   {
@@ -65,12 +66,18 @@ export function PromoCardGateway() {
 
             <div className="mt-6 grid gap-2.5 sm:flex sm:gap-3">
               <Link
-                to={user ? "/wallet" : "/auth?mode=signup&next=/wallet"}
+                to={promoCardActionHref(Boolean(user))}
                 className="inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-black text-white shadow-[0_18px_50px_rgba(255,85,0,0.28)] transition hover:bg-orange-600 active:scale-[0.98]"
               >
                 <WalletCards className="h-4 w-4" />
                 {user ? "Open my PromoCard" : "Get my PromoCard"}
                 <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/promocard"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-sm font-bold text-white transition hover:border-amber-300/40 hover:bg-white/[0.08] active:scale-[0.98]"
+              >
+                How PromoCard works
               </Link>
               <Link
                 to="/shop"

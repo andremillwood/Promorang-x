@@ -110,6 +110,7 @@ export default async function handler(_: unknown, res: any) {
   const staticUrls: SitemapUrl[] = [
     { loc: `${SITE_URL}/`, changefreq: "weekly", priority: "1.0" },
     { loc: `${SITE_URL}/discover`, changefreq: "daily", priority: "0.9" },
+    { loc: `${SITE_URL}/promocard`, changefreq: "weekly", priority: "0.9" },
     { loc: `${SITE_URL}/brands`, changefreq: "weekly", priority: "0.8" },
     { loc: `${SITE_URL}/watch-unlock`, changefreq: "weekly", priority: "0.8" },
   ];

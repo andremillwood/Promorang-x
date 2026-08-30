@@ -7,6 +7,11 @@ import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { useState, useEffect } from "react";
+import {
+    isCinematicPublicPath,
+    shouldHideMarketingFooterOnMobile,
+    shouldShowMarketingFooterCta,
+} from "@/lib/marketing-shell";
 
 interface AppLayoutProps {
     children?: React.ReactNode;
@@ -38,7 +43,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         "/", "/for-communities", "/for-brands", "/for-creators", "/for-merchants", "/for-agencies", "/for-enterprise", "/for-causes",
         "/auth", "/onboarding", "/propose", "/strategies", "/bounties",
         "/help", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
-        "/economy", "/promopush/info", "/careers", "/go", "/free", "/campaigns"
+        "/economy", "/promocard", "/promopush/info", "/careers", "/go", "/free", "/campaigns"
     ];
     const isMarketingRoute = marketingRoutes.some(path =>
         location.pathname === path || location.pathname.startsWith(path + "/")
@@ -52,11 +57,18 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         location.pathname.startsWith("/app-preview/") ||
         (location.pathname === "/" && previewMode === "consumer");
 
-    const isOrganizerWorkspace = location.pathname.startsWith("/organizer/");
     const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname);
-    const showFooterCta = !["/live", "/pulse"].includes(location.pathname);
+    const showFooterCta = shouldShowMarketingFooterCta(location.pathname);
+    const cinematicFooter = isCinematicPublicPath(location.pathname);
+    const footerClassName = shouldHideMarketingFooterOnMobile(location.pathname) ? "hidden md:block" : undefined;
 
-    if (isConsumerPreview || isOrganizerWorkspace) {
+    const marketingFooter = !isCleanPage ? (
+        <div className={footerClassName}>
+            <Footer showCta={showFooterCta} dark={cinematicFooter} />
+        </div>
+    ) : null;
+
+    if (isConsumerPreview) {
         return <>{children || <Outlet />}</>;
     }
 
@@ -67,7 +79,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 <main className="flex-1 overflow-x-clip">
                     {children || <Outlet />}
                 </main>
-                {!isCleanPage && <Footer showCta={showFooterCta} />}
+                {marketingFooter}
             </div>
         );
     }
@@ -95,7 +107,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             <main className="flex-1 overflow-x-clip">
                 {children || <Outlet />}
             </main>
-            {!isCleanPage && <Footer showCta={showFooterCta} />}
+            {marketingFooter}
 
             <RankCelebrationModal
                 isOpen={showRankCelebration}

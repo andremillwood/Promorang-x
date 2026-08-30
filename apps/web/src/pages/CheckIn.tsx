@@ -8,10 +8,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { QrCode, MapPin, Loader2, Camera, Check, Sparkles, Gift, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { QrCode, MapPin, Loader2, Camera, Check, Sparkles, Gift, ArrowRight, ShieldCheck } from "lucide-react";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { ImageUpload } from "@/components/ImageUpload";
 import { CheckInCelebration } from '@/components/CheckInCelebration';
+import { PromoShareOperator } from "@/components/promoshare/PromoShareOperator";
+import { ActionUnlockReceipt } from "@/components/journey/ActionUnlockReceipt";
+import { buildActionUnlockReceipt } from "@/lib/action-unlock-receipt";
 import { AnimatePresence } from 'framer-motion';
 import { demoMoments } from "@/data/demo-moments";
 import { useI18n } from "@/i18n/I18nContext";
@@ -285,21 +288,38 @@ const CheckIn = () => {
       <SEO title={t("checkIn.seoTitle", { title: moment.title })} description={t("checkIn.seoDescription", { title: moment.title })} />
 
       <AnimatePresence>
-        {success && <CheckInCelebration onComplete={() => {}} />}
+        {success && (
+          <CheckInCelebration
+            onComplete={() => {}}
+            title={t("promoshare.celebrationTitle")}
+            copy={t("promoshare.celebrationCopy")}
+          />
+        )}
       </AnimatePresence>
 
       <main className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
         {success ? (
-          <div className="mx-auto max-w-xl text-center space-y-6 pt-8 animate-in fade-in duration-300">
-            <div className="w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-12 h-12" />
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white">{t("checkIn.successTitle")}</h1>
-            <p className="text-white/70 text-base">
-              {t("checkIn.successCopy", { title: moment.title })}
-            </p>
+          <div className="mx-auto max-w-3xl space-y-6 pt-4 animate-in fade-in duration-300">
+            <ActionUnlockReceipt
+              receipt={buildActionUnlockReceipt(
+                { action: "check_in", momentName: moment.title, perk: moment.reward || undefined },
+                {
+                  checkInHeading: t("receipt.checkInHeading"),
+                  checkInProved: t("receipt.checkInProved"),
+                  checkInUnlocked: t("receipt.checkInUnlocked"),
+                  checkInNext: t("receipt.checkInNext"),
+                  checkInCta: t("receipt.checkInCta"),
+                },
+              )}
+            />
+            <PromoShareOperator
+              variant="handoff"
+              lastAction="check_in"
+              momentId={id}
+              momentName={moment.title}
+            />
 
-            <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 space-y-4 text-left">
+            <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 space-y-4">
               <div className="flex items-center gap-3">
                 <Gift className="h-6 w-6 text-amber-400" />
                 <div>
