@@ -157,33 +157,33 @@ async function queryLiveMoments({ location, fetchLimit }) {
     .eq('is_active', true)
     .neq('content_origin', 'demo')
     .not('status', 'in', '(draft,cancelled,closed)')
-    .neq('visibility', 'private')
-    .or(`ends_at.gte.${now.toISOString()},starts_at.gte.${stillHappening}`)
-    .order('starts_at', { ascending: true })
-    .limit(fetchLimit);
+    .neq('visibility', 'private');
 
   const loc = sanitizeIlike(location);
   if (loc) {
     query = query.or(`location.ilike.%${loc}%,city.ilike.%${loc}%,title.ilike.%${loc}%`);
   }
 
-  return query;
+  return query
+    .or(`ends_at.gte.${now.toISOString()},starts_at.gte.${stillHappening}`)
+    .order('starts_at', { ascending: true })
+    .limit(fetchLimit);
 }
 
 async function queryLiveMomentsFallback({ location, fetchLimit }) {
   let query = supabase
     .from('moments')
     .select('id, title, slug, location, city, starts_at, is_active')
-    .eq('is_active', true)
-    .order('starts_at', { ascending: true })
-    .limit(fetchLimit);
+    .eq('is_active', true);
 
   const loc = sanitizeIlike(location);
   if (loc) {
     query = query.or(`location.ilike.%${loc}%,city.ilike.%${loc}%,title.ilike.%${loc}%`);
   }
 
-  return query;
+  return query
+    .order('starts_at', { ascending: true })
+    .limit(fetchLimit);
 }
 
 async function findEligibleMoments({ location, limit = 6 } = {}) {
