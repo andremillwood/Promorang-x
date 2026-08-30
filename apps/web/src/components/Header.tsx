@@ -240,7 +240,7 @@ const Header = () => {
 
                   <DropdownMenuItem asChild>
                     <Link
-                      to="/shop"
+                      to="/shop?from=promocard"
                       className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
                     >
                       <div className="h-8 w-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
@@ -744,7 +744,7 @@ const Header = () => {
                     <span>{t("nav.rewardsHub")}</span>
                   </Link>
                   <Link
-                    to="/shop"
+                    to="/shop?from=promocard"
                     onClick={closeMobileMenu}
                     className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
                   >

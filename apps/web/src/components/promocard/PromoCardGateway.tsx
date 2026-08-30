@@ -73,7 +73,7 @@ export function PromoCardGateway() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                to="/shop"
+                to="/shop?from=promocard"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-sm font-bold text-white transition hover:border-amber-300/40 hover:bg-white/[0.08] active:scale-[0.98]"
               >
                 <Store className="h-4 w-4 text-amber-300" />
