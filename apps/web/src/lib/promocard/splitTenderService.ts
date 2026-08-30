@@ -1,3 +1,4 @@
+import { settlePromoCardVisit } from "@promorang/shared";
 import { PromoCardService } from "./promoCardService";
 import { MarginPoolService } from "./marginPoolService";
 
@@ -38,22 +39,23 @@ export class SplitTenderService {
     const card = PromoCardService.getCardSummary();
     const pool = MarginPoolService.getPoolByMerchantId(merchantId);
 
-    const allowance = pool?.allowancePerUser ?? 10.0;
-    const minBasket = pool?.minBasketSize ?? 25.0;
-    const isEligible = grossAmount >= minBasket && pool?.isActive !== false;
-
-    let promoDiscount = 0;
-    if (usePromoCredit && isEligible) {
-      // discount is the minimum of user's balance, merchant's allowance, or grossAmount - 1 (leave at least $1 cash)
-      promoDiscount = Math.min(card.availableBalance, allowance, Math.max(0, grossAmount - 1));
-    }
-
-    const fiatCash = Math.max(0, grossAmount - promoDiscount);
-    const platformFee = Number((fiatCash * 0.05).toFixed(2));
+    const allowance = pool?.allowancePerUser ?? 15;
+    const minBasket = pool?.minBasketSize ?? 35;
+    const settlement = settlePromoCardVisit({
+      basket: grossAmount,
+      cardReady: usePromoCredit ? card.availableBalance : 0,
+      merchantAllowance: allowance,
+      minBasket,
+      poolActive: pool?.isActive !== false,
+    });
+    const promoDiscount = settlement.promoApplied;
+    const fiatCash = settlement.cashRemainder;
+    const platformFee = settlement.platformFee;
     const operatorShare = Number((platformFee * 0.8).toFixed(2));
     const promorangShare = Number((platformFee * 0.2).toFixed(2));
-    const netMerchantPayout = Number((fiatCash - platformFee).toFixed(2));
+    const netMerchantPayout = settlement.merchantCash;
     const savingsPercent = grossAmount > 0 ? Math.round((promoDiscount / grossAmount) * 100) : 0;
+    const isEligible = settlement.eligible;
 
     return {
       grossAmount,

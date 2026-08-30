@@ -41,7 +41,10 @@ import { CommerceReceiptRail } from "@/components/commerce/CommerceReceiptRail";
 import { CouponWalletRail } from "@/components/commerce/CouponWalletRail";
 import { PersonalValueNav } from "@/components/value/PersonalValueNav";
 import { DigitalPromoCard } from "@/components/promocard";
-import { PARTICIPANT_ECONOMY } from "@promorang/shared";
+import { StandingEarnRail } from "@/components/standing/StandingEarnRail";
+import { StandingPackageOpening } from "@/components/standing/StandingPackageOpening";
+import { PARTICIPANT_ECONOMY, type StandingPackage } from "@promorang/shared";
+import { useMembershipStanding } from "@/hooks/useMembershipStanding";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { ValueInstrumentCard } from "@/components/value/ValueInstrumentCard";
@@ -98,6 +101,9 @@ const Wallet = () => {
   const { data: gemWithdrawals = [], isLoading: withdrawalsLoading, refetch: refetchGemWithdrawals } = useGemWithdrawals();
   const gemActions = useGemWalletActions();
   const { receipts, caps, resetsAt, isLoading: receiptsLoading, refresh: refreshReceipts } = useValueReceipts();
+  const { standing, openPackage } = useMembershipStanding();
+  const [packageOpen, setPackageOpen] = useState(false);
+  const [openingPack, setOpeningPack] = useState<StandingPackage | null>(null);
 
   const [gemsSnapshot, setGemsSnapshot] = useState<GemsBalanceSnapshot>({
     balance: 0,
@@ -131,7 +137,11 @@ const Wallet = () => {
 
   useEffect(() => {
     if (location.hash === "#convert-keys") setConvertDialogOpen(true);
-  }, [location.hash]);
+    if (location.hash === "#standing-package" && standing.nextPackage) {
+      setOpeningPack(standing.nextPackage);
+      setPackageOpen(true);
+    }
+  }, [location.hash, standing.nextPackage]);
 
   const fetchGemsBalance = async () => {
     if (!session?.access_token) return;
@@ -315,6 +325,10 @@ const Wallet = () => {
               points={walletBalance?.points || 0}
               promoKeys={walletBalance?.promokeys || 0}
               onConvertKeys={() => setConvertDialogOpen(true)}
+              onOpenPackage={() => {
+                setOpeningPack(standing.nextPackage);
+                setPackageOpen(true);
+              }}
             />
             <div className="flex w-full max-w-4xl gap-2">
               <Button className="flex-1 rounded-xl shadow-lg" asChild>
@@ -333,6 +347,23 @@ const Wallet = () => {
       </div>
 
       <main className="w-full space-y-8 px-4 sm:px-6 lg:px-8 py-6">
+        <StandingEarnRail
+          standing={standing}
+          onOpenPackage={() => {
+            setOpeningPack(standing.nextPackage);
+            setPackageOpen(true);
+          }}
+        />
+        <StandingPackageOpening
+          open={packageOpen}
+          pack={openingPack}
+          standing={standing}
+          onOpen={(pack) => openPackage(pack)}
+          onClose={() => {
+            setPackageOpen(false);
+            setOpeningPack(null);
+          }}
+        />
         <GuidanceDisclosure
           id="wallet:economy-path"
           eyebrow="Wallet path"

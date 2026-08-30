@@ -9,6 +9,7 @@ import {
   describePromoCardInstruments,
   describePromoCardLoop,
   pickPromoCardNextSuccess,
+  pickPromoCardTonightPlace,
 } from "../src/index";
 
 describe("PromoCard credit and next-success loop", () => {
@@ -152,5 +153,19 @@ describe("PromoCard credit and next-success loop", () => {
     expect(next.placeHint).toBe("Kingston Dub Club");
     expect(next.href).toContain("venue-dubclub");
     expect(next.creditHint).toBe(15);
+  });
+});
+
+describe("tonight place pick", () => {
+  it("prefers a venue in the member's city hub", () => {
+    const place = pickPromoCardTonightPlace(
+      [
+        { name: "Montego Bay Yacht Club", href: "/discover?place=mb", allowance: 15, city: "Montego Bay" },
+        { name: "Kingston Dub Club", href: "/discover?place=kd", allowance: 15, city: "Kingston" },
+      ],
+      "Kingston & St. Andrew",
+    );
+
+    expect(place?.name).toBe("Kingston Dub Club");
   });
 });

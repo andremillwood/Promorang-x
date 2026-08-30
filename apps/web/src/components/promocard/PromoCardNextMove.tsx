@@ -10,6 +10,21 @@ const copyById: Record<PromoCardNextSuccessId, { title: TranslationKey; text: Tr
     text: "promoCardLoop.claimCopy",
     cta: "promoCardLoop.claimCta",
   },
+  open_package: {
+    title: "promoCardLoop.openPackageTitle",
+    text: "promoCardLoop.openPackageCopy",
+    cta: "promoCardLoop.openPackageCta",
+  },
+  use_here: {
+    title: "promoCardLoop.useHereTitle",
+    text: "promoCardLoop.useHereCopy",
+    cta: "promoCardLoop.useHereCta",
+  },
+  activate_referrals: {
+    title: "promoCardLoop.activateReferralsTitle",
+    text: "promoCardLoop.activateReferralsCopy",
+    cta: "promoCardLoop.activateReferralsCta",
+  },
   show_up: {
     title: "promoCardLoop.showUpTitle",
     text: "promoCardLoop.showUpCopy",
@@ -48,16 +63,18 @@ type Props = {
   creditHint: number;
   pointsHint: number;
   keysHint: number;
+  placeHint?: string;
   onAction?: () => void;
 };
 
-export function PromoCardNextMove({ id, href, creditHint, pointsHint, keysHint, onAction }: Props) {
+export function PromoCardNextMove({ id, href, creditHint, pointsHint, keysHint, placeHint, onAction }: Props) {
   const { t } = useI18n();
   const copy = copyById[id];
   const vars = {
     amount: creditHint.toFixed(0),
     count: String(pointsHint),
     keys: String(keysHint),
+    place: placeHint || t("promoCardLoop.placeFallback"),
   };
 
   const className =

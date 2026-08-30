@@ -14,7 +14,12 @@ import {
 } from "lucide-react";
 import { describePromoCardLoop } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePromoCard } from "@/hooks/usePromoCard";
+import { useUserBalance } from "@/hooks/useEconomy";
+import { useMembershipStanding } from "@/hooks/useMembershipStanding";
+import { useTonightPartner } from "@/hooks/useTonightPartner";
 import { useI18n } from "@/i18n/I18nContext";
+import { PromoCardNextMove } from "./PromoCardNextMove";
 
 const steps = [
   {
@@ -37,7 +42,22 @@ const steps = [
 export function PromoCardGateway() {
   const { user } = useAuth();
   const { t } = useI18n();
-  const loop = describePromoCardLoop({ hasLiveCard: false });
+  const cardQuery = usePromoCard(user?.id);
+  const balanceQuery = useUserBalance();
+  const { standing } = useMembershipStanding();
+  const tonightPlace = useTonightPartner();
+  const hasLiveCard = Boolean(user && cardQuery.data);
+  const loop = describePromoCardLoop({
+    hasLiveCard,
+    monthlyLimit: cardQuery.data?.monthlyLimit,
+    availableBalance: cardQuery.data?.availableBalance,
+    spentThisCycle: cardQuery.data?.spentThisCycle,
+    points: Number(balanceQuery.data?.points || 0),
+    promoKeys: Number(balanceQuery.data?.promokeys || 0),
+    hasSealedPackage: Boolean(standing.nextPackage),
+    pendingReferrals: standing.pot.pendingReferrals,
+    tonightPlace,
+  });
 
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-[#070707] text-white">
@@ -102,15 +122,23 @@ export function PromoCardGateway() {
                   </div>
                 </div>
                 <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-white/65">
-                  Example
+                  {hasLiveCard ? t("promoCardLoop.readyLabel") : "Example"}
                 </span>
               </div>
 
               <div className="my-6 sm:my-8">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{t("promoCardLoop.prospectiveLabel")}</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
+                  {hasLiveCard ? t("promoCardLoop.readyLabel") : t("promoCardLoop.prospectiveLabel")}
+                </p>
                 <div className="mt-1 flex items-end gap-2">
-                  <span className="text-5xl font-black tracking-[-0.05em] text-amber-200">${loop.credit.networkCapacity.toFixed(0)}</span>
-                  <span className="pb-1 text-xs text-white/45">{t("promoCardLoop.firstReady", { amount: `$${loop.credit.cycleCredit.toFixed(0)}` })}</span>
+                  <span className="text-5xl font-black tracking-[-0.05em] text-amber-200">
+                    ${(hasLiveCard ? loop.credit.readyToSpend : loop.credit.networkCapacity).toFixed(0)}
+                  </span>
+                  <span className="pb-1 text-xs text-white/45">
+                    {hasLiveCard
+                      ? t("promoCardLoop.ofCapacity", { ready: `$${loop.credit.readyToSpend.toFixed(0)}`, capacity: `$${loop.credit.networkCapacity.toFixed(0)}` })
+                      : t("promoCardLoop.firstReady", { amount: `$${loop.credit.cycleCredit.toFixed(0)}` })}
+                  </span>
                 </div>
                 <p className="mt-2 text-[11px] leading-4 text-white/50">{t("promoCardLoop.whoFunds")}</p>
                 <div className="mt-4 grid grid-cols-2 gap-2">
@@ -146,7 +174,17 @@ export function PromoCardGateway() {
                 })}
               </div>
 
-              <div className="mt-4 flex items-start gap-2 text-[10px] leading-4 text-white/45 sm:mt-5 sm:border-t sm:border-white/10 sm:pt-4">
+              <div className="mt-4 sm:mt-5">
+                <PromoCardNextMove
+                  id={loop.next.id}
+                  href={hasLiveCard ? loop.next.href : (user ? "/wallet" : "/auth?mode=signup&next=/wallet")}
+                  creditHint={loop.next.creditHint}
+                  pointsHint={loop.next.pointsHint}
+                  keysHint={loop.next.keysHint}
+                  placeHint={loop.next.placeHint}
+                />
+              </div>
+              <div className="mt-4 flex items-start gap-2 text-[10px] leading-4 text-white/45 sm:border-t sm:border-white/10 sm:pt-4">
                 <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />
                 Promotional balances, recharge amounts and participating locations vary. Your account shows the value currently available to you.
               </div>

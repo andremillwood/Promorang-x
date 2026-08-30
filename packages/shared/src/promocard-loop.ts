@@ -113,7 +113,11 @@ export function pickPromoCardTonightPlace(
 ): PromoCardTonightPlace | null {
   const usable = places.filter((place) => (place.allowance ?? PROMOCARD_TYPICAL_VISIT_ALLOWANCE) > 0);
   const inCity = preferredCity
-    ? usable.filter((place) => place.city && place.city.toLowerCase() === preferredCity.toLowerCase())
+    ? usable.filter((place) => {
+        const city = (place.city || "").toLowerCase();
+        const preferred = preferredCity.toLowerCase();
+        return city && (city === preferred || preferred.includes(city) || city.includes(preferred));
+      })
     : usable;
   const pick = inCity[0] ?? usable[0];
   if (!pick) return null;

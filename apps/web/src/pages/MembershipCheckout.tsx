@@ -8,9 +8,9 @@ import SEO from "@/components/SEO";
 import { trackMetaEvent } from "@/components/MetaPixel";
 
 const plans = {
-  plus: { name: "Plus", value: 9.99, price: "$9.99 / month", benefits: ["1.25× disclosed Points multiplier", "90% of standard PromoKey cost", "Cash/Gem PromoShare eligibility"] },
-  pro: { name: "Pro", value: 24.99, price: "$24.99 / month", benefits: ["1.5× disclosed Points multiplier", "75% of standard PromoKey cost", "Higher caps and priority access"] },
-  elite: { name: "Elite", value: 49.99, price: "$49.99 / month", benefits: ["2× disclosed Points multiplier", "60% of standard PromoKey cost", "Premium pools and local impact funding"] },
+  plus: { name: "Plus", value: 9.99, price: "$9.99 / month", benefits: ["1.25× Points multiplier and 90% Key cost", "Or earn $19.98 from activated referrals for a month", "Cash/Gem PromoShare eligibility"] },
+  pro: { name: "Pro", value: 24.99, price: "$24.99 / month", benefits: ["1.5× Points multiplier and 75% Key cost", "Or earn $49.98 from your people's earnings", "Higher caps and priority access"] },
+  elite: { name: "Elite", value: 49.99, price: "$49.99 / month", benefits: ["2× Points multiplier and 60% Key cost", "Or earn $99.98 — double the cash price", "Premium pools and local impact funding"] },
   host_pro: { name: "Host Pro", value: 49, price: "$49 / month", benefits: ["Advanced host operations", "Reusable Moment templates", "Priority brand and sponsor matching"] },
   merchant_growth: { name: "Merchant Growth", value: 499, price: "$499 / month", benefits: ["8 Merchant Moments per month", "Featured venue placement", "Loyalty integrations and priority support"] },
   brand_studio: { name: "Brand Studio", value: 999, price: "$999 / month", benefits: ["Brand workspace and reusable templates", "Priority matching and reporting", "Moment funding is billed separately"] },

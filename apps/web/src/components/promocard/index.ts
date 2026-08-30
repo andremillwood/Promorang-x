@@ -1,5 +1,6 @@
 export * from "./DigitalPromoCard";
 export * from "./PromoCardNextMove";
+export * from "./PromoCardSpendReceipt";
 export * from "./PromoCardGateway";
 export * from "./MobilePromoHome";
 export * from "./PromoCardEconomyExplainer";

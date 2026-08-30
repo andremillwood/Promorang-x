@@ -485,10 +485,10 @@ const PricingPage = () => {
                             <div className="max-w-4xl mx-auto">
                                 <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
                                     {[
-                                        { tier: 'Free', name: t('pricing.tierFree'), price: '$0', points: '1.0x', keyCost: '100%', description: t('pricing.tierFreeDesc') },
-                                        { tier: 'Plus', name: t('pricing.tierPlus'), price: '$9.99/mo', points: '1.25x', keyCost: '90%', description: t('pricing.tierPlusDesc') },
-                                        { tier: 'Pro', name: t('pricing.tierPro'), price: '$24.99/mo', points: '1.5x', keyCost: '75%', description: t('pricing.tierProDesc') },
-                                        { tier: 'Elite', name: t('pricing.tierElite'), price: '$49.99/mo', points: '2.0x', keyCost: '60%', description: t('pricing.tierEliteDesc') },
+                                        { tier: 'Free', name: t('pricing.tierFree'), price: '$0', points: '1.0x', keyCost: '100%', description: t('pricing.tierFreeDesc'), earn: null },
+                                        { tier: 'Plus', name: t('pricing.tierPlus'), price: '$9.99/mo', points: '1.25x', keyCost: '90%', description: t('pricing.tierPlusDesc'), earn: 19.98 },
+                                        { tier: 'Pro', name: t('pricing.tierPro'), price: '$24.99/mo', points: '1.5x', keyCost: '75%', description: t('pricing.tierProDesc'), earn: 49.98 },
+                                        { tier: 'Elite', name: t('pricing.tierElite'), price: '$49.99/mo', points: '2.0x', keyCost: '60%', description: t('pricing.tierEliteDesc'), earn: 99.98 },
                                     ].map((plan) => (
                                         <div key={plan.tier} className="rounded-xl border border-border bg-card p-6">
                                             <h3 className="text-xl font-bold">{plan.name}</h3>
@@ -503,6 +503,12 @@ const PricingPage = () => {
                                                     <span className="text-muted-foreground">{t("pricing.keyCost")}</span>
                                                     <span className="font-medium">{plan.keyCost}</span>
                                                 </div>
+                                                {plan.earn ? (
+                                                    <div className="flex justify-between gap-4">
+                                                        <span className="text-muted-foreground">{t("pricing.earnDouble")}</span>
+                                                        <span className="font-medium">${plan.earn}</span>
+                                                    </div>
+                                                ) : null}
                                             </div>
                                             {plan.tier === 'Free' ? (
                                                 <CommercialCTA variant="outline" className="mt-6 w-full" to="/auth?mode=signup&role=participant&intent=free_membership&next=/wallet" action="select_free_membership" audience="participant" metadata={{ plan: 'free' }}>{t("pricing.joinFree")}</CommercialCTA>
