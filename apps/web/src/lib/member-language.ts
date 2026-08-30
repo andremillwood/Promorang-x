@@ -20,6 +20,7 @@ export const FORBIDDEN_MEMBER_WORDS = [
 /** Keys and prefixes that members actually read on product surfaces. */
 export const MEMBER_COPY_SELECTORS = [
   "dest.",
+  "todayPage.",
   "nextMove.",
   "empty.",
   "discover.path",

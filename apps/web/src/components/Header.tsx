@@ -68,6 +68,7 @@ const Header = () => {
   const isPublicHome = location.pathname === "/";
   const isCinematicPublicPage =
     isPublicHome ||
+    location.pathname === "/today" ||
     location.pathname === "/how-it-works" ||
     location.pathname.startsWith("/economy") ||
     location.pathname === "/growth" ||
