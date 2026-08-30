@@ -57,7 +57,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         location.pathname.startsWith("/app-preview/") ||
         (location.pathname === "/" && previewMode === "consumer");
 
-    const isOrganizerWorkspace = location.pathname.startsWith("/organizer/");
     const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname);
     const showFooterCta = shouldShowMarketingFooterCta(location.pathname);
     const cinematicFooter = isCinematicPublicPath(location.pathname);
@@ -69,7 +68,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         </div>
     ) : null;
 
-    if (isConsumerPreview || isOrganizerWorkspace) {
+    if (isConsumerPreview) {
         return <>{children || <Outlet />}</>;
     }
 

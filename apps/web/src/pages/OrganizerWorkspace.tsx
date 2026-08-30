@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ArrowRight, BarChart3, CalendarDays, CheckCircle2, DollarSign, Megaphone, Settings, Ticket, Users } from "lucide-react";
+import { ArrowLeft, BarChart3, CalendarDays, CheckCircle2, DollarSign, Home, Megaphone, Settings, Ticket, Users } from "lucide-react";
 import SEO from "@/components/SEO";
 import { cultureEvents } from "@/data/culture-demo";
 import { StoryGamificationRail } from "@/components/StoryGamificationRail";
@@ -47,11 +47,18 @@ export default function OrganizerWorkspace() {
       />
       <section className="grid min-h-screen lg:grid-cols-[260px_1fr]">
         <aside className="hidden border-r border-white/10 bg-white/[0.03] p-5 lg:block">
-          <p className="text-xl font-black">Promorang</p>
+          <Link
+            to="/today"
+            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-primary transition hover:text-orange-300"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Promorang
+          </Link>
+          <p className="mt-4 text-xl font-black">Host ops</p>
           <div className="mt-8 space-y-2">
-            <Link to="/organizer" className="flex items-center gap-3 rounded-xl bg-primary px-4 py-3 text-sm font-black text-white">
-              <BarChart3 className="h-5 w-5" />
-              Dashboard
+            <Link to="/dashboard" className="flex items-center gap-3 rounded-xl bg-primary px-4 py-3 text-sm font-black text-white">
+              <Home className="h-5 w-5" />
+              Host dashboard
             </Link>
             {organizerRoutes.map((route) => (
               <Link key={route.label} to={route.href} className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold transition ${pathname === route.href ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/[0.07] hover:text-white"}`}>
@@ -62,7 +69,19 @@ export default function OrganizerWorkspace() {
           </div>
         </aside>
 
-        <section className="px-6 pb-12 pt-24 lg:pt-10">
+        <section className="px-6 pb-12 pt-6 lg:pt-10">
+          <div className="mb-4 flex items-center justify-between gap-3 lg:hidden">
+            <Link
+              to="/today"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-2 text-xs font-bold text-white"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Back to Promorang
+            </Link>
+            <Link to="/dashboard" className="text-xs font-bold text-primary">
+              Host dashboard
+            </Link>
+          </div>
           {/* Top Story Rail */}
           <StoryGamificationRail
             onOpenWheel={() => setWheelOpen(true)}
