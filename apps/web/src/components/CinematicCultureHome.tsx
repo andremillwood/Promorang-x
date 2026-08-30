@@ -40,6 +40,7 @@ import {
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
 import { MobilePromoHome, PromoCardGateway } from "@/components/promocard";
+import { membershipHighlightsFromDiscovery } from "@/lib/promocard/membership-hero";
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
 import { SampleContentNotice } from "@/components/content/ContentProvenance";
 import { possessiveLocation, useVisitorLocation } from "@/hooks/useVisitorLocation";
@@ -408,6 +409,23 @@ export default function CinematicCultureHome() {
       }))
     : [];
 
+  const membershipHighlights = membershipHighlightsFromDiscovery({
+    places: homepageCommerce.map((place) => ({
+      id: place.id,
+      title: place.title,
+      merchant: place.merchant,
+      href: place.href,
+      price: place.price,
+    })),
+    moments: homepageMoments.map((moment) => ({
+      id: moment.id,
+      title: moment.title,
+      venue: moment.location,
+      href: moment.href,
+      when: moment.date,
+    })),
+  });
+
   const heroItems = [
     ...(discoveryQuery.data?.moments || []).map((moment) => ({
       id: `moment-${moment.id}`, kind: "Moment", title: moment.title || "Live Moment", image: moment.image_url,
@@ -469,12 +487,12 @@ export default function CinematicCultureHome() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <PromoCardGateway highlights={membershipHighlights} />
       <div className="md:hidden">
-        <PromoCardGateway />
         <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} />
       </div>
       <div className="hidden md:block">
-      <section ref={heroRef} className="relative overflow-hidden border-b border-white/10 md:min-h-[92svh]">
+      <section ref={heroRef} className="relative overflow-hidden border-b border-white/10">
         {/* Parallax Background Layer */}
         <motion.div
           style={{ y: shouldReduceMotion ? 0 : bgY, scale: shouldReduceMotion ? 1 : bgScale }}
@@ -495,7 +513,7 @@ export default function CinematicCultureHome() {
           <HeroFloatingBadges scrollYProgress={scrollYProgress} reducedMotion={shouldReduceMotion} />
         </div>
 
-        <div className="container relative z-10 flex flex-col px-5 pb-24 pt-24 md:min-h-[92svh] md:justify-start md:px-6 md:pb-16 md:pt-44 lg:pt-52">
+        <div className="container relative z-10 flex flex-col px-5 pb-16 pt-14 md:px-6 md:pb-20 md:pt-16 lg:min-h-[34rem]">
           <motion.div
             style={{ y: shouldReduceMotion ? 0 : contentY, opacity: shouldReduceMotion ? 1 : contentOpacity }}
             className="w-full max-w-full space-y-3 will-change-transform md:max-w-4xl md:space-y-4"
@@ -511,7 +529,7 @@ export default function CinematicCultureHome() {
               <OpsTheatreStatusPill onOpenOrientation={() => setOrientationOpen(true)} showDetails />
             </div>
 
-            <h2 className="max-w-4xl font-sans text-[clamp(2.45rem,11.5vw,7.5rem)] font-black uppercase leading-[0.86] tracking-[-0.065em] text-white md:leading-[0.82] md:tracking-[-0.075em]">
+            <h2 className="max-w-4xl font-sans text-[clamp(2rem,6vw,4.25rem)] font-black uppercase leading-[0.88] tracking-[-0.055em] text-white">
               <span className="block">{t("home.heroLine1")}</span>
               <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">{t("home.heroLine2")}</span>
               <span className="block">{t("home.heroLine3")}</span>
@@ -573,7 +591,7 @@ export default function CinematicCultureHome() {
           {activeHeroItem ? (
             <motion.div
               style={{ y: shouldReduceMotion ? 0 : cardParallaxY }}
-              className="mt-7 w-full max-w-sm md:mt-12 lg:absolute lg:bottom-16 lg:right-6 xl:right-8 will-change-transform z-20"
+              className="mt-8 w-full max-w-sm self-end will-change-transform lg:absolute lg:bottom-10 lg:right-6 lg:mt-0 xl:right-8 z-20"
             >
               <TiltCard3D
                 maxTilt={shouldReduceMotion ? 0 : 12}
