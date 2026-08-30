@@ -43,6 +43,7 @@ const ForCauses = lazy(() => import("./pages/ForCauses"));
 const ForDevelopers = lazy(() => import("./pages/ForDevelopers"));
 const DeveloperConsole = lazy(() => import("./pages/DeveloperConsole"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
+const PromoCardPage = lazy(() => import("./pages/PromoCard"));
 const ValueStudioPage = lazy(() => import("./pages/ValueStudioPage"));
 const WhatIsPromorang = lazy(() => import("./pages/WhatIsPromorang"));
 const Communities = lazy(() => import("./pages/Communities"));
@@ -263,6 +264,8 @@ const App = () => (
                     <Route path="/developers/keys" element={<DeveloperConsole />} />
                     <Route path="/developers/console" element={<DeveloperConsole />} />
                     <Route path="/how-it-works" element={<HowItWorks />} />
+                    <Route path="/promocard" element={<PromoCardPage />} />
+                    <Route path="/promo-card" element={<Navigate to="/promocard" replace />} />
                     <Route path="/value-studio" element={<ValueStudioPage />} />
                     <Route path="/simulator" element={<ValueStudioPage />} />
                     <Route path="/sandbox" element={<ValueStudioPage />} />

@@ -105,6 +105,7 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/shop", label: "Shop", description: "Browse verified merchant products, services, offers, and clearly separated sample previews." },
   { match: "/create", label: "Create", description: "Launch a Moment, contribution prompt, or activation with clear human and commercial return." },
   { match: "/vault", label: "Vault", description: "Memories, active perks, and the value that stays with the participant." },
+  { match: "/promocard", label: "PromoCard", description: "Promotional spending value at participating shops — apply it at checkout, then refill it by showing up." },
   { match: "/wallet", label: "Wallet", description: "Balances, transactions, and advanced value tools." },
   { match: "/nodes", label: "Save & Win Vaults", description: "100% Protected savings bonuses and weekly/monthly community prize pots." },
   { match: "/portfolio", label: "Pieces", description: "Your complementary piece positions, related value, and collectible exposure." },
