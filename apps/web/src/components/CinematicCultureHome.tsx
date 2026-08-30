@@ -640,7 +640,7 @@ export default function CinematicCultureHome() {
             <nav aria-label="Homepage discovery shortcuts" className="flex flex-wrap gap-2">
               {[
                 [CalendarDays, t("home.shortcutMoments"), "/discover/moments"],
-                [Flame, t("home.shortcutPolls"), "/discover"],
+                [Flame, t("home.shortcutPolls"), "/#home-discover-path"],
                 [Compass, t("home.shortcutSpots"), "/discover"],
                 [Tag, t("home.shortcutRewards"), "/rewards"],
                 [Store, t("home.shortcutMerchants"), "/merchants"],
@@ -648,7 +648,7 @@ export default function CinematicCultureHome() {
               ].map(([Icon, label, href]) => {
                 const ShortcutIcon = Icon as typeof CalendarDays;
                 return (
-                  <Link key={href as string} to={href as string} className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.045] px-4 py-2.5 text-xs font-black text-white/72 transition hover:border-primary/60 hover:bg-primary/10 hover:text-white">
+                  <Link key={`${label as string}-${href as string}`} to={href as string} className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.045] px-4 py-2.5 text-xs font-black text-white/72 transition hover:border-primary/60 hover:bg-primary/10 hover:text-white">
                     <ShortcutIcon className="h-4 w-4 text-primary" />
                     {label as string}
                   </Link>
@@ -656,6 +656,8 @@ export default function CinematicCultureHome() {
               })}
             </nav>
           </div>
+
+          <DiscoveriesFeedSection />
 
           {/* 4 CORE ECOSYSTEM PILLARS */}
           <div className="my-8">
@@ -769,8 +771,6 @@ export default function CinematicCultureHome() {
               </Link>
             </div>
           </div>
-
-          <DiscoveriesFeedSection />
 
           <div className="pt-9">
             <SectionHeader eyebrow={t("home.secMomentsEyebrow")} title={t("home.secMomentsTitle")} accent={t("home.secMomentsAccent")} action={t("home.secMomentsAction")} actionHref="/discover/moments" />
