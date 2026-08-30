@@ -15,7 +15,7 @@ export type PrimaryDestination = {
 };
 
 export const PRIMARY_DESTINATIONS: readonly PrimaryDestination[] = [
-  { id: "today", href: "/", labelKey: "dest.today", questionKey: "dest.todayQuestion" },
+  { id: "today", href: "/today", labelKey: "dest.today", questionKey: "dest.todayQuestion" },
   { id: "discover", href: "/discover", labelKey: "dest.discover", questionKey: "dest.discoverQuestion" },
   { id: "create", href: "/create", labelKey: "dest.create", questionKey: "dest.createQuestion" },
   { id: "progress", href: "/progress", labelKey: "dest.progress", questionKey: "dest.progressQuestion" },
@@ -26,7 +26,7 @@ const PROGRESS_ALIASES = ["/progress", "/activity", "/notifications", "/dashboar
 
 export function isPrimaryDestinationHref(href: string): boolean {
   const path = href.split("?")[0];
-  if (path === "/") return true;
+  if (path === "/today" || path.startsWith("/today/")) return true;
   if (path === "/discover" || path.startsWith("/discover/")) return true;
   if (path === "/create" || path.startsWith("/create/")) return true;
   if (PROGRESS_ALIASES.includes(path)) return true;
@@ -44,7 +44,7 @@ export function isPrimaryDestinationActive(pathname: string, href: string): bool
 }
 
 export function matchPrimaryDestination(pathname: string): PrimaryDestinationId | null {
-  if (pathname === "/") return "today";
+  if (pathname === "/today" || pathname.startsWith("/today/")) return "today";
   if (pathname === "/discover" || pathname.startsWith("/discover/")) return "discover";
   if (pathname === "/create" || pathname.startsWith("/create/")) return "create";
   if (PROGRESS_ALIASES.includes(pathname) || pathname.startsWith("/progress/")) return "progress";
@@ -52,7 +52,14 @@ export function matchPrimaryDestination(pathname: string): PrimaryDestinationId 
   return null;
 }
 
+export function isSharedPrimaryNavHref(href: string): boolean {
+  const [path, query] = href.split("?");
+  if (query) return false;
+  return path === "/" || path === "/today" || path === "/discover" || path === "/create" || path === "/progress" || path === "/vault";
+}
+
 export function destinationHrefForSession(href: string, signedIn: boolean): string {
+  if (href === "/" && signedIn) return "/today";
   if (href === "/progress" && !signedIn) return "/auth?next=/progress";
   return href;
 }
