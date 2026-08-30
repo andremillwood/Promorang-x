@@ -22,6 +22,7 @@ export const MEMBER_COPY_SELECTORS = [
   "dest.",
   "nextMove.",
   "empty.",
+  "market.",
   "promoCardPage.",
   "discover.path",
   "demand.",

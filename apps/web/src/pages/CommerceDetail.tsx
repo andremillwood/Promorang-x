@@ -1,21 +1,30 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Bookmark, CalendarClock, MapPin, ShieldCheck, ShoppingBag, Store, CreditCard, Sparkles } from 'lucide-react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Bookmark, CalendarClock, MapPin, ShieldCheck, ShoppingBag, Store, CreditCard } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { API_BASE_URL } from '@/lib/api';
 import { useCommerceActions } from '@/hooks/useCommerceActions';
-import { commerceCategorySlug, isSampleCommerceListing } from '@/lib/commerce-provenance';
-import { KINGSTON_EXPERIENCE_LISTINGS } from '@/pages/Marketplace';
+import { useAuth } from '@/contexts/AuthContext';
+import { usePromoCard } from '@/hooks/usePromoCard';
+import { KINGSTON_EXPERIENCE_LISTINGS } from '@/lib/shop/preview-partners';
+import { formatShopMoney, isPreviewPartnerListing, partnerOfferTerms, shopIndexHref } from '@/lib/shop/partner-offer';
+import { PaperReceipt } from '@/components/promorang/SignatureObjects';
 import { useI18n } from '@/i18n/I18nContext';
+import { PromoCardService } from '@/lib/promocard';
 import { SplitTenderCheckoutModal, PromoAcceptanceBadge } from '@/components/promocard';
 
 export default function CommerceDetail() {
   const { t, locale, formatNumber } = useI18n();
+  const { user } = useAuth();
   const { listingId } = useParams();
+  const [searchParams] = useSearchParams();
+  const from = searchParams.get("from");
+  const cardQuery = usePromoCard(user?.id);
+  const card = cardQuery.data || PromoCardService.getCardSummary(user?.id);
   const actions = useCommerceActions();
   const queryClient = useQueryClient();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -98,7 +107,7 @@ export default function CommerceDetail() {
     return (
       <div className="mx-auto max-w-3xl p-10 text-center">
         <h1 className="text-3xl font-black">{t("commerce.unavailable")}</h1>
-        <Button asChild className="mt-5"><Link to="/shop">{t("commerce.back")}</Link></Button>
+        <Button asChild className="mt-5"><Link to={shopIndexHref({ from })}>{t("commerce.back")}</Link></Button>
       </div>
     );
   }
@@ -109,7 +118,8 @@ export default function CommerceDetail() {
     ? new Intl.NumberFormat(locale, { style: 'currency', currency }).format(amount)
     : t("commerce.askMerchant");
   const canCheckout = amount > 0 && currency.toUpperCase() === 'USD';
-  const isSample = isSampleCommerceListing(x);
+  const isSample = isPreviewPartnerListing(x);
+  const terms = partnerOfferTerms(x, card.availableBalance);
   const reserveForMerchantPayment = async () => {
     if (!selectedMerchantMethod) return;
     setCheckoutBusy(true);
@@ -179,11 +189,11 @@ export default function CommerceDetail() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-      <Link to="/shop" className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+      <Link to={shopIndexHref({ from })} className="inline-flex items-center gap-2 text-sm text-muted-foreground">
         <ArrowLeft className="h-4 w-4" />{t("commerce.shop")}
       </Link>
-      {x.category ? <Link to={`/shop/category/${commerceCategorySlug(x.category)}`} className="ml-3 text-sm text-primary">{x.category}</Link> : null}
-      {isSample ? <div className="mt-5 rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] px-5 py-4 text-sm text-amber-100"><strong>{t("commerce.sampleTitle")}</strong> {t("commerce.sampleCopy")}</div> : null}
+      {x.category ? <Link to={shopIndexHref({ from, category: x.category })} className="ml-3 text-sm text-primary">{x.category}</Link> : null}
+      {isSample ? <div className="mt-5 rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] px-5 py-4 text-sm text-amber-100"><strong>{t("market.previewOnly")}</strong> {t("market.previewOnlyCopy")}</div> : null}
       <div className="mt-5 overflow-hidden rounded-[2rem] border border-white/10 bg-[#0c0c0c] text-white lg:grid lg:grid-cols-2">
         <div className="relative min-h-[420px] bg-white/5">
           {x.image_url ? <img src={x.image_url} alt={x.name || ''} className="absolute inset-0 h-full w-full object-cover" /> : <ShoppingBag className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 text-white/20" />}
@@ -219,7 +229,18 @@ export default function CommerceDetail() {
               {x.discount_value ? <span className="rounded-full bg-primary px-4 py-2 text-xs font-black text-black">{x.discount_value}{x.discount_type === 'percentage' ? '%' : ''} OFFER</span> : null}
             </div>
             <div className="mt-4">
-              <PromoAcceptanceBadge allowanceAmount={15} minSpend={25} />
+              <PromoAcceptanceBadge allowanceAmount={terms.applies} minSpend={terms.minSpend} />
+            </div>
+            <div className="mt-4 max-w-sm">
+              <PaperReceipt
+                heading={t("market.receiptHeading")}
+                lines={[
+                  { label: x.name || t("market.localMerchant"), value: formatShopMoney(terms.minSpend, terms.currency, locale) },
+                  { label: t("market.cardApplies"), value: `−${formatShopMoney(terms.applies, terms.currency, locale)}` },
+                  { label: t("market.youPay"), value: formatShopMoney(terms.remainder, terms.currency, locale), strong: true },
+                ]}
+                footer={isSample ? t("market.previewOnlyCopy") : t("market.placesCopy")}
+              />
             </div>
 
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
@@ -229,7 +250,7 @@ export default function CommerceDetail() {
                 className="sm:col-span-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold h-12 rounded-xl text-sm shadow-lg shadow-amber-500/20 gap-2"
               >
                 <CreditCard className="h-5 w-5 fill-black" />
-                <span>Pay with Promorang Card (Split-Tender)</span>
+                <span>{t("market.useHere")}</span>
               </Button>
               <Button size="lg" disabled={isSample || !!actions.busy} onClick={() => actions.purchase(sourceId, amount, 'reservation')}>
                 {isSample ? t("commerce.sampleOnly") : actions.busy ? t("commerce.working") : x.discount_value ? t("commerce.reserveOffer") : t("commerce.reserve")}

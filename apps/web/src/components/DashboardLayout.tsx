@@ -96,7 +96,7 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/scenes", label: "Scenes", description: "The rooms, rituals, creators, and places that turn moments into belonging." },
   { match: "/creators", label: "Creators", description: "Discover the people shaping culture and carrying its stories forward." },
   { match: "/discover", label: "Discover", description: "Browse moments, venues, rewards, and content worth acting on." },
-  { match: "/shop", label: "Shop", description: "Browse verified merchant products, services, offers, and clearly separated sample previews." },
+  { match: "/shop", label: "Shop", description: "Places that take your PromoCard — offer and minimum shown before you go." },
   { match: "/create", label: "Create", description: "Launch a Moment, contribution prompt, or activation with clear human and commercial return." },
   { match: "/vault", label: "Vault", description: "Memories, active perks, and the value that stays with the participant." },
   { match: "/wallet", label: "Wallet", description: "Balances, transactions, and advanced value tools." },

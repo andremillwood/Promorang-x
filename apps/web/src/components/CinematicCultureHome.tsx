@@ -108,7 +108,7 @@ const commerceFallback = [
     merchant: "Devon House Courtyard Merchants",
     price: "$18.50 / 250 pts",
     image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=800",
-    href: "/shop/devon-house-tasting-passport",
+    href: "/shop/devon-house-tasting-passport?from=promocard",
   },
   {
     id: "fat-wednesday-vip-pack",
@@ -117,7 +117,7 @@ const commerceFallback = [
     merchant: "Usain Bolt's Tracks & Records",
     price: "$24.00 / 320 pts",
     image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800",
-    href: "/shop/fat-wednesday-vip-pack",
+    href: "/shop/fat-wednesday-vip-pack?from=promocard",
   },
   {
     id: "blue-mountain-coffee-flight",
@@ -126,7 +126,7 @@ const commerceFallback = [
     merchant: "Cafe Blue & Strawberry Hill",
     price: "$16.00 / 220 pts",
     image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=800",
-    href: "/shop/blue-mountain-coffee-flight",
+    href: "/shop/blue-mountain-coffee-flight?from=promocard",
   },
   {
     id: "downtown-artwalk-reggae-pass",
@@ -135,7 +135,7 @@ const commerceFallback = [
     merchant: "Kingston Creative & Heritage Guild",
     price: "$28.00 / 380 pts",
     image: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&q=80&w=800",
-    href: "/shop/downtown-artwalk-reggae-pass",
+    href: "/shop/downtown-artwalk-reggae-pass?from=promocard",
   },
 ];
 
@@ -403,7 +403,7 @@ export default function CinematicCultureHome() {
         merchant: listing.merchant_name || listing.venue_name || "Promorang merchant",
         price: formatCommercePrice(listing),
         image: listing.image_url || "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=800",
-        href: listing.listing_id ? `/shop/${listing.listing_id}` : (listing.source_id ? `/shop/${listing.source_id}` : "/shop"),
+        href: listing.listing_id ? `/shop/${listing.listing_id}?from=promocard` : (listing.source_id ? `/shop/${listing.source_id}?from=promocard` : "/shop?from=promocard"),
         isSample: false,
       }))
     : [];
@@ -418,7 +418,7 @@ export default function CinematicCultureHome() {
     ...liveCommerceListings.map((listing) => ({
       id: `commerce-${listing.listing_id || listing.source_id}`, kind: commerceKind(listing), title: listing.name || "Local offer", image: listing.image_url,
       detail: listing.merchant_name || listing.venue_name || "Promorang merchant", value: formatCommercePrice(listing),
-      href: listing.listing_id ? `/shop/${listing.listing_id}` : "/shop", action: listing.listing_kind === "service" ? "View service" : "View offer",
+      href: listing.listing_id ? `/shop/${listing.listing_id}?from=promocard` : "/shop?from=promocard", action: listing.listing_kind === "service" ? "View service" : "View offer",
     })),
     ...(discoveryQuery.data?.content || []).map((content) => ({
       id: `content-${content.id}`, kind: "Content", title: content.title || "Creator signal", image: getSafeMediaUrl(content.media_url),
@@ -644,7 +644,7 @@ export default function CinematicCultureHome() {
                 [Compass, t("home.shortcutSpots"), "/discover"],
                 [Tag, t("home.shortcutRewards"), "/rewards"],
                 [Store, t("home.shortcutMerchants"), "/merchants"],
-                [ShoppingBag, t("home.shortcutProducts"), "/shop"],
+                [ShoppingBag, t("home.shortcutProducts"), "/shop?from=promocard"],
               ].map(([Icon, label, href]) => {
                 const ShortcutIcon = Icon as typeof CalendarDays;
                 return (
@@ -697,7 +697,7 @@ export default function CinematicCultureHome() {
 
               {/* Pillar 2: PromoCard & Margin Clearinghouse */}
               <Link
-                to="/shop"
+                to="/shop?from=promocard"
                 className="group p-5 rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-500/10 via-zinc-950 to-zinc-950 hover:border-emerald-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
               >
                 <div className="space-y-3">
@@ -794,7 +794,7 @@ export default function CinematicCultureHome() {
           </div>
 
           <div className="pt-12">
-            <SectionHeader eyebrow={t("home.secDealsEyebrow")} title={t("home.secDealsTitle")} accent={t("home.secDealsAccent")} action={t("home.secDealsAction")} actionHref="/shop" />
+            <SectionHeader eyebrow={t("home.secDealsEyebrow")} title={t("home.secDealsTitle")} accent={t("home.secDealsAccent")} action={t("home.secDealsAction")} actionHref="/shop?from=promocard" />
             {homepageCommerce.length ? (
               <div className="grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 scrollbar-none sm:auto-cols-[45%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
                 {homepageCommerce.map((listing) => (
@@ -821,22 +821,22 @@ export default function CinematicCultureHome() {
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary mb-4">
                   <Store className="h-7 w-7" />
                 </div>
-                <h3 className="text-2xl font-black text-white">Live merchant drops coming soon</h3>
+                <h3 className="text-2xl font-black text-white">See where the card works</h3>
                 <p className="mx-auto mt-2 max-w-lg text-sm text-white/60">
-                  Verified local merchants, restaurants, and venues are onboarding exclusive passes and special perks.
+                  Live partner inventory is still lining up. Preview places already show the offer, the minimum, and what PromoCard covers.
                 </p>
                 <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                   <Link
-                    to="/for-merchants"
+                    to="/shop?from=promocard"
                     className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-black text-black transition hover:bg-primary/90"
                   >
-                    Claim a Merchant Profile <ArrowRight className="h-4 w-4" />
+                    Use your PromoCard <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link
-                    to="/merchants"
+                    to="/discover/moments"
                     className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10"
                   >
-                    Explore Directory
+                    Find a Moment
                   </Link>
                 </div>
               </div>
