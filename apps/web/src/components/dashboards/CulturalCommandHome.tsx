@@ -133,6 +133,24 @@ export function CulturalCommandHome() {
         </div>
       </div>
 
+      <section className="rounded-3xl border border-amber-400/25 bg-gradient-to-r from-amber-500/10 via-black to-black p-5 sm:p-6">
+        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-200">{t("today.promoCardKicker")}</p>
+        <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-xl">
+            <h2 className="font-serif text-2xl font-bold tracking-tight text-white sm:text-3xl">{t("today.promoCardTitle")}</h2>
+            <p className="mt-2 text-sm leading-6 text-white/70">{t("today.promoCardCopy")}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild className="rounded-xl bg-amber-500 font-black text-black hover:bg-amber-400">
+              <Link to="/vault">{t("today.promoCardCta")}</Link>
+            </Button>
+            <Button asChild variant="outline" className="rounded-xl border-white/15 bg-white/5 text-white">
+              <Link to="/vault">{t("today.promoCardRecharge")}</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* 2. Personal Success Journey Runway (Compact Guided Milestone Bar) */}
       <div className="p-4 sm:p-5 rounded-3xl border border-primary/25 bg-gradient-to-r from-primary/10 via-black to-black text-xs text-white/80 space-y-3 shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">

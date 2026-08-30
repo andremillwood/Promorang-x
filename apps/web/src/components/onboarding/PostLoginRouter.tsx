@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getPersonSignInPath, isOperatorRole } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
@@ -39,22 +40,11 @@ export function PostLoginRouter() {
 
       const hasCompletedOnboarding = onboardingCheck?.onboarding_completed || false;
 
-      // Check for profile completeness
-      const profileComplete = !!(
-        profile?.display_name && 
-        (profile?.avatar_url || profile?.user_metadata?.avatar_url)
-      );
-
       // Check for first actions based on role
       const { count: momentCount } = await supabase
         .from('moments')
         .select('id', { count: 'exact', head: true })
         .eq('host_id', user.id);
-
-      const { count: joinedCount } = await supabase
-        .from('moment_participants')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id);
 
       const { count: campaignCount } = await supabase
         .from('campaigns')
@@ -80,7 +70,6 @@ export function PostLoginRouter() {
         .eq('creator_id', user.id);
 
       const hasCreatedContent = (momentCount || 0) > 0;
-      const hasJoinedContent = (joinedCount || 0) > 0;
       const hasCreatedCampaign = (campaignCount || 0) > 0;
       const hasRegisteredVenue = (venueCount || 0) > 0;
       const hasCreatedFundedActivation = (offerCount || 0) > 0;
@@ -142,15 +131,14 @@ export function PostLoginRouter() {
 
         case "participant":
         default:
-          if (!hasCompletedOnboarding) {
-            navigate("/onboarding", { replace: true });
-          } else if (!hasJoinedContent) {
-            navigate("/discover?firstTime=true", { replace: true });
-          } else if (!profileComplete) {
-            navigate("/dashboard/settings?firstTime=true", { replace: true });
-          } else {
-            navigate("/dashboard", { replace: true });
+          if (isOperatorRole(activeRole)) {
+            navigate("/today", { replace: true });
+            break;
           }
+          navigate(getPersonSignInPath({
+            role: activeRole || "participant",
+            hasCompletedOnboarding,
+          }), { replace: true });
           break;
       }
     };

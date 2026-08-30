@@ -22,10 +22,10 @@ type PromoCardFaceProps = {
 };
 
 export function PromoCardFace({
-  available = "$24.00",
-  limit = "$40.00",
+  available = "24 Gems",
+  limit = "40 Gems",
   holder = "Member card",
-  places = "Partner shops nearby",
+  places = "about JMD at today's rate · partner shops nearby",
   className,
 }: PromoCardFaceProps) {
   return (

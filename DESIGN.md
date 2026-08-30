@@ -20,6 +20,7 @@ Promorang is Gem-native. **1 Gem equals 1 USD of platform value.** Gems secure a
 - Payouts release secured Gems to the recipient after the stated condition is earned.
 - Refunds return secured Gems through the canonical ledger.
 - Show Gems as the primary value. Where helpful, show the supporting equivalence: `250 Gems · US$250 platform value`.
+- PromoCard promotional credit is Gems. The card face leads with Gems, then localizes that same peg into the market currency (JMD in Jamaica, TTD in Trinidad, and so on) using a recent FX mid. Local money is a display conversion, never a second ledger.
 - Keep available, secured, pending, earned, refunded, released, and withdrawn Gems visibly distinct.
 - Promotional Gems can carry withdrawal restrictions, but their internal spending value remains 1 Gem = 1 USD.
 
@@ -197,11 +198,25 @@ Offer the next relevant move based on real journey state. Do not manufacture urg
 
 ## 0.6 Current Move And Today
 
-Today is the authenticated center of Promorang on web and mobile.
+For a person (participant), **Vault is the sign-in home**. The first authenticated screen is the PromoCard they hold.
+
+Today is the process that carries them from that card into one useful move.
 
 It must answer:
 
-**What is the most valuable thing I can do right now?**
+**What should I do with my PromoCard right now?**
+
+The person loop is:
+
+`Sign in → Vault (here is your card) → Today (here is how to use or refill it)`
+
+PromoCard is the concept Today exists to teach. A Today move that does not change how someone understands, uses, or recharges their PromoCard is the wrong first move.
+
+Today remains the daily action center on web and mobile. It is not a second wallet. It is the operating surface for the card already sitting in the Vault.
+
+The first viewport should still prioritize:
+
+**What is the most valuable thing I can do right now?** — and for persons that answer is always in service of the PromoCard.
 
 The first viewport should prioritize:
 
