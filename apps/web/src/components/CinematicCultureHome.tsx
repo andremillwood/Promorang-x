@@ -469,12 +469,12 @@ export default function CinematicCultureHome() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <PromoCardGateway />
       <div className="md:hidden">
-        <PromoCardGateway />
         <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} />
       </div>
       <div className="hidden md:block">
-      <section ref={heroRef} className="relative overflow-hidden border-b border-white/10 md:min-h-[92svh]">
+      <section ref={heroRef} className="relative overflow-hidden border-b border-white/10">
         {/* Parallax Background Layer */}
         <motion.div
           style={{ y: shouldReduceMotion ? 0 : bgY, scale: shouldReduceMotion ? 1 : bgScale }}
@@ -495,7 +495,7 @@ export default function CinematicCultureHome() {
           <HeroFloatingBadges scrollYProgress={scrollYProgress} reducedMotion={shouldReduceMotion} />
         </div>
 
-        <div className="container relative z-10 flex flex-col px-5 pb-24 pt-24 md:min-h-[92svh] md:justify-start md:px-6 md:pb-16 md:pt-44 lg:pt-52">
+        <div className="container relative z-10 flex flex-col px-5 pb-16 pt-16 md:px-6 md:pb-20 md:pt-20">
           <motion.div
             style={{ y: shouldReduceMotion ? 0 : contentY, opacity: shouldReduceMotion ? 1 : contentOpacity }}
             className="w-full max-w-full space-y-3 will-change-transform md:max-w-4xl md:space-y-4"
