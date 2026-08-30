@@ -12,6 +12,8 @@ const {
   compilePoolDraftFromOutcome,
   estimateLiability,
   buildShareDraft,
+  isLinkableMoment,
+  momentHref,
   ROLES,
 } = require('./promoShareBrief');
 
@@ -27,6 +29,9 @@ try {
   });
 }
 
+const LIVE_MOMENT_SELECT =
+  'id, title, slug, description, category, location, city, venue_name, starts_at, ends_at, is_active, status, visibility, content_origin';
+
 const DEMO_MOMENTS = [
   {
     id: 'm-kingston-tasting',
@@ -34,7 +39,9 @@ const DEMO_MOMENTS = [
     location: 'New Kingston',
     category: 'dining',
     starts_at: null,
-    why: 'A real room tonight. Check-in mints a ticket.',
+    source: 'demo',
+    linkable: false,
+    why: 'Fixture only. Never send a member here.',
   },
   {
     id: 'm-harbour-set',
@@ -42,9 +49,32 @@ const DEMO_MOMENTS = [
     location: 'Kingston',
     category: 'music',
     starts_at: null,
-    why: 'Repeat nights raise weight more honestly than a one-off share.',
+    source: 'demo',
+    linkable: false,
+    why: 'Fixture only. Never send a member here.',
   },
 ];
+
+function sanitizeIlike(value) {
+  return String(value || '').replace(/[%(),]/g, '').trim();
+}
+
+function mapEligibleMoment(row) {
+  if (!row) return null;
+  const mapped = {
+    id: row.id,
+    slug: row.slug || null,
+    name: row.title || row.name,
+    title: row.title || row.name,
+    location: row.location || row.city,
+    category: row.category,
+    starts_at: row.starts_at,
+    ends_at: row.ends_at || null,
+    source: 'live',
+    why: 'Verified check-in can mint a PromoShare ticket for matching pots.',
+  };
+  return isLinkableMoment(mapped) ? mapped : null;
+}
 
 function demoStanding() {
   return {
@@ -118,44 +148,64 @@ async function inspectStanding(userId) {
   }
 }
 
+async function queryLiveMoments({ location, fetchLimit }) {
+  const now = new Date();
+  const stillHappening = new Date(now.getTime() - 4 * 60 * 60 * 1000).toISOString();
+  let query = supabase
+    .from('moments')
+    .select(LIVE_MOMENT_SELECT)
+    .eq('is_active', true)
+    .neq('content_origin', 'demo')
+    .not('status', 'in', '(draft,cancelled,closed)')
+    .neq('visibility', 'private')
+    .or(`ends_at.gte.${now.toISOString()},starts_at.gte.${stillHappening}`)
+    .order('starts_at', { ascending: true })
+    .limit(fetchLimit);
+
+  const loc = sanitizeIlike(location);
+  if (loc) {
+    query = query.or(`location.ilike.%${loc}%,city.ilike.%${loc}%,title.ilike.%${loc}%`);
+  }
+
+  return query;
+}
+
+async function queryLiveMomentsFallback({ location, fetchLimit }) {
+  let query = supabase
+    .from('moments')
+    .select('id, title, slug, location, city, starts_at, is_active')
+    .eq('is_active', true)
+    .order('starts_at', { ascending: true })
+    .limit(fetchLimit);
+
+  const loc = sanitizeIlike(location);
+  if (loc) {
+    query = query.or(`location.ilike.%${loc}%,city.ilike.%${loc}%,title.ilike.%${loc}%`);
+  }
+
+  return query;
+}
+
 async function findEligibleMoments({ location, limit = 6 } = {}) {
   const fetchLimit = Math.min(limit, 12);
 
   if (!supabase) {
-    return {
-      moments: DEMO_MOMENTS.filter((moment) =>
-        !location || String(moment.location).toLowerCase().includes(String(location).toLowerCase())
-      ).slice(0, fetchLimit),
-    };
+    return { moments: [], source: 'unavailable' };
   }
 
   try {
-    let query = supabase
-      .from('moments')
-      .select('id, name, title, description, category, location, city, capacity, starts_at, is_active')
-      .eq('is_active', true)
-      .limit(fetchLimit);
-
-    if (location) {
-      query = query.or(`location.ilike.%${location}%,city.ilike.%${location}%,name.ilike.%${location}%`);
+    let { data, error } = await queryLiveMoments({ location, fetchLimit });
+    if (error) {
+      const fallback = await queryLiveMomentsFallback({ location, fetchLimit });
+      data = fallback.data;
+      error = fallback.error;
     }
-
-    const { data, error } = await query;
     if (error) throw error;
 
-    const moments = (data || []).map((moment) => ({
-      id: moment.id,
-      name: moment.name || moment.title,
-      title: moment.title || moment.name,
-      location: moment.location || moment.city,
-      category: moment.category,
-      starts_at: moment.starts_at,
-      why: 'Verified check-in can mint a PromoShare ticket for matching pots.',
-    }));
-
-    return { moments: moments.length ? moments : DEMO_MOMENTS.slice(0, fetchLimit) };
+    const moments = (data || []).map(mapEligibleMoment).filter(Boolean);
+    return { moments, source: 'live' };
   } catch (error) {
-    return { moments: DEMO_MOMENTS.slice(0, fetchLimit), error: error.message };
+    return { moments: [], source: 'error', error: error.message };
   }
 }
 
@@ -249,13 +299,11 @@ function createPromoShareTools(userContext = {}) {
     }),
     execute: async ({ momentId, momentName, momentLocation } = {}) => {
       const { moments } = await findEligibleMoments({ location: momentLocation || location, limit: 6 });
-      const moment = moments.find((item) => item.id === momentId) || {
-        id: momentId || moments[0]?.id,
-        name: momentName || moments[0]?.name,
-        location: momentLocation || moments[0]?.location,
-      };
+      const moment = moments.find((item) => item.id === momentId || item.slug === momentId)
+        || moments[0]
+        || null;
       return buildShareDraft({
-        moment,
+        moment: moment || { name: momentName, title: momentName, location: momentLocation },
         userName,
         location: momentLocation || location,
       });
@@ -269,11 +317,11 @@ function createPromoShareTools(userContext = {}) {
     }),
     execute: async ({ momentId } = {}) => {
       const { moments } = await findEligibleMoments({ location, limit: 6 });
-      const moment = moments.find((item) => item.id === momentId) || moments[0] || null;
+      const moment = moments.find((item) => item.id === momentId || item.slug === momentId) || moments[0] || null;
       return {
         submitted: false,
         momentId: moment?.id || null,
-        href: moment?.id ? `/moments/${moment.id}/checkin` : '/discover',
+        href: moment ? momentHref(moment, '/checkin') : '/discover',
         copy: moment
           ? `If you go to ${moment.name}, check in so the ticket counts for today, this week, and the grand pot.`
           : 'When you go, check in. That is what turns a night out into a ticket.',
@@ -369,5 +417,7 @@ module.exports = {
   inspectStanding,
   findEligibleMoments,
   inspectPools,
+  mapEligibleMoment,
+  LIVE_MOMENT_SELECT,
   DEMO_MOMENTS,
 };

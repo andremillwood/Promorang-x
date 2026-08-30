@@ -13,11 +13,27 @@ import {
 
 export type OperatorVariant = "pageHero" | "handoff" | "rail" | "compact";
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const GHOST_MOMENT_KEYS = new Set(["m-kingston-tasting", "m-harbour-set"]);
+
+function safeMomentHref(href?: string) {
+  if (!href) return undefined;
+  const match = href.match(/^\/moments\/([^/]+)(\/.*)?$/);
+  if (!match) return href;
+  const key = match[1];
+  if (GHOST_MOMENT_KEYS.has(key) || (!UUID_PATTERN.test(key) && /^m[-_]/.test(key))) {
+    return "/discover";
+  }
+  return href;
+}
+
 function shareUrl(href?: string) {
-  if (typeof window === "undefined") return href || "/discover";
-  if (!href) return window.location.origin;
-  if (href.startsWith("http")) return href;
-  return `${window.location.origin}${href}`;
+  const safeHref = safeMomentHref(href) || href;
+  if (typeof window === "undefined") return safeHref || "/discover";
+  if (!safeHref) return window.location.origin;
+  if (safeHref.startsWith("http")) return safeHref;
+  return `${window.location.origin}${safeHref}`;
 }
 
 function resolveVariant({
@@ -104,15 +120,16 @@ export function PromoShareOperator({
   if (!session?.access_token) return null;
 
   const cta = brief?.nextMove.ctaLabel || brief?.nextMove.title || t("promoshare.operatorDoThis");
+  const nextHref = safeMomentHref(brief?.nextMove.href);
   const stub = brief?.cycle?.tickets != null
     ? String(brief.cycle.tickets)
     : brief?.nextMove.kind || "GO";
 
   const actions = brief ? (
     <div className={`flex flex-col gap-3 ${resolved === "rail" ? "sm:flex-row sm:shrink-0" : "sm:flex-row sm:flex-wrap"}`}>
-      {brief.nextMove.href ? (
+      {nextHref ? (
         <TactileButton variant="primary" size={resolved === "rail" ? "default" : "lg"} asChild>
-          <Link to={brief.nextMove.href}>{cta}</Link>
+          <Link to={nextHref}>{cta}</Link>
         </TactileButton>
       ) : (
         <TactileButton variant="primary" size={resolved === "rail" ? "default" : "lg"} disabled={loading} onClick={() => loadBrief(ask || undefined)}>

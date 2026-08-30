@@ -192,11 +192,9 @@ async function runPromoShareShareDraft(params = {}, userContext = {}) {
     location: params.location || userContext.location,
     limit: 6,
   });
-  const moment = moments.find((item) => item.id === params.momentId) || moments[0] || {
-    id: params.momentId,
-    name: params.momentName,
-    location: params.location,
-  };
+  const moment = moments.find((item) => item.id === params.momentId || item.slug === params.momentId)
+    || moments[0]
+    || { name: params.momentName, title: params.momentName, location: params.location };
 
   const draft = buildShareDraft({
     moment,

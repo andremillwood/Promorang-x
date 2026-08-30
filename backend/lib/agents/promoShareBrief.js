@@ -41,6 +41,48 @@ const BOUNDARIES = [
   'Money, go-live, and draws stay with a person. Drafts are recommendations.',
 ];
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const GHOST_MOMENT_IDS = new Set(['m-kingston-tasting', 'm-harbour-set']);
+const DISCOVER_HREF = '/discover';
+
+function momentKey(moment) {
+  if (!moment) return null;
+  const slug = String(moment.slug || '').trim();
+  if (slug && !GHOST_MOMENT_IDS.has(slug)) return slug;
+  const id = String(moment.id || '').trim();
+  if (UUID_PATTERN.test(id)) return id;
+  return null;
+}
+
+function isLinkableMoment(moment) {
+  if (!moment) return false;
+  if (moment.source === 'demo' || moment.linkable === false) return false;
+  if (GHOST_MOMENT_IDS.has(String(moment.id || '')) || GHOST_MOMENT_IDS.has(String(moment.slug || ''))) {
+    return false;
+  }
+  return Boolean(momentKey(moment));
+}
+
+function momentHref(moment, suffix = '') {
+  const key = isLinkableMoment(moment) ? momentKey(moment) : null;
+  if (!key) return DISCOVER_HREF;
+  return suffix ? `/moments/${key}${suffix}` : `/moments/${key}`;
+}
+
+function participantHeadline(cycle, gap) {
+  if (cycle?.eligible) {
+    return "You're already in this week's pot.";
+  }
+  if (gap.remaining === 1) {
+    return `You are one ${gap.noun} short of this week’s pot.`;
+  }
+  if (gap.remaining > 1) {
+    return `You are ${gap.remaining} ${gap.noun}s short of this week’s pot.`;
+  }
+  return 'Your next move is one real night.';
+}
+
 const GAP_COPY = {
   moves: {
     kind: 'check_in',
@@ -101,19 +143,23 @@ function pickPrimaryCycle(cycles = []) {
 }
 
 function buildShareDraft({ moment, userName, cycleName, location }) {
-  const title = moment?.name || moment?.title || 'this Moment';
+  const linkable = isLinkableMoment(moment);
+  const title = linkable
+    ? (moment?.name || moment?.title || 'this Moment')
+    : 'a night worth joining';
   const city = location || moment?.location || 'your city';
   const firstName = String(userName || 'I').split(' ')[0];
-  const momentId = moment?.id || null;
-  const path = momentId ? `/moments/${momentId}` : '/discover';
+  const path = momentHref(moment);
 
   return {
     status: 'draft',
     posted: false,
-    momentId,
+    momentId: linkable ? (moment?.id || null) : null,
     href: path,
     attributablePath: path,
-    message: `${firstName} is going to ${title} in ${city}. Come through — it is a real night, not a flyer.`,
+    message: linkable
+      ? `${firstName} is going to ${title} in ${city}. Come through — it is a real night, not a flyer.`
+      : `${firstName} is looking for a night worth joining in ${city}. Come through.`,
     caption: cycleName
       ? `If they check in, it can count toward ${cycleName}.`
       : 'If they check in, it can count toward this week’s pot.',
@@ -234,7 +280,7 @@ function compileParticipantBrief({ standing, moments = [], location, userName } 
   const cycles = standing?.cycles || standing?.user_stats_by_cycle || [];
   const cycle = pickPrimaryCycle(cycles);
   const gap = findNearestGap(cycle?.progress_to_qualify);
-  const moment = moments[0] || null;
+  const moment = (moments || []).find((item) => isLinkableMoment(item)) || null;
   const share = buildShareDraft({
     moment,
     userName,
@@ -242,7 +288,7 @@ function compileParticipantBrief({ standing, moments = [], location, userName } 
     location,
   });
 
-  const place = moment?.name || moment?.title;
+  const place = moment ? (moment.name || moment.title) : null;
   const nextMove = {
     kind: gap.kind,
     title: place && gap.kind === 'check_in'
@@ -251,11 +297,11 @@ function compileParticipantBrief({ standing, moments = [], location, userName } 
         ? `Join ${place}`
         : gap.title,
     why: gap.why,
-    href: gap.kind === 'check_in' && moment?.id
-      ? `/moments/${moment.id}/checkin`
-      : moment?.id
-        ? `/moments/${moment.id}`
-        : share.href,
+    href: gap.kind === 'check_in' && moment
+      ? momentHref(moment, '/checkin')
+      : moment
+        ? momentHref(moment)
+        : DISCOVER_HREF,
     momentId: moment?.id || null,
     momentName: place || null,
     ctaLabel: place && gap.kind === 'check_in'
@@ -271,11 +317,7 @@ function compileParticipantBrief({ standing, moments = [], location, userName } 
 
   return {
     role: ROLES.PARTICIPANT,
-    headline: cycle?.eligible
-      ? `You're already in this week's pot.`
-      : gap.remaining === 1
-        ? `You are one ${gap.noun} short of this week’s pot.`
-        : `You are ${gap.remaining} ${gap.noun}s short of this week’s pot.`,
+    headline: participantHeadline(cycle, gap),
     summary: cycle
       ? 'Show up. Check in. That ticket can count today, this week, and for the big pot. Nobody is owed a prize.'
       : 'Show up anyway. When a pot opens, nights you already proved still count.',
@@ -321,7 +363,7 @@ function compileParticipantBrief({ standing, moments = [], location, userName } 
 }
 
 function compileHostBrief({ standing, moments = [], location } = {}) {
-  const hosted = moments.slice(0, 3);
+  const hosted = (moments || []).filter((item) => isLinkableMoment(item)).slice(0, 3);
   const liveCount = hosted.length;
   return {
     role: ROLES.HOST,
@@ -333,8 +375,8 @@ function compileHostBrief({ standing, moments = [], location } = {}) {
       kind: 'nudge_check_in',
       title: 'Ask the door list to check in',
       why: 'RSVPs do not count. Check-ins do. One sentence at the door is the move.',
-      href: hosted[0]?.id ? `/moments/${hosted[0].id}` : '/hosting',
-      momentId: hosted[0]?.id || null,
+      href: isLinkableMoment(hosted[0]) ? momentHref(hosted[0]) : '/hosting',
+      momentId: isLinkableMoment(hosted[0]) ? hosted[0].id : null,
       ctaLabel: hosted[0]?.name || hosted[0]?.title
         ? `Open ${hosted[0].name || hosted[0].title}`
         : 'Open tonight’s Moment',
@@ -365,7 +407,7 @@ function compileHostBrief({ standing, moments = [], location } = {}) {
 }
 
 function compileCreatorBrief({ moments = [], standing } = {}) {
-  const drop = moments[0] || null;
+  const drop = (moments || []).find((item) => isLinkableMoment(item)) || null;
   return {
     role: ROLES.CREATOR,
     headline: drop
@@ -376,8 +418,8 @@ function compileCreatorBrief({ moments = [], standing } = {}) {
       kind: 'share_converting',
       title: drop ? `Share ${drop.name || drop.title}` : 'Share one converting drop',
       why: 'One attributable link. One ask. The rest is noise.',
-      href: drop?.id ? `/moments/${drop.id}` : '/content-drops',
-      momentId: drop?.id || null,
+      href: isLinkableMoment(drop) ? momentHref(drop) : '/content-drops',
+      momentId: isLinkableMoment(drop) ? drop.id : null,
       ctaLabel: drop ? `Send ${drop.name || drop.title}` : 'Pick one drop to send',
     },
     unlock: 'Residuals attach when someone actually joins, checks in, or unlocks — not when they watch.',
@@ -572,11 +614,12 @@ function compileHandoffBrief({
   const justJoined = JOIN_ACTIONS.has(action);
 
   const thisMoment = (moments || []).find((item) => item.id === momentId) || null;
+  const namedMoment = thisMoment || (isLinkableMoment({ id: momentId }) ? { id: momentId, name: momentName } : null);
   const place = momentName || momentTitle(thisMoment) || 'this Moment';
-  const otherMoments = (moments || []).filter((item) => item.id !== momentId);
+  const otherMoments = (moments || []).filter((item) => item.id !== momentId && isLinkableMoment(item));
   const nextPlace = otherMoments[0] || null;
   const share = buildShareDraft({
-    moment: thisMoment || { id: momentId, name: place, title: place },
+    moment: namedMoment || { name: place, title: place },
     userName,
     cycleName: cycle?.cycle_name,
     location,
@@ -588,8 +631,8 @@ function compileHandoffBrief({
       kind: 'check_in',
       title: `Check in at ${place}`,
       why: 'Joining held your place. The ticket mints when you check in at the door.',
-      href: momentId ? `/moments/${momentId}/checkin` : '/discover',
-      momentId: momentId || null,
+      href: momentHref(namedMoment, '/checkin'),
+      momentId: namedMoment?.id || null,
       momentName: place,
       ctaLabel: `Check in at ${place}`,
     };
@@ -602,7 +645,7 @@ function compileHandoffBrief({
           ? "You're already in this week's pot. A friend who actually shows makes the night stronger."
           : gap.why,
         href: share.href,
-        momentId: momentId || null,
+        momentId: namedMoment?.id || null,
         momentName: place,
         ctaLabel: 'Invite one friend who will go',
       };
@@ -612,7 +655,7 @@ function compileHandoffBrief({
         kind: 'join_moment',
         title: nextPlace ? `Join ${joinName}` : 'Join another night this week',
         why: 'That visit counted. A distinct Moment is still missing from this cycle.',
-        href: nextPlace?.id ? `/moments/${nextPlace.id}` : '/discover',
+        href: nextPlace ? momentHref(nextPlace) : DISCOVER_HREF,
         momentId: nextPlace?.id || null,
         momentName: nextPlace ? joinName : null,
         ctaLabel: nextPlace ? `I'm going to ${joinName}` : 'Find another night',
@@ -624,7 +667,7 @@ function compileHandoffBrief({
             kind: 'join_moment',
             title: `Go to ${goName}`,
             why: 'That visit counted. One more night closes the nearest gap.',
-            href: `/moments/${nextPlace.id}`,
+            href: momentHref(nextPlace),
             momentId: nextPlace.id,
             momentName: goName,
             ctaLabel: `I'm going to ${goName}`,
@@ -634,7 +677,7 @@ function compileHandoffBrief({
             title: 'Bring one person who will actually go',
             why: 'That visit counted. A friend who checks in closes the nearest gap.',
             href: share.href,
-            momentId: momentId || null,
+            momentId: namedMoment?.id || null,
             momentName: place,
             ctaLabel: 'Invite one friend who will go',
           };
@@ -643,7 +686,7 @@ function compileHandoffBrief({
     nextMove = compileParticipantBrief({ standing, moments, location, userName }).nextMove;
   }
 
-  if (justProved && nextMove.href === `/moments/${momentId}/checkin`) {
+  if (justProved && nextMove.href === momentHref(namedMoment, '/checkin')) {
     nextMove = {
       ...nextMove,
       kind: 'invite',
@@ -737,9 +780,13 @@ function compileHandoffBrief({
 module.exports = {
   ROLES,
   BOUNDARIES,
+  GHOST_MOMENT_IDS,
+  DISCOVER_HREF,
   resolvePromoShareRole,
   findNearestGap,
   pickPrimaryCycle,
+  isLinkableMoment,
+  momentHref,
   buildShareDraft,
   parseOutcomeStatement,
   compilePoolDraftFromOutcome,
