@@ -32,7 +32,6 @@ import {
   LogOut,
   ArrowUpRight,
   Tag,
-  WalletCards,
 } from "lucide-react";
 import { useState } from "react";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
@@ -102,7 +101,7 @@ const Header = () => {
           {/* 1. Left Zone: Brand Logo & Desktop Nav */}
           <div className="flex items-center gap-3 xl:gap-6 shrink-0">
             <Link
-              to={user ? "/today" : "/"}
+              to="/"
               className="flex items-center gap-2 shrink-0 active:scale-95 transition-all group focus:outline-none"
             >
               <div className="h-8 w-8 rounded-xl p-0.5 flex items-center justify-center transition-transform group-hover:scale-105 sm:h-9 sm:w-9">
@@ -206,7 +205,7 @@ const Header = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger
                   className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all outline-none cursor-pointer ${
-                    isActive(["/rewards", "/shop", "/promoshare", "/wallet", "/promocard"])
+                    isActive(["/rewards", "/shop", "/promoshare", "/wallet"])
                       ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
                       : "text-white/80 hover:text-white hover:bg-white/[0.08]"
                   }`}
@@ -226,21 +225,6 @@ const Header = () => {
 
                   <DropdownMenuItem asChild>
                     <Link
-                      to="/promocard"
-                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
-                    >
-                      <div className="h-8 w-8 rounded-lg bg-amber-500/20 text-amber-200 flex items-center justify-center shrink-0">
-                        <WalletCards className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-white">{t("promoCardPage.navLabel")}</p>
-                        <p className="text-[10px] text-white/50 leading-tight">{t("promoCardPage.navDesc")}</p>
-                      </div>
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild>
-                    <Link
                       to="/rewards"
                       className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
                     >
@@ -256,7 +240,7 @@ const Header = () => {
 
                   <DropdownMenuItem asChild>
                     <Link
-                      to="/shop"
+                      to="/shop?from=promocard"
                       className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
                     >
                       <div className="h-8 w-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
@@ -752,14 +736,6 @@ const Header = () => {
                 <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-2">{t("nav.rewardsDeals")}</p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs">
                   <Link
-                    to="/promocard"
-                    onClick={closeMobileMenu}
-                    className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
-                  >
-                    <WalletCards className="w-3.5 h-3.5 text-amber-300" />
-                    <span>{t("promoCardPage.navLabel")}</span>
-                  </Link>
-                  <Link
                     to="/rewards"
                     onClick={closeMobileMenu}
                     className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
@@ -768,7 +744,7 @@ const Header = () => {
                     <span>{t("nav.rewardsHub")}</span>
                   </Link>
                   <Link
-                    to="/shop"
+                    to="/shop?from=promocard"
                     onClick={closeMobileMenu}
                     className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition"
                   >

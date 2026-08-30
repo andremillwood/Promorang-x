@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Check, MapPin, ScanLine, Sparkles, WalletCards, Zap } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { promoCardActionHref } from "@/lib/promocard/public-path";
 
 type MobileOffer = {
   id: string;
@@ -23,7 +22,7 @@ type MobileMoment = {
 
 export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; moments: MobileMoment[] }) {
   const { user } = useAuth();
-  const primaryHref = promoCardActionHref(Boolean(user));
+  const primaryHref = user ? "/wallet" : "/auth?mode=signup&next=/wallet";
 
   return (
     <div className="bg-[#f3efe6] text-[#14120f] md:hidden">
@@ -35,7 +34,7 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
               Your next outing can cost less.
             </h2>
           </div>
-          <Link to="/shop" className="mb-1 shrink-0 text-xs font-black text-[#a34a1a]">See all</Link>
+          <Link to="/shop?from=promocard" className="mb-1 shrink-0 text-xs font-black text-[#a34a1a]">See all</Link>
         </div>
 
         <div className="-mx-5 mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -129,7 +128,7 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
             <Link to={primaryHref} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#ed5a10] px-4 text-sm font-black text-white shadow-[0_12px_28px_rgba(237,90,16,0.28)] active:scale-[0.98]">
               <WalletCards className="h-4 w-4" />Get PromoCard
             </Link>
-            <Link to="/shop" aria-label="Find participating places" className="grid min-h-12 min-w-12 place-items-center rounded-xl border border-black/10 bg-white text-[#171512] active:bg-black/5"><MapPin className="h-5 w-5" /></Link>
+            <Link to="/shop?from=promocard" aria-label="Find participating places" className="grid min-h-12 min-w-12 place-items-center rounded-xl border border-black/10 bg-white text-[#171512] active:bg-black/5"><MapPin className="h-5 w-5" /></Link>
           </div>
         </div>
       )}
@@ -138,6 +137,6 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
 }
 
 const fallbackOffers: MobileOffer[] = [
-  { id: "food", title: "Food, drinks and local experiences", merchant: "Participating places", image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=900", href: "/shop" },
+  { id: "food", title: "Food, drinks and local experiences", merchant: "Participating places", image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=900", href: "/shop?from=promocard" },
   { id: "night", title: "Make more of your next night out", merchant: "Restaurants & events", image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=900", href: "/discover" },
 ];
