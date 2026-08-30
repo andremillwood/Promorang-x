@@ -20,9 +20,14 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { describePromoCardValue } from "@promorang/shared";
 import { PromoCardService, PromoCardData, RechargeAction } from "@/lib/promocard";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMarket } from "@/contexts/MarketContext";
 import { usePromoCard } from "@/hooks/usePromoCard";
+import { useFxQuote } from "@/hooks/useFxQuote";
+import { useI18n } from "@/i18n/I18nContext";
+import { PromoCardValue } from "@/components/promocard/PromoCardValue";
 
 interface DigitalPromoCardProps {
   onCardUpdate?: (card: PromoCardData) => void;
@@ -32,6 +37,9 @@ interface DigitalPromoCardProps {
 export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ onCardUpdate, isPreviewData }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t, locale } = useI18n();
+  const { country } = useMarket();
+  const fx = useFxQuote(country.currency);
   const { user } = useAuth();
   const cardQuery = usePromoCard(user?.id);
   const previewCard = PromoCardService.getCardSummary(user?.id);
@@ -86,7 +94,7 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ onCardUpdate
                     {card.tier} Tier
                   </Badge>
                 </div>
-                <p className="text-xs text-zinc-400">Promotional spending balance</p>
+                <p className="text-xs text-zinc-400">{t("vaultPage.promoGemsHint")}</p>
               </div>
             </div>
 
@@ -105,15 +113,13 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ onCardUpdate
           {/* Active Balance Section */}
           <div className="my-6">
             <p className="text-xs font-medium uppercase tracking-widest text-zinc-400">
-              Available promotional balance
+              Available promotional Gems
             </p>
-            <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-amber-100 to-amber-400 bg-clip-text text-transparent">
-                ${card.availableBalance.toFixed(2)}
-              </span>
-              <span className="text-xs text-zinc-400 font-normal">
-                of ${card.monthlyLimit.toFixed(2)} available this cycle
-              </span>
+            <div className="mt-1 space-y-1">
+              <PromoCardValue gems={card.availableBalance} quote={fx} />
+              <p className="text-xs text-zinc-400">
+                of {describePromoCardValue(card.monthlyLimit, fx, locale).gemsLabel} this cycle
+              </p>
             </div>
             <p className="text-xs text-emerald-400 flex items-center gap-1 mt-1 font-medium">
               <ShieldCheck className="h-3.5 w-3.5" />
@@ -136,7 +142,7 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ onCardUpdate
               <div className="hidden h-6 w-px bg-white/10 sm:block" />
               <div>
                 <span className="text-zinc-500 block">LIFETIME SAVINGS</span>
-                <span className="text-emerald-400 font-semibold">${card.totalSavingsLifetime.toFixed(2)}</span>
+                <span className="text-emerald-400 font-semibold">{describePromoCardValue(card.totalSavingsLifetime, fx, locale).gemsLabel}</span>
               </div>
             </div>
 
@@ -203,7 +209,11 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ onCardUpdate
           </div>
 
           <div className="text-xs text-zinc-400 space-y-1">
-            <p className="font-semibold text-white">Available Balance: ${card.availableBalance.toFixed(2)}</p>
+            <p className="font-semibold text-white">
+              Available: {describePromoCardValue(card.availableBalance, fx, locale).gemsLabel}
+              {" · "}
+              {describePromoCardValue(card.availableBalance, fx, locale).localLabel}
+            </p>
             <p>Your eligible PromoCard amount is applied first. Pay the remaining purchase amount normally.</p>
           </div>
 
@@ -239,7 +249,7 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ onCardUpdate
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium text-white">{action.title}</p>
                   <p className="text-xs text-emerald-400 font-semibold">
-                    +${action.rewardAmount.toFixed(2)} promotional balance
+                    +{describePromoCardValue(action.rewardAmount, fx, locale).gemsLabel} promotional credit
                   </p>
                 </div>
 

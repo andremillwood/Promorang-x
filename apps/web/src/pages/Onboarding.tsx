@@ -21,7 +21,7 @@ const Onboarding = () => {
   useEffect(() => {
     // If user has already completed onboarding, redirect to dashboard
     if (!prefsLoading && hasCompleted) {
-      navigate("/dashboard");
+      navigate("/vault");
     }
   }, [hasCompleted, prefsLoading, navigate]);
 
@@ -47,7 +47,7 @@ const Onboarding = () => {
     sessionStorage.setItem('promorang_role_pilot_step', '0');
     
     // Redirect directly to first step of the guided tour
-    navigate(`/discover?pilot=${roleId}&step=1`);
+    navigate("/vault?from=onboarding");
   };
 
   if (authLoading || prefsLoading) {

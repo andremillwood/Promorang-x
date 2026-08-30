@@ -400,6 +400,7 @@ const App = () => (
                     <Route path="/organizer/settings" element={<ProtectedRoute><OrganizerWorkspace /></ProtectedRoute>} />
                     <Route path="/organizer/check-ins" element={<ProtectedRoute><OrganizerWorkspace /></ProtectedRoute>} />
                     <Route path="/organizer/analytics" element={<ProtectedRoute><OrganizerWorkspace /></ProtectedRoute>} />
+                    <Route path="/today" element={<Navigate to="/dashboard" replace />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/dashboard/participant" element={<Navigate to="/dashboard" replace />} />
                     <Route path="/dashboard/creator" element={<Navigate to="/dashboard" replace />} />

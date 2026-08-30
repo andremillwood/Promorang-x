@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { LiquidityVaultDashboard } from "@/components/LiquidityVaultDashboard";
+import { DigitalPromoCard } from "@/components/promocard/DigitalPromoCard";
+import { TicketPass } from "@/components/promorang/SignatureObjects";
 import { useI18n } from "@/i18n/I18nContext";
 import { usePerks } from "@/hooks/usePerks";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
@@ -91,18 +93,31 @@ const Vault = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-2">
               <Badge className="rounded-full bg-[#ff5500] text-white font-bold text-xs px-3.5 py-1 uppercase tracking-wider border-none">
-                Retained Value &amp; Vault
+                {t("vaultPage.homeEyebrow")}
               </Badge>
               <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
                 {t("vaultPage.title")}
               </h1>
               <p className="text-white/60 text-sm max-w-xl">
-                The proof, perks, draw tickets, and platform economic value that stays with you.
+                {t("vaultPage.homeCopy")}
               </p>
             </div>
 
             <GlobalTicketBalancePill />
           </div>
+
+          <DigitalPromoCard />
+
+          <Link to="/today" className="block group">
+            <TicketPass
+              kicker={t("vaultPage.todayCarryTitle")}
+              title={t("vaultPage.todayCarryCopy")}
+              detail={t("vaultPage.promoGemsHint")}
+              stub={t("vaultPage.todayCarryCta")}
+              stubLabel="Today"
+              className="transition group-hover:brightness-110"
+            />
+          </Link>
 
           {/* 4 Economic Dimensions Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

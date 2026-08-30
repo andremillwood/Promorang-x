@@ -16,6 +16,8 @@ export * from "./demand-plan";
 export * from "./action-engine";
 export * from "./gem-ledger";
 export * from "./promocard-moment";
+export * from "./promocard-economy";
+export * from "./member-home";
 export * from "./weekly-moment-drop";
 export * from "./stakeholder-scout";
 
