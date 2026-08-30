@@ -43,7 +43,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         "/", "/for-communities", "/for-brands", "/for-creators", "/for-merchants", "/for-agencies", "/for-enterprise", "/for-causes",
         "/auth", "/onboarding", "/propose", "/strategies", "/bounties",
         "/help", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
-        "/economy", "/promopush/info", "/careers", "/go", "/free", "/campaigns"
+        "/economy", "/promocard", "/promopush/info", "/careers", "/go", "/free", "/campaigns"
     ];
     const isMarketingRoute = marketingRoutes.some(path =>
         location.pathname === path || location.pathname.startsWith(path + "/")

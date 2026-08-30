@@ -5182,6 +5182,17 @@ const en = {
   "receipt.checkInUnlocked": "This night now counts — perk and standing included",
   "receipt.checkInNext": "Keep it in Vault",
   "receipt.checkInCta": "Open Vault",
+  "promoCardPage.seoTitle": "PromoCard",
+  "promoCardPage.seoDescription": "PromoCard is promotional spending value at participating shops. Apply it at checkout, pay the rest normally, then refill it by showing up.",
+  "promoCardPage.headline": "A card you can see on the bill.",
+  "promoCardPage.plainEnglish": "Think of it as a local gift card. The shop decides how much you can save. You pay the rest. Coming back can fill it up again.",
+  "promoCardPage.seePlaces": "See where to use it",
+  "promoCardPage.trailEyebrow": "One loop",
+  "promoCardPage.trailTitle": "Get it. Use it. Refill it.",
+  "promoCardPage.ctaTitle": "Get a card you can actually use.",
+  "promoCardPage.ctaCopy": "Eligible members receive a PromoCard with a visible limit. The shop decides the offer. You pay the rest.",
+  "promoCardPage.navLabel": "PromoCard",
+  "promoCardPage.navDesc": "Savings you can see on the bill",
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -10359,6 +10370,17 @@ const es: Record<TranslationKey, string> = {
   "receipt.checkInUnlocked": "Esta noche ya cuenta — beneficio y estatus incluidos",
   "receipt.checkInNext": "Guárdalo en Vault",
   "receipt.checkInCta": "Abrir Vault",
+  "promoCardPage.seoTitle": "PromoCard",
+  "promoCardPage.seoDescription": "PromoCard es valor promocional de gasto en comercios participantes. Aplícalo al pagar, cubre el resto de forma habitual y recárgalo al presentarte.",
+  "promoCardPage.headline": "Una tarjeta que se ve en la cuenta.",
+  "promoCardPage.plainEnglish": "Piénsala como una tarjeta de regalo local. El comercio decide cuánto puedes ahorrar. Tú pagas el resto. Volver puede recargarla.",
+  "promoCardPage.seePlaces": "Ver dónde usarla",
+  "promoCardPage.trailEyebrow": "Un ciclo",
+  "promoCardPage.trailTitle": "Obténla. Úsala. Recárgala.",
+  "promoCardPage.ctaTitle": "Obtén una tarjeta que sí puedes usar.",
+  "promoCardPage.ctaCopy": "Las cuentas elegibles reciben una PromoCard con un límite visible. El comercio decide la oferta. Tú pagas el resto.",
+  "promoCardPage.navLabel": "PromoCard",
+  "promoCardPage.navDesc": "Ahorro que se ve en la cuenta",
 };
 
 const ptBR: Record<TranslationKey, string> = {
@@ -15534,6 +15556,17 @@ const ptBR: Record<TranslationKey, string> = {
   "receipt.checkInUnlocked": "Esta noite agora conta — benefício e status incluídos",
   "receipt.checkInNext": "Guarde no Vault",
   "receipt.checkInCta": "Abrir Vault",
+  "promoCardPage.seoTitle": "PromoCard",
+  "promoCardPage.seoDescription": "O PromoCard é valor promocional de gasto em comércios participantes. Aplique no caixa, pague o restante normalmente e recarregue ao aparecer.",
+  "promoCardPage.headline": "Um cartão que aparece na conta.",
+  "promoCardPage.plainEnglish": "Pense nele como um cartão-presente local. A loja decide quanto você pode economizar. Você paga o resto. Voltar pode recarregá-lo.",
+  "promoCardPage.seePlaces": "Ver onde usar",
+  "promoCardPage.trailEyebrow": "Um ciclo",
+  "promoCardPage.trailTitle": "Pegue. Use. Recarregue.",
+  "promoCardPage.ctaTitle": "Pegue um cartão que você realmente usa.",
+  "promoCardPage.ctaCopy": "Contas elegíveis recebem um PromoCard com um limite visível. A loja decide a oferta. Você paga o resto.",
+  "promoCardPage.navLabel": "PromoCard",
+  "promoCardPage.navDesc": "Economia que aparece na conta",
 };
 
 export const translations: Record<Locale, Record<TranslationKey, string>> = {

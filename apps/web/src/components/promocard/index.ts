@@ -1,6 +1,7 @@
 export * from "./DigitalPromoCard";
 export * from "./PromoCardGateway";
 export * from "./MobilePromoHome";
+export * from "./PromoCardCheckoutDemo";
 export * from "./PromoCardEconomyExplainer";
 export * from "./PromoAcceptanceBadge";
 export * from "./SplitTenderCheckoutModal";
