@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useI18n } from "@/i18n/I18nContext";
+import { translate, useI18n } from "@/i18n/I18nContext";
 import type { TranslationKey } from "@/i18n/translations";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://api.promorang.co";
@@ -48,36 +48,36 @@ type EditState = {
 
 const catalogMeta = {
   brands: {
-    title: "Brands",
     titleKey: "catCtrl.brands" as const,
-    description: "Brand workspaces, ownership, verification, and platform standing.",
+    descKey: "catDlg.desc.brands" as const,
+    oneKey: "catDlg.one.brand" as const,
     icon: Building2,
   },
   venues: {
-    title: "Venues",
     titleKey: "catCtrl.venues" as const,
-    description: "Public places, business pages, and hosting infrastructure.",
+    descKey: "catDlg.desc.venues" as const,
+    oneKey: "catDlg.one.venue" as const,
     icon: Store,
   },
   products: {
-    title: "Products",
     titleKey: "catCtrl.products" as const,
-    description: "Merchant marketplace listings, services, and redeemable inventory.",
+    descKey: "catDlg.desc.products" as const,
+    oneKey: "catDlg.one.product" as const,
     icon: Package,
   },
   offers: {
-    title: "Offers",
     titleKey: "catCtrl.offers" as const,
-    description: "Unified offer inventory, reward distribution, and claimable value.",
+    descKey: "catDlg.desc.offers" as const,
+    oneKey: "catDlg.one.offer" as const,
     icon: Tag,
   },
   campaigns: {
-    title: "Campaigns",
     titleKey: "catCtrl.campaigns" as const,
-    description: "Brand-funded campaigns, targeting, rewards, and lifecycle state.",
+    descKey: "catDlg.desc.campaigns" as const,
+    oneKey: "catDlg.one.campaign" as const,
     icon: Megaphone,
   },
-} satisfies Record<CatalogType, { title: string; titleKey: TranslationKey; description: string; icon: typeof Store }>;
+} satisfies Record<CatalogType, { titleKey: TranslationKey; descKey: TranslationKey; oneKey: TranslationKey; icon: typeof Store }>;
 
 async function adminRequest<T>(path: string, token?: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API_URL}/api/admin${path}`, {
@@ -89,12 +89,12 @@ async function adminRequest<T>(path: string, token?: string, options: RequestIni
     },
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok || payload.success === false) throw new Error(payload.error || "Admin catalog request failed");
+  if (!response.ok || payload.success === false) throw new Error(payload.error || translate("catDlg.requestFailed"));
   return payload;
 }
 
 function titleFor(item: CatalogItem) {
-  return item.name || item.title || "Untitled item";
+  return item.name || item.title || translate("catDlg.untitled");
 }
 
 function statusFor(type: CatalogType, item: CatalogItem) {
@@ -118,75 +118,75 @@ function itemHref(type: CatalogType, item: CatalogItem) {
   return "/offers";
 }
 
-function editableFields(type: CatalogType) {
+function editableFields(type: CatalogType): [string, TranslationKey][] {
   if (type === "brands") {
     return [
-      ["name", "Brand name"],
-      ["slug", "URL slug"],
-      ["industry", "Industry"],
-      ["contact_email", "Contact email"],
-      ["billing_email", "Billing email"],
-      ["website", "Website"],
-      ["avatar_url", "Logo URL"],
-      ["owner_id", "Owner user ID"],
+      ["name", "catDlg.f.brandName"],
+      ["slug", "catDlg.f.slug"],
+      ["industry", "catDlg.f.industry"],
+      ["contact_email", "catDlg.f.contactEmail"],
+      ["billing_email", "catDlg.f.billingEmail"],
+      ["website", "catDlg.f.website"],
+      ["avatar_url", "catDlg.f.logoUrl"],
+      ["owner_id", "catDlg.f.ownerId"],
     ];
   }
 
   if (type === "venues") {
     return [
-      ["name", "Name"],
-      ["description", "Description"],
-      ["address", "Address"],
-      ["category", "Category"],
-      ["phone", "Phone"],
-      ["website", "Website"],
-      ["image_url", "Image URL"],
-      ["owner_id", "Owner user ID"],
+      ["name", "catDlg.f.name"],
+      ["description", "catDlg.f.description"],
+      ["address", "catDlg.f.address"],
+      ["category", "catDlg.f.category"],
+      ["phone", "catDlg.f.phone"],
+      ["website", "catDlg.f.website"],
+      ["image_url", "catDlg.f.imageUrl"],
+      ["owner_id", "catDlg.f.ownerId"],
     ];
   }
 
   if (type === "products") {
     return [
-      ["name", "Name"],
-      ["description", "Description"],
-      ["category", "Category"],
-      ["price", "Price"],
-      ["currency", "Currency"],
-      ["inventory_quantity", "Inventory"],
-      ["points_cost", "Points cost"],
-      ["venue_id", "Venue ID"],
-      ["merchant_id", "Merchant user ID"],
+      ["name", "catDlg.f.name"],
+      ["description", "catDlg.f.description"],
+      ["category", "catDlg.f.category"],
+      ["price", "catDlg.f.price"],
+      ["currency", "catDlg.f.currency"],
+      ["inventory_quantity", "catDlg.f.inventory"],
+      ["points_cost", "catDlg.f.pointsCost"],
+      ["venue_id", "catDlg.f.venueId"],
+      ["merchant_id", "catDlg.f.merchantId"],
     ];
   }
 
   if (type === "campaigns") {
     return [
-      ["title", "Title"],
-      ["description", "Description"],
-      ["brand_id", "Brand user ID"],
-      ["organization_id", "Brand organization ID"],
-      ["budget", "Budget"],
-      ["reward_type", "Reward type"],
-      ["reward_value", "Reward value"],
-      ["start_date", "Start date"],
-      ["end_date", "End date"],
-      ["featured_until", "Featured until"],
+      ["title", "catDlg.f.title"],
+      ["description", "catDlg.f.description"],
+      ["brand_id", "catDlg.f.brandUserId"],
+      ["organization_id", "catDlg.f.orgId"],
+      ["budget", "catDlg.f.budget"],
+      ["reward_type", "catDlg.f.rewardType"],
+      ["reward_value", "catDlg.f.rewardValue"],
+      ["start_date", "catDlg.f.startDate"],
+      ["end_date", "catDlg.f.endDate"],
+      ["featured_until", "catDlg.f.featuredUntil"],
     ];
   }
 
   return [
-    ["title", "Title"],
-    ["description", "Description"],
-    ["terms", "Terms"],
-    ["reward_type", "Reward type"],
-    ["fulfillment_type", "Fulfillment"],
-    ["value_amount", "Value amount"],
-    ["value_currency", "Value currency"],
-    ["quantity_total", "Quantity total"],
-    ["per_user_limit", "Per-user limit"],
-    ["venue_id", "Venue ID"],
-    ["starts_at", "Starts at"],
-    ["ends_at", "Ends at"],
+    ["title", "catDlg.f.title"],
+    ["description", "catDlg.f.description"],
+    ["terms", "catDlg.f.terms"],
+    ["reward_type", "catDlg.f.rewardType"],
+    ["fulfillment_type", "catDlg.f.fulfillment"],
+    ["value_amount", "catDlg.f.valueAmount"],
+    ["value_currency", "catDlg.f.valueCurrency"],
+    ["quantity_total", "catDlg.f.qtyTotal"],
+    ["per_user_limit", "catDlg.f.perUser"],
+    ["venue_id", "catDlg.f.venueId"],
+    ["starts_at", "catDlg.f.startsAt"],
+    ["ends_at", "catDlg.f.endsAt"],
   ];
 }
 
@@ -232,11 +232,11 @@ export function AdminCatalogTab() {
         body: JSON.stringify({ ...patch, reason }),
       }),
     onSuccess: () => {
-      toast({ title: "Catalog item updated" });
+      toast({ title: t("catDlg.updated") });
       queryClient.invalidateQueries({ queryKey: ["admin-catalog"] });
     },
     onError: (error: any) => {
-      toast({ title: "Catalog update failed", description: error.message, variant: "destructive" });
+      toast({ title: t("catDlg.updateFail"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -247,11 +247,11 @@ export function AdminCatalogTab() {
         body: JSON.stringify({ ...values, reason }),
       }),
     onSuccess: () => {
-      toast({ title: "Catalog item created" });
+      toast({ title: t("catDlg.created") });
       queryClient.invalidateQueries({ queryKey: ["admin-catalog"] });
     },
     onError: (error: any) => {
-      toast({ title: "Catalog creation failed", description: error.message, variant: "destructive" });
+      toast({ title: t("catDlg.createFail"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -262,11 +262,11 @@ export function AdminCatalogTab() {
         body: JSON.stringify({ action, reason }),
       }),
     onSuccess: () => {
-      toast({ title: "Moderation action recorded" });
+      toast({ title: t("catDlg.moderated") });
       queryClient.invalidateQueries({ queryKey: ["admin-catalog"] });
     },
     onError: (error: any) => {
-      toast({ title: "Moderation failed", description: error.message, variant: "destructive" });
+      toast({ title: t("catDlg.moderateFail"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -277,11 +277,11 @@ export function AdminCatalogTab() {
         body: JSON.stringify({ reason }),
       }),
     onSuccess: () => {
-      toast({ title: "Item archived", description: "The record remains available for audit and recovery." });
+      toast({ title: t("catDlg.archived"), description: t("catDlg.archivedDesc") });
       queryClient.invalidateQueries({ queryKey: ["admin-catalog"] });
     },
     onError: (error: any) => {
-      toast({ title: "Archive failed", description: error.message, variant: "destructive" });
+      toast({ title: t("catDlg.archiveFail"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -300,7 +300,7 @@ export function AdminCatalogTab() {
 
   const pause = (item: CatalogItem) => {
     if (type === "brands" || type === "campaigns") {
-      const reason = window.prompt(`Why are you pausing this ${type === "brands" ? "brand" : "campaign"}?`);
+      const reason = window.prompt(t("catDlg.pauseWhy", { kind: t(type === "brands" ? "catDlg.kindBrand" : "catDlg.kindCampaign") }));
       if (!reason?.trim()) return;
       moderateItem.mutate({ itemType: type, id: item.id, action: "pause", reason: reason.trim() });
       return;
@@ -345,12 +345,12 @@ export function AdminCatalogTab() {
     );
 
     if (Object.keys(patch).length === 0) {
-      toast({ title: "No changes to save" });
+      toast({ title: t("catDlg.noChanges") });
       return;
     }
 
     if (!editState.reason.trim()) {
-      toast({ title: "Reason required", description: "Add a short admin reason for this catalog edit.", variant: "destructive" });
+      toast({ title: t("catDlg.reasonNeeded"), description: t("catDlg.reasonNeededDesc"), variant: "destructive" });
       return;
     }
 
@@ -368,13 +368,13 @@ export function AdminCatalogTab() {
   };
 
   const requestArchive = (item: CatalogItem) => {
-    const reason = window.prompt(`Why are you archiving “${titleFor(item)}”? This can be restored later.`);
+    const reason = window.prompt(t("catDlg.archiveWhy", { title: titleFor(item) }));
     if (!reason?.trim()) return;
     archiveItem.mutate({ itemType: type, id: item.id, reason: reason.trim() });
   };
 
   const rejectItem = (itemType: "brands" | "campaigns", item: CatalogItem) => {
-    const reason = window.prompt(`Why are you rejecting “${titleFor(item)}”?`);
+    const reason = window.prompt(t("catDlg.rejectWhy", { title: titleFor(item) }));
     if (!reason?.trim()) return;
     moderateItem.mutate({ itemType, id: item.id, action: "reject", reason: reason.trim() });
   };
@@ -480,37 +480,37 @@ export function AdminCatalogTab() {
                           <Button asChild variant="outline" size="sm">
                             <a href={itemHref(key, item)} target="_blank" rel="noreferrer">
                               <ExternalLink className="mr-2 h-4 w-4" />
-                              Open
+                              {t("catDlg.open")}
                             </a>
                           </Button>
                           {canManage && (
                             <Button variant="outline" size="sm" onClick={() => openEdit(key, item)}>
                               <Pencil className="mr-2 h-4 w-4" />
-                              Edit
+                              {t("catDlg.edit")}
                             </Button>
                           )}
                           {state !== "active" && (canManage || key === "brands" || key === "campaigns") && (
                             <Button size="sm" onClick={() => activate(item)} disabled={updateItem.isPending}>
                               <PlayCircle className="mr-2 h-4 w-4" />
-                              {key === "brands" ? "Approve / restore" : "Activate"}
+                              {key === "brands" ? t("catDlg.approveRestore") : t("catDlg.activate")}
                             </Button>
                           )}
                           {state === "active" && (canManage || key === "brands" || key === "campaigns") && (
                             <Button variant="outline" size="sm" onClick={() => pause(item)} disabled={updateItem.isPending}>
                               <PauseCircle className="mr-2 h-4 w-4" />
-                              Pause
+                              {t("catDlg.pause")}
                             </Button>
                           )}
                           {(key === "brands" || key === "campaigns") && state !== "archived" && (
                             <Button variant="outline" size="sm" onClick={() => rejectItem(key, item)} disabled={moderateItem.isPending}>
                               <CircleX className="mr-2 h-4 w-4" />
-                              Reject
+                              {t("catDlg.reject")}
                             </Button>
                           )}
                           {canManage && state !== "archived" && (
                             <Button variant="ghost" size="sm" onClick={() => requestArchive(item)} disabled={archiveItem.isPending}>
                               <Archive className="mr-2 h-4 w-4" />
-                              Archive
+                              {t("catDlg.archive")}
                             </Button>
                           )}
                         </div>
@@ -527,25 +527,23 @@ export function AdminCatalogTab() {
       <Dialog open={!!editState} onOpenChange={(open) => !open && setEditState(null)}>
         <DialogContent className="max-h-[86vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editState?.mode === "create" ? `Create ${editState ? catalogMeta[editState.type].title.slice(0, -1) : "item"}` : "Edit catalog item"}</DialogTitle>
+            <DialogTitle>{editState?.mode === "create" ? t("catDlg.createTitle", { kind: editState ? t(catalogMeta[editState.type].oneKey) : t("catDlg.one.offer") }) : t("catDlg.editTitle")}</DialogTitle>
             <DialogDescription>
-              {editState?.mode === "create"
-                ? "Create a platform-managed record. The action and reason will be recorded."
-                : "Update public details or transfer ownership. Changes are recorded in the admin audit log when available."}
+              {editState?.mode === "create" ? t("catDlg.createCopy") : t("catDlg.editCopy")}
             </DialogDescription>
           </DialogHeader>
 
           {editState ? (
             <div className="space-y-5">
               <div className="rounded-xl border border-border bg-muted/30 p-3">
-                <p className="text-sm font-semibold">{editState.mode === "create" ? `New ${catalogMeta[editState.type].title.toLowerCase().slice(0, -1)}` : titleFor(editState.item)}</p>
+                <p className="text-sm font-semibold">{editState.mode === "create" ? t("catDlg.newKind", { kind: t(catalogMeta[editState.type].oneKey) }) : titleFor(editState.item)}</p>
                 {editState.item.id && <p className="mt-1 font-mono text-xs text-muted-foreground">{editState.item.id}</p>}
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 {editableFields(editState.type).map(([field, label]) => (
                   <div key={field} className={["description", "terms"].includes(field) ? "md:col-span-2" : ""}>
-                    <Label htmlFor={`catalog-${field}`}>{label}</Label>
+                    <Label htmlFor={`catalog-${field}`}>{t(label)}</Label>
                     {["description", "terms"].includes(field) ? (
                       <Textarea
                         id={`catalog-${field}`}
@@ -576,12 +574,12 @@ export function AdminCatalogTab() {
               </div>
 
               <div>
-                <Label htmlFor="catalog-edit-reason">Admin reason</Label>
+                <Label htmlFor="catalog-edit-reason">{t("catDlg.reason")}</Label>
                 <Textarea
                   id="catalog-edit-reason"
                   value={editState.reason}
                   onChange={(event) => setEditState((current) => current && { ...current, reason: event.target.value })}
-                  placeholder="Explain why this edit or ownership transfer is needed."
+                  placeholder={t("catDlg.reasonPh")}
                   className="mt-2"
                 />
               </div>
@@ -590,10 +588,10 @@ export function AdminCatalogTab() {
 
           <DialogFooter>
             <Button variant="ghost" onClick={() => setEditState(null)}>
-              Cancel
+              {t("catDlg.cancel")}
             </Button>
             <Button onClick={submitEdit} disabled={updateItem.isPending || createItem.isPending}>
-              {editState?.mode === "create" ? "Create Item" : "Save Changes"}
+              {editState?.mode === "create" ? t("catDlg.createItem") : t("catDlg.save")}
             </Button>
           </DialogFooter>
         </DialogContent>

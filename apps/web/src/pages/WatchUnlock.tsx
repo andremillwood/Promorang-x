@@ -7,9 +7,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PlayCircle, Sparkles, ExternalLink, MapPin, Activity, ArrowRight, KeyRound, Coins, ShieldCheck, Clock3 } from "lucide-react";
 import { cultureEvents } from "@/data/culture-demo";
 import SEO from "@/components/SEO";
-import { CAMERA_CONSENT, MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
+import { ARCHETYPE_I18N, CAMERA_CONSENT_KEYS, MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
 import { getSafeMediaUrl } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -57,8 +58,8 @@ const WatchUnlock = () => {
   return (
     <main className="mx-auto max-w-7xl space-y-6 text-white sm:space-y-8">
       <SEO
-        title={selectedRole ? t("watchUnlock.seoRoleTitle", { role: MISSION_ARCHETYPES[selectedRole]?.label || "Role" }) : t("watchUnlock.seoDefaultTitle")}
-        description={selectedRole ? (MISSION_ARCHETYPES[selectedRole]?.description || t("watchUnlock.seoRoleDesc")) : t("watchUnlock.seoDefaultDesc")}
+        title={selectedRole && ARCHETYPE_I18N[selectedRole] ? t("watchUnlock.seoRoleTitle", { role: t(ARCHETYPE_I18N[selectedRole].labelKey as TranslationKey) }) : t("watchUnlock.seoDefaultTitle")}
+        description={selectedRole && ARCHETYPE_I18N[selectedRole] ? t(ARCHETYPE_I18N[selectedRole].descKey as TranslationKey) : t("watchUnlock.seoDefaultDesc")}
         url={`https://promorang.co/missions${selectedRole ? `?role=${selectedRole}` : ""}`}
       />
       <section className="relative min-h-[460px] overflow-hidden rounded-3xl border border-white/10 bg-black">
@@ -146,7 +147,7 @@ const WatchUnlock = () => {
         <button onClick={() => setSearchParams({})} className={`shrink-0 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.14em] ${!selectedRole ? "border-primary bg-primary text-white" : "border-white/10 bg-white/[0.04] text-white/50"}`}>{t("watchUnlock.allRoles")}</button>
         {Object.entries(MISSION_ARCHETYPES).map(([id, role]) => {
           const RoleIcon = role.icon;
-          return <button key={id} onClick={() => setSearchParams({ role: id })} className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.14em] ${selectedRole === id ? role.tone : "border-white/10 bg-white/[0.04] text-white/50 hover:text-white"}`}><RoleIcon className="h-3.5 w-3.5" />{role.label}</button>;
+          return <button key={id} onClick={() => setSearchParams({ role: id })} className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.14em] ${selectedRole === id ? role.tone : "border-white/10 bg-white/[0.04] text-white/50 hover:text-white"}`}><RoleIcon className="h-3.5 w-3.5" />{t(ARCHETYPE_I18N[id as MissionArchetype].labelKey as TranslationKey)}</button>;
         })}
       </section>
 
@@ -167,7 +168,7 @@ const WatchUnlock = () => {
       ) : feed.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border bg-card/50 p-10 text-center">
           <Sparkles className="mx-auto h-10 w-10 text-primary" />
-          <h2 className="mt-4 font-serif text-2xl font-bold">{selectedRole ? t("watchUnlock.noMissionsRole", { role: MISSION_ARCHETYPES[selectedRole]?.label || "" }) : t("watchUnlock.noMissionsDefault")}</h2>
+          <h2 className="mt-4 font-serif text-2xl font-bold">{selectedRole && ARCHETYPE_I18N[selectedRole] ? t("watchUnlock.noMissionsRole", { role: t(ARCHETYPE_I18N[selectedRole].labelKey as TranslationKey) }) : t("watchUnlock.noMissionsDefault")}</h2>
           <p className="mt-2 text-muted-foreground">
             {selectedRole ? t("watchUnlock.noMissionsRoleCopy") : t("watchUnlock.noMissionsDefaultCopy")}
           </p>
@@ -191,7 +192,7 @@ const WatchUnlock = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                   <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-                    <Badge className={`border ${archetype.tone}`}><ArchetypeIcon className="mr-1 h-3 w-3" />{archetype.label}</Badge>
+                    <Badge className={`border ${archetype.tone}`}><ArchetypeIcon className="mr-1 h-3 w-3" />{t(ARCHETYPE_I18N[(item.archetype as MissionArchetype) || "side_quest"].labelKey as TranslationKey)}</Badge>
                     <Badge className={isKeyMission ? "border border-amber-300/30 bg-black/70 text-amber-200 backdrop-blur" : "border border-white/15 bg-black/70 text-white backdrop-blur"}>
                       {isKeyMission ? <><KeyRound className="mr-1 h-3 w-3" /> {t("watchUnlock.keyOpportunityBadge")}</> : t("watchUnlock.openMissionBadge")}
                     </Badge>
@@ -227,7 +228,7 @@ const WatchUnlock = () => {
                     <p className="mt-3 text-sm font-medium text-white">
                       {item.action_text || item.physical_unlock_rules?.summary || t("watchUnlock.physicalUnlockDefault")}
                     </p>
-                    {item.camera_consent ? <p className="mt-3 flex items-center gap-2 text-xs text-emerald-200/75"><ShieldCheck className="h-3.5 w-3.5" />{t("watchUnlock.cameraLabel")} {CAMERA_CONSENT[item.camera_consent as keyof typeof CAMERA_CONSENT]}</p> : null}
+                    {item.camera_consent && CAMERA_CONSENT_KEYS[item.camera_consent as keyof typeof CAMERA_CONSENT_KEYS] ? <p className="mt-3 flex items-center gap-2 text-xs text-emerald-200/75"><ShieldCheck className="h-3.5 w-3.5" />{t("watchUnlock.cameraLabel")} {t(CAMERA_CONSENT_KEYS[item.camera_consent as keyof typeof CAMERA_CONSENT_KEYS] as TranslationKey)}</p> : null}
                     <div className="mt-3 flex flex-wrap gap-2">
                       {(item.entry_action_types || []).map((action: string) => (
                         <span key={action} className="rounded-full bg-black/35 px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-white/50">

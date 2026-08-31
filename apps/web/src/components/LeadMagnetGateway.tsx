@@ -16,8 +16,8 @@ const toolsConfig: Array<{
   href: string;
   campaign: string;
   campaignLabelKey: TranslationKey;
-  personaBadge: string;
-  outputPreview: string;
+  personaBadgeKey: TranslationKey;
+  outputPreviewKey: TranslationKey;
   personaTone: string;
 }> = [
   {
@@ -31,8 +31,8 @@ const toolsConfig: Array<{
     href: "/free/scene",
     campaign: "/campaigns/kingston-comes-alive",
     campaignLabelKey: "leadMagnet.participant.campaignLabel",
-    personaBadge: "Attendees",
-    outputPreview: "Scene Match & Top 3 Rooms",
+    personaBadgeKey: "leadMagnet.participant.badge",
+    outputPreviewKey: "leadMagnet.participant.output",
     personaTone: "border-sky-400/25 bg-sky-400/10 text-sky-300",
   },
   {
@@ -46,8 +46,8 @@ const toolsConfig: Array<{
     href: "/free/moment",
     campaign: "/campaigns/moment-lab",
     campaignLabelKey: "leadMagnet.host.campaignLabel",
-    personaBadge: "Hosts & Orgs",
-    outputPreview: "Moment Score & Sponsor Pitch",
+    personaBadgeKey: "leadMagnet.host.badge",
+    outputPreviewKey: "leadMagnet.host.output",
     personaTone: "border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
   },
   {
@@ -61,8 +61,8 @@ const toolsConfig: Array<{
     href: "/free/demand",
     campaign: "/campaigns/quiet-hours",
     campaignLabelKey: "leadMagnet.merchant.campaignLabel",
-    personaBadge: "Venues & Food",
-    outputPreview: "Nearby Demand & Offer Simulator",
+    personaBadgeKey: "leadMagnet.merchant.badge",
+    outputPreviewKey: "leadMagnet.merchant.output",
     personaTone: "border-amber-400/25 bg-amber-400/10 text-amber-300",
   },
   {
@@ -76,8 +76,8 @@ const toolsConfig: Array<{
     href: "/free/creator",
     campaign: "/campaigns/creators-who-move",
     campaignLabelKey: "leadMagnet.creator.campaignLabel",
-    personaBadge: "Creators",
-    outputPreview: "Audience Audit & Action Formats",
+    personaBadgeKey: "leadMagnet.creator.badge",
+    outputPreviewKey: "leadMagnet.creator.output",
     personaTone: "border-violet-400/25 bg-violet-400/10 text-violet-300",
   },
   {
@@ -91,8 +91,8 @@ const toolsConfig: Array<{
     href: "/free/sponsor",
     campaign: "/campaigns/sponsor-kingston",
     campaignLabelKey: "leadMagnet.brand.campaignLabel",
-    personaBadge: "Brands & Agencies",
-    outputPreview: "Activation Brief & ROI Proof Model",
+    personaBadgeKey: "leadMagnet.brand.badge",
+    outputPreviewKey: "leadMagnet.brand.output",
     personaTone: "border-orange-400/25 bg-orange-400/10 text-orange-300",
   },
 ];
@@ -114,7 +114,7 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
               </span>
               <div>
                 <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider ${tool.personaTone}`}>
-                  {tool.personaBadge}
+                  {t(tool.personaBadgeKey)}
                 </span>
                 <p className={`mt-1.5 text-xs font-medium ${dark ? "text-white/50" : "text-muted-foreground"}`}>{tool.number} · {t("leadMagnet.timeEstimate")}</p>
               </div>
@@ -125,7 +125,7 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
               <p className={`mt-3 max-w-2xl text-sm leading-6 ${dark ? "text-white/60" : "text-muted-foreground"}`}>{t(tool.promiseKey)}</p>
               <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-white/80">
                 <Zap className="h-3.5 w-3.5 text-primary shrink-0" />
-                <span>Output: {tool.outputPreview}</span>
+                <span>{t("leadMagnet.outputPrefix")} {t(tool.outputPreviewKey)}</span>
               </div>
             </div>
             <div className="flex flex-col justify-center gap-3 border-t p-6 lg:border-l lg:border-t-0">
@@ -172,7 +172,7 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] font-black tracking-wider text-white/40 group-hover:text-primary transition">{tool.number}</span>
                       <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[8.5px] font-black uppercase tracking-wider ${tool.personaTone}`}>
-                        {tool.personaBadge}
+                        {t(tool.personaBadgeKey)}
                       </span>
                     </div>
                     <div className={`flex h-8 w-8 items-center justify-center rounded-xl border ${tool.personaTone} transition group-hover:scale-105`}>
@@ -189,15 +189,15 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
 
                   {/* Concrete Output Preview Chip */}
                   <div className="mt-4 rounded-xl border border-white/8 bg-black/40 p-2.5 transition group-hover:border-white/15">
-                    <p className="text-[8.5px] font-black uppercase tracking-wider text-primary">Instant Output</p>
-                    <p className="mt-0.5 text-[11px] font-semibold leading-tight text-white/90">{tool.outputPreview}</p>
+                    <p className="text-[8.5px] font-black uppercase tracking-wider text-primary">{t("leadMagnet.instantOutput")}</p>
+                    <p className="mt-0.5 text-[11px] font-semibold leading-tight text-white/90">{t(tool.outputPreviewKey)}</p>
                   </div>
                 </div>
 
                 {/* Card Footer: Time & CTA Button */}
                 <div className="mt-6 pt-3 border-t border-white/8 flex items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white/40">
-                    <Clock3 className="h-3 w-3 text-primary/80" /> 2 min
+                    <Clock3 className="h-3 w-3 text-primary/80" /> {t("leadMagnet.twoMin")}
                   </span>
                   <span className="inline-flex items-center gap-1.5 text-xs font-black text-primary transition group-hover:translate-x-0.5 group-hover:text-white">
                     {t(tool.ctaKey)}

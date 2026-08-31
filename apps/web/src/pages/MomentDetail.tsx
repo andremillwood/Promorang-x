@@ -71,7 +71,8 @@ import {
   Share2,
 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
-import { getTaxonomyLabel, momentArchetypes, venueCategories } from "@/lib/moment-taxonomy";
+import { taxonomyLabelKey } from "@/lib/moment-taxonomy";
+import type { TranslationKey } from "@/i18n/translations";
 import { buildVenuePath, getSiteUrl, slugifySegment } from "@/lib/discovery";
 import { getAccessState, type AccessQuote } from "@/lib/access";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
@@ -774,7 +775,7 @@ const MomentDetail = () => {
               className="rounded-full border border-white/15 bg-black/50 text-white/90 backdrop-blur-md hover:bg-white/15 hover:text-white transition-all"
               onClick={() => navigate(-1)}
             >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back
+              <ArrowLeft className="mr-2 h-4 w-4" /> {t("momentDetail.back")}
             </Button>
 
             <div className="flex items-center gap-2">
@@ -816,13 +817,13 @@ const MomentDetail = () => {
                 <div className="aspect-[16/10] lg:aspect-[4/5]">
                   <img
                     src={galleryImages[0].url}
-                    alt={`${moment.title} event poster`}
+                    alt={t("momentDetail.posterAlt", { title: moment.title })}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                   />
                 </div>
                 <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10" />
                 <figcaption className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-black/70 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/80 backdrop-blur-md">
-                  Event poster
+                  {t("momentDetail.eventPoster")}
                 </figcaption>
               </figure>
             )}
@@ -830,15 +831,17 @@ const MomentDetail = () => {
               {/* Category & Status Pills */}
               <div className="flex flex-wrap items-center gap-2">
                 <Badge className="rounded-full bg-[#ff5500] text-white font-bold text-xs px-3.5 py-1 uppercase tracking-wider border-none shadow-md shadow-[#ff5500]/20">
-                  {moment.category || "Event"}
+                  {taxonomyLabelKey("moment", moment.category)
+                    ? t(taxonomyLabelKey("moment", moment.category)! as TranslationKey)
+                    : (moment.category || t("momentDetail.categoryFallback"))}
                 </Badge>
                 {isPast ? (
                   <Badge variant="outline" className="rounded-full border-white/20 bg-white/5 text-white/60 text-xs px-3 py-1">
-                    Event Completed
+                    {t("momentDetail.completed")}
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="rounded-full border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-semibold px-3 py-1">
-                    ● RSVP Open
+                    ● {t("momentDetail.rsvpOpen")}
                   </Badge>
                 )}
               </div>

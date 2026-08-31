@@ -53,6 +53,68 @@ export const conversionTypes = [
   { value: "repeat_visit", label: "Repeat Visit" },
 ] as const;
 
+export const TAXONOMY_LABEL_KEYS = {
+  moment: {
+    social: "tax.moment.social",
+    workshop: "tax.moment.workshop",
+    fitness: "tax.moment.fitness",
+    food: "tax.moment.food",
+    music: "tax.moment.music",
+    networking: "tax.moment.networking",
+    outdoor: "tax.moment.outdoor",
+    arts: "tax.moment.arts",
+  },
+  venue: {
+    food_beverage: "tax.venue.food_beverage",
+    nightlife: "tax.venue.nightlife",
+    fashion_retail: "tax.venue.fashion_retail",
+    beauty_retail: "tax.venue.beauty_retail",
+    grocery: "tax.venue.grocery",
+    personal_service: "tax.venue.personal_service",
+    fitness_wellness: "tax.venue.fitness_wellness",
+    entertainment: "tax.venue.entertainment",
+    learning_networking: "tax.venue.learning_networking",
+    community_civic: "tax.venue.community_civic",
+    hospitality_travel: "tax.venue.hospitality_travel",
+    family_kids: "tax.venue.family_kids",
+    auto_mobility: "tax.venue.auto_mobility",
+    healthcare_light: "tax.venue.healthcare_light",
+    home_property: "tax.venue.home_property",
+  },
+  arch: {
+    gathering: "tax.arch.gathering",
+    visit: "tax.arch.visit",
+    service: "tax.arch.service",
+    drop: "tax.arch.drop",
+    ritual: "tax.arch.ritual",
+    content: "tax.arch.content",
+    sampling: "tax.arch.sampling",
+    appointment: "tax.arch.appointment",
+    referral: "tax.arch.referral",
+    founder: "tax.arch.founder",
+  },
+  conv: {
+    check_in: "tax.conv.check_in",
+    purchase: "tax.conv.purchase",
+    appointment: "tax.conv.appointment",
+    try_on: "tax.conv.try_on",
+    sample: "tax.conv.sample",
+    booking: "tax.conv.booking",
+    scan: "tax.conv.scan",
+    review: "tax.conv.review",
+    referral: "tax.conv.referral",
+    repeat_visit: "tax.conv.repeat_visit",
+  },
+} as const;
+
+export type TaxonomyGroup = keyof typeof TAXONOMY_LABEL_KEYS;
+
+export function taxonomyLabelKey(group: TaxonomyGroup, value?: string | null): string | null {
+  if (!value) return null;
+  const table = TAXONOMY_LABEL_KEYS[group] as Record<string, string>;
+  return table[value] || null;
+}
+
 export const getTaxonomyLabel = (
   options: readonly { value: string; label: string }[],
   value?: string | null

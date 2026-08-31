@@ -118,12 +118,12 @@ export default function ArlaCampaignHub() {
       const newPasta = pastaCount + 1;
       setPastaCount(newPasta);
       try { localStorage.setItem('arla_pasta_votes', String(newPasta)); } catch { /* ignore */ }
-      toast.success('PASSPORT STAMPED: Team Spicy Rasta Pasta! 🍝 (+50 Pts)');
+      toast.success(t("arlaHub.toastPasta"));
     } else {
       const newMousse = mousseCount + 1;
       setMousseCount(newMousse);
       try { localStorage.setItem('arla_mousse_votes', String(newMousse)); } catch { /* ignore */ }
-      toast.success('PASSPORT STAMPED: Team Chocolate Chip Mousse! 🍫 (+50 Pts)');
+      toast.success(t("arlaHub.toastMousse"));
     }
 
     setTimeout(() => setStampActive(false), 800);
@@ -149,15 +149,15 @@ export default function ArlaCampaignHub() {
   };
 
   const shareWhatsApp = () => {
-    const text = `🔥 Hot Rasta Pasta vs ❄️ Cold Chocolate Mousse! Taste them free at PriceSmart Jamaica & cast your vote here: ${window.location.origin}/campaigns/arla-whip-and-cook`;
+    const text = t("arlaHub.shareWaText", { url: `${window.location.origin}/campaigns/arla-whip-and-cook` });
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
     <main className="min-h-screen bg-[#0d0c0a] text-[#f4efe5] selection:bg-[#ff5a1f] selection:text-white font-sans pb-36 relative overflow-x-hidden">
       <SEO
-        title="PROMORANG × ARLA PRO — Stop Buying Two Different Creams"
-        description="Cook spicy hot dinners and whip fluffy cold desserts from one single carton. Free sampling roadshow active daily at PriceSmart Jamaica (111 Red Hills Road, 10am–8pm). Get 1L for J$1,200."
+        title={t("arlaHub.seoTitle")}
+        description={t("arlaHub.seoDesc")}
         image="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200"
         url={getSiteUrl("/campaigns/arla-whip-and-cook")}
       />
@@ -166,10 +166,10 @@ export default function ArlaCampaignHub() {
       <div className="bg-[#ff5a1f] text-black font-mono font-black text-xs uppercase tracking-wider py-2.5 px-4 border-b-2 border-black flex items-center justify-between overflow-x-auto gap-4 z-40 relative">
         <div className="flex items-center gap-3 shrink-0">
           <span className="h-2.5 w-2.5 bg-black rounded-full animate-ping" />
-          <span>FREE TASTING BOOTH OPEN TODAY AT PRICESMART (111 RED HILLS ROAD) · 10:00 AM – 8:00 PM</span>
+          <span>{t("arlaHub.tickerBooth")}</span>
         </div>
         <div className="flex items-center gap-4 shrink-0 font-bold">
-          <span className="bg-black text-[#ffcf38] px-2.5 py-0.5 text-[11px]">ROADSHOW SPECIAL: J$1,200</span>
+          <span className="bg-black text-[#ffcf38] px-2.5 py-0.5 text-[11px]">{t("arlaHub.tickerSpecial")}</span>
           <Link to="/proposals/arla-pro" className="hover:underline text-[10px]">
             {t("arlaHub.forBusiness")} →
           </Link>
@@ -183,29 +183,29 @@ export default function ArlaCampaignHub() {
           {/* Top Pill Bar */}
           <div className="flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
             <div className="flex items-center gap-2 text-[#ff5a1f] font-black uppercase tracking-widest">
-              <span>PROMORANG EXPERIMENTAL</span>
+              <span>{t("arlaHub.kickerExp")}</span>
               <span className="text-white/30">/</span>
-              <span>ARLA PRO ROADSHOW</span>
+              <span>{t("arlaHub.kickerRoad")}</span>
               <span className="text-white/30">/</span>
-              <span className="text-[#ffcf38]">KINGSTON 19</span>
+              <span className="text-[#ffcf38]">{t("arlaHub.kickerKingston")}</span>
             </div>
 
             <div className="flex items-center gap-2 bg-black/60 border border-white/15 px-3 py-1 text-[11px] text-[#25D366]">
               <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse" />
-              <span>CHEF SAMPLING ACTIVE NOW (10AM - 8PM)</span>
+              <span>{t("arlaHub.chefActive")}</span>
             </div>
           </div>
 
           {/* Core Title */}
           <div className="space-y-3 max-w-4xl">
             <h1 className="font-serif text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight leading-[0.88] text-white">
-              Stop Buying Two <i className="text-[#ff5a1f] not-italic">Different</i> Creams.
+              {t("arlaHub.heroLead")} <i className="text-[#ff5a1f] not-italic">{t("arlaHub.heroEm")}</i> {t("arlaHub.heroTail")}
             </h1>
             <p className="font-serif text-2xl sm:text-3xl font-bold text-[#ffcf38] leading-tight">
-              One carton cooks velvety hot dinners and whips firm dessert peaks without spoiling or curdling.
+              {t("arlaHub.heroSub")}
             </p>
             <p className="text-sm sm:text-base text-[#d0c5b9] leading-relaxed max-w-2xl">
-              Ever had heavy cream split into oily water when cooked with Scotch bonnet? Or bought whipping cream that melted in Jamaican heat? Arla Pro Whip & Cook 28% solves both in one single 1-litre carton.
+              {t("arlaHub.heroCopy")}
             </p>
           </div>
 
@@ -279,7 +279,7 @@ export default function ArlaCampaignHub() {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute top-2 left-2 bg-black text-[#ffcf38] font-mono font-black text-[10px] uppercase px-2.5 py-1 border border-white/20">
-                  {dialState === 'cook' ? 'DISH: SPICY RASTA PASTA' : dialState === 'whip' ? 'DISH: CHOCOLATE CHIP MOUSSE' : 'DISH: STRONG BACK PUNCH'}
+                  {dialState === 'cook' ? t("arlaHub.dishPasta") : dialState === 'whip' ? t("arlaHub.dishMousse") : t("arlaHub.dishPunch")}
                 </div>
               </div>
 
@@ -288,17 +288,17 @@ export default function ArlaCampaignHub() {
                 <div>
                   <h3 className="font-serif text-3xl font-black text-white font-sans">
                     {dialState === 'cook'
-                      ? 'Boil & Pepper Stability (Hot Dinner)'
+                      ? t("arlaHub.simCookTitle")
                       : dialState === 'whip'
-                      ? '3.5× Expansion & Firm Peaks (Dessert)'
-                      : 'Smooth Stout Emulsion (Jamaican Punch)'}
+                      ? t("arlaHub.simWhipTitle")
+                      : t("arlaHub.simDrinkTitle")}
                   </h3>
                   <p className="text-[#c9c0b5] text-xs leading-relaxed mt-1">
                     {dialState === 'cook'
-                      ? 'Simmered over direct heat with Scotch bonnet pepper, scallions, and bell peppers. Will never split, curdle, or release greasy oil.'
+                      ? t("arlaHub.simCookCopy")
                       : dialState === 'whip'
-                      ? 'Whips to 350% of its starting volume. Holds its firm shape on cakes and mousses even in warm Jamaican kitchen temperatures.'
-                      : 'Blends seamlessly with Dragon Stout, peanut butter, and condensed milk without curdling or separating over ice.'}
+                      ? t("arlaHub.simWhipCopy")
+                      : t("arlaHub.simDrinkCopy")}
                   </p>
                 </div>
 
@@ -307,18 +307,18 @@ export default function ArlaCampaignHub() {
                   <div className="p-2.5 bg-black/70 border border-white/10">
                     <span className="text-[9px] text-white/40 block">{t("arlaHub.heatTol")}</span>
                     <strong className={`text-xs ${dialState === 'cook' ? 'text-orange-400' : 'text-white'}`}>
-                      {dialState === 'cook' ? '100°C (Boil Safe)' : 'Up to 100°C'}
+                      {dialState === 'cook' ? t("arlaHub.heatBoil") : t("arlaHub.heatUpTo")}
                     </strong>
                   </div>
                   <div className="p-2.5 bg-black/70 border border-white/10">
                     <span className="text-[9px] text-white/40 block">{t("arlaHub.volYield")}</span>
                     <strong className={`text-xs ${dialState === 'whip' ? 'text-emerald-400' : 'text-white'}`}>
-                      {dialState === 'whip' ? '3.5× (350%)' : '1.0× Dense'}
+                      {dialState === 'whip' ? t("arlaHub.volWhip") : t("arlaHub.volDense")}
                     </strong>
                   </div>
                   <div className="p-2.5 bg-black/70 border border-white/10">
                     <span className="text-[9px] text-white/40 block">{t("arlaHub.curdleRisk")}</span>
-                    <strong className="text-xs text-[#25D366]">0% (Zero Curdling)</strong>
+                    <strong className="text-xs text-[#25D366]">{t("arlaHub.curdleZero")}</strong>
                   </div>
                 </div>
 
@@ -355,7 +355,7 @@ export default function ArlaCampaignHub() {
                 {t("arlaHub.ballotKicker")}
               </p>
               <h2 className="font-serif text-4xl sm:text-6xl font-black text-white mt-1">
-                Which dish won your vote at PriceSmart?
+                {t("arlaHub.ballotTitle")}
               </h2>
               <p className="text-xs text-[#d0c5b9] font-mono mt-1">
                 {t("arlaHub.tapWinner")}
@@ -382,7 +382,7 @@ export default function ArlaCampaignHub() {
             )}
 
             <div className="flex justify-between items-center border-b-2 border-black pb-4 text-xs font-black">
-              <span>KINGSTON SAMPLING BALLOT № {ticketSerial || '0823-PENDING'}</span>
+              <span>{t("arlaHub.ballotNo", { serial: ticketSerial || t("arlaHub.pendingSerial") })}</span>
               <span className="bg-black text-white px-2.5 py-1">111 RED HILLS ROAD</span>
             </div>
 
@@ -414,7 +414,7 @@ export default function ArlaCampaignHub() {
 
                   <h3 className="font-serif text-3xl font-black font-sans">🍝 Spicy Rasta Pasta</h3>
                   <p className="text-xs text-[#443e37] leading-relaxed">
-                    Rich penne in a hot Scotch bonnet, garlic, scallion, and sweet bell pepper Arla reduction.
+                    {t("arlaHub.pastaDesc")}
                   </p>
                 </div>
 
@@ -439,7 +439,7 @@ export default function ArlaCampaignHub() {
                         : 'bg-black text-white hover:bg-[#ff5a1f] hover:text-black'
                     }`}
                   >
-                    {ballotVote === 'pasta' ? `✓ ${t("arlaHub.stampedWinner")}` : 'STAMP BALLOT FOR RASTA PASTA'}
+                    {ballotVote === 'pasta' ? `✓ ${t("arlaHub.stampedWinner")}` : t("arlaHub.stampPasta")}
                   </button>
                 </div>
               </div>
@@ -469,7 +469,7 @@ export default function ArlaCampaignHub() {
 
                   <h3 className="font-serif text-3xl font-black font-sans">🍫 Chocolate Chip Mousse</h3>
                   <p className="text-xs text-[#443e37] leading-relaxed">
-                    Fluffy, airy dessert with firm peaks whipped from the exact same cream in 5 minutes.
+                    {t("arlaHub.mousseDesc")}
                   </p>
                 </div>
 
@@ -494,7 +494,7 @@ export default function ArlaCampaignHub() {
                         : 'bg-black text-white hover:bg-[#ffcf38] hover:text-black'
                     }`}
                   >
-                    {ballotVote === 'mousse' ? `✓ ${t("arlaHub.stampedWinner")}` : 'STAMP BALLOT FOR CHOCOLATE MOUSSE'}
+                    {ballotVote === 'mousse' ? `✓ ${t("arlaHub.stampedWinner")}` : t("arlaHub.stampMousse")}
                   </button>
                 </div>
               </div>
@@ -505,7 +505,7 @@ export default function ArlaCampaignHub() {
             <div className="border-t-2 border-black pt-4 flex flex-wrap items-center justify-between gap-4 text-xs">
               <div>
                 <span className="font-black text-black block">{t("arlaHub.citizenAction")}</span>
-                <p className="text-[#554e45]">Invite family or foodie friends to sample and vote before 8:00 PM.</p>
+                <p className="text-[#554e45]">{t("arlaHub.inviteFamily")}</p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -581,25 +581,25 @@ export default function ArlaCampaignHub() {
               <div className="p-3 bg-black/60 border border-white/10">
                 <span className="text-[9px] text-white/40 block">{t("arlaHub.dinners")}</span>
                 <strong className="text-xl font-black text-white font-sans">{t("arlaHub.pots", { count: mealsCooked })}</strong>
-                <span className="text-[10px] text-white/50 block mt-0.5">Pasta / Chicken</span>
+                <span className="text-[10px] text-white/50 block mt-0.5">{t("arlaHub.mealsSub")}</span>
               </div>
 
               <div className="p-3 bg-black/60 border border-white/10">
                 <span className="text-[9px] text-white/40 block">{t("arlaHub.bowls")}</span>
                 <strong className="text-xl font-black text-white font-sans">{t("arlaHub.bowlsCount", { count: dessertBowls })}</strong>
-                <span className="text-[10px] text-white/50 block mt-0.5">Mousse / Cheesecake</span>
+                <span className="text-[10px] text-white/50 block mt-0.5">{t("arlaHub.bowlsSub")}</span>
               </div>
 
               <div className="p-3 bg-black/60 border border-white/10">
                 <span className="text-[9px] text-white/40 block">{t("arlaHub.regularCost")}</span>
                 <strong className="text-xl font-black text-red-400 font-sans line-through">J${regTotal.toLocaleString()}</strong>
-                <span className="text-[10px] text-white/50 block mt-0.5">Separate Creams</span>
+                <span className="text-[10px] text-white/50 block mt-0.5">{t("arlaHub.creamsSub")}</span>
               </div>
 
               <div className="p-3 bg-emerald-950/40 border border-emerald-500/40">
-                <span className="text-[9px] text-emerald-400 block font-bold">PRICESMART ROADSHOW</span>
+                <span className="text-[9px] text-emerald-400 block font-bold">{t("arlaHub.roadshowTag")}</span>
                 <strong className="text-2xl font-black text-emerald-400 font-sans">J${roadshowTotal.toLocaleString()}</strong>
-                <span className="text-[10px] text-emerald-300 block font-bold mt-0.5">J$1,200 per 1L</span>
+                <span className="text-[10px] text-emerald-300 block font-bold mt-0.5">{t("arlaHub.perLitre")}</span>
               </div>
             </div>
 
@@ -610,7 +610,7 @@ export default function ArlaCampaignHub() {
                   {t("arlaHub.savings")}
                 </span>
                 <p className="text-3xl font-black text-white font-serif font-sans mt-0.5">
-                  Save J${savingsTotal.toLocaleString()} In Your Pocket (56%)
+                  {t("arlaHub.savePocket", { amount: savingsTotal.toLocaleString() })}
                 </p>
               </div>
 
@@ -618,7 +618,7 @@ export default function ArlaCampaignHub() {
                 onClick={() => document.getElementById('location-section')?.scrollIntoView({ behavior: 'smooth' })}
                 className="px-6 py-3.5 bg-[#25D366] text-black font-black uppercase text-xs tracking-wider border border-black shadow-[3px_3px_0_#fff] cursor-pointer shrink-0"
               >
-                GRAB AT PRICESMART TODAY →
+                {t("arlaHub.grabToday")}
               </button>
             </div>
 
@@ -634,13 +634,13 @@ export default function ArlaCampaignHub() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/20 pb-6">
             <div>
               <p className="text-xs font-black uppercase text-[#ffcf38] tracking-widest">
-                DIGITAL VALUE RECEIPT / LEAD MAGNET
+                {t("arlaHub.receiptKicker")}
               </p>
               <h2 className="font-serif text-4xl sm:text-6xl font-black text-white font-sans mt-1">
-                5 Ways to Whip & Cook with Arla
+                {t("arlaHub.recipesTitle")}
               </h2>
               <p className="text-xs text-[#d0c5b9] mt-1">
-                Step-by-step recipes built for Jamaican pantries using Arla Pro Whip & Cook 28%.
+                {t("arlaHub.recipesCopy")}
               </p>
             </div>
 
@@ -694,9 +694,9 @@ export default function ArlaCampaignHub() {
           
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/20 pb-6">
             <div>
-              <span className="text-xs font-black uppercase text-[#ff5a1f] tracking-widest">COORDINATES & SAMPLING STATION</span>
+              <span className="text-xs font-black uppercase text-[#ff5a1f] tracking-widest">{t("arlaHub.coordsKicker")}</span>
               <h2 className="font-serif text-4xl sm:text-5xl font-black text-white font-sans mt-1">PriceSmart Jamaica</h2>
-              <p className="text-xs text-white/60 mt-1">111 Red Hills Road, Kingston 19 · Daily 10:00 AM – 8:00 PM</p>
+              <p className="text-xs text-white/60 mt-1">{t("arlaHub.hoursLine")}</p>
             </div>
             <Link
               to="/moments/00000000-0000-0000-0002-000000000060"
@@ -710,22 +710,22 @@ export default function ArlaCampaignHub() {
             <div className="p-4 bg-black border border-white/20 space-y-1">
               <span className="text-[10px] text-[#ff5a1f] font-bold">{t("arlaHub.station", { n: "01" })}</span>
               <h4 className="text-sm font-bold text-white font-serif font-sans">Hot Rasta Pasta</h4>
-              <p className="text-[11px] text-white/60">Try fresh from the chef skillet (+40 Pts).</p>
+              <p className="text-[11px] text-white/60">{t("arlaHub.stationPastaNote")}</p>
             </div>
             <div className="p-4 bg-black border border-white/20 space-y-1">
               <span className="text-[10px] text-[#ffcf38] font-bold">{t("arlaHub.station", { n: "02" })}</span>
               <h4 className="text-sm font-bold text-white font-serif font-sans">Whipped Mousse</h4>
-              <p className="text-[11px] text-white/60">Sample the fluffy cold dessert (+40 Pts).</p>
+              <p className="text-[11px] text-white/60">{t("arlaHub.stationMousseNote")}</p>
             </div>
             <div className="p-4 bg-black border border-white/20 space-y-1">
               <span className="text-[10px] text-[#25D366] font-bold">{t("arlaHub.station", { n: "03" })}</span>
-              <h4 className="text-sm font-bold text-white font-serif font-sans">Stamp Passport</h4>
-              <p className="text-[11px] text-white/60">Vote online to unlock 5 recipes (+50 Pts).</p>
+              <h4 className="text-sm font-bold text-white font-serif font-sans">{t("arlaHub.stationStamp")}</h4>
+              <p className="text-[11px] text-white/60">{t("arlaHub.stationStampNote")}</p>
             </div>
             <div className="p-4 bg-black border border-white/20 space-y-1">
               <span className="text-[10px] text-[#ff5a1f] font-bold">{t("arlaHub.station", { n: "04" })}</span>
-              <h4 className="text-sm font-bold text-white font-serif font-sans">Get J$1,200 Cartons</h4>
-              <p className="text-[11px] text-white/60">Promoters verify purchase on site (+60 Pts).</p>
+              <h4 className="text-sm font-bold text-white font-serif font-sans">{t("arlaHub.stationCartons")}</h4>
+              <p className="text-[11px] text-white/60">{t("arlaHub.stationCartonsNote")}</p>
             </div>
           </div>
 
@@ -735,8 +735,8 @@ export default function ArlaCampaignHub() {
       {/* FOOTER */}
       <footer className="px-4 sm:px-8 py-16 bg-black text-center font-mono space-y-6 border-t-2 border-black">
         <div className="max-w-2xl mx-auto space-y-2">
-          <p className="text-xs text-[#ff5a1f] font-black uppercase tracking-widest">ARLA PRO × PROMORANG</p>
-          <h3 className="font-serif text-3xl sm:text-4xl font-black text-white font-sans">Turning Free Samples Into Repeat Buyers</h3>
+          <p className="text-xs text-[#ff5a1f] font-black uppercase tracking-widest">{t("arlaHub.footerKicker")}</p>
+          <h3 className="font-serif text-3xl sm:text-4xl font-black text-white font-sans">{t("arlaHub.footerTitle")}</h3>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Link

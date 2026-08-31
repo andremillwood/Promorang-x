@@ -283,7 +283,7 @@ export const AdminCreateMomentTab = () => {
                                         </SelectTrigger>
                                         <SelectContent>
                                             {venueCategories.map(cat => (
-                                                <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                                                <SelectItem key={cat.value} value={cat.value}>{t((`tax.venue.${cat.value}`) as TranslationKey)}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
@@ -296,7 +296,7 @@ export const AdminCreateMomentTab = () => {
                                         </SelectTrigger>
                                         <SelectContent>
                                             {LOCAL_DROP_PROOF_OPTIONS.map(option => (
-                                                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                                                <SelectItem key={option.value} value={option.value}>{t(option.labelKey as TranslationKey)}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>

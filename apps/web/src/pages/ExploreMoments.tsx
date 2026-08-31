@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, BookOpen, Clock, Compass, MapPin, Repeat2, Search, Sparkles, TrendingUp } from "lucide-react";
 import { getSiteUrl, slugifySegment } from "@/lib/discovery";
 import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 type PublicMoment = Tables<"view_public_moment_directory">;
 
@@ -125,7 +126,7 @@ const ExploreMoments = () => {
           return [
             href || moment.location,
             {
-              label: [moment.city, moment.country].filter(Boolean).join(", ") || moment.location || "Location",
+              label: [moment.city, moment.country].filter(Boolean).join(", ") || moment.location || t("exploreMom.locationFallback"),
               href,
             },
           ];
@@ -139,7 +140,7 @@ const ExploreMoments = () => {
   const liveCount = momentsQuery.data?.length || 0;
   const recurringCount = (momentsQuery.data || []).filter((moment) => moment.recurrence_enabled).length;
   const activeModeLabel =
-    momentMode === "examples" ? "Example playbooks" : momentMode === "recurring" ? "Recurring moments" : "Moments to join";
+    momentMode === "examples" ? t("exploreMom.modeExamplesTitle") : momentMode === "recurring" ? t("exploreMom.modeRecurringTitle") : t("exploreMom.modeLiveTitle");
   const matchingPreviews = exampleMoments.filter(
     (moment) => activeCategory === "all" || moment.category === activeCategory,
   );
@@ -148,14 +149,14 @@ const ExploreMoments = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Explore Moments"
-        description="Browse upcoming moments, public activations, and linked content across Promorang."
+        title={t("exploreMom.seoTitle")}
+        description={t("exploreMom.seoDesc")}
         url={getSiteUrl("/explore/moments")}
         schema={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "Explore Moments",
-          description: "Browse upcoming moments, public activations, and linked content across Promorang.",
+          name: t("exploreMom.seoTitle"),
+          description: t("exploreMom.seoDesc"),
         }}
       />
 
@@ -227,7 +228,7 @@ const ExploreMoments = () => {
                   }`}
                 >
                   <Clock className="mr-1.5 h-4 w-4" />
-                  Soonest
+                  {t("exploreMom.soonest")}
                 </button>
                 <button
                   type="button"
@@ -237,7 +238,7 @@ const ExploreMoments = () => {
                   }`}
                 >
                   <TrendingUp className="mr-1.5 h-4 w-4" />
-                  Popular
+                  {t("exploreMom.popular")}
                 </button>
               </div>
             </div>
@@ -248,22 +249,22 @@ const ExploreMoments = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-2xl font-black tracking-[-0.035em]">{activeModeLabel}</h2>
                 {momentMode !== "examples" && !momentsQuery.isLoading ? (
-                  <Badge variant="outline" className="rounded-full">{filteredMoments.length} shown</Badge>
+                  <Badge variant="outline" className="rounded-full">{t("exploreMom.shown", { count: filteredMoments.length })}</Badge>
                 ) : null}
               </div>
               <p className="text-sm text-muted-foreground">
                 {momentMode === "examples"
-                  ? "Examples explain how a moment can work without pretending to be live supply."
+                  ? t("exploreMom.modeExamplesCopy")
                   : momentMode === "recurring"
-                    ? "Weekly, monthly, and repeatable moments build familiarity, standing, and return behavior."
-                    : "Browse what people can join, attend, prove, and turn into value."}
+                    ? t("exploreMom.modeRecurringCopy")
+                    : t("exploreMom.modeLiveCopy")}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2 rounded-full border border-border bg-card p-1 shadow-sm">
               {[
-                { value: "live", label: "Live", icon: Sparkles },
-                { value: "recurring", label: "Recurring", icon: Repeat2 },
-                { value: "examples", label: "Examples", icon: BookOpen },
+                { value: "live", label: t("exploreMom.tabLive"), icon: Sparkles },
+                { value: "recurring", label: t("exploreMom.tabRecurring"), icon: Repeat2 },
+                { value: "examples", label: t("exploreMom.tabExamples"), icon: BookOpen },
               ].map((mode) => {
                 const Icon = mode.icon;
                 const active = momentMode === mode.value;
@@ -302,16 +303,16 @@ const ExploreMoments = () => {
               <section className="rounded-[1.75rem] border border-dashed border-primary/30 bg-primary/5 p-5 shadow-soft">
                 <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Example playbook</p>
-                    <h2 className="mt-2 text-2xl font-black tracking-[-0.035em] text-foreground">Learn the pattern before taking action</h2>
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{t("exploreMom.playbookKicker")}</p>
+                    <h2 className="mt-2 text-2xl font-black tracking-[-0.035em] text-foreground">{t("exploreMom.playbookTitle")}</h2>
                     <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                      These examples teach action, proof, reward, and memory patterns. They are not counted as live supply.
+                      {t("exploreMom.playbookCopy")}
                     </p>
                   </div>
                   <Button asChild variant="outline">
                     <Link to="/create/moment">
                       <BookOpen className="mr-2 h-4 w-4" />
-                      Build from a pattern
+                      {t("exploreMom.buildPattern")}
                     </Link>
                   </Button>
                 </div>
@@ -329,7 +330,7 @@ const ExploreMoments = () => {
                     moment={{
                       ...(moment as any),
                       id: moment.id || "",
-                      title: moment.title || "Untitled moment",
+                      title: moment.title || t("exploreMom.untitled"),
                       location: moment.location || [moment.city, moment.country].filter(Boolean).join(", "),
                       content_origin: "stakeholder_created",
                     }}
@@ -340,10 +341,10 @@ const ExploreMoments = () => {
             ) : searchQuery ? (
               <div className="rounded-3xl border border-white/10 bg-white/[0.035] px-6 py-14 text-center">
                 <Search className="mx-auto h-8 w-8 text-primary" />
-                <h3 className="mt-5 text-2xl font-black tracking-[-0.035em]">Nothing matches that filter yet</h3>
-                <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">Clear the search or choose another interest to see more of what is forming.</p>
+                <h3 className="mt-5 text-2xl font-black tracking-[-0.035em]">{t("exploreMom.emptySearchTitle")}</h3>
+                <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">{t("exploreMom.emptySearchCopy")}</p>
                 <Button className="mt-6" variant="outline" onClick={() => { setSearchQuery(""); setActiveCategory("all"); }}>
-                  Clear filters
+                  {t("exploreMom.clearFilters")}
                 </Button>
               </div>
             ) : (
@@ -351,13 +352,17 @@ const ExploreMoments = () => {
                 <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">
-                      {activeCategory === "all" ? "While the live calendar fills" : `${categories.find((item) => item.value === activeCategory)?.label || activeCategory} inspiration`}
+                      {activeCategory === "all"
+                        ? t("exploreMom.emptyCalKicker")
+                        : t("exploreMom.emptyCalKickerCat", {
+                            category: t((categories.find((item) => item.value === activeCategory)?.labelKey ?? "exploreMoments.catAll") as TranslationKey),
+                          })}
                     </p>
-                    <h3 className="mt-2 text-3xl font-black tracking-[-0.04em]">Explore what a moment can become.</h3>
-                    <p className="mt-2 max-w-2xl text-sm text-muted-foreground">These are clearly marked previews, built to show the kinds of rooms, rituals, and rewards Promorang can carry.</p>
+                    <h3 className="mt-2 text-3xl font-black tracking-[-0.04em]">{t("exploreMom.emptyCalTitle")}</h3>
+                    <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{t("exploreMom.emptyCalCopy")}</p>
                   </div>
                   <Button asChild variant="outline">
-                    <Link to="/create/moment">Bring the first one to life <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                    <Link to="/create/moment">{t("exploreMom.bringFirst")} <ArrowRight className="ml-2 h-4 w-4" /></Link>
                   </Button>
                 </div>
                 <MasonryGrid columns={{ sm: 1, md: 2, lg: 3 }} gap={20}>
@@ -372,21 +377,21 @@ const ExploreMoments = () => {
               <Button asChild variant="outline">
                 <Link to="/explore/venues">
                   <MapPin className="mr-2 h-4 w-4" />
-                  Browse venues
+                  {t("exploreMom.browseVenues")}
                 </Link>
               </Button>
               <Button asChild variant="outline">
-                <Link to="/explore/rewards">Browse rewards</Link>
+                <Link to="/explore/rewards">{t("exploreMom.browseRewards")}</Link>
               </Button>
             </div>
           ) : null}
 
           <div className="mt-10 grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="rounded-[1.5rem] border border-border bg-card/80 p-5 shadow-soft">
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Archive paths</p>
-              <h2 className="mt-2 text-xl font-black tracking-[-0.03em] text-foreground">Browse by category and place</h2>
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{t("exploreMom.archiveKicker")}</p>
+              <h2 className="mt-2 text-xl font-black tracking-[-0.03em] text-foreground">{t("exploreMom.archiveTitle")}</h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Use archives when you want a direct path into cities, countries, venues, and category pages.
+                {t("exploreMom.archiveCopy")}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {categories.filter((category) => category.value !== "all").slice(0, 6).map((category) => (
@@ -395,7 +400,7 @@ const ExploreMoments = () => {
                   </Button>
                 ))}
                 <Button asChild variant="outline" size="sm" className="rounded-full">
-                  <Link to="/explore/content">Content</Link>
+                  <Link to="/explore/content">{t("exploreMom.content")}</Link>
                 </Button>
               </div>
               {featuredLocations.length > 0 ? (
@@ -413,14 +418,14 @@ const ExploreMoments = () => {
               <div className="rounded-[1.5rem] border border-border bg-card/80 p-5 shadow-soft">
                 <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Linked content</p>
-                    <h2 className="mt-2 text-xl font-black tracking-[-0.03em] text-foreground">Media with a moment path</h2>
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{t("exploreMom.linkedKicker")}</p>
+                    <h2 className="mt-2 text-xl font-black tracking-[-0.03em] text-foreground">{t("exploreMom.linkedTitle")}</h2>
                     <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                      Content belongs here when it points people toward a place, activity, or proof path.
+                      {t("exploreMom.linkedCopy")}
                     </p>
                   </div>
                   <Button asChild variant="outline" size="sm" className="rounded-full">
-                    <Link to="/explore/content">Browse all</Link>
+                    <Link to="/explore/content">{t("exploreMom.browseAll")}</Link>
                   </Button>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">

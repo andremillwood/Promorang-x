@@ -59,7 +59,8 @@ import openMic from "@/assets/moments/open-mic.jpg";
 import streetArt from "@/assets/moments/street-art.jpg";
 import pottery from "@/assets/moments/pottery.jpg";
 import sunsetPhoto from "@/assets/moments/sunset-photo.jpg";
-import { MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
+import { ARCHETYPE_I18N, MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
+import type { TranslationKey } from "@/i18n/translations";
 import { rememberMarketingIntent } from "@/lib/marketing-attribution";
 import { isSampleCommerceListing } from "@/lib/commerce-provenance";
 import { getSafeMediaUrl } from "@/lib/utils";
@@ -1070,7 +1071,7 @@ export default function CinematicCultureHome() {
                   }`}
                 >
                   <Icon className={`h-3.5 w-3.5 transition ${isSelected ? "text-primary scale-110" : "text-white/40 group-hover:text-white/70"}`} />
-                  <span>{role.label}</span>
+                  <span>{t(ARCHETYPE_I18N[key].labelKey as TranslationKey)}</span>
                 </button>
               );
             })}
@@ -1079,6 +1080,7 @@ export default function CinematicCultureHome() {
           {/* Spotlight Active Archetype Deep-Dive Card */}
           {(() => {
             const activeRole = MISSION_ARCHETYPES[selectedRoleArchetype] || MISSION_ARCHETYPES.aura;
+            const activeCopy = ARCHETYPE_I18N[selectedRoleArchetype] || ARCHETYPE_I18N.aura;
             const ActiveIcon = activeRole.icon;
             const isAura = selectedRoleArchetype === "aura";
 
@@ -1101,24 +1103,24 @@ export default function CinematicCultureHome() {
                         <ActiveIcon className="h-6 w-6" />
                       </div>
                       <div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{activeRole.verb}</span>
-                        <h3 className="text-3xl font-black uppercase tracking-[-0.04em] text-white">{activeRole.label}</h3>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t(activeCopy.verbKey as TranslationKey)}</span>
+                        <h3 className="text-3xl font-black uppercase tracking-[-0.04em] text-white">{t(activeCopy.labelKey as TranslationKey)}</h3>
                       </div>
                     </div>
 
                     <p className="text-base font-medium leading-relaxed text-white/85">
-                      {activeRole.description}
+                      {t(activeCopy.descKey as TranslationKey)}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-2 pt-1">
                       <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-bold text-white/80">
-                        <Tag className="h-3 w-3 text-primary" /> {activeRole.actionType}
+                        <Tag className="h-3 w-3 text-primary" /> {t(activeCopy.actionKey as TranslationKey)}
                       </span>
                       <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-bold text-emerald-300">
-                        <Coins className="h-3 w-3" /> {activeRole.rewardRange}
+                        <Coins className="h-3 w-3" /> {t(activeCopy.rewardKey as TranslationKey)}
                       </span>
                       <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-bold text-white/60">
-                        <Users className="h-3 w-3 text-white/40" /> {activeRole.targetPersona}
+                        <Users className="h-3 w-3 text-white/40" /> {t(activeCopy.personaKey as TranslationKey)}
                       </span>
                     </div>
                   </div>
@@ -1127,20 +1129,20 @@ export default function CinematicCultureHome() {
                   <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 lg:col-span-6">
                     <div className="space-y-3.5 text-xs">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">Real-World Action Example</p>
-                        <p className="mt-1 text-sm font-semibold text-white/95">{activeRole.exampleAction}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">{t("archXtra.exampleLabel")}</p>
+                        <p className="mt-1 text-sm font-semibold text-white/95">{t(activeCopy.exampleKey as TranslationKey)}</p>
                       </div>
 
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-1 border-t border-white/10">
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">Proof Method</p>
-                          <p className="mt-0.5 font-medium text-white/80">{activeRole.proofMethod}</p>
+                          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">{t("archXtra.proofLabel")}</p>
+                          <p className="mt-0.5 font-medium text-white/80">{t(activeCopy.proofKey as TranslationKey)}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">Privacy Policy</p>
+                          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">{t("archXtra.privacyLabel")}</p>
                           <p className="mt-0.5 inline-flex items-center gap-1 font-medium text-white/80">
                             <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                            <span>{activeRole.cameraPrivacy}</span>
+                            <span>{t(activeCopy.privacyKey as TranslationKey)}</span>
                           </p>
                         </div>
                       </div>
@@ -1148,14 +1150,14 @@ export default function CinematicCultureHome() {
                       <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-2 text-[11px] text-white/50">
                           <KeyRound className="h-3.5 w-3.5 text-amber-400" />
-                          <span>Earn Points to unlock exclusive Key opportunities</span>
+                          <span>{t("archXtra.earnKeys")}</span>
                         </div>
                         <Link
                           to={`/missions?role=${selectedRoleArchetype}`}
                           onClick={() => rememberMarketingIntent(`archetype_spotlight_${selectedRoleArchetype}`, `/missions?role=${selectedRoleArchetype}`, "participant")}
                           className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-lg transition hover:bg-primary/90 hover:scale-[1.02]"
                         >
-                          Explore {activeRole.label} Missions
+                          {t("archXtra.explore", { label: t(activeCopy.labelKey as TranslationKey) })}
                           <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
                       </div>
@@ -1189,11 +1191,11 @@ export default function CinematicCultureHome() {
                     <div className={`flex h-9 w-9 items-center justify-center rounded-xl border ${role.tone}`}>
                       <RoleIcon className="h-4 w-4" />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-300/90">{role.rewardRange}</span>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-300/90">{t(ARCHETYPE_I18N[id as MissionArchetype].rewardKey as TranslationKey)}</span>
                   </div>
-                  <p className="relative mt-5 text-[9px] font-black uppercase tracking-[0.2em] text-white/35">{role.verb}</p>
-                  <h3 className="relative mt-0.5 text-xl font-black uppercase tracking-[-0.03em] text-white">{role.label}</h3>
-                  <p className="relative mt-2 line-clamp-2 text-[11px] leading-4 text-white/50">{role.description}</p>
+                  <p className="relative mt-5 text-[9px] font-black uppercase tracking-[0.2em] text-white/35">{t(ARCHETYPE_I18N[id as MissionArchetype].verbKey as TranslationKey)}</p>
+                  <h3 className="relative mt-0.5 text-xl font-black uppercase tracking-[-0.03em] text-white">{t(ARCHETYPE_I18N[id as MissionArchetype].labelKey as TranslationKey)}</h3>
+                  <p className="relative mt-2 line-clamp-2 text-[11px] leading-4 text-white/50">{t(ARCHETYPE_I18N[id as MissionArchetype].descKey as TranslationKey)}</p>
                 </button>
               );
             })}

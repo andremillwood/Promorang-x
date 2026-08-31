@@ -9,8 +9,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin, ExternalLink, Heart, Share2, MessageSquare, ArrowRight, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
-import { CAMERA_CONSENT, MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
+import { ARCHETYPE_I18N, CAMERA_CONSENT_KEYS, MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
 import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -135,7 +136,7 @@ export default function ContentMissionDetail() {
   return (
     <main className="mx-auto max-w-6xl space-y-6 text-white sm:space-y-8">
       <SEO
-        title={`${mission.content?.title || t("contentMission.titleDefault")} · ${archetype.label}`}
+        title={`${mission.content?.title || t("contentMission.titleDefault")} · ${t(ARCHETYPE_I18N[(mission?.archetype as MissionArchetype) || "side_quest"].labelKey as TranslationKey)}`}
         description={mission.action_text || mission.content?.description || t("contentMission.descDefault")}
         image={heroImage}
         url={`https://promorang.co/missions/${mission.id}`}
@@ -149,7 +150,7 @@ export default function ContentMissionDetail() {
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
           <div className="absolute left-5 top-5 flex flex-wrap gap-2">
-            <Badge className={`border ${archetype.tone}`}><ArchetypeIcon className="mr-1 h-3 w-3" />{archetype.label}</Badge>
+            <Badge className={`border ${archetype.tone}`}><ArchetypeIcon className="mr-1 h-3 w-3" />{t(ARCHETYPE_I18N[(mission.archetype as MissionArchetype) || "side_quest"].labelKey as TranslationKey)}</Badge>
             <Badge className="bg-black/60 text-white backdrop-blur">
               {mission.content?.platform}
             </Badge>
@@ -223,7 +224,7 @@ export default function ContentMissionDetail() {
                 {mission.physical_unlock_rules.perk_hint}
               </p>
             )}
-            {mission.camera_consent ? <p className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-3 text-sm text-emerald-200"><Activity className="h-4 w-4" />{t("contentMission.cameraBoundary")} {CAMERA_CONSENT[mission.camera_consent as keyof typeof CAMERA_CONSENT]}</p> : null}
+            {mission.camera_consent && CAMERA_CONSENT_KEYS[mission.camera_consent as keyof typeof CAMERA_CONSENT_KEYS] ? <p className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-3 text-sm text-emerald-200"><Activity className="h-4 w-4" />{t("contentMission.cameraBoundary")} {t(CAMERA_CONSENT_KEYS[mission.camera_consent as keyof typeof CAMERA_CONSENT_KEYS] as TranslationKey)}</p> : null}
             <div className="mt-4 flex flex-wrap gap-2">
               {(mission.entry_action_types || []).map((action: string) => (
                 <span key={action} className="rounded-full bg-background px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">

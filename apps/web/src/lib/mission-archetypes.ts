@@ -106,3 +106,21 @@ export const CAMERA_CONSENT = {
 
 export type CameraConsent = keyof typeof CAMERA_CONSENT;
 
+export const ARCHETYPE_I18N = {
+  scout: { labelKey: "archetype.scout.label", verbKey: "archetype.scout.verb", descKey: "archetype.scout.desc", actionKey: "archXtra.scout.action", rewardKey: "archXtra.scout.reward", personaKey: "archXtra.scout.persona", exampleKey: "archXtra.scout.example", proofKey: "archXtra.scout.proof", privacyKey: "archXtra.scout.privacy" },
+  aura: { labelKey: "archetype.aura.label", verbKey: "archetype.aura.verb", descKey: "archetype.aura.desc", actionKey: "archXtra.aura.action", rewardKey: "archXtra.aura.reward", personaKey: "archXtra.aura.persona", exampleKey: "archXtra.aura.example", proofKey: "archXtra.aura.proof", privacyKey: "archXtra.aura.privacy" },
+  rally: { labelKey: "archetype.rally.label", verbKey: "archetype.rally.verb", descKey: "archetype.rally.desc", actionKey: "archXtra.rally.action", rewardKey: "archXtra.rally.reward", personaKey: "archXtra.rally.persona", exampleKey: "archXtra.rally.example", proofKey: "archXtra.rally.proof", privacyKey: "archXtra.rally.privacy" },
+  signal: { labelKey: "archetype.signal.label", verbKey: "archetype.signal.verb", descKey: "archetype.signal.desc", actionKey: "archXtra.signal.action", rewardKey: "archXtra.signal.reward", personaKey: "archXtra.signal.persona", exampleKey: "archXtra.signal.example", proofKey: "archXtra.signal.proof", privacyKey: "archXtra.signal.privacy" },
+  remix: { labelKey: "archetype.remix.label", verbKey: "archetype.remix.verb", descKey: "archetype.remix.desc", actionKey: "archXtra.remix.action", rewardKey: "archXtra.remix.reward", personaKey: "archXtra.remix.persona", exampleKey: "archXtra.remix.example", proofKey: "archXtra.remix.proof", privacyKey: "archXtra.remix.privacy" },
+  lore: { labelKey: "archetype.lore.label", verbKey: "archetype.lore.verb", descKey: "archetype.lore.desc", actionKey: "archXtra.lore.action", rewardKey: "archXtra.lore.reward", personaKey: "archXtra.lore.persona", exampleKey: "archXtra.lore.example", proofKey: "archXtra.lore.proof", privacyKey: "archXtra.lore.privacy" },
+  side_quest: { labelKey: "archetype.sideQuest.label", verbKey: "archetype.sideQuest.verb", descKey: "archetype.sideQuest.desc", actionKey: "archXtra.sideQuest.action", rewardKey: "archXtra.sideQuest.reward", personaKey: "archXtra.sideQuest.persona", exampleKey: "archXtra.sideQuest.example", proofKey: "archXtra.sideQuest.proof", privacyKey: "archXtra.sideQuest.privacy" },
+} as const;
+
+export const CAMERA_CONSENT_KEYS = {
+  open_to_camera: "camCons.open_to_camera",
+  ask_first: "camCons.ask_first",
+  no_face: "camCons.no_face",
+  private_proof: "camCons.private_proof",
+  public_post: "camCons.public_post",
+} as const;
+

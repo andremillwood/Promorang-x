@@ -111,14 +111,14 @@ const MOMENT_PROOF_TYPE_ALIASES: Record<string, MechanicProofType> = {
 };
 
 export const LOCAL_DROP_PROOF_OPTIONS = [
-  { value: "Screenshot", label: "Screenshot", description: "Upload a photo or screenshot as proof." },
-  { value: "Share", label: "Share proof", description: "Show the share you made with a screenshot or link." },
-  { value: "Link", label: "Link", description: "Paste the public post or completed-action URL." },
-  { value: "QR", label: "QR / code", description: "Venue code or QR scan. Secondary for Local Drops." },
-  { value: "GPS", label: "Location", description: "Confirm presence at the venue." },
-  { value: "Photo", label: "Photo", description: "On-site photo mark." },
-  { value: "Video", label: "Video", description: "Short video mark." },
-  { value: "Code", label: "Code", description: "Staff or check-in code." },
+  { value: "Screenshot", label: "Screenshot", description: "Upload a photo or screenshot as proof.", labelKey: "tax.proof.screenshot", descKey: "tax.proof.screenshotDesc" },
+  { value: "Share", label: "Share proof", description: "Show the share you made with a screenshot or link.", labelKey: "tax.proof.share", descKey: "tax.proof.shareDesc" },
+  { value: "Link", label: "Link", description: "Paste the public post or completed-action URL.", labelKey: "tax.proof.link", descKey: "tax.proof.linkDesc" },
+  { value: "QR", label: "QR / code", description: "Venue code or QR scan. Secondary for Local Drops.", labelKey: "tax.proof.qr", descKey: "tax.proof.qrDesc" },
+  { value: "GPS", label: "Location", description: "Confirm presence at the venue.", labelKey: "tax.proof.gps", descKey: "tax.proof.gpsDesc" },
+  { value: "Photo", label: "Photo", description: "On-site photo mark.", labelKey: "tax.proof.photo", descKey: "tax.proof.photoDesc" },
+  { value: "Video", label: "Video", description: "Short video mark.", labelKey: "tax.proof.video", descKey: "tax.proof.videoDesc" },
+  { value: "Code", label: "Code", description: "Staff or check-in code.", labelKey: "tax.proof.code", descKey: "tax.proof.codeDesc" },
 ] as const;
 
 export function toMomentProofEnum(proofType?: string | null): MechanicProofType {

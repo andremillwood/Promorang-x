@@ -33,6 +33,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 import { PromoCardService } from "@/lib/promocard";
 
 const categories = [
@@ -42,7 +43,16 @@ const categories = [
   "Sports & Fitness",
   "Workshops & Learning",
   "Community Gathering",
-];
+] as const;
+
+const CATEGORY_KEYS: Record<(typeof categories)[number], TranslationKey> = {
+  "Music & Parties": "createMoment.categories.music",
+  "Food & Beverage": "createMoment.categories.food",
+  "Arts & Culture": "createMoment.categories.arts",
+  "Sports & Fitness": "createMoment.categories.sports",
+  "Workshops & Learning": "createMoment.categories.workshops",
+  "Community Gathering": "createMoment.categories.community",
+};
 
 const STARTER_TEMPLATES = [
   {
@@ -95,11 +105,11 @@ const STARTER_TEMPLATES = [
   },
 ];
 
-const STOCK_COVERS = [
-  { label: "Nightlife & DJ", url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80" },
-  { label: "Culinary & Dining", url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80" },
-  { label: "Lounge & Stage", url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80" },
-  { label: "Beach & Coast", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" },
+const STOCK_COVERS: { labelKey: TranslationKey; url: string }[] = [
+  { labelKey: "createMom.coverNightlife", url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80" },
+  { labelKey: "createMom.coverCulinary", url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80" },
+  { labelKey: "createMom.coverLounge", url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80" },
+  { labelKey: "createMom.coverBeach", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" },
 ];
 
 export function CreateMoment() {
@@ -153,12 +163,12 @@ export function CreateMoment() {
     return (
       <div className="min-h-screen bg-[#0a0a0b] text-white flex flex-col items-center justify-center p-6 text-center">
         <div className="max-w-md space-y-4">
-          <h1 className="text-3xl font-extrabold">Sign in to Host a Moment</h1>
+          <h1 className="text-3xl font-extrabold">{t("createMom.unauthTitle")}</h1>
           <p className="text-white/60 text-sm">
-            You need a verified Promorang account to create moments, publish tickets, and configure collaborator revenue splits.
+            {t("createMom.unauthCopy")}
           </p>
           <Button onClick={() => navigate("/auth")} className="rounded-full bg-primary text-white hover:bg-primary/90 font-bold px-8 py-6">
-            Sign In / Register
+            {t("createMom.unauthButton")}
           </Button>
         </div>
       </div>
@@ -176,8 +186,8 @@ export function CreateMoment() {
     if (tmpl.location) setLocation(tmpl.location);
 
     toast({
-      title: `${tmpl.label} Template Applied! ✨`,
-      description: "Fields populated. You can customize the title, venue, and time.",
+      title: t("createMom.toastTemplate", { name: tmpl.label }),
+      description: t("createMom.toastTemplateDesc"),
     });
   };
 
@@ -224,8 +234,8 @@ export function CreateMoment() {
     e.preventDefault();
     if (!title || !startsAt || !location) {
       toast({
-        title: "Missing Required Fields",
-        description: "Please provide a Title, Start Time, and Venue/Location.",
+        title: t("createMom.toastMissing"),
+        description: t("createMom.toastMissingDesc"),
         variant: "destructive",
       });
       return;
@@ -287,16 +297,16 @@ export function CreateMoment() {
       PromoCardService.rechargeCard(user.id, "moment_post", 15.0);
 
       toast({
-        title: "⚡ Moment Published & Card Recharged!",
-        description: "Your experience is live, and +$15.00 has been recharged to your Promorang Card!",
+        title: t("createMom.toastPublished"),
+        description: t("createMom.toastPublishedDesc"),
       });
 
       navigate(`/moments/${newMoment.id}`);
     } catch (error: any) {
       console.error("Error creating moment:", error);
       toast({
-        title: "Creation Failed",
-        description: error.message || "Failed to create moment",
+        title: t("createMom.toastFailed"),
+        description: error.message || t("createMom.toastFailed"),
         variant: "destructive",
       });
     } finally {
@@ -309,8 +319,8 @@ export function CreateMoment() {
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
       <SEO
-        title="Host a Moment — Creator & Experience Studio | Promorang"
-        description="Publish real-world cultural moments, sound clashes, culinary pop-ups, and ticketed experiences in Kingston."
+        title={t("createMom.seoTitle")}
+        description={t("createMom.seoDesc")}
       />
 
       <main className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8 space-y-6">
@@ -324,24 +334,24 @@ export function CreateMoment() {
                 onClick={() => navigate(-1)}
                 className="text-white/60 hover:text-white h-7 px-2 -ml-2 text-xs"
               >
-                <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Back
+                <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> {t("createMom.back")}
               </Button>
               <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-bold">
-                Creator Studio
+                {t("createMom.studioBadge")}
               </Badge>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">
-              Host a Moment & Experience
+              {t("createMom.pageTitle")}
             </h1>
           </div>
 
           {/* Stepper Pills */}
           <div className="flex items-center gap-1.5 bg-white/5 p-1 rounded-2xl border border-white/10">
             {[
-              { num: 1, title: "1. Story" },
-              { num: 2, title: "2. Date & Venue" },
-              { num: 3, title: "3. Lineup" },
-              { num: 4, title: "4. Passes" },
+              { num: 1, title: t("createMom.stepStory") },
+              { num: 2, title: t("createMom.stepDate") },
+              { num: 3, title: t("createMom.stepLineup") },
+              { num: 4, title: t("createMom.stepPasses") },
             ].map((s) => (
               <button
                 key={s.num}
@@ -371,7 +381,7 @@ export function CreateMoment() {
                 {/* 1-Click Starter Presets */}
                 <div className="space-y-2">
                   <span className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5" /> 1-Click Cultural Starter Templates
+                    <Sparkles className="h-3.5 w-3.5" /> {t("createMom.templatesKicker")}
                   </span>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {STARTER_TEMPLATES.map((tmpl) => (
@@ -392,9 +402,9 @@ export function CreateMoment() {
 
                 <div className="space-y-4 pt-2 border-t border-white/10">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-white/80">Moment Title *</Label>
+                    <Label className="text-xs font-bold text-white/80">{t("createMom.titleLabel")}</Label>
                     <Input
-                      placeholder="e.g. Kingston Skyline Sound Clash: Live Vinyl & Dub Sessions"
+                      placeholder={t("createMom.titlePlaceholder")}
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-11"
@@ -403,7 +413,7 @@ export function CreateMoment() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-white/80">Category *</Label>
+                    <Label className="text-xs font-bold text-white/80">{t("createMom.categoryLabel")}</Label>
                     <select
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
@@ -411,16 +421,16 @@ export function CreateMoment() {
                     >
                       {categories.map((cat) => (
                         <option key={cat} value={cat} className="bg-[#111216] text-white">
-                          {cat}
+                          {t(CATEGORY_KEYS[cat])}
                         </option>
                       ))}
                     </select>
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-white/80">Description & Attendee Vibes</Label>
+                    <Label className="text-xs font-bold text-white/80">{t("createMom.descLabel")}</Label>
                     <Textarea
-                      placeholder="What can attendees expect? Mention music genres, DJs, drink specials, tasting bites, and dress codes..."
+                      placeholder={t("createMom.descPlaceholder")}
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs min-h-[90px]"
@@ -429,11 +439,11 @@ export function CreateMoment() {
 
                   {/* Visual Cover Selector */}
                   <div className="space-y-2 pt-2">
-                    <Label className="text-xs font-bold text-white/80">Cover Image</Label>
+                    <Label className="text-xs font-bold text-white/80">{t("createMom.coverLabel")}</Label>
                     <div className="grid grid-cols-4 gap-2">
                       {STOCK_COVERS.map((stock) => (
                         <button
-                          key={stock.label}
+                          key={stock.labelKey}
                           type="button"
                           onClick={() => handleSelectStockCover(stock.url)}
                           className={`relative rounded-xl overflow-hidden h-16 border transition-all ${
@@ -442,9 +452,9 @@ export function CreateMoment() {
                               : "border-white/10 opacity-60 hover:opacity-100"
                           }`}
                         >
-                          <img src={stock.url} alt={stock.label} className="h-full w-full object-cover" />
+                          <img src={stock.url} alt={t(stock.labelKey)} className="h-full w-full object-cover" />
                           <span className="absolute inset-x-0 bottom-0 bg-black/80 text-[9px] font-bold text-center py-0.5 truncate px-1">
-                            {stock.label}
+                            {t(stock.labelKey)}
                           </span>
                         </button>
                       ))}
@@ -453,7 +463,7 @@ export function CreateMoment() {
                     <div className="pt-2">
                       <label className="flex items-center justify-center gap-2 p-3 rounded-2xl border border-dashed border-white/20 bg-white/[0.02] hover:bg-white/5 transition cursor-pointer text-xs text-white/70 font-semibold">
                         <Upload className="h-4 w-4 text-primary" />
-                        <span>Or upload your own custom artwork (JPG, PNG)</span>
+                        <span>{t("createMom.uploadOwn")}</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -469,7 +479,7 @@ export function CreateMoment() {
                   onClick={() => setStep(2)}
                   className="w-full h-11 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/25"
                 >
-                  <span>Continue to Date & Venue</span>
+                  <span>{t("createMom.continueDate")}</span>
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>
@@ -479,48 +489,48 @@ export function CreateMoment() {
             {step === 2 && (
               <div className="p-6 rounded-3xl border border-white/10 bg-[#111216] space-y-6 shadow-xl">
                 <div>
-                  <h3 className="text-lg font-black text-white">When & Where is It Happening?</h3>
-                  <p className="text-xs text-white/50">Select a verified partner venue in Kingston or enter a custom address.</p>
+                  <h3 className="text-lg font-black text-white">{t("createMom.whenTitle")}</h3>
+                  <p className="text-xs text-white/50">{t("createMom.whenCopy")}</p>
                 </div>
 
                 {/* Quick Date Shortcuts */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-white/80">Quick Date Presets</Label>
+                  <Label className="text-xs font-bold text-white/80">{t("createMom.datePresets")}</Label>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => handlePresetDate(0, 20)}
                       className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-white/80"
                     >
-                      Tonight (8 PM)
+                      {t("createMom.tonight")}
                     </button>
                     <button
                       type="button"
                       onClick={() => handlePresetDate(1, 21)}
                       className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-white/80"
                     >
-                      Tomorrow Night (9 PM)
+                      {t("createMom.tomorrow")}
                     </button>
                     <button
                       type="button"
                       onClick={() => handlePresetDate(5, 22)}
                       className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-white/80"
                     >
-                      This Friday (10 PM)
+                      {t("createMom.friday")}
                     </button>
                     <button
                       type="button"
                       onClick={() => handlePresetDate(6, 22)}
                       className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-white/80"
                     >
-                      This Saturday (10 PM)
+                      {t("createMom.saturday")}
                     </button>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-white/80">Starts At *</Label>
+                    <Label className="text-xs font-bold text-white/80">{t("createMom.startsAt")}</Label>
                     <Input
                       type="datetime-local"
                       value={startsAt}
@@ -530,7 +540,7 @@ export function CreateMoment() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-white/80">Ends At (Optional)</Label>
+                    <Label className="text-xs font-bold text-white/80">{t("createMom.endsAt")}</Label>
                     <Input
                       type="datetime-local"
                       value={endsAt}
@@ -557,10 +567,10 @@ export function CreateMoment() {
 
                 <div className="flex gap-3">
                   <Button variant="outline" onClick={() => setStep(1)} className="rounded-2xl border-white/10 h-11 px-5 text-xs">
-                    Back
+                    {t("createMom.back")}
                   </Button>
                   <Button onClick={() => setStep(3)} className="flex-1 h-11 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/25">
-                    <span>Continue to Lineup & Squad</span>
+                    <span>{t("createMom.continueLineup")}</span>
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
@@ -571,9 +581,9 @@ export function CreateMoment() {
             {step === 3 && (
               <div className="p-6 rounded-3xl border border-white/10 bg-[#111216] space-y-6 shadow-xl">
                 <div>
-                  <h3 className="text-lg font-black text-white">Lineup & Squad Revenue Splits</h3>
+                  <h3 className="text-lg font-black text-white">{t("createMom.lineupTitle")}</h3>
                   <p className="text-xs text-white/50">
-                    Add resident DJs, guest performers, hosts, and promoters. Allocate transparent revenue splits on ticket sales.
+                    {t("createMom.lineupCopy")}
                   </p>
                 </div>
 
@@ -583,7 +593,7 @@ export function CreateMoment() {
                 />
 
                 <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between text-xs">
-                  <span className="text-white/60">Total Squad Revenue Split:</span>
+                  <span className="text-white/60">{t("createMom.totalSplit")}</span>
                   <span className={`font-black ${totalSplit > 100 ? "text-red-400" : "text-emerald-400"}`}>
                     {totalSplit}% / 100%
                   </span>
@@ -591,10 +601,10 @@ export function CreateMoment() {
 
                 <div className="flex gap-3">
                   <Button variant="outline" onClick={() => setStep(2)} className="rounded-2xl border-white/10 h-11 px-5 text-xs">
-                    Back
+                    {t("createMom.back")}
                   </Button>
                   <Button onClick={() => setStep(4)} className="flex-1 h-11 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/25">
-                    <span>Continue to Passes & Rewards</span>
+                    <span>{t("createMom.continuePasses")}</span>
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
@@ -605,13 +615,13 @@ export function CreateMoment() {
             {step === 4 && (
               <form onSubmit={handleSubmit} className="p-6 rounded-3xl border border-white/10 bg-[#111216] space-y-6 shadow-xl">
                 <div>
-                  <h3 className="text-lg font-black text-white">Passes, Admission & Door Perks</h3>
-                  <p className="text-xs text-white/50">Configure attendee pricing and guaranteed reward perks on check-in.</p>
+                  <h3 className="text-lg font-black text-white">{t("createMom.passesTitle")}</h3>
+                  <p className="text-xs text-white/50">{t("createMom.passesCopy")}</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-white/80">Max Capacity</Label>
+                    <Label className="text-xs font-bold text-white/80">{t("createMom.maxCapacity")}</Label>
                     <Input
                       type="number"
                       value={maxParticipants}
@@ -620,9 +630,9 @@ export function CreateMoment() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-white/80">Attendee Perk / Reward</Label>
+                    <Label className="text-xs font-bold text-white/80">{t("createMom.perkLabel")}</Label>
                     <Input
-                      placeholder="e.g. 100 Points + Free Welcome Drink"
+                      placeholder={t("createMom.perkPlaceholder")}
                       value={reward}
                       onChange={(e) => setReward(e.target.value)}
                       className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-11"
@@ -632,7 +642,7 @@ export function CreateMoment() {
 
                 <div className="flex gap-3 pt-4 border-t border-white/10">
                   <Button variant="outline" type="button" onClick={() => setStep(3)} className="rounded-2xl border-white/10 h-11 px-5 text-xs">
-                    Back
+                    {t("createMom.back")}
                   </Button>
                   <Button
                     type="submit"
@@ -642,12 +652,12 @@ export function CreateMoment() {
                     {submitting ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        <span>Publishing Experience...</span>
+                        <span>{t("createMom.publishing")}</span>
                       </>
                     ) : (
                       <>
                         <Sparkles className="h-4 w-4 mr-2" />
-                        <span>Publish Moment to Discovery Feed</span>
+                        <span>{t("createMom.publish")}</span>
                       </>
                     )}
                   </Button>
@@ -660,9 +670,9 @@ export function CreateMoment() {
           <div className="lg:col-span-5 sticky top-20 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-black uppercase tracking-widest text-primary flex items-center gap-1.5">
-                <Eye className="h-3.5 w-3.5" /> Live Discovery Preview
+                <Eye className="h-3.5 w-3.5" /> {t("createMom.previewKicker")}
               </span>
-              <span className="text-[10px] text-white/50">Updates in real time</span>
+              <span className="text-[10px] text-white/50">{t("createMom.previewLive")}</span>
             </div>
 
             {/* Live Moment Card */}
@@ -670,15 +680,17 @@ export function CreateMoment() {
               <div className="relative h-48 w-full overflow-hidden bg-black">
                 <img
                   src={imagePreviewUrl}
-                  alt={title || "Preview"}
+                  alt={title || t("createMom.previewAlt")}
                   className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 <Badge className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white border border-white/10 text-[10px] font-bold uppercase">
-                  {category}
+                  {CATEGORY_KEYS[category as (typeof categories)[number]]
+                    ? t(CATEGORY_KEYS[category as (typeof categories)[number]])
+                    : category}
                 </Badge>
                 <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
-                  Open Pass
+                  {t("createMom.openPass")}
                 </span>
               </div>
 
@@ -686,20 +698,20 @@ export function CreateMoment() {
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
                     <Calendar className="h-3.5 w-3.5" />
-                    <span>{startsAt ? new Date(startsAt).toLocaleString() : "Date & Time will appear here"}</span>
+                    <span>{startsAt ? new Date(startsAt).toLocaleString() : t("createMom.datePlaceholder")}</span>
                   </div>
 
                   <h3 className="text-lg font-black text-white line-clamp-2 leading-tight">
-                    {title || "Untitled Cultural Experience"}
+                    {title || t("createMom.untitled")}
                   </h3>
 
                   <p className="text-xs text-white/60 line-clamp-2 leading-relaxed">
-                    {description || "Add a description to tell attendees what music, performers, and special vibes to expect."}
+                    {description || t("createMom.descPreview")}
                   </p>
 
                   <p className="text-xs text-white/60 flex items-center gap-1.5 pt-1">
                     <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
-                    <span className="truncate">{venueName || location || "Venue Name, Kingston"}</span>
+                    <span className="truncate">{venueName || location || t("createMom.venuePlaceholder")}</span>
                   </p>
                 </div>
 
@@ -715,12 +727,12 @@ export function CreateMoment() {
                       {user?.user_metadata?.full_name?.charAt(0) || "H"}
                     </div>
                     <span className="text-xs text-white/70 font-semibold truncate max-w-[120px]">
-                      {user?.user_metadata?.full_name || "You (Host)"}
+                      {user?.user_metadata?.full_name || t("createMom.youHost")}
                     </span>
                   </div>
 
                   <Button disabled size="sm" className="rounded-xl bg-primary text-white font-bold text-xs h-8">
-                    RSVP & Reserve Spot
+                    {t("createMom.rsvpPreview")}
                   </Button>
                 </div>
               </div>
@@ -730,7 +742,7 @@ export function CreateMoment() {
             {collaborators.length > 0 && (
               <div className="p-4 rounded-2xl border border-white/10 bg-white/[0.02] space-y-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white/50">
-                  Confirmed Lineup ({collaborators.length})
+                  {t("createMom.lineupConfirmed", { count: collaborators.length })}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {collaborators.map((c, i) => (
