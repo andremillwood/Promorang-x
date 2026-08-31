@@ -14,6 +14,8 @@ import {
   Flame,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 import { GuestPerkSimulator } from "./GuestPerkSimulator";
 import { MerchantRoiSimulator } from "./MerchantRoiSimulator";
 import { CreatorEarningsSimulator } from "./CreatorEarningsSimulator";
@@ -24,53 +26,47 @@ export type StakeholderRole = "guest" | "merchant" | "creator" | "host" | "brand
 
 interface StakeholderTab {
   id: StakeholderRole;
-  label: string;
-  sublabel: string;
+  labelKey: TranslationKey;
   icon: React.ElementType;
   color: string;
-  badge: string;
+  badgeKey: TranslationKey;
 }
 
 const TABS: StakeholderTab[] = [
   {
     id: "guest",
-    label: "Everyday Guest",
-    sublabel: "VIP Perks & Secret Tasting Keys",
+    labelKey: "valueHub.guest",
     icon: Sparkles,
     color: "amber",
-    badge: "ZERO FRICTION",
+    badgeKey: "valueHub.guestBadge",
   },
   {
     id: "merchant",
-    label: "Local Merchant",
-    sublabel: "Verified Foot-Traffic & Revenue",
+    labelKey: "valueHub.merchant",
     icon: Store,
     color: "emerald",
-    badge: "ZERO AD WASTE",
+    badgeKey: "valueHub.merchantBadge",
   },
   {
     id: "creator",
-    label: "Creator / Scout",
-    sublabel: "Predictable Bounties & Cash",
+    labelKey: "valueHub.creator",
     icon: Gem,
     color: "purple",
-    badge: "ESCROW PAYOUTS",
+    badgeKey: "valueHub.creatorBadge",
   },
   {
     id: "host",
-    label: "Event Host",
-    sublabel: "Syndicate Co-Producer Breakeven",
+    labelKey: "valueHub.host",
     icon: Ticket,
     color: "cyan",
-    badge: "DE-RISKED PRODUCTION",
+    badgeKey: "valueHub.hostBadge",
   },
   {
     id: "brand",
-    label: "Brand / Sponsor",
-    sublabel: "Auditable ROAS & Verified UGC",
+    labelKey: "valueHub.brand",
     icon: Building2,
     color: "blue",
-    badge: "ZERO BOTS",
+    badgeKey: "valueHub.brandBadge",
   },
 ];
 
@@ -83,6 +79,7 @@ export const StakeholderValueHub: React.FC<StakeholderValueHubProps> = ({
   initialRole = "guest",
   showHeroBanner = true,
 }) => {
+  const { t } = useI18n();
   const [activeRole, setActiveRole] = useState<StakeholderRole>(initialRole);
 
   return (
@@ -93,13 +90,13 @@ export const StakeholderValueHub: React.FC<StakeholderValueHubProps> = ({
           <div className="text-center max-w-3xl mx-auto mb-10 md:mb-14">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-cyan-500/10 border border-white/15 text-white/90 text-xs font-bold tracking-wider uppercase mb-4 backdrop-blur-md">
               <Compass className="w-4 h-4 text-amber-400" />
-              The Promorang Value Sandbox
+              {t("valueHub.badge")}
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight mb-4">
-              Experience the Value Before You Sign Up
+              {t("valueHub.title")}
             </h2>
             <p className="text-sm sm:text-base text-white/70 max-w-2xl mx-auto leading-relaxed">
-              No forms. No spam. No upfront commitment. Select your role below to simulate real-world earnings, VIP perks, and economic outcomes in real time.
+              {t("valueHub.copy")}
             </p>
           </div>
         )}
@@ -137,8 +134,8 @@ export const StakeholderValueHub: React.FC<StakeholderValueHubProps> = ({
                   <Icon className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs font-black tracking-tight">{tab.label}</div>
-                  <div className="text-[10px] text-white/50">{tab.badge}</div>
+                  <div className="text-xs font-black tracking-tight">{t(tab.labelKey)}</div>
+                  <div className="text-[10px] text-white/50">{t(tab.badgeKey)}</div>
                 </div>
               </button>
             );

@@ -2,6 +2,7 @@ import { Coins, DollarSign, Key, Gift, Ticket, Sparkles, CheckCircle2 } from 'lu
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCents } from '@/hooks/useValuePool';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface RewardReceiptProps {
   points: number;
@@ -24,6 +25,7 @@ export function RewardReceipt({
   keyEarned,
   momentTitle,
 }: RewardReceiptProps) {
+  const { t } = useI18n();
   const tierMultiplier = tier === 'mover' ? 2 : tier === 'regular' ? 1.5 : 1;
   
   return (
@@ -33,7 +35,7 @@ export function RewardReceipt({
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
             <CheckCircle2 className="w-8 h-8 text-green-600" />
           </div>
-          <h3 className="text-xl font-bold text-green-900">Your Mark is Captured!</h3>
+          <h3 className="text-xl font-bold text-green-900">{t("markReceipt.captured")}</h3>
           <p className="text-green-700">{momentTitle}</p>
         </div>
 
@@ -45,8 +47,8 @@ export function RewardReceipt({
                 <Coins className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="font-medium">Points Earned</p>
-                <p className="text-sm text-muted-foreground">Always awarded</p>
+                <p className="font-medium">{t("markReceipt.points")}</p>
+                <p className="text-sm text-muted-foreground">{t("markReceipt.always")}</p>
               </div>
             </div>
             <div className="text-right">
@@ -62,12 +64,12 @@ export function RewardReceipt({
                   <DollarSign className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <p className="font-medium">Money Earned</p>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300">Qualified earnings</p>
+                  <p className="font-medium">{t("markReceipt.money")}</p>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300">{t("markReceipt.qualified")}</p>
                   {tierMultiplier > 1 && (
                     <Badge variant="outline" className="mt-1 text-xs bg-emerald-500/10">
                       <Sparkles className="w-3 h-3 mr-1" />
-                      {tier} {tierMultiplier}x
+                      {t("markReceipt.tierMult", { tier, mult: tierMultiplier })}
                     </Badge>
                   )}
                 </div>
@@ -83,8 +85,8 @@ export function RewardReceipt({
                   <DollarSign className="w-5 h-5 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="font-medium text-muted-foreground">Money Locked</p>
-                  <p className="text-sm text-muted-foreground">Become Regular to earn</p>
+                  <p className="font-medium text-muted-foreground">{t("markReceipt.locked")}</p>
+                  <p className="text-sm text-muted-foreground">{t("markReceipt.becomeRegular")}</p>
                 </div>
               </div>
               <div className="text-right">
@@ -101,11 +103,11 @@ export function RewardReceipt({
                   <Key className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
-                  <p className="font-medium">Key Earned!</p>
-                  <p className="text-sm text-purple-700">{keyEarned} Key</p>
+                  <p className="font-medium">{t("markReceipt.keyEarned")}</p>
+                  <p className="text-sm text-purple-700">{t("markReceipt.keyName", { key: keyEarned })}</p>
                 </div>
               </div>
-              <Badge className="bg-purple-600">NEW</Badge>
+              <Badge className="bg-purple-600">{t("markReceipt.new")}</Badge>
             </div>
           )}
 
@@ -117,11 +119,11 @@ export function RewardReceipt({
                   <Gift className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
-                  <p className="font-medium">Giveaway Won!</p>
+                  <p className="font-medium">{t("markReceipt.giveawayWon")}</p>
                   <p className="text-sm text-amber-700">{giveaway}</p>
                 </div>
               </div>
-              <Badge className="bg-amber-600">WINNER</Badge>
+              <Badge className="bg-amber-600">{t("markReceipt.winner")}</Badge>
             </div>
           )}
 
@@ -133,8 +135,8 @@ export function RewardReceipt({
                   <Ticket className="w-5 h-5 text-pink-600" />
                 </div>
                 <div>
-                  <p className="font-medium">Coupon Issued</p>
-                  <p className="text-sm text-pink-700">Code: {coupon}</p>
+                  <p className="font-medium">{t("markReceipt.coupon")}</p>
+                  <p className="text-sm text-pink-700">{t("markReceipt.code", { code: coupon })}</p>
                 </div>
               </div>
             </div>
@@ -144,9 +146,9 @@ export function RewardReceipt({
         {/* Summary footer */}
         <div className="mt-4 pt-4 border-t border-green-200">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-green-800 font-medium">Total Value Captured</span>
+            <span className="text-green-800 font-medium">{t("markReceipt.total")}</span>
             <span className="text-green-900 font-bold">
-              {points} pts {wasQualifiedForMoney && `+ ${formatCents(moneyCents)}`}
+              {t("markReceipt.pts", { count: points })} {wasQualifiedForMoney && `+ ${formatCents(moneyCents)}`}
             </span>
           </div>
         </div>

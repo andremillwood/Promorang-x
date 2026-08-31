@@ -108,6 +108,13 @@ describe("localization", () => {
       "creatorEarn.title",
       "brandCamp.title",
       "hostSynd.title",
+      "valueHub.title",
+      "proofModal.title",
+      "passport.badge",
+      "markReceipt.captured",
+      "valueJourney.whatChanged",
+      "storyModal.title",
+      "recStudio.psTitle",
     ] as const;
 
     supportedLocales.forEach((locale) => {
