@@ -121,6 +121,9 @@ describe("localization", () => {
       "valueStudio.seoTitle",
       "orgLand.seoTitle",
       "orgLand.getStarted",
+      "venueTease.seoTitle",
+      "venueTease.claimCta",
+      "campLand.whyTitle",
     ] as const;
 
     supportedLocales.forEach((locale) => {
