@@ -395,6 +395,10 @@ const Header = () => {
 
           {/* 3. Right Zone: Utilities & Unified User Dropdown */}
           <div className="flex items-center gap-2 shrink-0">
+            <div className="hidden items-center gap-1.5 sm:flex">
+              <LanguageSelector tone={hasDarkHeader ? "marketing" : "app"} />
+              <ThemeToggle tone={hasDarkHeader ? "marketing" : "app"} />
+            </div>
             {user ? (
               <>
                 {/* Global Ticket & Balances Pill */}
@@ -600,17 +604,6 @@ const Header = () => {
 
                     <DropdownMenuSeparator className="bg-white/10" />
 
-                    {/* Preferences Row inside dropdown */}
-                    <div className="flex items-center justify-between px-2 py-1">
-                      <span className="text-[11px] text-white/50 font-medium">Preferences</span>
-                      <div className="flex items-center gap-1.5">
-                        <LanguageSelector />
-                        <ThemeToggle />
-                      </div>
-                    </div>
-
-                    <DropdownMenuSeparator className="bg-white/10" />
-
                     {/* Sign Out */}
                     <DropdownMenuItem
                       onClick={handleSignOut}
@@ -625,10 +618,6 @@ const Header = () => {
             ) : (
               /* Public / Logged Out Controls */
               <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-1.5">
-                  <LanguageSelector />
-                  <ThemeToggle />
-                </div>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -811,8 +800,8 @@ const Header = () => {
               <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/10">
                 <span className="text-xs text-white/60 font-medium">Preferences</span>
                 <div className="flex items-center gap-2">
-                  <LanguageSelector />
-                  <ThemeToggle />
+                  <LanguageSelector tone="marketing" />
+                  <ThemeToggle tone="marketing" />
                 </div>
               </div>
 

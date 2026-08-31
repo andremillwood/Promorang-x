@@ -13,6 +13,19 @@
     <meta http-equiv="Expires" content="0" />
     <script>
       (function() {
+        try {
+          var theme = localStorage.getItem("theme") || "light";
+          var resolved = theme === "system"
+            ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+            : theme;
+          document.documentElement.classList.remove("light", "dark");
+          document.documentElement.classList.add(resolved);
+          document.documentElement.style.colorScheme = resolved;
+        } catch (e) {}
+      })();
+    </script>
+    <script>
+      (function() {
         var CURRENT_VER = "v2026_08_09_06";
         if (localStorage.getItem("promorang_ver") !== CURRENT_VER) {
           localStorage.setItem("promorang_ver", CURRENT_VER);
