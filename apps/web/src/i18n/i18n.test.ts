@@ -78,6 +78,7 @@ describe("localization", () => {
       "support.title",
       "support.generalContact",
       "support.appeal",
+      "wallet.withdrawCancelled",
     ] as const;
 
     supportedLocales.forEach((locale) => {

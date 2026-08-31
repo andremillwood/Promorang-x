@@ -1955,126 +1955,143 @@ async function sendRoleChangedEmail({ to, userName, accountName, oldRole, newRol
 /**
  * Prompt hosts to create their first Moment
  */
-async function sendHostCreateMomentPrompt(userEmail, userName, daysSinceSignup) {
+async function sendHostCreateMomentPrompt(userEmail, userName, daysSinceSignup, options = {}) {
+  const locale = options.locale || (typeof daysSinceSignup === 'object' ? daysSinceSignup.locale : 'en');
+  const days = typeof daysSinceSignup === 'object' ? daysSinceSignup.days : daysSinceSignup;
+  const contentData = getEmailContent('hostCreateMoment', locale, { name: userName || 'there', days });
+  const createUrl = getLocalizedEmailUrl('/moments/create', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'Create Your First Moment',
-    preheader: 'Your community is waiting for content.',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>You signed up ${daysSinceSignup} days ago as a Host, but haven't created your first <strong>Moment</strong> yet.</p>
+      <p>${contentData.intro}</p>
       
-      <p>Moments are your chance to:</p>
+      <p>${contentData.chanceCopy}</p>
       <ul class="feature-list">
-        <li>Share exclusive content with your community</li>
-        <li>Build deeper engagement with followers</li>
-        <li>Monetize your most valuable experiences</li>
-        <li>Grow your influence on the platform</li>
+        <li>${contentData.feature1}</li>
+        <li>${contentData.feature2}</li>
+        <li>${contentData.feature3}</li>
+        <li>${contentData.feature4}</li>
       </ul>
       
       <div class="highlight-card">
-        <div class="label">Getting Started</div>
-        <div class="value" style="font-size: 24px;">Takes 5 Minutes</div>
-        <div class="sublabel">Upload a photo, video, or link and set your access rules</div>
+        <div class="label">${contentData.startLabel}</div>
+        <div class="value" style="font-size: 24px;">${contentData.startValue}</div>
+        <div class="sublabel">${contentData.startSublabel}</div>
       </div>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/moments/create`,
-    ctaText: 'Create My First Moment',
-    footerNote: 'Hosts who create within their first week see 3x more follower engagement.',
+    ctaUrl: createUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: 'Your community is waiting — create your first Moment',
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, create your first Moment to engage your community. Takes 5 minutes: ${EMAIL_CONFIG.frontendUrl}/moments/create`,
-    tags: [{ name: 'type', value: 'host-create-moment-prompt' }],
+    text: `${contentData.preheader} ${createUrl}`,
+    tags: [{ name: 'type', value: 'host-create-moment-prompt' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 /**
  * Prompt hosts who haven't created in a while
  */
-async function sendHostReEngagementPrompt(userEmail, userName, daysSinceLastMoment) {
+async function sendHostReEngagementPrompt(userEmail, userName, daysSinceLastMoment, options = {}) {
+  const locale = options.locale || (typeof daysSinceLastMoment === 'object' ? daysSinceLastMoment.locale : 'en');
+  const days = typeof daysSinceLastMoment === 'object' ? daysSinceLastMoment.days : daysSinceLastMoment;
+  const contentData = getEmailContent('hostReengagement', locale, { name: userName || 'there', days });
+  const createUrl = getLocalizedEmailUrl('/moments/create', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'Your Followers Miss You',
-    preheader: 'It has been a while since your last Moment.',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>It's been <strong>${daysSinceLastMoment} days</strong> since your last Moment. Your followers are eager for new content!</p>
+      <p>${contentData.intro}</p>
       
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">Last Moment</span>
-          <span class="info-card-value">${daysSinceLastMoment} days ago</span>
+          <span class="info-card-label">${contentData.lastLabel}</span>
+          <span class="info-card-value">${contentData.lastValue}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Follower Activity</span>
-          <span class="info-card-value" style="color: ${BRAND.accent};">High</span>
+          <span class="info-card-label">${contentData.activityLabel}</span>
+          <span class="info-card-value" style="color: ${BRAND.accent};">${contentData.activityValue}</span>
         </div>
       </div>
       
-      <p>Fresh content keeps your community engaged and growing. What will you share next?</p>
+      <p>${contentData.nextCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/moments/create`,
-    ctaText: 'Create New Moment',
-    footerNote: 'Consistent hosts build 5x larger audiences over time.',
+    ctaUrl: createUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: 'Your followers are waiting for your next Moment',
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, it's been ${daysSinceLastMoment} days since your last Moment. Create new content: ${EMAIL_CONFIG.frontendUrl}/moments/create`,
-    tags: [{ name: 'type', value: 'host-reengagement-prompt' }],
+    text: `${contentData.preheader} ${createUrl}`,
+    tags: [{ name: 'type', value: 'host-reengagement-prompt' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 /**
  * Prompt brands/advertisers to sponsor popular Moments
  */
-async function sendBrandSponsorPrompt(userEmail, userName, popularMoments) {
-  const momentsList = popularMoments?.slice(0, 3).map(m => `
+async function sendBrandSponsorPrompt(userEmail, userName, popularMoments, options = {}) {
+  const locale = options.locale || popularMoments?.locale || 'en';
+  const moments = Array.isArray(popularMoments) ? popularMoments : popularMoments?.moments || [];
+  const contentData = getEmailContent('brandSponsor', locale, { name: userName || 'there' });
+  const sponsorUrl = getLocalizedEmailUrl('/sponsor/moments', locale, EMAIL_CONFIG.frontendUrl);
+  const momentsList = moments.slice(0, 3).map((m) => {
+    const byline = getEmailContent('brandSponsor', locale, { hostName: m.hostName, engagement: m.engagement }).byHost;
+    return `
     <div style="margin: 12px 0; padding: 16px; background: ${BRAND.surface}; border-radius: 10px; border-left: 3px solid ${BRAND.primary};">
       <strong style="color: ${BRAND.text};">${m.title}</strong>
-      <p style="margin: 4px 0 0; font-size: 13px; color: ${BRAND.textMuted};">by ${m.hostName} • ${m.engagement} engagements</p>
+      <p style="margin: 4px 0 0; font-size: 13px; color: ${BRAND.textMuted};">${byline}</p>
     </div>
-  `).join('') || '';
+  `;
+  }).join('') || '';
 
   const html = getBaseTemplate({
-    title: 'Sponsor High-Engagement Moments',
-    preheader: 'Put your brand in front of engaged audiences.',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Moment sponsorship is one of the most effective ways to reach engaged communities on Promorang.</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-card">
-        <div class="label">Why Sponsor?</div>
-        <div class="value" style="font-size: 20px;">3x Higher Engagement</div>
-        <div class="sublabel">vs traditional display advertising</div>
+        <div class="label">${contentData.whyLabel}</div>
+        <div class="value" style="font-size: 20px;">${contentData.whyValue}</div>
+        <div class="sublabel">${contentData.whySublabel}</div>
       </div>
       
-      ${popularMoments?.length ? `
-      <div class="section-title">Trending Now</div>
-      <p>These popular Moments are accepting sponsorships:</p>
+      ${moments.length ? `
+      <div class="section-title">${contentData.trendingLabel}</div>
+      <p>${contentData.trendingCopy}</p>
       ${momentsList}
       ` : ''}
       
-      <p>Sponsoring puts your brand message directly into content that users are actively consuming.</p>
+      <p>${contentData.closeCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/sponsor/moments`,
-    ctaText: 'Browse Sponsorship Opportunities',
-    footerNote: 'Limited sponsorship slots available per Moment — secure your placement early.',
+    ctaUrl: sponsorUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: 'Reach engaged audiences — sponsor trending Moments',
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, sponsor high-engagement Moments for 3x better engagement. Browse opportunities: ${EMAIL_CONFIG.frontendUrl}/sponsor/moments`,
-    tags: [{ name: 'type', value: 'brand-sponsor-prompt' }],
+    text: `${contentData.preheader} ${sponsorUrl}`,
+    tags: [{ name: 'type', value: 'brand-sponsor-prompt' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -2082,40 +2099,49 @@ async function sendBrandSponsorPrompt(userEmail, userName, popularMoments) {
  * Prompt users to consume content (Moments waiting)
  */
 async function sendContentConsumptionPrompt(userEmail, userName, unreadCount, featuredMoment) {
+  const locale = featuredMoment?.locale || (typeof unreadCount === 'object' ? unreadCount.locale : 'en');
+  const count = typeof unreadCount === 'object' ? unreadCount.count : unreadCount;
+  const contentData = getEmailContent('contentConsumption', locale, {
+    name: userName || 'there',
+    count,
+    hostName: featuredMoment?.hostName || '',
+  });
+  const momentsUrl = getLocalizedEmailUrl('/moments', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'Content Waiting For You',
-    preheader: `${unreadCount} new Moment${unreadCount > 1 ? 's' : ''} from creators you follow.`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>You have <strong>${unreadCount} new Moment${unreadCount > 1 ? 's' : ''}</strong> waiting from creators you follow.</p>
+      <p>${contentData.intro}</p>
       
       ${featuredMoment ? `
       <div class="highlight-card" style="text-align: left;">
         <div style="display: flex; gap: 16px; align-items: center;">
           <div style="width: 60px; height: 60px; background: ${BRAND.gradient}; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">◆</div>
           <div>
-            <div class="label" style="text-align: left; margin-bottom: 4px;">Featured Moment</div>
+            <div class="label" style="text-align: left; margin-bottom: 4px;">${contentData.featuredLabel}</div>
             <div style="font-weight: 600; color: ${BRAND.text}; font-size: 16px;">${featuredMoment.title}</div>
-            <div style="font-size: 13px; color: ${BRAND.textMuted};">by ${featuredMoment.hostName}</div>
+            <div style="font-size: 13px; color: ${BRAND.textMuted};">${contentData.byHost}</div>
           </div>
         </div>
       </div>
       ` : ''}
       
-      <p>Don't miss out on exclusive content, behind-the-scenes access, and special offers from your favorite creators.</p>
+      <p>${contentData.missCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/moments`,
-    ctaText: unreadCount > 1 ? `View ${unreadCount} Moments` : 'View Moment',
-    footerNote: 'Engaging with content increases your chances of unlocking exclusive rewards.',
+    ctaUrl: momentsUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `${unreadCount} new Moment${unreadCount > 1 ? 's' : ''} waiting from creators you follow`,
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, you have ${unreadCount} new Moment${unreadCount > 1 ? 's' : ''} waiting. View them: ${EMAIL_CONFIG.frontendUrl}/moments`,
-    tags: [{ name: 'type', value: 'content-consumption-prompt' }],
+    text: `${contentData.preheader} ${momentsUrl}`,
+    tags: [{ name: 'type', value: 'content-consumption-prompt' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -2123,46 +2149,54 @@ async function sendContentConsumptionPrompt(userEmail, userName, unreadCount, fe
  * Alert advertiser when campaign budget is running low
  */
 async function sendLowBudgetAlert(userEmail, userName, campaignData) {
-  const { campaignName, remainingBudget, totalBudget, percentRemaining } = campaignData;
+  const { campaignName, remainingBudget, totalBudget, percentRemaining, locale } = campaignData;
+  const contentData = getEmailContent('lowBudget', locale, {
+    name: userName || 'there',
+    campaignName,
+    percent: percentRemaining,
+    remaining: remainingBudget.toLocaleString(),
+    total: totalBudget.toLocaleString(),
+  });
+  const campaignsUrl = getLocalizedEmailUrl('/advertiser/campaigns', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Campaign Budget Running Low',
-    preheader: `${percentRemaining}% of budget remaining for ${campaignName}`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Your campaign <strong>${campaignName}</strong> is running low on budget.</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #fbbf24;">
-        <div class="label" style="color: #92400e;">Remaining Budget</div>
-        <div class="value" style="font-size: 32px; color: #92400e;">${remainingBudget.toLocaleString()} Gems</div>
-        <div class="sublabel" style="color: #a16207;">${percentRemaining}% of ${totalBudget.toLocaleString()} Gems total</div>
+        <div class="label" style="color: #92400e;">${contentData.remainingLabel}</div>
+        <div class="value" style="font-size: 32px; color: #92400e;">${contentData.remainingValue}</div>
+        <div class="sublabel" style="color: #a16207;">${contentData.remainingSublabel}</div>
       </div>
       
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">Campaign</span>
+          <span class="info-card-label">${contentData.campaignLabel}</span>
           <span class="info-card-value">${campaignName}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Status</span>
-          <span class="info-card-value" style="color: ${BRAND.accent};">Active (Low Budget)</span>
+          <span class="info-card-label">${contentData.statusLabel}</span>
+          <span class="info-card-value" style="color: ${BRAND.accent};">${contentData.statusValue}</span>
         </div>
       </div>
       
-      <p>Top up your budget soon to keep your campaign running without interruption.</p>
+      <p>${contentData.topUpCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/advertiser/campaigns`,
-    ctaText: 'Add Budget',
-    footerNote: 'Campaigns with sufficient budget see 40% more completions.',
+    ctaUrl: campaignsUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Campaign "${campaignName}" budget at ${percentRemaining}% — add funds`,
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, your campaign "${campaignName}" is at ${percentRemaining}% budget. Add funds: ${EMAIL_CONFIG.frontendUrl}/advertiser/campaigns`,
-    tags: [{ name: 'type', value: 'low-budget-alert' }],
+    text: `${contentData.preheader} ${campaignsUrl}`,
+    tags: [{ name: 'type', value: 'low-budget-alert' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -2170,35 +2204,42 @@ async function sendLowBudgetAlert(userEmail, userName, campaignData) {
  * Notify host when someone wants to join their Moment
  */
 async function sendParticipationInterestAlert(userEmail, userName, momentData) {
-  const { momentTitle, requesterName, requesterCount } = momentData;
+  const { momentTitle, requesterName, requesterCount, locale } = momentData;
+  const contentData = getEmailContent('participationInterest', locale, {
+    name: userName || 'there',
+    requesterName,
+    momentTitle,
+    count: requesterCount,
+  });
+  const requestsUrl = getLocalizedEmailUrl(`/moments/${momentData.momentId}/requests`, locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'New Participation Request',
-    preheader: `${requesterName} wants to join your Moment`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p><strong>${requesterName}</strong> wants to participate in your Moment:</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-card">
-        <div class="label">Moment</div>
+        <div class="label">${contentData.momentLabel}</div>
         <div class="value" style="font-size: 20px;">${momentTitle}</div>
-        <div class="sublabel">${requesterCount} total requests pending</div>
+        <div class="sublabel">${contentData.pendingCopy}</div>
       </div>
       
-      <p>Review and approve participants to grow your engaged community around this content.</p>
+      <p>${contentData.reviewCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/moments/${momentData.momentId}/requests`,
-    ctaText: 'Review Requests',
-    footerNote: 'Approving engaged participants increases your Moment\'s reach and value.',
+    ctaUrl: requestsUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `${requesterName} wants to join your Moment "${momentTitle}"`,
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, ${requesterName} wants to join your Moment "${momentTitle}". Review: ${EMAIL_CONFIG.frontendUrl}/moments/${momentData.momentId}/requests`,
-    tags: [{ name: 'type', value: 'participation-request' }],
+    text: `${contentData.preheader} ${requestsUrl}`,
+    tags: [{ name: 'type', value: 'participation-request' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -2206,20 +2247,32 @@ async function sendParticipationInterestAlert(userEmail, userName, momentData) {
  * Notify user of social engagement (comments, likes on their content)
  */
 async function sendSocialEngagementAlert(userEmail, userName, engagementData) {
-  const { type, actorName, contentTitle, count } = engagementData;
-
+  const { type, actorName, contentTitle, count, locale } = engagementData;
+  const verbs = getEmailContent('socialEngagement', locale, {});
   const typeLabels = {
-    comment: 'commented on',
-    like: 'liked',
-    share: 'shared',
-    follow: 'started following',
+    comment: verbs.verbComment,
+    like: verbs.verbLike,
+    share: verbs.verbShare,
+    follow: verbs.verbFollow,
   };
+  const contentData = getEmailContent('socialEngagement', locale, {
+    name: userName || 'there',
+    actorName,
+    verb: typeLabels[type] || type,
+    contentTitle: contentTitle || '',
+    count: Math.max((count || 1) - 1, 0),
+  });
+  const activityUrl = getLocalizedEmailUrl(
+    contentTitle ? `/content/${engagementData.contentId}` : '/profile',
+    locale,
+    EMAIL_CONFIG.frontendUrl,
+  );
 
   const html = getBaseTemplate({
-    title: 'New Engagement',
-    preheader: `${actorName} ${typeLabels[type]} your content`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
       <div style="display: flex; align-items: center; gap: 16px; margin: 24px 0;">
         <div style="width: 50px; height: 50px; background: ${BRAND.gradient}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: 600;">
@@ -2227,26 +2280,26 @@ async function sendSocialEngagementAlert(userEmail, userName, engagementData) {
         </div>
         <div>
           <p style="margin: 0; font-size: 16px; color: ${BRAND.text};">
-            <strong>${actorName}</strong> ${typeLabels[type]} 
-            ${contentTitle ? `your <strong>${contentTitle}</strong>` : 'you'}
+            <strong>${actorName}</strong> ${typeLabels[type] || type} 
+            ${contentTitle ? contentData.yourContent : contentData.you}
           </p>
-          ${count > 1 ? `<p style="margin: 4px 0 0; font-size: 13px; color: ${BRAND.textMuted};">and ${count - 1} others</p>` : ''}
+          ${count > 1 ? `<p style="margin: 4px 0 0; font-size: 13px; color: ${BRAND.textMuted};">${contentData.andOthers}</p>` : ''}
         </div>
       </div>
       
-      <p>Your content is resonating with the community! Keep creating to build your influence.</p>
+      <p>${contentData.resonating}</p>
     `,
-    ctaUrl: contentTitle ? `${EMAIL_CONFIG.frontendUrl}/content/${engagementData.contentId}` : `${EMAIL_CONFIG.frontendUrl}/profile`,
-    ctaText: 'View Activity',
-    footerNote: 'Engaging back with your community builds stronger relationships.',
+    ctaUrl: activityUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `${actorName} ${typeLabels[type]} your content`,
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, ${actorName} ${typeLabels[type]} your content. View: ${EMAIL_CONFIG.frontendUrl}/profile`,
-    tags: [{ name: 'type', value: `social-${type}` }],
+    text: `${contentData.preheader} ${activityUrl}`,
+    tags: [{ name: 'type', value: `social-${type}` }, { name: 'locale', value: contentData.locale }],
   });
 }
 

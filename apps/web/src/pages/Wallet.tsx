@@ -686,7 +686,7 @@ const Wallet = () => {
                               onClick={async () => {
                                 try {
                                   await gemActions.cancelWithdrawal.mutateAsync(request.id);
-                                  toast({ title: "Withdrawal cancelled", description: "The Gems returned to your wallet." });
+                                  toast({ title: t("wallet.withdrawCancelled"), description: t("wallet.withdrawCancelledCopy") });
                                   await refreshWallet();
                                 } catch (error: unknown) {
                                   toast({ title: t("wallet.withdrawFailed"), description: errorMessage(error, t("common.somethingWentWrong")), variant: "destructive" });
