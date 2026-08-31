@@ -10,12 +10,14 @@ import {
   Users,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/i18n/I18nContext";
 
 export function CreatorReputationDeck() {
+  const { t } = useI18n();
   const tiers = [
-    { level: "Level 1", name: "Scout Creator", req: "1-3 Stories published", status: "completed" },
-    { level: "Level 2", name: "Culture Vanguard", req: "5+ Stories & 50+ Footfalls", status: "active" },
-    { level: "Level 3", name: "Kingston Luminary", req: "15+ Stories & Brand Ambassador", status: "upcoming" },
+    { level: t("creRep.level1"), name: t("creRep.scout"), req: t("creRep.req1"), status: "completed" },
+    { level: t("creRep.level2"), name: t("creRep.vanguard"), req: t("creRep.req2"), status: "active" },
+    { level: t("creRep.level3"), name: t("creRep.luminary"), req: t("creRep.req3"), status: "upcoming" },
   ];
 
   return (
@@ -28,20 +30,20 @@ export function CreatorReputationDeck() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Creator Cultural Reputation & Tiers</h2>
+              <h2 className="text-2xl font-black text-white">{t("creRep.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 text-[10px] font-extrabold uppercase">
-                Vanguard Tier (L2)
+                {t("creRep.tier")}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Level progression, brand affinity badges, and community trust multipliers.
+              {t("creRep.subtitle")}
             </p>
           </div>
         </div>
 
         <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-          <p className="text-[10px] uppercase font-bold text-white/50">Vibe Score</p>
-          <p className="text-base font-black text-purple-400">98 / 100</p>
+          <p className="text-[10px] uppercase font-bold text-white/50">{t("creRep.vibe")}</p>
+          <p className="text-base font-black text-purple-400">{t("creRep.vibeVal")}</p>
         </div>
       </div>
 

@@ -258,6 +258,10 @@ describe("localization", () => {
       "creTrack.title",
       "o2oLink.connect",
       "creO2O.title",
+      "creStudio.submit",
+      "creBounty.claim",
+      "creEarn.withdraw",
+      "creRep.title",
     ] as const;
 
     supportedLocales.forEach((locale) => {
