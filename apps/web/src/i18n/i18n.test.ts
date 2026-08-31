@@ -98,6 +98,12 @@ describe("localization", () => {
       "pieceHoldings.archive",
       "forDev.seoTitle",
       "brandCases.title1",
+      "valueNav.wallet",
+      "psElig.title",
+      "cause.treeTitle",
+      "receipt.copyLink",
+      "receipt.shareTweet",
+      "merchantRoi.title",
     ] as const;
 
     supportedLocales.forEach((locale) => {

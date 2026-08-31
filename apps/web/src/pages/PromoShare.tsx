@@ -663,9 +663,9 @@ const PromoShare = () => {
             summary={t("promoshare.howEligibilitySummary")}
           >
             <PromoShareEligibilityPanel
-              actionLabel="verified check-ins, content, referrals, or repeat visits"
-              proofLabel="the pool proof rule"
-              poolLabel="daily, weekly, grand, sponsor, and moment pools"
+              actionLabel={t("psElig.actionLive")}
+              proofLabel={t("psElig.proofLive")}
+              poolLabel={t("psElig.poolLive")}
               funded={Boolean(data.draws?.some((draw) => draw.jackpot_amount > 0 || draw.poolItems?.length))}
             />
           </GuidanceDisclosure>
