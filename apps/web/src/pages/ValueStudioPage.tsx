@@ -2,8 +2,10 @@ import React from "react";
 import { useSearchParams } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { StakeholderValueHub, StakeholderRole } from "@/components/value/StakeholderValueHub";
+import { useI18n } from "@/i18n/I18nContext";
 
 const ValueStudioPage: React.FC = () => {
+  const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get("role") as StakeholderRole | null;
   const initialRole: StakeholderRole =
@@ -14,8 +16,8 @@ const ValueStudioPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <SEO
-        title="Interactive Value Studio & ROI Simulator | Promorang"
-        description="Experience real-world earnings, VIP perks, merchant foot-traffic lift, and syndicate de-risking before signing up."
+        title={t("valueStudio.seoTitle")}
+        description={t("valueStudio.seoDescription")}
       />
       <div className="pt-20 pb-16">
         <StakeholderValueHub initialRole={initialRole} showHeroBanner={true} />

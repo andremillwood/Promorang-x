@@ -118,6 +118,9 @@ describe("localization", () => {
       "earnCard.qualified",
       "valuePool.title",
       "earnDash.title",
+      "valueStudio.seoTitle",
+      "orgLand.seoTitle",
+      "orgLand.getStarted",
     ] as const;
 
     supportedLocales.forEach((locale) => {
