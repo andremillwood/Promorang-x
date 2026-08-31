@@ -36,8 +36,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getSiteUrl } from '@/lib/discovery';
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function MidasCommercialProposal() {
+  const { t } = useI18n();
   const [currentChapter, setCurrentChapter] = useState<number>(1);
   const navigate = useNavigate();
 
@@ -78,7 +80,7 @@ export default function MidasCommercialProposal() {
             </Link>
             <span className="text-[#ffffff25] text-sm">/</span>
             <span className="text-[#c9c0b5] text-xs font-mono font-bold uppercase tracking-wider">
-              Midas Executive Proposal
+              {t("midasPitch.execProposal")}
             </span>
           </div>
 
@@ -88,7 +90,7 @@ export default function MidasCommercialProposal() {
               className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono text-stone-300 hover:text-white px-3 py-1.5 border border-[#ffffff15] rounded-sm bg-white/5"
             >
               <BarChart3 className="w-3.5 h-3.5 text-[#ff5a1f]" />
-              <span>Midas Host Portal</span>
+              <span>{t("midasPitch.hostPortal")}</span>
             </Link>
             <button
               onClick={() => {
@@ -98,7 +100,7 @@ export default function MidasCommercialProposal() {
               className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-black text-xs px-4 py-2.5 rounded-sm transition-all shadow-[4px_4px_0_#11100e] flex items-center gap-2 uppercase tracking-wider active:translate-x-[2px] active:translate-y-[2px]"
             >
               <Play className="w-3.5 h-3.5 fill-white" />
-              <span>Launch Live Flow</span>
+              <span>{t("midasPitch.launchFlow")}</span>
             </button>
           </div>
         </div>
@@ -127,7 +129,7 @@ export default function MidasCommercialProposal() {
                       EXECUTIVE COMMERCIAL BRIEF · PASS #MIDAS-2026-PC
                     </span>
                     <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 border border-emerald-500/30">
-                      OFFICIAL PURVIEW
+                      {t("midasPitch.purview")}
                     </span>
                   </div>
                   <h2 className="text-xs text-stone-400 font-mono">
@@ -231,7 +233,7 @@ export default function MidasCommercialProposal() {
 
             {/* Step Counter Indicator */}
             <div className="hidden md:flex items-center gap-2 text-xs font-mono text-stone-400 pl-4 border-l border-white/15">
-              <span>Chapter {currentChapter} of {totalChapters}</span>
+              <span>{t("midasPitch.chapterOf", { current: currentChapter, total: totalChapters })}</span>
             </div>
 
           </div>
@@ -267,7 +269,7 @@ export default function MidasCommercialProposal() {
                     Traditional Promotion (Status Quo)
                   </span>
                   <span className="text-[10px] font-mono text-red-300 bg-red-500/10 px-2 py-0.5 rounded-sm">
-                    Rented Attention
+                    {t("midasPitch.rented")}
                   </span>
                 </div>
 
@@ -305,7 +307,7 @@ export default function MidasCommercialProposal() {
                     With Promorang Audience Equity
                   </span>
                   <span className="text-[10px] font-mono text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-sm">
-                    Owned Promoter Asset
+                    {t("midasPitch.owned")}
                   </span>
                 </div>
 
@@ -340,12 +342,12 @@ export default function MidasCommercialProposal() {
 
             {/* Bottom Chapter Action */}
             <div className="pt-4 flex items-center justify-between border-t border-white/10">
-              <span className="text-xs text-stone-400 font-mono">Next: See what partygoers experience on their phones</span>
+              <span className="text-xs text-stone-400 font-mono">{t("midasPitch.nextPhones")}</span>
               <Button
                 onClick={() => setCurrentChapter(2)}
                 className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
               >
-                <span>Chapter 2: The Fan Journey</span>
+                <span>{t("midasPitch.ch2Fan")}</span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
@@ -378,7 +380,7 @@ export default function MidasCommercialProposal() {
                   On Promorang: <em>"How are you ending summer 2026?"</em>. User taps Beach Party or Live Concert.
                 </p>
                 <Link to="/discover" className="text-[11px] font-mono text-[#ff5a1f] hover:underline block pt-2 border-t border-white/10">
-                  View Discovery Poll ➔
+                  {t("midasPitch.viewPoll")} ➔
                 </Link>
               </div>
 
@@ -388,7 +390,7 @@ export default function MidasCommercialProposal() {
                 <p className="text-xs text-stone-300 leading-relaxed">
                   They see <strong>PROMORANG PRESENTS: Sophisticated / Capleton</strong> and claim an Express Gate Pass or drink token by submitting their phone.
                 </p>
-                <span className="text-[10px] font-mono text-emerald-400 block pt-2 border-t border-white/10">Phone number captured</span>
+                <span className="text-[10px] font-mono text-emerald-400 block pt-2 border-t border-white/10">{t("midasPitch.phoneCaptured")}</span>
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
@@ -407,7 +409,7 @@ export default function MidasCommercialProposal() {
                   At the gate, door staff verify the express pass in 2 seconds on the Promorang Door Scanner.
                 </p>
                 <Link to="/hosts/midas" className="text-[11px] font-mono text-[#10b981] hover:underline block pt-2 border-t border-white/10">
-                  View Door Scanner ➔
+                  {t("midasPitch.viewScanner")} ➔
                 </Link>
               </div>
 
@@ -474,12 +476,12 @@ export default function MidasCommercialProposal() {
                 <span className="text-purple-300">✓ Keeps your audience active 365 days a year between major calendar events</span>
                 <div className="flex items-center gap-3">
                   <Link to="/vault" className="text-[#ffcf38] hover:underline flex items-center gap-1">
-                    <span>Live Vault Ladder</span>
+                    <span>{t("midasPitch.vaultLadder")}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </Link>
                   <span className="text-white/20">·</span>
                   <Link to="/hosts/midas" className="text-emerald-400 hover:underline flex items-center gap-1">
-                    <span>Host Broadcast Center</span>
+                    <span>{t("midasPitch.bcastCenter")}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </Link>
                 </div>
@@ -494,13 +496,13 @@ export default function MidasCommercialProposal() {
                 className="border-white/20 font-mono text-xs uppercase"
               >
                 <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                <span>Chapter 1</span>
+                <span>{t("midasPitch.ch1")}</span>
               </Button>
               <Button
                 onClick={() => setCurrentChapter(3)}
                 className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
               >
-                <span>Chapter 3: The 2 Events & Flyers</span>
+                <span>{t("midasPitch.ch3Events")}</span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
@@ -560,14 +562,14 @@ export default function MidasCommercialProposal() {
                     rel="noopener noreferrer"
                     className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-4 py-2.5 rounded-sm flex items-center gap-1.5"
                   >
-                    <span>Buy Tickets on Aitix</span>
+                    <span>{t("midasPitch.buyTickets")}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                   <Link
                     to="/moments/sophisticated"
                     className="text-xs font-mono text-stone-300 hover:text-white underline underline-offset-4"
                   >
-                    View Promorang Moment Hub ➔
+                    {t("midasPitch.viewMoment")} ➔
                   </Link>
                 </div>
               </div>
@@ -606,14 +608,14 @@ export default function MidasCommercialProposal() {
                     rel="noopener noreferrer"
                     className="bg-[#a855f7] hover:bg-[#b86bf7] text-white font-mono font-bold text-xs px-4 py-2.5 rounded-sm flex items-center gap-1.5"
                   >
-                    <span>Buy Tickets on Aitix</span>
+                    <span>{t("midasPitch.buyTickets")}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                   <Link
                     to="/moments/encore-live-featuring-capleton"
                     className="text-xs font-mono text-stone-300 hover:text-white underline underline-offset-4"
                   >
-                    View Promorang Moment Hub ➔
+                    {t("midasPitch.viewMoment")} ➔
                   </Link>
                 </div>
               </div>
@@ -642,7 +644,7 @@ export default function MidasCommercialProposal() {
                   rel="noopener noreferrer"
                   className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-5 py-3 rounded-sm uppercase tracking-wider flex items-center gap-2 shadow-md shrink-0"
                 >
-                  <span>Open Public Campaign Page</span>
+                  <span>{t("midasPitch.openPublic")}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -675,13 +677,13 @@ export default function MidasCommercialProposal() {
                 className="border-white/20 font-mono text-xs uppercase"
               >
                 <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                <span>Chapter 2</span>
+                <span>{t("midasPitch.ch2")}</span>
               </Button>
               <Button
                 onClick={() => setCurrentChapter(4)}
                 className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
               >
-                <span>Chapter 4: PromoPush & Sponsor Revenue</span>
+                <span>{t("midasPitch.ch4Push")}</span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
@@ -871,7 +873,7 @@ export default function MidasCommercialProposal() {
                   rel="noopener noreferrer"
                   className="bg-[#ffcf38] hover:bg-[#ffe066] text-black font-mono font-bold text-xs px-4 py-2.5 rounded-sm uppercase tracking-wider flex items-center gap-1.5 shrink-0 shadow-md"
                 >
-                  <span>Open Brand Proposal Deck</span>
+                  <span>{t("midasPitch.openBrand")}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -935,7 +937,7 @@ export default function MidasCommercialProposal() {
               <div className="p-3.5 bg-black/40 border border-emerald-500/20 rounded-sm flex items-center justify-between text-xs font-mono text-emerald-300">
                 <span>✓ Turns a 2-day weekend event into a 365-day compounding revenue stream for Midas</span>
                 <Link to="/hosts/midas" className="text-white hover:underline flex items-center gap-1">
-                  <span>View Host CRM</span>
+                  <span>{t("midasPitch.viewCrm")}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -949,13 +951,13 @@ export default function MidasCommercialProposal() {
                 className="border-white/20 font-mono text-xs uppercase"
               >
                 <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                <span>Chapter 3</span>
+                <span>{t("midasPitch.ch3")}</span>
               </Button>
               <Button
                 onClick={() => setCurrentChapter(5)}
                 className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
               >
-                <span>Chapter 5: Interactive Tour</span>
+                <span>{t("midasPitch.ch5Tour")}</span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
@@ -997,11 +999,11 @@ export default function MidasCommercialProposal() {
                   }}
                   className={`p-3.5 rounded-sm bg-[#141210] border-2 ${s.color} text-left space-y-1.5 hover:bg-white/5 transition-all group`}
                 >
-                  <span className="text-[9px] font-mono uppercase font-bold block">Node 0{s.step}</span>
+                  <span className="text-[9px] font-mono uppercase font-bold block">{t("midasPitch.node", { step: s.step })}</span>
                   <strong className="text-white text-xs block group-hover:text-[#ff5a1f] truncate">{s.title}</strong>
                   <p className="text-[10px] text-stone-400 leading-snug">{s.desc}</p>
                   <span className="text-[10px] font-mono text-[#ffcf38] flex items-center gap-1 pt-1">
-                    <span>Open</span>
+                    <span>{t("midasPitch.open")}</span>
                     <ArrowRight className="w-3 h-3" />
                   </span>
                 </button>
@@ -1022,7 +1024,7 @@ export default function MidasCommercialProposal() {
                 className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-6 py-3.5 rounded-sm uppercase tracking-wider shadow-md flex items-center gap-2 shrink-0"
               >
                 <Play className="w-4 h-4 fill-white" />
-                <span>Start Step 1 of Guided Tour</span>
+                <span>{t("midasPitch.startTour")}</span>
               </button>
             </div>
 
@@ -1034,13 +1036,13 @@ export default function MidasCommercialProposal() {
                 className="border-white/20 font-mono text-xs uppercase"
               >
                 <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                <span>Chapter 4</span>
+                <span>{t("midasPitch.ch4")}</span>
               </Button>
               <Button
                 onClick={() => setCurrentChapter(6)}
                 className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
               >
-                <span>Chapter 6: Terms & Next Steps</span>
+                <span>{t("midasPitch.ch6Terms")}</span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
@@ -1135,7 +1137,7 @@ export default function MidasCommercialProposal() {
                     className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-6 py-3.5 rounded-sm uppercase tracking-wider shadow-md flex items-center gap-2"
                   >
                     <BarChart3 className="w-4 h-4" />
-                    <span>Open Host Operations Center</span>
+                    <span>{t("midasPitch.openOps")}</span>
                   </Link>
                 </div>
               </div>
@@ -1149,14 +1151,14 @@ export default function MidasCommercialProposal() {
                 className="border-white/20 font-mono text-xs uppercase"
               >
                 <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                <span>Chapter 5</span>
+                <span>{t("midasPitch.ch5")}</span>
               </Button>
               <Button
                 onClick={() => setCurrentChapter(1)}
                 variant="outline"
                 className="border-white/20 font-mono text-xs uppercase"
               >
-                <span>Return to Chapter 1</span>
+                <span>{t("midasPitch.returnCh1")}</span>
               </Button>
             </div>
 
@@ -1177,7 +1179,7 @@ export default function MidasCommercialProposal() {
               to="/hosts/midas"
               className="bg-[#ffffff0a] hover:bg-[#ffffff15] text-stone-300 hover:text-white font-mono text-xs px-5 py-3 rounded-sm border border-[#ffffff15]"
             >
-              Host Operations Center
+              {t("midasPitch.opsCenter")}
             </Link>
             <button
               onClick={() => {
@@ -1186,7 +1188,7 @@ export default function MidasCommercialProposal() {
               }}
               className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-5 py-3 rounded-sm uppercase tracking-wider shadow-[4px_4px_0_#000]"
             >
-              Launch Guided Tour
+              {t("midasPitch.launchTour")}
             </button>
           </div>
         </div>

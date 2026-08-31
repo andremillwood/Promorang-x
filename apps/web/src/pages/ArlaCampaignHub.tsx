@@ -35,10 +35,12 @@ import {
 import { toast } from 'sonner';
 import { ArlaRecipePackModal } from '@/components/arla/ArlaRecipePackModal';
 import { getSiteUrl } from '@/lib/discovery';
+import { useI18n } from '@/i18n/I18nContext';
 
 type DialState = 'cook' | 'whip' | 'drink';
 
 export default function ArlaCampaignHub() {
+  const { t } = useI18n();
   // Dual-State Culinary Dial Slider position (0 = Cook/Hot, 50 = Drink/Punch, 100 = Whip/Cold)
   const [dialPos, setDialPos] = useState<number>(0);
   const [dialState, setDialState] = useState<DialState>('cook');
@@ -143,7 +145,7 @@ export default function ArlaCampaignHub() {
   const copyShareLink = () => {
     const url = `${window.location.origin}/campaigns/arla-whip-and-cook?utm_source=promorang&utm_medium=tasteoff_share&utm_campaign=arla_pricesmart`;
     navigator.clipboard.writeText(url);
-    toast.success('Share link copied to clipboard!');
+    toast.success(t("arlaHub.copied"));
   };
 
   const shareWhatsApp = () => {
@@ -169,7 +171,7 @@ export default function ArlaCampaignHub() {
         <div className="flex items-center gap-4 shrink-0 font-bold">
           <span className="bg-black text-[#ffcf38] px-2.5 py-0.5 text-[11px]">ROADSHOW SPECIAL: J$1,200</span>
           <Link to="/proposals/arla-pro" className="hover:underline text-[10px]">
-            FOR BUSINESS / BRAND PROPOSAL →
+            {t("arlaHub.forBusiness")} →
           </Link>
         </div>
       </div>
@@ -213,9 +215,9 @@ export default function ArlaCampaignHub() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-black/60 pb-4 font-mono">
               <div>
                 <span className="text-[#ff5a1f] font-black uppercase text-xs tracking-widest block">
-                  [ INTERACTIVE CULINARY SIMULATOR ]
+                  [ {t("arlaHub.simKicker")} ]
                 </span>
-                <span className="text-white text-sm font-bold">Drag the Temperature Slider to test what happens in your pan vs bowl:</span>
+                <span className="text-white text-sm font-bold">{t("arlaHub.simHint")}</span>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <span className={`px-3 py-1 font-mono font-black text-xs uppercase border ${
@@ -225,7 +227,7 @@ export default function ArlaCampaignHub() {
                     ? 'bg-emerald-500 text-black border-black shadow-[2px_2px_0_#ffcf38]'
                     : 'bg-purple-500 text-black border-black shadow-[2px_2px_0_#ffcf38]'
                 }`}>
-                  {dialState === 'cook' ? '🔥 100°C HOT PAN (COOK)' : dialState === 'whip' ? '❄️ 4°C COLD WHISK (WHIP)' : '🥤 20°C BLEND (PUNCH)'}
+                  {dialState === 'cook' ? `🔥 ${t("arlaHub.modeCook")}` : dialState === 'whip' ? `❄️ ${t("arlaHub.modeWhip")}` : `🥤 ${t("arlaHub.modeDrink")}`}
                 </span>
               </div>
             </div>
@@ -234,13 +236,13 @@ export default function ArlaCampaignHub() {
             <div className="space-y-2 font-mono">
               <div className="flex justify-between text-xs font-bold text-[#898071]">
                 <button onClick={() => handleDialChange(0)} className="hover:text-white cursor-pointer">
-                  ◀ 01. HOT COOKING (0° - 100°C)
+                  ◀ {t("arlaHub.slideHot")}
                 </button>
                 <button onClick={() => handleDialChange(50)} className="hover:text-white cursor-pointer">
-                  02. DRINK BLEND
+                  {t("arlaHub.slideDrink")}
                 </button>
                 <button onClick={() => handleDialChange(100)} className="hover:text-white cursor-pointer">
-                  03. COLD WHIPPING (4°C) ▶
+                  {t("arlaHub.slideCold")} ▶
                 </button>
               </div>
 
@@ -273,7 +275,7 @@ export default function ArlaCampaignHub() {
                       ? 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&q=80&w=800'
                       : 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&q=80&w=800'
                   }
-                  alt="Application View"
+                  alt={t("arlaHub.appViewAlt")}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute top-2 left-2 bg-black text-[#ffcf38] font-mono font-black text-[10px] uppercase px-2.5 py-1 border border-white/20">
@@ -303,19 +305,19 @@ export default function ArlaCampaignHub() {
                 {/* 3 Metric Gauges */}
                 <div className="grid grid-cols-3 gap-2 text-center pt-2">
                   <div className="p-2.5 bg-black/70 border border-white/10">
-                    <span className="text-[9px] text-white/40 block">HEAT TOLERANCE</span>
+                    <span className="text-[9px] text-white/40 block">{t("arlaHub.heatTol")}</span>
                     <strong className={`text-xs ${dialState === 'cook' ? 'text-orange-400' : 'text-white'}`}>
                       {dialState === 'cook' ? '100°C (Boil Safe)' : 'Up to 100°C'}
                     </strong>
                   </div>
                   <div className="p-2.5 bg-black/70 border border-white/10">
-                    <span className="text-[9px] text-white/40 block">VOLUME YIELD</span>
+                    <span className="text-[9px] text-white/40 block">{t("arlaHub.volYield")}</span>
                     <strong className={`text-xs ${dialState === 'whip' ? 'text-emerald-400' : 'text-white'}`}>
                       {dialState === 'whip' ? '3.5× (350%)' : '1.0× Dense'}
                     </strong>
                   </div>
                   <div className="p-2.5 bg-black/70 border border-white/10">
-                    <span className="text-[9px] text-white/40 block">CURDLE RISK</span>
+                    <span className="text-[9px] text-white/40 block">{t("arlaHub.curdleRisk")}</span>
                     <strong className="text-xs text-[#25D366]">0% (Zero Curdling)</strong>
                   </div>
                 </div>
@@ -325,13 +327,13 @@ export default function ArlaCampaignHub() {
                     onClick={() => document.getElementById('ballot-section')?.scrollIntoView({ behavior: 'smooth' })}
                     className="px-5 py-2.5 bg-[#ff5a1f] text-black font-black uppercase text-xs tracking-wider border border-black shadow-[3px_3px_0_#ffcf38] hover:translate-x-[1px] hover:translate-y-[1px] transition cursor-pointer"
                   >
-                    VOTE FOR THIS DISH IN TASTE-OFF ↓
+                    {t("arlaHub.voteDish")} ↓
                   </button>
                   <button
                     onClick={() => setRecipeModalOpen(true)}
                     className="px-4 py-2.5 bg-white/10 text-white font-bold uppercase text-xs border border-white/20 hover:bg-white/20 transition cursor-pointer"
                   >
-                    GET RECIPE →
+                    {t("arlaHub.getRecipe")} →
                   </button>
                 </div>
               </div>
@@ -350,19 +352,19 @@ export default function ArlaCampaignHub() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-black pb-6">
             <div>
               <p className="font-mono text-xs font-black uppercase tracking-[0.2em] text-[#ff5a1f]">
-                OFFICIAL ROADSHOW CITIZEN BALLOT
+                {t("arlaHub.ballotKicker")}
               </p>
               <h2 className="font-serif text-4xl sm:text-6xl font-black text-white mt-1">
                 Which dish won your vote at PriceSmart?
               </h2>
               <p className="text-xs text-[#d0c5b9] font-mono mt-1">
-                Tap your winner to physically stamp your roadshow ballot and lock in your vote.
+                {t("arlaHub.tapWinner")}
               </p>
             </div>
 
             <div className="font-mono bg-black border-2 border-black p-4 text-right shrink-0 shadow-[4px_4px_0_#ff5a1f]">
               <span className="text-3xl font-black text-[#ffcf38]">{totalBallots}</span>
-              <p className="text-[10px] font-bold text-white/50 uppercase">Stamped Ballots Cast</p>
+              <p className="text-[10px] font-bold text-white/50 uppercase">{t("arlaHub.ballotsCast")}</p>
             </div>
           </div>
 
@@ -373,7 +375,7 @@ export default function ArlaCampaignHub() {
             {ballotVote && (
               <div className="absolute top-8 right-8 z-20 pointer-events-none transform rotate-[-12deg] animate-in zoom-in-50 duration-300">
                 <div className="border-4 border-dashed border-red-700 text-red-700 font-mono font-black text-xl sm:text-2xl px-6 py-2 uppercase tracking-widest bg-red-100/90 shadow-lg">
-                  ★ VERIFIED TASTE VOTE STAMPED ★
+                  ★ {t("arlaHub.verifiedStamp")} ★
                   <span className="block text-[10px] text-center">{ticketSerial}</span>
                 </div>
               </div>
@@ -398,8 +400,8 @@ export default function ArlaCampaignHub() {
               >
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-[10px] font-black">
-                    <span className="bg-black text-white px-2 py-0.5">CONTENDER 01</span>
-                    <span>SAVOURY / DINNER</span>
+                    <span className="bg-black text-white px-2 py-0.5">{t("arlaHub.contender", { n: "01" })}</span>
+                    <span>{t("arlaHub.catSavoury")}</span>
                   </div>
 
                   <div className="border-2 border-black aspect-video overflow-hidden bg-black">
@@ -420,8 +422,8 @@ export default function ArlaCampaignHub() {
                   {ballotVote && (
                     <div className="space-y-1 text-xs font-bold">
                       <div className="flex justify-between">
-                        <span>{pastaShare}% FAVOURITE</span>
-                        <span>{pastaCount} VOTES</span>
+                        <span>{t("arlaHub.pctFav", { percent: pastaShare })}</span>
+                        <span>{t("arlaHub.voteCount", { count: pastaCount })}</span>
                       </div>
                       <div className="h-3 w-full bg-black/20 border border-black overflow-hidden">
                         <div className="h-full bg-black transition-all duration-500" style={{ width: `${pastaShare}%` }} />
@@ -437,7 +439,7 @@ export default function ArlaCampaignHub() {
                         : 'bg-black text-white hover:bg-[#ff5a1f] hover:text-black'
                     }`}
                   >
-                    {ballotVote === 'pasta' ? '✓ STAMPED AS YOUR WINNER' : 'STAMP BALLOT FOR RASTA PASTA'}
+                    {ballotVote === 'pasta' ? `✓ ${t("arlaHub.stampedWinner")}` : 'STAMP BALLOT FOR RASTA PASTA'}
                   </button>
                 </div>
               </div>
@@ -453,8 +455,8 @@ export default function ArlaCampaignHub() {
               >
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-[10px] font-black">
-                    <span className="bg-black text-white px-2 py-0.5">CONTENDER 02</span>
-                    <span>SWEET / DESSERT</span>
+                    <span className="bg-black text-white px-2 py-0.5">{t("arlaHub.contender", { n: "02" })}</span>
+                    <span>{t("arlaHub.catSweet")}</span>
                   </div>
 
                   <div className="border-2 border-black aspect-video overflow-hidden bg-black">
@@ -475,8 +477,8 @@ export default function ArlaCampaignHub() {
                   {ballotVote && (
                     <div className="space-y-1 text-xs font-bold">
                       <div className="flex justify-between">
-                        <span>{mousseShare}% FAVOURITE</span>
-                        <span>{mousseCount} VOTES</span>
+                        <span>{t("arlaHub.pctFav", { percent: mousseShare })}</span>
+                        <span>{t("arlaHub.voteCount", { count: mousseCount })}</span>
                       </div>
                       <div className="h-3 w-full bg-black/20 border border-black overflow-hidden">
                         <div className="h-full bg-black transition-all duration-500" style={{ width: `${mousseShare}%` }} />
@@ -492,7 +494,7 @@ export default function ArlaCampaignHub() {
                         : 'bg-black text-white hover:bg-[#ffcf38] hover:text-black'
                     }`}
                   >
-                    {ballotVote === 'mousse' ? '✓ STAMPED AS YOUR WINNER' : 'STAMP BALLOT FOR CHOCOLATE MOUSSE'}
+                    {ballotVote === 'mousse' ? `✓ ${t("arlaHub.stampedWinner")}` : 'STAMP BALLOT FOR CHOCOLATE MOUSSE'}
                   </button>
                 </div>
               </div>
@@ -502,7 +504,7 @@ export default function ArlaCampaignHub() {
             {/* Ballot Footer Sharing Bar */}
             <div className="border-t-2 border-black pt-4 flex flex-wrap items-center justify-between gap-4 text-xs">
               <div>
-                <span className="font-black text-black block">PASSPORT CITIZEN ACTION:</span>
+                <span className="font-black text-black block">{t("arlaHub.citizenAction")}</span>
                 <p className="text-[#554e45]">Invite family or foodie friends to sample and vote before 8:00 PM.</p>
               </div>
 
@@ -511,13 +513,13 @@ export default function ArlaCampaignHub() {
                   onClick={shareWhatsApp}
                   className="px-4 py-2 bg-[#25D366] text-black font-black uppercase text-xs border border-black shadow-[2px_2px_0_#000] cursor-pointer"
                 >
-                  SHARE TO WHATSAPP
+                  {t("arlaHub.shareWa")}
                 </button>
                 <button
                   onClick={copyShareLink}
                   className="px-4 py-2 bg-black text-white font-black uppercase text-xs border border-black hover:bg-neutral-800 cursor-pointer"
                 >
-                  COPY BALLOT LINK
+                  {t("arlaHub.copyLink")}
                 </button>
               </div>
             </div>
@@ -533,10 +535,10 @@ export default function ArlaCampaignHub() {
           
           <div className="text-center space-y-2">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-[#ffcf38]">
-              HOUSEHOLD BUDGET IMPACT
+              {t("arlaHub.calcKicker")}
             </p>
             <h2 className="font-serif text-4xl sm:text-5xl font-black text-white font-sans">
-              Interactive Grocery Basket Calculator
+              {t("arlaHub.calcTitle")}
             </h2>
             <p className="text-xs text-white/60">
               See what switching to Arla Pro at PriceSmart this week saves your household budget:
@@ -548,9 +550,9 @@ export default function ArlaCampaignHub() {
             {/* Quantity Slider */}
             <div className="space-y-3">
               <div className="flex justify-between items-center text-xs font-bold">
-                <span className="text-[#ff5a1f]">CARTONS TO BUY THIS WEEK:</span>
+                <span className="text-[#ff5a1f]">{t("arlaHub.cartonsLabel")}</span>
                 <span className="text-2xl font-black text-white bg-black px-4 py-1 border border-white/20">
-                  {cartonQty} CARTON{cartonQty > 1 ? 'S' : ''} (1L EACH)
+                  {cartonQty > 1 ? t("arlaHub.cartonMany", { count: cartonQty }) : t("arlaHub.cartonOne", { count: cartonQty })}
                 </span>
               </div>
 
@@ -577,19 +579,19 @@ export default function ArlaCampaignHub() {
             {/* Calculated Yield Metrics */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center border-t border-b border-white/10 py-6">
               <div className="p-3 bg-black/60 border border-white/10">
-                <span className="text-[9px] text-white/40 block">FAMILY DINNERS</span>
-                <strong className="text-xl font-black text-white font-sans">{mealsCooked} Pots</strong>
+                <span className="text-[9px] text-white/40 block">{t("arlaHub.dinners")}</span>
+                <strong className="text-xl font-black text-white font-sans">{t("arlaHub.pots", { count: mealsCooked })}</strong>
                 <span className="text-[10px] text-white/50 block mt-0.5">Pasta / Chicken</span>
               </div>
 
               <div className="p-3 bg-black/60 border border-white/10">
-                <span className="text-[9px] text-white/40 block">DESSERT BOWLS</span>
-                <strong className="text-xl font-black text-white font-sans">{dessertBowls} Bowls</strong>
+                <span className="text-[9px] text-white/40 block">{t("arlaHub.bowls")}</span>
+                <strong className="text-xl font-black text-white font-sans">{t("arlaHub.bowlsCount", { count: dessertBowls })}</strong>
                 <span className="text-[10px] text-white/50 block mt-0.5">Mousse / Cheesecake</span>
               </div>
 
               <div className="p-3 bg-black/60 border border-white/10">
-                <span className="text-[9px] text-white/40 block">REGULAR STORE COST</span>
+                <span className="text-[9px] text-white/40 block">{t("arlaHub.regularCost")}</span>
                 <strong className="text-xl font-black text-red-400 font-sans line-through">J${regTotal.toLocaleString()}</strong>
                 <span className="text-[10px] text-white/50 block mt-0.5">Separate Creams</span>
               </div>
@@ -605,7 +607,7 @@ export default function ArlaCampaignHub() {
             <div className="p-5 bg-black border-2 border-[#25D366] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest block">
-                  YOUR IMMEDIATE GROCERY SAVINGS
+                  {t("arlaHub.savings")}
                 </span>
                 <p className="text-3xl font-black text-white font-serif font-sans mt-0.5">
                   Save J${savingsTotal.toLocaleString()} In Your Pocket (56%)
@@ -646,7 +648,7 @@ export default function ArlaCampaignHub() {
               onClick={() => setRecipeModalOpen(true)}
               className="px-6 py-3.5 bg-[#ff5a1f] text-black font-black uppercase text-xs tracking-wider border border-black shadow-[4px_4px_0_#ffcf38] cursor-pointer"
             >
-              OPEN FULL RECIPE PACK (FREE) →
+              {t("arlaHub.openPack")} →
             </button>
           </div>
 
@@ -666,8 +668,8 @@ export default function ArlaCampaignHub() {
               >
                 <div className="space-y-2 border-b-2 border-dashed border-black/30 pb-3">
                   <div className="flex justify-between text-[10px] font-black">
-                    <span className="bg-black text-white px-1.5 py-0.5">RECIPE 0{recipe.id + 1}</span>
-                    <span className="text-[#ff5a1f] font-bold">{recipe.tag}</span>
+                    <span className="bg-black text-white px-1.5 py-0.5">{t("arlaHub.recipeN", { n: recipe.id + 1 })}</span>
+                    <span className="text-[#ff5a1f] font-bold">{recipe.tag === 'DINNER' ? t("arlaHub.tagDinner") : recipe.tag === 'DESSERT' ? t("arlaHub.tagDessert") : recipe.tag === 'NO-BAKE' ? t("arlaHub.tagNoBake") : t("arlaHub.tagBeverage")}</span>
                   </div>
                   <h4 className="font-serif text-lg font-bold font-sans">{recipe.title}</h4>
                 </div>
@@ -700,28 +702,28 @@ export default function ArlaCampaignHub() {
               to="/moments/00000000-0000-0000-0002-000000000060"
               className="px-6 py-3 bg-white text-black font-black uppercase text-xs tracking-wider border border-black hover:bg-[#ffcf38] transition"
             >
-              VIEW EVENT ON PROMORANG →
+              {t("arlaHub.viewEvent")} →
             </Link>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="p-4 bg-black border border-white/20 space-y-1">
-              <span className="text-[10px] text-[#ff5a1f] font-bold">STATION 01</span>
+              <span className="text-[10px] text-[#ff5a1f] font-bold">{t("arlaHub.station", { n: "01" })}</span>
               <h4 className="text-sm font-bold text-white font-serif font-sans">Hot Rasta Pasta</h4>
               <p className="text-[11px] text-white/60">Try fresh from the chef skillet (+40 Pts).</p>
             </div>
             <div className="p-4 bg-black border border-white/20 space-y-1">
-              <span className="text-[10px] text-[#ffcf38] font-bold">STATION 02</span>
+              <span className="text-[10px] text-[#ffcf38] font-bold">{t("arlaHub.station", { n: "02" })}</span>
               <h4 className="text-sm font-bold text-white font-serif font-sans">Whipped Mousse</h4>
               <p className="text-[11px] text-white/60">Sample the fluffy cold dessert (+40 Pts).</p>
             </div>
             <div className="p-4 bg-black border border-white/20 space-y-1">
-              <span className="text-[10px] text-[#25D366] font-bold">STATION 03</span>
+              <span className="text-[10px] text-[#25D366] font-bold">{t("arlaHub.station", { n: "03" })}</span>
               <h4 className="text-sm font-bold text-white font-serif font-sans">Stamp Passport</h4>
               <p className="text-[11px] text-white/60">Vote online to unlock 5 recipes (+50 Pts).</p>
             </div>
             <div className="p-4 bg-black border border-white/20 space-y-1">
-              <span className="text-[10px] text-[#ff5a1f] font-bold">STATION 04</span>
+              <span className="text-[10px] text-[#ff5a1f] font-bold">{t("arlaHub.station", { n: "04" })}</span>
               <h4 className="text-sm font-bold text-white font-serif font-sans">Get J$1,200 Cartons</h4>
               <p className="text-[11px] text-white/60">Promoters verify purchase on site (+60 Pts).</p>
             </div>
@@ -741,7 +743,7 @@ export default function ArlaCampaignHub() {
             to="/proposals/arla-pro"
             className="px-6 py-3 bg-[#ff5a1f] text-black font-black uppercase text-xs tracking-wider border border-black shadow-[4px_4px_0_#ffcf38]"
           >
-            ARLA COMMERCIAL PROPOSAL DECK →
+            {t("arlaHub.commercialDeck")} →
           </Link>
         </div>
       </footer>

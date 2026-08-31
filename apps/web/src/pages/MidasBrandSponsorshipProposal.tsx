@@ -32,8 +32,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { getSiteUrl } from '@/lib/discovery';
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function MidasBrandSponsorshipProposal() {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<'problem' | 'packages' | 'calculator' | 'analytics'>('problem');
   const [selectedBudget, setSelectedBudget] = useState<number>(500000); // J$500,000 default
 
@@ -44,7 +46,7 @@ export default function MidasBrandSponsorshipProposal() {
   const calculatedCostPerEngagement = Math.round(selectedBudget / (calculatedRedemptions + calculatedUGCVideos));
 
   const handleBookingInquiry = () => {
-    toast.success("🎯 Sponsorship Inquiry Logged! Our brand activation team and Midas will coordinate your campaign within 4 hours.", {
+    toast.success(t("midasBrand.inquiryToast"), {
       duration: 5000
     });
   };
@@ -71,7 +73,7 @@ export default function MidasBrandSponsorshipProposal() {
           <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center gap-2 text-white font-black tracking-widest text-sm hover:opacity-90">
               <span className="w-2.5 h-2.5 rounded-full bg-[#ff5a1f] shadow-[0_0_0_4px_#ff5a1f33]" />
-              <span className="font-serif text-base tracking-normal">PROMORANG <em className="text-[#ff5a1f] not-italic font-sans font-bold text-xs tracking-wider uppercase ml-1">FOR BRANDS</em></span>
+              <span className="font-serif text-base tracking-normal">PROMORANG <em className="text-[#ff5a1f] not-italic font-sans font-bold text-xs tracking-wider uppercase ml-1">{t("midasBrand.forBrands")}</em></span>
             </Link>
             <span className="text-white/25 text-sm">/</span>
             <span className="text-stone-400 text-xs font-mono font-bold uppercase tracking-wider">
@@ -84,7 +86,7 @@ export default function MidasBrandSponsorshipProposal() {
               to="/campaigns/midas"
               className="hidden sm:inline-flex items-center gap-1 text-xs font-mono text-stone-300 hover:text-white px-3 py-1.5 border border-white/15 rounded-sm"
             >
-              <span>See Public Festival Hub</span>
+              <span>{t("midasBrand.seePublic")}</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </Link>
             <Button
@@ -92,7 +94,7 @@ export default function MidasBrandSponsorshipProposal() {
               className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-4 py-2.5 rounded-sm uppercase tracking-wider shadow-[3px_3px_0_#000]"
             >
               <HeartHandshake className="w-3.5 h-3.5 mr-1.5" />
-              <span>Lock Sponsor Package</span>
+              <span>{t("midasBrand.lockPkg")}</span>
             </Button>
           </div>
         </div>
@@ -126,22 +128,22 @@ export default function MidasBrandSponsorshipProposal() {
           {/* Quick Metrics Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 font-mono text-xs">
             <div className="p-4 bg-[#141210] border border-white/15 rounded-sm space-y-1">
-              <span className="text-[10px] text-stone-400 uppercase block">Expected Audience</span>
+              <span className="text-[10px] text-stone-400 uppercase block">{t("midasBrand.expectedAud")}</span>
               <strong className="text-2xl font-serif font-bold text-white block">3,500+</strong>
               <span className="text-[10px] text-[#ffcf38]">High-Income Partygoers</span>
             </div>
             <div className="p-4 bg-[#141210] border border-white/15 rounded-sm space-y-1">
-              <span className="text-[10px] text-stone-400 uppercase block">Guaranteed UGC Stories</span>
+              <span className="text-[10px] text-stone-400 uppercase block">{t("midasBrand.ugcStories")}</span>
               <strong className="text-2xl font-serif font-bold text-[#ff5a1f] block">150+</strong>
               <span className="text-[10px] text-orange-300">IG Reels / TikTok / WhatsApp</span>
             </div>
             <div className="p-4 bg-[#141210] border border-white/15 rounded-sm space-y-1">
-              <span className="text-[10px] text-stone-400 uppercase block">Sponsor Foot Traffic</span>
+              <span className="text-[10px] text-stone-400 uppercase block">{t("midasBrand.footTraffic")}</span>
               <strong className="text-2xl font-serif font-bold text-[#10b981] block">100%</strong>
-              <span className="text-[10px] text-emerald-300">Verified QR Redemptions</span>
+              <span className="text-[10px] text-emerald-300">{t("midasBrand.qrRedeem")}</span>
             </div>
             <div className="p-4 bg-[#141210] border border-white/15 rounded-sm space-y-1">
-              <span className="text-[10px] text-stone-400 uppercase block">Post-Event Retention</span>
+              <span className="text-[10px] text-stone-400 uppercase block">{t("midasBrand.retention")}</span>
               <strong className="text-2xl font-serif font-bold text-[#a855f7] block">365 Days</strong>
               <span className="text-[10px] text-purple-300">Memory Vault Archive</span>
             </div>
@@ -155,10 +157,10 @@ export default function MidasBrandSponsorshipProposal() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex space-x-2 sm:space-x-4 overflow-x-auto py-3 text-xs font-mono uppercase tracking-wider scrollbar-none">
             {[
-              { id: 'problem', label: '1. The Traditional Sponsorship Flaw', icon: Target },
-              { id: 'packages', label: '2. Tech-Enabled Sponsor Packages', icon: Award },
-              { id: 'calculator', label: '3. Interactive ROI & Budget Simulator', icon: Calculator },
-              { id: 'analytics', label: '4. Live Brand Analytics Dashboard', icon: BarChart3 }
+              { id: 'problem', label: t("midasBrand.tabProblem"), icon: Target },
+              { id: 'packages', label: t("midasBrand.tabPackages"), icon: Award },
+              { id: 'calculator', label: t("midasBrand.tabCalc"), icon: Calculator },
+              { id: 'analytics', label: t("midasBrand.tabAnalytics"), icon: BarChart3 }
             ].map(tab => {
               const TabIcon = tab.icon;
               return (
@@ -225,12 +227,12 @@ export default function MidasBrandSponsorshipProposal() {
             </div>
 
             <div className="pt-2 flex items-center justify-between border-t border-white/10">
-              <span className="text-xs text-stone-400 font-mono">Explore tech-enabled activation tiers</span>
+              <span className="text-xs text-stone-400 font-mono">{t("midasBrand.exploreTiers")}</span>
               <Button
                 onClick={() => setActiveTab('packages')}
                 className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
               >
-                <span>View Sponsor Packages</span>
+                <span>{t("midasBrand.viewPkgs")}</span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
@@ -259,11 +261,11 @@ export default function MidasBrandSponsorshipProposal() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase">Tier 1 · Sampling</span>
-                    <Badge className="bg-white/10 text-white font-mono text-[10px]">Product Trial</Badge>
+                    <Badge className="bg-white/10 text-white font-mono text-[10px]">{t("midasBrand.productTrial")}</Badge>
                   </div>
                   <h3 className="font-serif text-2xl font-bold text-white">Bar Sampling Bounty</h3>
                   <div className="font-mono text-2xl font-black text-white">
-                    J$350,000 <span className="text-xs font-normal text-stone-400">/ weekend</span>
+                    J$350,000 <span className="text-xs font-normal text-stone-400">{t("midasBrand.perWeekend")}</span>
                   </div>
                   <p className="text-xs text-stone-300 leading-relaxed">
                     Ideal for ready-to-drink beverages, beer, and energy drinks looking to drive high-volume physical trials.
@@ -279,7 +281,7 @@ export default function MidasBrandSponsorshipProposal() {
                   onClick={() => { setSelectedBudget(350000); setActiveTab('calculator'); }}
                   className="w-full bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase py-3 rounded-sm border border-white/15"
                 >
-                  Simulate ROI ➔
+                  {t("midasBrand.simulateRoi")} ➔
                 </Button>
               </div>
 
@@ -288,11 +290,11 @@ export default function MidasBrandSponsorshipProposal() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase">Tier 2 · Viral Reach</span>
-                    <Badge className="bg-[#ff5a1f] text-white font-mono text-[10px]">MOST POPULAR</Badge>
+                    <Badge className="bg-[#ff5a1f] text-white font-mono text-[10px]">{t("midasBrand.mostPopular")}</Badge>
                   </div>
                   <h3 className="font-serif text-2xl font-bold text-white">Creator UGC & Viral Lounge</h3>
                   <div className="font-mono text-2xl font-black text-white">
-                    J$750,000 <span className="text-xs font-normal text-stone-400">/ weekend</span>
+                    J$750,000 <span className="text-xs font-normal text-stone-400">{t("midasBrand.perWeekend")}</span>
                   </div>
                   <p className="text-xs text-stone-300 leading-relaxed">
                     Combines dedicated bar activation with 50+ micro-creator bounties generating massive social buzz.
@@ -308,7 +310,7 @@ export default function MidasBrandSponsorshipProposal() {
                   onClick={() => { setSelectedBudget(750000); setActiveTab('calculator'); }}
                   className="w-full bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase py-3 rounded-sm shadow-md"
                 >
-                  Simulate ROI ➔
+                  {t("midasBrand.simulateRoi")} ➔
                 </Button>
               </div>
 
@@ -317,11 +319,11 @@ export default function MidasBrandSponsorshipProposal() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono font-bold text-purple-400 uppercase">Tier 3 · Premium Stage</span>
-                    <Badge className="bg-purple-500/20 text-purple-300 font-mono text-[10px]">EXCLUSIVE</Badge>
+                    <Badge className="bg-purple-500/20 text-purple-300 font-mono text-[10px]">{t("midasBrand.exclusive")}</Badge>
                   </div>
                   <h3 className="font-serif text-2xl font-bold text-white">Title Stage & VIP Deck</h3>
                   <div className="font-mono text-2xl font-black text-white">
-                    J$1,500,000 <span className="text-xs font-normal text-stone-400">/ weekend</span>
+                    J$1,500,000 <span className="text-xs font-normal text-stone-400">{t("midasBrand.perWeekend")}</span>
                   </div>
                   <p className="text-xs text-stone-300 leading-relaxed">
                     Full stage/deck naming rights, official digital Moment Pieces in the Memory Vault, and 100% owned lead capture.
@@ -337,7 +339,7 @@ export default function MidasBrandSponsorshipProposal() {
                   onClick={() => { setSelectedBudget(1500000); setActiveTab('calculator'); }}
                   className="w-full bg-purple-600 hover:bg-purple-500 text-white font-mono text-xs uppercase py-3 rounded-sm"
                 >
-                  Simulate ROI ➔
+                  {t("midasBrand.simulateRoi")} ➔
                 </Button>
               </div>
 
@@ -351,7 +353,7 @@ export default function MidasBrandSponsorshipProposal() {
                     PromoPush Omnichannel Distribution
                   </span>
                   <Badge className="bg-[#ff5a1f] text-white font-mono text-[10px]">
-                    MULTI-SURFACE REACH
+                    {t("midasBrand.multiSurface")}
                   </Badge>
                 </div>
                 <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
@@ -420,7 +422,7 @@ export default function MidasBrandSponsorshipProposal() {
                       Native In-Platform Commercial Real Estate
                     </span>
                     <Badge className="bg-[#ff5a1f] text-white font-mono text-[10px]">
-                      HOST-MOMENT INTEGRATION
+                      {t("midasBrand.hostMoment")}
                     </Badge>
                   </div>
                   <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
@@ -480,7 +482,7 @@ export default function MidasBrandSponsorshipProposal() {
               <div className="p-3.5 bg-black/40 border border-white/10 rounded-sm flex items-center justify-between text-xs font-mono text-stone-300">
                 <span className="text-[#ffcf38]">✓ Full collaboration between Host & Brand with zero conflicting software</span>
                 <Link to="/moments/sophisticated" className="text-white hover:underline flex items-center gap-1">
-                  <span>Preview Live Moment Hub</span>
+                  <span>{t("midasBrand.previewMoment")}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -509,7 +511,7 @@ export default function MidasBrandSponsorshipProposal() {
               <div className="lg:col-span-6 p-6 rounded-sm bg-[#141210] border-2 border-white/15 space-y-6">
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-mono font-bold text-stone-300 uppercase">Activation Budget:</span>
+                    <span className="text-xs font-mono font-bold text-stone-300 uppercase">{t("midasBrand.budget")}</span>
                     <strong className="font-mono text-2xl font-black text-[#ffcf38]">
                       J${selectedBudget.toLocaleString()}
                     </strong>
@@ -531,7 +533,7 @@ export default function MidasBrandSponsorshipProposal() {
                 </div>
 
                 <div className="space-y-3 pt-4 border-t border-white/10 text-xs text-stone-300">
-                  <strong className="text-white font-bold block">How Your Budget Is Allocated:</strong>
+                  <strong className="text-white font-bold block">{t("midasBrand.howAllocated")}</strong>
                   <div className="flex justify-between">
                     <span>• On-Site Product Trial & Bar Check-In Bounties:</span>
                     <strong className="font-mono text-white">60%</strong>
@@ -547,7 +549,7 @@ export default function MidasBrandSponsorshipProposal() {
                   className="w-full bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs py-3.5 rounded-sm uppercase tracking-wider shadow-md flex items-center justify-center gap-2"
                 >
                   <HeartHandshake className="w-4 h-4" />
-                  <span>Reserve This Package for August 29–30</span>
+                  <span>{t("midasBrand.reservePkg")}</span>
                 </Button>
               </div>
 
@@ -555,16 +557,16 @@ export default function MidasBrandSponsorshipProposal() {
               <div className="lg:col-span-6 p-6 rounded-sm bg-[#161210] border-2 border-[#10b981] space-y-6 shadow-[8px_8px_0_#10b98122]">
                 <div className="flex items-center justify-between border-b border-emerald-500/30 pb-3">
                   <span className="text-xs font-mono font-bold text-emerald-400 uppercase">
-                    Guaranteed Performance Deliverables
+                    {t("midasBrand.deliverables")}
                   </span>
                   <Badge className="bg-emerald-500/20 text-emerald-300 font-mono text-[10px]">
-                    100% Trackable
+                    {t("midasBrand.trackable")}
                   </Badge>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 font-mono text-xs">
                   <div className="p-3.5 bg-black/50 border border-white/10 rounded-sm space-y-1">
-                    <span className="text-[10px] text-stone-400 uppercase block">Verified Drink Check-Ins</span>
+                    <span className="text-[10px] text-stone-400 uppercase block">{t("midasBrand.drinkCheckins")}</span>
                     <strong className="text-2xl font-serif font-black text-white block">
                       {calculatedRedemptions.toLocaleString()}+
                     </strong>
@@ -572,7 +574,7 @@ export default function MidasBrandSponsorshipProposal() {
                   </div>
 
                   <div className="p-3.5 bg-black/50 border border-white/10 rounded-sm space-y-1">
-                    <span className="text-[10px] text-stone-400 uppercase block">Creator Video Stories</span>
+                    <span className="text-[10px] text-stone-400 uppercase block">{t("midasBrand.creatorStories")}</span>
                     <strong className="text-2xl font-serif font-black text-[#ffcf38] block">
                       {calculatedUGCVideos.toLocaleString()}+
                     </strong>
@@ -580,7 +582,7 @@ export default function MidasBrandSponsorshipProposal() {
                   </div>
 
                   <div className="p-3.5 bg-black/50 border border-white/10 rounded-sm space-y-1">
-                    <span className="text-[10px] text-stone-400 uppercase block">Estimated Social Reach</span>
+                    <span className="text-[10px] text-stone-400 uppercase block">{t("midasBrand.socialReach")}</span>
                     <strong className="text-2xl font-serif font-black text-[#ff5a1f] block">
                       {calculatedReach.toLocaleString()}
                     </strong>
@@ -588,7 +590,7 @@ export default function MidasBrandSponsorshipProposal() {
                   </div>
 
                   <div className="p-3.5 bg-black/50 border border-white/10 rounded-sm space-y-1">
-                    <span className="text-[10px] text-stone-400 uppercase block">Cost Per Engagement</span>
+                    <span className="text-[10px] text-stone-400 uppercase block">{t("midasBrand.cpe")}</span>
                     <strong className="text-2xl font-serif font-black text-purple-400 block">
                       J${calculatedCostPerEngagement}
                     </strong>
@@ -598,7 +600,7 @@ export default function MidasBrandSponsorshipProposal() {
 
                 <div className="p-3 bg-black/40 border border-emerald-500/20 rounded-sm text-[11px] text-stone-300 font-mono flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Unspent bounties are 100% refunded or credited if target redemptions aren't met.</span>
+                  <span>{t("midasBrand.refundNote")}</span>
                 </div>
               </div>
 
@@ -625,17 +627,17 @@ export default function MidasBrandSponsorshipProposal() {
             <div className="rounded-sm border-2 border-white/15 bg-[#141210] p-6 space-y-6">
               <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
                 <div className="space-y-0.5">
-                  <span className="text-[10px] font-mono text-[#ffcf38] uppercase font-bold">Brand Intelligence Console</span>
+                  <span className="text-[10px] font-mono text-[#ffcf38] uppercase font-bold">{t("midasBrand.console")}</span>
                   <h4 className="font-serif text-xl font-bold text-white">Live Campaign: Midas Summer Finale 2026</h4>
                 </div>
                 <Badge className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono text-xs">
-                  ● LIVE BROADCAST READY
+                  ● {t("midasBrand.liveReady")}
                 </Badge>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
                 <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-1">
-                  <span className="text-stone-400 text-[10px] uppercase">Bar Redemptions Today</span>
+                  <span className="text-stone-400 text-[10px] uppercase">{t("midasBrand.barToday")}</span>
                   <strong className="text-2xl font-serif text-white block">312 / 400</strong>
                   <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
                     <div className="bg-[#ff5a1f] h-full w-[78%]" />
@@ -643,13 +645,13 @@ export default function MidasBrandSponsorshipProposal() {
                 </div>
 
                 <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-1">
-                  <span className="text-stone-400 text-[10px] uppercase">Creator Videos Approved</span>
+                  <span className="text-stone-400 text-[10px] uppercase">{t("midasBrand.videosOk")}</span>
                   <strong className="text-2xl font-serif text-[#ffcf38] block">64 Posts</strong>
                   <span className="text-stone-400 text-[10px]">Avg 1.8k views per video</span>
                 </div>
 
                 <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-1">
-                  <span className="text-stone-400 text-[10px] uppercase">Top Performing Creator</span>
+                  <span className="text-stone-400 text-[10px] uppercase">{t("midasBrand.topCreator")}</span>
                   <strong className="text-sm font-bold text-white block">@ShaniceVibes (8.4k views)</strong>
                   <span className="text-emerald-400 text-[10px]">High engagement score</span>
                 </div>
@@ -661,7 +663,7 @@ export default function MidasBrandSponsorshipProposal() {
                   onClick={handleBookingInquiry}
                   className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-2.5 rounded-sm"
                 >
-                  Contact Activation Lead
+                  {t("midasBrand.contactLead")}
                 </Button>
               </div>
             </div>
@@ -682,19 +684,19 @@ export default function MidasBrandSponsorshipProposal() {
               to="/proposals/midas"
               className="text-xs font-mono text-stone-400 hover:text-white px-3 py-2 border border-white/15 rounded-sm"
             >
-              Host Proposal
+              {t("midasBrand.hostProposal")}
             </Link>
             <Link
               to="/campaigns/midas"
               className="text-xs font-mono text-stone-400 hover:text-white px-3 py-2 border border-white/15 rounded-sm"
             >
-              Public Festival Hub
+              {t("midasBrand.publicHub")}
             </Link>
             <Button
               onClick={handleBookingInquiry}
               className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-5 py-2.5 rounded-sm uppercase tracking-wider shadow-md"
             >
-              Lock Sponsor Package
+              {t("midasBrand.lockPkg")}
             </Button>
           </div>
         </div>

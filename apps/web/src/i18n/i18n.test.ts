@@ -185,6 +185,16 @@ describe("localization", () => {
       "leadFunnel.saveReport",
       "midasHost.hostPortal",
       "midasHost.exportList",
+      "arlaHub.copied",
+      "arlaHub.getRecipe",
+      "arlaPitch.seeLive",
+      "arlaPitch.openHub",
+      "midasWeek.claimPass",
+      "midasWeek.sendCrew",
+      "midasPitch.launchFlow",
+      "midasPitch.launchTour",
+      "midasBrand.lockPkg",
+      "midasBrand.inquiryToast",
     ] as const;
 
     supportedLocales.forEach((locale) => {

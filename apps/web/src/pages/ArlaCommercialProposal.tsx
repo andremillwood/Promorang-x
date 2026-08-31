@@ -28,8 +28,10 @@ import {
   Share2
 } from 'lucide-react';
 import { getSiteUrl } from '@/lib/discovery';
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function ArlaCommercialProposal() {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<'problem' | 'solution' | 'mechanics' | 'roi'>('problem');
 
   return (
@@ -48,7 +50,7 @@ export default function ArlaCommercialProposal() {
         </div>
         <div className="flex items-center gap-4 shrink-0 font-bold">
           <Link to="/campaigns/arla-whip-and-cook" className="bg-black text-white px-3 py-0.5 hover:bg-[#11100e] transition text-[10px]">
-            SEE LIVE CONSUMER HUB →
+            {t("arlaPitch.seeLive")} →
           </Link>
         </div>
       </div>
@@ -70,7 +72,7 @@ export default function ArlaCommercialProposal() {
               to="/campaigns/arla-whip-and-cook"
               className="inline-flex items-center gap-2 font-mono text-xs font-black uppercase text-[#ffcf38] hover:text-white transition"
             >
-              <span>VIEW WHAT SHOPPERS SEE LIVE</span>
+              <span>{t("arlaPitch.viewShoppers")}</span>
               <ExternalLink className="h-3.5 w-3.5" />
             </Link>
           </div>
@@ -92,25 +94,25 @@ export default function ArlaCommercialProposal() {
           {/* Strategic Spine Matrix */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t-2 border-black font-mono text-xs">
             <div className="bg-black/60 border border-white/20 p-4 space-y-1">
-              <span className="text-[#898071] text-[10px] uppercase font-bold block">Target Product</span>
+              <span className="text-[#898071] text-[10px] uppercase font-bold block">{t("arlaPitch.targetProduct")}</span>
               <strong className="text-white text-sm block">Arla Whip & Cook 28%</strong>
               <span className="text-[#d0c5b9] text-[11px]">1L Dual-Use Dairy Cream</span>
             </div>
 
             <div className="bg-black/60 border border-white/20 p-4 space-y-1">
-              <span className="text-[#898071] text-[10px] uppercase font-bold block">Physical Activation</span>
+              <span className="text-[#898071] text-[10px] uppercase font-bold block">{t("arlaPitch.physical")}</span>
               <strong className="text-white text-sm block">PriceSmart Jamaica</strong>
               <span className="text-[#d0c5b9] text-[11px]">111 Red Hills Road, KGN 19</span>
             </div>
 
             <div className="bg-black/60 border border-white/20 p-4 space-y-1">
-              <span className="text-[#898071] text-[10px] uppercase font-bold block">Roadshow Price Hook</span>
+              <span className="text-[#898071] text-[10px] uppercase font-bold block">{t("arlaPitch.priceHook")}</span>
               <strong className="text-[#25D366] text-sm block">Approx. J$1,200</strong>
               <span className="text-[#d0c5b9] text-[11px]">Regular advice ~J$2,700</span>
             </div>
 
             <div className="bg-black/60 border border-white/20 p-4 space-y-1">
-              <span className="text-[#898071] text-[10px] uppercase font-bold block">Promorang's Role</span>
+              <span className="text-[#898071] text-[10px] uppercase font-bold block">{t("arlaPitch.role")}</span>
               <strong className="text-[#ff5a1f] text-sm block">Demand Engine</strong>
               <span className="text-[#d0c5b9] text-[11px]">Trial → Data → Repeat Sales</span>
             </div>
@@ -123,10 +125,10 @@ export default function ArlaCommercialProposal() {
       <section className="px-4 sm:px-8 py-8 bg-[#181512] border-b-2 border-black sticky top-0 z-30 font-mono">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-2">
           {[
-            { id: 'problem', label: '01 / THE PROBLEM WITH SAMPLING' },
-            { id: 'solution', label: '02 / HOW PROMORANG FIXES IT' },
-            { id: 'mechanics', label: '03 / WHAT WE IMPLEMENTED NOW' },
-            { id: 'roi', label: '04 / COMMERCIAL OUTCOMES FOR ARLA' }
+            { id: 'problem', label: t("arlaPitch.tabProblem") },
+            { id: 'solution', label: t("arlaPitch.tabSolution") },
+            { id: 'mechanics', label: t("arlaPitch.tabMechanics") },
+            { id: 'roi', label: t("arlaPitch.tabRoi") }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -310,8 +312,8 @@ export default function ArlaCommercialProposal() {
             <div className="bg-[#181512] border-2 border-white/20 p-6 sm:p-8 space-y-6 shadow-[10px_10px_0_#000]">
               
               <div className="flex justify-between items-center border-b border-white/20 pb-3 font-bold text-white text-xs">
-                <span>DELIVERABLE</span>
-                <span>COMMERCIAL VALUE</span>
+                <span>{t("arlaPitch.deliverable")}</span>
+                <span>{t("arlaPitch.value")}</span>
               </div>
 
               <div className="space-y-4 text-xs">
@@ -371,7 +373,7 @@ export default function ArlaCommercialProposal() {
             to="/campaigns/arla-whip-and-cook"
             className="px-6 py-3 bg-[#ff5a1f] text-black font-black uppercase text-xs tracking-wider border border-black shadow-[4px_4px_0_#ffcf38]"
           >
-            OPEN LIVE CONSUMER CAMPAIGN HUB →
+            {t("arlaPitch.openHub")} →
           </Link>
         </div>
       </footer>
