@@ -183,6 +183,8 @@ describe("localization", () => {
       "piecesAdmin.createPool",
       "leadFunnel.getResult",
       "leadFunnel.saveReport",
+      "midasHost.hostPortal",
+      "midasHost.exportList",
     ] as const;
 
     supportedLocales.forEach((locale) => {
