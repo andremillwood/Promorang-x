@@ -80,6 +80,7 @@ const EMAIL_TRANSLATIONS = {
       payoutLabel: 'Estimated Reward',
       deadlineLabel: 'Submission Deadline',
       ctaText: 'View Drop Details',
+      rewardUponCompletion: "Potential reward upon completion",
       footerNote: 'Make sure your submission follows all campaign guidelines to ensure swift verification and payout.'
     },
     dropCompleted: {
@@ -90,6 +91,10 @@ const EMAIL_TRANSLATIONS = {
       intro: 'Congratulations! Your submission for <strong>{{dropTitle}}</strong> has been verified and your reward is now available.',
       earnedLabel: 'Reward Credited',
       ctaText: 'View Wallet & Earnings',
+      completedLabel: "Completed",
+      statusLabel: "Status",
+      statusValue: "Verified & paid",
+      creditedSublabel: "Credited to your account",
       footerNote: 'Your earnings are ready in your wallet balance.'
     },
     kycApproved: {
@@ -99,6 +104,11 @@ const EMAIL_TRANSLATIONS = {
       greeting: 'Hi {{name}},',
       intro: 'Your identity verification (KYC) has been successfully approved! All account features, high-tier drops, and payouts are now fully unlocked.',
       ctaText: 'Go to Wallet',
+      levelLabel: "Verification level",
+      dailyDeposit: "Daily deposit limit",
+      dailyWithdrawal: "Daily withdrawal limit",
+      maxTrade: "Max single trade",
+      continueCopy: "You can now continue with trading, withdrawals, and higher account limits.",
       footerNote: 'Thank you for helping keep Promorang a verified and secure platform for everyone.'
     },
     ticketPurchase: {
@@ -108,6 +118,10 @@ const EMAIL_TRANSLATIONS = {
       greeting: 'Hi {{name}},',
       intro: 'Your ticket for <strong>{{momentTitle}}</strong> is confirmed. Show your digital pass at the entrance.',
       ctaText: 'View Your Ticket Pass',
+      dateLabel: "Date",
+      locationLabel: "Location",
+      codeLabel: "Your activation code (show at entry)",
+      tierLabel: "Tier",
       footerNote: 'Save your ticket to your phone for quick check-in at the venue.'
     },
     eventReminder: {
@@ -117,8 +131,35 @@ const EMAIL_TRANSLATIONS = {
       greeting: 'Hi {{name}},',
       intro: 'Just a reminder that <strong>{{momentTitle}}</strong> is happening soon. Get ready for an unforgettable experience!',
       ctaText: 'View Moment Details',
+      bringCode: "Make sure to bring your activation code for entry!",
       footerNote: 'Check the location, dress code, and arrival instructions in your ticket pass.'
-    }
+    },
+    securityAlert: {
+      subject: 'New login to your Promorang account',
+      title: 'Security Alert',
+      preheader: 'We noticed a new login to your account.',
+      greeting: 'Hi {{name}},',
+      intro: 'We noticed a new sign-in to your Promorang account:',
+      deviceLabel: 'Device',
+      locationLabel: 'Location',
+      timeLabel: 'Time',
+      unknownDevice: 'Unknown device',
+      unknownLocation: 'Unknown location',
+      ifYou: 'If this was you, no action is needed.',
+      ifNot: "If you don't recognize this activity, please secure your account immediately.",
+      ctaText: 'Review Account Security'
+    },
+    dropRejected: {
+      subject: 'Application update: {{dropTitle}}',
+      title: 'Application Update',
+      greeting: 'Hi {{name}},',
+      intro: 'Unfortunately, your application for "<strong>{{dropTitle}}</strong>" was not approved this time.',
+      feedbackLabel: 'Feedback',
+      moreCopy: "Don't worry — there are plenty more opportunities. Check out other available Drops and try again.",
+      ctaText: 'Browse More Drops',
+      footerNote: 'Each rejection is a step closer to your next approval!'
+    },
+
   },
   'es-419': {
     welcome: {
@@ -163,6 +204,7 @@ const EMAIL_TRANSLATIONS = {
       payoutLabel: 'Recompensa Estimada',
       deadlineLabel: 'Fecha límite de entrega',
       ctaText: 'Ver Detalles del Drop',
+      rewardUponCompletion: "Recompensa potencial al completar",
       footerNote: 'Asegúrate de seguir todas las pautas de la campaña para garantizar una verificación rápida y tu pago.'
     },
     dropCompleted: {
@@ -173,6 +215,10 @@ const EMAIL_TRANSLATIONS = {
       intro: '¡Felicitaciones! Tu entrega para <strong>{{dropTitle}}</strong> ha sido verificada y tu recompensa ya está disponible.',
       earnedLabel: 'Recompensa Acreditada',
       ctaText: 'Ver Billetera y Ganancias',
+      completedLabel: "Completado",
+      statusLabel: "Estado",
+      statusValue: "Verificado y pagado",
+      creditedSublabel: "Acreditado en tu cuenta",
       footerNote: 'Tus ganancias están listas en el saldo de tu billetera.'
     },
     kycApproved: {
@@ -182,6 +228,11 @@ const EMAIL_TRANSLATIONS = {
       greeting: 'Hola {{name}},',
       intro: '¡Tu verificación de identidad (KYC) fue aprobada con éxito! Todas las funciones, drops premium y retiros ya están disponibles.',
       ctaText: 'Ir a mi Billetera',
+      levelLabel: "Nivel de verificación",
+      dailyDeposit: "Límite diario de depósito",
+      dailyWithdrawal: "Límite diario de retiro",
+      maxTrade: "Operación máxima",
+      continueCopy: "Ya puedes operar, retirar y usar límites más altos.",
       footerNote: 'Gracias por ayudarnos a mantener Promorang como una comunidad segura y confiable para todos.'
     },
     ticketPurchase: {
@@ -191,6 +242,10 @@ const EMAIL_TRANSLATIONS = {
       greeting: 'Hola {{name}},',
       intro: 'Tu entrada para <strong>{{momentTitle}}</strong> está confirmada. Muestra tu pase digital en la entrada.',
       ctaText: 'Ver Pase de Entrada',
+      dateLabel: "Fecha",
+      locationLabel: "Ubicación",
+      codeLabel: "Tu código de activación (muéstralo en la entrada)",
+      tierLabel: "Nivel",
       footerNote: 'Guarda tu entrada en tu teléfono para un acceso ágil al llegar al recinto.'
     },
     eventReminder: {
@@ -200,8 +255,35 @@ const EMAIL_TRANSLATIONS = {
       greeting: 'Hola {{name}},',
       intro: 'Te recordamos que <strong>{{momentTitle}}</strong> ocurrirá pronto. ¡Prepárate para una gran experiencia!',
       ctaText: 'Ver Detalles del Momento',
+      bringCode: "¡Lleva tu código de activación para entrar!",
       footerNote: 'Revisa la ubicación y las instrucciones de llegada en tu pase digital.'
-    }
+    },
+    securityAlert: {
+      subject: 'Nuevo inicio de sesión en tu cuenta Promorang',
+      title: 'Alerta de Seguridad',
+      preheader: 'Notamos un nuevo inicio de sesión en tu cuenta.',
+      greeting: 'Hola {{name}},',
+      intro: 'Notamos un nuevo acceso a tu cuenta de Promorang:',
+      deviceLabel: 'Dispositivo',
+      locationLabel: 'Ubicación',
+      timeLabel: 'Hora',
+      unknownDevice: 'Dispositivo desconocido',
+      unknownLocation: 'Ubicación desconocida',
+      ifYou: 'Si fuiste tú, no necesitas hacer nada.',
+      ifNot: 'Si no reconoces esta actividad, asegura tu cuenta de inmediato.',
+      ctaText: 'Revisar Seguridad de la Cuenta'
+    },
+    dropRejected: {
+      subject: 'Actualización de solicitud: {{dropTitle}}',
+      title: 'Actualización de Solicitud',
+      greeting: 'Hola {{name}},',
+      intro: 'Esta vez tu solicitud para "<strong>{{dropTitle}}</strong>" no fue aprobada.',
+      feedbackLabel: 'Comentarios',
+      moreCopy: 'No te preocupes — hay muchas más oportunidades. Revisa otros Drops disponibles e inténtalo de nuevo.',
+      ctaText: 'Ver más Drops',
+      footerNote: 'Cada rechazo te acerca a tu próxima aprobación.'
+    },
+
   },
   'pt-BR': {
     welcome: {
@@ -246,6 +328,7 @@ const EMAIL_TRANSLATIONS = {
       payoutLabel: 'Recompensa Estimada',
       deadlineLabel: 'Prazo de envio',
       ctaText: 'Ver Detalhes do Drop',
+      rewardUponCompletion: "Recompensa potencial ao concluir",
       footerNote: 'Siga todas as diretrizes da campanha para garantir uma verificação ágil e a liberação do seu pagamento.'
     },
     dropCompleted: {
@@ -256,6 +339,10 @@ const EMAIL_TRANSLATIONS = {
       intro: 'Parabéns! Sua entrega para <strong>{{dropTitle}}</strong> foi verificada e sua recompensa já está disponível.',
       earnedLabel: 'Recompensa Creditada',
       ctaText: 'Ver Carteira e Ganhos',
+      completedLabel: "Concluído",
+      statusLabel: "Status",
+      statusValue: "Verificado e pago",
+      creditedSublabel: "Creditado na sua conta",
       footerNote: 'Seus rendimentos já estão disponíveis no saldo da sua carteira.'
     },
     kycApproved: {
@@ -265,6 +352,11 @@ const EMAIL_TRANSLATIONS = {
       greeting: 'Olá {{name}},',
       intro: 'Sua verificação de identidade (KYC) foi aprovada com sucesso! Todos os recursos, drops premium e saques estão liberados.',
       ctaText: 'Ir para a Carteira',
+      levelLabel: "Nível de verificação",
+      dailyDeposit: "Limite diário de depósito",
+      dailyWithdrawal: "Limite diário de saque",
+      maxTrade: "Operação máxima",
+      continueCopy: "Agora você pode operar, sacar e usar limites mais altos.",
       footerNote: 'Obrigado por contribuir para manter o Promorang uma plataforma confiável e segura para todos.'
     },
     ticketPurchase: {
@@ -274,6 +366,10 @@ const EMAIL_TRANSLATIONS = {
       greeting: 'Olá {{name}},',
       intro: 'Seu ingresso para <strong>{{momentTitle}}</strong> está confirmado. Apresente seu passe digital na entrada do local.',
       ctaText: 'Ver Passe do Ingresso',
+      dateLabel: "Data",
+      locationLabel: "Local",
+      codeLabel: "Seu código de ativação (mostre na entrada)",
+      tierLabel: "Nível",
       footerNote: 'Salve seu ingresso no celular para agilizar o check-in na entrada.'
     },
     eventReminder: {
@@ -283,8 +379,35 @@ const EMAIL_TRANSLATIONS = {
       greeting: 'Olá {{name}},',
       intro: 'Passando para lembrar que <strong>{{momentTitle}}</strong> vai acontecer em breve. Prepare-se para uma experiência marcante!',
       ctaText: 'Ver Detalhes do Momento',
+      bringCode: "Leve seu código de ativação para entrar!",
       footerNote: 'Consulte o endereço e as instruções de chegada no seu passe digital.'
-    }
+    },
+    securityAlert: {
+      subject: 'Novo login na sua conta Promorang',
+      title: 'Alerta de Segurança',
+      preheader: 'Notamos um novo login na sua conta.',
+      greeting: 'Olá {{name}},',
+      intro: 'Notamos um novo acesso à sua conta Promorang:',
+      deviceLabel: 'Dispositivo',
+      locationLabel: 'Local',
+      timeLabel: 'Horário',
+      unknownDevice: 'Dispositivo desconhecido',
+      unknownLocation: 'Local desconhecido',
+      ifYou: 'Se foi você, nenhuma ação é necessária.',
+      ifNot: 'Se você não reconhece esta atividade, proteja sua conta imediatamente.',
+      ctaText: 'Revisar Segurança da Conta'
+    },
+    dropRejected: {
+      subject: 'Atualização da inscrição: {{dropTitle}}',
+      title: 'Atualização da Inscrição',
+      greeting: 'Olá {{name}},',
+      intro: 'Desta vez sua inscrição para "<strong>{{dropTitle}}</strong>" não foi aprovada.',
+      feedbackLabel: 'Feedback',
+      moreCopy: 'Não se preocupe — há muitas outras oportunidades. Veja outros Drops disponíveis e tente de novo.',
+      ctaText: 'Ver mais Drops',
+      footerNote: 'Cada recusa te aproxima da próxima aprovação.'
+    },
+
   }
 };
 

@@ -272,20 +272,26 @@ const AuthPage = () => {
           {commercialIntent && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t("auth.saved")}</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in or create an account to continue {selectedPlan ? `with the ${selectedPlan} plan` : selectedSku ? `with Moment package ${selectedSku}` : "with your selected Promorang route"}. You will not need to start over.</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {selectedPlan
+                  ? t("auth.continuePlan", { plan: selectedPlan })
+                  : selectedSku
+                    ? t("auth.continueSku", { sku: selectedSku })
+                    : t("auth.continueRoute")}
+              </p>
             </div>
           )}
 
           {/* Role Selection (Signup only) */}
           {mode === "signup" && !showRolePicker && (
             <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-[#171512]/10 bg-white/55 px-4 py-3">
-              <div><p className="text-sm font-black">Personal membership</p><p className="text-xs text-[#756b5f]">PromoCard, Moments and member benefits</p></div>
-              <button type="button" onClick={() => setShowRolePicker(true)} className="min-h-11 shrink-0 text-xs font-black text-primary">Business?</button>
+              <div><p className="text-sm font-black">{t("auth.personalMembership")}</p><p className="text-xs text-[#756b5f]">{t("auth.personalMembershipCopy")}</p></div>
+              <button type="button" onClick={() => setShowRolePicker(true)} className="min-h-11 shrink-0 text-xs font-black text-primary">{t("auth.businessQ")}</button>
             </div>
           )}
           {mode === "signup" && showRolePicker && (
             <div className="mb-6">
-              <div className="mb-3 flex items-center justify-between"><Label className="text-sm font-medium">{t("auth.chooseRole")}</Label><button type="button" onClick={() => { setSelectedRole("participant"); setShowRolePicker(false); }} className="min-h-11 text-xs font-black text-primary">Use personal</button></div>
+              <div className="mb-3 flex items-center justify-between"><Label className="text-sm font-medium">{t("auth.chooseRole")}</Label><button type="button" onClick={() => { setSelectedRole("participant"); setShowRolePicker(false); }} className="min-h-11 text-xs font-black text-primary">{t("auth.usePersonal")}</button></div>
               <div className="grid grid-cols-2 gap-3">
                 {(Object.entries(roleInfo) as [UserRole, typeof roleInfo[UserRole]][]).map(
                   ([role, info]) => (
@@ -335,7 +341,7 @@ const AuthPage = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder={t("auth.emailPlaceholder")}
                 className={errors.email ? "border-destructive" : ""}
               />
               {errors.email && (
@@ -414,7 +420,7 @@ const AuthPage = () => {
           {/* Demo Accounts */}
           <div className="mt-8 pt-6 border-t border-[#171512]/10">
             <button type="button" onClick={() => setShowDemoAccess(value => !value)} className="flex min-h-11 w-full items-center justify-between text-left text-sm font-black">
-              <span>Preview a business workspace</span><span className="text-primary">{showDemoAccess ? "Hide" : "Open"}</span>
+              <span>{t("auth.previewWorkspace")}</span><span className="text-primary">{showDemoAccess ? t("auth.hide") : t("auth.open")}</span>
             </button>
             {showDemoAccess && <div className="pt-4">
             <div className="mb-4 text-center">
@@ -432,7 +438,7 @@ const AuthPage = () => {
                   type="email"
                   value={demoEmail}
                   onChange={(event) => setDemoEmail(event.target.value)}
-                  placeholder="you@example.com"
+                  placeholder={t("auth.emailPlaceholder")}
                   className="pl-10"
                 />
               </div>
@@ -450,7 +456,7 @@ const AuthPage = () => {
               >
                 <Users className="w-5 h-5 text-primary" />
                 <span className="font-medium">{t("auth.participant")}</span>
-                <span className="text-xs text-muted-foreground">Join moments</span>
+                <span className="text-xs text-muted-foreground">{t("auth.demoJoinMoments")}</span>
               </Button>
               <Button
                 variant="outline"
@@ -461,7 +467,7 @@ const AuthPage = () => {
               >
                 <PlayCircle className="w-5 h-5 text-primary" />
                 <span className="font-medium">{t("auth.creator")}</span>
-                <span className="text-xs text-muted-foreground">Publish missions</span>
+                <span className="text-xs text-muted-foreground">{t("auth.demoPublishMissions")}</span>
               </Button>
               <Button
                 variant="outline"
@@ -472,7 +478,7 @@ const AuthPage = () => {
               >
                 <Sparkles className="w-5 h-5 text-primary" />
                 <span className="font-medium">{t("auth.host")}</span>
-                <span className="text-xs text-muted-foreground">Create moments</span>
+                <span className="text-xs text-muted-foreground">{t("auth.demoCreateMoments")}</span>
               </Button>
               <Button
                 variant="outline"
@@ -483,7 +489,7 @@ const AuthPage = () => {
               >
                 <Building2 className="w-5 h-5 text-primary" />
                 <span className="font-medium">{t("auth.brand")}</span>
-                <span className="text-xs text-muted-foreground">Run campaigns</span>
+                <span className="text-xs text-muted-foreground">{t("auth.demoRunCampaigns")}</span>
               </Button>
               <Button
                 variant="outline"
@@ -494,7 +500,7 @@ const AuthPage = () => {
               >
                 <Briefcase className="w-5 h-5 text-primary" />
                 <span className="font-medium">{t("auth.agency")}</span>
-                <span className="text-xs text-muted-foreground">Manage clients</span>
+                <span className="text-xs text-muted-foreground">{t("auth.demoManageClients")}</span>
               </Button>
               <Button
                 variant="outline"
@@ -505,11 +511,11 @@ const AuthPage = () => {
               >
                 <Store className="w-5 h-5 text-primary" />
                 <span className="font-medium">{t("auth.merchant")}</span>
-                <span className="text-xs text-muted-foreground">Manage venues</span>
+                <span className="text-xs text-muted-foreground">{t("auth.demoManageVenues")}</span>
               </Button>
             </div>
             <p className="mt-3 text-center text-xs text-muted-foreground">
-              Each demo opens a curated workspace with stable sample data so prospects see the product in a clean, repeatable state.
+              {t("auth.demoWorkspaceNote")}
             </p>
             </div>}
           </div>

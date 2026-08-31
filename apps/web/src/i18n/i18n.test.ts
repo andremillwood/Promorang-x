@@ -52,6 +52,16 @@ describe("localization", () => {
       "acquire.lockPick",
       "pwa.addToHomeScreen",
       "errors.appUpdated",
+      "auth.continuePlan",
+      "auth.personalMembership",
+      "auth.demoWorkspaceNote",
+      "settings.pushTitle",
+      "settings.rankExplorer",
+      "settings.guided",
+      "submit.trigger",
+      "submit.catFoodDining",
+      "stripe.complete",
+      "commerce.receiptReady",
     ] as const;
 
     supportedLocales.forEach((locale) => {
