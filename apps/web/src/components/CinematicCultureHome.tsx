@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { TiltCard3D } from "@/components/ui/TiltCard3D";
@@ -74,6 +74,8 @@ import { FirstNightMove } from "@/components/onboarding/FirstNightMove";
 import { useOpeningMove } from "@/hooks/useOpeningMove";
 import { BrandCaseStudies } from "@/components/brands/BrandCaseStudies";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTasteProfile } from "@/hooks/useTasteProfile";
+import { distributeMoments } from "@promorang/shared";
 
 type PublicMoment = Tables<"moments"> & { participant_count?: number | null };
 type PublicCommerceListing = Tables<"view_public_commerce_directory">;
@@ -316,6 +318,7 @@ function SampleOptIn({ onShow, noun, loading = false }: { onShow: () => void; no
 
 export default function CinematicCultureHome() {
   const { user } = useAuth();
+  const tasteProfile = useTasteProfile();
   const opening = useOpeningMove();
   const { t } = useI18n();
   const [showSamples, setShowSamples] = useState(false);
@@ -337,7 +340,7 @@ export default function CinematicCultureHome() {
           .eq("is_active", true)
           .eq("content_origin", "stakeholder_created")
           .order("starts_at", { ascending: true, nullsFirst: false })
-          .limit(4),
+          .limit(24),
         supabase
           .from("view_public_commerce_directory")
           .select("*")
@@ -372,11 +375,15 @@ export default function CinematicCultureHome() {
 
   const liveCommerceListings = (discoveryQuery.data?.commerce || []).filter((listing) => !isSampleCommerceListing(listing));
   const sampleCommerceListings = (discoveryQuery.data?.commerce || []).filter(isSampleCommerceListing);
-  const hasLiveMoments = Boolean(discoveryQuery.data?.moments?.length);
+  const rankedLiveMoments = useMemo(
+    () => distributeMoments(discoveryQuery.data?.moments || [], tasteProfile, { take: 4 }),
+    [discoveryQuery.data?.moments, tasteProfile],
+  );
+  const hasLiveMoments = rankedLiveMoments.length > 0;
   const hasLiveCommerce = liveCommerceListings.length > 0;
 
   const homepageMoments = hasLiveMoments
-    ? discoveryQuery.data.moments.map((moment, index) => ({
+    ? rankedLiveMoments.map((moment, index) => ({
         id: moment.id || `moment-${index}`,
         title: moment.title || "Promorang Moment",
         image: moment.image_url || trendingCards[index % trendingCards.length].image,
@@ -413,7 +420,7 @@ export default function CinematicCultureHome() {
     : [];
 
   const heroItems = [
-    ...(discoveryQuery.data?.moments || []).map((moment) => ({
+    ...rankedLiveMoments.map((moment) => ({
       id: `moment-${moment.id}`, kind: "Moment", title: moment.title || "Live Moment", image: moment.image_url,
       detail: moment.venue_name || moment.city || moment.location || "Location coming soon",
       value: moment.starts_at ? new Intl.DateTimeFormat("en", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/Jamaica" }).format(new Date(resolveMomentOccurrence(moment).startsAt)) : "Coming up",
