@@ -163,9 +163,9 @@ async function run() {
             let query = supabase
                 .from('moments')
                 .select('id, title, start_date, city, profiles(full_name)')
-                .gte('start_date', new Date().toISOString())
-                .lte('start_date', until)
-                .eq('status', 'active')
+                .gte('starts_at', new Date().toISOString())
+                .lte('starts_at', until)
+                .in('status', ['scheduled', 'joinable', 'active'])
                 .order('start_date')
                 .limit(5);
 

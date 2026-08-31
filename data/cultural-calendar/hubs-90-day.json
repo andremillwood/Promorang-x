@@ -1,0 +1,37 @@
+{
+  "as_of": "2026-08-31",
+  "horizon_ends": "2026-11-29",
+  "lead_days": 90,
+  "coverage": "live_and_pilot_hubs",
+  "deep_dive_this_week": ["trinidad", "accra", "panama-city"],
+  "hubs": [
+    "kingston",
+    "montego-bay",
+    "trinidad",
+    "barbados",
+    "bahamas",
+    "guyana",
+    "accra",
+    "dominican-republic",
+    "medellin",
+    "bogota",
+    "panama-city"
+  ],
+  "events": [
+    { "event_key": "tt-independence-day-2026-08-31", "hub_id": "trinidad", "starts_at": "2026-08-31T09:00:00-04:00", "note": "Independence Day is today" },
+    { "event_key": "tt-republic-day-2026-09-24", "hub_id": "trinidad", "starts_at": "2026-09-24T09:00:00-04:00" },
+    { "event_key": "tt-divali-2026-11-08", "hub_id": "trinidad", "starts_at": "2026-11-08T18:00:00-04:00", "note": "OTP announces the official Divali date 1–2 weeks prior. This row is a commonly cited 2026 date, not an OTP decree." },
+    { "event_key": "bb-independence-day-2026-11-30", "hub_id": "barbados", "starts_at": "2026-11-30T09:00:00-04:00", "note": "Queued until inside 90 days (1 day past the 29 Nov horizon)" },
+    { "event_key": "bs-national-heroes-day-2026-10-12", "hub_id": "bahamas", "starts_at": "2026-10-12T09:00:00-04:00" },
+    { "event_key": "gy-divali-2026-11-08", "hub_id": "guyana", "starts_at": "2026-11-08T18:00:00-04:00", "note": "Same caveat as Trinidad: official Divali date is announced close to the observance." },
+    { "event_key": "gh-founders-day-2026-09-21", "hub_id": "accra", "starts_at": "2026-09-21T09:00:00+00:00" },
+    { "event_key": "do-mercedes-2026-09-24", "hub_id": "dominican-republic", "starts_at": "2026-09-24T09:00:00-04:00" },
+    { "event_key": "do-constitution-day-2026-11-06", "hub_id": "dominican-republic", "starts_at": "2026-11-06T09:00:00-04:00" },
+    { "event_key": "co-dia-de-la-raza-2026-10-12", "hub_id": "bogota", "starts_at": "2026-10-12T09:00:00-05:00" },
+    { "event_key": "co-all-saints-medellin-2026-11-01", "hub_id": "medellin", "starts_at": "2026-11-01T09:00:00-05:00" },
+    { "event_key": "pa-separation-day-2026-11-03", "hub_id": "panama-city", "starts_at": "2026-11-03T09:00:00-05:00" },
+    { "event_key": "pa-colon-day-2026-11-05", "hub_id": "panama-city", "starts_at": "2026-11-05T09:00:00-05:00", "added": "2026-08-31" },
+    { "event_key": "pa-los-santos-2026-11-10", "hub_id": "panama-city", "starts_at": "2026-11-10T09:00:00-05:00", "added": "2026-08-31" },
+    { "event_key": "pa-independence-day-2026-11-28", "hub_id": "panama-city", "starts_at": "2026-11-28T09:00:00-05:00", "note": "Now inside the 90-day window" }
+  ]
+}

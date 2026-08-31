@@ -283,6 +283,20 @@ export function matchesCityHub(record: LocationLike, hub: CityOption): boolean {
   return matchesAnyToken(text, tokensFor(hub));
 }
 
+export function matchesWeeklyDropItem(
+  item: LocationLike & { hub_id?: string | null },
+  hub: CityOption,
+): boolean {
+  if (item.hub_id) {
+    if (isNationwideHub(hub)) {
+      const itemHub = resolveCityHub(item.hub_id);
+      return itemHub?.countryCode === "JM" || item.country_code?.toUpperCase() === "JM";
+    }
+    return item.hub_id === hub.id;
+  }
+  return matchesCityHub(item, hub);
+}
+
 export function firstCityHubForSlug(countrySlug?: string | null, citySlug?: string | null): CityOption | null {
   if (citySlug) {
     const byId = resolveCityHub(citySlug);

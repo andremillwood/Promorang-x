@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   getDefaultCityHub,
   matchesCityHub,
+  matchesWeeklyDropItem,
   resolveCityHub,
 } from "./city-hubs";
 
@@ -38,6 +39,16 @@ describe("city hub matching", () => {
   it("does not leak Kingston content into other countries", () => {
     expect(matchesCityHub({ location: "Devon House, Kingston" }, miami)).toBe(false);
     expect(matchesCityHub({ city: "Miami", country_code: "US" }, miami)).toBe(true);
+  });
+
+  it("keeps weekly drop items inside their own hub", () => {
+    const trinidad = resolveCityHub("trinidad")!;
+    const accra = resolveCityHub("accra")!;
+    expect(matchesWeeklyDropItem({ hub_id: "trinidad", city: "Port of Spain", country_code: "TT" }, trinidad)).toBe(true);
+    expect(matchesWeeklyDropItem({ hub_id: "trinidad", city: "Port of Spain", country_code: "TT" }, kingston)).toBe(false);
+    expect(matchesWeeklyDropItem({ hub_id: "accra", city: "Accra", country_code: "GH" }, accra)).toBe(true);
+    expect(matchesWeeklyDropItem({ hub_id: "kingston", city: "Kingston", country_code: "JM" }, allJamaica)).toBe(true);
+    expect(matchesWeeklyDropItem({ hub_id: "accra", city: "Accra", country_code: "GH" }, allJamaica)).toBe(false);
   });
 
   it("keeps untagged records in the live Kingston / All Jamaica hubs only", () => {
