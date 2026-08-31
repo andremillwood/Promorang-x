@@ -195,6 +195,10 @@ describe("localization", () => {
       "midasPitch.launchTour",
       "midasBrand.lockPkg",
       "midasBrand.inquiryToast",
+      "opsWeek.showGuide",
+      "opsWeek.rhythmTitle",
+      "opsWeek.partCta",
+      "opsWeek.advCta",
     ] as const;
 
     supportedLocales.forEach((locale) => {
