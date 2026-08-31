@@ -470,6 +470,12 @@ export default function CinematicCultureHome() {
 
   return (
     <main className="min-h-screen bg-black text-white">
+      {/*
+        Header reserves its own height on `/` (see the spacer next to the
+        fixed nav). Do not stack a guest NextMoveStrip / "Browse Discover"
+        banner above PromoCard — it becomes a second first-viewport and
+        used to sit under the nav.
+      */}
       {user ? <HomeFeedToggle /> : null}
       <PromoCardGateway />
       <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} />
