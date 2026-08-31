@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Trophy, ArrowRight, RefreshCw } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
+import type { TranslationKey } from '@/i18n/translations';
 
 interface SpinWheelModalProps {
   isOpen: boolean;
@@ -8,12 +10,12 @@ interface SpinWheelModalProps {
 }
 
 const REWARDS = [
-  { label: '50 Gems', amount: 50, type: 'Gems', color: '#F59E0B' },
-  { label: '2x Boost', amount: 2, type: 'Multiplier', color: '#EC4899' },
-  { label: '100 Gems', amount: 100, type: 'Gems', color: '#10B981' },
-  { label: '1 Free Piece', amount: 1, type: 'Piece', color: '#8B5CF6' },
-  { label: '25 Gems', amount: 25, type: 'Gems', color: '#3B82F6' },
-  { label: '3x Dividend', amount: 3, type: 'Boost', color: '#F43F5E' },
+  { labelKey: 'spin.gems' as const, amount: 50, type: 'Gems', color: '#F59E0B' },
+  { labelKey: 'spin.boost' as const, amount: 2, type: 'Multiplier', color: '#EC4899' },
+  { labelKey: 'spin.gems' as const, amount: 100, type: 'Gems', color: '#10B981' },
+  { labelKey: 'spin.piece' as const, amount: 1, type: 'Piece', color: '#8B5CF6' },
+  { labelKey: 'spin.gems' as const, amount: 25, type: 'Gems', color: '#3B82F6' },
+  { labelKey: 'spin.dividend' as const, amount: 3, type: 'Boost', color: '#F43F5E' },
 ];
 
 export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
@@ -21,9 +23,12 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
   onClose,
   onRewardClaimed,
 }) => {
+  const { t } = useI18n();
   const [spinning, setSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [wonReward, setWonReward] = useState<typeof REWARDS[0] | null>(null);
+  const rewardLabel = (reward: typeof REWARDS[0]) =>
+    t(reward.labelKey as TranslationKey, { count: reward.amount, reward: String(reward.amount) });
 
   if (!isOpen) return null;
 
@@ -47,7 +52,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
       const prize = REWARDS[prizeIndex];
       setWonReward(prize);
       if (onRewardClaimed) {
-        onRewardClaimed(prize.label, prize.amount);
+        onRewardClaimed(rewardLabel(prize), prize.amount);
       }
     }, 4500);
   };
@@ -70,11 +75,11 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
         {/* Header */}
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full text-xs font-semibold text-amber-400 mb-3">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>DAILY GAMIFIED UNLOCK</span>
+          <span>{t("spin.badge")}</span>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-1">Spin to Boost Rewards</h2>
+        <h2 className="text-2xl font-bold text-white mb-1">{t("spin.title")}</h2>
         <p className="text-xs text-zinc-400 mb-6">
-          Unlock instantaneous Piece bonuses, multipliers, or Gems!
+          {t("spin.copy")}
         </p>
 
         {/* Wheel Container */}
@@ -116,7 +121,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
                       alignmentBaseline="middle"
                       transform={`rotate(${startAngle + angle / 2}, 50, 50)`}
                     >
-                      {reward.label}
+                      {rewardLabel(reward)}
                     </text>
                   </g>
                 );
@@ -134,10 +139,10 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
         {wonReward ? (
           <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-500/30 rounded-2xl p-4 mb-4 animate-bounce-short">
             <p className="text-xs uppercase tracking-wider text-amber-400 font-semibold mb-1">
-              CONGRATULATIONS!
+              {t("spin.congrats")}
             </p>
             <p className="text-xl font-bold text-white">
-              You unlocked <span className="text-amber-400">{wonReward.label}</span>!
+              {t("spin.unlocked", { reward: rewardLabel(wonReward) })}
             </p>
           </div>
         ) : null}
@@ -151,17 +156,17 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
           {spinning ? (
             <>
               <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>Spinning Wheel...</span>
+              <span>{t("spin.spinning")}</span>
             </>
           ) : wonReward ? (
             <>
-              <span>Claim Prize</span>
+              <span>{t("spin.claim")}</span>
               <ArrowRight className="w-4 h-4" />
             </>
           ) : (
             <>
               <Sparkles className="w-4 h-4" />
-              <span>SPIN FOR FREE REWARDS</span>
+              <span>{t("spin.cta")}</span>
             </>
           )}
         </button>

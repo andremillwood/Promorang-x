@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { API_BASE_URL } from "@/lib/api";
+import { useI18n } from "@/i18n/I18nContext";
 
 const PRESET_RECEIPTS: Record<string, { receipt: ValueReceiptData; causation: CausationNode }> = {
   rec_tia_joyride_01: {
@@ -226,6 +227,7 @@ const PRESET_RECEIPTS: Record<string, { receipt: ValueReceiptData; causation: Ca
 };
 
 export default function PublicValueReceipt() {
+  const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const [receipt, setReceipt] = useState<ValueReceiptData | null>(null);
   const [causation, setCausation] = useState<CausationNode | null>(null);
@@ -333,7 +335,7 @@ export default function PublicValueReceipt() {
       <div className="flex min-h-screen items-center justify-center bg-[#070709] text-white">
         <div className="text-center">
           <ShieldCheck className="mx-auto h-10 w-10 animate-pulse text-primary" />
-          <p className="mt-4 font-mono text-sm text-white/50">Fetching verified proof receipt...</p>
+          <p className="mt-4 font-mono text-sm text-white/50">{t("proofVault.loading")}</p>
         </div>
       </div>
     );
@@ -346,15 +348,15 @@ export default function PublicValueReceipt() {
         <div className="container mx-auto flex h-16 items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2 text-white/80 hover:text-white">
             <ArrowLeft className="h-4 w-4" />
-            <span className="text-xs font-bold uppercase tracking-wider">Back to Promorang</span>
+            <span className="text-xs font-bold uppercase tracking-wider">{t("proofVault.back")}</span>
           </Link>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-emerald-400" />
-            <span className="font-mono text-xs font-bold tracking-widest text-white/80">PROMORANG PROOF VAULT</span>
+            <span className="font-mono text-xs font-bold tracking-widest text-white/80">{t("proofVault.vault")}</span>
           </div>
           <Link to="/explore">
             <Button size="sm" className="bg-primary text-xs font-black text-black hover:bg-primary/90">
-              Explore Moments
+              {t("proofVault.explore")}
             </Button>
           </Link>
         </div>
@@ -366,13 +368,13 @@ export default function PublicValueReceipt() {
           {/* Header Banner */}
           <div className="mb-10 text-center">
             <Badge className="border-emerald-500/30 bg-emerald-500/10 font-mono text-xs font-bold text-emerald-400">
-              <Lock className="mr-1.5 h-3.5 w-3.5" /> PUBLICLY VERIFIED VALUE RECEIPT
+              <Lock className="mr-1.5 h-3.5 w-3.5" /> {t("proofVault.badge")}
             </Badge>
             <h1 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl md:text-5xl">
-              Proof of Value Created.
+              {t("proofVault.title")}
             </h1>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/60">
-              This receipt certifies an authentic, verified contribution recorded on the Promorang attribution engine.
+              {t("proofVault.copy")}
             </p>
           </div>
 
@@ -395,34 +397,34 @@ export default function PublicValueReceipt() {
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div className="flex items-center gap-2">
                       <Layers className="h-4 w-4 text-primary" />
-                      <h2 className="text-sm font-black uppercase tracking-wider">Audit & Verification Log</h2>
+                      <h2 className="text-sm font-black uppercase tracking-wider">{t("proofVault.audit")}</h2>
                     </div>
-                    <span className="font-mono text-[10px] text-emerald-400">IMMUTABLE RECORD</span>
+                    <span className="font-mono text-[10px] text-emerald-400">{t("proofVault.immutable")}</span>
                   </div>
 
                   <div className="mt-4 space-y-3.5 text-xs">
                     <div className="flex justify-between border-b border-white/5 pb-2">
-                      <span className="text-white/50">Receipt Identifier</span>
+                      <span className="text-white/50">{t("proofVault.receiptId")}</span>
                       <span className="font-mono font-bold text-white">{receipt.receiptNumber || receipt.id}</span>
                     </div>
                     <div className="flex justify-between border-b border-white/5 pb-2">
-                      <span className="text-white/50">Contributor Handle</span>
+                      <span className="text-white/50">{t("proofVault.handle")}</span>
                       <span className="font-bold text-primary">{receipt.actorHandle}</span>
                     </div>
                     <div className="flex justify-between border-b border-white/5 pb-2">
-                      <span className="text-white/50">Target Destination</span>
+                      <span className="text-white/50">{t("proofVault.destination")}</span>
                       <span className="font-bold text-white">{receipt.targetEntity}</span>
                     </div>
                     <div className="flex justify-between border-b border-white/5 pb-2">
-                      <span className="text-white/50">Verification Timestamp</span>
+                      <span className="text-white/50">{t("proofVault.timestamp")}</span>
                       <span className="font-mono text-white/70">{receipt.timestamp}</span>
                     </div>
                     <div className="flex justify-between border-b border-white/5 pb-2">
-                      <span className="text-white/50">Attribution Protocol</span>
-                      <span className="font-mono text-emerald-400">{receipt.verificationMethod || "Promorang Proof-of-Action"}</span>
+                      <span className="text-white/50">{t("proofVault.protocol")}</span>
+                      <span className="font-mono text-emerald-400">{receipt.verificationMethod || t("proofVault.defaultProtocol")}</span>
                     </div>
                     <div className="flex justify-between pb-1">
-                      <span className="text-white/50">Cryptographic Hash</span>
+                      <span className="text-white/50">{t("proofVault.hash")}</span>
                       <span className="font-mono text-[10px] text-white/40">{receipt.proofHash}</span>
                     </div>
                   </div>
@@ -434,32 +436,32 @@ export default function PublicValueReceipt() {
                 <CardContent className="p-6">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-5 w-5 text-primary" />
-                    <h3 className="text-base font-black">How Promorang Value Receipts Work</h3>
+                    <h3 className="text-base font-black">{t("proofVault.howTitle")}</h3>
                   </div>
                   <p className="mt-2 text-xs leading-relaxed text-white/60">
-                    Unlike ordinary ad clicks or unverified likes, Promorang attaches the person who initiated the action directly to the verified physical or commercial outcome they created.
+                    {t("proofVault.howCopy")}
                   </p>
 
                   <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl border border-white/5 bg-black/40 p-3">
                       <div className="font-mono text-lg font-black text-white">100%</div>
-                      <div className="text-[9px] uppercase tracking-wider text-white/40">Direct Causation</div>
+                      <div className="text-[9px] uppercase tracking-wider text-white/40">{t("proofVault.causation")}</div>
                     </div>
                     <div className="rounded-xl border border-white/5 bg-black/40 p-3">
-                      <div className="font-mono text-lg font-black text-emerald-400">Instant</div>
-                      <div className="text-[9px] uppercase tracking-wider text-white/40">Value Payout</div>
+                      <div className="font-mono text-lg font-black text-emerald-400">{t("proofVault.instant")}</div>
+                      <div className="text-[9px] uppercase tracking-wider text-white/40">{t("proofVault.payout")}</div>
                     </div>
                     <div className="rounded-xl border border-white/5 bg-black/40 p-3">
-                      <div className="font-mono text-lg font-black text-primary">Permanent</div>
-                      <div className="text-[9px] uppercase tracking-wider text-white/40">Vault Proof</div>
+                      <div className="font-mono text-lg font-black text-primary">{t("proofVault.permanent")}</div>
+                      <div className="text-[9px] uppercase tracking-wider text-white/40">{t("proofVault.vaultProof")}</div>
                     </div>
                   </div>
 
                   <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
-                    <span className="text-xs text-white/70">Want to generate your own Value Receipts?</span>
+                    <span className="text-xs text-white/70">{t("proofVault.ctaAsk")}</span>
                     <Link to="/explore">
                       <Button size="sm" className="bg-primary text-xs font-bold text-black hover:bg-primary/90">
-                        Get Started <ChevronRight className="ml-1 h-3.5 w-3.5" />
+                        {t("proofVault.getStarted")} <ChevronRight className="ml-1 h-3.5 w-3.5" />
                       </Button>
                     </Link>
                   </div>

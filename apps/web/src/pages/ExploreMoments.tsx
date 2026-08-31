@@ -20,15 +20,15 @@ import { useI18n } from "@/i18n/I18nContext";
 type PublicMoment = Tables<"view_public_moment_directory">;
 
 const categories = [
-  { value: "all", label: "All categories", emoji: "✨" },
-  { value: "social", label: "Social", emoji: "🎉" },
-  { value: "workshop", label: "Workshop", emoji: "🎨" },
-  { value: "fitness", label: "Fitness", emoji: "🧘" },
-  { value: "food", label: "Food & drink", emoji: "🍽️" },
-  { value: "music", label: "Music", emoji: "🎵" },
-  { value: "networking", label: "Networking", emoji: "🤝" },
-  { value: "outdoor", label: "Outdoor", emoji: "🌳" },
-  { value: "arts", label: "Arts", emoji: "🎭" },
+  { value: "all", labelKey: "exploreMoments.catAll" as const, emoji: "✨" },
+  { value: "social", labelKey: "exploreMoments.catSocial" as const, emoji: "🎉" },
+  { value: "workshop", labelKey: "exploreMoments.catWorkshop" as const, emoji: "🎨" },
+  { value: "fitness", labelKey: "exploreMoments.catFitness" as const, emoji: "🧘" },
+  { value: "food", labelKey: "exploreMoments.catFood" as const, emoji: "🍽️" },
+  { value: "music", labelKey: "exploreMoments.catMusic" as const, emoji: "🎵" },
+  { value: "networking", labelKey: "exploreMoments.catNetworking" as const, emoji: "🤝" },
+  { value: "outdoor", labelKey: "exploreMoments.catOutdoor" as const, emoji: "🌳" },
+  { value: "arts", labelKey: "exploreMoments.catArts" as const, emoji: "🎭" },
 ];
 
 const exampleMoments = demoMoments.slice(0, 3).map((moment) => ({
@@ -213,7 +213,7 @@ const ExploreMoments = () => {
                     }`}
                   >
                     <span className="mr-1.5">{category.emoji}</span>
-                    {category.label}
+                    {t(category.labelKey)}
                   </button>
                 ))}
               </div>
@@ -391,7 +391,7 @@ const ExploreMoments = () => {
               <div className="mt-4 flex flex-wrap gap-2">
                 {categories.filter((category) => category.value !== "all").slice(0, 6).map((category) => (
                   <Button key={category.value} asChild variant="outline" size="sm" className="rounded-full">
-                    <Link to={`/categories/${slugifySegment(category.value)}`}>{category.label}</Link>
+                    <Link to={`/categories/${slugifySegment(category.value)}`}>{t(category.labelKey)}</Link>
                   </Button>
                 ))}
                 <Button asChild variant="outline" size="sm" className="rounded-full">

@@ -79,6 +79,16 @@ describe("localization", () => {
       "support.generalContact",
       "support.appeal",
       "wallet.withdrawCancelled",
+      "home.pillarsTitle",
+      "perkHub.seoTitle",
+      "perkHub.requestCta",
+      "spin.title",
+      "memory.title",
+      "cardDrop.badge",
+      "membership.order",
+      "hostUnlock.startHosting",
+      "offerDetail.claimWallet",
+      "proofVault.title",
     ] as const;
 
     supportedLocales.forEach((locale) => {

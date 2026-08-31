@@ -366,7 +366,7 @@ const Following = () => {
                                 ) : suggestedUsers.length > 0 ? (
                                     <div className="space-y-3">
                                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                            Suggested for you
+                                            {t("following.suggested")}
                                         </p>
                                         <div className="flex gap-4 overflow-x-auto pb-2">
                                             {suggestedUsers.map(person => (
@@ -400,7 +400,7 @@ const Following = () => {
                                                             {person.name.split(" ")[0]}
                                                         </Link>
                                                         <span className="text-[10px] text-muted-foreground">
-                                                            {person.followers_count} followers
+                                                            {t("home.followers", { count: person.followers_count })}
                                                         </span>
                                                     </div>
                                                     <FollowButton 
@@ -415,12 +415,12 @@ const Following = () => {
                                 ) : (
                                     <div className="text-center py-6">
                                         <p className="text-muted-foreground text-sm mb-3">
-                                            You're not following anyone yet
+                                            {t("following.notYet")}
                                         </p>
                                         <Button size="sm" variant="outline" asChild>
                                             <Link to="/creators">
                                                 <UserPlus className="h-4 w-4 mr-2" />
-                                                Find people to follow
+                                                {t("following.findCta")}
                                             </Link>
                                         </Button>
                                     </div>
@@ -482,7 +482,7 @@ const Following = () => {
                             <p className="text-muted-foreground mb-4 max-w-md mx-auto">
                                 {followingUsers.length === 0 
                                     ? t("following.emptyCopy")
-                                    : "People you follow haven't posted any upcoming moments matching this filter"
+                                    : t("following.noMatch")
                                 }
                             </p>
                             <Button asChild>

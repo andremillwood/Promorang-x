@@ -130,7 +130,7 @@ const ForMerchants = () => {
                                 className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black shadow-xl shadow-emerald-500/25 px-8 py-6 rounded-2xl text-base"
                             >
                                 <Plus className="w-5 h-5 mr-2" />
-                                <span>Post a Perk (Zero Risk)</span>
+                                <span>{t("forMerchants.postPerk")}</span>
                             </Button>
                             <Button variant="hero" size="xl" asChild>
                                 <Link to="/dashboard/venues/add">
@@ -139,7 +139,7 @@ const ForMerchants = () => {
                                 </Link>
                             </Button>
                             <Button variant="outline" className="text-white border-white/20 hover:bg-white/5" size="lg" asChild>
-                                <Link to="/discover?tab=perks">See Live Partner Perks</Link>
+                                <Link to="/discover?tab=perks">{t("forMerchants.seeLive")}</Link>
                             </Button>
                         </div>
 

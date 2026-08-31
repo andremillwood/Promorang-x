@@ -61,7 +61,7 @@ const ForYou = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 text-xs font-bold transition"
               >
                 <Compass className="w-3.5 h-3.5" />
-                <span>Vote &amp; Unlock Perks (+25 Pts)</span>
+                <span>{t("forYou.votePerks")}</span>
               </Link>
 
               <Link
@@ -69,7 +69,7 @@ const ForYou = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 text-xs font-bold transition"
               >
                 <Gift className="w-3.5 h-3.5" />
-                <span>Claim Perks</span>
+                <span>{t("forYou.claimPerks")}</span>
               </Link>
 
               <Link
@@ -77,7 +77,7 @@ const ForYou = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 text-xs font-bold transition"
               >
                 <Share2 className="w-3.5 h-3.5" />
-                <span>Things Worth Sharing (Earn Draw Tickets)</span>
+                <span>{t("forYou.shareEarn")}</span>
               </Link>
 
               <Link
@@ -85,7 +85,7 @@ const ForYou = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-700 bg-zinc-800/80 text-zinc-300 hover:text-white text-xs font-bold transition"
               >
                 <QrCode className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Staff QR Scanner</span>
+                <span>{t("forYou.staffScanner")}</span>
               </Link>
             </div>
           </div>
@@ -99,7 +99,7 @@ const ForYou = () => {
 
       <DiscoveriesFeedSection />
 
-      <section aria-label="Choose a feed lens" className="sticky top-[72px] z-20 border-b border-white/10 bg-black/88 py-3 backdrop-blur-2xl lg:top-0">
+      <section aria-label={t("forYou.chooseLens")} className="sticky top-[72px] z-20 border-b border-white/10 bg-black/88 py-3 backdrop-blur-2xl lg:top-0">
         <div className="grid gap-1.5 rounded-[1.35rem] border border-white/10 bg-white/[0.035] p-1.5 sm:grid-cols-2 xl:grid-cols-4">
           {lenses.map((lens) => {
             const isActive = activeIntent === lens.value;
@@ -122,7 +122,7 @@ const ForYou = () => {
         </div>
       </section>
 
-      <section className="relative pt-8 sm:pt-10" aria-label="Ranked feed">
+      <section className="relative pt-8 sm:pt-10" aria-label={t("forYou.rankedFeed")}>
         <FeedStream
           items={rankedItems}
           isLoading={feedQuery.isLoading && !rankedItems.length}

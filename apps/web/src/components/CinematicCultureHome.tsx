@@ -537,7 +537,7 @@ export default function CinematicCultureHome() {
                 className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
               >
                 <Store className="h-4 w-4 text-amber-400" />
-                <span>Host / Venue Pass</span>
+                <span>{t("home.hostPass")}</span>
               </Link>
               <Link
                 to="/for-brands"
@@ -545,7 +545,7 @@ export default function CinematicCultureHome() {
                 className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
               >
                 <Building2 className="h-4 w-4 text-cyan-400" />
-                <span>Brands &amp; Retail</span>
+                <span>{t("home.brandsRetail")}</span>
               </Link>
             </div>
 
@@ -554,17 +554,17 @@ export default function CinematicCultureHome() {
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-zinc-300">
                 <Flame className="w-3.5 h-3.5 text-orange-400" />
                 <span className="font-bold text-white">0 ➔ 230+</span>
-                <span className="text-zinc-400">Nightlife Footfall</span>
+                <span className="text-zinc-400">{t("home.nightlifeFootfall")}</span>
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-zinc-300">
                 <Camera className="w-3.5 h-3.5 text-pink-400" />
                 <span className="font-bold text-white">800+</span>
-                <span className="text-zinc-400">Expo UGC Signups</span>
+                <span className="text-zinc-400">{t("home.expoSignups")}</span>
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-zinc-300">
                 <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="text-zinc-400">Proven by</span>
-                <span className="font-bold text-white">Lifespan &amp; Sunshine Snacks</span>
+                <span className="text-zinc-400">{t("home.provenBy")}</span>
+                <span className="font-bold text-white">{t("home.provenNames")}</span>
               </div>
             </div>
           </motion.div>
@@ -660,10 +660,10 @@ export default function CinematicCultureHome() {
           <div className="my-8">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">The Ecosystem Architecture</p>
-                <h3 className="text-2xl font-black uppercase tracking-tight text-white sm:text-3xl">4 Pillars of Promorang</h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.pillarsEyebrow")}</p>
+                <h3 className="text-2xl font-black uppercase tracking-tight text-white sm:text-3xl">{t("home.pillarsTitle")}</h3>
               </div>
-              <span className="hidden sm:inline-block text-xs font-medium text-white/50">From Culture to Shared Wealth</span>
+              <span className="hidden sm:inline-block text-xs font-medium text-white/50">{t("home.pillarsAside")}</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -675,19 +675,19 @@ export default function CinematicCultureHome() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      1. Moments &amp; Passes
+                      {t("home.pillar1Badge")}
                     </span>
                     <Flame className="w-4 h-4 text-orange-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-orange-300 transition-colors leading-snug">
-                    Access Dope Nights &amp; Fill Venues
+                    {t("home.pillar1Title")}
                   </h4>
                   <p className="text-xs text-zinc-400 leading-relaxed">
-                    Exclusive guestlist passes, Kingston DJ nights, beach fetes, and dead-night venue revival from 0 to 230+ guests.
+                    {t("home.pillar1Copy")}
                   </p>
                 </div>
                 <div className="pt-2 text-xs font-black text-orange-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>Explore Moments</span>
+                  <span>{t("home.pillar1Cta")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
@@ -700,19 +700,19 @@ export default function CinematicCultureHome() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      2. PromoCard &amp; Margin
+                      {t("home.pillar2Badge")}
                     </span>
                     <Store className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-emerald-300 transition-colors leading-snug">
-                    Split-Tender Perks at Partner Spots
+                    {t("home.pillar2Title")}
                   </h4>
                   <p className="text-xs text-zinc-400 leading-relaxed">
-                    Restore promotional spending balance through verified actions and apply eligible value to food, drinks, and retail purchases.
+                    {t("home.pillar2Copy")}
                   </p>
                 </div>
                 <div className="pt-2 text-xs font-black text-emerald-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>View Member Perks</span>
+                  <span>{t("home.pillar2Cta")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
@@ -725,19 +725,19 @@ export default function CinematicCultureHome() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[10px] font-black uppercase tracking-wider">
-                      3. PromoShare &amp; Draws
+                      {t("home.pillar3Badge")}
                     </span>
                     <Share2 className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-purple-300 transition-colors leading-snug">
-                    WhatsApp Loops &amp; Cash Commissions
+                    {t("home.pillar3Title")}
                   </h4>
                   <p className="text-xs text-zinc-400 leading-relaxed">
-                    Share drops with 1 tap. Earn instant cash per RSVP and enter sponsor-funded jackpot cycle draws.
+                    {t("home.pillar3Copy")}
                   </p>
                 </div>
                 <div className="pt-2 text-xs font-black text-purple-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>Open PromoShare</span>
+                  <span>{t("home.pillar3Cta")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
@@ -750,19 +750,19 @@ export default function CinematicCultureHome() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      4. Pieces &amp; Equity
+                      {t("home.pillar4Badge")}
                     </span>
                     <Coins className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-cyan-300 transition-colors leading-snug">
-                    Own a Slice &amp; Collect Dividends
+                    {t("home.pillar4Title")}
                   </h4>
                   <p className="text-xs text-zinc-400 leading-relaxed">
-                    Hold fractional Pieces of recurring events, media drops, and cultural IP. Earn automated quarterly cash dividends.
+                    {t("home.pillar4Copy")}
                   </p>
                 </div>
                 <div className="pt-2 text-xs font-black text-cyan-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>View Pieces Portfolio</span>
+                  <span>{t("home.pillar4Cta")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
@@ -820,22 +820,22 @@ export default function CinematicCultureHome() {
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary mb-4">
                   <Store className="h-7 w-7" />
                 </div>
-                <h3 className="text-2xl font-black text-white">Live merchant drops coming soon</h3>
+                <h3 className="text-2xl font-black text-white">{t("home.dropsSoon")}</h3>
                 <p className="mx-auto mt-2 max-w-lg text-sm text-white/60">
-                  Verified local merchants, restaurants, and venues are onboarding exclusive passes and special perks.
+                  {t("home.dropsSoonCopy")}
                 </p>
                 <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                   <Link
                     to="/for-merchants"
                     className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-black text-black transition hover:bg-primary/90"
                   >
-                    Claim a Merchant Profile <ArrowRight className="h-4 w-4" />
+                    {t("home.claimMerchant")} <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link
                     to="/merchants"
                     className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10"
                   >
-                    Explore Directory
+                    {t("home.exploreDirectory")}
                   </Link>
                 </div>
               </div>
@@ -965,7 +965,7 @@ export default function CinematicCultureHome() {
                 eyebrow: t("home.roleMemberEyebrow"),
                 title: t("home.roleMemberTitle"),
                 promise: t("home.roleMemberPromise"),
-                value: ["Free to begin", "Build a visible record", "Unlock better opportunities"],
+                value: [t("home.roleMemberV1"), t("home.roleMemberV2"), t("home.roleMemberV3")],
                 cta: t("home.roleMemberCta"),
                 href: "/missions",
                 footnote: t("home.roleMemberFootnote"),
@@ -975,7 +975,7 @@ export default function CinematicCultureHome() {
                 eyebrow: t("home.roleCreatorEyebrow"),
                 title: t("home.roleCreatorTitle"),
                 promise: t("home.roleCreatorPromise"),
-                value: ["Publish creator prompts", "Reward useful supporters", "Show brands what moved"],
+                value: [t("home.roleCreatorV1"), t("home.roleCreatorV2"), t("home.roleCreatorV3")],
                 cta: t("home.roleCreatorCta"),
                 href: "/auth?mode=signup&role=creator&next=%2Fdashboard%3Ftab%3Dpublish",
                 footnote: t("home.roleCreatorFootnote"),
@@ -985,7 +985,7 @@ export default function CinematicCultureHome() {
                 eyebrow: t("home.roleHostEyebrow"),
                 title: t("home.roleHostTitle"),
                 promise: t("home.roleHostPromise"),
-                value: ["Verify visits", "Prompt customer content", "Give people a reason to return"],
+                value: [t("home.roleHostV1"), t("home.roleHostV2"), t("home.roleHostV3")],
                 cta: t("home.roleHostCta"),
                 href: "/auth?mode=signup&role=merchant&next=/create/moment",
                 footnote: t("home.roleHostFootnote"),
@@ -995,7 +995,7 @@ export default function CinematicCultureHome() {
                 eyebrow: t("home.roleBrandEyebrow"),
                 title: t("home.roleBrandTitle"),
                 promise: t("home.roleBrandPromise"),
-                value: ["Choose one outcome", "Set a clear budget", "Pay around verified activity"],
+                value: [t("home.roleBrandV1"), t("home.roleBrandV2"), t("home.roleBrandV3")],
                 cta: t("home.roleBrandCta"),
                 href: "/auth?mode=signup&role=brand&next=%2Foffers%3Ftemplate%3Dpromoshare-funded-cycle",
                 footnote: t("home.roleBrandFootnote"),
