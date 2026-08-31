@@ -215,6 +215,9 @@ describe("localization", () => {
       "merchVenue.hostMoment",
       "merchStats.settle",
       "merchStats.breakdown",
+      "merchCat.add",
+      "merchCat.create",
+      "merchCat.confirmDel",
     ] as const;
 
     supportedLocales.forEach((locale) => {
