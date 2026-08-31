@@ -307,6 +307,10 @@ describe("localization", () => {
       "proofBld.refresh",
       "commTrust.title",
       "commTrust.fulfill",
+      "leadsDesk.title",
+      "leadsDesk.add",
+      "claimPg.createTitle",
+      "claimPg.approve",
     ] as const;
 
     supportedLocales.forEach((locale) => {
