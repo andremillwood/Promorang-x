@@ -177,6 +177,8 @@ describe("localization", () => {
       "featAdmin.activate",
       "kycAdmin.title",
       "kycAdmin.approve",
+      "psAdmin.title",
+      "psAdmin.createCycle",
     ] as const;
 
     supportedLocales.forEach((locale) => {
