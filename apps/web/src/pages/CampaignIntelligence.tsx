@@ -122,7 +122,7 @@ interface DiagnosticData {
 }
 
 export default function CampaignIntelligence() {
-  const { t } = useI18n();
+  const { t, formatNumber } = useI18n();
   const [operatorMode, setOperatorMode] = useState<'compiler' | 'live_operator'>('compiler');
 
   // Compiler Form State
@@ -642,21 +642,21 @@ export default function CampaignIntelligence() {
                         </h2>
                       </div>
                       <Badge variant="outline" className="bg-emerald-950/60 text-emerald-400 border-emerald-800 self-start sm:self-auto text-xs px-2.5 py-1 flex items-center gap-1.5">
-                        <ShieldCheck className="w-3.5 h-3.5" /> Network Grounded
+                        <ShieldCheck className="w-3.5 h-3.5" /> {t('campIntel.grounded')}
                       </Badge>
                     </div>
 
                     <div className="grid grid-cols-3 gap-3 mt-4 text-xs pt-4 border-t border-slate-800/80">
                       <div>
-                        <span className="text-slate-400 block text-[10px]">Target Market</span>
+                        <span className="text-slate-400 block text-[10px]">{t('campIntel.targetMarket')}</span>
                         <span className="font-medium text-slate-200 capitalize">{planReport.targetMarket}</span>
                       </div>
                       <div>
-                        <span className="text-slate-400 block text-[10px]">Audience Scope</span>
+                        <span className="text-slate-400 block text-[10px]">{t('campIntel.audienceScope')}</span>
                         <span className="font-medium text-slate-200">{planReport.targetAudience}</span>
                       </div>
                       <div>
-                        <span className="text-slate-400 block text-[10px]">Location</span>
+                        <span className="text-slate-400 block text-[10px]">{t('campIntel.location')}</span>
                         <span className="font-medium text-slate-200">{planReport.location}</span>
                       </div>
                     </div>
@@ -667,16 +667,16 @@ export default function CampaignIntelligence() {
                     <div className="px-6 pt-4 border-b border-slate-800">
                       <TabsList className="bg-slate-950 border border-slate-800 p-1">
                         <TabsTrigger value="overview" className="text-xs data-[state=active]:bg-purple-900/60 data-[state=active]:text-purple-200">
-                          Network Inventory
+                          {t('campIntel.tabNetwork')}
                         </TabsTrigger>
                         <TabsTrigger value="missions" className="text-xs data-[state=active]:bg-purple-900/60 data-[state=active]:text-purple-200">
-                          Missions & Proofs
+                          {t('campIntel.tabMissions')}
                         </TabsTrigger>
                         <TabsTrigger value="economics" className="text-xs data-[state=active]:bg-purple-900/60 data-[state=active]:text-purple-200">
-                          Reward Economics
+                          {t('campIntel.tabEconomics')}
                         </TabsTrigger>
                         <TabsTrigger value="activation" className="text-xs data-[state=active]:bg-emerald-900/60 data-[state=active]:text-emerald-200">
-                          Human Review & Activation
+                          {t('campIntel.tabActivation')}
                         </TabsTrigger>
                       </TabsList>
                     </div>
@@ -685,7 +685,7 @@ export default function CampaignIntelligence() {
                     <TabsContent value="overview" className="p-6 space-y-6">
                       <div>
                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                          <Users className="w-4 h-4 text-purple-400" /> Recommended Creators & Voices ({planReport.networkInventory.creators.length})
+                          <Users className="w-4 h-4 text-purple-400" /> {t('campIntel.recCreators', { count: planReport.networkInventory.creators.length })}
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           {planReport.networkInventory.creators.map((c) => (
@@ -693,7 +693,7 @@ export default function CampaignIntelligence() {
                               <div className="font-semibold text-slate-200">@{c.username}</div>
                               <div className="text-slate-400 text-[11px] mt-0.5">{c.name}</div>
                               <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-900 text-[10px]">
-                                <span className="text-purple-400 font-medium">{c.followerCount.toLocaleString()} followers</span>
+                                <span className="text-purple-400 font-medium">{t('campIntel.followers', { count: formatNumber(c.followerCount) })}</span>
                                 <Badge variant="outline" className="text-[9px] uppercase px-1.5 py-0">{c.tier}</Badge>
                               </div>
                             </div>
@@ -703,7 +703,7 @@ export default function CampaignIntelligence() {
 
                       <div>
                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                          <Layers className="w-4 h-4 text-indigo-400" /> Matched Moments & Venues ({planReport.networkInventory.moments.length})
+                          <Layers className="w-4 h-4 text-indigo-400" /> {t('campIntel.recMoments', { count: planReport.networkInventory.moments.length })}
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {planReport.networkInventory.moments.map((m) => (
@@ -714,7 +714,7 @@ export default function CampaignIntelligence() {
                               </div>
                               {m.capacity && (
                                 <Badge className="bg-indigo-950 text-indigo-300 border-indigo-800 text-[10px]">
-                                  Cap: {m.capacity}
+                                  {t('campIntel.cap', { count: m.capacity })}
                                 </Badge>
                               )}
                             </div>
@@ -726,7 +726,7 @@ export default function CampaignIntelligence() {
                     {/* Tab 2: Missions & Proof Rules */}
                     <TabsContent value="missions" className="p-6 space-y-4">
                       <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                        Proposed Mission Workflow & Proof Mechanisms
+                        {t('campIntel.missionWorkflow')}
                       </h3>
                       <div className="space-y-2.5">
                         {planReport.recommendedMissions.map((m, idx) => (
@@ -737,11 +737,11 @@ export default function CampaignIntelligence() {
                               </span>
                               <div>
                                 <span className="font-medium text-slate-200">{m.label}</span>
-                                {m.required && <span className="text-rose-400 text-[10px] ml-2 font-semibold">* Required</span>}
+                                {m.required && <span className="text-rose-400 text-[10px] ml-2 font-semibold">{t('campIntel.required')}</span>}
                               </div>
                             </div>
                             <Badge variant="outline" className="bg-slate-900 text-purple-300 border-slate-700 text-[10px] uppercase font-mono">
-                              Proof: {m.proofType}
+                              {t('campIntel.proof', { type: m.proofType })}
                             </Badge>
                           </div>
                         ))}
@@ -752,30 +752,30 @@ export default function CampaignIntelligence() {
                     <TabsContent value="economics" className="p-6 space-y-6">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
-                          <div className="text-xs text-slate-400 font-semibold uppercase">Token Reward Structure</div>
+                          <div className="text-xs text-slate-400 font-semibold uppercase">{t('campIntel.tokenStructure')}</div>
                           <div className="text-2xl font-extrabold text-emerald-400">
-                            {planReport.rewardEconomics.rewardStructure?.totalGemsPool.toLocaleString()} <span className="text-xs font-normal text-slate-300">Gems Pool</span>
+                            {formatNumber(planReport.rewardEconomics.rewardStructure?.totalGemsPool ?? 0)} <span className="text-xs font-normal text-slate-300">{t('campIntel.gemsPool')}</span>
                           </div>
                           <div className="text-xs text-slate-300 pt-2 border-t border-slate-900 space-y-1">
                             <div className="flex justify-between">
-                              <span className="text-slate-400">PromoPoints:</span>
-                              <span>{planReport.rewardEconomics.rewardStructure?.totalPointsDistributed.toLocaleString()} Points</span>
+                              <span className="text-slate-400">{t('campIntel.promoPoints')}</span>
+                              <span>{t('campIntel.pointsUnit', { count: formatNumber(planReport.rewardEconomics.rewardStructure?.totalPointsDistributed ?? 0) })}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-slate-400">PromoKeys Required:</span>
-                              <span>{planReport.rewardEconomics.rewardStructure?.keysRequired} Keys</span>
+                              <span className="text-slate-400">{t('campIntel.keysRequired')}</span>
+                              <span>{t('campIntel.keysUnit', { count: planReport.rewardEconomics.rewardStructure?.keysRequired ?? 0 })}</span>
                             </div>
                           </div>
                         </div>
 
                         <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
-                          <div className="text-xs text-slate-400 font-semibold uppercase">Financial Liability Estimate</div>
+                          <div className="text-xs text-slate-400 font-semibold uppercase">{t('campIntel.financialEst')}</div>
                           <div className="text-2xl font-extrabold text-indigo-400">
-                            ${planReport.rewardEconomics.economicsSummary?.estimatedUsdValue} <span className="text-xs font-normal text-slate-300">EST. USD</span>
+                            ${planReport.rewardEconomics.economicsSummary?.estimatedUsdValue} <span className="text-xs font-normal text-slate-300">{t('campIntel.estUsd')}</span>
                           </div>
                           <div className="text-xs text-slate-300 pt-2 border-t border-slate-900 space-y-1">
                             <div className="flex justify-between">
-                              <span className="text-slate-400">Platform Fee:</span>
+                              <span className="text-slate-400">{t('campIntel.platformFee')}</span>
                               <span>${planReport.rewardEconomics.economicsSummary?.platformFeeUsd}</span>
                             </div>
                           </div>
@@ -787,10 +787,10 @@ export default function CampaignIntelligence() {
                     <TabsContent value="activation" className="p-6 space-y-6">
                       <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-4">
                         <h3 className="text-sm font-bold text-emerald-400 flex items-center gap-2">
-                          <Lock className="w-4 h-4 text-emerald-400" /> Human Review & Budget Locking
+                          <Lock className="w-4 h-4 text-emerald-400" /> {t('campIntel.humanReview')}
                         </h3>
                         <p className="text-xs text-slate-300">
-                          Publishing this campaign transitions its status from <strong>DRAFT</strong> to <strong>ACTIVE</strong>, locking <strong>${planReport.rewardEconomics.economicsSummary?.estimatedUsdValue} USD</strong> from your organization brand budget into escrow.
+                          {t('campIntel.publishCopy', { amount: planReport.rewardEconomics.economicsSummary?.estimatedUsdValue ?? 0 })}
                         </p>
 
                         <div className="flex items-center gap-3 bg-slate-900 border border-slate-800 p-3 rounded-lg">
@@ -802,7 +802,7 @@ export default function CampaignIntelligence() {
                             className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
                           />
                           <label htmlFor="confirmLock" className="text-xs font-medium text-slate-200 cursor-pointer">
-                            I confirm human review and authorize locking the campaign budget allocation.
+                            {t('campIntel.confirmLock')}
                           </label>
                         </div>
 
@@ -813,7 +813,7 @@ export default function CampaignIntelligence() {
                             className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-lg shadow-emerald-950/50"
                           >
                             {activating ? <Activity className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />}
-                            <span>APPROVE & PUBLISH CAMPAIGN</span>
+                            <span>{t('campIntel.approvePublish')}</span>
                           </Button>
 
                           <Button
@@ -823,7 +823,7 @@ export default function CampaignIntelligence() {
                             className="border-purple-800 bg-purple-950/40 text-purple-300 hover:bg-purple-900/60 font-semibold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2"
                           >
                             {mobilizing ? <Activity className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4 text-purple-400" />}
-                            <span>MOBILIZE CREATORS & MOMENTS</span>
+                            <span>{t('campIntel.mobilize')}</span>
                           </Button>
                         </div>
                       </div>
@@ -833,7 +833,7 @@ export default function CampaignIntelligence() {
                   {/* Footer Action Bar */}
                   <CardFooter className="bg-slate-950 p-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div className="text-xs text-slate-400">
-                      <span className="text-purple-400 font-semibold">Recommended Next Step:</span> {planReport.recommendedNextAction}
+                      <span className="text-purple-400 font-semibold">{t('campIntel.nextStep')}</span> {planReport.recommendedNextAction}
                     </div>
 
                     <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -844,7 +844,7 @@ export default function CampaignIntelligence() {
                         className="border-slate-700 bg-slate-900 text-slate-200 text-xs font-semibold px-4 flex items-center gap-1.5"
                       >
                         {savingDraft ? <Activity className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                        <span>SAVE DRAFT</span>
+                        <span>{t('campIntel.saveDraft')}</span>
                       </Button>
                     </div>
                   </CardFooter>
@@ -855,9 +855,9 @@ export default function CampaignIntelligence() {
                   <div className="w-12 h-12 rounded-full bg-slate-800/80 border border-slate-700 flex items-center justify-center text-purple-400 mb-4">
                     <Bot className="w-6 h-6" />
                   </div>
-                  <h3 className="text-base font-bold text-slate-200 mb-1">Awaiting Campaign Objective</h3>
+                  <h3 className="text-base font-bold text-slate-200 mb-1">{t('campIntel.awaitingTitle')}</h3>
                   <p className="text-xs text-slate-400 max-w-sm">
-                    Enter your brand goal on the left and click <strong>BUILD CAMPAIGN PLAN</strong> to generate a structured intelligence report grounded in Promorang data.
+                    {t('campIntel.awaitingCopy')}
                   </p>
                 </Card>
               )}
@@ -877,12 +877,12 @@ export default function CampaignIntelligence() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <Badge className="bg-emerald-950 text-emerald-400 border-emerald-800 text-[10px] uppercase font-bold">
-                      ACTIVE TELEMETRY
+                      {t('campIntel.activeTelemetry')}
                     </Badge>
-                    <span className="text-xs text-slate-400 font-mono">ID: {activeCampaignId}</span>
+                    <span className="text-xs text-slate-400 font-mono">{t('campIntel.idLabel', { id: activeCampaignId })}</span>
                   </div>
                   <CardTitle className="text-xl font-bold text-white">
-                    {telemetry?.title || 'Active Campaign'}
+                    {telemetry?.title || t('campIntel.activeCampaign')}
                   </CardTitle>
                 </div>
 
@@ -893,7 +893,7 @@ export default function CampaignIntelligence() {
                     className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 flex items-center gap-2 shadow-lg shadow-purple-950/50"
                   >
                     {runningDiagnostics ? <Activity className="w-4 h-4 animate-spin" /> : <BarChart3 className="w-4 h-4" />}
-                    <span>RUN AGENT DIAGNOSTICS</span>
+                    <span>{t('campIntel.runDiag')}</span>
                   </Button>
                 </div>
               </CardHeader>
@@ -902,42 +902,42 @@ export default function CampaignIntelligence() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   
                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl">
-                    <div className="text-[11px] text-slate-400 uppercase font-semibold">Verified Check-Ins</div>
+                    <div className="text-[11px] text-slate-400 uppercase font-semibold">{t('campIntel.verifiedCheckins')}</div>
                     <div className="text-2xl font-extrabold text-white mt-1">
                       {telemetry?.verifiedParticipations} <span className="text-xs text-slate-400 font-normal">/ {telemetry?.targetCount}</span>
                     </div>
                     <div className="text-[10px] text-emerald-400 font-medium mt-1">
-                      Progress: {telemetry?.completionPercentage}
+                      {t('campIntel.progress', { pct: telemetry?.completionPercentage ?? '' })}
                     </div>
                   </div>
 
                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl">
-                    <div className="text-[11px] text-slate-400 uppercase font-semibold">Check-In Velocity</div>
+                    <div className="text-[11px] text-slate-400 uppercase font-semibold">{t('campIntel.velocity')}</div>
                     <div className="text-2xl font-extrabold text-indigo-400 mt-1">
                       {telemetry?.checkInVelocity}
                     </div>
                     <div className="text-[10px] text-indigo-300 font-medium mt-1">
-                      Real-time attendance rate
+                      {t('campIntel.attendanceRate')}
                     </div>
                   </div>
 
                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl">
-                    <div className="text-[11px] text-slate-400 uppercase font-semibold">Gem Reward Burn</div>
+                    <div className="text-[11px] text-slate-400 uppercase font-semibold">{t('campIntel.gemBurn')}</div>
                     <div className="text-2xl font-extrabold text-emerald-400 mt-1">
-                      {telemetry?.gemRewardBurn.toLocaleString()}
+                      {formatNumber(telemetry?.gemRewardBurn ?? 0)}
                     </div>
                     <div className="text-[10px] text-slate-400 font-medium mt-1">
-                      {telemetry?.promoPointsDistributed.toLocaleString()} PromoPoints issued
+                      {t('campIntel.pointsIssued', { count: formatNumber(telemetry?.promoPointsDistributed ?? 0) })}
                     </div>
                   </div>
 
                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl">
-                    <div className="text-[11px] text-slate-400 uppercase font-semibold">Rejection / Friction</div>
+                    <div className="text-[11px] text-slate-400 uppercase font-semibold">{t('campIntel.rejection')}</div>
                     <div className="text-2xl font-extrabold text-slate-200 mt-1">
                       {telemetry?.rejectionRate}
                     </div>
                     <div className="text-[10px] text-emerald-400 font-medium mt-1">
-                      Low verification friction
+                      {t('campIntel.lowFriction')}
                     </div>
                   </div>
 
@@ -956,7 +956,7 @@ export default function CampaignIntelligence() {
                       </div>
                       <div>
                         <CardTitle className="text-base font-bold text-white">
-                          Campaign Performance Diagnostics
+                          {t('campIntel.perfDiag')}
                         </CardTitle>
                         <CardDescription className="text-xs text-slate-400">
                           {diagnostics.diagnosis}
@@ -974,7 +974,7 @@ export default function CampaignIntelligence() {
                   {diagnostics.identifiedBottlenecks.length > 0 && (
                     <div>
                       <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                        <AlertTriangle className="w-4 h-4" /> Identified Bottlenecks
+                        <AlertTriangle className="w-4 h-4" /> {t('campIntel.bottlenecks')}
                       </h4>
                       <ul className="list-disc list-inside text-xs text-slate-300 space-y-1 bg-slate-950 p-3 rounded-lg border border-slate-800">
                         {diagnostics.identifiedBottlenecks.map((b, i) => (
@@ -986,7 +986,7 @@ export default function CampaignIntelligence() {
 
                   <div>
                     <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4" /> Optimization Proposals ({diagnostics.optimizationProposals.length})
+                      <Sparkles className="w-4 h-4" /> {t('campIntel.optProposals', { count: diagnostics.optimizationProposals.length })}
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {diagnostics.optimizationProposals.map((opt) => (
@@ -997,13 +997,13 @@ export default function CampaignIntelligence() {
                           </div>
 
                           <div className="flex items-center justify-between pt-3 border-t border-slate-900">
-                            <span className="text-xs text-slate-400">Est. Cost: ${opt.additionalCostUsd}</span>
+                            <span className="text-xs text-slate-400">{t('campIntel.estCost', { amount: opt.additionalCostUsd })}</span>
                             <Button 
                               size="sm"
                               onClick={() => toast.success(t('campIntel.toastOpt', { title: opt.title }))}
                               className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-3 py-1"
                             >
-                              APPLY DRAFT
+                              {t('campIntel.applyDraft')}
                             </Button>
                           </div>
                         </div>

@@ -167,6 +167,8 @@ describe("localization", () => {
       "authCb.completing",
       "campIntel.title",
       "campIntel.build",
+      "campIntel.saveDraft",
+      "campIntel.runDiag",
     ] as const;
 
     supportedLocales.forEach((locale) => {
