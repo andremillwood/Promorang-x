@@ -168,9 +168,12 @@ export function PWAInstallPrompt() {
           {t("pwa.ctaSpend")}
         </button>
 
-        <p className="mt-3 text-center text-[11px] leading-5 text-white/55">
-          {t("pwa.installLater")}
-        </p>
+        <div className="mt-3 flex items-center gap-3 border-t border-dashed border-white/15 pt-3">
+          <span className="shrink-0 rounded-md bg-amber-200/15 px-2 py-1 font-mono text-[10px] font-black tracking-[0.2em] text-amber-200">
+            {t("pwa.passStub")}
+          </span>
+          <p className="text-[11px] leading-5 text-white/55">{t("pwa.installLater")}</p>
+        </div>
       </div>
     </aside>
   );
