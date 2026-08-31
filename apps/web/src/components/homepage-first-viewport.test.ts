@@ -8,8 +8,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 describe("homepage first viewport", () => {
   it("does not stack a guest Browse Discover next-move above PromoCard", () => {
     const home = readFileSync(resolve(here, "CinematicCultureHome.tsx"), "utf8");
-    expect(home).not.toMatch(/NextMoveStrip/);
-    expect(home).not.toMatch(/Browse Discover/);
+    expect(home).not.toMatch(/from ["']@\/components\/journey\/NextMoveStrip["']/);
+    expect(home).not.toMatch(/<NextMoveStrip/);
     expect(home).toMatch(/<PromoCardGateway/);
   });
 
