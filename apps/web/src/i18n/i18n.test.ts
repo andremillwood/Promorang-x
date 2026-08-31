@@ -228,6 +228,13 @@ describe("localization", () => {
       "hostFind.sponsor",
       "crePub.publish",
       "crePub.published",
+      "hostProof.title",
+      "hostProof.verify",
+      "hostProof.consoleTitle",
+      "hostStage.title",
+      "hostStage.vault",
+      "sentCap.submit",
+      "sentCap.rate5",
     ] as const;
 
     supportedLocales.forEach((locale) => {

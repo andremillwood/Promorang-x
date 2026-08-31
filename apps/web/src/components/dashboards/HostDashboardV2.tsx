@@ -17,6 +17,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/i18n/I18nContext";
 import { useHostedMoments, useHostStats } from "@/hooks/useMoments";
 import { useHostEconomy } from "@/hooks/useStakeholderEconomy";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,6 +36,7 @@ import HostSponsorshipConsole from "@/components/host/HostSponsorshipConsole";
 import HostImpactYieldConsole from "@/components/host/HostImpactYieldConsole";
 
 export function HostDashboardV2() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const { data: hostedMoments, isLoading: momentsLoading } = useHostedMoments();
   const { data: stats, isLoading: statsLoading } = useHostStats();
@@ -81,15 +83,15 @@ export function HostDashboardV2() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">
-                Host Stage Command & Pulse
+                {t("hostStage.title")}
               </h1>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-300 text-[10px] font-black uppercase tracking-wider">
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-                <span>Host Station Active</span>
+                <span>{t("hostStage.active")}</span>
               </span>
             </div>
             <p className="text-xs text-white/60 mt-0.5">
-              Curate live gatherings, broadcast in-room announcements, verify guest proofs, and lock brand sponsorships.
+              {t("hostStage.subtitle")}
             </p>
           </div>
         </div>
@@ -101,7 +103,7 @@ export function HostDashboardV2() {
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-amber-400/40 bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 text-xs font-black transition"
           >
             <Plus className="h-4 w-4" />
-            <span>Stage Moment</span>
+            <span>{t("hostStage.stageMoment")}</span>
           </Link>
 
           <Link
@@ -109,7 +111,7 @@ export function HostDashboardV2() {
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-white/10 bg-white/5 hover:border-amber-400/40 hover:bg-white/10 transition"
           >
             <Gem className="h-4 w-4 text-amber-400" />
-            <span className="text-xs font-black text-white">Host Vault</span>
+            <span className="text-xs font-black text-white">{t("hostStage.vault")}</span>
           </Link>
         </div>
       </div>
@@ -119,14 +121,14 @@ export function HostDashboardV2() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded-full bg-amber-400 text-black font-black text-[10px] uppercase tracking-wider">
-              Stage Lifecycle
+              {t("hostStage.lifecycle")}
             </span>
             <span className="font-bold text-white text-xs sm:text-sm">
-              Today's Gathering Flow
+              {t("hostStage.todayFlow")}
             </span>
           </div>
           <span className="text-[11px] text-white/50 font-medium">
-            Stage Lineup &rarr; Pulse Announcements &rarr; Credit Attendee Proofs
+            {t("hostStage.flowPath")}
           </span>
         </div>
 
@@ -138,8 +140,8 @@ export function HostDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-xs">1</span>
               <div>
-                <p className="font-bold text-white text-xs">Stage Next Gathering</p>
-                <p className="text-[10px] text-amber-300 font-semibold">Publish moment & set door perks</p>
+                <p className="font-bold text-white text-xs">{t("hostStage.step1Title")}</p>
+                <p className="text-[10px] text-amber-300 font-semibold">{t("hostStage.step1Hint")}</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-amber-400 transition" />
@@ -152,8 +154,8 @@ export function HostDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-xs">2</span>
               <div>
-                <p className="font-bold text-white text-xs">Live Room Pulse & Push</p>
-                <p className="text-[10px] text-emerald-400 font-semibold">Broadcast micro-drops to guests</p>
+                <p className="font-bold text-white text-xs">{t("hostStage.step2Title")}</p>
+                <p className="text-[10px] text-emerald-400 font-semibold">{t("hostStage.step2Hint")}</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-emerald-400 transition" />
@@ -166,8 +168,8 @@ export function HostDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-xs">3</span>
               <div>
-                <p className="font-bold text-white text-xs">Verify Guest Proofs</p>
-                <p className="text-[10px] text-cyan-300 font-semibold">Disburse points & credit status</p>
+                <p className="font-bold text-white text-xs">{t("hostStage.step3Title")}</p>
+                <p className="text-[10px] text-cyan-300 font-semibold">{t("hostStage.step3Hint")}</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-cyan-400 transition" />
@@ -178,11 +180,11 @@ export function HostDashboardV2() {
       {/* 3. The 5 Operational Host Arenas */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
-          { id: "moments", label: "Stage Lineup", icon: Calendar, hint: "Moments & RSVP", count: `${hostedMoments?.length || 2} Staged` },
-          { id: "pulse", label: "Live Room Pulse", icon: Radio, hint: "In-venue beacon", count: "Live Beacon" },
-          { id: "review", label: "Proof Review", icon: ShieldCheck, hint: "Check-in audits", count: "2 Pending" },
-          { id: "sponsorships", label: "Brand Sponsors", icon: Handshake, hint: "Funded stages", count: "$1.4k Escrow" },
-          { id: "impact", label: "Impact & Yield", icon: BarChart3, hint: "Node APY & Stats", count: "14.8% APY" },
+          { id: "moments", label: t("hostStage.tabMoments"), icon: Calendar, hint: t("hostStage.tabMomentsHint"), count: t("hostStage.tabMomentsCount", { count: hostedMoments?.length || 2 }) },
+          { id: "pulse", label: t("hostStage.tabPulse"), icon: Radio, hint: t("hostStage.tabPulseHint"), count: t("hostStage.tabPulseCount") },
+          { id: "review", label: t("hostStage.tabReview"), icon: ShieldCheck, hint: t("hostStage.tabReviewHint"), count: t("hostStage.tabReviewCount", { count: 2 }) },
+          { id: "sponsorships", label: t("hostStage.tabSponsors"), icon: Handshake, hint: t("hostStage.tabSponsorsHint"), count: t("hostStage.tabSponsorsCount") },
+          { id: "impact", label: t("hostStage.tabImpact"), icon: BarChart3, hint: t("hostStage.tabImpactHint"), count: t("hostStage.tabImpactCount") },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -220,11 +222,11 @@ export function HostDashboardV2() {
         <div className="min-w-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <TabsList className="sr-only">
-              <TabsTrigger value="moments">Moments</TabsTrigger>
-              <TabsTrigger value="pulse">Pulse</TabsTrigger>
-              <TabsTrigger value="review">Review</TabsTrigger>
-              <TabsTrigger value="sponsorships">Sponsors</TabsTrigger>
-              <TabsTrigger value="impact">Impact</TabsTrigger>
+              <TabsTrigger value="moments">{t("hostStage.srMoments")}</TabsTrigger>
+              <TabsTrigger value="pulse">{t("hostStage.srPulse")}</TabsTrigger>
+              <TabsTrigger value="review">{t("hostStage.srReview")}</TabsTrigger>
+              <TabsTrigger value="sponsorships">{t("hostStage.srSponsors")}</TabsTrigger>
+              <TabsTrigger value="impact">{t("hostStage.srImpact")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="moments" className="mt-0">

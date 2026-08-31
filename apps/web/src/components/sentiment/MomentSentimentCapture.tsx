@@ -6,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { useMomentSentiment, CreateSentimentReviewInput, getRatingLabel } from '@/hooks/useMomentSentiment';
+import { useMomentSentiment, CreateSentimentReviewInput } from '@/hooks/useMomentSentiment';
+import { useI18n } from '@/i18n/I18nContext';
+import type { TranslationKey } from '@/i18n/translations';
 import { toast } from 'sonner';
 
 interface MomentSentimentCaptureProps {
@@ -17,23 +19,25 @@ interface MomentSentimentCaptureProps {
   onSkip?: () => void;
 }
 
-const TAGS = [
-  { id: 'Inspiring', label: '✨ Inspiring', color: 'bg-yellow-100 text-yellow-800' },
-  { id: 'Educational', label: '📚 Educational', color: 'bg-blue-100 text-blue-800' },
-  { id: 'Fun', label: '🎉 Fun', color: 'bg-pink-100 text-pink-800' },
-  { id: 'Networking', label: '🤝 Networking', color: 'bg-green-100 text-green-800' },
-  { id: 'Transformative', label: '🦋 Transformative', color: 'bg-purple-100 text-purple-800' },
-  { id: 'Community', label: '👥 Community', color: 'bg-orange-100 text-orange-800' },
-  { id: 'Creative', label: '🎨 Creative', color: 'bg-cyan-100 text-cyan-800' },
-  { id: 'Actionable', label: '⚡ Actionable', color: 'bg-red-100 text-red-800' },
-  { id: 'Entertaining', label: '🎭 Entertaining', color: 'bg-indigo-100 text-indigo-800' },
-  { id: 'ThoughtProvoking', label: '💭 Thought-Provoking', color: 'bg-teal-100 text-teal-800' },
-  { id: 'Intimate', label: '💫 Intimate', color: 'bg-rose-100 text-rose-800' },
-  { id: 'Energetic', label: '🔥 Energetic', color: 'bg-amber-100 text-amber-800' },
-  { id: 'Relaxing', label: '🌿 Relaxing', color: 'bg-emerald-100 text-emerald-800' },
-  { id: 'Professional', label: '💼 Professional', color: 'bg-slate-100 text-slate-800' },
-  { id: 'LifeChanging', label: '🌟 Life-Changing', color: 'bg-violet-100 text-violet-800' },
+const TAGS: Array<{ id: string; key: TranslationKey; emoji: string; color: string }> = [
+  { id: 'Inspiring', key: 'sentCap.tag.inspiring', emoji: '✨', color: 'bg-yellow-100 text-yellow-800' },
+  { id: 'Educational', key: 'sentCap.tag.educational', emoji: '📚', color: 'bg-blue-100 text-blue-800' },
+  { id: 'Fun', key: 'sentCap.tag.fun', emoji: '🎉', color: 'bg-pink-100 text-pink-800' },
+  { id: 'Networking', key: 'sentCap.tag.networking', emoji: '🤝', color: 'bg-green-100 text-green-800' },
+  { id: 'Transformative', key: 'sentCap.tag.transformative', emoji: '🦋', color: 'bg-purple-100 text-purple-800' },
+  { id: 'Community', key: 'sentCap.tag.community', emoji: '👥', color: 'bg-orange-100 text-orange-800' },
+  { id: 'Creative', key: 'sentCap.tag.creative', emoji: '🎨', color: 'bg-cyan-100 text-cyan-800' },
+  { id: 'Actionable', key: 'sentCap.tag.actionable', emoji: '⚡', color: 'bg-red-100 text-red-800' },
+  { id: 'Entertaining', key: 'sentCap.tag.entertaining', emoji: '🎭', color: 'bg-indigo-100 text-indigo-800' },
+  { id: 'ThoughtProvoking', key: 'sentCap.tag.thoughtProvoking', emoji: '💭', color: 'bg-teal-100 text-teal-800' },
+  { id: 'Intimate', key: 'sentCap.tag.intimate', emoji: '💫', color: 'bg-rose-100 text-rose-800' },
+  { id: 'Energetic', key: 'sentCap.tag.energetic', emoji: '🔥', color: 'bg-amber-100 text-amber-800' },
+  { id: 'Relaxing', key: 'sentCap.tag.relaxing', emoji: '🌿', color: 'bg-emerald-100 text-emerald-800' },
+  { id: 'Professional', key: 'sentCap.tag.professional', emoji: '💼', color: 'bg-slate-100 text-slate-800' },
+  { id: 'LifeChanging', key: 'sentCap.tag.lifeChanging', emoji: '🌟', color: 'bg-violet-100 text-violet-800' },
 ];
+
+const RATE_KEYS = ["", "sentCap.rate1", "sentCap.rate2", "sentCap.rate3", "sentCap.rate4", "sentCap.rate5"] as const;
 
 const STEPS = ['rating', 'experience', 'feedback', 'tags', 'share'] as const;
 type Step = typeof STEPS[number];
@@ -59,6 +63,15 @@ export function MomentSentimentCapture({
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   
   const { createReview } = useMomentSentiment();
+  const { t } = useI18n();
+  const ratingLabel = (rating: number) => {
+    const key = RATE_KEYS[rating];
+    return key ? t(key) : "";
+  };
+  const tagLabel = (id: string) => {
+    const tag = TAGS.find((item) => item.id === id);
+    return tag ? `${tag.emoji} ${t(tag.key)}` : id;
+  };
 
   const currentStepIndex = STEPS.indexOf(currentStep);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
@@ -79,11 +92,11 @@ export function MomentSentimentCapture({
 
   const handleSubmit = async () => {
     if (overallRating === 0) {
-      toast.error('Please provide an overall rating');
+      toast.error(t("sentCap.needRating"));
       return;
     }
     if (wouldRecommend === null) {
-      toast.error('Please indicate if you would recommend this moment');
+      toast.error(t("sentCap.needRecommend"));
       return;
     }
 
@@ -143,10 +156,10 @@ export function MomentSentimentCapture({
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-muted-foreground">
-            Step {currentStepIndex + 1} of {STEPS.length}
+            {t("sentCap.stepOf", { current: currentStepIndex + 1, total: STEPS.length })}
           </span>
           <Button variant="ghost" size="sm" onClick={onSkip}>
-            Skip for now
+            {t("sentCap.skip")}
           </Button>
         </div>
         <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
@@ -156,10 +169,10 @@ export function MomentSentimentCapture({
           />
         </div>
         <CardTitle className="text-xl mt-4">
-          How was "{momentTitle}"?
+          {t("sentCap.title", { title: momentTitle })}
         </CardTitle>
         <p className="text-muted-foreground">
-          Your feedback helps hosts create better moments and helps others discover great experiences.
+          {t("sentCap.subtitle")}
         </p>
       </CardHeader>
 
@@ -168,7 +181,7 @@ export function MomentSentimentCapture({
         {currentStep === 'rating' && (
           <div className="space-y-6">
             <div className="text-center">
-              <p className="text-lg font-medium mb-4">Overall Rating</p>
+              <p className="text-lg font-medium mb-4">{t("sentCap.overall")}</p>
               <div className="flex justify-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -188,13 +201,13 @@ export function MomentSentimentCapture({
               </div>
               {overallRating > 0 && (
                 <p className="mt-2 text-muted-foreground">
-                  {getRatingLabel(overallRating)}
+                  {ratingLabel(overallRating)}
                 </p>
               )}
             </div>
 
             <div className="space-y-3">
-              <p className="text-lg font-medium text-center">Would you recommend this moment?</p>
+              <p className="text-lg font-medium text-center">{t("sentCap.recommendQ")}</p>
               <div className="flex justify-center gap-4">
                 <Button
                   variant={wouldRecommend === true ? 'default' : 'outline'}
@@ -203,7 +216,7 @@ export function MomentSentimentCapture({
                   className="gap-2"
                 >
                   <ThumbsUp className="w-5 h-5" />
-                  Yes, absolutely!
+                  {t("sentCap.yes")}
                 </Button>
                 <Button
                   variant={wouldRecommend === false ? 'default' : 'outline'}
@@ -212,7 +225,7 @@ export function MomentSentimentCapture({
                   className="gap-2"
                 >
                   <Heart className="w-5 h-5" />
-                  Not really
+                  {t("sentCap.no")}
                 </Button>
               </div>
             </div>
@@ -222,14 +235,14 @@ export function MomentSentimentCapture({
         {/* Step 2: Detailed Ratings */}
         {currentStep === 'experience' && (
           <div className="space-y-6">
-            <p className="text-lg font-medium">Rate your experience (optional)</p>
+            <p className="text-lg font-medium">{t("sentCap.rateOptional")}</p>
             
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium">Experience Quality</span>
+                  <span className="font-medium">{t("sentCap.expQuality")}</span>
                   <span className="text-sm text-muted-foreground">
-                    {experienceRating > 0 ? getRatingLabel(experienceRating) : 'Not rated'}
+                    {experienceRating > 0 ? ratingLabel(experienceRating) : t("sentCap.notRated")}
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -253,9 +266,9 @@ export function MomentSentimentCapture({
 
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium">Value Received</span>
+                  <span className="font-medium">{t("sentCap.valueRecv")}</span>
                   <span className="text-sm text-muted-foreground">
-                    {valueRating > 0 ? getRatingLabel(valueRating) : 'Not rated'}
+                    {valueRating > 0 ? ratingLabel(valueRating) : t("sentCap.notRated")}
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -283,15 +296,15 @@ export function MomentSentimentCapture({
         {/* Step 3: Written Feedback */}
         {currentStep === 'feedback' && (
           <div className="space-y-6">
-            <p className="text-lg font-medium">Share your experience (optional)</p>
+            <p className="text-lg font-medium">{t("sentCap.shareOptional")}</p>
             
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">
-                  Review Title
+                  {t("sentCap.reviewTitle")}
                 </label>
                 <Input
-                  placeholder="e.g., 'A truly transformative evening'"
+                  placeholder={t("sentCap.reviewTitlePh")}
                   value={reviewTitle}
                   onChange={(e) => setReviewTitle(e.target.value)}
                   maxLength={100}
@@ -300,33 +313,33 @@ export function MomentSentimentCapture({
 
               <div>
                 <label className="text-sm font-medium mb-2 block">
-                  What made this moment special?
+                  {t("sentCap.whatSpecial")}
                 </label>
                 <Textarea
-                  placeholder="Describe what stood out to you..."
+                  placeholder={t("sentCap.whatSpecialPh")}
                   value={whatMadeSpecial}
                   onChange={(e) => setWhatMadeSpecial(e.target.value)}
                   rows={3}
                   maxLength={500}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  {whatMadeSpecial.length}/500 characters
+                  {t("sentCap.chars", { used: whatMadeSpecial.length, max: 500 })}
                 </p>
               </div>
 
               <div>
                 <label className="text-sm font-medium mb-2 block">
-                  Full Review
+                  {t("sentCap.fullReview")}
                 </label>
                 <Textarea
-                  placeholder="Share more details about your experience..."
+                  placeholder={t("sentCap.fullReviewPh")}
                   value={reviewText}
                   onChange={(e) => setReviewText(e.target.value)}
                   rows={4}
                   maxLength={2000}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  {reviewText.length}/2000 characters
+                  {t("sentCap.chars", { used: reviewText.length, max: 2000 })}
                 </p>
               </div>
             </div>
@@ -336,9 +349,9 @@ export function MomentSentimentCapture({
         {/* Step 4: Tags */}
         {currentStep === 'tags' && (
           <div className="space-y-4">
-            <p className="text-lg font-medium">What describes this moment? (optional)</p>
+            <p className="text-lg font-medium">{t("sentCap.tagsQ")}</p>
             <p className="text-sm text-muted-foreground">
-              Select all that apply to help others find similar moments.
+              {t("sentCap.tagsHint")}
             </p>
             
             <div className="flex flex-wrap gap-2">
@@ -353,14 +366,16 @@ export function MomentSentimentCapture({
                       : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                   )}
                 >
-                  {tag.label}
+                  {tag.emoji} {t(tag.key)}
                 </button>
               ))}
             </div>
             
             {selectedTags.length > 0 && (
               <p className="text-sm text-muted-foreground">
-                {selectedTags.length} tag{selectedTags.length !== 1 ? 's' : ''} selected
+                {selectedTags.length === 1
+                  ? t("sentCap.tagsOne")
+                  : t("sentCap.tagsMany", { count: selectedTags.length })}
               </p>
             )}
           </div>
@@ -373,25 +388,25 @@ export function MomentSentimentCapture({
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
                 <Sparkles className="w-8 h-8 text-primary" />
               </div>
-              <p className="text-lg font-medium">Almost done!</p>
+              <p className="text-lg font-medium">{t("sentCap.almost")}</p>
               <p className="text-muted-foreground">
-                Your review will help others discover great moments and help hosts improve their events.
+                {t("sentCap.almostBody")}
               </p>
             </div>
 
             <div className="bg-secondary/50 rounded-lg p-4 space-y-3">
               <h4 className="font-medium flex items-center gap-2">
                 <MessageSquare className="w-4 h-4" />
-                Your Review Summary
+                {t("sentCap.summary")}
               </h4>
               <div className="text-sm space-y-1">
-                <p><strong>Overall:</strong> {overallRating > 0 ? `${overallRating}/5 - ${getRatingLabel(overallRating)}` : 'Not rated'}</p>
-                <p><strong>Recommend:</strong> {wouldRecommend === true ? 'Yes!' : wouldRecommend === false ? 'No' : 'Not answered'}</p>
-                {experienceRating > 0 && <p><strong>Experience:</strong> {experienceRating}/5</p>}
-                {valueRating > 0 && <p><strong>Value:</strong> {valueRating}/5</p>}
-                {reviewTitle && <p><strong>Title:</strong> {reviewTitle}</p>}
+                <p><strong>{t("sentCap.sumOverall")}</strong> {overallRating > 0 ? t("sentCap.sumOverallVal", { rating: overallRating, label: ratingLabel(overallRating) }) : t("sentCap.notRated")}</p>
+                <p><strong>{t("sentCap.sumRecommend")}</strong> {wouldRecommend === true ? t("sentCap.yesShort") : wouldRecommend === false ? t("sentCap.noShort") : t("sentCap.notAnswered")}</p>
+                {experienceRating > 0 && <p><strong>{t("sentCap.sumExperience")}</strong> {experienceRating}/5</p>}
+                {valueRating > 0 && <p><strong>{t("sentCap.sumValue")}</strong> {valueRating}/5</p>}
+                {reviewTitle && <p><strong>{t("sentCap.sumTitle")}</strong> {reviewTitle}</p>}
                 {selectedTags.length > 0 && (
-                  <p><strong>Tags:</strong> {selectedTags.map(t => TAGS.find(tag => tag.id === t)?.label.split(' ')[1]).join(', ')}</p>
+                  <p><strong>{t("sentCap.sumTags")}</strong> {selectedTags.map((id) => tagLabel(id)).join(', ')}</p>
                 )}
               </div>
             </div>
@@ -403,7 +418,7 @@ export function MomentSentimentCapture({
                 className="flex-1 gap-2"
               >
                 <Camera className="w-4 h-4" />
-                Add Photo
+                {t("sentCap.addPhoto")}
               </Button>
               <Button
                 variant="outline"
@@ -411,7 +426,7 @@ export function MomentSentimentCapture({
                 className="flex-1 gap-2"
               >
                 <Video className="w-4 h-4" />
-                Add Video
+                {t("sentCap.addVideo")}
               </Button>
             </div>
           </div>
@@ -426,7 +441,7 @@ export function MomentSentimentCapture({
             className="gap-2"
           >
             <ChevronLeft className="w-4 h-4" />
-            Back
+            {t("sentCap.back")}
           </Button>
 
           {currentStep === 'share' ? (
@@ -436,11 +451,11 @@ export function MomentSentimentCapture({
               className="gap-2"
             >
               {isSubmitting ? (
-                <>Submitting...</>
+                <>{t("sentCap.submitting")}</>
               ) : (
                 <>
                   <Check className="w-4 h-4" />
-                  Submit Review
+                  {t("sentCap.submit")}
                 </>
               )}
             </Button>
@@ -450,7 +465,7 @@ export function MomentSentimentCapture({
               disabled={!canProceed()}
               className="gap-2"
             >
-              Next
+              {t("sentCap.next")}
               <ChevronRight className="w-4 h-4" />
             </Button>
           )}
