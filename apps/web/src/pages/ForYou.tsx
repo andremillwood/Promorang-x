@@ -8,6 +8,7 @@ import { FeedStream } from "@/components/feed/FeedStream";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { PromoShareOperator } from "@/components/promoshare/PromoShareOperator";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
@@ -96,6 +97,12 @@ const ForYou = () => {
           </div>
         </div>
       </header>
+
+      {user ? (
+        <div className="px-4 pt-4 sm:px-6">
+          <PromoShareOperator variant="rail" />
+        </div>
+      ) : null}
 
       <DiscoveriesFeedSection />
 

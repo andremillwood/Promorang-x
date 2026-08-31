@@ -29,7 +29,8 @@ Do **not** invent calendars for planned/beta hubs (Havana, London, Lagos, Miami,
 4. Upsert into `cultural_calendar_events`.
 5. Run `run_weekly_moment_drop`.
 6. Confirm Explore filters the announcement to the selected city hub.
-7. Commit catalog updates on `cursor/weekly-moments-agent-5d54` and update the PR.
+7. Run the stakeholder scout score/queue pass. Do **not** send email. Cap 10 invites per hub.
+8. Commit catalog updates on `cursor/weekly-moments-agent-5d54` and update the PR.
 
 ## Lead window
 
