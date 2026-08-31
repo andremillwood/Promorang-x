@@ -319,6 +319,16 @@ describe("localization", () => {
       "modTrust.approve",
       "discAcq.title",
       "discAcq.save",
+      "momDesk.search",
+      "momDesk.approveJoin",
+      "anDesk.signups",
+      "anDesk.rate",
+      "hostApps.emptyTitle",
+      "hostApps.confirm",
+      "gemEcon.ledger",
+      "gemEcon.execute",
+      "auditLed.title",
+      "auditLed.empty",
     ] as const;
 
     supportedLocales.forEach((locale) => {

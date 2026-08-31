@@ -16,8 +16,10 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useI18n } from '@/i18n/I18nContext';
 
 export function AdminHostApplicationsTab() {
+    const { t, formatDate } = useI18n();
     const { data: applications, isLoading } = usePendingHostApplications();
     const approveApplication = useApproveHostApplication();
     const rejectApplication = useRejectHostApplication();
@@ -53,7 +55,7 @@ export function AdminHostApplicationsTab() {
             <div className="flex items-center justify-center py-12">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-sm text-muted-foreground">Loading applications...</p>
+                    <p className="text-sm text-muted-foreground">{t("hostApps.loading")}</p>
                 </div>
             </div>
         );
@@ -64,9 +66,9 @@ export function AdminHostApplicationsTab() {
             <div className="flex items-center justify-center py-12">
                 <div className="text-center">
                     <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="font-serif text-lg font-bold mb-2">No Pending Applications</h3>
+                    <h3 className="font-serif text-lg font-bold mb-2">{t("hostApps.emptyTitle")}</h3>
                     <p className="text-sm text-muted-foreground">
-                        All host applications have been reviewed.
+                        {t("hostApps.emptyCopy")}
                     </p>
                 </div>
             </div>
@@ -93,17 +95,17 @@ export function AdminHostApplicationsTab() {
                                 <div>
                                     <div className="flex items-center gap-2 mb-1">
                                         <h3 className="font-serif text-lg font-bold">
-                                            {(app as any).profiles?.full_name || 'Unknown User'}
+                                            {(app as any).profiles?.full_name || t("hostApps.unknown")}
                                         </h3>
                                         <span className="px-2 py-1 bg-amber-500/10 text-amber-500 text-xs font-medium rounded">
-                                            Pending
+                                            {t("hostApps.pending")}
                                         </span>
                                     </div>
                                     <p className="text-sm text-muted-foreground">
-                                        Applied {new Date(app.created_at).toLocaleDateString()}
+                                        {t("hostApps.applied", { when: formatDate(app.created_at) })}
                                         {(app as any).profiles?.maturity_state !== undefined && (
                                             <span className="ml-2">
-                                                • Access Rank {(app as any).profiles.maturity_state}
+                                                {t("hostApps.accessRank", { n: (app as any).profiles.maturity_state })}
                                             </span>
                                         )}
                                     </p>
@@ -112,7 +114,7 @@ export function AdminHostApplicationsTab() {
                                 {/* Motivation */}
                                 <div>
                                     <Label className="text-xs text-muted-foreground mb-1">
-                                        Motivation
+                                        {t("hostApps.motivation")}
                                     </Label>
                                     <p className="text-sm">{app.motivation}</p>
                                 </div>
@@ -120,7 +122,7 @@ export function AdminHostApplicationsTab() {
                                 {/* Moment Idea */}
                                 <div>
                                     <Label className="text-xs text-muted-foreground mb-1">
-                                        First Moment Idea
+                                        {t("hostApps.idea")}
                                     </Label>
                                     <p className="text-sm">{app.moment_idea}</p>
                                 </div>
@@ -134,7 +136,7 @@ export function AdminHostApplicationsTab() {
                                         size="sm"
                                     >
                                         <CheckCircle className="w-4 h-4" />
-                                        {approveApplication.isPending ? 'Approving...' : 'Approve'}
+                                        {approveApplication.isPending ? t("hostApps.approving") : t("hostApps.approve")}
                                     </Button>
                                     <Button
                                         onClick={() => handleRejectClick(app)}
@@ -144,7 +146,7 @@ export function AdminHostApplicationsTab() {
                                         size="sm"
                                     >
                                         <XCircle className="w-4 h-4" />
-                                        Reject
+                                        {t("hostApps.reject")}
                                     </Button>
                                 </div>
                             </div>
@@ -157,19 +159,18 @@ export function AdminHostApplicationsTab() {
             <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Reject Application</DialogTitle>
+                        <DialogTitle>{t("hostApps.rejectTitle")}</DialogTitle>
                         <DialogDescription>
-                            Please provide a reason for rejecting this application.
-                            The user will see this feedback.
+                            {t("hostApps.rejectCopy")}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label htmlFor="reject-reason">Rejection Reason</Label>
+                            <Label htmlFor="reject-reason">{t("hostApps.reason")}</Label>
                             <Textarea
                                 id="reject-reason"
-                                placeholder="Explain why this application is being rejected..."
+                                placeholder={t("hostApps.reasonPh")}
                                 value={rejectReason}
                                 onChange={(e) => setRejectReason(e.target.value)}
                                 rows={4}
@@ -187,7 +188,7 @@ export function AdminHostApplicationsTab() {
                             }}
                             className="flex-1"
                         >
-                            Cancel
+                            {t("hostApps.cancel")}
                         </Button>
                         <Button
                             onClick={handleRejectConfirm}
@@ -195,7 +196,7 @@ export function AdminHostApplicationsTab() {
                             variant="destructive"
                             className="flex-1"
                         >
-                            {rejectApplication.isPending ? 'Rejecting...' : 'Confirm Rejection'}
+                            {rejectApplication.isPending ? t("hostApps.rejecting") : t("hostApps.confirm")}
                         </Button>
                     </div>
                 </DialogContent>

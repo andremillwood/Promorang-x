@@ -16,14 +16,16 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import { format, subDays } from "date-fns";
+import { subDays } from "date-fns";
+import { useI18n } from "@/i18n/I18nContext";
 
 const COLORS = ["hsl(24, 100%, 50%)", "hsl(45, 100%, 55%)", "hsl(142, 76%, 36%)", "hsl(217, 91%, 60%)", "hsl(280, 65%, 60%)"];
 
 export function AdminAnalyticsTab() {
+  const { t, formatDate, formatNumber, locale } = useI18n();
   // Fetch user signup trend (last 14 days)
   const { data: signupTrend, isLoading: signupLoading } = useQuery({
-    queryKey: ["admin-signup-trend"],
+    queryKey: ["admin-signup-trend", locale],
     queryFn: async () => {
       const { data: profiles } = await supabase
         .from("profiles")
@@ -41,7 +43,7 @@ export function AdminAnalyticsTab() {
           );
         });
         return {
-          date: format(date, "MMM d"),
+          date: formatDate(date, { month: "short", day: "numeric" }),
           signups: dayProfiles?.length || 0,
         };
       });
@@ -52,7 +54,7 @@ export function AdminAnalyticsTab() {
 
   // Fetch participation trend (last 14 days)
   const { data: participationTrend, isLoading: participationLoading } = useQuery({
-    queryKey: ["admin-participation-trend"],
+    queryKey: ["admin-participation-trend", locale],
     queryFn: async () => {
       const { data: participations } = await supabase
         .from("moment_participants")
@@ -70,7 +72,7 @@ export function AdminAnalyticsTab() {
           );
         });
         return {
-          date: format(date, "MMM d"),
+          date: formatDate(date, { month: "short", day: "numeric" }),
           participations: dayParts?.length || 0,
         };
       });
@@ -146,7 +148,7 @@ export function AdminAnalyticsTab() {
       <div className="grid lg:grid-cols-2 gap-6">
         {/* User Signups Trend */}
         <div className="bg-card rounded-xl p-6 border border-border">
-          <h3 className="font-semibold text-foreground mb-4">User Signups (14 Days)</h3>
+          <h3 className="font-semibold text-foreground mb-4">{t("anDesk.signups")}</h3>
           {signupLoading ? (
             <Skeleton className="h-64" />
           ) : (
@@ -176,7 +178,7 @@ export function AdminAnalyticsTab() {
 
         {/* Participation Trend */}
         <div className="bg-card rounded-xl p-6 border border-border">
-          <h3 className="font-semibold text-foreground mb-4">Participations (14 Days)</h3>
+          <h3 className="font-semibold text-foreground mb-4">{t("anDesk.parts")}</h3>
           {participationLoading ? (
             <Skeleton className="h-64" />
           ) : (
@@ -200,7 +202,7 @@ export function AdminAnalyticsTab() {
 
         {/* Moments by Category */}
         <div className="bg-card rounded-xl p-6 border border-border">
-          <h3 className="font-semibold text-foreground mb-4">Moments by Category</h3>
+          <h3 className="font-semibold text-foreground mb-4">{t("anDesk.byCat")}</h3>
           {categoryLoading ? (
             <Skeleton className="h-64" />
           ) : categoryData && categoryData.length > 0 ? (
@@ -231,14 +233,14 @@ export function AdminAnalyticsTab() {
             </ResponsiveContainer>
           ) : (
             <div className="h-64 flex items-center justify-center text-muted-foreground">
-              No data available
+              {t("anDesk.noData")}
             </div>
           )}
         </div>
 
         {/* Users by Role */}
         <div className="bg-card rounded-xl p-6 border border-border">
-          <h3 className="font-semibold text-foreground mb-4">Users by Role</h3>
+          <h3 className="font-semibold text-foreground mb-4">{t("anDesk.byRole")}</h3>
           {roleLoading ? (
             <Skeleton className="h-64" />
           ) : roleData && roleData.length > 0 ? (
@@ -259,7 +261,7 @@ export function AdminAnalyticsTab() {
             </ResponsiveContainer>
           ) : (
             <div className="h-64 flex items-center justify-center text-muted-foreground">
-              No data available
+              {t("anDesk.noData")}
             </div>
           )}
         </div>
@@ -267,21 +269,21 @@ export function AdminAnalyticsTab() {
 
       {/* Check-in Rate Card */}
       <div className="bg-card rounded-xl p-6 border border-border">
-        <h3 className="font-semibold text-foreground mb-4">Platform Check-in Rate</h3>
+        <h3 className="font-semibold text-foreground mb-4">{t("anDesk.checkRate")}</h3>
         {checkInLoading ? (
           <Skeleton className="h-20" />
         ) : (
           <div className="grid md:grid-cols-3 gap-6">
             <div>
-              <p className="text-sm text-muted-foreground">Total Participations</p>
-              <p className="text-3xl font-bold text-foreground">{checkInRate?.total.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">{t("anDesk.totalParts")}</p>
+              <p className="text-3xl font-bold text-foreground">{formatNumber(checkInRate?.total || 0)}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Verified Check-ins</p>
-              <p className="text-3xl font-bold text-emerald-500">{checkInRate?.checkedIn.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">{t("anDesk.verified")}</p>
+              <p className="text-3xl font-bold text-emerald-500">{formatNumber(checkInRate?.checkedIn || 0)}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Check-in Rate</p>
+              <p className="text-sm text-muted-foreground">{t("anDesk.rate")}</p>
               <p className="text-3xl font-bold text-primary">{checkInRate?.rate}%</p>
               <div className="mt-2 h-2 bg-secondary rounded-full overflow-hidden">
                 <div

@@ -19,7 +19,7 @@ import {
     Search, ArrowUpRight, ArrowDownLeft, Activity, AlertTriangle,
     Zap, RefreshCw
 } from "lucide-react";
-import { format } from "date-fns";
+import { useI18n } from "@/i18n/I18nContext";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -48,6 +48,7 @@ interface Transaction {
 }
 
 export function AdminEconomyTab() {
+    const { t, formatDate, formatNumber } = useI18n();
     const { session } = useAuth();
     const { toast } = useToast();
     const [stats, setStats] = useState<EconomyStats | null>(null);
@@ -93,7 +94,7 @@ export function AdminEconomyTab() {
 
     const handleAdjust = async () => {
         if (!adjustUserId || !adjustAmount || !adjustReason) {
-            toast({ title: "Missing fields", description: "All fields are required for a balance adjustment.", variant: "destructive" });
+            toast({ title: t("gemEcon.toastMissTitle"), description: t("gemEcon.toastMissDesc"), variant: "destructive" });
             return;
         }
         setAdjusting(true);
@@ -110,7 +111,7 @@ export function AdminEconomyTab() {
             });
             const data = await res.json();
             if (res.ok) {
-                toast({ title: "Balance Adjusted ✅", description: `${adjustCurrency}: ${data.previous_balance} → ${data.new_balance}` });
+                toast({ title: t("gemEcon.toastOkTitle"), description: `${adjustCurrency}: ${data.previous_balance} → ${data.new_balance}` });
                 setAdjustUserId(""); setAdjustAmount(""); setAdjustReason("");
                 fetchStats();
                 fetchTransactions();
@@ -118,7 +119,7 @@ export function AdminEconomyTab() {
                 throw new Error(data.error);
             }
         } catch (e: any) {
-            toast({ title: "Adjustment Failed", description: e.message, variant: "destructive" });
+            toast({ title: t("gemEcon.toastFailTitle"), description: e.message, variant: "destructive" });
         } finally {
             setAdjusting(false);
         }
@@ -146,11 +147,11 @@ export function AdminEconomyTab() {
                             <CardContent className="p-5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <AlertTriangle className="w-4 h-4 text-red-400" />
-                                    <span className="text-[10px] uppercase tracking-widest font-bold text-red-400">Liability</span>
+                                    <span className="text-[10px] uppercase tracking-widest font-bold text-red-400">{t("gemEcon.liability")}</span>
                                 </div>
                                 <p className="text-3xl font-black">${stats?.total_liability_usd}</p>
                                 <p className="text-[10px] text-muted-foreground mt-1">
-                                    Pending: ${stats?.pending_withdrawal_usd?.toFixed(2)}
+                                    {t("gemEcon.pending", { n: stats?.pending_withdrawal_usd?.toFixed(2) ?? "0" })}
                                 </p>
                             </CardContent>
                         </Card>
@@ -158,38 +159,38 @@ export function AdminEconomyTab() {
                             <CardContent className="p-5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <Gem className="w-4 h-4 text-cyan-400" />
-                                    <span className="text-[10px] uppercase tracking-widest font-bold text-cyan-400">Total Gems</span>
+                                    <span className="text-[10px] uppercase tracking-widest font-bold text-cyan-400">{t("gemEcon.totalGems")}</span>
                                 </div>
-                                <p className="text-3xl font-black">{stats?.total_gems?.toLocaleString()}</p>
-                                <p className="text-[10px] text-muted-foreground mt-1">Rate: ${stats?.gem_usd_rate}/gem</p>
+                                <p className="text-3xl font-black">{formatNumber(stats?.total_gems || 0)}</p>
+                                <p className="text-[10px] text-muted-foreground mt-1">{t("gemEcon.rate", { n: stats?.gem_usd_rate ?? 0 })}</p>
                             </CardContent>
                         </Card>
                         <Card className="border-amber-500/20">
                             <CardContent className="p-5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <Coins className="w-4 h-4 text-amber-400" />
-                                    <span className="text-[10px] uppercase tracking-widest font-bold text-amber-400">Total Points</span>
+                                    <span className="text-[10px] uppercase tracking-widest font-bold text-amber-400">{t("gemEcon.totalPts")}</span>
                                 </div>
-                                <p className="text-3xl font-black">{stats?.total_points?.toLocaleString()}</p>
+                                <p className="text-3xl font-black">{formatNumber(stats?.total_points || 0)}</p>
                             </CardContent>
                         </Card>
                         <Card className="border-purple-500/20">
                             <CardContent className="p-5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <KeyRound className="w-4 h-4 text-purple-400" />
-                                    <span className="text-[10px] uppercase tracking-widest font-bold text-purple-400">PromoKeys</span>
+                                    <span className="text-[10px] uppercase tracking-widest font-bold text-purple-400">{t("gemEcon.promoKeys")}</span>
                                 </div>
-                                <p className="text-3xl font-black">{stats?.total_promokeys?.toLocaleString()}</p>
+                                <p className="text-3xl font-black">{formatNumber(stats?.total_promokeys || 0)}</p>
                             </CardContent>
                         </Card>
                         <Card className="border-primary/20">
                             <CardContent className="p-5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <Activity className="w-4 h-4 text-primary" />
-                                    <span className="text-[10px] uppercase tracking-widest font-bold text-primary">24h Velocity</span>
+                                    <span className="text-[10px] uppercase tracking-widest font-bold text-primary">{t("gemEcon.velocity")}</span>
                                 </div>
-                                <p className="text-3xl font-black">{stats?.transactions_24h?.toLocaleString()}</p>
-                                <p className="text-[10px] text-muted-foreground mt-1">{stats?.total_users_with_balance} wallets</p>
+                                <p className="text-3xl font-black">{formatNumber(stats?.transactions_24h || 0)}</p>
+                                <p className="text-[10px] text-muted-foreground mt-1">{t("gemEcon.wallets", { n: stats?.total_users_with_balance || 0 })}</p>
                             </CardContent>
                         </Card>
                     </>
@@ -202,8 +203,8 @@ export function AdminEconomyTab() {
                     <Card className="shadow-sm">
                         <CardHeader className="flex flex-row items-center justify-between pb-4">
                             <div>
-                                <CardTitle className="text-lg">Master Ledger</CardTitle>
-                                <CardDescription>Recent platform transactions</CardDescription>
+                                <CardTitle className="text-lg">{t("gemEcon.ledger")}</CardTitle>
+                                <CardDescription>{t("gemEcon.ledgerCopy")}</CardDescription>
                             </div>
                             <Button variant="ghost" size="icon" onClick={() => fetchTransactions()}>
                                 <RefreshCw className="w-4 h-4" />
@@ -216,7 +217,7 @@ export function AdminEconomyTab() {
                                 </div>
                             ) : transactions.length === 0 ? (
                                 <div className="py-12 text-center text-muted-foreground border border-dashed rounded-xl">
-                                    No transactions recorded yet.
+                                    {t("gemEcon.emptyTx")}
                                 </div>
                             ) : (
                                 <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
@@ -242,7 +243,7 @@ export function AdminEconomyTab() {
                                                     {tx.amount >= 0 ? '+' : ''}{tx.amount}
                                                 </span>
                                                 <span className="text-[9px] text-muted-foreground w-16 text-right">
-                                                    {format(new Date(tx.created_at), "MMM d")}
+                                                    {formatDate(tx.created_at, { month: "short", day: "numeric" })}
                                                 </span>
                                             </div>
                                         </div>
@@ -259,15 +260,15 @@ export function AdminEconomyTab() {
                         <CardHeader>
                             <CardTitle className="text-sm uppercase tracking-widest flex items-center gap-2">
                                 <Zap className="w-4 h-4 text-primary" />
-                                Manual Intervention
+                                {t("gemEcon.intervene")}
                             </CardTitle>
-                            <CardDescription>Grant or deduct currency for any user.</CardDescription>
+                            <CardDescription>{t("gemEcon.interveneCopy")}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label className="text-xs">User ID</Label>
+                                <Label className="text-xs">{t("gemEcon.userId")}</Label>
                                 <Input
-                                    placeholder="Paste user UUID..."
+                                    placeholder={t("gemEcon.userPh")}
                                     value={adjustUserId}
                                     onChange={e => setAdjustUserId(e.target.value)}
                                     className="font-mono text-xs"
@@ -275,31 +276,31 @@ export function AdminEconomyTab() {
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-2">
-                                    <Label className="text-xs">Currency</Label>
+                                    <Label className="text-xs">{t("gemEcon.currency")}</Label>
                                     <Select value={adjustCurrency} onValueChange={setAdjustCurrency}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="gems">Gems 💎</SelectItem>
-                                            <SelectItem value="points">Points 🪙</SelectItem>
-                                            <SelectItem value="promokeys">PromoKeys 🔑</SelectItem>
-                                            <SelectItem value="gold">Gold ⭐</SelectItem>
+                                            <SelectItem value="gems">{t("gemEcon.gems")}</SelectItem>
+                                            <SelectItem value="points">{t("gemEcon.points")}</SelectItem>
+                                            <SelectItem value="promokeys">{t("gemEcon.promoKeysOpt")}</SelectItem>
+                                            <SelectItem value="gold">{t("gemEcon.gold")}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs">Amount</Label>
+                                    <Label className="text-xs">{t("gemEcon.amount")}</Label>
                                     <Input
                                         type="number"
-                                        placeholder="+500 or -100"
+                                        placeholder={t("gemEcon.amountPh")}
                                         value={adjustAmount}
                                         onChange={e => setAdjustAmount(e.target.value)}
                                     />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-xs">Reason (logged permanently)</Label>
+                                <Label className="text-xs">{t("gemEcon.reason")}</Label>
                                 <Input
-                                    placeholder="e.g. Support ticket #1234"
+                                    placeholder={t("gemEcon.reasonPh")}
                                     value={adjustReason}
                                     onChange={e => setAdjustReason(e.target.value)}
                                 />
@@ -307,7 +308,7 @@ export function AdminEconomyTab() {
                             <div className="pt-4 border-t border-white/10 space-y-3">
                                 <Label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
                                     <TrendingUp className="w-3 h-3" />
-                                    Emergency Flux (Cap Override)
+                                    {t("gemEcon.flux")}
                                 </Label>
                                 <Button 
                                     variant="outline" 
@@ -318,7 +319,7 @@ export function AdminEconomyTab() {
                                         setAdjustReason("Emergency Reward Flux - Safety Cap Override");
                                     }}
                                 >
-                                    Load +5,000 Pts Preset
+                                    {t("gemEcon.fluxPreset")}
                                 </Button>
                             </div>
                             <Button
@@ -326,10 +327,10 @@ export function AdminEconomyTab() {
                                 onClick={handleAdjust}
                                 disabled={adjusting}
                             >
-                                {adjusting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Execute Intervention"}
+                                {adjusting ? <Loader2 className="w-4 h-4 animate-spin" /> : t("gemEcon.execute")}
                             </Button>
                             <p className="text-[9px] text-muted-foreground text-center">
-                                All adjustments are permanently recorded with your admin ID.
+                                {t("gemEcon.footer")}
                             </p>
                         </CardContent>
                     </Card>
