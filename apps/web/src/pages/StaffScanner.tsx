@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import SEO from '@/components/SEO';
 import { usePerks } from '@/hooks/usePerks';
 import { redeemPerk } from '@/lib/perks';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface ScannedRedemption {
   id: string;
@@ -34,6 +35,7 @@ interface ScannedRedemption {
 }
 
 export default function StaffScanner() {
+  const { t } = useI18n();
   const [code, setCode] = useState('');
   const [isScanning, setIsScanning] = useState(false);
   const [activeResult, setActiveResult] = useState<ScannedRedemption | null>(null);
@@ -74,7 +76,7 @@ export default function StaffScanner() {
         customerName: 'Verified Promorang Pioneer',
         discountType: '20% Discount',
         discountValue: 20,
-        redeemedAt: 'Just now',
+        redeemedAt: t('staffScan.justNow'),
         status: 'valid',
       };
     } else if (cleanCode.includes('VIP') || cleanCode.includes('SHOT')) {
@@ -84,7 +86,7 @@ export default function StaffScanner() {
         perkTitle: 'Complimentary Welcome Tequila Shots for Two',
         customerName: 'VIP Club Member',
         discountType: 'Complimentary Item',
-        redeemedAt: 'Just now',
+        redeemedAt: t('staffScan.justNow'),
         status: 'valid',
       };
     } else if (cleanCode.startsWith('PRK-')) {
@@ -94,7 +96,7 @@ export default function StaffScanner() {
         perkTitle: 'Exclusive Merchant Partner Perk',
         customerName: 'Verified Community Member',
         discountType: 'Perk Offer',
-        redeemedAt: 'Just now',
+        redeemedAt: t('staffScan.justNow'),
         status: 'valid',
       };
     } else {
@@ -104,7 +106,7 @@ export default function StaffScanner() {
         perkTitle: 'Unknown or Expired Code',
         customerName: 'Unverified',
         discountType: 'None',
-        redeemedAt: 'Just now',
+        redeemedAt: t('staffScan.justNow'),
         status: 'invalid',
       };
     }
@@ -116,14 +118,14 @@ export default function StaffScanner() {
     if (!activeResult) return;
     redeemPerk(activeResult.id, activeResult.code);
     setRecentRedemptions([activeResult, ...recentRedemptions]);
-    toast.success(`Redemption Confirmed for ${activeResult.perkTitle}!`);
+    toast.success(t('staffScan.toastConfirmed', { title: activeResult.perkTitle }));
     setActiveResult(null);
     setCode('');
   };
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white p-4 sm:p-8 font-sans">
-      <SEO title="Merchant In-Store Perk Scanner — Promorang" description="Fast redemption validation for merchant cashier and door staff." />
+      <SEO title={t('staffScan.seoTitle')} description={t('staffScan.seoDescription')} />
 
       <div className="max-w-3xl mx-auto space-y-6">
         
@@ -139,11 +141,11 @@ export default function StaffScanner() {
             <div>
               <div className="flex items-center gap-2">
                 <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[10px] font-mono uppercase">
-                  Staff Terminal
+                  {t('staffScan.badge')}
                 </Badge>
-                <span className="text-xs text-zinc-400 font-mono">1-Tap Verification</span>
+                <span className="text-xs text-zinc-400 font-mono">{t('staffScan.oneTap')}</span>
               </div>
-              <h1 className="text-xl font-black text-white">Merchant Perk Scanner &amp; Validator</h1>
+              <h1 className="text-xl font-black text-white">{t('staffScan.title')}</h1>
             </div>
           </div>
 
@@ -152,7 +154,7 @@ export default function StaffScanner() {
             className="text-xs text-zinc-400 hover:text-white flex items-center gap-1 font-semibold"
           >
             <Store className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Merchant Hub</span>
+            <span>{t('staffScan.merchantHub')}</span>
           </Link>
         </div>
 
@@ -162,10 +164,10 @@ export default function StaffScanner() {
             <div className="space-y-1">
               <h2 className="text-lg font-black text-white flex items-center gap-2">
                 <QrCode className="w-5 h-5 text-emerald-400" />
-                <span>Scan or Enter Customer Code</span>
+                <span>{t('staffScan.scanTitle')}</span>
               </h2>
               <p className="text-xs text-zinc-400">
-                Type the 6-character code or scan the QR pass on the customer's phone.
+                {t('staffScan.scanLede')}
               </p>
             </div>
 
@@ -173,7 +175,7 @@ export default function StaffScanner() {
               type="button"
               onClick={() => {
                 setIsScanning(!isScanning);
-                toast.info(isScanning ? "Camera scanner paused" : "Camera scanner active (point at customer QR)");
+                toast.info(isScanning ? t('staffScan.cameraPaused') : t('staffScan.cameraActiveToast'));
               }}
               variant="outline"
               className={`border-zinc-700 rounded-xl text-xs font-bold gap-2 ${
@@ -181,7 +183,7 @@ export default function StaffScanner() {
               }`}
             >
               <Camera className="w-4 h-4" />
-              <span>{isScanning ? "Camera Active" : "Open Camera"}</span>
+              <span>{isScanning ? t('staffScan.cameraActive') : t('staffScan.openCamera')}</span>
             </Button>
           </div>
 
@@ -196,13 +198,13 @@ export default function StaffScanner() {
               type="submit"
               className="bg-emerald-500 hover:bg-emerald-600 text-black font-black text-xs px-6 rounded-xl shadow-lg shadow-emerald-500/20 shrink-0 h-12"
             >
-              Verify Code →
+              {t('staffScan.verify')}
             </Button>
           </form>
 
           {/* Quick Demo Pre-fills */}
           <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] text-zinc-400">
-            <span>Quick test codes:</span>
+            <span>{t('staffScan.quickTest')}</span>
             {['WINGS-SW20', 'FICTION-VIP2', 'TACBAR-TACO3', 'DUB-EXPRESS'].map((c) => (
               <button
                 key={c}
@@ -228,12 +230,12 @@ export default function StaffScanner() {
                 {activeResult.status === 'valid' ? (
                   <Badge className="bg-emerald-500 text-black font-black text-xs uppercase px-3 py-1 border-none flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Valid Customer Perk</span>
+                    <span>{t('staffScan.valid')}</span>
                   </Badge>
                 ) : (
                   <Badge className="bg-red-500 text-white font-black text-xs uppercase px-3 py-1 border-none flex items-center gap-1">
                     <XCircle className="w-3.5 h-3.5" />
-                    <span>Invalid Code</span>
+                    <span>{t('staffScan.invalid')}</span>
                   </Badge>
                 )}
               </div>
@@ -243,13 +245,13 @@ export default function StaffScanner() {
             <div className="space-y-1">
               <h3 className="text-2xl font-black text-white">{activeResult.perkTitle}</h3>
               <p className="text-xs text-zinc-300">
-                Customer: <strong className="text-white">{activeResult.customerName}</strong>
+                {t('staffScan.customer')} <strong className="text-white">{activeResult.customerName}</strong>
               </p>
             </div>
 
             {activeResult.status === 'valid' && (
               <div className="p-4 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-between text-xs font-mono">
-                <span className="text-zinc-400">Discount to Apply:</span>
+                <span className="text-zinc-400">{t('staffScan.discount')}</span>
                 <span className="text-emerald-400 font-black text-base">{activeResult.discountType}</span>
               </div>
             )}
@@ -260,14 +262,14 @@ export default function StaffScanner() {
                   onClick={handleConfirmRedemption}
                   className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-black text-xs py-3.5 rounded-xl shadow-lg shadow-emerald-500/25"
                 >
-                  ✓ Confirm In-Person Redemption
+                  ✓ {t('staffScan.confirm')}
                 </Button>
               ) : (
                 <Button
                   onClick={() => setActiveResult(null)}
                   className="flex-1 bg-red-500 text-white font-black text-xs py-3.5 rounded-xl"
                 >
-                  Dismiss
+                  {t('staffScan.dismiss')}
                 </Button>
               )}
               <Button
@@ -275,7 +277,7 @@ export default function StaffScanner() {
                 onClick={() => setActiveResult(null)}
                 className="border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white rounded-xl text-xs"
               >
-                Cancel
+                {t('staffScan.cancel')}
               </Button>
             </div>
           </div>
@@ -286,9 +288,9 @@ export default function StaffScanner() {
           <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <History className="w-4 h-4 text-zinc-400" />
-              <span>Today's Verified Redemptions</span>
+              <span>{t('staffScan.todayLog')}</span>
             </h3>
-            <span className="text-xs font-mono text-zinc-500">{recentRedemptions.length} validated</span>
+            <span className="text-xs font-mono text-zinc-500">{t('staffScan.validated', { count: recentRedemptions.length })}</span>
           </div>
 
           <div className="space-y-2.5">

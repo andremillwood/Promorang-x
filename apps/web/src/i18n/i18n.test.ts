@@ -132,6 +132,10 @@ describe("localization", () => {
       "hostOps.confirmArrival",
       "featBook.title",
       "featBook.proceed",
+      "orgWork.seoTitle",
+      "orgWork.going",
+      "staffScan.title",
+      "staffScan.confirm",
     ] as const;
 
     supportedLocales.forEach((locale) => {
