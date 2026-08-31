@@ -24,28 +24,28 @@ const authSchema = z.object({
 const roleInfo: Record<UserRole, { icon: typeof Users; title: string; description: string }> = {
   participant: {
     icon: Users,
-    title: "Join Moments",
-    description: "Discover and participate in experiences",
+    title: "I go out",
+    description: "Find nights, rooms, and places worth showing up for",
   },
   creator: {
     icon: PlayCircle,
-    title: "Create Missions",
-    description: "Publish content and drive real-world unlocks",
+    title: "I make the story",
+    description: "Point people at a night they can join",
   },
   host: {
     icon: Sparkles,
-    title: "Host Moments",
-    description: "Create gatherings and bring people together",
+    title: "I have a place",
+    description: "A bar, venue, or night — put tonight where people can join",
   },
   brand: {
     icon: Building2,
-    title: "For Brands",
-    description: "Reward real participation with your brand",
+    title: "I am a brand",
+    description: "Connect spend to people who actually show up",
   },
   merchant: {
     icon: Store,
-    title: "For Venues",
-    description: "Welcome moments to your location",
+    title: "I run a shop",
+    description: "Turn nearby attention into visits tonight",
   },
 };
 
@@ -276,11 +276,28 @@ const AuthPage = () => {
             </div>
           )}
 
-          {/* Role Selection (Signup only) */}
           {mode === "signup" && !showRolePicker && (
-            <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-[#171512]/10 bg-white/55 px-4 py-3">
-              <div><p className="text-sm font-black">Personal membership</p><p className="text-xs text-[#756b5f]">PromoCard, Moments and member benefits</p></div>
-              <button type="button" onClick={() => setShowRolePicker(true)} className="min-h-11 shrink-0 text-xs font-black text-primary">Business?</button>
+            <div className="mb-6 grid gap-3">
+              <p className="text-sm font-black text-[#171512]">How should we start you?</p>
+              <button
+                type="button"
+                onClick={() => setSelectedRole("participant")}
+                className={`min-h-[4.5rem] rounded-xl border px-4 py-3 text-left ${selectedRole === "participant" ? "border-primary bg-primary/5" : "border-[#171512]/10 bg-white/55"}`}
+              >
+                <p className="text-sm font-black">I am going out</p>
+                <p className="mt-1 text-xs leading-5 text-[#756b5f]">Find a night, a room, or a crowd worth showing up for.</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => { setSelectedRole("host"); setShowRolePicker(true); }}
+                className={`min-h-[4.5rem] rounded-xl border px-4 py-3 text-left ${selectedRole === "host" ? "border-primary bg-primary/5" : "border-[#171512]/10 bg-white/55"}`}
+              >
+                <p className="text-sm font-black">I have a place</p>
+                <p className="mt-1 text-xs leading-5 text-[#756b5f]">A bar, restaurant, venue, or night. Put tonight where people can join.</p>
+              </button>
+              <button type="button" onClick={() => setShowRolePicker(true)} className="min-h-11 text-left text-xs font-black text-primary">
+                I am a creator, brand, or shop
+              </button>
             </div>
           )}
           {mode === "signup" && showRolePicker && (

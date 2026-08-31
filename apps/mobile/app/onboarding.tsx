@@ -20,11 +20,11 @@ import { useOnboarding } from '@/context/OnboardingContext';
 import { supabase } from '@/lib/supabase';
 
 const ROLES: Array<{ id: Exclude<UserRole, 'admin'>; title: string; detail: string; icon: React.ComponentProps<typeof Ionicons>['name'] }> = [
-  { id: 'participant', title: 'Participant', detail: 'Find moments and keep what you earn.', icon: 'people' },
-  { id: 'creator', title: 'Creator', detail: 'Turn stories into proof and opportunity.', icon: 'camera' },
-  { id: 'host', title: 'Host', detail: 'Bring people together around a Moment.', icon: 'calendar' },
-  { id: 'merchant', title: 'Merchant', detail: 'Turn visits into lasting relationships.', icon: 'storefront' },
-  { id: 'brand', title: 'Brand', detail: 'Fund action and understand the return.', icon: 'business' },
+  { id: 'participant', title: 'I go out', detail: 'Find a night, a room, or a crowd worth showing up for.', icon: 'people' },
+  { id: 'host', title: 'I have a place', detail: 'A bar, venue, or night. Put tonight where people can join.', icon: 'calendar' },
+  { id: 'merchant', title: 'I run a shop', detail: 'Turn nearby attention into visits at your door.', icon: 'storefront' },
+  { id: 'creator', title: 'I make the story', detail: 'Point people at a night they can join.', icon: 'camera' },
+  { id: 'brand', title: 'I am a brand', detail: 'Connect spend to people who actually show up.', icon: 'business' },
   { id: 'agency', title: 'Agency', detail: 'Coordinate activations across clients.', icon: 'layers' },
 ];
 
@@ -121,8 +121,8 @@ export default function OnboardingScreen() {
 
         {step === 1 && <>
           <Text style={styles.eyebrow}>CHOOSE YOUR STARTING POINT</Text>
-          <Text style={styles.title}>How will you show up first?</Text>
-          <Text style={styles.subtitle}>You can add and switch roles later.</Text>
+          <Text style={styles.title}>Do you have a place, or are you going out?</Text>
+          <Text style={styles.subtitle}>If you run a bar or night, pick I have a place. You can add other roles later.</Text>
           <View style={styles.roleList}>{ROLES.map((item) => {
             const selected = role === item.id;
             return <Pressable key={item.id} onPress={() => setRole(item.id)} style={[styles.roleCard, selected && styles.selectedCard]}>

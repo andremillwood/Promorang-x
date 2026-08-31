@@ -24,6 +24,7 @@ interface AuthContextType {
   roles: UserRole[];
   activeRole: UserRole | null;
   setActiveRole: (role: UserRole) => void;
+  claimRole: (role: UserRole) => Promise<{ error: Error | null }>;
   loading: boolean;
   signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -104,6 +105,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [roles, activeRole]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const claimRole = async (role: UserRole) => {
+    if (!user) return { error: new Error("Sign in before choosing a role.") };
+    const { error } = await supabase
+      .from("user_roles")
+      .upsert({ user_id: user.id, role: role as any }, { onConflict: "user_id,role" });
+    if (error) return { error };
+    setRoles((current) => (current.includes(role) ? current : [...current, role]));
+    setActiveRole(role);
+    return { error: null };
+  };
 
   const setActiveRole = (role: UserRole) => {
     setActiveRoleState(role);
@@ -575,6 +587,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         roles,
         activeRole,
         setActiveRole,
+        claimRole,
         loading,
         signUp,
         signIn,

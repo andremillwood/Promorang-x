@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -105,6 +105,8 @@ const STOCK_COVERS = [
 export function CreateMoment() {
   const { t } = useI18n();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const firstNight = searchParams.get("firstTime") === "true";
   const { user } = useAuth();
   const { toast } = useToast();
   const { uploadImage, uploading } = useImageUpload();
@@ -208,6 +210,15 @@ export function CreateMoment() {
       if (found.capacity) setMaxParticipants(found.capacity);
     }
   };
+
+  useEffect(() => {
+    if (!firstNight || startsAt) return;
+    const date = new Date();
+    date.setHours(20, 0, 0, 0);
+    if (date.getTime() < Date.now()) date.setDate(date.getDate() + 1);
+    const localIso = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    setStartsAt(localIso);
+  }, [firstNight, startsAt]);
 
   const handlePresetDate = (daysAhead: number, defaultHour = 20) => {
     const date = new Date();
@@ -327,12 +338,17 @@ export function CreateMoment() {
                 <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Back
               </Button>
               <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-bold">
-                Creator Studio
+                {firstNight ? "Tonight" : "Creator Studio"}
               </Badge>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">
-              Host a Moment & Experience
+              {firstNight ? "Name what is happening tonight" : "Host a Moment & Experience"}
             </h1>
+            {firstNight ? (
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/55">
+                A Moment is just tonight at your place. Title, time, and where — people can join from their phone after you publish.
+              </p>
+            ) : null}
           </div>
 
           {/* Stepper Pills */}

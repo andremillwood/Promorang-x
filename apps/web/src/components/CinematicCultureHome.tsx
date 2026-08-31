@@ -70,6 +70,8 @@ import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import { useI18n } from "@/i18n/I18nContext";
 import { OpsTheatreStatusPill } from "@/components/theater/OpsTheatreStatusPill";
 import { OpsTheatreOrientationModal } from "@/components/onboarding/OpsTheatreOrientationModal";
+import { FirstNightMove } from "@/components/onboarding/FirstNightMove";
+import { useOpeningMove } from "@/hooks/useOpeningMove";
 import { BrandCaseStudies } from "@/components/brands/BrandCaseStudies";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -314,6 +316,7 @@ function SampleOptIn({ onShow, noun, loading = false }: { onShow: () => void; no
 
 export default function CinematicCultureHome() {
   const { user } = useAuth();
+  const opening = useOpeningMove();
   const { t } = useI18n();
   const [showSamples, setShowSamples] = useState(false);
   const [heroItemIndex, setHeroItemIndex] = useState(0);
@@ -471,8 +474,9 @@ export default function CinematicCultureHome() {
   return (
     <main className="min-h-screen bg-black text-white">
       {user ? <HomeFeedToggle /> : null}
-      <PromoCardGateway />
-      <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} />
+      {user ? <FirstNightMove /> : null}
+      {!opening.show && !(user && opening.loading) ? <PromoCardGateway /> : null}
+      {!opening.show && !(user && opening.loading) ? <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} /> : null}
       <div className="hidden md:block">
       <section ref={heroRef} className="relative overflow-hidden border-b border-white/10 md:min-h-[92svh]">
         {/* Parallax Background Layer */}
