@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   classifyExperienceRole,
+  classifyHappenedBucket,
   contributorValueScore,
+  dropShareCopy,
   happenedBuckets,
   resolveCreateIntent,
   slugifyCommunityName,
@@ -31,6 +33,18 @@ describe("people experience mapping", () => {
       went: 1,
       bought: 1,
     });
+  });
+
+  it("maps live product action types into the same human buckets", () => {
+    expect(classifyHappenedBucket("moment_join_verified")).toBe("went");
+    expect(classifyHappenedBucket("proof_verified")).toBe("went");
+    expect(classifyHappenedBucket("deal_claimed")).toBe("claimed");
+    expect(classifyHappenedBucket("referral_activated")).toBe("brought");
+    expect(classifyHappenedBucket("organic_share")).toBe("shared");
+  });
+
+  it("writes drop share copy people can send as-is", () => {
+    expect(dropShareCopy("Mikey", "2-for-1 Friday")).toBe("Mikey just dropped 2-for-1 Friday on your PromoCard.");
   });
 
   it("creates readable community slugs", () => {

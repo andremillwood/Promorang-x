@@ -2,6 +2,8 @@ const {
   classifyExperienceRole,
   contributorValueScore,
   happenedBuckets,
+  classifyHappenedBucket,
+  attributionFromMetadata,
 } = require('../../services/peopleExperienceService');
 
 describe('people experience role and value rules', () => {
@@ -28,5 +30,34 @@ describe('people experience role and value rules', () => {
       { action_type: 'PERK_CLAIM' },
     ]);
     expect(buckets).toMatchObject({ went: 1, bought: 1, answered: 1, shared: 1, brought: 1, claimed: 1 });
+  });
+
+  test('reads existing live action types without new columns', () => {
+    expect(classifyHappenedBucket('moment_join_verified')).toBe('went');
+    expect(classifyHappenedBucket('proof_verified')).toBe('went');
+    expect(classifyHappenedBucket('deal_claimed')).toBe('claimed');
+    expect(classifyHappenedBucket('referral_activated')).toBe('brought');
+    expect(classifyHappenedBucket('organic_repost')).toBe('shared');
+    expect(happenedBuckets([
+      { action_type: 'moment_join_verified' },
+      { action_type: 'deal_claimed' },
+      { action_type: 'referral_activated' },
+    ])).toMatchObject({ went: 1, claimed: 1, brought: 1 });
+  });
+
+  test('copies attribution from existing metadata keys', () => {
+    expect(attributionFromMetadata({
+      sceneId: 'scene-1',
+      invited_by_user_id: 'host-9',
+      referrer_id: 'ref-3',
+      moment_id: 'moment-4',
+      amount: '12',
+    })).toMatchObject({
+      scene_id: 'scene-1',
+      contributor_id: 'host-9',
+      referrer_id: 'ref-3',
+      moment_id: 'moment-4',
+      amount: 12,
+    });
   });
 });

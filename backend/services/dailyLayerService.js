@@ -602,6 +602,21 @@ async function recordVerifiedAction({ userId, actionType, verificationMode, acti
             // Don't throw, just log. We want resilience.
         }
 
+        try {
+            const { attributionFromMetadata } = require('./peopleExperienceService');
+            const attribution = attributionFromMetadata(metadata, {
+                moment_id: referenceType === 'moment' ? referenceId : null,
+                drop_id: referenceType === 'drop' || referenceType === 'promorang_drop' ? referenceId : null,
+                campaign_id: referenceType === 'campaign' ? referenceId : null,
+                verification_method: verificationMode || null,
+            });
+            if (action?.id && Object.values(attribution).some((value) => value != null)) {
+                await supabase.from('verified_actions').update(attribution).eq('id', action.id);
+            }
+        } catch (attributionError) {
+            console.warn('[DailyLayer] People attribution skipped:', attributionError.message);
+        }
+
         // 2. Update Daily State (Checklist Progress)
         const today = getPromorangDate();
 

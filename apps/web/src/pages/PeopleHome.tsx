@@ -51,6 +51,22 @@ export default function PeopleHome() {
         <StatPile label="Earned" value={money(Number(data?.earned || 0))} hint="From verified activity" />
       </section>
 
+      {role === "operator" ? (
+        <section className="rounded-[1.5rem] border border-primary/30 bg-primary/10 px-4 py-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">This week</p>
+          <p className="mt-2 font-serif text-xl font-bold">
+            {data?.happening || 0} {data?.happening === 1 ? "person showed up" : "people showed up"}
+          </p>
+          <p className="mt-1 text-sm text-white/55">
+            {[
+              data?.happened?.buckets?.went ? `${data.happened.buckets.went} went` : null,
+              data?.happened?.buckets?.claimed ? `${data.happened.buckets.claimed} claimed` : null,
+              data?.happened?.buckets?.brought ? `${data.happened.buckets.brought} brought friends` : null,
+            ].filter(Boolean).join(" · ") || "Nothing verified yet. Give something or ask them to show up."}
+          </p>
+        </section>
+      ) : null}
+
       <section className="grid grid-cols-3 gap-3 text-center">
         <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] px-3 py-4">
           <p className="font-serif text-2xl font-bold">{data?.happening || 0}</p>

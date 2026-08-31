@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { resolveCreateIntent } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -105,6 +106,9 @@ const STOCK_COVERS = [
 export function CreateMoment() {
   const { t } = useI18n();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const createIntent = resolveCreateIntent(params.get("intent"));
+  const fromPeopleFlow = Boolean(params.get("intent"));
   const { user } = useAuth();
   const { toast } = useToast();
   const { uploadImage, uploading } = useImageUpload();
@@ -153,9 +157,13 @@ export function CreateMoment() {
     return (
       <div className="min-h-screen bg-[#0a0a0b] text-white flex flex-col items-center justify-center p-6 text-center">
         <div className="max-w-md space-y-4">
-          <h1 className="text-3xl font-extrabold">Sign in to Host a Moment</h1>
+          <h1 className="text-3xl font-extrabold">
+            {fromPeopleFlow ? `Sign in to ${createIntent.label.toLowerCase()}` : "Sign in to Host a Moment"}
+          </h1>
           <p className="text-white/60 text-sm">
-            You need a verified Promorang account to create moments, publish tickets, and configure collaborator revenue splits.
+            {fromPeopleFlow
+              ? createIntent.prompt
+              : "You need a verified Promorang account to create moments, publish tickets, and configure collaborator revenue splits."}
           </p>
           <Button onClick={() => navigate("/auth")} className="rounded-full bg-primary text-white hover:bg-primary/90 font-bold px-8 py-6">
             Sign In / Register
@@ -309,8 +317,8 @@ export function CreateMoment() {
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
       <SEO
-        title="Host a Moment — Creator & Experience Studio | Promorang"
-        description="Publish real-world cultural moments, sound clashes, culinary pop-ups, and ticketed experiences in Kingston."
+        title={fromPeopleFlow ? `${createIntent.label} | Promorang` : "Host a Moment — Creator & Experience Studio | Promorang"}
+        description={fromPeopleFlow ? createIntent.prompt : "Publish real-world cultural moments, sound clashes, culinary pop-ups, and ticketed experiences in Kingston."}
       />
 
       <main className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8 space-y-6">
@@ -327,11 +335,11 @@ export function CreateMoment() {
                 <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Back
               </Button>
               <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-bold">
-                Creator Studio
+                {fromPeopleFlow ? createIntent.label : "Creator Studio"}
               </Badge>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">
-              Host a Moment & Experience
+              {fromPeopleFlow ? createIntent.prompt : "Host a Moment & Experience"}
             </h1>
           </div>
 

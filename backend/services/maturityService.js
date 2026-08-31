@@ -79,6 +79,16 @@ async function recordVerifiedAction(userId, actionType, metadata = {}, surface =
       return null;
     }
 
+    try {
+      const { attributionFromMetadata } = require('./peopleExperienceService');
+      const attribution = attributionFromMetadata(metadata);
+      if (action?.id && Object.values(attribution).some((value) => value != null)) {
+        await supabase.from('verified_actions').update(attribution).eq('id', action.id);
+      }
+    } catch (attributionError) {
+      console.log('[MaturityService] People attribution skipped:', attributionError.message);
+    }
+
     // Update user's verified_actions_count (only for non-page-view actions) and last_used_surface
     const updateData = {
       last_used_surface: surface,

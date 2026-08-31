@@ -16,6 +16,7 @@ const offerService = require('../services/offerService');
 const growthOperatingService = require('../services/growthOperatingService');
 const masterKeyService = require('../services/masterKeyService');
 const demandEventService = require('../services/demandEventService');
+const peopleExperience = require('../services/peopleExperienceService');
 
 const supabase = global.supabase || serviceSupabase || null;
 
@@ -145,6 +146,26 @@ async function performCheckIn({
     .single();
 
   if (updateError) throw updateError;
+
+  try {
+    await peopleExperience.recordVerifiedAction({
+      userId,
+      actionType: 'MOMENT_ATTENDANCE',
+      momentId,
+      sceneId: moment?.scene_id || metadata?.scene_id || null,
+      contributorId: metadata?.contributor_id || metadata?.invited_by_user_id || null,
+      referrerId: metadata?.referrer_id || metadata?.invited_by_user_id || null,
+      campaignId: metadata?.campaign_id || null,
+      verificationMethod: verificationStatus || 'check_in',
+      metadata: {
+        moment_id: momentId,
+        moment_title: moment?.title || null,
+        ...metadata,
+      },
+    });
+  } catch (experienceError) {
+    console.warn('[Participation API] people experience check-in skipped:', experienceError.message);
+  }
 
   try {
     await demandEventService.recordEvent({

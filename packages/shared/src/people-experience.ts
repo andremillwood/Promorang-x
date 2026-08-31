@@ -141,29 +141,38 @@ export function humanActionLabel(actionType?: string | null): string {
     event_rsvp: "said they are going",
     check_in: "went somewhere",
     share_completed: "shared something",
+    moment_join_verified: "went somewhere",
+    proof_verified: "showed up",
+    referral_activated: "brought a friend",
   };
   return map[String(actionType || "")] || "showed up";
 }
 
+export function classifyHappenedBucket(actionType?: string | null): keyof ReturnType<typeof emptyHappenedBuckets> {
+  const type = String(actionType || "");
+  if (["MOMENT_ATTENDANCE", "MERCHANT_VISIT", "check_in", "TEST_DRIVE", "moment_join_verified", "proof_verified", "event_rsvp", "MOMENT_RSVP"].includes(type)) return "went";
+  if (["PURCHASE", "order_paid", "split_tender"].includes(type)) return "bought";
+  if (["DISCOVERY_RESPONSE", "discovery_vote"].includes(type)) return "answered";
+  if (["CONTENT_POST", "share_completed"].includes(type) || type.startsWith("organic_")) return "shared";
+  if (["FRIEND_INVITE", "REFERRAL", "referral_activated"].includes(type)) return "brought";
+  if (["PERK_CLAIM", "PERK_REDEMPTION", "deal_claimed", "PROMOKEY_USE"].includes(type)) return "claimed";
+  return "other";
+}
+
+export function emptyHappenedBuckets() {
+  return { went: 0, bought: 0, answered: 0, shared: 0, brought: 0, claimed: 0, other: 0 };
+}
+
 export function happenedBuckets(actions: Array<{ action_type?: string | null }>) {
-  const buckets = {
-    went: 0,
-    bought: 0,
-    answered: 0,
-    shared: 0,
-    brought: 0,
-    claimed: 0,
-    other: 0,
-  };
+  const buckets = emptyHappenedBuckets();
   for (const action of actions) {
-    const type = String(action.action_type || "");
-    if (["MOMENT_ATTENDANCE", "MERCHANT_VISIT", "check_in", "TEST_DRIVE"].includes(type)) buckets.went += 1;
-    else if (["PURCHASE"].includes(type)) buckets.bought += 1;
-    else if (["DISCOVERY_RESPONSE"].includes(type)) buckets.answered += 1;
-    else if (["CONTENT_POST", "share_completed"].includes(type)) buckets.shared += 1;
-    else if (["FRIEND_INVITE", "REFERRAL"].includes(type)) buckets.brought += 1;
-    else if (["PERK_CLAIM", "PERK_REDEMPTION", "deal_claimed", "PROMOKEY_USE"].includes(type)) buckets.claimed += 1;
-    else buckets.other += 1;
+    buckets[classifyHappenedBucket(action.action_type)] += 1;
   }
   return buckets;
+}
+
+export function dropShareCopy(creatorName: string, perkTitle: string) {
+  const who = creatorName || "Someone";
+  const what = perkTitle || "something";
+  return `${who} just dropped ${what} on your PromoCard.`;
 }

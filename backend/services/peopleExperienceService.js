@@ -60,19 +60,46 @@ function contributorValueScore({ peopleBrought = 0, activePeople = 0, verifiedAc
   return Number(activePeople) * 8 + Number(verifiedActions) * 5 + Number(attributedValue) * 0.01 + Number(peopleBrought) * 0.4;
 }
 
+function classifyHappenedBucket(actionType) {
+  const type = String(actionType || '');
+  if (['MOMENT_ATTENDANCE', 'MERCHANT_VISIT', 'check_in', 'TEST_DRIVE', 'moment_join_verified', 'proof_verified', 'event_rsvp', 'MOMENT_RSVP'].includes(type)) return 'went';
+  if (['PURCHASE', 'order_paid', 'split_tender'].includes(type)) return 'bought';
+  if (['DISCOVERY_RESPONSE', 'discovery_vote'].includes(type)) return 'answered';
+  if (['CONTENT_POST', 'share_completed'].includes(type) || type.startsWith('organic_')) return 'shared';
+  if (['FRIEND_INVITE', 'REFERRAL', 'referral_activated'].includes(type)) return 'brought';
+  if (['PERK_CLAIM', 'PERK_REDEMPTION', 'deal_claimed', 'PROMOKEY_USE'].includes(type)) return 'claimed';
+  return 'other';
+}
+
 function happenedBuckets(actions) {
   const buckets = { went: 0, bought: 0, answered: 0, shared: 0, brought: 0, claimed: 0, other: 0 };
   for (const action of actions || []) {
-    const type = String(action.action_type || '');
-    if (['MOMENT_ATTENDANCE', 'MERCHANT_VISIT', 'check_in', 'TEST_DRIVE'].includes(type)) buckets.went += 1;
-    else if (type === 'PURCHASE') buckets.bought += 1;
-    else if (type === 'DISCOVERY_RESPONSE') buckets.answered += 1;
-    else if (['CONTENT_POST', 'share_completed'].includes(type)) buckets.shared += 1;
-    else if (['FRIEND_INVITE', 'REFERRAL'].includes(type)) buckets.brought += 1;
-    else if (['PERK_CLAIM', 'PERK_REDEMPTION', 'deal_claimed', 'PROMOKEY_USE'].includes(type)) buckets.claimed += 1;
-    else buckets.other += 1;
+    buckets[classifyHappenedBucket(action.action_type)] += 1;
   }
   return buckets;
+}
+
+function firstMeta(metadata, keys, fallback = null) {
+  const source = metadata && typeof metadata === 'object' ? metadata : {};
+  for (const key of keys) {
+    if (source[key] != null && source[key] !== '') return source[key];
+  }
+  return fallback;
+}
+
+function attributionFromMetadata(metadata = {}, extras = {}) {
+  const amountRaw = firstMeta(metadata, ['amount', 'reward_value', 'rewardValue'], extras.amount);
+  return {
+    scene_id: firstMeta(metadata, ['scene_id', 'sceneId'], extras.scene_id),
+    contributor_id: firstMeta(metadata, ['contributor_id', 'contributorId', 'invited_by_user_id', 'invitedByUserId'], extras.contributor_id),
+    referrer_id: firstMeta(metadata, ['referrer_id', 'referrerId'], extras.referrer_id),
+    moment_id: firstMeta(metadata, ['moment_id', 'momentId'], extras.moment_id),
+    campaign_id: firstMeta(metadata, ['campaign_id', 'campaignId'], extras.campaign_id),
+    merchant_id: firstMeta(metadata, ['merchant_id', 'merchantId'], extras.merchant_id),
+    drop_id: firstMeta(metadata, ['drop_id', 'dropId'], extras.drop_id),
+    amount: amountRaw == null || amountRaw === '' ? null : Number(amountRaw),
+    verification_method: firstMeta(metadata, ['verification_method', 'verificationMethod', 'verification_mode'], extras.verification_method),
+  };
 }
 
 function createPeopleExperienceService(db = defaultDb) {
@@ -135,11 +162,13 @@ function createPeopleExperienceService(db = defaultDb) {
     metadata = {},
   }) {
     if (!userId || !actionType) return null;
-    const payload = {
+    const base = {
       user_id: userId,
       action_type: actionType,
       action_metadata: metadata,
       surface: 'web',
+    };
+    const attribution = attributionFromMetadata(metadata, {
       scene_id: sceneId,
       contributor_id: contributorId,
       referrer_id: referrerId,
@@ -149,9 +178,11 @@ function createPeopleExperienceService(db = defaultDb) {
       drop_id: dropId,
       amount,
       verification_method: verificationMethod,
-    };
-    const inserted = await maybe(db.from('verified_actions').insert(payload).select().maybeSingle());
-    return inserted.data || null;
+    });
+    const inserted = await maybe(db.from('verified_actions').insert({ ...base, ...attribution }).select().maybeSingle());
+    if (inserted.data) return inserted.data;
+    const fallback = await maybe(db.from('verified_actions').insert(base).select().maybeSingle());
+    return fallback.data || null;
   }
 
   async function ensureHubAttribution({ sceneId, memberUserId, attributedByUserId, source = 'invite', sourceEntityType = null, sourceEntityId = null }) {
@@ -241,7 +272,7 @@ function createPeopleExperienceService(db = defaultDb) {
     for (const id of contributorIds.slice(0, 12)) {
       const theirPeople = await maybe(db.from('user_referrals').select('id, status').eq('referrer_id', id));
       const theirActions = await maybe(
-        db.from('verified_actions').select('id, action_type, amount').eq('contributor_id', id).limit(200),
+        db.from('verified_actions').select('id, action_type, amount, contributor_id, user_id').or(`contributor_id.eq.${id},user_id.eq.${id}`).limit(200),
       );
       const person = await profileFor(id);
       const people = (theirPeople.data || []).length;
@@ -272,8 +303,14 @@ function createPeopleExperienceService(db = defaultDb) {
   }
 
   async function getHappened(userId, { sceneId } = {}) {
+    const network = sceneId ? null : await getNetwork(userId);
+    const networkIds = Array.from(new Set([userId, ...((network?.referrals || []).map((row) => row.referred_id).filter(Boolean))]));
     let query = db.from('verified_actions').select('*').order('verified_at', { ascending: false }).limit(400);
-    query = sceneId ? query.eq('scene_id', sceneId) : query.or(`contributor_id.eq.${userId},referrer_id.eq.${userId}`);
+    if (sceneId) {
+      query = query.eq('scene_id', sceneId);
+    } else if (networkIds.length) {
+      query = query.or(`contributor_id.eq.${userId},referrer_id.eq.${userId},user_id.in.(${networkIds.join(',')})`);
+    }
     const actions = await maybe(query);
     const rows = actions.data || [];
     const week = weekStart();
@@ -825,3 +862,5 @@ module.exports.createPeopleExperienceService = createPeopleExperienceService;
 module.exports.classifyExperienceRole = classifyExperienceRole;
 module.exports.contributorValueScore = contributorValueScore;
 module.exports.happenedBuckets = happenedBuckets;
+module.exports.classifyHappenedBucket = classifyHappenedBucket;
+module.exports.attributionFromMetadata = attributionFromMetadata;

@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   CREATE_INTENTS,
   classifyExperienceRole,
+  classifyHappenedBucket,
   contributorValueScore,
+  dropShareCopy,
   resolveCreateIntent,
 } from "@promorang/shared";
 
@@ -21,5 +23,11 @@ describe("simplified PROMORANG experience", () => {
     expect(
       contributorValueScore({ peopleBrought: 20, activePeople: 15, verifiedActions: 18, attributedValue: 3200 }),
     ).toBeGreaterThan(contributorValueScore({ peopleBrought: 80, activePeople: 1, verifiedActions: 0 }));
+  });
+
+  it("keeps live check-ins and claims in human buckets", () => {
+    expect(classifyHappenedBucket("moment_join_verified")).toBe("went");
+    expect(classifyHappenedBucket("deal_claimed")).toBe("claimed");
+    expect(dropShareCopy("Ada", "Free entry")).toBe("Ada just dropped Free entry on your PromoCard.");
   });
 });
