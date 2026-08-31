@@ -130,6 +130,8 @@ describe("localization", () => {
       "consHome.welcome",
       "hostOps.doorList",
       "hostOps.confirmArrival",
+      "featBook.title",
+      "featBook.proceed",
     ] as const;
 
     supportedLocales.forEach((locale) => {
