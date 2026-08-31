@@ -284,6 +284,7 @@ export function getSubMomentsForMoment(moment: MomentProps | null): SubMoment[] 
 }
 
 import { MissionActionModal } from './MissionActionModal';
+import { useI18n } from '@/i18n/I18nContext';
 
 export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
   isOpen,
@@ -291,6 +292,7 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
   moment,
   onClaimKey
 }) => {
+  const { t } = useI18n();
   const [selectedMission, setSelectedMission] = React.useState<SubMoment | null>(null);
   const [missionStatuses, setMissionStatuses] = React.useState<Record<string, 'AVAILABLE' | 'ACTIVE' | 'SUBMITTED' | 'COMPLETED'>>({});
 
@@ -354,7 +356,7 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
           <div className="p-6 md:p-8 max-h-[65vh] overflow-y-auto space-y-6">
             {/* Overview */}
             <div>
-              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Moment Overview</h3>
+              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">{t("momDetail.overview")}</h3>
               <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed font-normal">
                 {moment.description}
               </p>
@@ -367,13 +369,13 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
                   <Award className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs text-orange-950 dark:text-orange-200 font-black">Total Activation Earning Potential</p>
-                  <p className="text-[11px] text-orange-800 dark:text-orange-400">Complete all sub-moments & missions</p>
+                  <p className="text-xs text-orange-950 dark:text-orange-200 font-black">{t("momDetail.earnTitle")}</p>
+                  <p className="text-[11px] text-orange-800 dark:text-orange-400">{t("momDetail.earnHint")}</p>
                 </div>
               </div>
               <div className="text-right">
                 <span className="text-xl font-black text-orange-600 dark:text-orange-400">+{totalSubPoints}</span>
-                <span className="text-xs font-bold text-orange-900 dark:text-orange-300 ml-1">Points</span>
+                <span className="text-xs font-bold text-orange-900 dark:text-orange-300 ml-1">{t("momDetail.points")}</span>
               </div>
             </div>
 
@@ -383,11 +385,11 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
                 <div className="flex items-center space-x-2">
                   <Target className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   <h3 className="text-sm font-black text-gray-900 dark:text-white">
-                    Sub-Moments & Scout Missions ({subMoments.length})
+                    {t("momDetail.missions", { count: subMoments.length })}
                   </h3>
                 </div>
                 <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Micro-Actions
+                  {t("momDetail.micro")}
                 </span>
               </div>
 
@@ -418,7 +420,7 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
 
                       <div className="flex items-center justify-between md:justify-end space-x-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-gray-100 dark:border-gray-800">
                         <span className="text-xs font-black text-purple-700 dark:text-purple-300 bg-purple-100/70 dark:bg-purple-900/50 px-2.5 py-1 rounded-lg">
-                          +{sub.points} pts
+                          {t("momDetail.pts", { count: sub.points })}
                         </span>
                         {mStatus === 'COMPLETED' ? (
                           <button
@@ -426,28 +428,28 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
                             className="px-3 py-1.5 bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold rounded-xl flex items-center space-x-1"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Completed</span>
+                            <span>{t("momDetail.completed")}</span>
                           </button>
                         ) : mStatus === 'SUBMITTED' ? (
                           <button
                             onClick={() => setSelectedMission(sub)}
                             className="px-3 py-1.5 bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 text-xs font-bold rounded-xl flex items-center space-x-1"
                           >
-                            <span>Under Review ⏳</span>
+                            <span>{t("momDetail.underReview")}</span>
                           </button>
                         ) : mStatus === 'ACTIVE' ? (
                           <button
                             onClick={() => setSelectedMission(sub)}
                             className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm animate-pulse"
                           >
-                            Submit Proof
+                            {t("momDetail.submitProof")}
                           </button>
                         ) : (
                           <button
                             onClick={() => setSelectedMission(sub)}
                             className="px-3 py-1.5 bg-gray-900 dark:bg-gray-700 hover:bg-purple-600 dark:hover:bg-purple-600 text-white text-xs font-bold rounded-xl transition-colors shadow-sm"
                           >
-                            Start Mission
+                            {t("momDetail.start")}
                           </button>
                         )}
                       </div>
@@ -464,12 +466,12 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
               {moment.ownership === 'EDITORIAL DISCOVERY' && !moment.isClaimed ? (
                 <span className="text-amber-800 dark:text-amber-400 font-semibold flex items-center">
                   <ShieldCheck className="w-4 h-4 mr-1 text-amber-600 dark:text-amber-400" />
-                  Unclaimed Editorial • Claim venue to host official drops
+                  {t("momDetail.unclaimed")}
                 </span>
               ) : (
                 <span className="text-emerald-700 dark:text-emerald-400 font-semibold flex items-center">
                   <Sparkles className="w-4 h-4 mr-1 text-emerald-600 dark:text-emerald-400" />
-                  Verified Partner Moment • Instant QR scanner redemption
+                  {t("momDetail.verified")}
                 </span>
               )}
             </div>
@@ -481,7 +483,7 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
                   className="w-full sm:w-auto px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-gray-950 font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 flex items-center justify-center space-x-1.5 transition-all"
                 >
                   <ShieldCheck className="w-4 h-4" />
-                  <span>Claim This Venue</span>
+                  <span>{t("momDetail.claimVenue")}</span>
                 </button>
               ) : (
                 <button
@@ -492,7 +494,7 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
                   className="w-full sm:w-auto px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center space-x-1.5 transition-all"
                 >
                   <Sparkles className="w-4 h-4" />
-                  <span>Unlock PromoKey Perks</span>
+                  <span>{t("momDetail.unlockPerks")}</span>
                 </button>
               )}
             </div>

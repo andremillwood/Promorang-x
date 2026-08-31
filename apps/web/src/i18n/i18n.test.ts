@@ -249,6 +249,10 @@ describe("localization", () => {
       "sponReq.emptyTitle",
       "sceneMx.title",
       "sceneMx.heatmap",
+      "momDetail.start",
+      "momDetail.unlockPerks",
+      "missAct.activate",
+      "missAct.done",
     ] as const;
 
     supportedLocales.forEach((locale) => {
