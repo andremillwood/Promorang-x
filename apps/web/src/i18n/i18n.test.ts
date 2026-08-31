@@ -139,6 +139,8 @@ describe("localization", () => {
       "couponHub.badge",
       "couponHub.claimBonus",
       "ugcReview.approve",
+      "actStudio.title",
+      "actStudio.launch",
     ] as const;
 
     supportedLocales.forEach((locale) => {
