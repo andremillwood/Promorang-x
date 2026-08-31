@@ -27,6 +27,8 @@ import {
   Eye
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
+import type { TranslationKey } from '@/i18n/translations';
 
 interface KYCSubmission {
   id: string;
@@ -65,6 +67,18 @@ interface Stats {
 export function KYCAdminDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t, formatDate } = useI18n();
+
+  const statusLabel = (status: string) => {
+    const keys: Record<string, TranslationKey> = {
+      pending_review: 'kycAdmin.statusPending',
+      in_review: 'kycAdmin.statusInReview',
+      additional_info_needed: 'kycAdmin.statusMoreInfo',
+      approved: 'kycAdmin.statusApproved',
+      rejected: 'kycAdmin.statusRejected',
+    };
+    return keys[status] ? t(keys[status]) : status.replace('_', ' ');
+  };
   const [submissions, setSubmissions] = useState<KYCSubmission[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -106,8 +120,8 @@ export function KYCAdminDashboard() {
     } catch (error) {
       console.error('Failed to fetch submissions:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load KYC submissions',
+        title: t('kycAdmin.errTitle'),
+        description: t('kycAdmin.loadFail'),
         variant: 'destructive',
       });
     } finally {
@@ -149,8 +163,8 @@ export function KYCAdminDashboard() {
       
       if (response.ok) {
         toast({
-          title: 'Approved',
-          description: `KYC approved for ${selectedSubmission.first_name} ${selectedSubmission.last_name}`,
+          title: t('kycAdmin.approvedTitle'),
+          description: t('kycAdmin.approvedDesc', { name: `${selectedSubmission.first_name} ${selectedSubmission.last_name}` }),
         });
         setIsDetailModalOpen(false);
         fetchSubmissions();
@@ -160,8 +174,8 @@ export function KYCAdminDashboard() {
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to approve KYC',
+        title: t('kycAdmin.errTitle'),
+        description: t('kycAdmin.approveFail'),
         variant: 'destructive',
       });
     } finally {
@@ -188,8 +202,8 @@ export function KYCAdminDashboard() {
       
       if (response.ok) {
         toast({
-          title: 'Rejected',
-          description: `KYC rejected for ${selectedSubmission.first_name} ${selectedSubmission.last_name}`,
+          title: t('kycAdmin.rejectedTitle'),
+          description: t('kycAdmin.rejectedDesc', { name: `${selectedSubmission.first_name} ${selectedSubmission.last_name}` }),
         });
         setIsDetailModalOpen(false);
         fetchSubmissions();
@@ -199,8 +213,8 @@ export function KYCAdminDashboard() {
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to reject KYC',
+        title: t('kycAdmin.errTitle'),
+        description: t('kycAdmin.rejectFail'),
         variant: 'destructive',
       });
     } finally {
@@ -244,20 +258,20 @@ export function KYCAdminDashboard() {
       <div className="max-w-7xl mx-auto mb-8">
         <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <h1 className="text-3xl font-bold">KYC Review Dashboard</h1>
+            <h1 className="text-3xl font-bold">{t('kycAdmin.title')}</h1>
             <GuidanceDisclosure
               id="kyc-admin:review-queue"
-              eyebrow="Review guide"
-              title="How to work the identity queue"
-              summary="Review submitted documents, assign the appropriate level, and record clear notes for approval or rejection."
+              eyebrow={t('kycAdmin.guideEyebrow')}
+              title={t('kycAdmin.guideTitle')}
+              summary={t('kycAdmin.guideSummary')}
               className="mt-3"
               tone="light"
             >
-              <p className="text-sm text-muted-foreground">Review user identity verifications.</p>
+              <p className="text-sm text-muted-foreground">{t('kycAdmin.guideBody')}</p>
             </GuidanceDisclosure>
           </div>
           <Button onClick={() => { fetchSubmissions(); fetchStats(); }}>
-            Refresh
+            {t('kycAdmin.refresh')}
           </Button>
         </div>
       </div>
@@ -267,31 +281,31 @@ export function KYCAdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <Card>
             <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground">Pending Review</div>
+              <div className="text-sm text-muted-foreground">{t('kycAdmin.statPending')}</div>
               <div className="text-2xl font-bold text-yellow-600">{stats?.pending_review || 0}</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground">In Review</div>
+              <div className="text-sm text-muted-foreground">{t('kycAdmin.statInReview')}</div>
               <div className="text-2xl font-bold text-blue-600">{stats?.in_review || 0}</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground">Approved Today</div>
+              <div className="text-sm text-muted-foreground">{t('kycAdmin.statApprovedToday')}</div>
               <div className="text-2xl font-bold text-green-600">{stats?.approved_today || 0}</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground">Rejected Today</div>
+              <div className="text-sm text-muted-foreground">{t('kycAdmin.statRejectedToday')}</div>
               <div className="text-2xl font-bold text-red-600">{stats?.rejected_today || 0}</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground">Total Verified</div>
+              <div className="text-sm text-muted-foreground">{t('kycAdmin.statVerified')}</div>
               <div className="text-2xl font-bold">{stats?.total_verified || 0}</div>
             </CardContent>
           </Card>
@@ -302,10 +316,10 @@ export function KYCAdminDashboard() {
       <div className="max-w-7xl mx-auto">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4">
-            <TabsTrigger value="pending">Pending</TabsTrigger>
-            <TabsTrigger value="in_review">In Review</TabsTrigger>
-            <TabsTrigger value="approved">Approved</TabsTrigger>
-            <TabsTrigger value="rejected">Rejected</TabsTrigger>
+            <TabsTrigger value="pending">{t('kycAdmin.tabPending')}</TabsTrigger>
+            <TabsTrigger value="in_review">{t('kycAdmin.tabInReview')}</TabsTrigger>
+            <TabsTrigger value="approved">{t('kycAdmin.tabApproved')}</TabsTrigger>
+            <TabsTrigger value="rejected">{t('kycAdmin.tabRejected')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab}>
@@ -317,7 +331,7 @@ export function KYCAdminDashboard() {
               <Card>
                 <CardContent className="p-12 text-center">
                   <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No submissions in this category</p>
+                  <p className="text-muted-foreground">{t('kycAdmin.empty')}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -338,14 +352,14 @@ export function KYCAdminDashboard() {
                             <div className="flex items-center gap-2 mt-1">
                               <Badge className={getStatusBadge(submission.status)}>
                                 {getStatusIcon(submission.status)}
-                                <span className="ml-1">{submission.status.replace('_', ' ')}</span>
+                                <span className="ml-1">{statusLabel(submission.status)}</span>
                               </Badge>
                               <span className="text-xs text-muted-foreground">
-                                Submitted {new Date(submission.submitted_at).toLocaleDateString()}
+                                {t('kycAdmin.submitted', { date: formatDate(submission.submitted_at) })}
                               </span>
                               {submission.days_waiting > 0 && (
                                 <span className="text-xs text-yellow-600">
-                                  ({submission.days_waiting} days waiting)
+                                  {t('kycAdmin.waiting', { count: submission.days_waiting })}
                                 </span>
                               )}
                             </div>
@@ -358,7 +372,7 @@ export function KYCAdminDashboard() {
                             onClick={() => openDetailModal(submission)}
                           >
                             <Eye className="h-4 w-4 mr-1" />
-                            Review
+                            {t('kycAdmin.review')}
                           </Button>
                         </div>
                       </div>
@@ -376,18 +390,18 @@ export function KYCAdminDashboard() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              Review KYC: {selectedSubmission?.first_name} {selectedSubmission?.last_name}
+              {t('kycAdmin.reviewTitle', { name: `${selectedSubmission?.first_name ?? ''} ${selectedSubmission?.last_name ?? ''}`.trim() })}
             </DialogTitle>
             <GuidanceDisclosure
               id="kyc-admin:submission-decision"
-              eyebrow="Decision guide"
-              title="What to check before deciding"
-              summary="Compare identity fields, documents, selfie, address proof, level, and notes before approving or rejecting."
+              eyebrow={t('kycAdmin.decisionEyebrow')}
+              title={t('kycAdmin.decisionTitle')}
+              summary={t('kycAdmin.decisionSummary')}
               className="mt-3"
               tone="light"
             >
               <p className="text-sm text-muted-foreground">
-                Confirm the user details match the uploaded documents before assigning a level or rejection reason.
+                {t('kycAdmin.decisionBody')}
               </p>
             </GuidanceDisclosure>
           </DialogHeader>
@@ -397,43 +411,43 @@ export function KYCAdminDashboard() {
               {/* User Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium">Full Name</label>
+                  <label className="text-sm font-medium">{t('kycAdmin.fullName')}</label>
                   <p>{selectedSubmission.first_name} {selectedSubmission.last_name}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Email</label>
+                  <label className="text-sm font-medium">{t('kycAdmin.email')}</label>
                   <p>{selectedSubmission.user_email}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Date of Birth</label>
+                  <label className="text-sm font-medium">{t('kycAdmin.dob')}</label>
                   <p>{selectedSubmission.date_of_birth}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Nationality</label>
+                  <label className="text-sm font-medium">{t('kycAdmin.nationality')}</label>
                   <p>{selectedSubmission.nationality}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Country of Residence</label>
+                  <label className="text-sm font-medium">{t('kycAdmin.residence')}</label>
                   <p>{selectedSubmission.country_of_residence}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Occupation</label>
-                  <p>{selectedSubmission.occupation || 'Not provided'}</p>
+                  <label className="text-sm font-medium">{t('kycAdmin.occupation')}</label>
+                  <p>{selectedSubmission.occupation || t('kycAdmin.notProvided')}</p>
                 </div>
               </div>
 
               {/* Documents */}
               <div className="space-y-4">
-                <h4 className="font-semibold">Documents</h4>
+                <h4 className="font-semibold">{t('kycAdmin.documents')}</h4>
                 
                 <div className="grid grid-cols-2 gap-4">
                   {selectedSubmission.id_document_front_url && (
                     <div>
-                      <label className="text-sm font-medium">ID Front</label>
+                      <label className="text-sm font-medium">{t('kycAdmin.idFront')}</label>
                       <div className="mt-1 border rounded-lg overflow-hidden">
                         <img 
                           src={selectedSubmission.id_document_front_url} 
-                          alt="ID Front"
+                          alt={t('kycAdmin.idFront')}
                           className="w-full h-48 object-cover"
                         />
                       </div>
@@ -442,11 +456,11 @@ export function KYCAdminDashboard() {
                   
                   {selectedSubmission.id_document_back_url && (
                     <div>
-                      <label className="text-sm font-medium">ID Back</label>
+                      <label className="text-sm font-medium">{t('kycAdmin.idBack')}</label>
                       <div className="mt-1 border rounded-lg overflow-hidden">
                         <img 
                           src={selectedSubmission.id_document_back_url} 
-                          alt="ID Back"
+                          alt={t('kycAdmin.idBack')}
                           className="w-full h-48 object-cover"
                         />
                       </div>
@@ -455,11 +469,11 @@ export function KYCAdminDashboard() {
                   
                   {selectedSubmission.selfie_url && (
                     <div>
-                      <label className="text-sm font-medium">Selfie</label>
+                      <label className="text-sm font-medium">{t('kycAdmin.selfie')}</label>
                       <div className="mt-1 border rounded-lg overflow-hidden">
                         <img 
                           src={selectedSubmission.selfie_url} 
-                          alt="Selfie"
+                          alt={t('kycAdmin.selfie')}
                           className="w-full h-48 object-cover"
                         />
                       </div>
@@ -468,11 +482,11 @@ export function KYCAdminDashboard() {
                   
                   {selectedSubmission.proof_of_address_url && (
                     <div>
-                      <label className="text-sm font-medium">Proof of Address</label>
+                      <label className="text-sm font-medium">{t('kycAdmin.address')}</label>
                       <div className="mt-1 border rounded-lg overflow-hidden">
                         <img 
                           src={selectedSubmission.proof_of_address_url} 
-                          alt="Proof of Address"
+                          alt={t('kycAdmin.address')}
                           className="w-full h-48 object-cover"
                         />
                       </div>
@@ -484,26 +498,26 @@ export function KYCAdminDashboard() {
               {/* Approval Level */}
               {selectedSubmission.status !== 'approved' && selectedSubmission.status !== 'rejected' && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Approval Level</label>
+                  <label className="text-sm font-medium">{t('kycAdmin.level')}</label>
                   <select 
                     className="w-full p-2 border rounded"
                     value={selectedLevel}
                     onChange={(e) => setSelectedLevel(e.target.value)}
                   >
-                    <option value="basic">Basic ($500/day limit)</option>
-                    <option value="intermediate">Intermediate ($10K/day limit)</option>
-                    <option value="advanced">Advanced ($100K/day limit)</option>
+                    <option value="basic">{t('kycAdmin.levelBasic')}</option>
+                    <option value="intermediate">{t('kycAdmin.levelMid')}</option>
+                    <option value="advanced">{t('kycAdmin.levelAdv')}</option>
                   </select>
                 </div>
               )}
 
               {/* Review Notes */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Review Notes</label>
+                <label className="text-sm font-medium">{t('kycAdmin.notes')}</label>
                 <Textarea
                   value={reviewNotes}
                   onChange={(e) => setReviewNotes(e.target.value)}
-                  placeholder="Add notes about this verification..."
+                  placeholder={t('kycAdmin.notesPh')}
                   rows={3}
                 />
               </div>
@@ -511,25 +525,25 @@ export function KYCAdminDashboard() {
               {/* Rejection Reason (if rejecting) */}
               {selectedSubmission.status !== 'approved' && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Rejection Reason (if rejecting)</label>
+                  <label className="text-sm font-medium">{t('kycAdmin.rejectReason')}</label>
                   <select 
                     className="w-full p-2 border rounded mb-2"
                     value={rejectionCategory}
                     onChange={(e) => setRejectionCategory(e.target.value)}
                   >
-                    <option value="document_unclear">Document unclear/blurry</option>
-                    <option value="document_expired">Document expired</option>
-                    <option value="identity_mismatch">Identity mismatch</option>
-                    <option value="underage">User under 18</option>
-                    <option value="sanctions">Sanctions list match</option>
-                    <option value="fraud_suspected">Fraud suspected</option>
-                    <option value="incomplete_info">Incomplete information</option>
-                    <option value="other">Other</option>
+                    <option value="document_unclear">{t('kycAdmin.reasonUnclear')}</option>
+                    <option value="document_expired">{t('kycAdmin.reasonExpired')}</option>
+                    <option value="identity_mismatch">{t('kycAdmin.reasonMismatch')}</option>
+                    <option value="underage">{t('kycAdmin.reasonUnderage')}</option>
+                    <option value="sanctions">{t('kycAdmin.reasonSanctions')}</option>
+                    <option value="fraud_suspected">{t('kycAdmin.reasonFraud')}</option>
+                    <option value="incomplete_info">{t('kycAdmin.reasonIncomplete')}</option>
+                    <option value="other">{t('kycAdmin.reasonOther')}</option>
                   </select>
                   <Textarea
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
-                    placeholder="Explain why this is being rejected..."
+                    placeholder={t('kycAdmin.rejectPh')}
                     rows={2}
                   />
                 </div>
@@ -539,7 +553,7 @@ export function KYCAdminDashboard() {
 
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setIsDetailModalOpen(false)}>
-              Cancel
+              {t('kycAdmin.cancel')}
             </Button>
             
             {selectedSubmission?.status !== 'approved' && selectedSubmission?.status !== 'rejected' && (
@@ -550,7 +564,7 @@ export function KYCAdminDashboard() {
                   disabled={processing || !rejectionReason}
                 >
                   {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4 mr-1" />}
-                  Reject
+                  {t('kycAdmin.reject')}
                 </Button>
                 <Button 
                   onClick={handleApprove}
@@ -558,7 +572,7 @@ export function KYCAdminDashboard() {
                   className="bg-green-600 hover:bg-green-700"
                 >
                   {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4 mr-1" />}
-                  Approve
+                  {t('kycAdmin.approve')}
                 </Button>
               </>
             )}

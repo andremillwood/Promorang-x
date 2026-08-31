@@ -175,6 +175,8 @@ describe("localization", () => {
       "pilotCompile.savePlan",
       "featAdmin.title",
       "featAdmin.activate",
+      "kycAdmin.title",
+      "kycAdmin.approve",
     ] as const;
 
     supportedLocales.forEach((locale) => {
