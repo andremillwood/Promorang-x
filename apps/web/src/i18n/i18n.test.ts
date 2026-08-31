@@ -311,6 +311,10 @@ describe("localization", () => {
       "leadsDesk.add",
       "claimPg.createTitle",
       "claimPg.approve",
+      "userDesk.users",
+      "userDesk.suspendUser",
+      "actBehalf.title",
+      "actBehalf.publish",
     ] as const;
 
     supportedLocales.forEach((locale) => {

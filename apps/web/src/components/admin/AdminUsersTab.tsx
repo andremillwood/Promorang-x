@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { format } from "date-fns";
 import {
   AlertTriangle,
   Ban,
@@ -39,20 +38,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 const AVAILABLE_ROLES = ["participant", "host", "brand", "merchant", "admin"];
 const STATE_FILTERS = ["all", "flagged", "suspended", "limited", "kyc_pending"] as const;
+const ROLE_LABEL: Record<string, TranslationKey> = {
+  participant: "userDesk.rolePart",
+  host: "userDesk.roleHost",
+  brand: "userDesk.roleBrand",
+  merchant: "userDesk.roleMerch",
+  admin: "userDesk.roleAdmin",
+};
+const STATE_LABEL: Record<string, TranslationKey> = {
+  all: "userDesk.allStates",
+  flagged: "userDesk.stFlagged",
+  suspended: "userDesk.stSuspended",
+  limited: "userDesk.stLimited",
+  kyc_pending: "userDesk.stKyc",
+};
 
 type StateFilter = (typeof STATE_FILTERS)[number];
-
-function formatDate(value?: string | null) {
-  if (!value) return "—";
-  try {
-    return format(new Date(value), "MMM d, yyyy");
-  } catch {
-    return "—";
-  }
-}
 
 function getRoleBadgeVariant(role: string) {
   switch (role) {
@@ -77,29 +83,30 @@ function getUserState(user: UserWithProfile) {
   return "healthy";
 }
 
-function getStateBadge(user: UserWithProfile) {
+function getStateBadge(user: UserWithProfile, t: (key: TranslationKey) => string) {
   const state = getUserState(user);
 
   if (state === "suspended") {
-    return <Badge variant="destructive">Suspended</Badge>;
+    return <Badge variant="destructive">{t("userDesk.stSuspended")}</Badge>;
   }
 
   if (state === "limited") {
-    return <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-700">Limited</Badge>;
+    return <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-700">{t("userDesk.stLimited")}</Badge>;
   }
 
   if (state === "kyc_pending") {
-    return <Badge variant="outline" className="border-sky-500/30 bg-sky-500/10 text-sky-700">KYC Pending</Badge>;
+    return <Badge variant="outline" className="border-sky-500/30 bg-sky-500/10 text-sky-700">{t("userDesk.stKyc")}</Badge>;
   }
 
   if (state === "flagged") {
-    return <Badge variant="outline" className="border-orange-500/30 bg-orange-500/10 text-orange-700">Flagged</Badge>;
+    return <Badge variant="outline" className="border-orange-500/30 bg-orange-500/10 text-orange-700">{t("userDesk.stFlagged")}</Badge>;
   }
 
-  return <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700">Healthy</Badge>;
+  return <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700">{t("userDesk.stHealthy")}</Badge>;
 }
 
 export function AdminUsersTab() {
+  const { t, formatDate } = useI18n();
   const { data: users, isLoading } = useAllUsers();
   const addRole = useAddUserRole();
   const removeRole = useRemoveUserRole();
@@ -237,23 +244,23 @@ export function AdminUsersTab() {
     <div className="space-y-6">
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Users</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("userDesk.users")}</p>
           <p className="mt-2 text-2xl font-semibold">{summary.total}</p>
         </div>
         <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Suspended</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("userDesk.suspended")}</p>
           <p className="mt-2 text-2xl font-semibold text-destructive">{summary.suspended}</p>
         </div>
         <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Limited</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("userDesk.limited")}</p>
           <p className="mt-2 text-2xl font-semibold text-amber-600">{summary.limited}</p>
         </div>
         <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Flagged</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("userDesk.flagged")}</p>
           <p className="mt-2 text-2xl font-semibold text-orange-600">{summary.flagged}</p>
         </div>
         <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Open Support</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("userDesk.openSupport")}</p>
           <p className="mt-2 text-2xl font-semibold">{summary.openSupport}</p>
         </div>
       </div>
@@ -262,7 +269,7 @@ export function AdminUsersTab() {
         <div className="relative flex-1 sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search users, email, id..."
+            placeholder={t("userDesk.search")}
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             className="pl-10"
@@ -277,7 +284,7 @@ export function AdminUsersTab() {
               onClick={() => setRoleFilter(null)}
               className="snap-start"
             >
-              All Roles
+              {t("userDesk.allRoles")}
             </Button>
             {AVAILABLE_ROLES.map((role) => (
               <Button
@@ -287,7 +294,7 @@ export function AdminUsersTab() {
                 onClick={() => setRoleFilter(role)}
                 className="snap-start"
               >
-                {role.charAt(0).toUpperCase() + role.slice(1)}
+                {t(ROLE_LABEL[role])}
               </Button>
             ))}
           </div>
@@ -303,7 +310,7 @@ export function AdminUsersTab() {
                 onClick={() => setStateFilter(state)}
                 className="snap-start"
               >
-                {state === "all" ? "All States" : state.replace("_", " ")}
+                {t(STATE_LABEL[state])}
               </Button>
             ))}
           </div>
@@ -320,14 +327,14 @@ export function AdminUsersTab() {
             <thead>
               <tr className="border-b border-border bg-muted/30">
                 <th className="sticky left-0 z-20 bg-card/95 backdrop-blur-sm p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[240px] border-r border-border/60 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.5)]">
-                  User
+                  {t("userDesk.colUser")}
                 </th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[120px]">State</th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[140px]">Roles</th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[140px]">Activity</th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[160px]">Trust</th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[130px]">Joined</th>
-                <th className="p-4 text-right text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[170px]">Actions</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[120px]">{t("userDesk.colState")}</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[140px]">{t("userDesk.colRoles")}</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[140px]">{t("userDesk.colActivity")}</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[160px]">{t("userDesk.colTrust")}</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[130px]">{t("userDesk.colJoined")}</th>
+                <th className="p-4 text-right text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[170px]">{t("userDesk.colActions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -335,7 +342,7 @@ export function AdminUsersTab() {
                 <tr>
                   <td colSpan={7} className="p-8 text-center text-muted-foreground">
                     <Users className="mx-auto mb-4 h-12 w-12 opacity-50" />
-                    <p>No users found</p>
+                    <p>{t("userDesk.empty")}</p>
                   </td>
                 </tr>
               ) : (
@@ -348,10 +355,10 @@ export function AdminUsersTab() {
                           <AvatarFallback>{user.profile?.full_name?.charAt(0) || user.email?.charAt(0) || "U"}</AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
-                          <p className="font-medium text-foreground truncate max-w-[180px]">{user.profile?.full_name || user.profile?.display_name || "Anonymous User"}</p>
+                          <p className="font-medium text-foreground truncate max-w-[180px]">{user.profile?.full_name || user.profile?.display_name || t("userDesk.anon")}</p>
                           <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                             <Mail className="h-3.5 w-3.5 shrink-0" />
-                            <span className="truncate max-w-[165px]">{user.email || "No email on file"}</span>
+                            <span className="truncate max-w-[165px]">{user.email || t("userDesk.noEmail")}</span>
                           </div>
                           <p className="mt-1 text-xs text-muted-foreground">{user.id.slice(0, 8)}...</p>
                         </div>
@@ -359,7 +366,7 @@ export function AdminUsersTab() {
                     </td>
                     <td className="p-4 align-top min-w-[120px]">
                       <div className="space-y-2">
-                        {getStateBadge(user)}
+                        {getStateBadge(user, t)}
                         {user.moderation_flags.length > 0 && (
                           <div className="flex flex-wrap gap-1">
                             {user.moderation_flags.map((flag) => (
@@ -374,7 +381,7 @@ export function AdminUsersTab() {
                     <td className="p-4 align-top min-w-[140px]">
                       <div className="flex flex-wrap gap-1">
                         {user.roles.length === 0 ? (
-                          <span className="text-sm text-muted-foreground">No roles</span>
+                          <span className="text-sm text-muted-foreground">{t("userDesk.noRoles")}</span>
                         ) : (
                           user.roles.map((role) => (
                             <Badge key={role} variant={getRoleBadgeVariant(role)}>
@@ -385,14 +392,14 @@ export function AdminUsersTab() {
                       </div>
                     </td>
                     <td className="p-4 align-top text-sm text-muted-foreground whitespace-nowrap min-w-[140px]">
-                      <div>{user.activity.hosted_count} hosted</div>
-                      <div>{user.activity.joined_count} joined</div>
-                      <div>{user.activity.total_content} content items</div>
+                      <div>{t("userDesk.hosted", { n: user.activity.hosted_count })}</div>
+                      <div>{t("userDesk.joined", { n: user.activity.joined_count })}</div>
+                      <div>{t("userDesk.content", { n: user.activity.total_content })}</div>
                     </td>
                     <td className="p-4 align-top text-sm text-muted-foreground min-w-[160px]">
-                      <div>{user.kyc_status ? `KYC: ${user.kyc_status}` : "KYC: —"}</div>
+                      <div>{t("userDesk.kyc", { status: user.kyc_status || "—" })}</div>
                       <div>
-                        Money: {user.qualification?.is_qualified_for_money ? "Qualified" : "Limited"}
+                        {user.qualification?.is_qualified_for_money ? t("userDesk.moneyQ") : t("userDesk.moneyL")}
                       </div>
                       {user.qualification?.disqualification_reason && (
                         <p className="mt-1 max-w-[220px] text-xs text-amber-700">
@@ -401,9 +408,9 @@ export function AdminUsersTab() {
                       )}
                     </td>
                     <td className="p-4 align-top text-sm text-muted-foreground whitespace-nowrap min-w-[130px]">
-                      <div>{formatDate(user.created_at)}</div>
+                      <div>{user.created_at ? formatDate(user.created_at) : "—"}</div>
                       <div className="mt-1 text-xs">
-                        Last active: {formatDate(user.activity.latest_activity_at)}
+                        {t("userDesk.lastActive", { when: user.activity.latest_activity_at ? formatDate(user.activity.latest_activity_at) : "—" })}
                       </div>
                     </td>
                     <td className="p-4 align-top text-right whitespace-nowrap min-w-[170px]">
@@ -417,7 +424,7 @@ export function AdminUsersTab() {
                             disabled={addRole.isPending}
                           >
                             <UserPlus className="mr-1 h-3 w-3" />
-                            Promote Host
+                            {t("userDesk.promote")}
                           </Button>
                         )}
                         <DropdownMenu>
@@ -427,16 +434,16 @@ export function AdminUsersTab() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Moderate User</DropdownMenuLabel>
+                            <DropdownMenuLabel>{t("userDesk.moderate")}</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setRoleDialog({ userId: user.id, action: "add" })}>
                               <UserPlus className="mr-2 h-4 w-4" />
-                              Add Role
+                              {t("userDesk.addRole")}
                             </DropdownMenuItem>
                             {user.roles.length > 0 && (
                               <DropdownMenuItem onClick={() => setRoleDialog({ userId: user.id, action: "remove" })}>
                                 <UserMinus className="mr-2 h-4 w-4" />
-                                Remove Role
+                                {t("userDesk.removeRole")}
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuSeparator />
@@ -444,12 +451,12 @@ export function AdminUsersTab() {
                               {user.profile?.suspended ? (
                                 <>
                                   <UserCheck className="mr-2 h-4 w-4" />
-                                  Restore Account
+                                  {t("userDesk.restore")}
                                 </>
                               ) : (
                                 <>
                                   <Ban className="mr-2 h-4 w-4" />
-                                  Suspend Account
+                                  {t("userDesk.suspend")}
                                 </>
                               )}
                             </DropdownMenuItem>
@@ -473,10 +480,10 @@ export function AdminUsersTab() {
               className="h-7 px-2.5 text-xs font-semibold"
               onClick={() => scrollTable("left")}
               disabled={!canScrollLeft}
-              title="Scroll left"
+              title={t("userDesk.left")}
             >
               <ChevronLeft className="mr-1 h-3.5 w-3.5" />
-              Left
+              {t("userDesk.left")}
             </Button>
             <Button
               variant="outline"
@@ -484,9 +491,9 @@ export function AdminUsersTab() {
               className="h-7 px-2.5 text-xs font-semibold"
               onClick={() => scrollTable("right")}
               disabled={!canScrollRight}
-              title="Scroll right"
+              title={t("userDesk.right")}
             >
-              Right
+              {t("userDesk.right")}
               <ChevronRight className="ml-1 h-3.5 w-3.5" />
             </Button>
           </div>
@@ -500,7 +507,7 @@ export function AdminUsersTab() {
           </div>
 
           <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
-            <span className="font-medium text-[11px] hidden xl:inline">User pinned left</span>
+            <span className="font-medium text-[11px] hidden xl:inline">{t("userDesk.pinned")}</span>
             <Button
               variant="ghost"
               size="sm"
@@ -514,7 +521,7 @@ export function AdminUsersTab() {
                 }
               }}
             >
-              {canScrollRight ? "Actions →" : "← Reset"}
+              {canScrollRight ? t("userDesk.actionsGo") : t("userDesk.reset")}
             </Button>
           </div>
         </div>
@@ -523,7 +530,7 @@ export function AdminUsersTab() {
           {filteredUsers.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-muted-foreground">
               <Users className="mx-auto mb-4 h-12 w-12 opacity-50" />
-              <p>No users found</p>
+              <p>{t("userDesk.empty")}</p>
             </div>
           ) : (
             filteredUsers.map((user) => (
@@ -535,7 +542,7 @@ export function AdminUsersTab() {
                       <AvatarFallback>{user.profile?.full_name?.charAt(0) || user.email?.charAt(0) || "U"}</AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">
-                      <p className="truncate font-medium text-foreground">{user.profile?.full_name || user.profile?.display_name || "Anonymous User"}</p>
+                      <p className="truncate font-medium text-foreground">{user.profile?.full_name || user.profile?.display_name || t("userDesk.anon")}</p>
                       <p className="truncate text-xs text-muted-foreground">{user.email || user.id}</p>
                     </div>
                   </div>
@@ -546,16 +553,16 @@ export function AdminUsersTab() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Moderate User</DropdownMenuLabel>
+                      <DropdownMenuLabel>{t("userDesk.moderate")}</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => setRoleDialog({ userId: user.id, action: "add" })}>
                         <UserPlus className="mr-2 h-4 w-4" />
-                        Add Role
+                        {t("userDesk.addRole")}
                       </DropdownMenuItem>
                       {user.roles.length > 0 && (
                         <DropdownMenuItem onClick={() => setRoleDialog({ userId: user.id, action: "remove" })}>
                           <UserMinus className="mr-2 h-4 w-4" />
-                          Remove Role
+                          {t("userDesk.removeRole")}
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator />
@@ -563,12 +570,12 @@ export function AdminUsersTab() {
                         {user.profile?.suspended ? (
                           <>
                             <UserCheck className="mr-2 h-4 w-4" />
-                            Restore Account
+                            {t("userDesk.restore")}
                           </>
                         ) : (
                           <>
                             <Ban className="mr-2 h-4 w-4" />
-                            Suspend Account
+                            {t("userDesk.suspend")}
                           </>
                         )}
                       </DropdownMenuItem>
@@ -577,7 +584,7 @@ export function AdminUsersTab() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {getStateBadge(user)}
+                  {getStateBadge(user, t)}
                   {user.roles.map((role) => (
                     <Badge key={role} variant={getRoleBadgeVariant(role)}>
                       {role}
@@ -589,19 +596,19 @@ export function AdminUsersTab() {
 
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Joined</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("userDesk.joinedLbl")}</p>
                     <p className="mt-1">{formatDate(user.created_at)}</p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">KYC</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("userDesk.kycLbl")}</p>
                     <p className="mt-1">{user.kyc_status || "—"}</p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Hosted</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("userDesk.hostedLbl")}</p>
                     <p className="mt-1">{user.activity.hosted_count}</p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Joined</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("userDesk.joinedLbl")}</p>
                     <p className="mt-1">{user.activity.joined_count}</p>
                   </div>
                 </div>
@@ -618,17 +625,17 @@ export function AdminUsersTab() {
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Showing {filteredUsers.length} of {users?.length || 0} users
+        {t("userDesk.showing", { shown: filteredUsers.length, total: users?.length || 0 })}
       </p>
 
       <Dialog open={!!roleDialog} onOpenChange={() => setRoleDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{roleDialog?.action === "add" ? "Add Role" : "Remove Role"}</DialogTitle>
+            <DialogTitle>{roleDialog?.action === "add" ? t("userDesk.addRoleTitle") : t("userDesk.removeRoleTitle")}</DialogTitle>
             <DialogDescription>
               {roleDialog?.action === "add"
-                ? "Select a role to grant to this user."
-                : "Select a role to remove from this user."}
+                ? t("userDesk.addRoleCopy")
+                : t("userDesk.removeRoleCopy")}
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-1 gap-2 py-4 sm:grid-cols-2">
@@ -640,7 +647,7 @@ export function AdminUsersTab() {
                     onClick={() => handleAddRole(roleDialog.userId, role)}
                     disabled={addRole.isPending}
                   >
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                    {t(ROLE_LABEL[role] || ROLE_LABEL.participant)}
                   </Button>
                 ))
               : users?.find((entry) => entry.id === roleDialog?.userId)?.roles.map((role) => (
@@ -650,13 +657,13 @@ export function AdminUsersTab() {
                     onClick={() => handleRemoveRole(roleDialog!.userId, role)}
                     disabled={removeRole.isPending}
                   >
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                    {t(ROLE_LABEL[role] || ROLE_LABEL.participant)}
                   </Button>
                 ))}
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setRoleDialog(null)}>
-              Cancel
+              {t("userDesk.cancel")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -665,24 +672,24 @@ export function AdminUsersTab() {
       <Dialog open={!!suspensionDialog} onOpenChange={() => setSuspensionDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{suspensionDialog?.nextSuspended ? "Suspend account" : "Restore account"}</DialogTitle>
+            <DialogTitle>{suspensionDialog?.nextSuspended ? t("userDesk.suspendTitle") : t("userDesk.restoreTitle")}</DialogTitle>
             <DialogDescription>
               {suspensionDialog?.nextSuspended
-                ? "Use suspension to hard-block users who violated moment, content, or trust policies."
-                : "Restoring removes the hard block and lets the user access the platform again."}
+                ? t("userDesk.suspendCopy")
+                : t("userDesk.restoreCopy")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             {suspensionDialog?.user && (
               <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm">
-                <p className="font-medium">{suspensionDialog.user.profile?.full_name || suspensionDialog.user.email || "User"}</p>
+                <p className="font-medium">{suspensionDialog.user.profile?.full_name || suspensionDialog.user.email || t("userDesk.userFb")}</p>
                 <p className="mt-1 text-muted-foreground">{suspensionDialog.user.email || suspensionDialog.user.id}</p>
                 <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-muted-foreground">
-                  <div>{suspensionDialog.user.activity.pending_content} pending content</div>
-                  <div>{suspensionDialog.user.activity.rejected_content} rejected content</div>
-                  <div>{suspensionDialog.user.activity.open_support_tickets} open support</div>
-                  <div>{suspensionDialog.user.activity.hosted_count} hosted moments</div>
+                  <div>{t("userDesk.pendingContent", { n: suspensionDialog.user.activity.pending_content })}</div>
+                  <div>{t("userDesk.rejectedContent", { n: suspensionDialog.user.activity.rejected_content })}</div>
+                  <div>{t("userDesk.openSupp", { n: suspensionDialog.user.activity.open_support_tickets })}</div>
+                  <div>{t("userDesk.hostedMom", { n: suspensionDialog.user.activity.hosted_count })}</div>
                 </div>
               </div>
             )}
@@ -691,26 +698,26 @@ export function AdminUsersTab() {
               <div className="flex gap-2">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>
-                  Suspension is the hard block. Softer limitations are currently handled through role control and the user’s money qualification status.
+                  {t("userDesk.hardBlock")}
                 </span>
               </div>
             </div>
 
             <div>
               <p className="mb-2 text-sm font-medium">
-                {suspensionDialog?.nextSuspended ? "Suspension reason" : "Restoration note"}
+                {suspensionDialog?.nextSuspended ? t("userDesk.suspendReason") : t("userDesk.restoreNote")}
               </p>
               <Textarea
                 value={suspensionReason}
                 onChange={(event) => setSuspensionReason(event.target.value)}
-                placeholder={suspensionDialog?.nextSuspended ? "Explain the violation or moderation concern." : "Optional note about why access is being restored."}
+                placeholder={suspensionDialog?.nextSuspended ? t("userDesk.suspendPh") : t("userDesk.restorePh")}
               />
             </div>
           </div>
 
           <DialogFooter>
             <Button variant="ghost" onClick={() => setSuspensionDialog(null)}>
-              Cancel
+              {t("userDesk.cancel")}
             </Button>
             <Button
               variant={suspensionDialog?.nextSuspended ? "destructive" : "default"}
@@ -720,12 +727,12 @@ export function AdminUsersTab() {
               {suspensionDialog?.nextSuspended ? (
                 <>
                   <ShieldAlert className="mr-2 h-4 w-4" />
-                  Suspend User
+                  {t("userDesk.suspendUser")}
                 </>
               ) : (
                 <>
                   <Shield className="mr-2 h-4 w-4" />
-                  Restore User
+                  {t("userDesk.restoreUser")}
                 </>
               )}
             </Button>
