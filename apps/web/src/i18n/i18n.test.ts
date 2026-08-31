@@ -148,6 +148,12 @@ describe("localization", () => {
       "addVenue.submit",
       "addProduct.title",
       "addProduct.create",
+      "actRef.title",
+      "actRef.copy",
+      "pushEntry.routing",
+      "pushPortal.title",
+      "mechDetail.useStrategy",
+      "mechDetail.notFound",
     ] as const;
 
     supportedLocales.forEach((locale) => {

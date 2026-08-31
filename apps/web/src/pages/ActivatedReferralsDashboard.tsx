@@ -15,8 +15,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function ActivatedReferralsDashboard() {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
   const referralLink = `${window.location.origin}/auth?ref=connector_882`;
@@ -69,13 +71,13 @@ export default function ActivatedReferralsDashboard() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 font-mono text-xs uppercase">
-                Self-Interested Distribution
+                {t("actRef.badge")}
               </Badge>
-              <span className="text-xs text-slate-400 font-mono">Activated Referral Engine</span>
+              <span className="text-xs text-slate-400 font-mono">{t("actRef.engine")}</span>
             </div>
-            <h1 className="text-2xl md:text-4xl font-black text-white">Activated Referrals & Network</h1>
+            <h1 className="text-2xl md:text-4xl font-black text-white">{t("actRef.title")}</h1>
             <p className="text-slate-400 text-xs md:text-sm mt-1">
-              Earn Gems and raise your Action Power score when invited members complete qualifying actions on PROMORANG.
+              {t("actRef.lede")}
             </p>
           </div>
 
@@ -85,7 +87,7 @@ export default function ActivatedReferralsDashboard() {
               className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold gap-2"
             >
               {copied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              {copied ? "Copied Link!" : "Copy Recruitment Link"}
+              {copied ? t("actRef.copied") : t("actRef.copy")}
             </Button>
           </div>
         </div>
@@ -95,44 +97,44 @@ export default function ActivatedReferralsDashboard() {
           <Card className="bg-slate-900 border-slate-800">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400">Activated Users</span>
+                <span className="text-xs font-mono text-slate-400">{t("actRef.activatedUsers")}</span>
                 <UserCheck className="w-4 h-4 text-emerald-400" />
               </div>
               <div className="text-3xl font-black text-white mt-2">2 / 3</div>
-              <div className="text-[10px] text-emerald-400 font-mono mt-1">66% Activation Rate</div>
+              <div className="text-[10px] text-emerald-400 font-mono mt-1">{t("actRef.activationRate", { pct: 66 })}</div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-900 border-slate-800">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400">Activation Score</span>
+                <span className="text-xs font-mono text-slate-400">{t("actRef.score")}</span>
                 <Zap className="w-4 h-4 text-amber-400" />
               </div>
-              <div className="text-3xl font-black text-amber-400 mt-2">150 PTS</div>
-              <div className="text-[10px] text-slate-500 font-mono mt-1">+25 PTS per action completed</div>
+              <div className="text-3xl font-black text-amber-400 mt-2">{t("actRef.scorePts", { count: 150 })}</div>
+              <div className="text-[10px] text-slate-500 font-mono mt-1">{t("actRef.scoreHint", { count: 25 })}</div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-900 border-slate-800">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400">Referral Gems Earned</span>
+                <span className="text-xs font-mono text-slate-400">{t("actRef.gemsEarned")}</span>
                 <Gem className="w-4 h-4 text-emerald-400" />
               </div>
               <div className="text-3xl font-black text-white mt-2">$22.50</div>
-              <div className="text-[10px] text-slate-500 font-mono mt-1">Auditable Gem Ledger</div>
+              <div className="text-[10px] text-slate-500 font-mono mt-1">{t("actRef.ledger")}</div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-900 border-slate-800">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400">Action Power Moat</span>
+                <span className="text-xs font-mono text-slate-400">{t("actRef.moat")}</span>
                 <Award className="w-4 h-4 text-purple-400" />
               </div>
-              <div className="text-3xl font-black text-white mt-2">Tier 2</div>
-              <div className="text-[10px] text-purple-400 font-mono mt-1">Verified Connector</div>
+              <div className="text-3xl font-black text-white mt-2">{t("actRef.tier", { n: 2 })}</div>
+              <div className="text-[10px] text-purple-400 font-mono mt-1">{t("actRef.connector")}</div>
             </CardContent>
           </Card>
         </div>
@@ -140,9 +142,9 @@ export default function ActivatedReferralsDashboard() {
         {/* ACTIVATED REFERRALS TABLE */}
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader>
-            <CardTitle className="text-lg font-bold text-white">Your Activated User Network</CardTitle>
+            <CardTitle className="text-lg font-bold text-white">{t("actRef.network")}</CardTitle>
             <CardDescription className="text-xs text-slate-400">
-              Users recruited via your link. Rewards and attribution trigger when users complete qualifying Actions.
+              {t("actRef.networkDesc")}
             </CardDescription>
           </CardHeader>
 
@@ -156,27 +158,27 @@ export default function ActivatedReferralsDashboard() {
                       <span className="text-xs text-slate-500 font-mono">@{user.username}</span>
                       {user.isActivated ? (
                         <Badge className="bg-emerald-500/20 text-emerald-300 border-0 text-[10px]">
-                          Activated
+                          {t("actRef.activated")}
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="border-slate-700 text-slate-500 text-[10px]">
-                          Pending Action
+                          {t("actRef.pending")}
                         </Badge>
                       )}
                     </div>
                     <div className="text-xs text-slate-400 flex items-center gap-2">
-                      <span>Scene: <strong className="text-slate-200">{user.joinedScene}</strong></span>
+                      <span>{t("actRef.scene", { name: user.joinedScene })}</span>
                       <span>•</span>
-                      <span>Qualifying Actions: <strong className="text-amber-400 font-mono">{user.qualifyingActions}</strong></span>
+                      <span>{t("actRef.actions", { count: user.qualifyingActions })}</span>
                     </div>
                   </div>
 
                   <div className="text-right">
                     <div className="text-sm font-black text-emerald-400 font-mono">
-                      +${user.gemsContributed.toFixed(2)} Gems
+                      {t("actRef.gems", { amount: user.gemsContributed.toFixed(2) })}
                     </div>
                     <div className="text-[10px] text-slate-500 font-mono">
-                      Score: +{user.activationScore} PTS
+                      {t("actRef.userScore", { count: user.activationScore })}
                     </div>
                   </div>
                 </div>
