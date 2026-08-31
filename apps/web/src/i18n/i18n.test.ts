@@ -62,6 +62,15 @@ describe("localization", () => {
       "submit.catFoodDining",
       "stripe.complete",
       "commerce.receiptReady",
+      "kyc.formTitle",
+      "kyc.underReview",
+      "onboarding.alertsTitle",
+      "onboarding.enableAlerts",
+      "comments.posted",
+      "joinBar.join",
+      "feed.latest",
+      "billing.confirmed",
+      "moment.notFound",
     ] as const;
 
     supportedLocales.forEach((locale) => {

@@ -6,6 +6,7 @@ import { ReactionBar } from "@/components/ReactionBar";
 import { PioneerBadge } from "@/components/badges/PioneerBadge";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 
 export interface Comment {
     id: string;
@@ -48,10 +49,12 @@ export function CommentSection({
     isLoading = false,
     errorMessage,
     canInteract = true,
-    disabledReason = "Join this Moment to post on its Wall.",
+    disabledReason,
     className,
 }: CommentSectionProps) {
     const { toast } = useToast();
+    const { t } = useI18n();
+    const wallDisabled = disabledReason || t("comments.joinToPost");
     const comments = initialComments;
     const [newComment, setNewComment] = useState("");
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -66,11 +69,11 @@ export function CommentSection({
         try {
             await onAddComment?.(newComment);
             setNewComment("");
-            toast({ title: "Posted to the Moment Wall", description: "People in this Moment can now respond." });
+            toast({ title: t("comments.posted"), description: t("comments.postedCopy") });
         } catch (error) {
             toast({
-                title: "Post not saved",
-                description: error instanceof Error ? error.message : "Please try again.",
+                title: t("comments.notSaved"),
+                description: error instanceof Error ? error.message : t("comments.tryAgain"),
                 variant: "destructive",
             });
         } finally {
@@ -87,11 +90,11 @@ export function CommentSection({
             await onAddComment?.(replyContent, parentId);
             setReplyContent("");
             setReplyingTo(null);
-            toast({ title: "Reply posted", description: "The conversation is up to date." });
+            toast({ title: t("comments.replyPosted"), description: t("comments.replyPostedCopy") });
         } catch (error) {
             toast({
-                title: "Reply not saved",
-                description: error instanceof Error ? error.message : "Please try again.",
+                title: t("comments.replyNotSaved"),
+                description: error instanceof Error ? error.message : t("comments.tryAgain"),
                 variant: "destructive",
             });
         } finally {
@@ -102,11 +105,11 @@ export function CommentSection({
     const handleDelete = async (commentId: string) => {
         try {
             await onDeleteComment?.(commentId);
-            toast({ title: "Post removed" });
+            toast({ title: t("comments.removed") });
         } catch (error) {
             toast({
-                title: "Post not removed",
-                description: error instanceof Error ? error.message : "Please try again.",
+                title: t("comments.notRemoved"),
+                description: error instanceof Error ? error.message : t("comments.tryAgain"),
                 variant: "destructive",
             });
         }
@@ -120,10 +123,10 @@ export function CommentSection({
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
 
-        if (diffMins < 1) return "Just now";
-        if (diffMins < 60) return `${diffMins}m ago`;
-        if (diffHours < 24) return `${diffHours}h ago`;
-        if (diffDays < 7) return `${diffDays}d ago`;
+        if (diffMins < 1) return t("comments.justNow");
+        if (diffMins < 60) return t("comments.minsAgo", { n: diffMins });
+        if (diffHours < 24) return t("comments.hoursAgo", { n: diffHours });
+        if (diffDays < 7) return t("comments.daysAgo", { n: diffDays });
         return date.toLocaleDateString();
     };
 
@@ -150,7 +153,7 @@ export function CommentSection({
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                         <span className="font-bold text-foreground">
-                            {comment.user?.full_name || "Anonymous"}
+                            {comment.user?.full_name || t("comments.anonymous")}
                         </span>
                         {comment.user?.pioneer && <PioneerBadge showText={false} className="scale-75 origin-left" />}
                         <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">
@@ -162,7 +165,7 @@ export function CommentSection({
                             <button
                                 onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
                                 className="p-1 rounded hover:bg-secondary text-muted-foreground hover:text-foreground"
-                                title="Reply"
+                                title={t("comments.reply")}
                             >
                                 <Reply className="h-3.5 w-3.5" />
                             </button>
@@ -170,7 +173,7 @@ export function CommentSection({
                                 <button
                                     onClick={() => handleDelete(comment.id)}
                                     className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                                    title="Delete"
+                                    title={t("comments.delete")}
                                 >
                                     <Trash2 className="h-3.5 w-3.5" />
                                 </button>
@@ -189,7 +192,7 @@ export function CommentSection({
                         initialReactions={comment.reactions}
                         userReaction={comment.userReaction}
                         canInteract={canInteract}
-                        disabledReason={disabledReason}
+                        disabledReason={wallDisabled}
                         size="sm"
                     />
 
@@ -199,7 +202,7 @@ export function CommentSection({
                             <Input
                                 value={replyContent}
                                 onChange={(e) => setReplyContent(e.target.value)}
-                                placeholder="Write a reply..."
+                                placeholder={t("comments.replyPh")}
                                 className="flex-1 h-9"
                                 onKeyDown={(e) => e.key === "Enter" && handleSubmitReply(comment.id)}
                             />
@@ -233,7 +236,7 @@ export function CommentSection({
                     <Input
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
-                        placeholder={canInteract ? "Add to the Moment Wall..." : disabledReason}
+                        placeholder={canInteract ? t("comments.wallPh") : wallDisabled}
                         className="flex-1"
                         disabled={!canInteract || !currentUserId}
                         onKeyDown={(e) => e.key === "Enter" && handleSubmitComment()}
@@ -243,7 +246,7 @@ export function CommentSection({
                         disabled={!newComment.trim() || isSubmitting || !canInteract || !currentUserId}
                     >
                         <Send className="h-4 w-4 mr-2" />
-                        Post
+                        {t("comments.post")}
                     </Button>
                 </div>
             </div>

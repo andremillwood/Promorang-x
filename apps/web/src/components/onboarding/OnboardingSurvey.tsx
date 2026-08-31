@@ -94,8 +94,8 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
       icon: <MapPin className="w-6 h-6" />,
     },
     {
-      title: "Activate Alerts",
-      subtitle: "Live door passes, nearby deals & Gem rewards",
+      title: t("onboarding.alertsTitle"),
+      subtitle: t("onboarding.alertsSubtitle"),
       icon: <Bell className="w-6 h-6" />,
     },
   ];
@@ -217,7 +217,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
         <div className="mb-5 sm:mb-8">
           <Progress value={progress} className="h-2" />
           <p className="text-sm text-muted-foreground mt-2 text-center">
-            Step {step + 1} of {steps.length}
+            {t("onboarding.stepOf", { current: step + 1, total: steps.length })}
           </p>
         </div>
 
@@ -577,7 +577,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                     t("onboarding.saving")
                   ) : (
                     <>
-                      <span>Continue to Alerts</span>
+                      <span>{t("onboarding.continueAlerts")}</span>
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </>
                   )

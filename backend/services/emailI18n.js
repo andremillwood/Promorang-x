@@ -159,6 +159,102 @@ const EMAIL_TRANSLATIONS = {
       ctaText: 'Browse More Drops',
       footerNote: 'Each rejection is a step closer to your next approval!'
     },
+    referralSignup: {
+      subject: '{{referredName}} joined via your referral!',
+      title: 'New Referral',
+      preheader: '{{referredName}} just joined using your referral link!',
+      greeting: 'Hi {{name}},',
+      intro: 'Great news! Someone just joined Promorang using your referral link:',
+      bonusHint: "When they become active, you'll earn a bonus!",
+      keepSharing: 'Keep sharing your referral link to grow your network and earnings.',
+      ctaText: 'View Referral Stats'
+    },
+    referralActivation: {
+      subject: 'You earned {{gems}} Gems from your referral!',
+      title: 'Referral Bonus Earned',
+      preheader: 'You earned a bonus because {{referredName}} became active!',
+      greeting: 'Hi {{name}},',
+      intro: 'Your referral <strong>{{referredName}}</strong> has become an active user on Promorang!',
+      bonusLabel: 'Activation Bonus',
+      keepSharing: "You'll continue earning commissions from their activity. Keep sharing!",
+      ctaText: 'View Earnings'
+    },
+    referralCommission: {
+      subject: 'Commission: +{{amount}} Gems from {{referredName}}',
+      title: 'Commission Earned',
+      greeting: 'Hi {{name}},',
+      intro: "You just earned a commission from your referral's activity:",
+      fromLabel: 'From',
+      activityLabel: 'Activity',
+      ctaText: 'View Wallet'
+    },
+    withdrawalRequested: {
+      subject: 'Withdrawal request received: {{amount}}',
+      title: 'Withdrawal Request Received',
+      preheader: 'Your withdrawal of {{amount}} is being processed.',
+      greeting: 'Hi {{name}},',
+      intro: "We've received your withdrawal request and are processing it through our secure payment system.",
+      amountLabel: 'Withdrawal Amount',
+      viaLabel: 'via {{method}}',
+      requestedLabel: 'Requested',
+      methodLabel: 'Method',
+      processingLabel: 'Processing Time',
+      defaultEta: '1-3 business days',
+      statusLabel: 'Status',
+      pendingReview: 'Pending Review',
+      reviewNote: "You'll receive a confirmation email once the transfer has been initiated. For security, all withdrawals are reviewed by our team.",
+      ctaText: 'View Withdrawal Status'
+    },
+    withdrawalCompleted: {
+      subject: 'Withdrawal complete: {{amount}}',
+      title: 'Withdrawal Complete',
+      preheader: 'Your {{amount}} has been sent.',
+      greeting: 'Hi {{name}},',
+      intro: 'Your withdrawal has been processed and funds have been sent. The transfer is now complete.',
+      completeLabel: 'Transfer Complete',
+      sentVia: 'Sent via {{method}}',
+      txnLabel: 'Transaction ID',
+      completedLabel: 'Completed',
+      statusLabel: 'Status',
+      completedStatus: 'Completed',
+      thanks: 'Thank you for using Promorang. Your funds should appear in your account within the processing time for your selected payment method.',
+      ctaText: 'View Transaction History',
+      footerNote: 'Keep this email for your records. Contact support if you have any questions about this transaction.'
+    },
+    kycRequired: {
+      subject: 'Identity verification required',
+      title: 'Verification Required',
+      greeting: 'Hi {{name}},',
+      intro: 'To continue with your request, we need to verify your identity.',
+      defaultReason: 'Withdrawals over $500 require identity verification for security.',
+      processNote: 'This is a quick, secure process that helps protect your account and comply with regulations.',
+      ctaText: 'Start Verification',
+      footerNote: 'Verification typically takes just a few minutes.'
+    },
+    kycRejected: {
+      subject: 'Your Promorang verification needs updates',
+      title: 'Verification Update',
+      preheader: 'Your identity verification needs changes before approval.',
+      greeting: 'Hi {{name}},',
+      intro: 'We reviewed your verification submission and could not approve it yet.',
+      reasonLabel: 'Reason',
+      defaultReason: 'Your submission needs clarification or clearer documents.',
+      categoryLabel: 'Category',
+      resubmitCopy: 'You can resubmit with updated information and clearer documentation.',
+      ctaText: 'Review and Resubmit',
+      footerNote: 'Support can help if you need clarification on the rejection reason.'
+    },
+    kycAdditionalInfo: {
+      subject: 'Additional information needed for verification',
+      title: 'More Information Needed',
+      preheader: 'We need one more update to complete your verification.',
+      greeting: 'Hi {{name}},',
+      intro: 'Your verification review is in progress, but we need additional information before we can finish it.',
+      defaultRequest: 'Please log in and review your verification request for the exact details.',
+      afterUpdate: 'Once you update the requested information, the review can continue.',
+      ctaText: 'Update Verification'
+    },
+
 
   },
   'es-419': {
@@ -283,6 +379,102 @@ const EMAIL_TRANSLATIONS = {
       ctaText: 'Ver más Drops',
       footerNote: 'Cada rechazo te acerca a tu próxima aprobación.'
     },
+    referralSignup: {
+      subject: '¡{{referredName}} se unió con tu referido!',
+      title: 'Nuevo Referido',
+      preheader: '¡{{referredName}} acaba de unirse con tu enlace!',
+      greeting: 'Hola {{name}},',
+      intro: '¡Buenas noticias! Alguien se unió a Promorang con tu enlace de referido:',
+      bonusHint: 'Cuando se active, ganarás un bono.',
+      keepSharing: 'Sigue compartiendo tu enlace para crecer tu red y tus ganancias.',
+      ctaText: 'Ver estadísticas de referidos'
+    },
+    referralActivation: {
+      subject: 'Ganaste {{gems}} Gemas por tu referido',
+      title: 'Bono de Referido Ganado',
+      preheader: 'Ganaste un bono porque {{referredName}} se activó.',
+      greeting: 'Hola {{name}},',
+      intro: 'Tu referido <strong>{{referredName}}</strong> ya es un usuario activo en Promorang.',
+      bonusLabel: 'Bono de activación',
+      keepSharing: 'Seguirás ganando comisiones por su actividad. ¡Sigue compartiendo!',
+      ctaText: 'Ver ganancias'
+    },
+    referralCommission: {
+      subject: 'Comisión: +{{amount}} Gemas de {{referredName}}',
+      title: 'Comisión Ganada',
+      greeting: 'Hola {{name}},',
+      intro: 'Acabas de ganar una comisión por la actividad de tu referido:',
+      fromLabel: 'De',
+      activityLabel: 'Actividad',
+      ctaText: 'Ver billetera'
+    },
+    withdrawalRequested: {
+      subject: 'Solicitud de retiro recibida: {{amount}}',
+      title: 'Solicitud de Retiro Recibida',
+      preheader: 'Tu retiro de {{amount}} se está procesando.',
+      greeting: 'Hola {{name}},',
+      intro: 'Recibimos tu solicitud de retiro y la estamos procesando de forma segura.',
+      amountLabel: 'Monto del retiro',
+      viaLabel: 'vía {{method}}',
+      requestedLabel: 'Solicitado',
+      methodLabel: 'Método',
+      processingLabel: 'Tiempo de procesamiento',
+      defaultEta: '1-3 días hábiles',
+      statusLabel: 'Estado',
+      pendingReview: 'En revisión',
+      reviewNote: 'Recibirás un correo cuando se inicie la transferencia. Por seguridad, todos los retiros se revisan.',
+      ctaText: 'Ver estado del retiro'
+    },
+    withdrawalCompleted: {
+      subject: 'Retiro completado: {{amount}}',
+      title: 'Retiro Completado',
+      preheader: 'Tu {{amount}} ya se envió.',
+      greeting: 'Hola {{name}},',
+      intro: 'Tu retiro se procesó y los fondos ya se enviaron.',
+      completeLabel: 'Transferencia completada',
+      sentVia: 'Enviado vía {{method}}',
+      txnLabel: 'ID de transacción',
+      completedLabel: 'Completado',
+      statusLabel: 'Estado',
+      completedStatus: 'Completado',
+      thanks: 'Gracias por usar Promorang. Los fondos deberían aparecer según el tiempo de tu método de pago.',
+      ctaText: 'Ver historial de transacciones',
+      footerNote: 'Guarda este correo. Contacta a soporte si tienes preguntas sobre esta transacción.'
+    },
+    kycRequired: {
+      subject: 'Se requiere verificación de identidad',
+      title: 'Verificación Requerida',
+      greeting: 'Hola {{name}},',
+      intro: 'Para continuar con tu solicitud, necesitamos verificar tu identidad.',
+      defaultReason: 'Los retiros mayores a $500 requieren verificación de identidad por seguridad.',
+      processNote: 'Es un proceso rápido y seguro que protege tu cuenta y cumple con las regulaciones.',
+      ctaText: 'Empezar verificación',
+      footerNote: 'La verificación suele tardar solo unos minutos.'
+    },
+    kycRejected: {
+      subject: 'Tu verificación de Promorang necesita actualizaciones',
+      title: 'Actualización de Verificación',
+      preheader: 'Tu verificación de identidad necesita cambios antes de aprobarse.',
+      greeting: 'Hola {{name}},',
+      intro: 'Revisamos tu envío y aún no pudimos aprobarlo.',
+      reasonLabel: 'Motivo',
+      defaultReason: 'Tu envío necesita aclaraciones o documentos más claros.',
+      categoryLabel: 'Categoría',
+      resubmitCopy: 'Puedes enviar de nuevo con información actualizada y documentos más claros.',
+      ctaText: 'Revisar y reenviar',
+      footerNote: 'Soporte puede ayudarte si necesitas aclarar el motivo.'
+    },
+    kycAdditionalInfo: {
+      subject: 'Se necesita más información para la verificación',
+      title: 'Se Necesita Más Información',
+      preheader: 'Necesitamos una actualización más para completar tu verificación.',
+      greeting: 'Hola {{name}},',
+      intro: 'Tu revisión está en curso, pero necesitamos más información para terminarla.',
+      defaultRequest: 'Inicia sesión y revisa tu solicitud de verificación para ver los detalles.',
+      afterUpdate: 'Cuando actualices la información, la revisión podrá continuar.',
+      ctaText: 'Actualizar verificación'
+    },
+
 
   },
   'pt-BR': {
@@ -407,6 +599,102 @@ const EMAIL_TRANSLATIONS = {
       ctaText: 'Ver mais Drops',
       footerNote: 'Cada recusa te aproxima da próxima aprovação.'
     },
+    referralSignup: {
+      subject: '{{referredName}} entrou pelo seu convite!',
+      title: 'Novo Indicado',
+      preheader: '{{referredName}} acabou de entrar com o seu link!',
+      greeting: 'Olá {{name}},',
+      intro: 'Boa notícia! Alguém acabou de entrar no Promorang com o seu link de indicação:',
+      bonusHint: 'Quando a pessoa ficar ativa, você ganha um bônus!',
+      keepSharing: 'Continue compartilhando seu link para crescer sua rede e seus ganhos.',
+      ctaText: 'Ver estatísticas de indicação'
+    },
+    referralActivation: {
+      subject: 'Você ganhou {{gems}} Gemas pela indicação!',
+      title: 'Bônus de Indicação',
+      preheader: 'Você ganhou um bônus porque {{referredName}} ficou ativo!',
+      greeting: 'Olá {{name}},',
+      intro: 'Sua indicação <strong>{{referredName}}</strong> se tornou um usuário ativo no Promorang!',
+      bonusLabel: 'Bônus de ativação',
+      keepSharing: 'Você continuará ganhando comissões da atividade. Continue compartilhando!',
+      ctaText: 'Ver ganhos'
+    },
+    referralCommission: {
+      subject: 'Comissão: +{{amount}} Gemas de {{referredName}}',
+      title: 'Comissão Recebida',
+      greeting: 'Olá {{name}},',
+      intro: 'Você acabou de ganhar uma comissão da atividade do seu indicado:',
+      fromLabel: 'De',
+      activityLabel: 'Atividade',
+      ctaText: 'Ver carteira'
+    },
+    withdrawalRequested: {
+      subject: 'Pedido de saque recebido: {{amount}}',
+      title: 'Pedido de Saque Recebido',
+      preheader: 'Seu saque de {{amount}} está em processamento.',
+      greeting: 'Olá {{name}},',
+      intro: 'Recebemos seu pedido de saque e estamos processando pelo sistema seguro.',
+      amountLabel: 'Valor do saque',
+      viaLabel: 'via {{method}}',
+      requestedLabel: 'Solicitado',
+      methodLabel: 'Método',
+      processingLabel: 'Prazo de processamento',
+      defaultEta: '1-3 dias úteis',
+      statusLabel: 'Status',
+      pendingReview: 'Em análise',
+      reviewNote: 'Você receberá um e-mail quando a transferência for iniciada. Por segurança, todos os saques são revisados.',
+      ctaText: 'Ver status do saque'
+    },
+    withdrawalCompleted: {
+      subject: 'Saque concluído: {{amount}}',
+      title: 'Saque Concluído',
+      preheader: 'Seu {{amount}} foi enviado.',
+      greeting: 'Olá {{name}},',
+      intro: 'Seu saque foi processado e os fundos já foram enviados.',
+      completeLabel: 'Transferência concluída',
+      sentVia: 'Enviado via {{method}}',
+      txnLabel: 'ID da transação',
+      completedLabel: 'Concluído',
+      statusLabel: 'Status',
+      completedStatus: 'Concluído',
+      thanks: 'Obrigado por usar o Promorang. Os fundos devem aparecer no prazo do seu método de pagamento.',
+      ctaText: 'Ver histórico de transações',
+      footerNote: 'Guarde este e-mail. Fale com o suporte se tiver dúvidas sobre esta transação.'
+    },
+    kycRequired: {
+      subject: 'Verificação de identidade necessária',
+      title: 'Verificação Necessária',
+      greeting: 'Olá {{name}},',
+      intro: 'Para continuar com o seu pedido, precisamos verificar sua identidade.',
+      defaultReason: 'Saques acima de US$ 500 exigem verificação de identidade por segurança.',
+      processNote: 'É um processo rápido e seguro que protege sua conta e atende às regras.',
+      ctaText: 'Começar verificação',
+      footerNote: 'A verificação costuma levar só alguns minutos.'
+    },
+    kycRejected: {
+      subject: 'Sua verificação Promorang precisa de atualizações',
+      title: 'Atualização da Verificação',
+      preheader: 'Sua verificação de identidade precisa de mudanças antes da aprovação.',
+      greeting: 'Olá {{name}},',
+      intro: 'Analisamos seu envio e ainda não pudemos aprovar.',
+      reasonLabel: 'Motivo',
+      defaultReason: 'Seu envio precisa de esclarecimento ou documentos mais nítidos.',
+      categoryLabel: 'Categoria',
+      resubmitCopy: 'Você pode enviar de novo com informações atualizadas e documentos mais claros.',
+      ctaText: 'Revisar e reenviar',
+      footerNote: 'O suporte pode ajudar se você precisar esclarecer o motivo.'
+    },
+    kycAdditionalInfo: {
+      subject: 'Precisamos de mais informações para a verificação',
+      title: 'Mais Informações Necessárias',
+      preheader: 'Precisamos de mais uma atualização para concluir sua verificação.',
+      greeting: 'Olá {{name}},',
+      intro: 'Sua análise está em andamento, mas precisamos de mais informações para terminar.',
+      defaultRequest: 'Entre e revise seu pedido de verificação para ver os detalhes.',
+      afterUpdate: 'Quando você atualizar as informações, a análise poderá continuar.',
+      ctaText: 'Atualizar verificação'
+    },
+
 
   }
 };

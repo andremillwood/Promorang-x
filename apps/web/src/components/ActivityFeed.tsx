@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface ActivityEvent {
     id: string;
@@ -68,6 +69,7 @@ export function ActivityFeed({
     onMarkAllRead,
     className,
 }: ActivityFeedProps) {
+    const { t } = useI18n();
     const [events, setEvents] = useState<ActivityEvent[]>(initialEvents);
     const unreadCount = events.filter(e => !e.read_at).length;
 
@@ -91,7 +93,7 @@ export function ActivityFeed({
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
 
-        if (diffMins < 1) return "Just now";
+        if (diffMins < 1) return t("feed.justNow");
         if (diffMins < 60) return `${diffMins}m`;
         if (diffHours < 24) return `${diffHours}h`;
         if (diffDays < 7) return `${diffDays}d`;
@@ -99,34 +101,34 @@ export function ActivityFeed({
     };
 
     const getEventMessage = (event: ActivityEvent): string => {
-        const actorName = event.actor?.full_name || "Someone";
+        const actorName = event.actor?.full_name || t("feed.someone");
         const metadata = event.metadata as Record<string, string>;
 
         switch (event.event_type) {
             case "follow":
-                return `${actorName} started following you`;
+                return t("feed.follow", { name: actorName });
             case "join":
-                return `${actorName} joined your moment "${metadata.moment_title || "untitled"}"`;
+                return t("feed.join", { name: actorName, title: metadata.moment_title || t("feed.untitled") });
             case "comment":
-                return `${actorName} commented on your moment`;
+                return t("feed.comment", { name: actorName });
             case "reaction":
-                return `${actorName} reacted ${metadata.reaction || "❤️"} to your moment`;
+                return t("feed.reaction", { name: actorName, reaction: metadata.reaction || "❤️" });
             case "reward":
-                return `You earned ${metadata.points || "some"} points!`;
+                return t("feed.reward", { points: metadata.points || "—" });
             case "check_in":
-                return `${actorName} checked in at your moment`;
+                return t("feed.checkIn", { name: actorName });
             case "low_stock":
-                return `Inventory Alert: ${metadata.product_name} is running low (${metadata.stock_level} left)`;
+                return t("feed.lowStock", { product: metadata.product_name, stock: metadata.stock_level });
             case "payout":
-                return `Payout Processed: $${metadata.amount} has been sent to your account`;
+                return t("feed.payout", { amount: metadata.amount });
             case "budget_alert":
-                return `Budget Alert: Your campaign "${metadata.campaign_name}" has reached ${metadata.percent}% of its budget`;
+                return t("feed.budget", { name: metadata.campaign_name, percent: metadata.percent });
             case "redemption":
-                return `Redemption: ${metadata.product_name} was redeemed by ${actorName}`;
+                return t("feed.redemption", { product: metadata.product_name, name: actorName });
             case "system":
-                return metadata.message as string || "System notification";
+                return metadata.message as string || t("feed.system");
             default:
-                return "New activity";
+                return t("feed.new");
         }
     };
 
@@ -148,7 +150,7 @@ export function ActivityFeed({
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                     <Bell className="h-5 w-5 text-orange-400" />
-                    <h3 className="text-lg font-bold text-white">Latest signals</h3>
+                    <h3 className="text-lg font-bold text-white">{t("feed.latest")}</h3>
                     {unreadCount > 0 && (
                         <span className="rounded-full bg-orange-500 px-2 py-0.5 text-xs font-bold text-black">
                             {unreadCount}
@@ -157,7 +159,7 @@ export function ActivityFeed({
                 </div>
                 {unreadCount > 0 && (
                     <Button className="text-white/55 hover:bg-white/10 hover:text-white" variant="ghost" size="sm" onClick={handleMarkAllRead}>
-                        Mark all read
+                        {t("feed.markAll")}
                     </Button>
                 )}
             </div>
@@ -167,9 +169,9 @@ export function ActivityFeed({
                 {events.length === 0 ? (
                     <div className="text-center py-12">
                         <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                        <p className="text-muted-foreground">No activity yet</p>
+                        <p className="text-muted-foreground">{t("feed.empty")}</p>
                         <p className="text-sm text-muted-foreground/70">
-                            When people interact with your moments, you'll see it here
+                            {t("feed.emptyCopy")}
                         </p>
                     </div>
                 ) : (
