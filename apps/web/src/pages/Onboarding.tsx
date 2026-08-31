@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHasCompletedOnboarding } from "@/hooks/useUserPreferences";
 import OnboardingSurvey from "@/components/onboarding/OnboardingSurvey";
+import { landingPathForNeed, resolveNeedFromPersona } from "@promorang/shared";
 import { getAnonymousId, trackGrowthEvent } from "@/lib/marketing-attribution";
 import { useI18n } from "@/i18n/I18nContext";
 
@@ -26,28 +27,22 @@ const Onboarding = () => {
   }, [hasCompleted, prefsLoading, navigate]);
 
   const handleComplete = (personaChoice?: string) => {
+    const need = resolveNeedFromPersona(personaChoice);
     void trackGrowthEvent({
-      eventName: "onboarding_completed", journey: "participant", stage: "activated",
-      entityType: "onboarding", entityId: "preferences",
+      eventName: "onboarding_completed",
+      journey: need?.role || "participant",
+      stage: "activated",
+      entityType: "onboarding",
+      entityId: need?.id || "preferences",
       idempotencyKey: `growth:onboarding:${getAnonymousId()}`,
     });
-    
-    // Automatically trigger role pilot HUD co-pilot for the user's chosen persona
-    const roleMap: Record<string, string> = {
-      explorer: 'explorer',
-      creator: 'creator',
-      mayor: 'host',
-      merchant: 'merchant',
-      brand: 'brand',
-      agency: 'brand'
-    };
-    const roleId = (personaChoice && roleMap[personaChoice]) || 'explorer';
-    sessionStorage.setItem('promorang_role_pilot_active', 'true');
-    sessionStorage.setItem('promorang_role_pilot_role', roleId);
-    sessionStorage.setItem('promorang_role_pilot_step', '0');
-    
-    // Redirect directly to first step of the guided tour
-    navigate(`/discover?pilot=${roleId}&step=1`);
+
+    const roleId = need?.role || "participant";
+    sessionStorage.setItem("promorang_role_pilot_active", "true");
+    sessionStorage.setItem("promorang_role_pilot_role", roleId);
+    sessionStorage.setItem("promorang_role_pilot_step", "0");
+
+    navigate(need ? landingPathForNeed(need) : "/?firstNight=true");
   };
 
   if (authLoading || prefsLoading) {
