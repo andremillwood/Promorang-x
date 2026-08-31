@@ -11,6 +11,8 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
+import { useI18n } from '@/i18n/I18nContext';
+import type { TranslationKey } from '@/i18n/translations';
 import {
   DollarSign,
   TrendingUp,
@@ -88,7 +90,22 @@ interface CostBreakdown {
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://api.promorang.co/api';
 
+const TIER_KEYS: Record<string, TranslationKey> = {
+  daily: "sponsorDash.tierDaily",
+  weekly: "sponsorDash.tierWeekly",
+  monthly: "sponsorDash.tierMonthly",
+  grand: "sponsorDash.tierGrand",
+};
+
+const STATUS_KEYS: Record<string, TranslationKey> = {
+  active: "sponsorDash.statusActive",
+  draft: "sponsorDash.statusDraft",
+  completed: "sponsorDash.statusCompleted",
+  settling: "sponsorDash.statusSettling",
+};
+
 const SponsorDashboard = () => {
+  const { t, formatNumber, formatDate } = useI18n();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('overview');
@@ -122,13 +139,13 @@ const SponsorDashboard = () => {
 
     // Handle payment return
     if (paymentStatus === 'success' && poolIdFromUrl) {
-      toast.success('Payment successful! Your pool is now active.');
+      toast.success(t("sponsorDash.toastPaid"));
       // Refresh pools to show updated status
       setTimeout(() => fetchPools(), 1000);
     } else if (paymentStatus === 'cancel' && poolIdFromUrl) {
-      toast.error('Payment was cancelled. Your pool remains in draft.');
+      toast.error(t("sponsorDash.toastCancelled"));
     }
-  }, [paymentStatus, poolIdFromUrl]);
+  }, [paymentStatus, poolIdFromUrl, t]);
 
   const fetchConfig = async () => {
     try {
@@ -181,7 +198,7 @@ const SponsorDashboard = () => {
         setCostEstimate(result.data);
       }
     } catch (error) {
-      toast.error('Failed to calculate cost');
+      toast.error(t("sponsorDash.toastCalc"));
     } finally {
       setCalculating(false);
     }
@@ -206,14 +223,14 @@ const SponsorDashboard = () => {
       });
       const result = await response.json();
       if (result.success) {
-        toast.success('Pool created! Redirecting to payment...');
+        toast.success(t("sponsorDash.toastCreated"));
         // Initiate payment immediately
         await initiatePayment(result.data.cycle.id);
       } else {
-        toast.error(result.error || 'Failed to create pool');
+        toast.error(result.error || t("sponsorDash.toastCreateFail"));
       }
     } catch (error) {
-      toast.error('Failed to create pool');
+      toast.error(t("sponsorDash.toastCreateFail"));
     } finally {
       setLoading(false);
     }
@@ -234,11 +251,11 @@ const SponsorDashboard = () => {
         // Redirect to Stripe Checkout
         window.location.href = result.data.checkout_url;
       } else {
-        toast.error(result.error || 'Failed to initiate payment');
+        toast.error(result.error || t("sponsorDash.toastPayFail"));
         setProcessingPayment(null);
       }
     } catch (error) {
-      toast.error('Failed to initiate payment');
+      toast.error(t("sponsorDash.toastPayFail"));
       setProcessingPayment(null);
     }
   };
@@ -278,6 +295,9 @@ const SponsorDashboard = () => {
     }
   };
 
+  const tierLabel = (tier: string) => (TIER_KEYS[tier] ? t(TIER_KEYS[tier]) : tier);
+  const statusLabel = (status: string) => (STATUS_KEYS[status] ? t(STATUS_KEYS[status]) : status);
+
   const totalSpend = pools.reduce((sum, p) => sum + (p.sponsor_config?.total_paid || 0), 0);
   const activePools = pools.filter(p => p.status === 'active').length;
 
@@ -298,13 +318,13 @@ const SponsorDashboard = () => {
             <Crown className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">Sponsor Dashboard</h1>
-            <p className="text-muted-foreground">Create and manage PromoShare prize pools</p>
+            <h1 className="text-3xl font-bold">{t("sponsorDash.title")}</h1>
+            <p className="text-muted-foreground">{t("sponsorDash.lede")}</p>
           </div>
         </div>
         <Button onClick={() => setActiveTab('create')}>
           <Plus className="w-4 h-4 mr-2" />
-          Create Pool
+          {t("sponsorDash.create")}
         </Button>
       </div>
 
@@ -314,8 +334,8 @@ const SponsorDashboard = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Spend</p>
-                <p className="text-2xl font-bold">${totalSpend.toLocaleString()}</p>
+                <p className="text-sm text-muted-foreground">{t("sponsorDash.totalSpend")}</p>
+                <p className="text-2xl font-bold">${formatNumber(totalSpend)}</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Wallet className="w-5 h-5 text-primary" />
@@ -328,7 +348,7 @@ const SponsorDashboard = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Active Pools</p>
+                <p className="text-sm text-muted-foreground">{t("sponsorDash.activePools")}</p>
                 <p className="text-2xl font-bold">{activePools}</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
@@ -342,7 +362,7 @@ const SponsorDashboard = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Pools</p>
+                <p className="text-sm text-muted-foreground">{t("sponsorDash.totalPools")}</p>
                 <p className="text-2xl font-bold">{pools.length}</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
@@ -356,9 +376,9 @@ const SponsorDashboard = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Avg. Pool Size</p>
+                <p className="text-sm text-muted-foreground">{t("sponsorDash.avgSize")}</p>
                 <p className="text-2xl font-bold">
-                  {pools.length ? `$${Math.round(totalSpend / pools.length)}` : '$0'}
+                  {pools.length ? `$${formatNumber(Math.round(totalSpend / pools.length))}` : '$0'}
                 </p>
               </div>
               <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
@@ -371,16 +391,16 @@ const SponsorDashboard = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 lg:w-fit">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="pools">My Pools</TabsTrigger>
-          <TabsTrigger value="create">Create Pool</TabsTrigger>
+          <TabsTrigger value="overview">{t("sponsorDash.tabOverview")}</TabsTrigger>
+          <TabsTrigger value="pools">{t("sponsorDash.tabPools")}</TabsTrigger>
+          <TabsTrigger value="create">{t("sponsorDash.tabCreate")}</TabsTrigger>
         </TabsList>
 
         {/* OVERVIEW TAB */}
         <TabsContent value="overview" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>How PromoShare Sponsorship Works</CardTitle>
+              <CardTitle>{t("sponsorDash.howTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -388,36 +408,36 @@ const SponsorDashboard = () => {
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                     <DollarSign className="w-6 h-6 text-primary" />
                   </div>
-                  <h4 className="font-semibold mb-1">1. Fund Pool</h4>
+                  <h4 className="font-semibold mb-1">{t("sponsorDash.step1")}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Choose tier (daily to grand) and set your prize amount
+                    {t("sponsorDash.step1Copy")}
                   </p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                     <Target className="w-6 h-6 text-primary" />
                   </div>
-                  <h4 className="font-semibold mb-1">2. Target Users</h4>
+                  <h4 className="font-semibold mb-1">{t("sponsorDash.step2")}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Select categories, locations, and engagement requirements
+                    {t("sponsorDash.step2Copy")}
                   </p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                     <Users className="w-6 h-6 text-primary" />
                   </div>
-                  <h4 className="font-semibold mb-1">3. Users Qualify</h4>
+                  <h4 className="font-semibold mb-1">{t("sponsorDash.step3")}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Active users complete verified actions to enter your pool
+                    {t("sponsorDash.step3Copy")}
                   </p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                     <Trophy className="w-6 h-6 text-primary" />
                   </div>
-                  <h4 className="font-semibold mb-1">4. Winners Selected</h4>
+                  <h4 className="font-semibold mb-1">{t("sponsorDash.step4")}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Tiered distribution ensures fairness. You get detailed analytics.
+                    {t("sponsorDash.step4Copy")}
                   </p>
                 </div>
               </div>
@@ -428,7 +448,7 @@ const SponsorDashboard = () => {
           {config && (
             <Card>
               <CardHeader>
-                <CardTitle>Pool Tiers & Pricing</CardTitle>
+                <CardTitle>{t("sponsorDash.tiersTitle")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -442,21 +462,21 @@ const SponsorDashboard = () => {
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2 mb-3">
                           <div className={`w-3 h-3 rounded-full ${getTierColor(tier)}`} />
-                          <h4 className="font-semibold capitalize">{tier}</h4>
+                          <h4 className="font-semibold capitalize">{tierLabel(tier)}</h4>
                         </div>
                         <p className="text-2xl font-bold mb-1">
-                          ${tierConfig.min_pool}-${tierConfig.max_pool}
+                          ${tierConfig.min_pool}-{tierConfig.max_pool}
                         </p>
                         <p className="text-sm text-muted-foreground mb-3">
-                          {tierConfig.duration_days} day cycle
+                          {t("sponsorDash.dayCycle", { count: tierConfig.duration_days })}
                         </p>
                         <div className="space-y-1 text-sm">
-                          <p><strong>{tierConfig.platform_fee_percent}%</strong> platform fee</p>
-                          <p><strong>{tierConfig.max_winners}</strong> max winners</p>
-                          <p><strong>${tierConfig.min_win_value}</strong> min prize</p>
+                          <p>{t("sponsorDash.platformFee", { pct: tierConfig.platform_fee_percent })}</p>
+                          <p>{t("sponsorDash.maxWinners", { count: tierConfig.max_winners })}</p>
+                          <p>{t("sponsorDash.minPrize", { amount: tierConfig.min_win_value })}</p>
                         </div>
                         <Button variant="ghost" size="sm" className="w-full mt-3">
-                          Select <ChevronRight className="w-4 h-4 ml-1" />
+                          {t("sponsorDash.select")} <ChevronRight className="w-4 h-4 ml-1" />
                         </Button>
                       </CardContent>
                     </Card>
@@ -476,51 +496,51 @@ const SponsorDashboard = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Badge className={getTierColor(pool.cycle_type)}>
-                        {pool.cycle_type}
+                        {tierLabel(pool.cycle_type)}
                       </Badge>
                       <div>
                         <CardTitle className="text-lg">{pool.cycle_name}</CardTitle>
                         <CardDescription>
-                          {new Date(pool.start_at).toLocaleDateString()} - {new Date(pool.end_at).toLocaleDateString()}
+                          {formatDate(pool.start_at)} - {formatDate(pool.end_at)}
                         </CardDescription>
                       </div>
                     </div>
                     <Badge className={getStatusColor(pool.status)}>
-                      {pool.status}
+                      {statusLabel(pool.status)}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Paid</p>
-                      <p className="text-xl font-bold">${pool.sponsor_config?.total_paid?.toLocaleString() || 0}</p>
+                      <p className="text-sm text-muted-foreground">{t("sponsorDash.totalPaid")}</p>
+                      <p className="text-xl font-bold">${formatNumber(pool.sponsor_config?.total_paid || 0)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Platform Fee</p>
-                      <p className="text-xl font-bold">${pool.sponsor_config?.platform_fee?.toLocaleString() || 0}</p>
+                      <p className="text-sm text-muted-foreground">{t("sponsorDash.fee")}</p>
+                      <p className="text-xl font-bold">${formatNumber(pool.sponsor_config?.platform_fee || 0)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Prize Pool</p>
+                      <p className="text-sm text-muted-foreground">{t("sponsorDash.prizePool")}</p>
                       <p className="text-xl font-bold text-primary">
-                        ${pool.sponsor_config?.prize_pool?.toLocaleString() || 0}
+                        ${formatNumber(pool.sponsor_config?.prize_pool || 0)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Qualified Users</p>
+                      <p className="text-sm text-muted-foreground">{t("sponsorDash.qualified")}</p>
                       <p className="text-xl font-bold">{pool.metrics?.qualified_users || 0}</p>
                     </div>
                   </div>
                   {pool.sponsor_config?.brand_message && (
                     <div className="p-3 bg-muted rounded-lg mb-4">
-                      <p className="text-sm text-muted-foreground">Brand Message:</p>
+                      <p className="text-sm text-muted-foreground">{t("sponsorDash.brandMessage")}</p>
                       <p className="font-medium">{pool.sponsor_config.brand_message}</p>
                     </div>
                   )}
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm">
                       <BarChart3 className="w-4 h-4 mr-2" />
-                      Analytics
+                      {t("sponsorDash.analytics")}
                     </Button>
                     {pool.status === 'draft' && pool.sponsor_config?.payment_status === 'pending' && (
                       <Button
@@ -531,12 +551,12 @@ const SponsorDashboard = () => {
                         {processingPayment === pool.id ? (
                           <>
                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                            Processing...
+                            {t("sponsorDash.processing")}
                           </>
                         ) : (
                           <>
                             <DollarSign className="w-4 h-4 mr-2" />
-                            Complete Payment (${pool.sponsor_config?.total_paid || 0})
+                            {t("sponsorDash.completePay", { amount: pool.sponsor_config?.total_paid || 0 })}
                           </>
                         )}
                       </Button>
@@ -550,11 +570,11 @@ const SponsorDashboard = () => {
               <Card>
                 <CardContent className="py-12 text-center">
                   <Gift className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Pools Yet</h3>
-                  <p className="text-muted-foreground mb-4">Create your first PromoShare prize pool</p>
+                  <h3 className="text-lg font-semibold mb-2">{t("sponsorDash.emptyTitle")}</h3>
+                  <p className="text-muted-foreground mb-4">{t("sponsorDash.emptyCopy")}</p>
                   <Button onClick={() => setActiveTab('create')}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Create Pool
+                    {t("sponsorDash.create")}
                   </Button>
                 </CardContent>
               </Card>
@@ -568,12 +588,12 @@ const SponsorDashboard = () => {
             {/* Pool Configuration */}
             <Card>
               <CardHeader>
-                <CardTitle>Configure Your Pool</CardTitle>
-                <CardDescription>Set up your prize pool parameters</CardDescription>
+                <CardTitle>{t("sponsorDash.configTitle")}</CardTitle>
+                <CardDescription>{t("sponsorDash.configDesc")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Pool Tier</Label>
+                  <Label>{t("sponsorDash.poolTier")}</Label>
                   <select
                     className="w-full p-2 border rounded-md bg-background"
                     value={newPool.tier}
@@ -584,14 +604,19 @@ const SponsorDashboard = () => {
                   >
                     {config?.tiers && Object.entries(config.tiers).map(([tier, tierConfig]) => (
                       <option key={tier} value={tier}>
-                        {tier.charAt(0).toUpperCase() + tier.slice(1)} - ${tierConfig.min_pool}-${tierConfig.max_pool} ({tierConfig.duration_days} days)
+                        {t("sponsorDash.tierOption", {
+                          tier: tierLabel(tier),
+                          min: tierConfig.min_pool,
+                          max: tierConfig.max_pool,
+                          days: tierConfig.duration_days,
+                        })}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Pool Amount ($)</Label>
+                  <Label>{t("sponsorDash.poolAmount")}</Label>
                   <Input
                     type="number"
                     min={config?.tiers?.[newPool.tier]?.min_pool || 50}
@@ -603,23 +628,26 @@ const SponsorDashboard = () => {
                     }}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Min: ${config?.tiers?.[newPool.tier]?.min_pool}, Max: ${config?.tiers?.[newPool.tier]?.max_pool}
+                    {t("sponsorDash.minMax", {
+                      min: config?.tiers?.[newPool.tier]?.min_pool ?? 0,
+                      max: config?.tiers?.[newPool.tier]?.max_pool ?? 0,
+                    })}
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Pool Name</Label>
+                  <Label>{t("sponsorDash.poolName")}</Label>
                   <Input
-                    placeholder="e.g., Summer Vibes Weekly Draw"
+                    placeholder={t("sponsorDash.poolNamePh")}
                     value={newPool.cycle_name}
                     onChange={(e) => setNewPool({ ...newPool, cycle_name: e.target.value })}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Brand Message</Label>
+                  <Label>{t("sponsorDash.brandMsg")}</Label>
                   <Input
-                    placeholder="Your message to participants..."
+                    placeholder={t("sponsorDash.brandMsgPh")}
                     value={newPool.brand_message}
                     onChange={(e) => setNewPool({ ...newPool, brand_message: e.target.value })}
                   />
@@ -628,13 +656,13 @@ const SponsorDashboard = () => {
                 <Separator />
 
                 <div className="space-y-3">
-                  <Label>Premium Placements</Label>
+                  <Label>{t("sponsorDash.placements")}</Label>
                   {config?.placements && Object.entries(config.placements).map(([key, placement]) => (
                     <div key={key} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <p className="font-medium capitalize">{key.replace('_', ' ')}</p>
                         <p className="text-sm text-muted-foreground">
-                          ${placement.price}{placement.per_send ? ' per send' : placement.duration_days ? ` / ${placement.duration_days} days` : ''}
+                          ${placement.price}{placement.per_send ? t("sponsorDash.perSend") : placement.duration_days ? t("sponsorDash.perDays", { days: placement.duration_days }) : ''}
                         </p>
                       </div>
                       <Switch
@@ -660,12 +688,12 @@ const SponsorDashboard = () => {
                   {calculating ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      Calculating...
+                      {t("sponsorDash.calculating")}
                     </>
                   ) : (
                     <>
                       <TrendingUp className="w-4 h-4 mr-2" />
-                      Calculate Cost
+                      {t("sponsorDash.calculate")}
                     </>
                   )}
                 </Button>
@@ -675,30 +703,30 @@ const SponsorDashboard = () => {
             {/* Cost Breakdown */}
             <Card>
               <CardHeader>
-                <CardTitle>Cost Breakdown</CardTitle>
-                <CardDescription>Estimated costs and projections</CardDescription>
+                <CardTitle>{t("sponsorDash.costTitle")}</CardTitle>
+                <CardDescription>{t("sponsorDash.costDesc")}</CardDescription>
               </CardHeader>
               <CardContent>
                 {costEstimate ? (
                   <div className="space-y-6">
                     <div className="p-4 bg-muted rounded-lg">
-                      <p className="text-sm text-muted-foreground mb-1">Total Cost</p>
-                      <p className="text-3xl font-bold">${costEstimate.breakdown.total.toLocaleString()}</p>
+                      <p className="text-sm text-muted-foreground mb-1">{t("sponsorDash.totalCost")}</p>
+                      <p className="text-3xl font-bold">${formatNumber(costEstimate.breakdown.total)}</p>
                     </div>
 
                     <div className="space-y-2">
                       <div className="flex justify-between py-2 border-b">
-                        <span>Prize Pool</span>
-                        <span className="font-medium">${costEstimate.breakdown.prize_pool.toLocaleString()}</span>
+                        <span>{t("sponsorDash.prizeLine")}</span>
+                        <span className="font-medium">${formatNumber(costEstimate.breakdown.prize_pool)}</span>
                       </div>
                       <div className="flex justify-between py-2 border-b">
-                        <span>Platform Fee ({costEstimate.breakdown.platform_fee_percent}%)</span>
-                        <span className="font-medium">${costEstimate.breakdown.platform_fee.toLocaleString()}</span>
+                        <span>{t("sponsorDash.feeLine", { pct: costEstimate.breakdown.platform_fee_percent })}</span>
+                        <span className="font-medium">${formatNumber(costEstimate.breakdown.platform_fee)}</span>
                       </div>
                       {costEstimate.breakdown.placements > 0 && (
                         <div className="flex justify-between py-2 border-b">
-                          <span>Premium Placements</span>
-                          <span className="font-medium">${costEstimate.breakdown.placements.toLocaleString()}</span>
+                          <span>{t("sponsorDash.placementsLine")}</span>
+                          <span className="font-medium">${formatNumber(costEstimate.breakdown.placements)}</span>
                         </div>
                       )}
                     </div>
@@ -706,23 +734,23 @@ const SponsorDashboard = () => {
                     <Separator />
 
                     <div>
-                      <h4 className="font-semibold mb-3">Projected Results</h4>
+                      <h4 className="font-semibold mb-3">{t("sponsorDash.projected")}</h4>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="p-3 bg-muted rounded-lg text-center">
                           <p className="text-2xl font-bold">{costEstimate.projections.min_winners}-{costEstimate.projections.max_winners}</p>
-                          <p className="text-xs text-muted-foreground">Winners</p>
+                          <p className="text-xs text-muted-foreground">{t("sponsorDash.winners")}</p>
                         </div>
                         <div className="p-3 bg-muted rounded-lg text-center">
                           <p className="text-2xl font-bold">${costEstimate.projections.avg_prize_per_winner}</p>
-                          <p className="text-xs text-muted-foreground">Avg Prize</p>
+                          <p className="text-xs text-muted-foreground">{t("sponsorDash.avgPrize")}</p>
                         </div>
                         <div className="p-3 bg-muted rounded-lg text-center">
                           <p className="text-2xl font-bold">{costEstimate.projections.duration_days}</p>
-                          <p className="text-xs text-muted-foreground">Days</p>
+                          <p className="text-xs text-muted-foreground">{t("sponsorDash.days")}</p>
                         </div>
                         <div className="p-3 bg-muted rounded-lg text-center">
                           <p className="text-2xl font-bold">${Math.round(costEstimate.breakdown.total / costEstimate.projections.avg_winners)}</p>
-                          <p className="text-xs text-muted-foreground">Est. Cost Per Winner</p>
+                          <p className="text-xs text-muted-foreground">{t("sponsorDash.costPerWinner")}</p>
                         </div>
                       </div>
                     </div>
@@ -736,12 +764,12 @@ const SponsorDashboard = () => {
                       {loading ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                          Creating...
+                          {t("sponsorDash.creating")}
                         </>
                       ) : (
                         <>
                           <Sparkles className="w-4 h-4 mr-2" />
-                          Create Pool (${costEstimate.breakdown.total.toLocaleString()})
+                          {t("sponsorDash.createCost", { amount: formatNumber(costEstimate.breakdown.total) })}
                         </>
                       )}
                     </Button>
@@ -749,7 +777,7 @@ const SponsorDashboard = () => {
                 ) : (
                   <div className="text-center py-12">
                     <TrendingUp className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">Click "Calculate Cost" to see breakdown</p>
+                    <p className="text-muted-foreground">{t("sponsorDash.clickCalc")}</p>
                   </div>
                 )}
               </CardContent>

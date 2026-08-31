@@ -160,6 +160,8 @@ describe("localization", () => {
       "brandOnb.create",
       "launchRes.seoTitle",
       "launchRes.usePlaybook",
+      "sponsorDash.title",
+      "sponsorDash.create",
     ] as const;
 
     supportedLocales.forEach((locale) => {
