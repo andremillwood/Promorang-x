@@ -2,6 +2,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowRight, Check, ChevronLeft, Clock3, Lightbulb, LockKeyhole, Sparkles } from "lucide-react";
 import SEO from "@/components/SEO";
+import { useI18n } from "@/i18n/I18nContext";
 import { API_BASE_URL } from "@/lib/api";
 import { captureGrowthAttribution, getAnonymousId, trackGrowthEvent } from "@/lib/marketing-attribution";
 import "./LeadMagnetFunnels.css";
@@ -141,6 +142,7 @@ const funnels: Record<FunnelKey, Funnel> = {
 const funnelLinks = Object.values(funnels);
 
 export default function LeadMagnetFunnels() {
+  const { t } = useI18n();
   const { funnel = "scene" } = useParams();
   const config = funnels[funnel as FunnelKey] || funnels.scene;
   const [started, setStarted] = useState(false);
@@ -174,7 +176,7 @@ export default function LeadMagnetFunnels() {
         marketingConsent:consent, consentText:"I want relevant Promorang opportunities and updates. I can unsubscribe at any time.",
         attribution:attribution?.lastTouch || {}, anonymousId:getAnonymousId(), landingPath:`${window.location.pathname}${window.location.search}`, referrerUrl:document.referrer || null, website:"",
       }) });
-      const payload = await response.json(); if (!response.ok) throw new Error(payload.error || "Could not save your report");
+      const payload = await response.json(); if (!response.ok) throw new Error(payload.error || t("leadFunnel.saveFail"));
       localStorage.setItem(`promorang_lead_${config.key}`, JSON.stringify({ leadId:payload.data?.leadId,email,answers,result,capturedAt:new Date().toISOString() }));
       await trackGrowthEvent({eventName:"lead_magnet_captured",journey:config.key==="scene"?"participant":"commercial",stage:"captured",entityType:"crm_lead",entityId:payload.data?.leadId,properties:{funnelKey:config.key,qualification:payload.data?.qualification},idempotencyKey:`lead:${payload.data?.leadId}:${config.key}`});
       setSaved(true);
@@ -184,7 +186,7 @@ export default function LeadMagnetFunnels() {
 
   return (
     <div className={`lm-page lm-${config.key}`}>
-      <SEO title={`${config.title} Free Promorang Diagnostic`} description={config.promise} />
+      <SEO title={t("leadFunnel.seoTitle", { title: config.title })} description={config.promise} />
       <div className="lm-grain" aria-hidden="true" />
       <main>
         <section className="lm-hero">
@@ -194,64 +196,64 @@ export default function LeadMagnetFunnels() {
               <h1>{config.title}<em>{config.accent}</em></h1>
               <p className="lm-promise">{config.promise}</p>
               <div className="lm-actions">
-                <button className="lm-primary" onClick={begin}>Get my free result <ArrowRight /></button>
-                <span><Clock3 /> {config.time} · No account required</span>
+                <button className="lm-primary" onClick={begin}>{t("leadFunnel.getResult")} <ArrowRight /></button>
+                <span><Clock3 /> {config.time} · {t("leadFunnel.noAccount")}</span>
               </div>
-              <p className="lm-fine"><LockKeyhole /> Your result is private. Save it only if it is useful.</p>
+              <p className="lm-fine"><LockKeyhole /> {t("leadFunnel.private")}</p>
             </div>
-            <aside className="lm-report-card" aria-label="What you receive">
-              <div className="lm-report-top"><span>Promorang field report</span><span>Free / {config.index}</span></div>
-              <div className="lm-score-preview"><b>?</b><span>YOUR<br/>SIGNAL</span></div>
+            <aside className="lm-report-card" aria-label={t("leadFunnel.reportAria")}>
+              <div className="lm-report-top"><span>{t("leadFunnel.fieldReport")}</span><span>{t("leadFunnel.freeIndex", { index: config.index })}</span></div>
+              <div className="lm-score-preview"><b>?</b><span>{t("leadFunnel.yourSignal")}</span></div>
               <p>{config.proof}</p>
               <ul>{config.pillars.map(p => <li key={p.label}><Check /> {p.label}</li>)}</ul>
-              <div className="lm-stamp">Built for action<br/>not vanity</div>
+              <div className="lm-stamp">{t("leadFunnel.builtFor")}<br/>{t("leadFunnel.notVanity")}</div>
             </aside>
           </div>
         </section>
 
-        <section className="lm-trustbar" aria-label="Diagnostic qualities">
-          <div className="lm-shell"><span>{config.audience}</span><span>Specific recommendations</span><span>Immediate result</span><span>No generic PDF</span></div>
+        <section className="lm-trustbar" aria-label={t("leadFunnel.qualitiesAria")}>
+          <div className="lm-shell"><span>{config.audience}</span><span>{t("leadFunnel.specific")}</span><span>{t("leadFunnel.immediate")}</span><span>{t("leadFunnel.noPdf")}</span></div>
         </section>
 
         <section className="lm-diagnostic" id="diagnostic">
           <div className="lm-shell">
             {!started ? (
               <div className="lm-intro">
-                <p className="lm-section-label">Your free diagnostic</p>
-                <h2>A useful answer begins with four honest ones.</h2>
-                <p>Do not choose what sounds impressive. Choose what is already true—or what you actually want.</p>
-                <button className="lm-primary" onClick={begin}>Start now <ArrowRight /></button>
+                <p className="lm-section-label">{t("leadFunnel.freeDiag")}</p>
+                <h2>{t("leadFunnel.introTitle")}</h2>
+                <p>{t("leadFunnel.introCopy")}</p>
+                <button className="lm-primary" onClick={begin}>{t("leadFunnel.startNow")} <ArrowRight /></button>
               </div>
             ) : !complete ? (
               <div className="lm-question-card" aria-live="polite">
                 <div className="lm-progress"><span style={{ width: `${progress}%` }} /></div>
-                <p className="lm-section-label">Question {step + 1} of {config.questions.length}</p>
+                <p className="lm-section-label">{t("leadFunnel.questionOf", { n: step + 1, total: config.questions.length })}</p>
                 <h2>{question.prompt}</h2>
                 <p>{question.note}</p>
                 <div className="lm-options">
                   {question.options.map((option, i) => <button key={option} onClick={() => select(option)} className={answers[question.id] === option ? "selected" : ""}><span>{String(i + 1).padStart(2, "0")}</span>{option}<ArrowRight /></button>)}
                 </div>
-                {step > 0 && <button className="lm-back" onClick={() => setStep(s => s - 1)}><ChevronLeft /> Previous question</button>}
+                {step > 0 && <button className="lm-back" onClick={() => setStep(s => s - 1)}><ChevronLeft /> {t("leadFunnel.previous")}</button>}
               </div>
             ) : (
               <div className="lm-result" aria-live="polite">
                 <div className="lm-result-heading">
-                  <div className="lm-result-score"><b>{Math.min(result.score, 97)}</b><span>/100<br/>signal</span></div>
-                  <div><p className="lm-section-label">Your result</p><h2>{result.name}</h2><p>{result.insight}</p></div>
+                  <div className="lm-result-score"><b>{Math.min(result.score, 97)}</b><span>{t("leadFunnel.signal")}</span></div>
+                  <div><p className="lm-section-label">{t("leadFunnel.yourResult")}</p><h2>{result.name}</h2><p>{result.insight}</p></div>
                 </div>
                 <div className="lm-moves">
-                  <h3>Your three highest-leverage moves</h3>
+                  <h3>{t("leadFunnel.threeMoves")}</h3>
                   {result.moves.map((move, i) => <div key={move}><span>0{i + 1}</span><p>{move}</p></div>)}
                 </div>
                 <form className="lm-capture" onSubmit={capture}>
-                  <div><p className="lm-section-label">Keep the result</p><h3>Email this field report to yourself.</h3><p>We will also send relevant Promorang opportunities. Unsubscribe anytime.</p></div>
+                  <div><p className="lm-section-label">{t("leadFunnel.keepResult")}</p><h3>{t("leadFunnel.emailReport")}</h3><p>{t("leadFunnel.alsoSend")}</p></div>
                   <div className="lm-capture-fields">
-                    <div className="lm-field-row"><label><span>Your name</span><input value={fullName} onChange={e=>setFullName(e.target.value)} placeholder="How should we address you?"/></label><label><span>Organization <i>optional</i></span><input value={organizationName} onChange={e=>setOrganizationName(e.target.value)} placeholder="Business or community"/></label></div>
-                    <div className="lm-field-row"><label><span>Email</span><input type="email" required value={email} onChange={e => { setEmail(e.target.value); setSaved(false); }} placeholder="you@example.com"/></label><label><span>Phone <i>optional</i></span><input type="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="For requested follow-up"/></label></div>
-                    <label className="lm-consent"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/><span>Send me relevant Promorang opportunities and updates. I can unsubscribe at any time.</span></label>
+                    <div className="lm-field-row"><label><span>{t("leadFunnel.yourName")}</span><input value={fullName} onChange={e=>setFullName(e.target.value)} placeholder={t("leadFunnel.namePh")}/></label><label><span>{t("leadFunnel.org")} <i>{t("leadFunnel.optional")}</i></span><input value={organizationName} onChange={e=>setOrganizationName(e.target.value)} placeholder={t("leadFunnel.orgPh")}/></label></div>
+                    <div className="lm-field-row"><label><span>{t("leadFunnel.email")}</span><input type="email" required value={email} onChange={e => { setEmail(e.target.value); setSaved(false); }} placeholder={t("leadFunnel.emailPh")}/></label><label><span>{t("leadFunnel.phone")} <i>{t("leadFunnel.optional")}</i></span><input type="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder={t("leadFunnel.phonePh")}/></label></div>
+                    <label className="lm-consent"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/><span>{t("leadFunnel.consent")}</span></label>
                     <input className="lm-honeypot" tabIndex={-1} autoComplete="off" aria-hidden="true" name="website"/>
-                    <button className="lm-send" type="submit" disabled={saving}>{saving?"Saving…":"Save my report"}</button>
-                    {saved && <p className="lm-saved" role="status"><Check /> Your report is saved and your next Promorang route is ready.</p>}{captureError&&<p className="lm-capture-error" role="alert">{captureError}</p>}
+                    <button className="lm-send" type="submit" disabled={saving}>{saving?t("leadFunnel.saving"):t("leadFunnel.saveReport")}</button>
+                    {saved && <p className="lm-saved" role="status"><Check /> {t("leadFunnel.saved")}</p>}{captureError&&<p className="lm-capture-error" role="alert">{captureError}</p>}
                   </div>
                 </form>
                 <Link className="lm-primary lm-result-cta" to={result.route}>{result.cta} <ArrowRight /></Link>
@@ -262,9 +264,9 @@ export default function LeadMagnetFunnels() {
 
         <section className="lm-value">
           <div className="lm-shell">
-            <p className="lm-section-label">What changes after this</p>
+            <p className="lm-section-label">{t("leadFunnel.whatChanges")}</p>
             <div className="lm-value-grid">
-              <div><h2>Clarity is only valuable when it changes the next move.</h2><p>So your report does not end with a label. It reveals a practical route into Promorang’s network of people, places, creators, Moments and commercial opportunities.</p></div>
+              <div><h2>{t("leadFunnel.clarityTitle")}</h2><p>{t("leadFunnel.clarityCopy")}</p></div>
               <div className="lm-pillar-list">{config.pillars.map((pillar, i) => <article key={pillar.label}><span>0{i + 1}</span><div><h3>{pillar.label}</h3><p>{pillar.description}</p></div></article>)}</div>
             </div>
           </div>
@@ -273,15 +275,15 @@ export default function LeadMagnetFunnels() {
         <section className="lm-logic">
           <div className="lm-shell lm-logic-grid">
             <div className="lm-logic-icon"><Lightbulb /></div>
-            <blockquote>“Most people do not need more information. They need the right decision to feel easier.”</blockquote>
-            <p>Promorang turns intent into a next action, then lets verified participation improve the recommendations and opportunities that follow.</p>
+            <blockquote>“{t("leadFunnel.quote")}”</blockquote>
+            <p>{t("leadFunnel.quoteAfter")}</p>
           </div>
         </section>
 
         <section className="lm-faq">
           <div className="lm-shell">
-            <p className="lm-section-label">Reasonable questions</p>
-            <h2>Before you give us two minutes.</h2>
+            <p className="lm-section-label">{t("leadFunnel.reasonable")}</p>
+            <h2>{t("leadFunnel.beforeMinutes")}</h2>
             <div>{config.objections.map((item, i) => <details key={item.q}><summary><span>0{i + 1}</span>{item.q}</summary><p>{item.a}</p></details>)}</div>
           </div>
         </section>
@@ -289,15 +291,15 @@ export default function LeadMagnetFunnels() {
         <section className="lm-final">
           <div className="lm-shell">
             <Sparkles />
-            <p className="lm-section-label">Free · useful · immediate</p>
+            <p className="lm-section-label">{t("leadFunnel.freeUseful")}</p>
             <h2>{config.title}</h2>
             <p>{config.promise}</p>
-            <button className="lm-primary" onClick={begin}>Get my result <ArrowRight /></button>
+            <button className="lm-primary" onClick={begin}>{t("leadFunnel.getMyResult")} <ArrowRight /></button>
           </div>
         </section>
 
-        <nav className="lm-more" aria-label="More free Promorang tools">
-          <div className="lm-shell"><p>More free field reports</p><div>{funnelLinks.filter(f => f.key !== config.key).map(f => <Link key={f.key} to={`/free/${f.key}`}><span>{f.index}</span>{f.title}<ArrowRight /></Link>)}</div></div>
+        <nav className="lm-more" aria-label={t("leadFunnel.moreNavAria")}>
+          <div className="lm-shell"><p>{t("leadFunnel.moreReports")}</p><div>{funnelLinks.filter(f => f.key !== config.key).map(f => <Link key={f.key} to={`/free/${f.key}`}><span>{f.index}</span>{f.title}<ArrowRight /></Link>)}</div></div>
         </nav>
       </main>
     </div>

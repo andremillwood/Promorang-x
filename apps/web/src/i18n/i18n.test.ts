@@ -181,6 +181,8 @@ describe("localization", () => {
       "psAdmin.createCycle",
       "piecesAdmin.title",
       "piecesAdmin.createPool",
+      "leadFunnel.getResult",
+      "leadFunnel.saveReport",
     ] as const;
 
     supportedLocales.forEach((locale) => {
