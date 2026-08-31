@@ -303,6 +303,10 @@ describe("localization", () => {
       "ppOps.createAssign",
       "presOps.title",
       "presOps.approve",
+      "proofBld.title",
+      "proofBld.refresh",
+      "commTrust.title",
+      "commTrust.fulfill",
     ] as const;
 
     supportedLocales.forEach((locale) => {

@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://api.promorang.co";
 
@@ -95,6 +96,7 @@ function statusClass(status: string) {
 }
 
 export function AdminCommerceTab() {
+  const { t, formatDate } = useI18n();
   const { session } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -179,24 +181,24 @@ export function AdminCommerceTab() {
         <CardContent className="p-5 sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Commerce Trust Control</p>
-              <h2 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">Keep marketplace value safe, visible, and reversible.</h2>
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">{t("commTrust.eyebrow")}</p>
+              <h2 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">{t("commTrust.title")}</h2>
               <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-                Review paid receipts, issued claims, hidden listings, and merchant products that shape feed commerce.
+                {t("commTrust.copy")}
               </p>
             </div>
             <Button variant="outline" onClick={() => overview.refetch()}>
               <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh
+              {t("commTrust.refresh")}
             </Button>
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {[
-              { label: "Issued / pending", value: summary.issued_or_pending || 0, icon: AlertTriangle },
-              { label: "Fulfilled", value: summary.fulfilled || 0, icon: BadgeCheck },
-              { label: "Paid revenue", value: money(summary.paid_revenue || 0), icon: ShoppingBag },
-              { label: "Automation attention", value: summary.automation_failures || 0, icon: WandSparkles },
+              { label: t("commTrust.issued"), value: summary.issued_or_pending || 0, icon: AlertTriangle },
+              { label: t("commTrust.fulfilled"), value: summary.fulfilled || 0, icon: BadgeCheck },
+              { label: t("commTrust.paid"), value: money(summary.paid_revenue || 0), icon: ShoppingBag },
+              { label: t("commTrust.autoAttn"), value: summary.automation_failures || 0, icon: WandSparkles },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl border bg-background/75 p-4">
                 <item.icon className="h-5 w-5 text-primary" />
@@ -210,16 +212,16 @@ export function AdminCommerceTab() {
 
       <Card>
         <CardContent className="p-4">
-          <p className="mb-2 text-sm font-semibold">Admin intervention reason</p>
-          <Textarea value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Required for cancellations, refunds, hides, pauses, and archives. Refunds with Stripe payment intents will execute a Stripe refund." />
+          <p className="mb-2 text-sm font-semibold">{t("commTrust.reason")}</p>
+          <Textarea value={reason} onChange={(event) => setReason(event.target.value)} placeholder={t("commTrust.reasonPh")} />
         </CardContent>
       </Card>
 
       <Tabs defaultValue="receipts" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="receipts" className="gap-2"><Receipt className="h-4 w-4" /> Receipts</TabsTrigger>
-          <TabsTrigger value="products" className="gap-2"><Package className="h-4 w-4" /> Listings</TabsTrigger>
-          <TabsTrigger value="automations" className="gap-2"><WandSparkles className="h-4 w-4" /> Automations</TabsTrigger>
+          <TabsTrigger value="receipts" className="gap-2"><Receipt className="h-4 w-4" /> {t("commTrust.tabReceipts")}</TabsTrigger>
+          <TabsTrigger value="products" className="gap-2"><Package className="h-4 w-4" /> {t("commTrust.tabListings")}</TabsTrigger>
+          <TabsTrigger value="automations" className="gap-2"><WandSparkles className="h-4 w-4" /> {t("commTrust.tabAutos")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="receipts" className="space-y-3">
@@ -233,28 +235,28 @@ export function AdminCommerceTab() {
                   </div>
                   <h3 className="truncate font-black capitalize">{receiptLabel(receipt)}</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {new Date(receipt.occurred_at).toLocaleString()} · User {receipt.user_id.slice(0, 8)} · Merchant {receipt.merchant_id?.slice(0, 8) || "none"}
+                    {formatDate(receipt.occurred_at)} · User {receipt.user_id.slice(0, 8)} · Merchant {receipt.merchant_id?.slice(0, 8) || "none"}
                   </p>
                   <p className="mt-1 font-mono text-xs text-muted-foreground">{receipt.redemption_code || money(receipt.amount, receipt.currency)}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild size="sm" variant="secondary">
-                    <Link to={`/receipts/${receipt.id}`}>View receipt</Link>
+                    <Link to={`/receipts/${receipt.id}`}>{t("commTrust.view")}</Link>
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => receiptStatus.mutate({ id: receipt.id, status: "fulfilled" })} disabled={receiptStatus.isPending}>
-                    <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Fulfill
+                    <ShieldCheck className="mr-1 h-3.5 w-3.5" /> {t("commTrust.fulfill")}
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => receiptStatus.mutate({ id: receipt.id, status: "cancelled" })} disabled={receiptStatus.isPending}>
-                    Cancel
+                    {t("commTrust.cancel")}
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => receiptStatus.mutate({ id: receipt.id, status: "refunded" })} disabled={receiptStatus.isPending}>
-                    Execute refund
+                    {t("commTrust.refund")}
                   </Button>
                 </div>
               </CardContent>
             </Card>
           ))}
-          {!receipts.length ? <div className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">No commerce receipts found.</div> : null}
+          {!receipts.length ? <div className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">{t("commTrust.emptyReceipts")}</div> : null}
         </TabsContent>
 
         <TabsContent value="products" className="grid gap-4 lg:grid-cols-2">
@@ -270,36 +272,36 @@ export function AdminCommerceTab() {
                       <Badge variant="outline" className={product.is_active === false ? statusClass("cancelled") : statusClass("fulfilled")}>{product.is_active === false ? "inactive" : "active"}</Badge>
                       <Badge variant="secondary">{product.visibility || "public"}</Badge>
                     </div>
-                    <h3 className="truncate font-black">{product.name || "Untitled listing"}</h3>
-                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{product.description || product.category || "No description"}</p>
+                    <h3 className="truncate font-black">{product.name || t("commTrust.untitled")}</h3>
+                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{product.description || product.category || t("commTrust.noDesc")}</p>
                     <p className="mt-2 text-xs text-muted-foreground">Merchant {product.merchant_id?.slice(0, 8) || "none"} · {money(product.price || 0, product.currency || "USD")}</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" onClick={() => productModeration.mutate({ id: product.id, action: "approve" })} disabled={productModeration.isPending}>
-                    <BadgeCheck className="mr-1 h-3.5 w-3.5" /> Approve
+                    <BadgeCheck className="mr-1 h-3.5 w-3.5" /> {t("commTrust.approve")}
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => productModeration.mutate({ id: product.id, action: "pause" })} disabled={productModeration.isPending}>
-                    <PauseCircle className="mr-1 h-3.5 w-3.5" /> Pause
+                    <PauseCircle className="mr-1 h-3.5 w-3.5" /> {t("commTrust.pause")}
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => productModeration.mutate({ id: product.id, action: "hide" })} disabled={productModeration.isPending}>
-                    <EyeOff className="mr-1 h-3.5 w-3.5" /> Hide
+                    <EyeOff className="mr-1 h-3.5 w-3.5" /> {t("commTrust.hide")}
                   </Button>
                 </div>
               </CardContent>
             </Card>
           ))}
-          {!products.length ? <div className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground lg:col-span-2">No merchant listings found.</div> : null}
+          {!products.length ? <div className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground lg:col-span-2">{t("commTrust.emptyListings")}</div> : null}
         </TabsContent>
 
         <TabsContent value="automations" className="space-y-3">
           <div className="flex flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="font-black">Historical proof reconciliation</p>
-              <p className="mt-1 text-xs text-muted-foreground">Check verified proofs from before automation launched and deliver only missing connected rewards.</p>
+              <p className="font-black">{t("commTrust.reconTitle")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("commTrust.reconCopy")}</p>
             </div>
             <Button variant="outline" onClick={() => reconcileAutomations.mutate()} disabled={reconcileAutomations.isPending}>
-              <WandSparkles className="mr-2 h-4 w-4" /> {reconcileAutomations.isPending ? "Reconciling…" : "Reconcile proofs"}
+              <WandSparkles className="mr-2 h-4 w-4" /> {reconcileAutomations.isPending ? t("commTrust.reconciling") : t("commTrust.reconcile")}
             </Button>
           </div>
           {automations.slice().sort((a, b) => Number(a.status !== "failed") - Number(b.status !== "failed")).map((automation) => (
@@ -311,22 +313,22 @@ export function AdminCommerceTab() {
                     <Badge variant="secondary" className="capitalize">{automation.action.replaceAll("_", " ")}</Badge>
                   </div>
                   <h3 className="font-black capitalize">{automation.source_type || "Experience"} → {automation.target_type || "reward"}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">{new Date(automation.created_at).toLocaleString()} · Target {automation.target_id?.slice(0, 8) || "recorded"}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{formatDate(automation.created_at)} · Target {automation.target_id?.slice(0, 8) || "recorded"}</p>
                   <p className={`mt-2 text-sm ${automation.status === "failed" ? "text-destructive" : "text-muted-foreground"}`}>
-                    {automation.error_message || (automation.status === "completed" ? "Reward or eligibility was delivered and attributed." : "Automation is being evaluated.")}
+                    {automation.error_message || (automation.status === "completed" ? t("commTrust.delivered") : t("commTrust.evaluating"))}
                   </p>
                 </div>
                 {automation.status === "failed" ? (
                   <Button onClick={() => retryAutomation.mutate(automation.id)} disabled={retryAutomation.isPending}>
-                    <RefreshCw className="mr-2 h-4 w-4" /> Retry safely
+                    <RefreshCw className="mr-2 h-4 w-4" /> {t("commTrust.retry")}
                   </Button>
                 ) : automation.result?.receipt_id ? (
-                  <Button asChild variant="secondary"><Link to={`/receipts/${automation.result.receipt_id}`}>View receipt</Link></Button>
+                  <Button asChild variant="secondary"><Link to={`/receipts/${automation.result.receipt_id}`}>{t("commTrust.view")}</Link></Button>
                 ) : null}
               </CardContent>
             </Card>
           ))}
-          {!automations.length ? <div className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">No proof-triggered automations have run yet.</div> : null}
+          {!automations.length ? <div className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">{t("commTrust.emptyAutos")}</div> : null}
         </TabsContent>
       </Tabs>
     </div>
