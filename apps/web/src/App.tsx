@@ -208,7 +208,7 @@ const App = () => (
                 <PromorangRolePilotHUD />
                 <IntentGoalModal />
                 <ChunkErrorBoundary>
-                  <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+                  <Suspense fallback={<div data-route-boot="1" className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
                   <Routes>
                   <Route element={<AppLayout />}>
                     <Route path="/" element={<Index />} />

@@ -47,6 +47,10 @@ import { PerkCard } from "@/components/perks/PerkCard";
 import { PostPerkModal } from "@/components/merchant/PostPerkModal";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import {
+  momentMatchesIntent,
+  normalizeDiscoverCategory,
+} from "@/lib/promocard-moment-intent";
 
 const categoryFilters = [
   { id: "all", label: "All Drops", icon: Sparkles },
@@ -54,6 +58,16 @@ const categoryFilters = [
   { id: "music", label: "Music & Nightlife", icon: Radio },
   { id: "community", label: "Gatherings & Culture", icon: Users },
 ];
+
+const momentIntentFilters = [
+  { id: "all", label: "All" },
+  { id: "food", label: "Food" },
+  { id: "shops", label: "Shops" },
+  { id: "trade", label: "Trade" },
+  { id: "sport", label: "Sport" },
+  { id: "culture", label: "Culture" },
+  { id: "night", label: "Night" },
+] as const;
 
 const CURATED_COORDINATES: Record<string, { lat: number; lng: number }> = {
   // Kingston & St. Andrew
@@ -148,14 +162,37 @@ const Discover = () => {
 
   useEffect(() => {
     const tabParam = searchParams.get("tab") as DiscoverTab;
+    const intentParam = searchParams.get("intent") || searchParams.get("category");
     if (tabParam && ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam)) {
       setActiveTab(tabParam);
+    } else if (intentParam) {
+      setActiveTab("moments");
+    }
+    if (intentParam) {
+      setActiveCategory(normalizeDiscoverCategory(intentParam));
     }
   }, [searchParams]);
 
+  const persistDiscoverParams = (updates: { tab?: DiscoverTab; intent?: string }) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (updates.tab) next.set("tab", updates.tab);
+      if (updates.intent !== undefined) {
+        if (!updates.intent || updates.intent === "all") next.delete("intent");
+        else next.set("intent", updates.intent);
+      }
+      return next;
+    });
+  };
+
   const handleTabChange = (tab: DiscoverTab) => {
     setActiveTab(tab);
-    setSearchParams({ tab });
+    persistDiscoverParams({ tab });
+  };
+
+  const handleMomentIntentChange = (intent: string) => {
+    setActiveCategory(intent);
+    persistDiscoverParams({ intent });
   };
 
   const discoveryQuery = useQuery({
@@ -271,7 +308,10 @@ const Discover = () => {
   );
   const filteredMoments = useMemo(() => {
     const matched = hubMoments.filter((m) => {
-      const matchesCategory = activeCategory === "all" || (m.category || "").toLowerCase().includes(activeCategory);
+      const matchesCategory = momentMatchesIntent(
+        [m.category, m.title, m.location].filter(Boolean).join(" "),
+        activeCategory,
+      );
       const matchesSearch =
         !searchQuery ||
         (m.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -603,20 +643,18 @@ const Discover = () => {
             {activeTab === "moments" && (
               <>
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-                  {categoryFilters.map((cat) => {
+                  {momentIntentFilters.map((cat) => {
                     const isActive = activeCategory === cat.id;
-                    const Icon = cat.icon;
                     return (
                       <button
                         key={cat.id}
-                        onClick={() => setActiveCategory(cat.id)}
+                        onClick={() => handleMomentIntentChange(cat.id)}
                         className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all shrink-0 ${
                           isActive
                             ? "bg-white text-black shadow-md"
                             : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/5"
                         }`}
                       >
-                        <Icon className="h-3.5 w-3.5" />
                         <span>{cat.label}</span>
                       </button>
                     );
