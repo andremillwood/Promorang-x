@@ -95,6 +95,9 @@ describe("localization", () => {
       "momentum.oppFeed",
       "pieceProfile.quickTrade",
       "pieceProfile.notFound",
+      "pieceHoldings.archive",
+      "forDev.seoTitle",
+      "brandCases.title1",
     ] as const;
 
     supportedLocales.forEach((locale) => {
