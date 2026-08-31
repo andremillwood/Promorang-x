@@ -230,6 +230,33 @@ async function redeemByCode(actorUserId, redemptionCode, venueId, notes) {
     idempotencyKey: `offer:${issuance.id}:redeemed`,
     metadata: { offer_id: offer.id, venue_id: venueId || null },
   });
+  try {
+    const peopleExperience = require('./peopleExperienceService');
+    await peopleExperience.recordVerifiedAction({
+      userId: issuance.user_id,
+      actionType: 'PERK_REDEMPTION',
+      merchantId: offer.owner_user_id || null,
+      sceneId: issuance.metadata?.scene_id || issuance.metadata?.sceneId || null,
+      contributorId: issuance.metadata?.contributor_id || issuance.metadata?.referrer_id || null,
+      referrerId: issuance.metadata?.referrer_id || null,
+      dropId: issuance.metadata?.drop_id || null,
+      amount: offer.value_amount != null ? Number(offer.value_amount) : null,
+      verificationMethod: 'redemption',
+      metadata: {
+        issuance_id: issuance.id,
+        offer_id: offer.id,
+        venue_id: venueId || null,
+      },
+    });
+    if (issuance.metadata?.drop_id) {
+      const { supabase: db } = require('../lib/supabase');
+      if (db) {
+        await db.from('community_drop_claims').update({ status: 'redeemed' }).eq('offer_issuance_id', issuance.id);
+      }
+    }
+  } catch (experienceError) {
+    console.warn('[offerService] people experience redemption skipped:', experienceError.message);
+  }
   return data;
 }
 

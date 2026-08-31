@@ -47,8 +47,17 @@ export default function PeopleHome() {
       ) : null}
 
       <section className="grid grid-cols-2 gap-3">
-        <StatPile label="People" value={data?.people || 0} hint={data?.peopleThisMonth ? `+${data.peopleThisMonth} this month` : "Invite the first ones"} />
-        <StatPile label="Earned" value={money(Number(data?.earned || 0))} hint="From verified activity" />
+        {(data?.outcomes?.cards || [
+          { key: "people", label: "People", value: data?.people || 0, hint: data?.peopleThisMonth ? `+${data.peopleThisMonth} this month` : "Invite the first ones" },
+          { key: "earned", label: "Earned", value: Number(data?.earned || 0), hint: "From verified activity" },
+        ]).slice(0, 4).map((card: any) => (
+          <StatPile
+            key={card.key}
+            label={card.label}
+            value={card.key === "earned" ? money(Number(card.value || 0)) : card.value}
+            hint={card.hint}
+          />
+        ))}
       </section>
 
       {role === "operator" ? (

@@ -155,12 +155,13 @@ export function classifyHappenedBucket(actionType?: string | null): keyof Return
   if (["DISCOVERY_RESPONSE", "discovery_vote"].includes(type)) return "answered";
   if (["CONTENT_POST", "share_completed"].includes(type) || type.startsWith("organic_")) return "shared";
   if (["FRIEND_INVITE", "REFERRAL", "referral_activated"].includes(type)) return "brought";
-  if (["PERK_CLAIM", "PERK_REDEMPTION", "deal_claimed", "PROMOKEY_USE"].includes(type)) return "claimed";
+  if (["PERK_CLAIM", "deal_claimed", "PROMOKEY_USE"].includes(type)) return "claimed";
+  if (["PERK_REDEMPTION", "coupon_redeemed"].includes(type)) return "used";
   return "other";
 }
 
 export function emptyHappenedBuckets() {
-  return { went: 0, bought: 0, answered: 0, shared: 0, brought: 0, claimed: 0, other: 0 };
+  return { went: 0, bought: 0, answered: 0, shared: 0, brought: 0, claimed: 0, used: 0, other: 0 };
 }
 
 export function happenedBuckets(actions: Array<{ action_type?: string | null }>) {
@@ -175,4 +176,121 @@ export function dropShareCopy(creatorName: string, perkTitle: string) {
   const who = creatorName || "Someone";
   const what = perkTitle || "something";
   return `${who} just dropped ${what} on your PromoCard.`;
+}
+
+export type StakeholderKey = ExperienceRole | "merchant" | "network";
+
+export type OutcomeCard = {
+  key: string;
+  label: string;
+  value: number;
+  hint: string;
+};
+
+export type StakeholderLedger = {
+  people: number;
+  peopleThisMonth: number;
+  active: number;
+  happening: number;
+  earned: number;
+  went: number;
+  bought: number;
+  answered: number;
+  shared: number;
+  brought: number;
+  claimed: number;
+  used: number;
+  perksGiven: number;
+  perksClaimed: number;
+  perksUsed: number;
+  perksAvailable: number;
+  opportunities: number;
+  memberships: number;
+  cardPerks: number;
+};
+
+export const STAKEHOLDER_OUTCOMES: Record<StakeholderKey, Array<keyof StakeholderLedger>> = {
+  member: ["cardPerks", "memberships", "claimed", "used", "went"],
+  contributor: ["people", "active", "happening", "earned", "perksGiven", "opportunities"],
+  operator: ["people", "active", "happening", "perksGiven", "opportunities", "memberships"],
+  merchant: ["perksGiven", "perksClaimed", "perksUsed", "perksAvailable"],
+  network: ["people", "active", "brought", "happening"],
+};
+
+export function accountStakeholderOutcomes(input: {
+  role?: ExperienceRole | null;
+  platformRoles?: string[];
+  people?: number;
+  peopleThisMonth?: number;
+  activePeople?: number;
+  happening?: number;
+  earned?: number;
+  buckets?: Partial<ReturnType<typeof emptyHappenedBuckets>>;
+  perksGiven?: number;
+  perksClaimed?: number;
+  perksUsed?: number;
+  perksAvailable?: number;
+  opportunities?: number;
+  memberships?: number;
+  cardPerks?: number;
+}): { role: ExperienceRole; suppliesInventory: boolean; ledger: StakeholderLedger; cards: OutcomeCard[] } {
+  const role = input.role || "member";
+  const suppliesInventory =
+    (input.platformRoles || []).some((item) => item === "merchant" || item === "brand") ||
+    Number(input.perksGiven || 0) > 0;
+  const ledger: StakeholderLedger = {
+    people: Number(input.people || 0),
+    peopleThisMonth: Number(input.peopleThisMonth || 0),
+    active: Number(input.activePeople || 0),
+    happening: Number(input.happening || 0),
+    earned: Number(input.earned || 0),
+    went: Number(input.buckets?.went || 0),
+    bought: Number(input.buckets?.bought || 0),
+    answered: Number(input.buckets?.answered || 0),
+    shared: Number(input.buckets?.shared || 0),
+    brought: Number(input.buckets?.brought || 0),
+    claimed: Number(input.buckets?.claimed || 0),
+    used: Number(input.buckets?.used || 0),
+    perksGiven: Number(input.perksGiven || 0),
+    perksClaimed: Number(input.perksClaimed || 0),
+    perksUsed: Number(input.perksUsed || 0),
+    perksAvailable: Number(input.perksAvailable || 0),
+    opportunities: Number(input.opportunities || 0),
+    memberships: Number(input.memberships || 0),
+    cardPerks: Number(input.cardPerks || 0),
+  };
+
+  const cards: OutcomeCard[] = [];
+  if (role === "member") {
+    cards.push(
+      { key: "cardPerks", label: "On your card", value: ledger.cardPerks, hint: "Perks you can use" },
+      { key: "memberships", label: "Communities", value: ledger.memberships, hint: "Rooms you belong to" },
+    );
+  } else {
+    cards.push(
+      {
+        key: "people",
+        label: "People",
+        value: ledger.people,
+        hint: ledger.peopleThisMonth ? `+${ledger.peopleThisMonth} this month` : "Invite the first ones",
+      },
+      { key: "earned", label: "Earned", value: ledger.earned, hint: "From verified activity" },
+    );
+  }
+  if (role === "operator") {
+    cards.push({
+      key: "happening",
+      label: "This week",
+      value: ledger.happening,
+      hint: "Verified movement in your community",
+    });
+  }
+  if (suppliesInventory) {
+    cards.push(
+      { key: "perksGiven", label: "Given", value: ledger.perksGiven, hint: "Perks you put in front of people" },
+      { key: "perksClaimed", label: "Claimed", value: ledger.perksClaimed, hint: "On PromoCards now" },
+      { key: "perksUsed", label: "Used", value: ledger.perksUsed, hint: "Redeemed in the real world" },
+    );
+  }
+  return { role, suppliesInventory, ledger, cards };
 }

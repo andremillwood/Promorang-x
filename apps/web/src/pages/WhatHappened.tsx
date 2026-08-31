@@ -30,6 +30,7 @@ export default function WhatHappened() {
           ["shared something", buckets.shared],
           ["brought friends", buckets.brought],
           ["claimed a perk", buckets.claimed],
+          ["used a perk", buckets.used],
         ].map(([label, value]) => (
           <div key={String(label)} className="rounded-[1.4rem] border border-white/10 bg-white/[0.04] px-4 py-4">
             <p className="font-serif text-3xl font-bold">{value || 0}</p>
@@ -59,7 +60,7 @@ export default function WhatHappened() {
           <div className="mt-3 space-y-2">
             {data.recent.map((row: any) => (
               <p key={row.id} className="rounded-[1.2rem] border border-white/10 px-4 py-3 text-sm text-white/70">
-                Someone {humanActionLabel(row.action_type)}
+                {row.actorName || "Someone"} {humanActionLabel(row.action_type)}
               </p>
             ))}
           </div>

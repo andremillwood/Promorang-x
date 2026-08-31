@@ -51,20 +51,28 @@ export function useJoinScene(scene?: Scene | null) {
     mutationFn: async () => {
       if (!user) throw new Error("Sign in to join this Scene");
       if (!scene) throw new Error("Scene unavailable");
-      const { error } = await db.from("scene_memberships").upsert({ scene_id: scene.id, user_id: user.id, relationship: "participant", membership_state: "active" }, { onConflict: "scene_id,user_id,relationship" });
-      if (error) throw error;
-      await db.from("scene_members").upsert({ scene_id: scene.id, user_id: user.id, role: "member", status: "active" }, { onConflict: "scene_id,user_id" });
       const ref = new URLSearchParams(window.location.search).get("ref");
+      let invitedBy: string | null = null;
       if (ref) {
         const referrer = await db.from("users").select("id").eq("primary_referral_code", ref).maybeSingle();
-        if (referrer.data?.id && referrer.data.id !== user.id) {
-          await db.from("hub_member_attributions").upsert({
-            scene_id: scene.id,
-            member_user_id: user.id,
-            attributed_by_user_id: referrer.data.id,
-            source: "invite",
-          }, { onConflict: "scene_id,member_user_id" });
-        }
+        if (referrer.data?.id && referrer.data.id !== user.id) invitedBy = referrer.data.id;
+      }
+      const { error } = await db.from("scene_memberships").upsert({ scene_id: scene.id, user_id: user.id, relationship: "participant", membership_state: "active" }, { onConflict: "scene_id,user_id,relationship" });
+      if (error) throw error;
+      await db.from("scene_members").upsert({
+        scene_id: scene.id,
+        user_id: user.id,
+        role: "member",
+        status: "active",
+        invited_by: invitedBy,
+      }, { onConflict: "scene_id,user_id" });
+      if (invitedBy) {
+        await db.from("hub_member_attributions").upsert({
+          scene_id: scene.id,
+          member_user_id: user.id,
+          attributed_by_user_id: invitedBy,
+          source: "invite",
+        }, { onConflict: "scene_id,member_user_id" });
       }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["scene", scene?.slug] }),

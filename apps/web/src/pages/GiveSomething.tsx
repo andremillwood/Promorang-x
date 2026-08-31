@@ -84,7 +84,10 @@ export default function GiveSomething() {
               >
                 <p className="font-serif text-xl font-bold">{perk.title}</p>
                 <p className="mt-1 text-xs text-white/50">
-                  {perk.remaining != null ? `${perk.remaining} remaining` : "Open inventory"} · {perk.source === "yours" ? "Yours" : "From a partner"}
+                  {perk.remaining != null ? `${perk.remaining} remaining` : "Open inventory"}
+                  {perk.claimedByYourPeople ? ` · ${perk.claimedByYourPeople} claimed` : ""}
+                  {" · "}
+                  {perk.source === "yours" ? "Yours" : "From a partner"}
                 </p>
               </button>
             ))}

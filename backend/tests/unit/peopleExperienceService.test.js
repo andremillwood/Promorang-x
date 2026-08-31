@@ -4,6 +4,7 @@ const {
   happenedBuckets,
   classifyHappenedBucket,
   attributionFromMetadata,
+  accountStakeholderOutcomes,
 } = require('../../services/peopleExperienceService');
 
 describe('people experience role and value rules', () => {
@@ -42,7 +43,31 @@ describe('people experience role and value rules', () => {
       { action_type: 'moment_join_verified' },
       { action_type: 'deal_claimed' },
       { action_type: 'referral_activated' },
-    ])).toMatchObject({ went: 1, claimed: 1, brought: 1 });
+      { action_type: 'PERK_REDEMPTION' },
+    ])).toMatchObject({ went: 1, claimed: 1, brought: 1, used: 1 });
+  });
+
+  test('slices one ledger by stakeholder instead of inventing new economies', () => {
+    const member = accountStakeholderOutcomes({
+      role: 'member',
+      cardPerks: 2,
+      memberships: 1,
+      buckets: { claimed: 2, used: 1 },
+    });
+    expect(member.cards.map((card) => card.key)).toEqual(['cardPerks', 'memberships']);
+    expect(member.ledger.used).toBe(1);
+
+    const merchant = accountStakeholderOutcomes({
+      role: 'contributor',
+      platformRoles: ['merchant'],
+      people: 12,
+      perksGiven: 3,
+      perksClaimed: 8,
+      perksUsed: 2,
+    });
+    expect(merchant.suppliesInventory).toBe(true);
+    expect(merchant.cards.some((card) => card.key === 'perksUsed')).toBe(true);
+    expect(merchant.cards.some((card) => card.key === 'people')).toBe(true);
   });
 
   test('copies attribution from existing metadata keys', () => {

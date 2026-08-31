@@ -67,16 +67,72 @@ function classifyHappenedBucket(actionType) {
   if (['DISCOVERY_RESPONSE', 'discovery_vote'].includes(type)) return 'answered';
   if (['CONTENT_POST', 'share_completed'].includes(type) || type.startsWith('organic_')) return 'shared';
   if (['FRIEND_INVITE', 'REFERRAL', 'referral_activated'].includes(type)) return 'brought';
-  if (['PERK_CLAIM', 'PERK_REDEMPTION', 'deal_claimed', 'PROMOKEY_USE'].includes(type)) return 'claimed';
+  if (['PERK_CLAIM', 'deal_claimed', 'PROMOKEY_USE'].includes(type)) return 'claimed';
+  if (['PERK_REDEMPTION', 'coupon_redeemed'].includes(type)) return 'used';
   return 'other';
 }
 
 function happenedBuckets(actions) {
-  const buckets = { went: 0, bought: 0, answered: 0, shared: 0, brought: 0, claimed: 0, other: 0 };
+  const buckets = { went: 0, bought: 0, answered: 0, shared: 0, brought: 0, claimed: 0, used: 0, other: 0 };
   for (const action of actions || []) {
     buckets[classifyHappenedBucket(action.action_type)] += 1;
   }
   return buckets;
+}
+
+function accountStakeholderOutcomes(input = {}) {
+  const role = input.role || 'member';
+  const suppliesInventory = (input.platformRoles || []).some((item) => item === 'merchant' || item === 'brand')
+    || Number(input.perksGiven || 0) > 0;
+  const ledger = {
+    people: Number(input.people || 0),
+    peopleThisMonth: Number(input.peopleThisMonth || 0),
+    active: Number(input.activePeople || 0),
+    happening: Number(input.happening || 0),
+    earned: Number(input.earned || 0),
+    went: Number(input.buckets?.went || 0),
+    bought: Number(input.buckets?.bought || 0),
+    answered: Number(input.buckets?.answered || 0),
+    shared: Number(input.buckets?.shared || 0),
+    brought: Number(input.buckets?.brought || 0),
+    claimed: Number(input.buckets?.claimed || 0),
+    used: Number(input.buckets?.used || 0),
+    perksGiven: Number(input.perksGiven || 0),
+    perksClaimed: Number(input.perksClaimed || 0),
+    perksUsed: Number(input.perksUsed || 0),
+    perksAvailable: Number(input.perksAvailable || 0),
+    opportunities: Number(input.opportunities || 0),
+    memberships: Number(input.memberships || 0),
+    cardPerks: Number(input.cardPerks || 0),
+  };
+  const cards = [];
+  if (role === 'member') {
+    cards.push(
+      { key: 'cardPerks', label: 'On your card', value: ledger.cardPerks, hint: 'Perks you can use' },
+      { key: 'memberships', label: 'Communities', value: ledger.memberships, hint: 'Rooms you belong to' },
+    );
+  } else {
+    cards.push(
+      {
+        key: 'people',
+        label: 'People',
+        value: ledger.people,
+        hint: ledger.peopleThisMonth ? `+${ledger.peopleThisMonth} this month` : 'Invite the first ones',
+      },
+      { key: 'earned', label: 'Earned', value: ledger.earned, hint: 'From verified activity' },
+    );
+  }
+  if (role === 'operator') {
+    cards.push({ key: 'happening', label: 'This week', value: ledger.happening, hint: 'Verified movement in your community' });
+  }
+  if (suppliesInventory) {
+    cards.push(
+      { key: 'perksGiven', label: 'Given', value: ledger.perksGiven, hint: 'Perks you put in front of people' },
+      { key: 'perksClaimed', label: 'Claimed', value: ledger.perksClaimed, hint: 'On PromoCards now' },
+      { key: 'perksUsed', label: 'Used', value: ledger.perksUsed, hint: 'Redeemed in the real world' },
+    );
+  }
+  return { role, suppliesInventory, ledger, cards };
 }
 
 function firstMeta(metadata, keys, fallback = null) {
@@ -180,9 +236,27 @@ function createPeopleExperienceService(db = defaultDb) {
       verification_method: verificationMethod,
     });
     const inserted = await maybe(db.from('verified_actions').insert({ ...base, ...attribution }).select().maybeSingle());
-    if (inserted.data) return inserted.data;
-    const fallback = await maybe(db.from('verified_actions').insert(base).select().maybeSingle());
-    return fallback.data || null;
+    const saved = inserted.data || (await maybe(db.from('verified_actions').insert(base).select().maybeSingle())).data || null;
+    if (saved) {
+      await bumpContributorStats({
+        sceneId: attribution.scene_id,
+        contributorId: attribution.contributor_id,
+        amount: attribution.amount,
+      });
+    }
+    return saved;
+  }
+
+  async function bumpContributorStats({ sceneId, contributorId, amount }) {
+    if (!sceneId || !contributorId) return null;
+    const row = await maybe(
+      db.from('scene_members').select('id, verified_actions_count, attributed_value').eq('scene_id', sceneId).eq('user_id', contributorId).maybeSingle(),
+    );
+    if (!row.data) return null;
+    return maybe(db.from('scene_members').update({
+      verified_actions_count: Number(row.data.verified_actions_count || 0) + 1,
+      attributed_value: Number(row.data.attributed_value || 0) + Number(amount || 0),
+    }).eq('id', row.data.id));
   }
 
   async function ensureHubAttribution({ sceneId, memberUserId, attributedByUserId, source = 'invite', sourceEntityType = null, sourceEntityId = null }) {
@@ -267,7 +341,15 @@ function createPeopleExperienceService(db = defaultDb) {
     const month = monthStart();
     const thisMonth = [...direct, ...attributions].filter((row) => (row.created_at || '') >= month).length;
 
-    const contributorIds = Array.from(new Set(direct.map((row) => row.referred_id).filter(Boolean)));
+    const memberIds = Array.from(new Set([
+      ...direct.map((row) => row.referred_id),
+      ...secondDegree.map((row) => row.referred_id),
+      ...attributions.map((row) => row.member_user_id),
+    ].filter(Boolean)));
+    const contributorIds = Array.from(new Set([
+      ...direct.map((row) => row.referred_id),
+      ...attributions.map((row) => row.member_user_id),
+    ].filter(Boolean)));
     const contributorStats = [];
     for (const id of contributorIds.slice(0, 12)) {
       const theirPeople = await maybe(db.from('user_referrals').select('id, status').eq('referrer_id', id));
@@ -292,11 +374,17 @@ function createPeopleExperienceService(db = defaultDb) {
     }
     contributorStats.sort((a, b) => b.score - a.score);
 
+    const hubs = await membershipsFor(userId);
+    const firstHub = hubs.find((row) => OPERATOR_ROLES.has(row.role) || CONTRIBUTOR_ROLES.has(row.role)) || hubs[0];
+
     return {
-      people: new Set([...direct.map((r) => r.referred_id), ...secondDegree.map((r) => r.referred_id), ...attributions.map((r) => r.member_user_id)]).size,
+      people: memberIds.length,
       direct: direct.length,
       throughNetwork: secondDegree.length,
       thisMonth,
+      attributions: attributions.length,
+      memberIds,
+      sceneSlug: firstHub?.scenes?.slug || null,
       topContributors: contributorStats.slice(0, 8),
       referrals: direct,
     };
@@ -304,7 +392,7 @@ function createPeopleExperienceService(db = defaultDb) {
 
   async function getHappened(userId, { sceneId } = {}) {
     const network = sceneId ? null : await getNetwork(userId);
-    const networkIds = Array.from(new Set([userId, ...((network?.referrals || []).map((row) => row.referred_id).filter(Boolean))]));
+    const networkIds = Array.from(new Set([userId, ...((network?.memberIds || network?.referrals || []).map((row) => (typeof row === 'string' ? row : row.referred_id)).filter(Boolean))]));
     let query = db.from('verified_actions').select('*').order('verified_at', { ascending: false }).limit(400);
     if (sceneId) {
       query = query.eq('scene_id', sceneId);
@@ -328,12 +416,21 @@ function createPeopleExperienceService(db = defaultDb) {
       .slice(0, 4)
       .map(([label]) => label);
 
+    const recent = [];
+    for (const row of thisWeek.slice(0, 8)) {
+      const actor = row.user_id ? await profileFor(row.user_id) : null;
+      recent.push({
+        ...row,
+        actorName: actor ? displayName(actor) : 'Someone',
+      });
+    }
+
     return {
       participated: thisWeek.length,
       buckets,
       earned,
       topInterests,
-      recent: thisWeek.slice(0, 12),
+      recent,
     };
   }
 
@@ -346,6 +443,15 @@ function createPeopleExperienceService(db = defaultDb) {
     );
     const inventory = [];
     const seen = new Set();
+    const claims = await maybe(
+      db.from('community_drop_claims').select('id, status, community_drops(offer_id, creator_id)').eq('referrer_id', userId),
+    );
+    const claimedByOffer = {};
+    for (const claim of claims.data || []) {
+      const offerId = claim.community_drops?.offer_id;
+      if (!offerId) continue;
+      claimedByOffer[offerId] = (claimedByOffer[offerId] || 0) + 1;
+    }
     for (const offer of [...(owned.data || []), ...(publicOffers.data || [])]) {
       if (seen.has(offer.id)) continue;
       seen.add(offer.id);
@@ -359,6 +465,7 @@ function createPeopleExperienceService(db = defaultDb) {
         imageUrl: offer.image_url,
         ownerType: offer.owner_type,
         remaining,
+        claimedByYourPeople: claimedByOffer[offer.id] || 0,
         rewardType: offer.reward_type,
         kind: offer.reward_type === 'keys' ? 'promokey' : offer.reward_type === 'points' ? 'points' : offer.owner_type === 'merchant' ? 'merchant' : 'custom',
         source: offer.owner_user_id === userId ? 'yours' : 'available',
@@ -492,6 +599,30 @@ function createPeopleExperienceService(db = defaultDb) {
       city: row.scenes?.city,
     })).filter((row) => row.id);
 
+    const givenDrops = await maybe(db.from('community_drops').select('id').eq('creator_id', userId));
+    const givenClaims = await maybe(db.from('community_drop_claims').select('id, status').eq('referrer_id', userId));
+    const perksGiven = (givenDrops.data || []).length;
+    const perksClaimed = (givenClaims.data || []).length;
+    const perksUsed = (givenClaims.data || []).filter((row) => row.status === 'redeemed').length
+      + Number(happened.buckets?.used || 0);
+    const outcomes = accountStakeholderOutcomes({
+      role: experienceRole,
+      platformRoles: roles,
+      people: network.people,
+      peopleThisMonth: network.thisMonth,
+      activePeople: network.topContributors.reduce((sum, row) => sum + Number(row.active || 0), 0),
+      happening: happened.participated,
+      earned: happened.earned,
+      buckets: happened.buckets,
+      perksGiven,
+      perksClaimed,
+      perksUsed,
+      perksAvailable: perks.length,
+      opportunities: opportunities.length,
+      memberships: communities.length,
+      cardPerks: (card.perks || []).length,
+    });
+
     return {
       role: experienceRole,
       name: displayName(person),
@@ -508,6 +639,7 @@ function createPeopleExperienceService(db = defaultDb) {
       opportunityItems: opportunities.slice(0, 4),
       happened,
       network,
+      outcomes,
     };
   }
 
@@ -562,6 +694,9 @@ function createPeopleExperienceService(db = defaultDb) {
       attribution: {
         creator_id: userId,
         scene_id: payload.sceneId || null,
+        source_opportunity_id: payload.sourceOpportunityId || null,
+        source_kind: payload.sourceKind || null,
+        source_id: payload.sourceId || null,
       },
     }).select().single();
     if (inserted.error) throw inserted.error;
@@ -682,6 +817,9 @@ function createPeopleExperienceService(db = defaultDb) {
       audience: 'everyone',
       sceneId: sceneId || match.sceneId,
       claimMessage: `${match.title} is waiting on your PromoCard.`,
+      sourceOpportunityId: opportunityId,
+      sourceKind: kind,
+      sourceId,
     });
     return { opportunity: match, drop };
   }
@@ -854,6 +992,8 @@ function createPeopleExperienceService(db = defaultDb) {
     joinScene,
     recordVerifiedAction,
     ensureHubAttribution,
+    bumpContributorStats,
+    accountStakeholderOutcomes,
   };
 }
 
@@ -864,3 +1004,4 @@ module.exports.contributorValueScore = contributorValueScore;
 module.exports.happenedBuckets = happenedBuckets;
 module.exports.classifyHappenedBucket = classifyHappenedBucket;
 module.exports.attributionFromMetadata = attributionFromMetadata;
+module.exports.accountStakeholderOutcomes = accountStakeholderOutcomes;

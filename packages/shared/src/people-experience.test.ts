@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  accountStakeholderOutcomes,
   classifyExperienceRole,
   classifyHappenedBucket,
   contributorValueScore,
@@ -7,6 +8,7 @@ import {
   happenedBuckets,
   resolveCreateIntent,
   slugifyCommunityName,
+  STAKEHOLDER_OUTCOMES,
 } from "./people-experience";
 
 describe("people experience mapping", () => {
@@ -41,6 +43,15 @@ describe("people experience mapping", () => {
     expect(classifyHappenedBucket("deal_claimed")).toBe("claimed");
     expect(classifyHappenedBucket("referral_activated")).toBe("brought");
     expect(classifyHappenedBucket("organic_share")).toBe("shared");
+    expect(classifyHappenedBucket("PERK_REDEMPTION")).toBe("used");
+  });
+
+  it("accounts for every designed stakeholder on one ledger", () => {
+    expect(Object.keys(STAKEHOLDER_OUTCOMES)).toEqual(["member", "contributor", "operator", "merchant", "network"]);
+    const operator = accountStakeholderOutcomes({ role: "operator", people: 40, happening: 6, perksGiven: 2 });
+    expect(operator.cards.map((card) => card.key)).toContain("happening");
+    const member = accountStakeholderOutcomes({ role: "member", cardPerks: 3, memberships: 2 });
+    expect(member.cards.map((card) => card.key)).toEqual(["cardPerks", "memberships"]);
   });
 
   it("writes drop share copy people can send as-is", () => {
