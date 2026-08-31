@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,6 +45,7 @@ interface FlashCampaignCompilerProps {
 export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInput }: FlashCampaignCompilerProps) => {
     const { session } = useAuth();
     const { toast } = useToast();
+    const { t } = useI18n();
     const [isLaunching, setIsLaunching] = useState(false);
     
     const [input, setInput] = useState<CampaignInput>({
@@ -67,11 +69,11 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
 
     const handleGenerate = () => {
         if (!input.businessName) {
-            toast({ title: "Validation Error", description: "Business Name is required.", variant: "destructive" });
+            toast({ title: t("pilotCompile.toastValidTitle"), description: t("pilotCompile.toastBiz"), variant: "destructive" });
             return;
         }
         if (input.context && input.context.split(" ").length > 5) {
-            toast({ title: "Validation Error", description: "Context must be 5 words or less.", variant: "destructive" });
+            toast({ title: t("pilotCompile.toastValidTitle"), description: t("pilotCompile.toastContext"), variant: "destructive" });
             return;
         }
 
@@ -132,15 +134,15 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
             if (!res.ok) throw new Error("Plan could not be saved");
 
             toast({ 
-                title: "Activation plan saved",
-                description: "Nothing is live or funded yet. Secure the Gem reserve before inviting people."
+                title: t("pilotCompile.toastSavedTitle"),
+                description: t("pilotCompile.toastSavedDesc")
             });
             
             setPreview(null);
             setInput({ goal: "CONTENT", businessName: "", context: "" });
             if (onSuccess) onSuccess();
         } catch (error: any) {
-            toast({ title: "Could not save plan", description: error.message, variant: "destructive" });
+            toast({ title: t("pilotCompile.toastFailTitle"), description: error.message, variant: "destructive" });
         } finally {
             setIsLaunching(false);
         }
@@ -154,40 +156,40 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
                     <CardHeader className="pb-4">
                         <CardTitle className="text-xs uppercase tracking-widest font-black flex items-center gap-2">
                             <Target className="w-4 h-4 text-primary" />
-                            {adminMode ? "PromoPilot admin builder" : "PromoPilot plan"}
+                            {adminMode ? t("pilotCompile.adminTitle") : t("pilotCompile.planTitle")}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-1.5">
-                            <Label className="text-[10px] uppercase tracking-widest font-bold opacity-70">Goal</Label>
+                            <Label className="text-[10px] uppercase tracking-widest font-bold opacity-70">{t("pilotCompile.goal")}</Label>
                             <Select value={input.goal} onValueChange={(v: CampaignType) => setInput({ ...input, goal: v })}>
                                 <SelectTrigger className="h-10 text-sm"><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="CONTENT">CONTENT — UGC Posts</SelectItem>
-                                    <SelectItem value="PURCHASE">PURCHASE — Orders</SelectItem>
-                                    <SelectItem value="REFERRAL">REFERRAL — Invites</SelectItem>
-                                    <SelectItem value="VISIT">VISIT — Foot Traffic</SelectItem>
+                                    <SelectItem value="CONTENT">{t("pilotCompile.goalContent")}</SelectItem>
+                                    <SelectItem value="PURCHASE">{t("pilotCompile.goalPurchase")}</SelectItem>
+                                    <SelectItem value="REFERRAL">{t("pilotCompile.goalReferral")}</SelectItem>
+                                    <SelectItem value="VISIT">{t("pilotCompile.goalVisit")}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-[10px] uppercase tracking-widest font-bold opacity-70">Business Name</Label>
+                            <Label className="text-[10px] uppercase tracking-widest font-bold opacity-70">{t("pilotCompile.bizName")}</Label>
                             <div className="relative">
                                 <Store className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                <Input className="pl-9 h-10 text-sm" placeholder="e.g. Pasta Ghost" value={input.businessName} onChange={e => setInput({ ...input, businessName: e.target.value })} />
+                                <Input className="pl-9 h-10 text-sm" placeholder={t("pilotCompile.bizPh")} value={input.businessName} onChange={e => setInput({ ...input, businessName: e.target.value })} />
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-[10px] uppercase tracking-widest font-bold opacity-70">Context</Label>
+                            <Label className="text-[10px] uppercase tracking-widest font-bold opacity-70">{t("pilotCompile.context")}</Label>
                             <div className="relative">
                                 <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                <Input className="pl-9 h-10 text-sm" placeholder="e.g. First bite reaction" value={input.context || ''} onChange={e => setInput({ ...input, context: e.target.value })} />
+                                <Input className="pl-9 h-10 text-sm" placeholder={t("pilotCompile.contextPh")} value={input.context || ''} onChange={e => setInput({ ...input, context: e.target.value })} />
                             </div>
                         </div>
                     </CardContent>
                     <CardFooter>
                         <Button className="w-full h-11 font-bold text-sm" onClick={handleGenerate}>
-                            Generate Preview <ArrowRight className="ml-2 w-4 h-4" />
+                            {t("pilotCompile.generate")} <ArrowRight className="ml-2 w-4 h-4" />
                         </Button>
                     </CardFooter>
                 </Card>
@@ -197,7 +199,7 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
                     {preview ? (
                         <Card className="border-primary/40 bg-primary/5 shadow-xl h-full flex flex-col animate-in slide-in-from-right-4 duration-500">
                              <div className="absolute top-2 right-2">
-                                <Badge variant="secondary" className="bg-primary/20 text-primary uppercase text-[7px] tracking-widest py-0">A3 Tier</Badge>
+                                <Badge variant="secondary" className="bg-primary/20 text-primary uppercase text-[7px] tracking-widest py-0">{t("pilotCompile.tier")}</Badge>
                             </div>
                             <CardHeader className="py-4">
                                 <CardTitle className="text-lg font-black italic tracking-tighter truncate">{preview.name}</CardTitle>
@@ -205,7 +207,7 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
                             </CardHeader>
                             <CardContent className="flex-1 space-y-4">
                                 <div className="space-y-2">
-                                    <h4 className="text-[8px] uppercase font-bold text-primary tracking-widest">Moves</h4>
+                                    <h4 className="text-[8px] uppercase font-bold text-primary tracking-widest">{t("pilotCompile.moves")}</h4>
                                     {preview.moves.map((move: string, i: number) => (
                                         <div key={i} className="flex items-center gap-2 p-1.5 bg-background/50 rounded-lg border border-border/50 text-[11px]">
                                             <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center text-[9px] font-bold text-primary">{i+1}</div>
@@ -215,35 +217,35 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="p-2 bg-secondary/10 rounded-lg border border-border/50">
-                                        <h5 className="text-[8px] uppercase font-bold text-muted-foreground mb-0.5">Proof</h5>
+                                        <h5 className="text-[8px] uppercase font-bold text-muted-foreground mb-0.5">{t("pilotCompile.proof")}</h5>
                                         <Badge variant="outline" className="text-[9px] py-0">{preview.proof}</Badge>
                                     </div>
                                     <div className="p-2 bg-primary/10 rounded-lg border border-primary/30">
-                                        <h5 className="text-[8px] uppercase font-bold text-primary mb-0.5">Reward</h5>
-                                        <p className="text-sm font-bold">{preview.reward} Gems</p>
+                                        <h5 className="text-[8px] uppercase font-bold text-primary mb-0.5">{t("pilotCompile.reward")}</h5>
+                                        <p className="text-sm font-bold">{t("pilotCompile.gems", { count: preview.reward })}</p>
                                     </div>
                                 </div>
                                 <div className="p-2 bg-muted/30 rounded-xl border border-border/50 space-y-1.5">
                                     <h4 className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest flex items-center gap-1">
-                                        <TrendingUp className="w-2 h-2" /> Estimation
+                                        <TrendingUp className="w-2 h-2" /> {t("pilotCompile.estimation")}
                                     </h4>
                                     <div className="grid grid-cols-3 gap-1 text-[9px] font-bold text-center">
-                                        <div><p>{preview.outcome.volume}</p><p className="opacity-50 text-[7px] font-normal uppercase">Vol</p></div>
-                                        <div><p>{preview.outcome.reach}</p><p className="opacity-50 text-[7px] font-normal uppercase">Reach</p></div>
-                                        <div><p>{preview.outcome.conversionIntent}</p><p className="opacity-50 text-[7px] font-normal uppercase">Intent</p></div>
+                                        <div><p>{preview.outcome.volume}</p><p className="opacity-50 text-[7px] font-normal uppercase">{t("pilotCompile.vol")}</p></div>
+                                        <div><p>{preview.outcome.reach}</p><p className="opacity-50 text-[7px] font-normal uppercase">{t("pilotCompile.reach")}</p></div>
+                                        <div><p>{preview.outcome.conversionIntent}</p><p className="opacity-50 text-[7px] font-normal uppercase">{t("pilotCompile.intent")}</p></div>
                                     </div>
                                 </div>
                             </CardContent>
                             <CardFooter className="pt-2">
                                 <Button className="w-full h-10 bg-primary hover:bg-primary/90 text-white font-black text-sm italic tracking-tighter" onClick={handleLaunch} disabled={isLaunching}>
-                                    {isLaunching ? <Loader2 className="w-4 h-4 animate-spin" /> : <>SAVE PLAN <Rocket className="ml-2 w-4 h-4" /></>}
+                                    {isLaunching ? <Loader2 className="w-4 h-4 animate-spin" /> : <>{t("pilotCompile.savePlan")} <Rocket className="ml-2 w-4 h-4" /></>}
                                 </Button>
                             </CardFooter>
                         </Card>
                     ) : (
                         <div className="h-full flex flex-col items-center justify-center p-8 border-2 border-dashed border-border rounded-2xl opacity-40">
                             <MousePointerClick className="w-8 h-8 mb-2" />
-                            <p className="text-center italic text-xs">Enter intent to compile preview.</p>
+                            <p className="text-center italic text-xs">{t("pilotCompile.empty")}</p>
                         </div>
                     )}
                 </div>
