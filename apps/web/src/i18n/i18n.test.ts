@@ -218,6 +218,12 @@ describe("localization", () => {
       "merchCat.add",
       "merchCat.create",
       "merchCat.confirmDel",
+      "askQ.publish",
+      "askQ.trigger",
+      "brandOpp.sponsor",
+      "brandOpp.title",
+      "radarBoard.title",
+      "radarBoard.discoveries",
     ] as const;
 
     supportedLocales.forEach((locale) => {

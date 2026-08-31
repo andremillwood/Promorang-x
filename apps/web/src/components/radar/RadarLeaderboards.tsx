@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Trophy, Flame, Sparkles, Camera, Award, TrendingUp, Users, ArrowRight, Star, Heart, CheckCircle2 } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface LeaderboardItem {
   rank: number;
@@ -128,6 +129,7 @@ const TOP_SCOUTS: LeaderboardItem[] = [
 ];
 
 export const RadarLeaderboards: React.FC = () => {
+  const { t } = useI18n();
   const [boardType, setBoardType] = useState<'DISCOVERIES' | 'MOMENTS' | 'SCOUTS'>('DISCOVERIES');
 
   const currentList = 
@@ -141,16 +143,16 @@ export const RadarLeaderboards: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2 mb-1">
             <span className="px-2.5 py-0.5 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center">
-              <Trophy className="w-3 h-3 mr-1" /> Verified Proof & Status
+              <Trophy className="w-3 h-3 mr-1" /> {t('radarBoard.proof')}
             </span>
             <span className="text-xs text-gray-500">•</span>
-            <span className="text-xs text-gray-400 font-semibold">Kingston Power Rankings</span>
+            <span className="text-xs text-gray-400 font-semibold">{t('radarBoard.kingston')}</span>
           </div>
           <h2 className="text-xl md:text-2xl font-black text-white">
-            Culture & Movement Leaderboards
+            {t('radarBoard.title')}
           </h2>
           <p className="text-xs text-gray-400 mt-0.5">
-            Real-time rankings powered by verified community votes, physical door check-ins, and attributed creator foot traffic.
+            {t('radarBoard.copy')}
           </p>
         </div>
 
@@ -163,7 +165,7 @@ export const RadarLeaderboards: React.FC = () => {
             }`}
           >
             <Flame className="w-3.5 h-3.5 mr-1" />
-            <span>Top Discoveries</span>
+            <span>{t('radarBoard.discoveries')}</span>
           </button>
 
           <button
@@ -173,7 +175,7 @@ export const RadarLeaderboards: React.FC = () => {
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 mr-1" />
-            <span>Top Moments</span>
+            <span>{t('radarBoard.moments')}</span>
           </button>
 
           <button
@@ -183,7 +185,7 @@ export const RadarLeaderboards: React.FC = () => {
             }`}
           >
             <Camera className="w-3.5 h-3.5 mr-1" />
-            <span>Top Creator Scouts</span>
+            <span>{t('radarBoard.scouts')}</span>
           </button>
         </div>
       </div>
@@ -239,13 +241,13 @@ export const RadarLeaderboards: React.FC = () => {
       <div className="mt-5 pt-4 border-t border-gray-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
         <div className="flex items-center space-x-2">
           <Award className="w-4 h-4 text-orange-400" />
-          <span>Rankings update daily at midnight. Weekly winners receive priority PromoKey allocations and venue sponsorship matching.</span>
+          <span>{t('radarBoard.footer')}</span>
         </div>
         <a
           href="/pioneers"
           className="text-orange-400 hover:text-orange-300 font-bold text-xs flex items-center space-x-1 shrink-0"
         >
-          <span>View Full Genesis Records</span>
+          <span>{t('radarBoard.genesis')}</span>
           <ArrowRight className="w-3.5 h-3.5 ml-1" />
         </a>
       </div>
