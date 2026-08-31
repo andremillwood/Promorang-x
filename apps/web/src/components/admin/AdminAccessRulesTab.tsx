@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useI18n } from "@/i18n/I18nContext";
 
 type AccessRule = {
   id: string;
@@ -132,6 +133,7 @@ function formPayload(form: FormState) {
 }
 
 export function AdminAccessRulesTab() {
+  const { t } = useI18n();
   const { session } = useAuth();
   const { toast } = useToast();
   const [rules, setRules] = useState<AccessRule[]>([]);
@@ -184,7 +186,7 @@ export function AdminAccessRulesTab() {
 
   async function saveRule() {
     if (!form.object_id.trim()) {
-      toast({ title: "Object ID required", variant: "destructive" });
+      toast({ title: t("accRule.needId"), variant: "destructive" });
       return;
     }
 
@@ -200,13 +202,13 @@ export function AdminAccessRulesTab() {
       );
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || "Failed to save access rule");
-      toast({ title: "Access rule saved" });
+      toast({ title: t("accRule.toastSaved") });
       setForm(emptyForm);
       setSelectedPreset("");
       await fetchRules();
     } catch (saveError) {
       toast({
-        title: "Save failed",
+        title: t("accRule.toastFail"),
         description: saveError instanceof Error ? saveError.message : "Failed to save access rule",
         variant: "destructive",
       });
@@ -223,11 +225,11 @@ export function AdminAccessRulesTab() {
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || "Failed to deactivate rule");
-      toast({ title: "Access rule deactivated" });
+      toast({ title: t("accRule.toastDeact") });
       await fetchRules();
     } catch (deactivateError) {
       toast({
-        title: "Deactivate failed",
+        title: t("accRule.toastDeactFail"),
         description: deactivateError instanceof Error ? deactivateError.message : "Failed to deactivate rule",
         variant: "destructive",
       });
@@ -247,12 +249,12 @@ export function AdminAccessRulesTab() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Access Rules</h2>
-          <p className="text-sm text-muted-foreground">Key pricing, tier gates, capacity, and sponsor subsidies.</p>
+          <h2 className="text-2xl font-bold">{t("accRule.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("accRule.copy")}</p>
         </div>
         <Button variant="outline" onClick={() => fetchRules()} disabled={loading}>
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-          Refresh
+          {t("accRule.refresh")}
         </Button>
       </div>
 
@@ -263,15 +265,15 @@ export function AdminAccessRulesTab() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <KeyRound className="h-5 w-5 text-primary" />
-              Rule Editor
+              {t("accRule.editor")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Preset</Label>
+              <Label>{t("accRule.preset")}</Label>
               <Select value={selectedPreset} onValueChange={applyPreset}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select baseline preset" />
+                  <SelectValue placeholder={t("accRule.presetPh")} />
                 </SelectTrigger>
                 <SelectContent>
                   {presets.map((preset) => (
@@ -285,7 +287,7 @@ export function AdminAccessRulesTab() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Object Type</Label>
+                <Label>{t("accRule.objectType")}</Label>
                 <Select value={form.object_type} onValueChange={(value) => updateForm("object_type", value)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -294,7 +296,7 @@ export function AdminAccessRulesTab() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Access Type</Label>
+                <Label>{t("accRule.accessType")}</Label>
                 <Select value={form.access_type} onValueChange={(value) => updateForm("access_type", value)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -305,17 +307,17 @@ export function AdminAccessRulesTab() {
             </div>
 
             <div className="space-y-2">
-              <Label>Object ID</Label>
-              <Input value={form.object_id} onChange={(event) => updateForm("object_id", event.target.value)} placeholder="Moment, drop, reward, or pool ID" />
+              <Label>{t("accRule.objectId")}</Label>
+              <Input value={form.object_id} onChange={(event) => updateForm("object_id", event.target.value)} placeholder={t("accRule.objectIdPh")} />
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Base Keys</Label>
+                <Label>{t("accRule.baseKeys")}</Label>
                 <Input type="number" min="0" value={form.base_key_cost} onChange={(event) => updateForm("base_key_cost", event.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Min Tier</Label>
+                <Label>{t("accRule.minTier")}</Label>
                 <Select value={form.min_tier_key} onValueChange={(value) => updateForm("min_tier_key", value)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -327,54 +329,54 @@ export function AdminAccessRulesTab() {
 
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="space-y-2">
-                <Label>Scarcity</Label>
+                <Label>{t("accRule.scarcity")}</Label>
                 <Input type="number" min="0" value={form.scarcity_cost} onChange={(event) => updateForm("scarcity_cost", event.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Reward Value</Label>
+                <Label>{t("accRule.rewardVal")}</Label>
                 <Input type="number" min="0" value={form.reward_value_cost} onChange={(event) => updateForm("reward_value_cost", event.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Demand</Label>
+                <Label>{t("accRule.demand")}</Label>
                 <Input type="number" min="0" value={form.demand_cost} onChange={(event) => updateForm("demand_cost", event.target.value)} />
               </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Sponsor Subsidy</Label>
+                <Label>{t("accRule.subsidy")}</Label>
                 <Input type="number" min="0" value={form.sponsor_subsidy_keys} onChange={(event) => updateForm("sponsor_subsidy_keys", event.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Capacity</Label>
-                <Input type="number" min="0" value={form.capacity_limit} onChange={(event) => updateForm("capacity_limit", event.target.value)} placeholder="No limit" />
+                <Label>{t("accRule.capacity")}</Label>
+                <Input type="number" min="0" value={form.capacity_limit} onChange={(event) => updateForm("capacity_limit", event.target.value)} placeholder={t("accRule.noLimit")} />
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-4 rounded-lg border p-3">
               <label className="flex items-center gap-2 text-sm">
                 <Checkbox checked={form.requires_cash_gem_eligible} onCheckedChange={(checked) => updateForm("requires_cash_gem_eligible", checked === true)} />
-                Cash/Gem eligible tier
+                {t("accRule.cashGem")}
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <Checkbox checked={form.is_active} onCheckedChange={(checked) => updateForm("is_active", checked === true)} />
-                Active
+                {t("accRule.active")}
               </label>
             </div>
 
             <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-3">
-              <span className="text-sm text-muted-foreground">Raw Key cost</span>
-              <Badge variant="secondary">{effectiveCost} Keys before tier discount</Badge>
+              <span className="text-sm text-muted-foreground">{t("accRule.rawCost")}</span>
+              <Badge variant="secondary">{t("accRule.rawBadge", { n: effectiveCost })}</Badge>
             </div>
 
             <div className="flex gap-2">
               <Button onClick={saveRule} disabled={saving} className="flex-1">
                 {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                Save Rule
+                {t("accRule.save")}
               </Button>
               <Button variant="outline" onClick={() => { setForm(emptyForm); setSelectedPreset(""); }}>
                 <Plus className="mr-2 h-4 w-4" />
-                New
+                {t("accRule.new")}
               </Button>
             </div>
           </CardContent>
@@ -384,7 +386,7 @@ export function AdminAccessRulesTab() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <ShieldCheck className="h-5 w-5 text-primary" />
-              Active Rule Set
+              {t("accRule.activeSet")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -393,19 +395,19 @@ export function AdminAccessRulesTab() {
                 {Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-16 rounded-lg" />)}
               </div>
             ) : rules.length === 0 ? (
-              <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">No item-specific access rules yet.</div>
+              <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">{t("accRule.empty")}</div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[760px] text-sm">
                   <thead>
                     <tr className="border-b text-left text-xs uppercase text-muted-foreground">
-                      <th className="py-2 pr-3">Target</th>
-                      <th className="py-2 pr-3">Action</th>
-                      <th className="py-2 pr-3">Raw Cost</th>
-                      <th className="py-2 pr-3">Tier</th>
-                      <th className="py-2 pr-3">Capacity</th>
-                      <th className="py-2 pr-3">Status</th>
-                      <th className="py-2 text-right">Actions</th>
+                      <th className="py-2 pr-3">{t("accRule.colTarget")}</th>
+                      <th className="py-2 pr-3">{t("accRule.colAction")}</th>
+                      <th className="py-2 pr-3">{t("accRule.colRaw")}</th>
+                      <th className="py-2 pr-3">{t("accRule.colTier")}</th>
+                      <th className="py-2 pr-3">{t("accRule.colCap")}</th>
+                      <th className="py-2 pr-3">{t("accRule.colStatus")}</th>
+                      <th className="py-2 text-right">{t("accRule.colActions")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -426,15 +428,15 @@ export function AdminAccessRulesTab() {
                             <div className="max-w-[220px] truncate text-xs text-muted-foreground">{rule.object_id}</div>
                           </td>
                           <td className="py-3 pr-3">{rule.access_type}</td>
-                          <td className="py-3 pr-3">{rawCost} Keys</td>
-                          <td className="py-3 pr-3">{rule.min_tier_key || "none"}</td>
-                          <td className="py-3 pr-3">{rule.capacity_limit ?? "none"}</td>
+                          <td className="py-3 pr-3">{t("accRule.keys", { n: rawCost })}</td>
+                          <td className="py-3 pr-3">{rule.min_tier_key || t("accRule.none")}</td>
+                          <td className="py-3 pr-3">{rule.capacity_limit ?? t("accRule.none")}</td>
                           <td className="py-3 pr-3">
-                            <Badge variant={rule.is_active ? "default" : "secondary"}>{rule.is_active ? "active" : "inactive"}</Badge>
+                            <Badge variant={rule.is_active ? "default" : "secondary"}>{rule.is_active ? t("accRule.stActive") : t("accRule.stInactive")}</Badge>
                           </td>
                           <td className="py-3 text-right">
                             <div className="flex justify-end gap-2">
-                              <Button variant="outline" size="sm" onClick={() => setForm(toForm(rule))}>Edit</Button>
+                              <Button variant="outline" size="sm" onClick={() => setForm(toForm(rule))}>{t("accRule.edit")}</Button>
                               {rule.is_active ? (
                                 <Button variant="ghost" size="icon" onClick={() => deactivateRule(rule.id)}>
                                   <XCircle className="h-4 w-4" />

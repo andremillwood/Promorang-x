@@ -297,6 +297,12 @@ describe("localization", () => {
       "pioRev.verify",
       "platCfg.title",
       "platCfg.save",
+      "accRule.title",
+      "accRule.save",
+      "ppOps.title",
+      "ppOps.createAssign",
+      "presOps.title",
+      "presOps.approve",
     ] as const;
 
     supportedLocales.forEach((locale) => {
