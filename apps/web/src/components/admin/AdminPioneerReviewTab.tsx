@@ -6,6 +6,15 @@ import { API_BASE_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
+
+const PIONEER_STATUS_LABEL: Record<string, TranslationKey> = {
+  pending: "pioRev.stPending",
+  verified: "pioRev.stVerified",
+  rejected: "pioRev.stRejected",
+  reversed: "pioRev.stReversed",
+};
 
 type PioneerReviewEvent = {
   id: string;
@@ -35,6 +44,7 @@ async function adminRequest(path: string, init?: RequestInit) {
 }
 
 export function AdminPioneerReviewTab() {
+  const { t, formatDate, formatNumber } = useI18n();
   const [status, setStatus] = useState("pending");
   const [reasons, setReasons] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
@@ -51,7 +61,7 @@ export function AdminPioneerReviewTab() {
       }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin", "pioneer-events"] });
-      toast({ title: `Receipt ${variables.decision}`, description: "The audited Pioneer record has been updated." });
+      toast({ title: t("pioRev.toastTitle", { decision: variables.decision }), description: t("pioRev.toastBody") });
     },
     onError: (error: Error) => toast({ title: "Review failed", description: error.message, variant: "destructive" }),
   });
@@ -59,15 +69,15 @@ export function AdminPioneerReviewTab() {
   return (
     <section className="space-y-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div><p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Genesis integrity</p><h2 className="mt-1 text-3xl font-black">Pioneer receipt review</h2><p className="mt-2 text-sm text-muted-foreground">Confirm the source and identity behind every contribution before it enters the verified record.</p></div>
+        <div><p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{t("pioRev.eyebrow")}</p><h2 className="mt-1 text-3xl font-black">{t("pioRev.title")}</h2><p className="mt-2 text-sm text-muted-foreground">{t("pioRev.copy")}</p></div>
         <div className="flex rounded-xl border border-border p-1">
-          {["pending", "verified", "rejected", "reversed"].map((item) => <button key={item} onClick={() => setStatus(item)} className={`rounded-lg px-3 py-2 text-xs font-bold capitalize ${status === item ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{item}</button>)}
+          {["pending", "verified", "rejected", "reversed"].map((item) => <button key={item} onClick={() => setStatus(item)} className={`rounded-lg px-3 py-2 text-xs font-bold ${status === item ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{t(PIONEER_STATUS_LABEL[item])}</button>)}
         </div>
       </div>
 
       {query.isLoading && <div className="h-48 animate-pulse rounded-2xl bg-muted" />}
       {query.error && <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-5 text-sm">{(query.error as Error).message}</div>}
-      {!query.isLoading && !query.data?.events.length && <div className="rounded-2xl border border-dashed border-border p-10 text-center"><ShieldCheck className="mx-auto h-7 w-7 text-primary" /><p className="mt-3 font-black">No {status} receipts</p><p className="mt-1 text-sm text-muted-foreground">The queue is clear.</p></div>}
+      {!query.isLoading && !query.data?.events.length && <div className="rounded-2xl border border-dashed border-border p-10 text-center"><ShieldCheck className="mx-auto h-7 w-7 text-primary" /><p className="mt-3 font-black">{t("pioRev.empty", { status: t(PIONEER_STATUS_LABEL[status]) })}</p><p className="mt-1 text-sm text-muted-foreground">{t("pioRev.clear")}</p></div>}
 
       <div className="space-y-3">
         {query.data?.events.map((event) => (
@@ -76,17 +86,17 @@ export function AdminPioneerReviewTab() {
               <div className="flex gap-4">
                 {event.venue?.image_url ? <img src={event.venue.image_url} alt="" className="h-14 w-14 rounded-xl object-cover" /> : <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10"><MapPin className="text-primary" /></div>}
                 <div>
-                  <div className="flex flex-wrap items-center gap-2"><p className="font-black">{event.venue?.name || event.metadata?.venue_name as string || "Pioneer contribution"}</p><span className="rounded-full bg-amber-400/10 px-2 py-1 text-[9px] font-black uppercase text-amber-600">{event.status}</span></div>
-                  <p className="mt-1 text-sm text-muted-foreground">{event.venue?.address || "User contribution"} · {event.event_type.replaceAll("_", " ")}</p>
-                  <div className="mt-3 flex items-center gap-4 text-xs"><span className="font-black text-primary">+{Number(event.points).toLocaleString()} points</span><span className="flex items-center gap-1 text-muted-foreground"><Clock3 className="h-3 w-3" />{new Date(event.occurred_at).toLocaleString()}</span></div>
-                  {event.reason && <p className="mt-3 rounded-lg bg-muted p-3 text-xs text-muted-foreground">Reason: {event.reason}</p>}
+                  <div className="flex flex-wrap items-center gap-2"><p className="font-black">{event.venue?.name || event.metadata?.venue_name as string || t("pioRev.fallback")}</p><span className="rounded-full bg-amber-400/10 px-2 py-1 text-[9px] font-black uppercase text-amber-600">{event.status}</span></div>
+                  <p className="mt-1 text-sm text-muted-foreground">{event.venue?.address || t("pioRev.userContrib")} · {event.event_type.replaceAll("_", " ")}</p>
+                  <div className="mt-3 flex items-center gap-4 text-xs"><span className="font-black text-primary">{t("pioRev.points", { count: formatNumber(Number(event.points)) })}</span><span className="flex items-center gap-1 text-muted-foreground"><Clock3 className="h-3 w-3" />{formatDate(event.occurred_at)}</span></div>
+                  {event.reason && <p className="mt-3 rounded-lg bg-muted p-3 text-xs text-muted-foreground">{t("pioRev.reason", { text: event.reason })}</p>}
                 </div>
               </div>
               {event.status === "pending" && <div className="space-y-3">
-                <Textarea aria-label="Reason for rejection" placeholder="Reason required only when rejecting…" value={reasons[event.id] || ""} onChange={(e) => setReasons((current) => ({ ...current, [event.id]: e.target.value }))} />
-                <div className="flex gap-2"><Button className="flex-1" onClick={() => review.mutate({ id: event.id, decision: "verified" })} disabled={review.isPending}><Check className="mr-2 h-4 w-4" />Verify</Button><Button variant="outline" onClick={() => review.mutate({ id: event.id, decision: "rejected" })} disabled={review.isPending || !reasons[event.id]?.trim()}><X className="mr-2 h-4 w-4" />Reject</Button></div>
+                <Textarea aria-label={t("pioRev.rejectPh")} placeholder={t("pioRev.rejectPh")} value={reasons[event.id] || ""} onChange={(e) => setReasons((current) => ({ ...current, [event.id]: e.target.value }))} />
+                <div className="flex gap-2"><Button className="flex-1" onClick={() => review.mutate({ id: event.id, decision: "verified" })} disabled={review.isPending}><Check className="mr-2 h-4 w-4" />{t("pioRev.verify")}</Button><Button variant="outline" onClick={() => review.mutate({ id: event.id, decision: "rejected" })} disabled={review.isPending || !reasons[event.id]?.trim()}><X className="mr-2 h-4 w-4" />{t("pioRev.reject")}</Button></div>
               </div>}
-              {event.status === "verified" && <div className="space-y-3"><Textarea aria-label="Reason for reversal" placeholder="Required reason for reversal…" value={reasons[event.id] || ""} onChange={(e) => setReasons((current) => ({ ...current, [event.id]: e.target.value }))} /><Button variant="destructive" className="w-full" onClick={() => review.mutate({ id: event.id, decision: "reversed" })} disabled={review.isPending || !reasons[event.id]?.trim()}><RotateCcw className="mr-2 h-4 w-4" />Reverse receipt</Button></div>}
+              {event.status === "verified" && <div className="space-y-3"><Textarea aria-label={t("pioRev.reversePh")} placeholder={t("pioRev.reversePh")} value={reasons[event.id] || ""} onChange={(e) => setReasons((current) => ({ ...current, [event.id]: e.target.value }))} /><Button variant="destructive" className="w-full" onClick={() => review.mutate({ id: event.id, decision: "reversed" })} disabled={review.isPending || !reasons[event.id]?.trim()}><RotateCcw className="mr-2 h-4 w-4" />{t("pioRev.reverse")}</Button></div>}
             </div>
           </article>
         ))}

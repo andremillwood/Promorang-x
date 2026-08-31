@@ -293,6 +293,10 @@ describe("localization", () => {
       "suppQ.save",
       "opsPulse.title",
       "opsPulse.refresh",
+      "pioRev.title",
+      "pioRev.verify",
+      "platCfg.title",
+      "platCfg.save",
     ] as const;
 
     supportedLocales.forEach((locale) => {

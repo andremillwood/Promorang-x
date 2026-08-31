@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +25,7 @@ interface PlatformConfig {
 }
 
 export function AdminConfigTab() {
+    const { t } = useI18n();
     const { session } = useAuth();
     const { toast } = useToast();
     const [config, setConfig] = useState<PlatformConfig>({
@@ -60,13 +62,13 @@ export function AdminConfigTab() {
                 body: JSON.stringify(config)
             });
             if (res.ok) {
-                toast({ title: "Configuration Saved ✅", description: "All settings have been updated." });
+                toast({ title: t("platCfg.toastSaved"), description: t("platCfg.toastSavedBody") });
             } else {
                 const data = await res.json();
                 throw new Error(data.error);
             }
         } catch (e: any) {
-            toast({ title: "Save Failed", description: e.message, variant: "destructive" });
+            toast({ title: t("platCfg.toastFail"), description: e.message, variant: "destructive" });
         } finally {
             setIsSaving(false);
         }
@@ -88,13 +90,13 @@ export function AdminConfigTab() {
                         <Settings className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold">Platform Configuration</h2>
-                        <p className="text-muted-foreground text-sm">Global settings that affect all users.</p>
+                        <h2 className="text-2xl font-bold">{t("platCfg.title")}</h2>
+                        <p className="text-muted-foreground text-sm">{t("platCfg.copy")}</p>
                     </div>
                 </div>
                 <Button onClick={saveConfig} disabled={isSaving} className="shadow-glow gap-2">
                     {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                    Save All Changes
+                    {t("platCfg.save")}
                 </Button>
             </div>
 
@@ -104,13 +106,13 @@ export function AdminConfigTab() {
                     <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
                             <Gem className="w-5 h-5 text-cyan-400" />
-                            Economy Settings
+                            {t("platCfg.economy")}
                         </CardTitle>
-                        <CardDescription>Control the platform's internal currency exchange.</CardDescription>
+                        <CardDescription>{t("platCfg.economyCopy")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-5">
                         <div className="space-y-2">
-                            <Label className="text-xs uppercase tracking-wider font-bold">Gem → USD Rate</Label>
+                            <Label className="text-xs uppercase tracking-wider font-bold">{t("platCfg.gemRate")}</Label>
                             <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground">$</span>
                                 <Input
@@ -120,13 +122,13 @@ export function AdminConfigTab() {
                                     onChange={e => setConfig({ ...config, gem_usd_rate: parseFloat(e.target.value) })}
                                     className="font-mono"
                                 />
-                                <span className="text-sm text-muted-foreground whitespace-nowrap">per gem</span>
+                                <span className="text-sm text-muted-foreground whitespace-nowrap">{t("platCfg.perGem")}</span>
                             </div>
-                            <p className="text-[10px] text-muted-foreground">100 gems = ${(100 * config.gem_usd_rate).toFixed(2)} USD</p>
+                            <p className="text-[10px] text-muted-foreground">{t("platCfg.gemMath", { amount: (100 * config.gem_usd_rate).toFixed(2) })}</p>
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-xs uppercase tracking-wider font-bold">Point Multiplier</Label>
+                            <Label className="text-xs uppercase tracking-wider font-bold">{t("platCfg.multiplier")}</Label>
                             <div className="flex items-center gap-2">
                                 <Input
                                     type="number"
@@ -141,8 +143,8 @@ export function AdminConfigTab() {
                             </div>
                             <p className="text-[10px] text-muted-foreground">
                                 {config.point_multiplier > 1 
-                                    ? `🔥 Double Points Active! Users earn ${config.point_multiplier}× points per action.`
-                                    : 'Standard earning rate. Set to 2× for promotional weekends.'
+                                    ? t("platCfg.doubleOn", { n: config.point_multiplier })
+                                    : t("platCfg.doubleOff")
                                 }
                             </p>
                         </div>
@@ -154,13 +156,13 @@ export function AdminConfigTab() {
                     <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
                             <DollarSign className="w-5 h-5 text-emerald-500" />
-                            Payout Thresholds
+                            {t("platCfg.payouts")}
                         </CardTitle>
-                        <CardDescription>Control when vendors can withdraw funds.</CardDescription>
+                        <CardDescription>{t("platCfg.payoutsCopy")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-5">
                         <div className="space-y-2">
-                            <Label className="text-xs uppercase tracking-wider font-bold">Minimum Withdrawal (USD)</Label>
+                            <Label className="text-xs uppercase tracking-wider font-bold">{t("platCfg.minWithdraw")}</Label>
                             <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground">$</span>
                                 <Input
@@ -174,14 +176,13 @@ export function AdminConfigTab() {
                                 <span className="text-sm text-muted-foreground">USD</span>
                             </div>
                             <p className="text-[10px] text-muted-foreground">
-                                Vendors must accumulate ${config.payout_threshold_usd} before requesting a payout.
+                                {t("platCfg.mustAccum", { amount: config.payout_threshold_usd })}
                             </p>
                         </div>
 
                         <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
                             <p className="text-xs text-muted-foreground">
-                                <strong className="text-foreground">Tip:</strong> Higher thresholds reduce manual processing overhead. 
-                                Lower thresholds improve vendor cash flow satisfaction.
+                                <strong className="text-foreground">{t("platCfg.tip")}</strong> {t("platCfg.tipBody")}
                             </p>
                         </div>
                     </CardContent>
@@ -192,23 +193,23 @@ export function AdminConfigTab() {
                     <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
                             <Construction className={`w-5 h-5 ${config.maintenance_mode ? 'text-red-500' : 'text-muted-foreground'}`} />
-                            Maintenance Mode
+                            {t("platCfg.maint")}
                             {config.maintenance_mode && (
                                 <span className="ml-2 px-2 py-0.5 bg-red-500 text-white text-[10px] uppercase font-bold rounded-full animate-pulse">
-                                    ACTIVE
+                                    {t("platCfg.active")}
                                 </span>
                             )}
                         </CardTitle>
-                        <CardDescription>Put the entire platform into a read-only state with a custom message.</CardDescription>
+                        <CardDescription>{t("platCfg.maintCopy")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center justify-between p-4 rounded-xl border border-border">
                             <div className="flex items-center gap-3">
                                 <AlertTriangle className={`w-5 h-5 ${config.maintenance_mode ? 'text-red-500' : 'text-muted-foreground'}`} />
                                 <div>
-                                    <p className="text-sm font-bold">{config.maintenance_mode ? 'Site is in Maintenance Mode' : 'Site is Live'}</p>
+                                    <p className="text-sm font-bold">{config.maintenance_mode ? t("platCfg.siteMaint") : t("platCfg.siteLive")}</p>
                                     <p className="text-[10px] text-muted-foreground">
-                                        {config.maintenance_mode ? 'Users will see the maintenance message.' : 'All features are accessible.'}
+                                        {config.maintenance_mode ? t("platCfg.usersSee") : t("platCfg.allOpen")}
                                     </p>
                                 </div>
                             </div>
@@ -219,9 +220,9 @@ export function AdminConfigTab() {
                         </div>
                         {config.maintenance_mode && (
                             <div className="space-y-2 animate-in slide-in-from-top-2">
-                                <Label className="text-xs uppercase tracking-wider font-bold">Custom Message</Label>
+                                <Label className="text-xs uppercase tracking-wider font-bold">{t("platCfg.customMsg")}</Label>
                                 <Textarea
-                                    placeholder="We're upgrading the platform. Back in 30 minutes!"
+                                    placeholder={t("platCfg.msgPh")}
                                     value={config.maintenance_message}
                                     onChange={e => setConfig({ ...config, maintenance_message: e.target.value })}
                                     rows={3}
