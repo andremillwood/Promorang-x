@@ -26,7 +26,7 @@ describe("PromoCard moment intent", () => {
     expect(momentMatchesIntent("Music & Nightlife", "night")).toBe(true);
     expect(momentMatchesIntent("Gatherings & Culture", "culture")).toBe(true);
     expect(momentMatchesIntent("Downtown boutique pop-up", "shops")).toBe(true);
-    expect(momentMatchesIntent("Sunday football watch party", "sport")).toBe(true);
+    expect(momentMatchesIntent("Sunday football match", "sport")).toBe(true);
     expect(momentMatchesIntent("Food & Drinks", "night")).toBe(false);
     expect(momentMatchesIntent("Anything", "all")).toBe(true);
   });

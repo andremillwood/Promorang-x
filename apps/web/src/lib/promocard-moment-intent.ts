@@ -8,7 +8,7 @@ export const MOMENT_INTENT_KEYWORDS: Record<MomentIntentId, string[]> = {
   food: ["food", "drink", "dining", "restaurant", "cafe", "kitchen", "brunch", "bar", "eater"],
   shops: ["shop", "retail", "store", "boutique", "mall"],
   trade: ["trade", "vendor", "service", "workshop", "market", "maker"],
-  sport: ["sport", "fitness", "run", "gym", "game", "match", "athletic"],
+  sport: ["sport", "fitness", "run", "gym", "game", "match", "athletic", "football", "soccer", "basketball"],
   culture: ["culture", "art", "community", "gathering", "museum", "gallery"],
   night: ["night", "nightlife", "party", "club", "dj", "music"],
 };
