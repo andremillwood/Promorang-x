@@ -209,6 +209,12 @@ describe("localization", () => {
       "merchOrders.markReady",
       "merchStation.title",
       "merchStation.vault",
+      "merchStore.broadcast",
+      "merchStore.viewShop",
+      "merchVenue.addLoc",
+      "merchVenue.hostMoment",
+      "merchStats.settle",
+      "merchStats.breakdown",
     ] as const;
 
     supportedLocales.forEach((locale) => {

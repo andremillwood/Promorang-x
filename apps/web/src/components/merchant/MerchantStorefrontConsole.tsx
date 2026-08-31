@@ -27,6 +27,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 import ProductCatalogManager from "@/components/merchant/ProductCatalogManager";
 
 export function MerchantStorefrontConsole({
@@ -38,6 +39,7 @@ export function MerchantStorefrontConsole({
 }) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const [activeDeal, setActiveDeal] = useState<string | null>("2-for-1 Artisan Pour-Over (3-6 PM)");
   const [dealDiscount, setDealDiscount] = useState("20");
@@ -50,16 +52,16 @@ export function MerchantStorefrontConsole({
     navigator.clipboard.writeText(storefrontUrl);
     setCopied(true);
     toast({
-      title: "Storefront Link Copied! 📋",
-      description: "Share this link on Instagram, WhatsApp, or print on table tents.",
+      title: t("merchStore.copyToast"),
+      description: t("merchStore.copyToastCopy"),
     });
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleLaunchFlashDrop = () => {
     toast({
-      title: "Flash Drop Activated! ⚡",
-      description: `${dealDiscount}% off offer is now broadcast to nearby Kingston scouts & explorers!`,
+      title: t("merchStore.flashToast"),
+      description: t("merchStore.flashToastCopy", { pct: dealDiscount }),
     });
   };
 
@@ -73,13 +75,13 @@ export function MerchantStorefrontConsole({
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Live Storefront & Experience Studio</h2>
+              <h2 className="text-2xl font-black text-white">{t("merchStore.title")}</h2>
               <Badge className="bg-emerald-500 text-black font-extrabold uppercase text-[10px]">
-                Public Visible
+                {t("merchStore.public")}
               </Badge>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Curate your digital menu, flash drops, and venue passes seen by local explorers.
+              {t("merchStore.copy")}
             </p>
           </div>
         </div>
@@ -91,7 +93,7 @@ export function MerchantStorefrontConsole({
           >
             <Link to={user?.id ? `/storefront/${user.id}` : "/shop"} target="_blank">
               <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-              View Public Shop
+              {t("merchStore.viewShop")}
             </Link>
           </Button>
 
@@ -101,7 +103,7 @@ export function MerchantStorefrontConsole({
             className="h-10 px-4 rounded-xl border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs"
           >
             {copied ? <Check className="h-3.5 w-3.5 mr-1.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5 mr-1.5" />}
-            {copied ? "Link Copied!" : "Copy QR Link"}
+            {copied ? t("merchStore.copied") : t("merchStore.copyLink")}
           </Button>
         </div>
       </div>
@@ -113,7 +115,7 @@ export function MerchantStorefrontConsole({
           <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-5 space-y-4 shadow-xl">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">
-                Customer Mobile Preview
+                {t("merchStore.preview")}
               </span>
               <span className="text-[10px] text-white/40 font-mono">375px viewport</span>
             </div>
@@ -125,7 +127,7 @@ export function MerchantStorefrontConsole({
                 <div className="absolute top-3 right-3">
                   <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-emerald-300 flex items-center gap-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Open Now
+                    {t("merchStore.openNow")}
                   </span>
                 </div>
                 <h3 className="text-lg font-black text-white drop-shadow-md">
@@ -142,7 +144,7 @@ export function MerchantStorefrontConsole({
                 <div className="flex items-center gap-2">
                   <Flame className="h-4 w-4 text-amber-400" />
                   <div>
-                    <p className="text-[11px] font-bold text-white">Active Flash Drop</p>
+                    <p className="text-[11px] font-bold text-white">{t("merchStore.flashDrop")}</p>
                     <p className="text-[10px] text-emerald-300">{activeDeal}</p>
                   </div>
                 </div>
@@ -154,7 +156,7 @@ export function MerchantStorefrontConsole({
               {/* Preview Products List */}
               <div className="p-4 space-y-2.5">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-white/50">
-                  Featured Items (3 live)
+                  {t("merchStore.featured")}
                 </p>
 
                 <div className="p-2.5 rounded-xl border border-white/5 bg-white/[0.02] flex items-center justify-between">
@@ -168,7 +170,7 @@ export function MerchantStorefrontConsole({
                     </div>
                   </div>
                   <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
-                    In Stock
+                    {t("merchStore.inStock")}
                   </span>
                 </div>
 
@@ -183,7 +185,7 @@ export function MerchantStorefrontConsole({
                     </div>
                   </div>
                   <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
-                    In Stock
+                    {t("merchStore.inStock")}
                   </span>
                 </div>
               </div>
@@ -198,20 +200,20 @@ export function MerchantStorefrontConsole({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-amber-400" />
-                <h3 className="font-bold text-base text-white">Instant Flash Drop & Radar Perk</h3>
+                <h3 className="font-bold text-base text-white">{t("merchStore.flashTitle")}</h3>
               </div>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-bold uppercase">
-                Dynamic Demand Boost
+                {t("merchStore.demand")}
               </span>
             </div>
 
             <p className="text-xs text-white/60">
-              Broadcasting a flash drop notifies explorers within 5km on the live radar and highlights your venue with a glowing amber beacon.
+              {t("merchStore.flashCopy")}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="p-3 rounded-2xl border border-white/5 bg-white/[0.02] space-y-1">
-                <label className="text-[10px] uppercase font-bold text-white/50">Discount Level</label>
+                <label className="text-[10px] uppercase font-bold text-white/50">{t("merchStore.discount")}</label>
                 <div className="flex items-center gap-1.5">
                   <Input
                     type="number"
@@ -224,11 +226,11 @@ export function MerchantStorefrontConsole({
               </div>
 
               <div className="p-3 rounded-2xl border border-white/5 bg-white/[0.02] space-y-1 sm:col-span-2">
-                <label className="text-[10px] uppercase font-bold text-white/50">Drop Description</label>
+                <label className="text-[10px] uppercase font-bold text-white/50">{t("merchStore.dropDesc")}</label>
                 <Input
                   value={activeDeal || ""}
                   onChange={(e) => setActiveDeal(e.target.value)}
-                  placeholder="e.g. 20% Off Brunch & Drink Flight"
+                  placeholder={t("merchStore.dropPh")}
                   className="h-9 rounded-xl border-white/10 bg-white/5 text-white text-xs"
                 />
               </div>
@@ -237,14 +239,14 @@ export function MerchantStorefrontConsole({
             <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
               <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
                 <TrendingUp className="h-3.5 w-3.5" />
-                Est. +35 to +60 arrivals in next 4 hours
+                {t("merchStore.estArrivals")}
               </span>
               <Button
                 onClick={handleLaunchFlashDrop}
                 className="h-10 px-5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-black font-extrabold text-xs shadow-lg shadow-amber-500/20"
               >
                 <Flame className="h-4 w-4 mr-1.5" />
-                Broadcast Flash Drop
+                {t("merchStore.broadcast")}
               </Button>
             </div>
           </div>
@@ -253,9 +255,9 @@ export function MerchantStorefrontConsole({
           <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-base text-white">Full Catalog & Price Management</h3>
+                <h3 className="font-bold text-base text-white">{t("merchStore.catalogTitle")}</h3>
                 <p className="text-xs text-white/50 mt-0.5">
-                  Update inventory, pricing, fulfillment modes, and point redemption values.
+                  {t("merchStore.catalogCopy")}
                 </p>
               </div>
             </div>
