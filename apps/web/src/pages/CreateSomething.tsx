@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CREATE_INTENTS, resolveCreateIntent } from "@promorang/shared";
 import { useExperienceActions } from "@/hooks/usePeopleExperience";
+import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell } from "@/components/people/ExperienceShell";
 import { useToast } from "@/hooks/use-toast";
 
@@ -9,6 +10,7 @@ export default function CreateSomething() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { ask } = useExperienceActions();
+  const to = useExperiencePath();
   const { toast } = useToast();
   const selected = resolveCreateIntent(params.get("intent"));
   const [question, setQuestion] = useState("");
@@ -38,7 +40,7 @@ export default function CreateSomething() {
         {CREATE_INTENTS.map((item) => (
           <Link
             key={item.intent}
-            to={item.intent === "answer" ? "/create?intent=answer" : item.href}
+            to={item.intent === "answer" ? `${to("/create")}?intent=answer` : item.href}
             className={`rounded-[1.5rem] border px-4 py-4 ${selected.intent === item.intent ? "border-primary bg-primary/15" : "border-white/10 bg-white/[0.04]"}`}
           >
             <p className="font-serif text-2xl font-bold">{item.label}</p>

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SEO from "@/components/SEO";
@@ -25,13 +25,17 @@ export function ExperienceShell({
   children,
   className,
 }: ExperienceShellProps) {
+  const location = useLocation();
+  const resolvedBack = location.pathname.startsWith("/app-preview") && location.pathname !== "/app-preview"
+    ? "/app-preview"
+    : backTo;
   return (
     <main className={cn("min-h-screen bg-[#0D0D0E] pb-28 text-white", className)}>
       <SEO title={`${title} — PROMORANG`} description={description || title} />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_20%_0%,rgba(255,85,0,.28),transparent_42%)]" />
       <header className="relative mx-auto w-full max-w-3xl px-4 pt-6 sm:px-6">
-        {backTo ? (
-          <Link to={backTo} className="inline-flex min-h-11 items-center gap-2 text-sm text-white/50 hover:text-white">
+        {resolvedBack ? (
+          <Link to={resolvedBack} className="inline-flex min-h-11 items-center gap-2 text-sm text-white/50 hover:text-white">
             <ArrowLeft className="h-4 w-4" />
             {backLabel}
           </Link>

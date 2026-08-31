@@ -17,6 +17,9 @@ export function PWAInstallPrompt() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (window.location.pathname.startsWith("/app-preview") || window.location.pathname.startsWith("/drop/")) {
+      return;
+    }
 
     // Check if running in standalone display mode
     const isStandalone =

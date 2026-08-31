@@ -323,6 +323,14 @@ const App = () => (
                     <Route path="/start" element={<ProtectedRoute><StartCommunity /></ProtectedRoute>} />
                     <Route path="/home" element={<ProtectedRoute><PeopleHome /></ProtectedRoute>} />
                     <Route path="/drop/:slug" element={<DropClaim />} />
+                    <Route path="/app-preview" element={<PeopleHome />} />
+                    <Route path="/app-preview/people" element={<MyPeople />} />
+                    <Route path="/app-preview/give" element={<GiveSomething />} />
+                    <Route path="/app-preview/create" element={<CreateSomething />} />
+                    <Route path="/app-preview/earn" element={<EarnOpportunities />} />
+                    <Route path="/app-preview/happened" element={<WhatHappened />} />
+                    <Route path="/app-preview/card" element={<MyPromoCard />} />
+                    <Route path="/app-preview/start" element={<StartCommunity />} />
                     <Route path="/create/campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
                     <Route path="/create/bounty" element={<ProtectedRoute><CreateBounty /></ProtectedRoute>} />
                     <Route path="/create-moment" element={<Navigate to="/create/moment" replace />} />
