@@ -169,6 +169,8 @@ describe("localization", () => {
       "campIntel.build",
       "campIntel.saveDraft",
       "campIntel.runDiag",
+      "brandCreate.titleLead",
+      "brandCreate.launch",
     ] as const;
 
     supportedLocales.forEach((locale) => {

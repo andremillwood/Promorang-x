@@ -9,30 +9,32 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, ArrowRight, Check, DollarSign, Target, Users } from "lucide-react";
 import { CommercialProofLoop } from "@/components/commercial/CommercialProofLoop";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
-const CATEGORIES = [
-  { value: "social", label: "Social Gathering" },
-  { value: "fitness", label: "Fitness & Wellness" },
-  { value: "food", label: "Food & Drink" },
-  { value: "music", label: "Music & Entertainment" },
-  { value: "networking", label: "Networking" },
-  { value: "outdoor", label: "Outdoor Adventure" },
-  { value: "arts", label: "Arts & Culture" },
+const CATEGORIES: { value: string; labelKey: TranslationKey }[] = [
+  { value: "social", labelKey: "brandCreate.catSocial" },
+  { value: "fitness", labelKey: "brandCreate.catFitness" },
+  { value: "food", labelKey: "brandCreate.catFood" },
+  { value: "music", labelKey: "brandCreate.catMusic" },
+  { value: "networking", labelKey: "brandCreate.catNetwork" },
+  { value: "outdoor", labelKey: "brandCreate.catOutdoor" },
+  { value: "arts", labelKey: "brandCreate.catArts" },
 ];
 
-const GOALS = [
-  { value: "content", label: "Content Proof" },
-  { value: "purchase", label: "Purchase Proof" },
-  { value: "sampling", label: "Sampling" },
-  { value: "signup", label: "Scan + Signup" },
-  { value: "attendance", label: "Attendance" },
+const GOALS: { value: string; labelKey: TranslationKey }[] = [
+  { value: "content", labelKey: "brandCreate.goalContent" },
+  { value: "purchase", labelKey: "brandCreate.goalPurchase" },
+  { value: "sampling", labelKey: "brandCreate.goalSampling" },
+  { value: "signup", labelKey: "brandCreate.goalSignup" },
+  { value: "attendance", labelKey: "brandCreate.goalAttendance" },
 ];
 
-const steps = [
-  { id: 1, title: "Moment Link", icon: Target },
-  { id: 2, title: "Budget", icon: DollarSign },
-  { id: 3, title: "Distribution Zone", icon: Users },
-  { id: 4, title: "Review", icon: Check },
+const steps: { id: number; titleKey: TranslationKey; icon: typeof Target }[] = [
+  { id: 1, titleKey: "brandCreate.stepLink", icon: Target },
+  { id: 2, titleKey: "brandCreate.stepBudget", icon: DollarSign },
+  { id: 3, titleKey: "brandCreate.stepZone", icon: Users },
+  { id: 4, titleKey: "brandCreate.stepReview", icon: Check },
 ];
 
 interface CampaignFormData {
@@ -60,8 +62,9 @@ const CreateCampaign = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const createCampaign = useCreateCampaign();
+  const { t } = useI18n();
   const [currentStep, setCurrentStep] = useState(1);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, TranslationKey>>({});
 
   const [formData, setFormData] = useState<CampaignFormData>({
     title: "",
@@ -96,54 +99,54 @@ const CreateCampaign = () => {
   };
 
   const validateStep = (step: number) => {
-    const nextErrors: Record<string, string> = {};
+    const nextErrors: Record<string, TranslationKey> = {};
 
     if (step === 1) {
       if (!formData.title || formData.title.length < 5) {
-        nextErrors.title = "Title must be at least 5 characters";
+        nextErrors.title = "brandCreate.errTitle";
       }
       if (!formData.momentId || formData.momentId.length < 10) {
-        nextErrors.momentId = "Link this PromoPush to a specific Moment ID";
+        nextErrors.momentId = "brandCreate.errMoment";
       }
       if (!formData.description || formData.description.length < 20) {
-        nextErrors.description = "Description must be at least 20 characters";
+        nextErrors.description = "brandCreate.errDesc";
       }
       if (formData.goals.length === 0) {
-        nextErrors.goals = "Select the verified outcome this distribution should drive";
+        nextErrors.goals = "brandCreate.errGoals";
       }
     }
 
     if (step === 2) {
       if (formData.budgetUsd < 100) {
-        nextErrors.budgetUsd = "Minimum budget is $100";
+        nextErrors.budgetUsd = "brandCreate.errBudget";
       }
       if (formData.durationDays < 1) {
-        nextErrors.durationDays = "Minimum duration is 1 day";
+        nextErrors.durationDays = "brandCreate.errDuration";
       }
       if (!formData.entryEndpoint) {
-        nextErrors.entryEndpoint = "Every PromoPush needs a single Moment entry endpoint";
+        nextErrors.entryEndpoint = "brandCreate.errEndpoint";
       }
     }
 
     if (step === 3) {
       if (!formData.geoLabel || formData.geoLabel.length < 3) {
-        nextErrors.geoLabel = "Name the active distribution zone";
+        nextErrors.geoLabel = "brandCreate.errZone";
       }
       if (formData.geoRadiusMeters < 100) {
-        nextErrors.geoRadiusMeters = "Geo radius must be at least 100 meters";
+        nextErrors.geoRadiusMeters = "brandCreate.errRadius";
       }
       if (!formData.distributionStart || !formData.distributionEnd) {
-        nextErrors.distributionWindow = "Set a start and end time for the live zone";
+        nextErrors.distributionWindow = "brandCreate.errWindow";
       }
       if (
         formData.distributionStart &&
         formData.distributionEnd &&
         formData.distributionStart >= formData.distributionEnd
       ) {
-        nextErrors.distributionWindow = "Distribution end time must be after start time";
+        nextErrors.distributionWindow = "brandCreate.errWindowOrder";
       }
       if (formData.categories.length === 0) {
-        nextErrors.categories = "Select at least one category";
+        nextErrors.categories = "brandCreate.errCats";
       }
     }
 
@@ -222,44 +225,44 @@ const CreateCampaign = () => {
         return (
           <div className="space-y-6">
             <div>
-              <Label htmlFor="title">PromoPush Name *</Label>
+              <Label htmlFor="title">{t("brandCreate.name")}</Label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => updateField("title", e.target.value)}
-                placeholder="e.g., Friday Night Entry Burst"
+                placeholder={t("brandCreate.namePh")}
                 className={errors.title ? "border-destructive" : ""}
               />
-              {errors.title && <p className="mt-1 text-sm text-destructive">{errors.title}</p>}
+              {errors.title && <p className="mt-1 text-sm text-destructive">{t(errors.title)}</p>}
             </div>
 
             <div>
-              <Label htmlFor="momentId">Moment ID *</Label>
+              <Label htmlFor="momentId">{t("brandCreate.momentId")}</Label>
               <Input
                 id="momentId"
                 value={formData.momentId}
                 onChange={(e) => updateField("momentId", e.target.value)}
-                placeholder="Paste the Moment ID this distribution should feed"
+                placeholder={t("brandCreate.momentIdPh")}
                 className={errors.momentId ? "border-destructive" : ""}
               />
-              {errors.momentId && <p className="mt-1 text-sm text-destructive">{errors.momentId}</p>}
+              {errors.momentId && <p className="mt-1 text-sm text-destructive">{t(errors.momentId)}</p>}
             </div>
 
             <div>
-              <Label htmlFor="description">Distribution Thesis *</Label>
+              <Label htmlFor="description">{t("brandCreate.thesis")}</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => updateField("description", e.target.value)}
-                placeholder="Describe the attention source, the Moment it routes into, and the single action users should complete."
+                placeholder={t("brandCreate.thesisPh")}
                 rows={4}
                 className={errors.description ? "border-destructive" : ""}
               />
-              {errors.description && <p className="mt-1 text-sm text-destructive">{errors.description}</p>}
+              {errors.description && <p className="mt-1 text-sm text-destructive">{t(errors.description)}</p>}
             </div>
 
             <div>
-              <Label className="mb-3 block">Primary Objective *</Label>
+              <Label className="mb-3 block">{t("brandCreate.objective")}</Label>
               <div className="grid grid-cols-2 gap-3">
                 {GOALS.map((goal) => (
                   <button
@@ -272,11 +275,11 @@ const CreateCampaign = () => {
                         : "border-border hover:border-primary/50"
                     }`}
                   >
-                    <p className="text-sm font-medium">{goal.label}</p>
+                    <p className="text-sm font-medium">{t(goal.labelKey)}</p>
                   </button>
                 ))}
               </div>
-              {errors.goals && <p className="mt-1 text-sm text-destructive">{errors.goals}</p>}
+              {errors.goals && <p className="mt-1 text-sm text-destructive">{t(errors.goals)}</p>}
             </div>
           </div>
         );
@@ -285,7 +288,7 @@ const CreateCampaign = () => {
         return (
           <div className="space-y-6">
             <div>
-              <Label htmlFor="budgetUsd">Distribution Budget (USD) *</Label>
+              <Label htmlFor="budgetUsd">{t("brandCreate.budget")}</Label>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -298,11 +301,11 @@ const CreateCampaign = () => {
                   className={`pl-10 ${errors.budgetUsd ? "border-destructive" : ""}`}
                 />
               </div>
-              {errors.budgetUsd && <p className="mt-1 text-sm text-destructive">{errors.budgetUsd}</p>}
+              {errors.budgetUsd && <p className="mt-1 text-sm text-destructive">{t(errors.budgetUsd)}</p>}
             </div>
 
             <div>
-              <Label htmlFor="durationDays">Duration (days) *</Label>
+              <Label htmlFor="durationDays">{t("brandCreate.duration")}</Label>
               <Input
                 id="durationDays"
                 type="number"
@@ -312,42 +315,42 @@ const CreateCampaign = () => {
                 onChange={(e) => updateField("durationDays", parseInt(e.target.value, 10))}
                 className={errors.durationDays ? "border-destructive" : ""}
               />
-              {errors.durationDays && <p className="mt-1 text-sm text-destructive">{errors.durationDays}</p>}
+              {errors.durationDays && <p className="mt-1 text-sm text-destructive">{t(errors.durationDays)}</p>}
             </div>
 
             <div>
-              <Label htmlFor="entryMode">Primary Entry Channel *</Label>
+              <Label htmlFor="entryMode">{t("brandCreate.entryChannel")}</Label>
               <Select value={formData.entryMode} onValueChange={(value) => updateField("entryMode", value as CampaignFormData["entryMode"])}>
                 <SelectTrigger id="entryMode">
-                  <SelectValue placeholder="Select an entry mode" />
+                  <SelectValue placeholder={t("brandCreate.entryPh")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="moment_direct">Direct Moment Entry</SelectItem>
-                  <SelectItem value="qr">QR Code</SelectItem>
-                  <SelectItem value="ad_link">Ad Link</SelectItem>
-                  <SelectItem value="direct_link">Direct Link</SelectItem>
+                  <SelectItem value="moment_direct">{t("brandCreate.entryMoment")}</SelectItem>
+                  <SelectItem value="qr">{t("brandCreate.entryQr")}</SelectItem>
+                  <SelectItem value="ad_link">{t("brandCreate.entryAd")}</SelectItem>
+                  <SelectItem value="direct_link">{t("brandCreate.entryLink")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label htmlFor="entryEndpoint">Moment Entry Endpoint *</Label>
+              <Label htmlFor="entryEndpoint">{t("brandCreate.endpoint")}</Label>
               <Input
                 id="entryEndpoint"
                 value={formData.entryEndpoint}
                 onChange={(e) => updateField("entryEndpoint", e.target.value)}
-                placeholder="/moments/{id} or deep link"
+                placeholder={t("brandCreate.endpointPh")}
                 className={errors.entryEndpoint ? "border-destructive" : ""}
               />
-              {errors.entryEndpoint && <p className="mt-1 text-sm text-destructive">{errors.entryEndpoint}</p>}
+              {errors.entryEndpoint && <p className="mt-1 text-sm text-destructive">{t(errors.entryEndpoint)}</p>}
               <p className="mt-1 text-sm text-muted-foreground">
-                All ads, QR codes, and direct links should resolve to one Moment entry endpoint.
+                {t("brandCreate.endpointHint")}
               </p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="payoutPerScanSignupJmd">Payout per Scan + Signup (JMD)</Label>
+                <Label htmlFor="payoutPerScanSignupJmd">{t("brandCreate.payoutScan")}</Label>
                 <Input
                   id="payoutPerScanSignupJmd"
                   type="number"
@@ -357,7 +360,7 @@ const CreateCampaign = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="payoutPerVerifiedPostJmd">Payout per Verified Post (JMD)</Label>
+                <Label htmlFor="payoutPerVerifiedPostJmd">{t("brandCreate.payoutPost")}</Label>
                 <Input
                   id="payoutPerVerifiedPostJmd"
                   type="number"
@@ -367,7 +370,7 @@ const CreateCampaign = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="payoutPerPurchaseProofJmd">Payout per Purchase Proof (JMD)</Label>
+                <Label htmlFor="payoutPerPurchaseProofJmd">{t("brandCreate.payoutPurchase")}</Label>
                 <Input
                   id="payoutPerPurchaseProofJmd"
                   type="number"
@@ -377,7 +380,7 @@ const CreateCampaign = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="creatorRewardPerVerifiedActionJmd">Creator Reward per Verified Action (JMD)</Label>
+                <Label htmlFor="creatorRewardPerVerifiedActionJmd">{t("brandCreate.payoutCreator")}</Label>
                 <Input
                   id="creatorRewardPerVerifiedActionJmd"
                   type="number"
@@ -394,19 +397,19 @@ const CreateCampaign = () => {
         return (
           <div className="space-y-6">
             <div>
-              <Label htmlFor="geoLabel">Active Distribution Zone *</Label>
+              <Label htmlFor="geoLabel">{t("brandCreate.zone")}</Label>
               <Input
                 id="geoLabel"
                 value={formData.geoLabel}
                 onChange={(e) => updateField("geoLabel", e.target.value)}
-                placeholder="e.g., 1km around Sabina Park"
+                placeholder={t("brandCreate.zonePh")}
                 className={errors.geoLabel ? "border-destructive" : ""}
               />
-              {errors.geoLabel && <p className="mt-1 text-sm text-destructive">{errors.geoLabel}</p>}
+              {errors.geoLabel && <p className="mt-1 text-sm text-destructive">{t(errors.geoLabel)}</p>}
             </div>
 
             <div>
-              <Label htmlFor="geoRadiusMeters">Geo Radius (meters) *</Label>
+              <Label htmlFor="geoRadiusMeters">{t("brandCreate.radius")}</Label>
               <Input
                 id="geoRadiusMeters"
                 type="number"
@@ -415,12 +418,12 @@ const CreateCampaign = () => {
                 onChange={(e) => updateField("geoRadiusMeters", parseInt(e.target.value, 10))}
                 className={errors.geoRadiusMeters ? "border-destructive" : ""}
               />
-              {errors.geoRadiusMeters && <p className="mt-1 text-sm text-destructive">{errors.geoRadiusMeters}</p>}
+              {errors.geoRadiusMeters && <p className="mt-1 text-sm text-destructive">{t(errors.geoRadiusMeters)}</p>}
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="distributionStart">Start Time *</Label>
+                <Label htmlFor="distributionStart">{t("brandCreate.start")}</Label>
                 <Input
                   id="distributionStart"
                   type="datetime-local"
@@ -429,7 +432,7 @@ const CreateCampaign = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="distributionEnd">End Time *</Label>
+                <Label htmlFor="distributionEnd">{t("brandCreate.end")}</Label>
                 <Input
                   id="distributionEnd"
                   type="datetime-local"
@@ -438,10 +441,10 @@ const CreateCampaign = () => {
                 />
               </div>
             </div>
-            {errors.distributionWindow && <p className="-mt-2 text-sm text-destructive">{errors.distributionWindow}</p>}
+            {errors.distributionWindow && <p className="-mt-2 text-sm text-destructive">{t(errors.distributionWindow)}</p>}
 
             <div>
-              <Label className="mb-3 block">Moment Categories *</Label>
+              <Label className="mb-3 block">{t("brandCreate.cats")}</Label>
               <div className="grid grid-cols-2 gap-3">
                 {CATEGORIES.map((category) => (
                   <button
@@ -454,15 +457,15 @@ const CreateCampaign = () => {
                         : "border-border hover:border-primary/50"
                     }`}
                   >
-                    <p className="text-sm font-medium">{category.label}</p>
+                    <p className="text-sm font-medium">{t(category.labelKey)}</p>
                   </button>
                 ))}
               </div>
-              {errors.categories && <p className="mt-1 text-sm text-destructive">{errors.categories}</p>}
+              {errors.categories && <p className="mt-1 text-sm text-destructive">{t(errors.categories)}</p>}
             </div>
 
             <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-              PromoPush inside this zone should follow one path: click or scan, join the Moment, execute one action, submit proof, receive reward.
+              {t("brandCreate.pathHint")}
             </div>
           </div>
         );
@@ -476,44 +479,47 @@ const CreateCampaign = () => {
 
               <div className="mb-4 grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Moment</p>
+                  <p className="text-sm text-muted-foreground">{t("brandCreate.reviewMoment")}</p>
                   <p className="break-all text-sm font-bold">{formData.momentId}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Zone</p>
+                  <p className="text-sm text-muted-foreground">{t("brandCreate.reviewZone")}</p>
                   <p className="text-lg font-bold">{formData.geoLabel}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Budget</p>
+                  <p className="text-sm text-muted-foreground">{t("brandCreate.reviewBudget")}</p>
                   <p className="text-lg font-bold">${formData.budgetUsd.toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Radius</p>
-                  <p className="text-lg font-bold">{formData.geoRadiusMeters}m</p>
+                  <p className="text-sm text-muted-foreground">{t("brandCreate.reviewRadiusLabel")}</p>
+                  <p className="text-lg font-bold">{t("brandCreate.reviewRadius", { meters: formData.geoRadiusMeters })}</p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium">Objectives</p>
+                  <p className="text-sm font-medium">{t("brandCreate.reviewObjectives")}</p>
                   <div className="mt-1 flex flex-wrap gap-2">
-                    {formData.goals.map((goal) => (
-                      <span key={goal} className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
-                        {GOALS.find((entry) => entry.value === goal)?.label}
-                      </span>
-                    ))}
+                    {formData.goals.map((goal) => {
+                      const match = GOALS.find((entry) => entry.value === goal);
+                      return (
+                        <span key={goal} className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
+                          {match ? t(match.labelKey) : goal}
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
 
                 <div>
-                  <p className="text-sm font-medium">Entry Endpoint</p>
+                  <p className="text-sm font-medium">{t("brandCreate.reviewEndpoint")}</p>
                   <p className="break-all text-sm text-muted-foreground">{formData.entryEndpoint}</p>
                 </div>
               </div>
             </div>
 
             <div className="rounded-xl border border-accent/30 bg-accent/10 p-4 text-sm">
-              This launches a PromoPush, not a generic campaign: one Moment, one entry endpoint, one geo-aware proof loop.
+              {t("brandCreate.reviewNote")}
             </div>
           </div>
         );
@@ -533,40 +539,40 @@ const CreateCampaign = () => {
       <div className="mb-8">
         <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-4 text-white/70 hover:text-white">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
+          {t("brandCreate.backDash")}
         </Button>
 
         {/* Unified Hero Container */}
         <div className="relative overflow-hidden rounded-[2rem] border border-primary/30 bg-gradient-to-br from-[#1F140E] via-[#0D0D0E] to-[#120B07] p-6 sm:p-10 shadow-2xl text-white">
           <div className="flex items-center space-x-2 bg-primary/20 border border-primary/40 px-3.5 py-1.5 rounded-full text-xs font-bold text-primary w-fit mb-4">
             <Target className="w-4 h-4" />
-            <span>Brand & Advertiser Studio • Launch a Perk Drop</span>
+            <span>{t("brandCreate.badge")}</span>
           </div>
 
           <h1 className="max-w-4xl font-sans text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight leading-[0.95]">
-            Fund a Brand Perk Drop & <span className="bg-gradient-to-r from-primary via-amber-400 to-primary bg-clip-text text-transparent">Verified Social Shares.</span>
+            {t("brandCreate.titleLead")} <span className="bg-gradient-to-r from-primary via-amber-400 to-primary bg-clip-text text-transparent">{t("brandCreate.titleAccent")}</span>
           </h1>
 
           <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-white/75">
-            Set your perk reward budget, require 30-second Instagram or TikTok Story proof, and get 100% verified customer actions with transparent ROI tracking.
+            {t("brandCreate.lede")}
           </p>
 
           <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-primary/90">
-            <span className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1">📸 Verified Story Shares</span>
-            <span className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1">📊 Guaranteed Customer Actions</span>
-            <span className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1">🎯 Zero-Waste Ad Budget</span>
+            <span className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1">📸 {t("brandCreate.chipStory")}</span>
+            <span className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1">📊 {t("brandCreate.chipActions")}</span>
+            <span className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1">🎯 {t("brandCreate.chipBudget")}</span>
           </div>
         </div>
       </div>
 
       <div className="mb-8">
         <CommercialProofLoop
-          eyebrow="PromoPush Framing"
-          title="Distribution should resolve into one Moment and one proof loop"
-          action="Define the live Moment and the single action the participant should complete after entry."
-          verification="Use geofence, QR, attendance, receipt, or media proof to verify the action happened."
-          outcome="Track the commercial result as a closed loop: impression, entry, move, proof, reward."
-          repeatability="If the zone, entry path, and reward model work once, they should scale into the next geo campaign."
+          eyebrow={t("brandCreate.proofEyebrow")}
+          title={t("brandCreate.proofTitle")}
+          action={t("brandCreate.proofAction")}
+          verification={t("brandCreate.proofVerification")}
+          outcome={t("brandCreate.proofOutcome")}
+          repeatability={t("brandCreate.proofRepeat")}
         />
       </div>
 
@@ -597,7 +603,7 @@ const CreateCampaign = () => {
               key={step.id}
               className={`text-xs ${currentStep >= step.id ? "text-foreground" : "text-muted-foreground"}`}
             >
-              {step.title}
+              {t(step.titleKey)}
             </span>
           ))}
         </div>
@@ -608,17 +614,17 @@ const CreateCampaign = () => {
       <div className="flex justify-between">
         <Button variant="outline" onClick={handleBack} disabled={currentStep === 1}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
+          {t("brandCreate.back")}
         </Button>
 
         {currentStep < 4 ? (
           <Button variant="hero" onClick={handleNext}>
-            Continue
+            {t("brandCreate.continue")}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         ) : (
           <Button variant="hero" onClick={handleSubmit} disabled={createCampaign.isPending}>
-            {createCampaign.isPending ? "Creating..." : "Launch PromoPush"}
+            {createCampaign.isPending ? t("brandCreate.creating") : t("brandCreate.launch")}
             <Check className="ml-2 h-4 w-4" />
           </Button>
         )}
