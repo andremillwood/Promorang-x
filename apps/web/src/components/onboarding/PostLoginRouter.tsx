@@ -107,10 +107,10 @@ export function PostLoginRouter() {
         case "merchant":
           if (!hasCompletedOnboarding) {
             navigate("/onboarding", { replace: true });
+          } else if (!hasCreatedContent) {
+            navigate("/?firstNight=true", { replace: true });
           } else if (!hasRegisteredVenue) {
             navigate("/dashboard/venues/add?firstTime=true", { replace: true });
-          } else if (!hasCreatedFundedActivation) {
-            navigate("/offers?template=slow-hour-checkin", { replace: true });
           } else {
             navigate("/dashboard", { replace: true });
           }
@@ -119,10 +119,8 @@ export function PostLoginRouter() {
         case "host":
           if (!hasCompletedOnboarding) {
             navigate("/onboarding", { replace: true });
-          } else if (!hasCreatedFundedActivation) {
-            navigate("/offers?template=slow-hour-checkin", { replace: true });
           } else if (!hasCreatedContent) {
-            navigate("/create/moment?firstTime=true", { replace: true });
+            navigate("/?firstNight=true", { replace: true });
           } else {
             navigate("/dashboard", { replace: true });
           }
@@ -144,6 +142,8 @@ export function PostLoginRouter() {
         default:
           if (!hasCompletedOnboarding) {
             navigate("/onboarding", { replace: true });
+          } else if (!hasJoinedContent && !hasCreatedContent) {
+            navigate("/?firstNight=true", { replace: true });
           } else if (!hasJoinedContent) {
             navigate("/discover?firstTime=true", { replace: true });
           } else if (!profileComplete) {

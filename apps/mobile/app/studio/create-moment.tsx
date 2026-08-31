@@ -74,13 +74,13 @@ export default function CreateMomentScreen() {
     <View style={styles.screen}>
       <View style={styles.header}>
         <Pressable accessibilityLabel="Close" style={styles.close} onPress={() => router.back()}><Ionicons name="close" size={22} color={Colors.white} /></Pressable>
-        <View style={styles.heading}><Text style={styles.eyebrow}>{parentMomentId ? 'SUB-MOMENT PROPOSAL' : 'STUDIO'}</Text><Text style={styles.headerTitle}>{parentMomentId ? 'Create inside Moment' : 'Create moment'}</Text></View>
+        <View style={styles.heading}><Text style={styles.eyebrow}>{parentMomentId ? 'SUB-MOMENT PROPOSAL' : 'TONIGHT'}</Text><Text style={styles.headerTitle}>{parentMomentId ? 'Create inside Moment' : 'Name tonight'}</Text></View>
         <Text style={styles.step}>1 OF 1</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Give people one clear reason to move.</Text>
-        <Text style={styles.subtitle}>{parentMomentId ? `Propose an activity inside ${parentTitle || 'this Moment'}. The parent host will review it before it becomes public.` : 'Start with the decision-making essentials. You can add tickets, rewards and collaborators after publishing.'}</Text>
+        <Text style={styles.title}>{parentMomentId ? 'Give people one clear reason to move.' : 'Name what is already happening tonight.'}</Text>
+        <Text style={styles.subtitle}>{parentMomentId ? `Propose an activity inside ${parentTitle || 'this Moment'}. The parent host will review it before it becomes public.` : 'A Moment is just tonight at your place. Title and location are enough. People can join from their phone after you publish.'}</Text>
 
         <View style={styles.field}>
           <Text style={styles.label}>MOMENT NAME</Text>

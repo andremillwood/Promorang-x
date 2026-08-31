@@ -20,12 +20,12 @@ import { useOnboarding } from '@/context/OnboardingContext';
 import { supabase } from '@/lib/supabase';
 
 const ROLES: Array<{ id: Exclude<UserRole, 'admin'>; title: string; detail: string; icon: React.ComponentProps<typeof Ionicons>['name'] }> = [
-  { id: 'participant', title: 'Participant', detail: 'Find moments and keep what you earn.', icon: 'people' },
-  { id: 'creator', title: 'Creator', detail: 'Turn stories into proof and opportunity.', icon: 'camera' },
-  { id: 'host', title: 'Host', detail: 'Bring people together around a Moment.', icon: 'calendar' },
-  { id: 'merchant', title: 'Merchant', detail: 'Turn visits into lasting relationships.', icon: 'storefront' },
-  { id: 'brand', title: 'Brand', detail: 'Fund action and understand the return.', icon: 'business' },
-  { id: 'agency', title: 'Agency', detail: 'Coordinate activations across clients.', icon: 'layers' },
+  { id: 'host', title: 'I need people through the door tonight', detail: 'The bar, venue, or night is already happening.', icon: 'calendar' },
+  { id: 'merchant', title: 'I need more visits to my place', detail: 'A shop, restaurant, or venue that should fill up.', icon: 'storefront' },
+  { id: 'creator', title: 'I need my story to move people', detail: 'Clips, flyers, or voice that should bring people out.', icon: 'camera' },
+  { id: 'participant', title: 'I need somewhere worth going', detail: 'A night, a room, or a crowd — not a dashboard.', icon: 'people' },
+  { id: 'brand', title: 'I need budget to reach people who show up', detail: 'Spend connected to verified presence.', icon: 'business' },
+  { id: 'agency', title: 'I need to run this for clients', detail: 'Coordinate brands, venues, and creators.', icon: 'layers' },
 ];
 
 const INTERESTS = [
@@ -121,8 +121,8 @@ export default function OnboardingScreen() {
 
         {step === 1 && <>
           <Text style={styles.eyebrow}>CHOOSE YOUR STARTING POINT</Text>
-          <Text style={styles.title}>How will you show up first?</Text>
-          <Text style={styles.subtitle}>You can add and switch roles later.</Text>
+          <Text style={styles.title}>What do you need?</Text>
+          <Text style={styles.subtitle}>This decides who we treat you as. A bar that needs people tonight is not the same as someone going out.</Text>
           <View style={styles.roleList}>{ROLES.map((item) => {
             const selected = role === item.id;
             return <Pressable key={item.id} onPress={() => setRole(item.id)} style={[styles.roleCard, selected && styles.selectedCard]}>

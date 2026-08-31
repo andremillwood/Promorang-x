@@ -7,6 +7,8 @@ import { DemoEventBanner } from "@/components/DemoEventBanner";
 import { demoMoments as moments } from "@/data/demo-moments";
 import { supabase } from "@/integrations/supabase/client";
 import { getTaxonomyLabel } from "@/lib/moment-taxonomy";
+import { distributeMoments } from "@promorang/shared";
+import { useTasteProfile } from "@/hooks/useTasteProfile";
 
 const filters = [
   { value: "All", label: "All" },
@@ -19,6 +21,7 @@ const filters = [
 
 const MomentsSection = () => {
   const [activeCategory, setActiveCategory] = useState("All");
+  const tasteProfile = useTasteProfile();
 
   const { data: liveMoments } = useQuery({
     queryKey: ["public-home-moments"],
@@ -28,7 +31,7 @@ const MomentsSection = () => {
         .select("*")
         .eq("is_active", true)
         .order("starts_at", { ascending: true })
-        .limit(6);
+        .limit(24);
 
       if (error) throw error;
       return data || [];
@@ -36,7 +39,9 @@ const MomentsSection = () => {
     retry: 0,
   });
 
-  const sourceMoments = Array.isArray(liveMoments) && liveMoments.length > 0 ? liveMoments : moments;
+  const sourceMoments = Array.isArray(liveMoments) && liveMoments.length > 0
+    ? distributeMoments(liveMoments, tasteProfile, { take: 6 })
+    : moments;
   const showingExamples = sourceMoments === moments;
 
   const filteredMoments = activeCategory === "All"

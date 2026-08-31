@@ -94,6 +94,82 @@ const PROFILE_WEIGHTS = {
         quality: 1.0,
         behavior: 1.35,
     },
+    host: {
+        recency: 1.1,
+        intent: 1.1,
+        relevance: 0.7,
+        proximity: 1.45,
+        urgency: 1.45,
+        social: 0.7,
+        value: 0.9,
+        quality: 0.8,
+        behavior: 0.9,
+    },
+    merchant: {
+        recency: 1.05,
+        intent: 1.15,
+        relevance: 0.75,
+        proximity: 1.4,
+        urgency: 1.4,
+        social: 0.75,
+        value: 1.1,
+        quality: 0.8,
+        behavior: 0.95,
+    },
+    brand: {
+        recency: 0.9,
+        intent: 1.2,
+        relevance: 0.95,
+        proximity: 1.2,
+        urgency: 1.05,
+        social: 0.85,
+        value: 1.25,
+        quality: 1.0,
+        behavior: 1.1,
+    },
+    agency: {
+        recency: 0.85,
+        intent: 1.15,
+        relevance: 0.9,
+        proximity: 1.15,
+        urgency: 1.0,
+        social: 0.8,
+        value: 1.2,
+        quality: 1.05,
+        behavior: 1.05,
+    },
+};
+
+const INTEREST_SYNONYMS = {
+    social: ['social', 'gathering', 'community', 'nightlife', 'party', 'parties', 'hangout'],
+    food: ['food', 'beverage', 'drink', 'drinks', 'dining', 'restaurant', 'culinary', 'eat', 'brunch', 'dinner'],
+    fitness: ['fitness', 'sports', 'wellness', 'yoga', 'gym', 'workout', 'run', 'training'],
+    music: ['music', 'party', 'parties', 'dj', 'concert', 'nightlife', 'dance', 'sound', 'vinyl', 'dub'],
+    arts: ['arts', 'culture', 'art', 'creative', 'gallery', 'theatre', 'theater', 'film', 'photo'],
+    outdoor: ['outdoor', 'nature', 'adventure', 'hike', 'hiking', 'beach', 'trail'],
+    networking: ['networking', 'business', 'professional', 'career', 'mixer'],
+    workshop: ['workshop', 'learning', 'class', 'education', 'talk', 'lecture', 'clinic'],
+};
+
+const LIFESTYLE_AFFINITY = {
+    active: ['fitness', 'outdoor'],
+    foodie: ['food'],
+    creative: ['arts', 'music'],
+    social: ['social', 'music'],
+    professional: ['networking', 'workshop'],
+    mindful: ['fitness', 'arts'],
+    adventurous: ['outdoor', 'social'],
+    homebody: ['workshop', 'food'],
+};
+
+const tokensFrom = (...parts) => String(parts.filter(Boolean).join(' '))
+    .toLowerCase()
+    .split(/[^a-z0-9+]+/)
+    .filter((token) => token.length > 1);
+
+const interestSlugsForItem = (item) => {
+    const haystack = new Set(tokensFrom(item.category, item.title, item.description, item.location, ...(Array.isArray(item.tags) ? item.tags : [])));
+    return Object.keys(INTEREST_SYNONYMS).filter((slug) => INTEREST_SYNONYMS[slug].some((word) => haystack.has(word)));
 };
 
 const INTENT_MULTIPLIERS = {
@@ -163,24 +239,33 @@ const scoreRecency = (item) => {
 };
 
 const scoreInterestMatch = (item, userPrefs) => {
-    if (!userPrefs?.interests || !Array.isArray(item.tags)) return 0;
-    const matches = userPrefs.interests.filter((interest) => item.tags.includes(interest));
-    return Math.min(matches.length * 8, 24);
+    const wanted = (userPrefs?.preferred_categories || userPrefs?.interests || [])
+        .map((value) => String(value || '').toLowerCase())
+        .filter(Boolean);
+    const lifestyles = (userPrefs?.lifestyle_tags || []).map((value) => String(value || '').toLowerCase());
+    if (!wanted.length && !lifestyles.length) return 0;
+
+    const slugs = interestSlugsForItem(item);
+    const interestHits = wanted.filter((interest) => slugs.includes(interest));
+    const lifestyleHits = lifestyles.flatMap((tag) => (LIFESTYLE_AFFINITY[tag] || []).filter((slug) => slugs.includes(slug)));
+    return Math.min(interestHits.length * 10 + [...new Set(lifestyleHits)].length * 6, 28);
 };
 
 const scoreGeography = (item, userPrefs) => {
     let score = 0;
+    const profileCity = (userPrefs?.city || userPrefs?.location_data?.city || '').toLowerCase();
+    const itemCity = (item.city || item.location_city || '').toLowerCase();
+    const itemPlace = `${item.city || ''} ${item.location || ''} ${item.venue_name || ''}`.toLowerCase();
 
-    if (userPrefs?.location_data?.city && item.location_city) {
-        if (userPrefs.location_data.city.toLowerCase() === item.location_city.toLowerCase()) {
-            score += 14;
-        }
+    if (profileCity && (itemCity === profileCity || itemPlace.includes(profileCity))) {
+        score += 18;
+    } else if (profileCity && itemCity && itemCity !== profileCity) {
+        score -= 8;
     }
 
-    if (userPrefs?.location_data?.country && item.country) {
-        if (userPrefs.location_data.country.toLowerCase() === item.country.toLowerCase()) {
-            score += 8;
-        }
+    const profileCountry = (userPrefs?.country || userPrefs?.location_data?.country || '').toLowerCase();
+    if (profileCountry && item.country && profileCountry === String(item.country).toLowerCase()) {
+        score += 6;
     }
 
     return score;
@@ -584,9 +669,17 @@ const feedOwnerId = (item) => item.creator_id
     || null;
 
 const resolveRankingProfile = (user) => {
-    const rawRole = (user?.user_type || user?.role || '').toLowerCase();
-    if (rawRole === 'creator') return 'creator';
+    const rawRole = (user?.user_type || user?.role || user?.active_role || '').toLowerCase();
+    if (PROFILE_WEIGHTS[rawRole]) return rawRole;
     return 'participant';
+};
+
+const ageFromRange = (range) => {
+    if (!range) return null;
+    const match = String(range).match(/(\d+)/g);
+    if (!match?.length) return null;
+    if (match.length === 1) return Number(match[0]);
+    return Math.round((Number(match[0]) + Number(match[1])) / 2);
 };
 
 const diversifyFeedItems = (items) => {
@@ -702,7 +795,7 @@ const buildUserContext = async (userId) => {
                 .catch(() => ({ data: [] })),
             supabaseAdmin
                 .from('user_preferences')
-                .select('interests, location_data, demographics, psychographics')
+                .select('preferred_categories, lifestyle_tags, age_range, gender, city, state, country, preferred_times, latitude, longitude')
                 .eq('user_id', userId)
                 .maybeSingle()
                 .catch(() => ({ data: null })),
@@ -712,8 +805,17 @@ const buildUserContext = async (userId) => {
             ...(prefsResult.data?.preferences || {}),
             ...(explicitPreferencesResult.data || {}),
         };
-        userPrefs.interests = explicitPreferencesResult.data?.interests || userPrefs.interests || [];
-        userPrefs.location_data = explicitPreferencesResult.data?.location_data || prefsResult.data?.location_data || {};
+        userPrefs.preferred_categories = explicitPreferencesResult.data?.preferred_categories || userPrefs.preferred_categories || [];
+        userPrefs.interests = userPrefs.preferred_categories;
+        userPrefs.lifestyle_tags = explicitPreferencesResult.data?.lifestyle_tags || userPrefs.lifestyle_tags || [];
+        userPrefs.age_range = explicitPreferencesResult.data?.age_range || userPrefs.age_range || null;
+        userPrefs.city = explicitPreferencesResult.data?.city || userPrefs.city || null;
+        userPrefs.country = explicitPreferencesResult.data?.country || userPrefs.country || null;
+        userPrefs.location_data = {
+            city: userPrefs.city,
+            country: userPrefs.country,
+            ...(prefsResult.data?.location_data || {}),
+        };
 
         userDemographics = demographicsResult.data;
         userCalendar = calendarResult.data || [];
@@ -758,6 +860,8 @@ const buildUserContext = async (userId) => {
     if (userDemographics?.birthday) {
         const birthDate = new Date(userDemographics.birthday);
         userAge = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    } else {
+        userAge = ageFromRange(userPrefs.age_range);
     }
 
     return {

@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
+import { distributeMoments } from "@promorang/shared";
 import { useQuery } from "@tanstack/react-query";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,6 +48,7 @@ import { PerkCard } from "@/components/perks/PerkCard";
 import { PostPerkModal } from "@/components/merchant/PostPerkModal";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { useTasteProfile } from "@/hooks/useTasteProfile";
 
 const categoryFilters = [
   { id: "all", label: "All Drops", icon: Sparkles },
@@ -132,6 +134,7 @@ type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places"
 
 const Discover = () => {
   const { city, setCity } = useMarket();
+  const tasteProfile = useTasteProfile();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as DiscoverTab) || "discoveries";
 
@@ -279,15 +282,13 @@ const Discover = () => {
       return matchesCategory && matchesSearch;
     });
 
-    return [...matched].sort((a, b) => {
-      const statusA = getMomentStatus(a);
-      const statusB = getMomentStatus(b);
-      if (statusA.isPast !== statusB.isPast) {
-        return statusA.isPast ? 1 : -1;
-      }
-      return new Date(statusA.displayStartsAt).getTime() - new Date(statusB.displayStartsAt).getTime();
-    });
-  }, [hubMoments, activeCategory, searchQuery]);
+    const upcoming = matched.filter((item) => !getMomentStatus(item).isPast);
+    const past = matched.filter((item) => getMomentStatus(item).isPast);
+    return [
+      ...distributeMoments(upcoming, { ...tasteProfile, city: tasteProfile.city || city }),
+      ...past,
+    ];
+  }, [hubMoments, activeCategory, searchQuery, tasteProfile, city]);
 
   const featuredMoment = filteredMoments[0] || null;
 

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { distributeMoments, tasteProfileFromPreferences } from "@promorang/shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -41,10 +42,10 @@ interface ExploreMomentFilters {
 }
 
 export function useExploreMoments(filters?: ExploreMomentFilters) {
-  const { user } = useAuth();
+  const { user, activeRole } = useAuth();
 
   return useQuery({
-    queryKey: ["explore-moments-sponsorable", filters],
+    queryKey: ["explore-moments-sponsorable", user?.id, activeRole, filters],
     queryFn: async () => {
       let query = supabase
         .from("moments")
@@ -100,13 +101,24 @@ export function useExploreMoments(filters?: ExploreMomentFilters) {
         })
       );
 
-      if (filters?.minParticipants) {
-        return momentsWithCounts.filter(
+      const eligible = filters?.minParticipants
+        ? momentsWithCounts.filter(
           (moment) => (moment.participant_count || 0) >= (filters.minParticipants || 0)
-        );
-      }
+        )
+        : momentsWithCounts;
 
-      return momentsWithCounts as ExploreMoment[];
+      const { data: preferences } = user
+        ? await supabase
+          .from("user_preferences")
+          .select("preferred_categories, lifestyle_tags, age_range, preferred_times, city, country, latitude, longitude")
+          .eq("user_id", user.id)
+          .maybeSingle()
+        : { data: null };
+
+      return distributeMoments(
+        eligible as ExploreMoment[],
+        tasteProfileFromPreferences({ role: activeRole, ...preferences }),
+      );
     },
     enabled: !!user,
   });

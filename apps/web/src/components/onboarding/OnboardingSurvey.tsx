@@ -2,9 +2,11 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Sparkles, MapPin, Heart, Clock, User, Gamepad2, Store, Users, PlayCircle, CheckCircle2, CircleDot, Briefcase, Bell, Smartphone } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, MapPin, Heart, Clock, User, Gamepad2, Store, Users, PlayCircle, CheckCircle2, CircleDot, Briefcase, Bell } from "lucide-react";
+import { needsConsumerTasteSteps, STAKEHOLDER_NEEDS, type StakeholderNeed } from "@promorang/shared";
 import { useCreateUserPreferences, UserPreferencesInput } from "@/hooks/useUserPreferences";
 import { useAuth } from "@/contexts/AuthContext";
+import { writeOpeningPathChoice } from "@/hooks/useOpeningMove";
 import { useI18n } from "@/i18n/I18nContext";
 import { DeviceNotificationStep } from "./DeviceNotificationStep";
 import type { TranslationKey } from "@/i18n/translations";
@@ -64,8 +66,9 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   });
   const [persona, setPersona] = useState<"explorer" | "creator" | "mayor" | "merchant" | "brand" | "agency" | null>(null);
 
-  const { setActiveRole } = useAuth();
+  const { claimRole } = useAuth();
   const createPreferences = useCreateUserPreferences();
+  const selectedNeed = STAKEHOLDER_NEEDS.find((need) => need.persona === persona) ?? null;
 
   const steps = [
     {
@@ -145,13 +148,32 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
     });
   };
 
+  const persistPreferences = async () => {
+    const tasteRequired = needsConsumerTasteSteps(selectedNeed?.role);
+    await createPreferences.mutateAsync({
+      ...preferences,
+      preferred_categories: preferences.preferred_categories?.length
+        ? preferences.preferred_categories
+        : tasteRequired
+          ? []
+          : ["stakeholder"],
+    });
+  };
+
+  const selectNeed = async (need: StakeholderNeed) => {
+    setPersona(need.persona);
+    if (need.role === "host" || need.role === "merchant") writeOpeningPathChoice("place");
+    if (need.role === "participant") writeOpeningPathChoice("out");
+    await claimRole(need.role);
+  };
+
   const handleNext = async () => {
     if (step < steps.length - 1) {
-      if (step === 0 && persona === "agency") {
-          setStep(4); 
+      if (step === 0 && selectedNeed && !needsConsumerTasteSteps(selectedNeed.role)) {
+        setStep(4);
       } else if (step === 4) {
         try {
-          await createPreferences.mutateAsync(preferences);
+          await persistPreferences();
         } catch {
           // ignore save error
         }
@@ -161,7 +183,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
       }
     } else {
       try {
-        await createPreferences.mutateAsync(preferences);
+        await persistPreferences();
       } catch {
         // ignore save error
       }
@@ -170,6 +192,10 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   };
 
   const handleBack = () => {
+    if (step === 4 && selectedNeed && !needsConsumerTasteSteps(selectedNeed.role)) {
+      setStep(0);
+      return;
+    }
     if (step > 0) {
       setStep(step - 1);
     }
@@ -245,126 +271,36 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
               {/* Step Content */}
               {step === 0 && (
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 gap-4">
-                      <button
-                        onClick={() => {
-                            setPersona("explorer");
-                            setActiveRole("participant");
-                        }}
-                        className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
-                            persona === "explorer"
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:border-primary/50 hover:bg-muted"
-                        }`}
-                      >
-                        <div className="h-16 w-16 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-600 shrink-0">
-                            <Gamepad2 className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-lg">{t("onboarding.explorer")}</h3>
-                            <p className="text-sm text-muted-foreground">{t("persona.explorerDesc")}</p>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                            setPersona("creator");
-                            setActiveRole("creator");
-                        }}
-                        className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
-                            persona === "creator"
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:border-primary/50 hover:bg-muted"
-                        }`}
-                      >
-                        <div className="h-16 w-16 rounded-xl bg-fuchsia-500/10 flex items-center justify-center text-fuchsia-600 shrink-0">
-                            <PlayCircle className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-lg">{t("onboarding.creator")}</h3>
-                            <p className="text-sm text-muted-foreground">{t("persona.creatorDesc")}</p>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                            setPersona("mayor");
-                            setActiveRole("host");
-                        }}
-                        className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
-                            persona === "mayor"
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:border-primary/50 hover:bg-muted"
-                        }`}
-                      >
-                        <div className="h-16 w-16 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
-                            <Users className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-lg">{t("onboarding.mayor")}</h3>
-                            <p className="text-sm text-muted-foreground">{t("persona.mayorDesc")}</p>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                            setPersona("merchant");
-                            setActiveRole("merchant");
-                        }}
-                        className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
-                            persona === "merchant"
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:border-primary/50 hover:bg-muted"
-                        }`}
-                      >
-                        <div className="h-16 w-16 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 shrink-0">
-                            <Store className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-lg">{t("onboarding.merchant")}</h3>
-                            <p className="text-sm text-muted-foreground">{t("persona.merchantDesc")}</p>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                            setPersona("brand");
-                            setActiveRole("brand");
-                        }}
-                        className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
-                            persona === "brand"
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:border-primary/50 hover:bg-muted"
-                        }`}
-                      >
-                        <div className="h-16 w-16 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
-                            <Briefcase className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-lg">{t("onboarding.brand")}</h3>
-                            <p className="text-sm text-muted-foreground">{t("persona.brandDesc")}</p>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                            setPersona("agency");
-                            setActiveRole("brand");
-                        }}
-                        className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
-                            persona === "agency"
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:border-primary/50 hover:bg-muted"
-                        }`}
-                      >
-                        <div className="h-16 w-16 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
-                            <Briefcase className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-lg">{t("onboarding.agency")}</h3>
-                            <p className="text-sm text-muted-foreground">{t("persona.agencyDesc")}</p>
-                        </div>
-                      </button>
+                    <div className="grid grid-cols-1 gap-3">
+                      {STAKEHOLDER_NEEDS.map((need) => {
+                        const selected = persona === need.persona;
+                        const Icon =
+                          need.role === "host" ? Users
+                          : need.role === "merchant" ? Store
+                          : need.role === "creator" ? PlayCircle
+                          : need.role === "participant" ? Gamepad2
+                          : Briefcase;
+                        return (
+                          <button
+                            key={need.id}
+                            type="button"
+                            onClick={() => void selectNeed(need)}
+                            className={`p-5 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-start gap-4 text-left ${
+                              selected
+                                ? "border-primary bg-primary/10"
+                                : "border-border hover:border-primary/50 hover:bg-muted"
+                            }`}
+                          >
+                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                              <Icon className="w-6 h-6" />
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-base leading-snug">{need.title}</h3>
+                              <p className="text-sm text-muted-foreground mt-1">{need.need}</p>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
 
                     {persona && (
@@ -374,7 +310,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             <CircleDot className="h-4 w-4" />
                           </div>
                           <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary/80">{t("onboarding.firstPlan")}</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary/80">{selectedNeed?.routesBecause || t("onboarding.firstPlan")}</p>
                             <h3 className="mt-2 font-serif text-xl font-bold text-foreground">
                               {roleGuides[persona].nextTitle}
                             </h3>
@@ -595,7 +531,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
         {/* Skip option */}
         <div className="text-center mt-6">
           <button
-            onClick={onComplete}
+            onClick={() => onComplete(persona || undefined)}
             className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
           >
             {t("onboarding.skip")}

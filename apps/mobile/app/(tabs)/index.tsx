@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { getCurrentMove, getJourneyStatuses } from '@promorang/shared';
+import { getCurrentMove, getJourneyStatuses, isVenueOpeningRole, shouldShowOpeningMove } from '@promorang/shared';
+import { FirstNightMove } from '@/components/FirstNightMove';
+import { supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
 import { ActivityIndicator, ImageBackground, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { AppHeader } from '@/components/AppHeader';
 import { BorderRadius, Colors, Spacing } from '@/constants/DesignTokens';
@@ -25,6 +27,7 @@ const homeHeroImage = 'https://images.unsplash.com/photo-1524368535928-5b5e00ddc
 export default function StakeholderHomeScreen() {
   const [feedMode, setFeedMode] = useState<'today' | 'for_you'>('today');
   const [feedIntent, setFeedIntent] = useState<'nearby' | 'tonight' | 'earn' | null>(null);
+  const [joinedCount, setJoinedCount] = useState<number | null>(null);
   const { discoveries } = useDiscoveries();
   const [removedFeedItems, setRemovedFeedItems] = useState<Set<string>>(new Set());
   const { activeRole, user } = useAuth();
@@ -36,6 +39,23 @@ export default function StakeholderHomeScreen() {
   const experience = STAKEHOLDER_EXPERIENCES[role];
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Explorer';
   const hasLiveMoments = moments.length > 0;
+  const hostedCount = moments.filter((moment) => moment.organizer_id === user?.id).length;
+  useEffect(() => {
+    if (!user?.id) {
+      setJoinedCount(null);
+      return;
+    }
+    void supabase
+      .from('moment_participants')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .then(({ count }) => setJoinedCount(count || 0));
+  }, [user?.id]);
+  const showOpening = shouldShowOpeningMove({
+    role,
+    hostedMomentCount: hostedCount,
+    joinedMomentCount: joinedCount ?? (isVenueOpeningRole(role) ? 0 : 1),
+  });
   const featuredMoment = moments[0] as Moment | undefined;
   const featuredParticipation = useMomentParticipation(featuredMoment?.id);
   const nextInvitation = moments[1] as Moment | undefined;
@@ -84,6 +104,13 @@ export default function StakeholderHomeScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {showOpening ? (
+          <>
+            <FirstNightMove role={role} hostedMomentCount={hostedCount} joinedMomentCount={0} />
+            <View style={styles.bottomSpace} />
+          </>
+        ) : (
+        <>
         <View style={styles.heroShell}>
           <ImageBackground
             source={{ uri: featuredMoment?.image_url || homeHeroImage }}
@@ -288,6 +315,8 @@ export default function StakeholderHomeScreen() {
         </Pressable>
 
         <View style={styles.bottomSpace} />
+        </>
+        )}
       </ScrollView>
     </View>
   );

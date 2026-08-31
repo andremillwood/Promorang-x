@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "@/lib/api";
 import { supabase } from "@/integrations/supabase/client";
+import { distributeMoments, tasteProfileFromPreferences } from "@promorang/shared";
 import type {
   FeedAction,
   FeedContext,
@@ -227,16 +228,29 @@ export const getForYouFeed = async ({
     console.warn("Feed API endpoint fallback to Supabase DB:", e);
   }
 
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData.session?.user?.id;
+  const { data: preferences } = userId
+    ? await supabase
+      .from("user_preferences")
+      .select("preferred_categories, lifestyle_tags, age_range, preferred_times, city, country, latitude, longitude")
+      .eq("user_id", userId)
+      .maybeSingle()
+    : { data: null };
+  const taste = tasteProfileFromPreferences(preferences);
+  const usedFallback = rawFeed.length === 0;
+
   // Fallback to querying Supabase DB directly for Moments, Discoveries & Missions
-  if (rawFeed.length === 0) {
+  if (usedFallback) {
     const [{ data: dbMoments }, { data: dbDiscoveries }, { data: dbMissions }] = await Promise.all([
-      supabase.from("moments").select("*").order("starts_at", { ascending: false }).limit(limit),
+      supabase.from("moments").select("*").eq("is_active", true).order("starts_at", { ascending: true }).limit(Math.max(limit * 3, 24)),
       supabase.from("discoveries" as any).select("*").eq("verification_status", "approved").limit(limit),
       supabase.from("moment_bounties" as any).select("*").order("created_at", { ascending: false }).limit(limit),
     ]);
 
+    const rankedMoments = distributeMoments(dbMoments || [], taste, { take: limit });
     rawFeed = [
-      ...(dbMoments || []).map((m) => ({ ...m, object_type: "moment", type: "event" })),
+      ...rankedMoments.map((m) => ({ ...m, object_type: "moment", type: "event" })),
       ...(dbDiscoveries || []).map((d) => ({ ...d, object_type: "discovery", type: "discovery" })),
       ...(dbMissions || []).map((b) => ({ ...b, object_type: "drop", type: "bounty" })),
     ];
@@ -257,8 +271,8 @@ export const getForYouFeed = async ({
       next_offset: offset + rawFeed.length,
       has_more: false,
       active_intent: intent,
-      ranking_profile: "participant",
-      user_interests: [],
+      ranking_profile: taste.role || "participant",
+      user_interests: taste.preferredCategories || [],
     },
   };
 };

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { distributeMoments, tasteProfileFromPreferences } from '@promorang/shared';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 
 export interface Moment {
     id: string;
@@ -50,6 +52,7 @@ export const DEMO_MOMENTS: Moment[] = [
 ];
 
 export function useMoments(category: string = 'all') {
+    const { user, activeRole } = useAuth();
     const [moments, setMoments] = useState<Moment[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
@@ -67,18 +70,29 @@ export function useMoments(category: string = 'all') {
                     query = query.or(`type.eq.${category},category.eq.${category}`);
                 }
 
-                const { data, error } = await query;
+                const [{ data, error }, prefsResult] = await Promise.all([
+                    query,
+                    user
+                        ? supabase
+                            .from('user_preferences')
+                            .select('preferred_categories, lifestyle_tags, age_range, preferred_times, city, country, latitude, longitude')
+                            .eq('user_id', user.id)
+                            .maybeSingle()
+                        : Promise.resolve({ data: null }),
+                ]);
+
+                const taste = tasteProfileFromPreferences({ role: activeRole, ...prefsResult.data });
 
                 if (error) {
                     console.warn('Supabase query failed, falling back to demo moments:', error.message);
-                    setMoments(DEMO_MOMENTS);
+                    setMoments(distributeMoments(DEMO_MOMENTS, taste));
                     setError(error);
                 } else if (data && data.length > 0) {
-                    setMoments(data);
+                    setMoments(distributeMoments(data, taste));
                     setError(null);
                 } else {
                     // Fallback to demo moments if database currently has no records
-                    setMoments(DEMO_MOMENTS);
+                    setMoments(distributeMoments(DEMO_MOMENTS, taste));
                     setError(null);
                 }
             } catch (err) {
@@ -91,7 +105,7 @@ export function useMoments(category: string = 'all') {
         };
 
         fetchMoments();
-    }, [category]);
+    }, [category, user?.id, activeRole]);
 
     return { moments, loading, error };
 }
