@@ -82,7 +82,7 @@ const Vault = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-[#ff5500] selection:text-white pb-16">
-      <SEO title="My Retained Value & Vault — Promorang" description="Your unlocked perks, claimed vouchers, PromoShare draw tickets, and event memory badges." />
+      <SEO title={t("vaultPage.seoTitle")} description={t("vaultPage.seoDescription")} />
 
       <div className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8 space-y-8">
 
@@ -91,13 +91,13 @@ const Vault = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-2">
               <Badge className="rounded-full bg-[#ff5500] text-white font-bold text-xs px-3.5 py-1 uppercase tracking-wider border-none">
-                Retained Value &amp; Vault
+                {t("vaultPage.retainedBadge")}
               </Badge>
               <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
                 {t("vaultPage.title")}
               </h1>
               <p className="text-white/60 text-sm max-w-xl">
-                The proof, perks, draw tickets, and platform economic value that stays with you.
+                {t("vaultPage.retainedCopy")}
               </p>
             </div>
 
@@ -109,41 +109,41 @@ const Vault = () => {
             {/* PromoPoints: Progress */}
             <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-white/50 font-bold uppercase tracking-wider">PromoPoints</span>
+                <span className="text-xs text-white/50 font-bold uppercase tracking-wider">{t("vaultPage.promoPoints")}</span>
                 <Zap className="w-3.5 h-3.5 text-orange-400" />
               </div>
-              <p className="text-2xl font-black text-orange-400">{balances.promoPoints} pts</p>
-              <span className="text-[10px] text-zinc-500 block">Progress &amp; Rank Tier</span>
+              <p className="text-2xl font-black text-orange-400">{t("vaultPage.pts", { count: balances.promoPoints })}</p>
+              <span className="text-[10px] text-zinc-500 block">{t("vaultPage.progressRank")}</span>
             </div>
 
             {/* Perks: Utility */}
             <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Active Perks</span>
+                <span className="text-xs text-white/50 font-bold uppercase tracking-wider">{t("vaultPage.activePerks")}</span>
                 <Gift className="w-3.5 h-3.5 text-emerald-400" />
               </div>
               <p className="text-2xl font-black text-emerald-400">{claimedPerks.length || balances.claimedPerksCount}</p>
-              <span className="text-[10px] text-zinc-500 block">Ready to redeem</span>
+              <span className="text-[10px] text-zinc-500 block">{t("vaultPage.readyRedeem")}</span>
             </div>
 
             {/* PromoShare Tickets: Possibility */}
             <div className="rounded-2xl border border-purple-500/30 bg-purple-950/20 p-4 space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-purple-300 font-bold uppercase tracking-wider">Draw Tickets</span>
+                <span className="text-xs text-purple-300 font-bold uppercase tracking-wider">{t("vaultPage.drawTickets")}</span>
                 <Ticket className="w-3.5 h-3.5 text-purple-400" />
               </div>
               <p className="text-2xl font-black text-purple-300">{balances.promoShareTickets} 🎟️</p>
-              <span className="text-[10px] text-purple-400 block">Draw: {balances.nextDrawDate}</span>
+              <span className="text-[10px] text-purple-400 block">{t("vaultPage.drawDate", { date: balances.nextDrawDate })}</span>
             </div>
 
             {/* Gems: Economic Value */}
             <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Platform Gems</span>
+                <span className="text-xs text-white/50 font-bold uppercase tracking-wider">{t("vaultPage.platformGems")}</span>
                 <Gem className="w-3.5 h-3.5 text-blue-400" />
               </div>
-              <p className="text-2xl font-black text-blue-400">{balances.gems} Gems</p>
-              <span className="text-[10px] text-zinc-500 block">1 Gem = US$1 Value</span>
+              <p className="text-2xl font-black text-blue-400">{t("vaultPage.gemsCount", { count: balances.gems })}</p>
+              <span className="text-[10px] text-zinc-500 block">{t("vaultPage.gemValue")}</span>
             </div>
           </div>
         </div>
@@ -159,7 +159,7 @@ const Vault = () => {
             }`}
           >
             <Gift className="h-4 w-4" />
-            <span>Claimed &amp; Saved Perks</span>
+            <span>{t("vaultPage.tabClaimed")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
               {claimedPerks.length + savedPerks.length || 4}
             </span>
@@ -174,7 +174,7 @@ const Vault = () => {
             }`}
           >
             <Ticket className="h-4 w-4" />
-            <span>PromoShare Tickets &amp; Draw</span>
+            <span>{t("vaultPage.tabTickets")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-purple-500/30 text-[10px]">
               {balances.promoShareTickets}
             </span>
@@ -189,7 +189,7 @@ const Vault = () => {
             }`}
           >
             <Trophy className="h-4 w-4" />
-            <span>Memory Badges &amp; Proof</span>
+            <span>{t("vaultPage.tabMemories")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
               {memories.length}
             </span>
@@ -204,7 +204,7 @@ const Vault = () => {
             }`}
           >
             <Sparkles className="h-4 w-4 text-blue-400" />
-            <span>Community Backing &amp; Reserves</span>
+            <span>{t("vaultPage.tabBacking")}</span>
           </button>
         </div>
 
@@ -213,11 +213,11 @@ const Vault = () => {
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-black text-white">Your Unlocked Utility Passes</h3>
-                <p className="text-xs text-white/60">Show your redemption QR code at partner merchants or venues.</p>
+                <h3 className="text-xl font-black text-white">{t("vaultPage.unlockedTitle")}</h3>
+                <p className="text-xs text-white/60">{t("vaultPage.unlockedCopy")}</p>
               </div>
               <Button asChild variant="outline" className="border-white/15 bg-white/5 text-xs rounded-xl font-bold">
-                <Link to="/discover?tab=perks">Explore More Perks →</Link>
+                <Link to="/discover?tab=perks">{t("vaultPage.exploreMore")}</Link>
               </Button>
             </div>
 
@@ -236,34 +236,34 @@ const Vault = () => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <Badge className="bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold text-xs uppercase">
-                    Possibility Layer
+                    {t("vaultPage.possibilityLayer")}
                   </Badge>
                   <h3 className="text-2xl sm:text-3xl font-black text-white">
-                    {balances.promoShareTickets} PromoShare Draw Tickets Active
+                    {t("vaultPage.ticketsActive", { count: balances.promoShareTickets })}
                   </h3>
                   <p className="text-xs text-zinc-400 max-w-lg">
-                    Tickets are entered into the weekly jackpot draw every Friday. Earn more tickets by sharing discoveries, perks, and moments.
+                    {t("vaultPage.ticketsCopy")}
                   </p>
                 </div>
 
                 <Button asChild className="bg-purple-600 hover:bg-purple-500 text-white font-black rounded-xl text-xs px-6 py-6 shadow-lg shadow-purple-600/20">
-                  <Link to="/promoshare">Open Live Draw Arena →</Link>
+                  <Link to="/promoshare">{t("vaultPage.openDraw")}</Link>
                 </Button>
               </div>
 
               {/* How downstream actions reward you */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-white/10">
                 <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
-                  <span className="text-xs font-bold text-white block">Referral Signs Up</span>
-                  <span className="text-xs font-mono text-purple-300 font-bold">+1 Draw Ticket · +100 Pts</span>
+                  <span className="text-xs font-bold text-white block">{t("vaultPage.referralSignup")}</span>
+                  <span className="text-xs font-mono text-purple-300 font-bold">{t("vaultPage.referralSignupReward")}</span>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
-                  <span className="text-xs font-bold text-white block">Referral Claims/Redeems Perk</span>
-                  <span className="text-xs font-mono text-emerald-400 font-bold">+3 Draw Tickets · +50 Pts</span>
+                  <span className="text-xs font-bold text-white block">{t("vaultPage.referralPerk")}</span>
+                  <span className="text-xs font-mono text-emerald-400 font-bold">{t("vaultPage.referralPerkReward")}</span>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
-                  <span className="text-xs font-bold text-white block">Referral Checks In</span>
-                  <span className="text-xs font-mono text-amber-400 font-bold">+2 Draw Tickets · +75 Pts</span>
+                  <span className="text-xs font-bold text-white block">{t("vaultPage.referralCheckin")}</span>
+                  <span className="text-xs font-mono text-amber-400 font-bold">{t("vaultPage.referralCheckinReward")}</span>
                 </div>
               </div>
             </div>
@@ -282,12 +282,12 @@ const Vault = () => {
                     </div>
                     <div>
                       <Badge className="bg-white/10 text-white border-white/10 text-[10px] font-bold uppercase">
-                        {mem.rarity || "Verified Memory"}
+                        {mem.rarity || t("vaultPage.verifiedMemory")}
                       </Badge>
                       <h4 className="font-bold text-white text-lg mt-1">{mem.title || mem.moment_title}</h4>
                     </div>
                   </div>
-                  <p className="text-xs text-white/50">{mem.verified_date || "Verified Attendance"}</p>
+                  <p className="text-xs text-white/50">{mem.verified_date || t("vaultPage.verifiedAttendance")}</p>
                 </div>
               ))}
             </div>

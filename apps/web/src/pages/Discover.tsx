@@ -47,12 +47,14 @@ import { PerkCard } from "@/components/perks/PerkCard";
 import { PostPerkModal } from "@/components/merchant/PostPerkModal";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
-const categoryFilters = [
-  { id: "all", label: "All Drops", icon: Sparkles },
-  { id: "food", label: "Food & Drinks", icon: Gift },
-  { id: "music", label: "Music & Nightlife", icon: Radio },
-  { id: "community", label: "Gatherings & Culture", icon: Users },
+const categoryFilters: Array<{ id: string; labelKey: TranslationKey; icon: typeof Sparkles }> = [
+  { id: "all", labelKey: "discoverHub.catAll", icon: Sparkles },
+  { id: "food", labelKey: "discoverHub.catFood", icon: Gift },
+  { id: "music", labelKey: "discoverHub.catMusic", icon: Radio },
+  { id: "community", labelKey: "discoverHub.catCommunity", icon: Users },
 ];
 
 const CURATED_COORDINATES: Record<string, { lat: number; lng: number }> = {
@@ -109,19 +111,18 @@ const HubEmptyState = ({
   noun: string;
   onShowLiveHub: () => void;
 }) => {
+  const { t } = useI18n();
   const isLiveHub = cityName.toLowerCase().includes("kingston");
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-8 text-center">
       <MapPin className="mx-auto h-8 w-8 text-primary" />
-      <h3 className="mt-4 text-lg font-black text-white">No live {noun} in {cityName} yet</h3>
+      <h3 className="mt-4 text-lg font-black text-white">{t("discoverHub.emptyTitle", { noun, city: cityName })}</h3>
       <p className="mx-auto mt-2 max-w-md text-sm text-white/60">
-        {isLiveHub
-          ? "Nothing is posted in this hub right now. Check back shortly or explore another tab."
-          : "This hub is warming up. Kingston is the live pulse right now — switch there to see Moments, places, and signals already on the ground."}
+        {isLiveHub ? t("discoverHub.emptyLive") : t("discoverHub.emptyWarmup")}
       </p>
       {!isLiveHub && (
         <Button onClick={onShowLiveHub} className="mt-5 rounded-2xl bg-primary text-white font-bold">
-          Browse Kingston
+          {t("discoverHub.browseKingston")}
         </Button>
       )}
     </div>
@@ -131,6 +132,7 @@ const HubEmptyState = ({
 type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
 
 const Discover = () => {
+  const { t } = useI18n();
   const { city, setCity } = useMarket();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as DiscoverTab) || "discoveries";
@@ -353,8 +355,8 @@ const Discover = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white pb-16">
       <SEO
-        title="Discover Culture, Perks & Opportunities — Promorang"
-        description="Discover what is worth doing, choosing, and sharing. Vote on community demand signals, unlock verified perks, and promote culture drops."
+        title={t("discoverHub.seoTitle")}
+        description={t("discoverHub.seoDescription")}
         url={getSiteUrl("/discover")}
       />
 
@@ -365,15 +367,15 @@ const Discover = () => {
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <Badge className="rounded-full bg-primary text-white font-black text-[10px] uppercase tracking-wider border-none">
-                People → Discover
+                {t("discoverHub.peopleDiscover")}
               </Badge>
               <span className="text-xs text-white/50 font-semibold">{city.name}</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-              Discover What's Worth Doing & Choosing
+              {t("discoverHub.title")}
             </h1>
             <p className="text-white/60 text-xs sm:text-sm max-w-xl">
-              Answer signals, unlock partner Perks, RSVP to live moments, or promote them to earn PromoShare draw tickets.
+              {t("discoverHub.subtitle")}
             </p>
           </div>
 
@@ -387,7 +389,7 @@ const Discover = () => {
               className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 h-10 px-4"
             >
               <Store className="w-4 h-4" />
-              <span>Post a Perk</span>
+              <span>{t("discoverHub.postPerk")}</span>
             </Button>
           </div>
         </div>
@@ -403,9 +405,9 @@ const Discover = () => {
             }`}
           >
             <HelpCircle className="h-4 w-4 text-amber-400" />
-            <span>1. Discoveries & Polls</span>
+            <span>{t("discoverHub.tabDiscoveries")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-bold">
-              Acquire Signal
+              {t("discoverHub.tabDiscoveriesBadge")}
             </span>
           </button>
 
@@ -418,7 +420,7 @@ const Discover = () => {
             }`}
           >
             <Gift className="h-4 w-4" />
-            <span>2. Perks & Drops</span>
+            <span>{t("discoverHub.tabPerks")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
               {hubPerks.length}
             </span>
@@ -433,7 +435,7 @@ const Discover = () => {
             }`}
           >
             <Ticket className="h-4 w-4" />
-            <span>3. Moments & Events</span>
+            <span>{t("discoverHub.tabMoments")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
               {hubMoments.length}
             </span>
@@ -448,9 +450,9 @@ const Discover = () => {
             }`}
           >
             <Share2 className="h-4 w-4 text-purple-300" />
-            <span>4. Things to Share</span>
+            <span>{t("discoverHub.tabShare")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">
-              Earn Tickets
+              {t("discoverHub.tabShareBadge")}
             </span>
           </button>
 
@@ -463,7 +465,7 @@ const Discover = () => {
             }`}
           >
             <Store className="h-4 w-4" />
-            <span>Places & Venues</span>
+            <span>{t("discoverHub.tabPlaces")}</span>
           </button>
         </div>
 
@@ -484,13 +486,13 @@ const Discover = () => {
                   <div>
                     <span className="px-3 py-1 bg-gradient-to-r from-primary/20 to-amber-500/20 text-primary border border-primary/40 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm inline-flex">
                       <Zap className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                      ⚡ Demand Signals & City Unlock Quests
+                      ⚡ {t("discoverHub.signalsBadge")}
                     </span>
                     <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">
-                      Vote, Charge the City Meter & Unlock Secret Perks
+                      {t("discoverHub.signalsTitle")}
                     </h3>
                     <p className="text-xs text-white/60">
-                      Participate in live choices. Your vote instantly awards +25 PromoPoints, +1 PromoShare Draw Ticket, and surfaces exclusive partner loot.
+                      {t("discoverHub.signalsCopy")}
                     </p>
                   </div>
 
@@ -498,7 +500,7 @@ const Discover = () => {
                     trigger={
                       <Button className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs shadow-lg shadow-primary/20 flex items-center gap-1.5 px-4 h-10 shrink-0">
                         <Plus className="w-4 h-4" />
-                        <span>Launch a Signal</span>
+                        <span>{t("discoverHub.launchSignal")}</span>
                       </Button>
                     }
                     onQuestionCreated={(newQ) => {
@@ -521,7 +523,7 @@ const Discover = () => {
                 {hubDiscoveries.length === 0 && (
                   <HubEmptyState
                     cityName={city.name}
-                    noun="discovery signals"
+                    noun={t("discoverHub.nounSignals")}
                     onShowLiveHub={() => setCity(getDefaultCityHub())}
                   />
                 )}
@@ -535,13 +537,13 @@ const Discover = () => {
                   <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
                       <Store className="w-3.5 h-3.5" />
-                      <span>Businesses → Offer</span>
+                      <span>{t("discoverHub.offerBadge")}</span>
                     </div>
                     <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">
-                      Verified Perks, Discounts & Complimentary Drops
+                      {t("discoverHub.perksTitle")}
                     </h3>
                     <p className="text-xs text-white/60">
-                      Claim passes, discounts, and VIP upgrades. Show your QR code at the merchant to redeem in real life.
+                      {t("discoverHub.perksCopy")}
                     </p>
                   </div>
 
@@ -550,7 +552,7 @@ const Discover = () => {
                     className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 h-10 px-4 shrink-0"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Post a Perk</span>
+                    <span>{t("discoverHub.postPerk")}</span>
                   </Button>
                 </div>
 
@@ -570,7 +572,7 @@ const Discover = () => {
                         }`}
                       >
                         <Icon className="h-3.5 w-3.5" />
-                        <span>{cat.label}</span>
+                        <span>{t(cat.labelKey)}</span>
                       </button>
                     );
                   })}
@@ -592,7 +594,7 @@ const Discover = () => {
                 {!perksLoading && hubPerks.length === 0 && (
                   <HubEmptyState
                     cityName={city.name}
-                    noun="perks"
+                    noun={t("discoverHub.nounPerks")}
                     onShowLiveHub={() => setCity(getDefaultCityHub())}
                   />
                 )}
@@ -617,7 +619,7 @@ const Discover = () => {
                         }`}
                       >
                         <Icon className="h-3.5 w-3.5" />
-                        <span>{cat.label}</span>
+                        <span>{t(cat.labelKey)}</span>
                       </button>
                     );
                   })}
@@ -632,11 +634,11 @@ const Discover = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                     <div className="relative z-10 space-y-3 max-w-xl">
-                      <Badge className="bg-primary text-white font-bold text-xs">Featured Moment</Badge>
+                      <Badge className="bg-primary text-white font-bold text-xs">{t("discoverHub.featuredMoment")}</Badge>
                       <h2 className="text-2xl sm:text-4xl font-black text-white">{featuredMoment.title}</h2>
                       <p className="text-xs sm:text-sm text-white/70">{featuredMoment.description}</p>
                       <Button asChild className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-xs px-6 py-2.5">
-                        <Link to={`/moments/${featuredMoment.id}`}>View Moment &amp; RSVP →</Link>
+                        <Link to={`/moments/${featuredMoment.id}`}>{t("discoverHub.viewRsvp")}</Link>
                       </Button>
                     </div>
                   </div>
@@ -670,7 +672,7 @@ const Discover = () => {
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                           <Badge className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white border border-white/10 text-[10px] font-bold uppercase">
-                            {item.category || "Gathering"}
+                            {item.category || t("discoverHub.gathering")}
                           </Badge>
                         </div>
 
@@ -703,7 +705,7 @@ const Discover = () => {
                 {filteredMoments.length === 0 && (
                   <HubEmptyState
                     cityName={city.name}
-                    noun="Moments"
+                    noun={t("discoverHub.nounMoments")}
                     onShowLiveHub={() => setCity(getDefaultCityHub())}
                   />
                 )}
@@ -720,10 +722,10 @@ const Discover = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div>
-                    <h3 className="text-xl font-bold text-white">Curated Places & Cultural Venues</h3>
-                    <p className="text-xs text-white/50">Verified partner venues in {city.name}.</p>
+                    <h3 className="text-xl font-bold text-white">{t("discoverHub.placesTitle")}</h3>
+                    <p className="text-xs text-white/50">{t("discoverHub.placesCopy", { city: city.name })}</p>
                   </div>
-                  <span className="text-xs font-semibold text-white/50">{hubVenues.length} verified spots</span>
+                  <span className="text-xs font-semibold text-white/50">{t("discoverHub.verifiedSpots", { count: hubVenues.length })}</span>
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -757,7 +759,7 @@ const Discover = () => {
                       </p>
                       <Button asChild variant="outline" className="w-full rounded-2xl border-white/15 bg-white/5 text-white hover:bg-primary hover:border-primary font-bold text-xs">
                         <a href={`https://maps.google.com/?q=${venue.latitude},${venue.longitude}`} target="_blank" rel="noopener noreferrer">
-                          View Location &amp; Directions ↗
+                          {t("discoverHub.viewDirections")}
                         </a>
                       </Button>
                     </div>
@@ -766,7 +768,7 @@ const Discover = () => {
                 {hubVenues.length === 0 && (
                   <HubEmptyState
                     cityName={city.name}
-                    noun="venues"
+                    noun={t("discoverHub.nounVenues")}
                     onShowLiveHub={() => setCity(getDefaultCityHub())}
                   />
                 )}

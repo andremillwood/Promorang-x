@@ -37,4 +37,27 @@ describe("localization", () => {
     expect(Object.keys(helpGuideTranslations[locale] || {})).toHaveLength(7);
     expect(helpFaqTranslations[locale]).toHaveLength(10);
   });
+
+  it("covers dashboard, footer, discover, vault, nodes, wallet, and acquisition chrome", () => {
+    const required = [
+      "common.skipToContent",
+      "footer.linkSaveWin",
+      "dashNav.today",
+      "dashMobile.discover",
+      "dashRole.participant",
+      "discoverHub.title",
+      "vaultPage.tabClaimed",
+      "nodesHub.title",
+      "wallet.pathTitle",
+      "acquire.lockPick",
+      "pwa.addToHomeScreen",
+      "errors.appUpdated",
+    ] as const;
+
+    supportedLocales.forEach((locale) => {
+      required.forEach((key) => {
+        expect(translations[locale][key]).toBeTruthy();
+      });
+    });
+  });
 });

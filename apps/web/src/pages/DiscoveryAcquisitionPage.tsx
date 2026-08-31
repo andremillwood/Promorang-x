@@ -13,6 +13,7 @@ import {
   voteDiscovery,
 } from "@/lib/discovery-acquisition";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/I18nContext";
 
 type Step = "vote" | "capture" | "results";
 
@@ -21,6 +22,7 @@ export default function DiscoveryAcquisitionPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useI18n();
 
   const [discovery, setDiscovery] = useState<AcquisitionDiscovery | null>(null);
   const [step, setStep] = useState<Step>("vote");
@@ -54,7 +56,7 @@ export default function DiscoveryAcquisitionPage() {
           setStep("vote");
         }
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Could not load this Discovery");
+        if (!cancelled) setError(err instanceof Error ? err.message : t("acquire.loadError"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -62,7 +64,7 @@ export default function DiscoveryAcquisitionPage() {
     return () => {
       cancelled = true;
     };
-  }, [slug, user]);
+  }, [slug, user, t]);
 
   const maxSelections = discovery?.maxSelections || 1;
   const isMulti = (discovery?.discoveryType === "multi_select" && maxSelections > 1) || false;
@@ -106,7 +108,7 @@ export default function DiscoveryAcquisitionPage() {
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not record your vote");
+      setError(err instanceof Error ? err.message : t("common.somethingWentWrong"));
     } finally {
       setSubmitting(false);
     }
@@ -128,7 +130,7 @@ export default function DiscoveryAcquisitionPage() {
       setShare(data.share || null);
       setStep("results");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not unlock results");
+      setError(err instanceof Error ? err.message : t("common.somethingWentWrong"));
     } finally {
       setSubmitting(false);
     }
@@ -141,7 +143,7 @@ export default function DiscoveryAcquisitionPage() {
       setShare(data);
       window.open(data.whatsapp, "_blank", "noopener,noreferrer");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not open WhatsApp");
+      setError(err instanceof Error ? err.message : t("common.somethingWentWrong"));
     }
   }
 
@@ -161,7 +163,7 @@ export default function DiscoveryAcquisitionPage() {
         if (dest) navigate(dest);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save your response");
+      setError(err instanceof Error ? err.message : t("common.somethingWentWrong"));
     } finally {
       setSubmitting(false);
     }
@@ -184,7 +186,7 @@ export default function DiscoveryAcquisitionPage() {
       <div className="min-h-[100dvh] bg-[#0c0a08] text-white flex flex-col items-center justify-center gap-3 px-6 text-center">
         <p className="text-lg font-medium">{error}</p>
         <button type="button" onClick={() => navigate("/")} className="text-orange-400 text-sm underline">
-          Back home
+          {t("acquire.backHome")}
         </button>
       </div>
     );
@@ -235,7 +237,7 @@ export default function DiscoveryAcquisitionPage() {
         )}
 
         {src && step === "vote" && (
-          <p className="sr-only">Source: {src}</p>
+          <p className="sr-only">{t("acquire.source", { src })}</p>
         )}
 
         {error && (
@@ -247,7 +249,7 @@ export default function DiscoveryAcquisitionPage() {
         {step === "vote" && (
           <div className="space-y-3">
             {isMulti && (
-              <p className="text-xs text-[#b5a89a]">Pick up to {maxSelections}</p>
+              <p className="text-xs text-[#b5a89a]">{t("acquire.pickUpTo", { count: maxSelections })}</p>
             )}
             {discovery.choices.map((choice) => {
               const active = selected.includes(choice.id);
@@ -305,10 +307,10 @@ export default function DiscoveryAcquisitionPage() {
                 >
                   {submitting ? (
                     <span className="inline-flex items-center gap-2 justify-center">
-                      <Loader2 className="h-4 w-4 animate-spin" /> Sending…
+                      <Loader2 className="h-4 w-4 animate-spin" /> {t("acquire.sending")}
                     </span>
                   ) : (
-                    "Lock in my pick"
+                    t("acquire.lockPick")
                   )}
                 </button>
               </div>
@@ -319,18 +321,18 @@ export default function DiscoveryAcquisitionPage() {
         {step === "capture" && (
           <div className="space-y-5 animate-in fade-in duration-300">
             <div className="rounded-2xl border border-orange-400/25 bg-orange-500/10 px-4 py-4">
-              <p className="font-[Fraunces,Georgia,serif] text-xl text-[#fff8f0]">Your vote is in.</p>
+              <p className="font-[Fraunces,Georgia,serif] text-xl text-[#fff8f0]">{t("acquire.voteIn")}</p>
               <p className="text-sm text-[#d9cfc3] mt-1">
-                See how Kingston voted, where your pick ranks, and unlock what’s next.
+                {t("acquire.voteInCopy")}
               </p>
               {selectedLabels[0] && (
-                <p className="text-xs text-orange-300 mt-3">You chose: {selectedLabels.join(", ")}</p>
+                <p className="text-xs text-orange-300 mt-3">{t("acquire.youChose", { choice: selectedLabels.join(", ") })}</p>
               )}
             </div>
 
             <form onSubmit={handleCapture} className="space-y-3">
               <label className="block">
-                <span className="text-xs text-[#b5a89a] mb-1.5 block">WhatsApp number</span>
+                <span className="text-xs text-[#b5a89a] mb-1.5 block">{t("acquire.whatsapp")}</span>
                 <input
                   type="tel"
                   inputMode="tel"
@@ -342,7 +344,7 @@ export default function DiscoveryAcquisitionPage() {
                 />
               </label>
               <label className="block">
-                <span className="text-xs text-[#b5a89a] mb-1.5 block">Email (optional)</span>
+                <span className="text-xs text-[#b5a89a] mb-1.5 block">{t("acquire.emailOptional")}</span>
                 <input
                   type="email"
                   autoComplete="email"
@@ -357,10 +359,10 @@ export default function DiscoveryAcquisitionPage() {
                 disabled={submitting || (!phone.trim() && !email.trim())}
                 className="w-full rounded-2xl bg-orange-500 text-black py-3.5 text-[15px] font-semibold disabled:opacity-40"
               >
-                {submitting ? "Unlocking…" : "See the live result"}
+                {submitting ? t("acquire.unlocking") : t("acquire.seeResult")}
               </button>
               <p className="text-[11px] text-center text-[#8a7d70]">
-                Save your vote · Unlock your Promorang profile · See what your Scene chose
+                {t("acquire.captureNote")}
               </p>
             </form>
           </div>
@@ -374,7 +376,7 @@ export default function DiscoveryAcquisitionPage() {
                   <>
                     <p className="font-semibold text-amber-200">+{pointsAwarded} PromoPoints</p>
                     <p className="text-xs text-[#d9cfc3] mt-0.5">
-                      You helped shape what the community wants.
+                      {t("acquire.pointsHelped")}
                     </p>
                   </>
                 )}
@@ -398,7 +400,7 @@ export default function DiscoveryAcquisitionPage() {
                 </p>
               )}
               <p className="text-xs text-[#8a7d70] mt-2">
-                {discovery.results.totalVotes} vote{discovery.results.totalVotes === 1 ? "" : "s"} so far
+                {t(discovery.results.totalVotes === 1 ? "acquire.votesSoFar" : "acquire.votesSoFarPlural", { count: discovery.results.totalVotes })}
               </p>
             </div>
 
@@ -432,13 +434,13 @@ export default function DiscoveryAcquisitionPage() {
             {/* Next action */}
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 space-y-3">
               <p className="font-medium text-[#fff6ec]">
-                {discovery.nextActionConfig?.prompt || discovery.nextActionLabel || "What’s next?"}
+                {discovery.nextActionConfig?.prompt || discovery.nextActionLabel || t("acquire.whatsNext")}
               </p>
               <div className="flex flex-col gap-2">
                 {(discovery.nextActionConfig?.options || [
-                  { value: "going", label: "I’m going" },
-                  { value: "maybe", label: "Maybe" },
-                  { value: "not_this_week", label: "Not this week" },
+                  { value: "going", label: t("acquire.going") },
+                  { value: "maybe", label: t("acquire.maybe") },
+                  { value: "not_this_week", label: t("acquire.notThisWeek") },
                 ]).map((opt) => (
                   <button
                     key={opt.value}
@@ -463,7 +465,7 @@ export default function DiscoveryAcquisitionPage() {
                   onClick={() => handleNextAction("view_moment")}
                   className="w-full text-sm text-orange-300 underline underline-offset-2"
                 >
-                  {discovery.nextActionLabel || "See the Moment"}
+                  {discovery.nextActionLabel || t("acquire.seeMoment")}
                 </button>
               )}
             </div>
@@ -486,7 +488,7 @@ export default function DiscoveryAcquisitionPage() {
                       }}
                       className="rounded-xl bg-white text-black py-3 text-sm font-semibold"
                     >
-                      See the Moment
+                      {t("acquire.seeMoment")}
                     </button>
                   ))}
                 <button
@@ -494,7 +496,7 @@ export default function DiscoveryAcquisitionPage() {
                   onClick={() => handleNextAction("interested")}
                   className="rounded-xl border border-white/20 py-3 text-sm font-medium"
                 >
-                  Interested
+                  {t("acquire.interested")}
                 </button>
               </div>
             )}
@@ -505,7 +507,7 @@ export default function DiscoveryAcquisitionPage() {
               className="w-full rounded-2xl bg-[#25D366] text-black py-3.5 text-[15px] font-semibold inline-flex items-center justify-center gap-2"
             >
               <MessageCircle className="h-4 w-4" />
-              Send to your crew
+              {t("acquire.sendCrew")}
             </button>
             {share?.text && (
               <p className="text-[11px] text-center text-[#8a7d70] px-2">{share.text}</p>

@@ -1,4 +1,5 @@
 import React, { Component, ReactNode } from "react";
+import { translate } from "@/i18n/I18nContext";
 
 interface Props {
   children: ReactNode;
@@ -40,15 +41,15 @@ export class ChunkErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center bg-background text-foreground">
-          <h2 className="text-xl font-bold mb-2">Application Updated</h2>
+          <h2 className="text-xl font-bold mb-2">{translate("errors.appUpdated")}</h2>
           <p className="text-muted-foreground mb-4 max-w-md">
-            A new version of Promorang was just released. Please refresh your browser to view the latest changes.
+            {translate("errors.appUpdatedCopy")}
           </p>
           <button
             onClick={() => window.location.reload()}
             className="px-5 py-2.5 bg-primary text-primary-foreground rounded-full font-medium shadow hover:opacity-90 transition-opacity"
           >
-            Refresh Page
+            {translate("errors.refreshPage")}
           </button>
         </div>
       );

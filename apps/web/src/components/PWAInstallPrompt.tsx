@@ -114,10 +114,10 @@ export function PWAInstallPrompt() {
       <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2">
         {showIOSPrompt ? (
           <p className="text-[11px] text-white/90 flex items-center gap-1.5 font-medium">
-            <span>Tap</span>
+            <span>{t("pwa.tap")}</span>
             <Share className="h-3.5 w-3.5 text-primary inline" />
-            <span>then</span>
-            <strong className="text-white font-bold">Add to Home Screen</strong>
+            <span>{t("pwa.then")}</span>
+            <strong className="text-white font-bold">{t("pwa.addToHomeScreen")}</strong>
             <PlusSquare className="h-3.5 w-3.5 text-primary inline" />
           </p>
         ) : (

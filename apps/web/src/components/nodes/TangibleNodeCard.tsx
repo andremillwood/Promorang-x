@@ -4,6 +4,7 @@ import { triggerHaptic } from "@/lib/haptics";
 import { hapticAudio } from "@/lib/hapticAudio";
 import { TactileButton } from "@/components/ui/TactileButton";
 import { PaperReceipt, StatusChip } from "@/components/promorang/SignatureObjects";
+import { useI18n } from "@/i18n/I18nContext";
 import nodeAmmCore from "@/assets/nodes/node-amm-core.jpg";
 import nodeMerchantVault from "@/assets/nodes/node-merchant-vault.jpg";
 import nodeCreatorPrism from "@/assets/nodes/node-creator-prism.jpg";
@@ -30,6 +31,7 @@ export const TangibleNodeCard = ({
   totalTickets = 345,
   onIgniteStake,
 }: TangibleNodeCardProps) => {
+  const { t, formatNumber } = useI18n();
   const cardRef = useRef<HTMLDivElement>(null);
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
@@ -70,34 +72,34 @@ export const TangibleNodeCard = ({
           <img src={artwork} alt="" className="size-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#120e0a] via-[#120e0a]/30 to-transparent" />
           <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-            <StatusChip ok>Your money stays yours</StatusChip>
+            <StatusChip ok>{t("nodesHub.yourMoney")}</StatusChip>
           </div>
           <div className="absolute bottom-4 left-4 right-4">
             <p className="font-mono text-[10px] tracking-[0.18em] text-amber-200/80">{serialNumber}</p>
             <h3 className="mt-1 font-serif text-2xl font-bold text-white">{nodeName}</h3>
-            <p className="text-sm text-white/70">{userTier} member pass</p>
+            <p className="text-sm text-white/70">{t("nodesHub.memberPass", { tier: userTier })}</p>
           </div>
         </div>
 
         <div className="space-y-4 p-5">
           <PaperReceipt
-            heading="Your pot"
+            heading={t("nodesHub.yourPot")}
             lines={[
-              { label: "Set aside", value: `$${stakedAmount.toLocaleString()}`, strong: true },
-              { label: "You can take out", value: "Anytime" },
-              { label: "Draw tickets", value: `${totalTickets.toLocaleString()} · ${multiplier}×` },
+              { label: t("nodesHub.setAside"), value: `$${formatNumber(stakedAmount)}`, strong: true },
+              { label: t("nodesHub.takeOut"), value: t("nodesHub.anytime") },
+              { label: t("nodesHub.drawTickets"), value: t("nodesHub.ticketMult", { tickets: formatNumber(totalTickets), multiplier }) },
             ]}
-            footer="Tickets are the bonus. The money is still yours."
+            footer={t("nodesHub.potFooter")}
           />
           <TactileButton variant={saved ? "success" : "vault"} size="lg" fullWidth onClick={handleIgnition} disabled={saved}>
-            {saved ? "Set aside · still yours" : "Set aside $100 and get tickets"}
+            {saved ? t("nodesHub.setAsideDone") : t("nodesHub.setAsideCta")}
           </TactileButton>
           <p className="flex items-center justify-center gap-1.5 text-center text-xs leading-5 text-zinc-400">
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-            You can take it out whenever. Tickets are the bonus, not the risk.
+            {t("nodesHub.potDisclaimer")}
           </p>
           <p className="sr-only" aria-live="polite">
-            {saved ? "One hundred dollars set aside. Tickets added." : "Ready to set money aside."}
+            {saved ? t("nodesHub.srSaved") : t("nodesHub.srReady")}
           </p>
         </div>
       </article>

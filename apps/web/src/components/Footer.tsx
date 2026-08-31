@@ -4,53 +4,55 @@ import { ArrowRight } from "lucide-react";
 import logo from "@/assets/promorang-logo-full.png";
 import { useI18n } from "@/i18n/I18nContext";
 
-const footerLinks = {
+import type { TranslationKey } from "@/i18n/translations";
+
+const footerLinks: Record<string, Array<{ key: TranslationKey; href: string }>> = {
   discover: [
-    { label: "Moments", href: "/explore/moments" },
-    { label: "Scenes", href: "/scenes" },
-    { label: "Discover", href: "/discover" },
-    { label: "Content", href: "/explore/content" },
-    { label: "Rewards", href: "/explore/rewards" },
-    { label: "Venues", href: "/explore/venues" },
-    { label: "Genesis Season", href: "/pioneers" },
-    { label: "Save & Win Vaults", href: "/nodes" },
+    { key: "footer.linkMoments", href: "/explore/moments" },
+    { key: "footer.linkScenes", href: "/scenes" },
+    { key: "footer.linkDiscover", href: "/discover" },
+    { key: "footer.linkContent", href: "/explore/content" },
+    { key: "footer.linkRewards", href: "/explore/rewards" },
+    { key: "footer.linkVenues", href: "/explore/venues" },
+    { key: "footer.linkGenesis", href: "/pioneers" },
+    { key: "footer.linkSaveWin", href: "/nodes" },
   ],
   how: [
-    { label: "What is Promorang?", href: "/what-is-promorang" },
-    { label: "How It Works", href: "/how-it-works" },
-    { label: "Overview", href: "/economy" },
-    { label: "Community Vaults", href: "/nodes" },
-    { label: "Moments", href: "/economy/moments" },
-    { label: "Points", href: "/economy/points" },
-    { label: "PromoKeys", href: "/economy/keys" },
-    { label: "Master Key", href: "/economy/master-key" },
-    { label: "Pieces", href: "/economy/pieces" },
-    { label: "Content", href: "/economy/content" },
-    { label: "Tickets & Gems", href: "/economy/promoshare-gems" },
-    { label: "Network value", href: "/economy/network" },
+    { key: "footer.linkWhatIs", href: "/what-is-promorang" },
+    { key: "footer.linkHowItWorks", href: "/how-it-works" },
+    { key: "footer.linkOverview", href: "/economy" },
+    { key: "footer.linkCommunityVaults", href: "/nodes" },
+    { key: "footer.linkEconomyMoments", href: "/economy/moments" },
+    { key: "footer.linkPoints", href: "/economy/points" },
+    { key: "footer.linkPromoKeys", href: "/economy/keys" },
+    { key: "footer.linkMasterKey", href: "/economy/master-key" },
+    { key: "footer.linkPieces", href: "/economy/pieces" },
+    { key: "footer.linkEconomyContent", href: "/economy/content" },
+    { key: "footer.linkTicketsGems", href: "/economy/promoshare-gems" },
+    { key: "footer.linkNetworkValue", href: "/economy/network" },
   ],
   partners: [
-    { label: "For Brands", href: "/for-brands" },
-    { label: "For Creators", href: "/for-creators" },
-    { label: "For Merchants", href: "/for-merchants" },
-    { label: "For Hosts", href: "/for-communities" },
-    { label: "For Agencies", href: "/for-agencies" },
-    { label: "For Enterprise", href: "/for-enterprise" },
-    { label: "For Causes & Non-Profits", href: "/for-causes" },
+    { key: "footer.linkForBrands", href: "/for-brands" },
+    { key: "footer.linkForCreators", href: "/for-creators" },
+    { key: "footer.linkForMerchants", href: "/for-merchants" },
+    { key: "footer.linkForHosts", href: "/for-communities" },
+    { key: "footer.linkForAgencies", href: "/for-agencies" },
+    { key: "footer.linkForEnterprise", href: "/for-enterprise" },
+    { key: "footer.linkForCauses", href: "/for-causes" },
   ],
   support: [
-    { label: "Knowledge Base & FAQs", href: "/help" },
-    { label: "Support Tickets", href: "/support/tickets" },
-    { label: "Contact Us", href: "/contact" },
-    { label: "Terms", href: "/terms" },
-    { label: "Privacy", href: "/privacy" },
+    { key: "footer.linkHelp", href: "/help" },
+    { key: "footer.linkSupport", href: "/support/tickets" },
+    { key: "footer.linkContact", href: "/contact" },
+    { key: "footer.linkTerms", href: "/terms" },
+    { key: "footer.linkPrivacy", href: "/privacy" },
   ],
   tools: [
-    { label: "Find Your Scene", href: "/free/scene" },
-    { label: "Score Your Moment", href: "/free/moment" },
-    { label: "Reveal Nearby Demand", href: "/free/demand" },
-    { label: "Audit Your Influence", href: "/free/creator" },
-    { label: "Build an Activation Brief", href: "/free/sponsor" },
+    { key: "footer.linkFindScene", href: "/free/scene" },
+    { key: "footer.linkScoreMoment", href: "/free/moment" },
+    { key: "footer.linkRevealDemand", href: "/free/demand" },
+    { key: "footer.linkAuditInfluence", href: "/free/creator" },
+    { key: "footer.linkBuildBrief", href: "/free/sponsor" },
   ],
 };
 
@@ -97,12 +99,12 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
               <h4 className="font-semibold text-foreground mb-4">{t("footer.explore")}</h4>
               <ul className="space-y-3">
                 {footerLinks.discover.map((link) => (
-                  <li key={link.label}>
+                  <li key={link.href}>
                     <Link
                       to={link.href}
                       className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {link.label}
+                      {t(link.key)}
                     </Link>
                   </li>
                 ))}
@@ -114,12 +116,12 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
               <h4 className="font-semibold text-foreground mb-4">{t("footer.how")}</h4>
               <ul className="space-y-3">
                 {footerLinks.how.map((link) => (
-                  <li key={link.label}>
+                  <li key={link.href}>
                     <Link
                       to={link.href}
                       className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {link.label}
+                      {t(link.key)}
                     </Link>
                   </li>
                 ))}
@@ -131,12 +133,12 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
               <h4 className="font-semibold text-foreground mb-4">{t("footer.partners")}</h4>
               <ul className="space-y-3">
                 {footerLinks.partners.map((link) => (
-                  <li key={link.label}>
+                  <li key={`${link.href}-${link.key}`}>
                     <Link
                       to={link.href}
                       className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {link.label}
+                      {t(link.key)}
                     </Link>
                   </li>
                 ))}
@@ -145,7 +147,7 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
 
             <div>
               <h4 className="font-semibold text-foreground mb-4">{t("footer.tools")}</h4>
-              <ul className="space-y-3">{footerLinks.tools.map(link=><li key={link.label}><Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link></li>)}</ul>
+              <ul className="space-y-3">{footerLinks.tools.map(link=><li key={link.href}><Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t(link.key)}</Link></li>)}</ul>
             </div>
 
             {/* Support Links */}
@@ -153,12 +155,12 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
               <h4 className="font-semibold text-foreground mb-4">{t("footer.support")}</h4>
               <ul className="space-y-3">
                 {footerLinks.support.map((link) => (
-                  <li key={link.label}>
+                  <li key={link.href}>
                     <Link
                       to={link.href}
                       className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {link.label}
+                      {t(link.key)}
                     </Link>
                   </li>
                 ))}

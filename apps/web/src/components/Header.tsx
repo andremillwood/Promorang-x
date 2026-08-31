@@ -275,9 +275,9 @@ const Header = () => {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                          Save &amp; Win Vaults <span className="text-[9px] font-bold px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/40">ZERO RISK</span>
+                          {t("nav.saveWinVaults")} <span className="text-[9px] font-bold px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/40">{t("nav.saveWinVaultsBadge")}</span>
                         </p>
-                        <p className="text-[10px] text-white/50 leading-tight">100% Protected savings &amp; recurring cash pots</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.saveWinVaultsDesc")}</p>
                       </div>
                     </Link>
                   </DropdownMenuItem>
@@ -408,8 +408,8 @@ const Header = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-80 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11] text-white">
                     <div className="p-2 pb-2 border-b border-white/10 flex items-center justify-between">
-                      <p className="font-bold text-xs uppercase tracking-wider text-white/70">Activity Pulse</p>
-                      <span className="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded font-mono">Live</span>
+                      <p className="font-bold text-xs uppercase tracking-wider text-white/70">{t("nav.activityPulse")}</p>
+                      <span className="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded font-mono">{t("common.live")}</span>
                     </div>
                     <div className="flex flex-col gap-1 py-1">
                       <div className="flex items-start gap-2.5 p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] transition cursor-pointer">
@@ -418,9 +418,9 @@ const Header = () => {
                         </div>
                         <div className="space-y-0.5">
                           <p className="text-xs leading-tight text-white">
-                            <span className="font-bold">Sarah Drop</span> hyped your moment 🔥
+                            {t("nav.demoHypeNotification", { name: "Sarah Drop" })}
                           </p>
-                          <p className="text-[10px] text-white/40">2m ago</p>
+                          <p className="text-[10px] text-white/40">{t("nav.demoHypeTime")}</p>
                         </div>
                       </div>
                     </div>
@@ -430,7 +430,7 @@ const Header = () => {
                         onClick={() => navigate("/activity")}
                         className="w-full text-xs text-white/60 hover:text-white h-7 rounded-lg"
                       >
-                        View All Activity →
+                        {t("nav.viewAllActivity")}
                       </Button>
                     </div>
                   </DropdownMenuContent>
