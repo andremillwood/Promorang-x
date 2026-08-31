@@ -156,6 +156,10 @@ describe("localization", () => {
       "mechDetail.notFound",
       "pieceStudio.title",
       "pieceStudio.distribute",
+      "brandOnb.title",
+      "brandOnb.create",
+      "launchRes.seoTitle",
+      "launchRes.usePlaybook",
     ] as const;
 
     supportedLocales.forEach((locale) => {

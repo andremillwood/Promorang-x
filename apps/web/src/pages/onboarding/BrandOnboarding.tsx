@@ -9,11 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles, Building2, Globe, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function BrandOnboarding() {
     const { user, refreshWorkspaceContext } = useAuth();
     const navigate = useNavigate();
     const { toast } = useToast();
+    const { t } = useI18n();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -42,8 +44,8 @@ export default function BrandOnboarding() {
             if (error) throw error;
 
             toast({
-                title: "Brand account ready",
-                description: `${formData.name} can start planning a first Moment.`,
+                title: t("brandOnb.ready"),
+                description: t("brandOnb.readyDesc", { name: formData.name }),
             });
 
             await refreshWorkspaceContext();
@@ -53,7 +55,7 @@ export default function BrandOnboarding() {
 
         } catch (error: any) {
             toast({
-                title: "Error",
+                title: t("brandOnb.error"),
                 description: error.message,
                 variant: "destructive"
             });
@@ -69,26 +71,26 @@ export default function BrandOnboarding() {
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
                         <Sparkles className="w-6 h-6 text-primary" />
                     </div>
-                    <h1 className="text-3xl font-bold font-serif">Start Your Brand Activation</h1>
+                    <h1 className="text-3xl font-bold font-serif">{t("brandOnb.title")}</h1>
                     <p className="text-muted-foreground">
-                        Set up your brand account for campaigns, Moments, QR engagement, and participation reporting.
+                        {t("brandOnb.lede")}
                     </p>
                 </div>
 
                 <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
                     <form onSubmit={handleSubmit}>
                         <CardHeader>
-                            <CardTitle>Brand Details</CardTitle>
-                            <CardDescription>Tell us where your first participation campaign should live.</CardDescription>
+                            <CardTitle>{t("brandOnb.details")}</CardTitle>
+                            <CardDescription>{t("brandOnb.detailsDesc")}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Organization Name</Label>
+                                <Label htmlFor="name">{t("brandOnb.orgName")}</Label>
                                 <div className="relative">
                                     <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         id="name"
-                                        placeholder="Blue Mountain Coffee Co."
+                                        placeholder={t("brandOnb.orgPlaceholder")}
                                         className="pl-9"
                                         value={formData.name}
                                         onChange={(e) => handleChange('name', e.target.value)}
@@ -98,34 +100,34 @@ export default function BrandOnboarding() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="type">Account Type</Label>
+                                <Label htmlFor="type">{t("brandOnb.accountType")}</Label>
                                 <Select
                                     value={formData.type}
                                     onValueChange={(val) => handleChange('type', val)}
                                 >
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select type" />
+                                        <SelectValue placeholder={t("brandOnb.selectType")} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="brand">Brand (I want to run activations)</SelectItem>
-                                        <SelectItem value="merchant">Venue or merchant (I host participation)</SelectItem>
-                                        <SelectItem value="agency">Agency (I manage brand campaigns)</SelectItem>
+                                        <SelectItem value="brand">{t("brandOnb.typeBrand")}</SelectItem>
+                                        <SelectItem value="merchant">{t("brandOnb.typeMerchant")}</SelectItem>
+                                        <SelectItem value="agency">{t("brandOnb.typeAgency")}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="industry">Industry</Label>
+                                <Label htmlFor="industry">{t("brandOnb.industry")}</Label>
                                 <Input
                                     id="industry"
-                                    placeholder="e.g. Food & beverage, music, retail, hospitality"
+                                    placeholder={t("brandOnb.industryPh")}
                                     value={formData.industry}
                                     onChange={(e) => handleChange('industry', e.target.value)}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="website">Website</Label>
+                                <Label htmlFor="website">{t("brandOnb.website")}</Label>
                                 <div className="relative">
                                     <Globe className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                     <Input
@@ -139,7 +141,7 @@ export default function BrandOnboarding() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="email">Business Email</Label>
+                                <Label htmlFor="email">{t("brandOnb.email")}</Label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                     <Input
@@ -156,7 +158,7 @@ export default function BrandOnboarding() {
                         </CardContent>
                         <CardFooter>
                             <Button type="submit" className="w-full" variant="hero" disabled={loading}>
-                                {loading ? "Creating..." : "Create Brand Account"}
+                                {loading ? t("brandOnb.creating") : t("brandOnb.create")}
                             </Button>
                         </CardFooter>
                     </form>

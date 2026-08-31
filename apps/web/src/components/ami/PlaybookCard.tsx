@@ -2,15 +2,17 @@ import { Badge } from '../../components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Rocket, Target, Users, Play } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
+import type { TranslationKey } from '@/i18n/translations';
 
 export interface Playbook {
     id: string;
     goal: "CONTENT" | "PURCHASE" | "VISIT" | "REFERRAL";
-    title: string;
+    titleKey: TranslationKey;
     context: string;
-    happens: string; // What happens
-    gets: string; // What you get
-    bestFor: string; // Best for
+    happensKey: TranslationKey;
+    getsKey: TranslationKey;
+    bestForKey: TranslationKey;
 }
 
 interface PlaybookCardProps {
@@ -19,6 +21,8 @@ interface PlaybookCardProps {
 }
 
 export function PlaybookCard({ playbook, onUse }: PlaybookCardProps) {
+    const { t } = useI18n();
+
     const getGoalBadge = (goal: string) => {
         switch (goal) {
             case 'CONTENT': return 'bg-purple-500/10 text-purple-500 border-purple-500/20';
@@ -38,35 +42,35 @@ export function PlaybookCard({ playbook, onUse }: PlaybookCardProps) {
                     </Badge>
                 </div>
                 <CardTitle className="font-serif text-2xl font-bold italic tracking-tight group-hover:text-primary transition-colors">
-                    {playbook.title}
+                    {t(playbook.titleKey)}
                 </CardTitle>
             </CardHeader>
 
             <CardContent className="p-6 space-y-4 flex-grow">
                 <div className="space-y-1.5">
                     <h4 className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest flex items-center gap-1.5">
-                        <Target className="w-3 h-3" /> What Happens
+                        <Target className="w-3 h-3" /> {t("launchRes.happens")}
                     </h4>
                     <p className="text-sm font-medium leading-relaxed">
-                        {playbook.happens}
+                        {t(playbook.happensKey)}
                     </p>
                 </div>
 
                 <div className="space-y-1.5">
                     <h4 className="text-[10px] uppercase font-bold text-primary tracking-widest flex items-center gap-1.5">
-                        <Rocket className="w-3 h-3" /> What You Get
+                        <Rocket className="w-3 h-3" /> {t("launchRes.gets")}
                     </h4>
                     <p className="text-sm font-medium leading-relaxed">
-                        {playbook.gets}
+                        {t(playbook.getsKey)}
                     </p>
                 </div>
 
                 <div className="space-y-1.5">
                     <h4 className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest flex items-center gap-1.5">
-                        <Users className="w-3 h-3" /> Best For
+                        <Users className="w-3 h-3" /> {t("launchRes.bestFor")}
                     </h4>
                     <p className="text-xs text-muted-foreground italic">
-                        {playbook.bestFor}
+                        {t(playbook.bestForKey)}
                     </p>
                 </div>
             </CardContent>
@@ -77,7 +81,7 @@ export function PlaybookCard({ playbook, onUse }: PlaybookCardProps) {
                     onClick={() => onUse(playbook)}
                 >
                     <Play className="w-4 h-4 mr-2 fill-current" />
-                    USE THIS PLAYBOOK
+                    {t("launchRes.usePlaybook")}
                 </Button>
             </CardFooter>
         </Card>
