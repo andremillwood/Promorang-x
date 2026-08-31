@@ -235,6 +235,14 @@ describe("localization", () => {
       "hostStage.vault",
       "sentCap.submit",
       "sentCap.rate5",
+      "hostLineup.stageNew",
+      "hostLineup.title",
+      "hostPulse.push",
+      "hostPulse.title",
+      "hostFund.accept",
+      "hostFund.title",
+      "hostImpact.title",
+      "hostImpact.gems",
     ] as const;
 
     supportedLocales.forEach((locale) => {

@@ -13,10 +13,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 import { HostSponsorshipRequests } from "@/components/host/SponsorshipRequests";
 
 export function HostSponsorshipConsole() {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [offers, setOffers] = useState([
     {
       id: "sp-1",
@@ -43,8 +45,8 @@ export function HostSponsorshipConsole() {
       prev.map((o) => (o.id === id ? { ...o, status: "approved" } : o))
     );
     toast({
-      title: "Sponsorship Agreement Confirmed! 🤝",
-      description: `Accepted $${amt} sponsorship from ${brand}. Escrow funds locked for settlement.`,
+      title: t("hostFund.toastTitle"),
+      description: t("hostFund.toastBody", { amount: amt, brand }),
     });
   };
 
@@ -58,20 +60,20 @@ export function HostSponsorshipConsole() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Brand Sponsorships & Stage Escrow</h2>
+              <h2 className="text-2xl font-black text-white">{t("hostFund.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase">
-                $1,450 Escrow Locked
+                {t("hostFund.heldBadge")}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Review inbound brand funding, stage takeovers, and milestone payout releases.
+              {t("hostFund.subtitle")}
             </p>
           </div>
         </div>
 
         <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-          <p className="text-[10px] uppercase font-bold text-white/50">Host Sponsor Earnings</p>
-          <p className="text-base font-black text-amber-400">$3,400 Total</p>
+          <p className="text-[10px] uppercase font-bold text-white/50">{t("hostFund.earnings")}</p>
+          <p className="text-base font-black text-amber-400">{t("hostFund.earningsTotal")}</p>
         </div>
       </div>
 
@@ -95,7 +97,7 @@ export function HostSponsorshipConsole() {
                     {offer.brandName}
                   </span>
                   <span className="text-xs font-mono font-bold text-emerald-400">
-                    ${offer.amount}.00 Escrow
+                    {t("hostFund.heldAmt", { amount: `${offer.amount}.00` })}
                   </span>
                 </div>
                 <h3 className="font-bold text-base text-white">{offer.momentTarget}</h3>
@@ -109,13 +111,13 @@ export function HostSponsorshipConsole() {
                     className="w-full h-10 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-black font-extrabold text-xs shadow-md"
                   >
                     <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                    Accept Offer & Lock Stage Sponsor
+                    {t("hostFund.accept")}
                   </Button>
                 ) : (
                   <div className="text-center py-1">
                     <span className="text-xs font-bold text-emerald-400 flex items-center justify-center gap-1">
                       <Lock className="h-4 w-4" />
-                      Sponsorship Active • Escrow Secured
+                      {t("hostFund.active")}
                     </span>
                   </div>
                 )}
