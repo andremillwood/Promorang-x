@@ -16,7 +16,9 @@ import {
   MOMENT_INTENT_IDS,
   type MomentIntentId,
   buildDiscoverIntentPath,
+  isRouteBootBlocking,
   shouldHideMomentPrompt,
+  shouldRevealMomentPrompt,
 } from "@/lib/promocard-moment-intent";
 
 const DISMISS_KEY = "promorang:pwa_prompt_dismissed";
@@ -63,24 +65,32 @@ export function PWAInstallPrompt() {
   const hiddenByRoute = shouldHideMomentPrompt(location.pathname);
 
   useEffect(() => {
-    if (hiddenByRoute || isStandaloneDisplay() || wasRecentlyDismissed()) {
-      setVisible(false);
-      return;
-    }
-
     let cancelled = false;
-    const reveal = () => {
-      if (!cancelled) setVisible(true);
+
+    const syncVisibility = () => {
+      if (cancelled) return;
+      const routeBooting =
+        document.readyState !== "complete" || isRouteBootBlocking(document);
+      setVisible(
+        shouldRevealMomentPrompt({
+          pathname: location.pathname,
+          standalone: isStandaloneDisplay(),
+          dismissed: wasRecentlyDismissed(),
+          routeBooting,
+        }),
+      );
     };
 
-    const timer = window.setTimeout(reveal, document.readyState === "complete" ? 400 : 900);
-    window.addEventListener("load", reveal, { once: true });
+    syncVisibility();
+    const observer = new MutationObserver(syncVisibility);
+    observer.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener("load", syncVisibility);
     return () => {
       cancelled = true;
-      window.clearTimeout(timer);
-      window.removeEventListener("load", reveal);
+      observer.disconnect();
+      window.removeEventListener("load", syncVisibility);
     };
-  }, [hiddenByRoute]);
+  }, [hiddenByRoute, location.pathname]);
 
   const handleDismiss = () => {
     triggerHaptic("light");
@@ -121,7 +131,8 @@ export function PWAInstallPrompt() {
         <h2 className="mt-2 font-serif text-[1.65rem] font-bold leading-tight tracking-tight text-white">
           {t("pwa.questionTitle")}
         </h2>
-        <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.16em] text-white/45">
+        <p className="mt-1.5 text-sm leading-5 text-white/70">{t("pwa.outcome")}</p>
+        <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.16em] text-white/45">
           {t("pwa.worksFor")}
         </p>
 

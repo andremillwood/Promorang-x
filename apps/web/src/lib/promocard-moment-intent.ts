@@ -80,3 +80,22 @@ export function shouldHideMomentPrompt(pathname: string): boolean {
   const path = stripLocalePrefix(withoutQuery).toLowerCase();
   return HIDDEN_PROMPT_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
 }
+
+export function isRouteBootBlocking(root: ParentNode | null | undefined): boolean {
+  return Boolean(root?.querySelector("[data-route-boot]"));
+}
+
+export function shouldRevealMomentPrompt({
+  pathname,
+  standalone,
+  dismissed,
+  routeBooting,
+}: {
+  pathname: string;
+  standalone: boolean;
+  dismissed: boolean;
+  routeBooting: boolean;
+}): boolean {
+  if (standalone || dismissed || routeBooting) return false;
+  return !shouldHideMomentPrompt(pathname);
+}
