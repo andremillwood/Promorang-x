@@ -125,7 +125,7 @@ export function PWAInstallPrompt() {
           {t("pwa.worksFor")}
         </p>
 
-        <div className="mt-2.5 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <div className="mt-2.5 flex flex-wrap gap-2">
           {INTENT_CHIPS.map(({ id, labelKey, Icon, chip }) => {
             const selected = selectedIntent === id;
             return (
