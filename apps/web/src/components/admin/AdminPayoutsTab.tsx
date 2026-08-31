@@ -1,6 +1,16 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
+
+const PAYOUT_STATUS_LABEL: Record<string, TranslationKey> = {
+    pending: "payQ.stPending",
+    processing: "payQ.stProcessing",
+    completed: "payQ.stCompleted",
+    rejected: "payQ.stRejected",
+    all: "payQ.stAll",
+};
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -57,6 +67,7 @@ interface MomentManualPayout {
 }
 
 export const AdminPayoutsTab = () => {
+    const { t, formatDate, formatNumber } = useI18n();
     const { session } = useAuth();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
@@ -82,7 +93,7 @@ export const AdminPayoutsTab = () => {
             }
         } catch (error) {
             console.error("Error fetching admin requests:", error);
-            toast({ title: "Error", description: "Failed to load withdrawal requests.", variant: "destructive" });
+            toast({ title: t("payQ.toastLoad"), variant: "destructive" });
         } finally {
             setIsLoading(false);
         }
@@ -120,7 +131,7 @@ export const AdminPayoutsTab = () => {
             });
 
             if (res.ok) {
-                toast({ title: "Updated", description: `Request ${status} successfully.` });
+                toast({ title: t("payQ.toastUpdated", { status }) });
                 fetchRequests();
             } else {
                 const err = await res.json();
@@ -149,7 +160,7 @@ export const AdminPayoutsTab = () => {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data?.error || "Failed to mark payout paid");
-            toast({ title: "Moment payout marked paid", description: "Ledger-linked payout has been completed." });
+            toast({ title: t("payQ.toastPaid"), description: t("payQ.toastPaidBody") });
             fetchMomentPayouts();
         } catch (error: any) {
             toast({ title: "Payout Error", description: error.message, variant: "destructive" });
@@ -171,7 +182,7 @@ export const AdminPayoutsTab = () => {
             const data = await res.json();
             if (!res.ok) throw new Error(data?.error || "Automated payout failed");
             toast({
-                title: data.paid ? "Automated payout sent" : "Manual payout required",
+                title: data.paid ? t("payQ.toastAuto") : t("payQ.toastManual"),
                 description: data.paid ? `Stripe transfer ${data.transfer?.transferId}` : data.reason,
             });
             fetchMomentPayouts();
@@ -191,10 +202,10 @@ export const AdminPayoutsTab = () => {
 
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case 'completed': return <Badge className="bg-emerald-500/10 text-emerald-500 border-none gap-1"><CheckCircle2 className="w-3 h-3" /> Completed</Badge>;
-            case 'pending': return <Badge variant="secondary" className="gap-1 animate-pulse"><Clock className="w-3 h-3" /> Pending</Badge>;
-            case 'processing': return <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-none gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Processing</Badge>;
-            case 'rejected': return <Badge variant="destructive" className="gap-1"><AlertCircle className="w-3 h-3" /> Rejected</Badge>;
+            case 'completed': return <Badge className="bg-emerald-500/10 text-emerald-500 border-none gap-1"><CheckCircle2 className="w-3 h-3" /> {t("payQ.stCompleted")}</Badge>;
+            case 'pending': return <Badge variant="secondary" className="gap-1 animate-pulse"><Clock className="w-3 h-3" /> {t("payQ.stPending")}</Badge>;
+            case 'processing': return <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-none gap-1"><Loader2 className="w-3 h-3 animate-spin" /> {t("payQ.stProcessing")}</Badge>;
+            case 'rejected': return <Badge variant="destructive" className="gap-1"><AlertCircle className="w-3 h-3" /> {t("payQ.stRejected")}</Badge>;
             default: return <Badge variant="outline">{status}</Badge>;
         }
     };
@@ -203,19 +214,19 @@ export const AdminPayoutsTab = () => {
         <div className="space-y-6">
             <Card className="border-primary/20">
                 <CardHeader>
-                    <CardTitle>Moment Payout Queue</CardTitle>
-                    <CardDescription>Manual fallback payouts queued from verified Move proofs. Pay within 24 hours.</CardDescription>
+                    <CardTitle>{t("payQ.momentTitle")}</CardTitle>
+                    <CardDescription>{t("payQ.momentCopy")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                     {momentPayouts.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">No Moment payouts queued.</p>
+                        <p className="text-sm text-muted-foreground">{t("payQ.emptyMom")}</p>
                     ) : (
                         momentPayouts.map((payout) => (
                             <div key={payout.id} className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <p className="font-semibold">{payout.moment?.title || "Moment payout"}</p>
+                                    <p className="font-semibold">{payout.moment?.title || t("payQ.fallbackMom")}</p>
                                     <p className="text-sm text-muted-foreground">
-                                        JMD {Number(payout.amount_jmd || 0).toLocaleString()} due {new Date(payout.due_at).toLocaleString()}
+                                        {t("payQ.due", { amount: formatNumber(Number(payout.amount_jmd || 0)), when: formatDate(payout.due_at) })}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -226,14 +237,14 @@ export const AdminPayoutsTab = () => {
                                         disabled={isUpdating === payout.id}
                                         onClick={() => handleAttemptAutomatedMomentPayout(payout.id)}
                                     >
-                                        Try Stripe
+                                        {t("payQ.tryStripe")}
                                     </Button>
                                     <Button
                                         size="sm"
                                         disabled={isUpdating === payout.id}
                                         onClick={() => handleMarkMomentPayoutPaid(payout.id)}
                                     >
-                                        {isUpdating === payout.id ? <Loader2 className="w-4 h-4 animate-spin" /> : "Mark Paid"}
+                                        {isUpdating === payout.id ? <Loader2 className="w-4 h-4 animate-spin" /> : t("payQ.markPaid")}
                                     </Button>
                                 </div>
                             </div>
@@ -246,7 +257,7 @@ export const AdminPayoutsTab = () => {
                 <div className="relative flex-1 max-w-md">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input 
-                        placeholder="Search by vendor email or method..." 
+                        placeholder={t("payQ.search")} 
                         className="pl-9"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -260,10 +271,10 @@ export const AdminPayoutsTab = () => {
                             key={status}
                             variant={filterStatus === status ? "secondary" : "ghost"} 
                             size="sm"
-                            className="snap-start capitalize"
+                            className="snap-start"
                             onClick={() => setFilterStatus(status)}
                         >
-                            {status}
+                            {t(PAYOUT_STATUS_LABEL[status])}
                         </Button>
                     ))}
                     </div>
@@ -274,12 +285,12 @@ export const AdminPayoutsTab = () => {
                 {isLoading ? (
                     <div className="py-20 text-center flex flex-col items-center gap-4">
                         <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                        <p className="text-muted-foreground">Fetching withdrawal queue...</p>
+                        <p className="text-muted-foreground">{t("payQ.loading")}</p>
                     </div>
                 ) : filteredRequests.length === 0 ? (
                     <div className="py-20 text-center bg-muted/20 border border-dashed border-border rounded-xl">
                         <AlertCircle className="w-10 h-10 text-muted-foreground mx-auto mb-4 opacity-20" />
-                        <p className="text-muted-foreground">No withdrawal requests found matching your criteria.</p>
+                        <p className="text-muted-foreground">{t("payQ.empty")}</p>
                     </div>
                 ) : (
                     filteredRequests.map((req) => (
@@ -293,13 +304,13 @@ export const AdminPayoutsTab = () => {
                                         </div>
                                         <div>
                                             <h4 className="font-bold truncate text-sm">{req.user?.email}</h4>
-                                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{req.user?.raw_user_meta_data?.full_name || "Vendor"}</p>
+                                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{req.user?.raw_user_meta_data?.full_name || t("payQ.vendor")}</p>
                                         </div>
                                     </div>
                                     <div className="space-y-4">
                                         <div>
-                                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Requested Amount</p>
-                                            <p className="text-3xl font-black text-foreground">${req.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">{t("payQ.requested")}</p>
+                                            <p className="text-3xl font-black text-foreground">${formatNumber(req.amount, { minimumFractionDigits: 2 })}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             {getStatusBadge(req.status)}
@@ -313,7 +324,7 @@ export const AdminPayoutsTab = () => {
                                     <div className="flex items-center justify-between">
                                         <h5 className="text-xs font-bold uppercase tracking-widest flex items-center gap-2 opacity-60">
                                             <ArrowDownLeft className="w-3 h-3" />
-                                            Payout Information
+                                            {t("payQ.info")}
                                         </h5>
                                         <Badge variant="secondary" className="capitalize">{req.payout_method.method_type.replace('_', ' ')}</Badge>
                                     </div>
@@ -329,7 +340,7 @@ export const AdminPayoutsTab = () => {
 
                                     {req.admin_note && (
                                         <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/10">
-                                            <p className="text-[10px] text-primary/60 uppercase font-bold mb-1">Internal Note</p>
+                                            <p className="text-[10px] text-primary/60 uppercase font-bold mb-1">{t("payQ.note")}</p>
                                             <p className="text-xs italic text-primary/80">{req.admin_note}</p>
                                         </div>
                                     )}
@@ -340,7 +351,7 @@ export const AdminPayoutsTab = () => {
                                         {isUpdating === req.id ? (
                                             <div className="flex flex-col items-center justify-center gap-2">
                                                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                                                <p className="text-[10px] font-bold text-primary animate-pulse">Syncing platform ledger...</p>
+                                                <p className="text-[10px] font-bold text-primary animate-pulse">{t("payQ.syncing")}</p>
                                             </div>
                                         ) : (
                                             <>
@@ -351,7 +362,7 @@ export const AdminPayoutsTab = () => {
                                                         className="w-full gap-2 hover:bg-blue-500/10 hover:text-blue-500 transition-colors"
                                                         onClick={() => handleUpdateStatus(req.id, 'processing', "Finance team has initiated processing.")}
                                                     >
-                                                        Mark Processing
+                                                        {t("payQ.processing")}
                                                     </Button>
                                                 )}
                                                 
@@ -365,7 +376,7 @@ export const AdminPayoutsTab = () => {
                                                                 handleUpdateStatus(req.id, 'completed', note || "Manual payout successfully completed.");
                                                             }}
                                                         >
-                                                            <CheckCircle2 className="w-4 h-4" /> Approve & Fulfill
+                                                            <CheckCircle2 className="w-4 h-4" /> {t("payQ.approve")}
                                                         </Button>
                                                         <Button 
                                                             variant="ghost" 
@@ -376,15 +387,15 @@ export const AdminPayoutsTab = () => {
                                                                 if (reason) handleUpdateStatus(req.id, 'rejected', reason);
                                                             }}
                                                         >
-                                                            <AlertCircle className="w-4 h-4 mr-2" /> Reject
+                                                            <AlertCircle className="w-4 h-4 mr-2" /> {t("payQ.reject")}
                                                         </Button>
                                                     </>
                                                 )}
                                                 
                                                 {req.status === 'completed' && (
                                                     <div className="text-center">
-                                                        <p className="text-[10px] text-emerald-500 font-black uppercase mb-1">Fulfilled</p>
-                                                        <p className="text-[9px] text-muted-foreground">{new Date(req.created_at).toLocaleDateString()}</p>
+                                                        <p className="text-[10px] text-emerald-500 font-black uppercase mb-1">{t("payQ.fulfilled")}</p>
+                                                        <p className="text-[9px] text-muted-foreground">{formatDate(req.created_at)}</p>
                                                     </div>
                                                 )}
                                             </>

@@ -19,6 +19,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://api.promorang.co";
 
@@ -47,30 +49,35 @@ type EditState = {
 const catalogMeta = {
   brands: {
     title: "Brands",
+    titleKey: "catCtrl.brands" as const,
     description: "Brand workspaces, ownership, verification, and platform standing.",
     icon: Building2,
   },
   venues: {
     title: "Venues",
+    titleKey: "catCtrl.venues" as const,
     description: "Public places, business pages, and hosting infrastructure.",
     icon: Store,
   },
   products: {
     title: "Products",
+    titleKey: "catCtrl.products" as const,
     description: "Merchant marketplace listings, services, and redeemable inventory.",
     icon: Package,
   },
   offers: {
     title: "Offers",
+    titleKey: "catCtrl.offers" as const,
     description: "Unified offer inventory, reward distribution, and claimable value.",
     icon: Tag,
   },
   campaigns: {
     title: "Campaigns",
+    titleKey: "catCtrl.campaigns" as const,
     description: "Brand-funded campaigns, targeting, rewards, and lifecycle state.",
     icon: Megaphone,
   },
-} satisfies Record<CatalogType, { title: string; description: string; icon: typeof Store }>;
+} satisfies Record<CatalogType, { title: string; titleKey: TranslationKey; description: string; icon: typeof Store }>;
 
 async function adminRequest<T>(path: string, token?: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API_URL}/api/admin${path}`, {
@@ -198,6 +205,7 @@ function parseCatalogValue(field: string, value: string) {
 }
 
 export function AdminCatalogTab() {
+  const { t } = useI18n();
   const { session, roles } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -375,18 +383,18 @@ export function AdminCatalogTab() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Catalog Control</h2>
-          <p className="text-sm text-muted-foreground">Moderate public catalog objects that shape discovery, claims, and commerce.</p>
+          <h2 className="text-2xl font-bold">{t("catCtrl.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("catCtrl.copy")}</p>
         </div>
         <div className="flex w-full gap-2 sm:max-w-lg">
           <div className="relative min-w-0 flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search catalog..." className="pl-10" />
+            <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t("catCtrl.search")} className="pl-10" />
           </div>
           {canManage && (
             <Button onClick={openCreate}>
               <Plus className="mr-2 h-4 w-4" />
-              Create
+              {t("catCtrl.create")}
             </Button>
           )}
         </div>
@@ -399,7 +407,7 @@ export function AdminCatalogTab() {
             return (
               <TabsTrigger key={key} value={key} className="gap-2">
                 <Icon className="h-4 w-4" />
-                {catalogMeta[key].title}
+                {t(catalogMeta[key].titleKey)}
               </TabsTrigger>
             );
           })}
@@ -410,19 +418,19 @@ export function AdminCatalogTab() {
             <div className="grid gap-3 sm:grid-cols-3">
               <Card>
                 <CardContent className="p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Loaded</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("catCtrl.loaded")}</p>
                   <p className="mt-2 text-2xl font-black">{rows.length}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Active</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("catCtrl.active")}</p>
                   <p className="mt-2 text-2xl font-black text-emerald-600">{activeCount}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Paused / Draft</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("catCtrl.paused")}</p>
                   <p className="mt-2 text-2xl font-black text-amber-600">{pausedCount}</p>
                 </CardContent>
               </Card>
@@ -434,7 +442,7 @@ export function AdminCatalogTab() {
               </div>
             ) : rows.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
-                No {catalogMeta[key].title.toLowerCase()} matched.
+                {t("catCtrl.empty", { type: t(catalogMeta[key].titleKey) })}
               </div>
             ) : (
               <div className="grid gap-4 lg:grid-cols-2">
@@ -451,7 +459,7 @@ export function AdminCatalogTab() {
                               <span className="truncate">{titleFor(item)}</span>
                             </CardTitle>
                             <CardDescription className="mt-1 line-clamp-2">
-                              {item.description || item.address || item.category || item.reward_type || "No description"}
+                              {item.description || item.address || item.category || item.reward_type || t("catCtrl.noDesc")}
                             </CardDescription>
                           </div>
                           <Badge variant="outline" className={statusClass(state)}>{state}</Badge>
@@ -460,12 +468,12 @@ export function AdminCatalogTab() {
                       <CardContent className="space-y-4">
                         <div className="grid grid-cols-2 gap-3 text-sm text-muted-foreground">
                           <div className="rounded-lg border border-border p-3">
-                            <p className="text-xs uppercase tracking-wider">Type</p>
+                            <p className="text-xs uppercase tracking-wider">{t("catCtrl.type")}</p>
                             <p className="mt-1 font-medium text-foreground">{item.category || item.reward_type || key}</p>
                           </div>
                           <div className="rounded-lg border border-border p-3">
-                            <p className="text-xs uppercase tracking-wider">Owner</p>
-                            <p className="mt-1 truncate font-mono text-xs text-foreground">{item.owner_id || item.merchant_id || item.owner_user_id || item.brand_id || "none"}</p>
+                            <p className="text-xs uppercase tracking-wider">{t("catCtrl.owner")}</p>
+                            <p className="mt-1 truncate font-mono text-xs text-foreground">{item.owner_id || item.merchant_id || item.owner_user_id || item.brand_id || t("catCtrl.none")}</p>
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-2">

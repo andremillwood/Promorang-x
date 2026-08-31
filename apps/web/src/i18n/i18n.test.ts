@@ -286,6 +286,9 @@ describe("localization", () => {
       "intelBur.library",
       "cmdCtr.sync",
       "cmdCtr.resolve",
+      "growTab.title",
+      "catCtrl.title",
+      "payQ.markPaid",
     ] as const;
 
     supportedLocales.forEach((locale) => {
