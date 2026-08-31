@@ -162,6 +162,8 @@ describe("localization", () => {
       "launchRes.usePlaybook",
       "sponsorDash.title",
       "sponsorDash.create",
+      "sponsorAn.title",
+      "sponsorAn.emptyCta",
     ] as const;
 
     supportedLocales.forEach((locale) => {
