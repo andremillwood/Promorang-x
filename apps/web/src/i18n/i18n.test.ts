@@ -281,6 +281,11 @@ describe("localization", () => {
       "adminDesk.iCommand",
       "o2oAn.title",
       "brandEst.continue",
+      "verifyHub.title",
+      "verifyHub.approve",
+      "intelBur.library",
+      "cmdCtr.sync",
+      "cmdCtr.resolve",
     ] as const;
 
     supportedLocales.forEach((locale) => {

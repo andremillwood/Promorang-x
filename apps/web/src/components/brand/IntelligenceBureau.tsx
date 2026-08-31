@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useI18n } from "@/i18n/I18nContext";
 
 const mockChartData = [
   { name: 'Mon', value: 400 },
@@ -34,6 +35,7 @@ const mockChartData = [
 ];
 
 export const IntelligenceBureau = () => {
+    const { t } = useI18n();
     // Fetch all active moments to simulate Ad Library
     const { data: globalMoments, isLoading: libraryLoading } = useQuery({
         queryKey: ["global-moments-library"],
@@ -57,19 +59,19 @@ export const IntelligenceBureau = () => {
                     <div>
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-primary text-[10px] font-black uppercase tracking-widest mb-4">
                             <ShieldCheck className="w-3.5 h-3.5" />
-                            Verified Intelligence
+                            {t("intelBur.badge")}
                         </div>
-                        <h2 className="font-serif text-4xl font-bold tracking-tight">The <span className="italic text-primary">Intelligence</span> Bureau</h2>
+                        <h2 className="font-serif text-4xl font-bold tracking-tight">{t("intelBur.the")} <span className="italic text-primary">{t("intelBur.intel")}</span> {t("intelBur.bureau")}</h2>
                         <p className="text-white/60 text-lg mt-2 max-w-xl">
-                            Real-time platform activity, competitive benchmarking, and behavioral ROI command.
+                            {t("intelBur.copy")}
                         </p>
                     </div>
                     <div className="flex gap-3">
                         <Button variant="outline" className="border-white/10 hover:bg-white/5 text-white font-bold h-12 rounded-2xl">
-                            <LayoutGrid className="w-4 h-4 mr-2" /> Export Intel
+                            <LayoutGrid className="w-4 h-4 mr-2" /> {t("intelBur.export")}
                         </Button>
                         <Button variant="hero" className="h-12 rounded-2xl shadow-glow">
-                            <Target className="w-4 h-4 mr-2" /> Optimize Bidding
+                            <Target className="w-4 h-4 mr-2" /> {t("intelBur.optimize")}
                         </Button>
                     </div>
                 </div>
@@ -82,7 +84,7 @@ export const IntelligenceBureau = () => {
                         <CardHeader className="bg-muted/30 border-b border-border/40 p-6">
                             <CardTitle className="text-sm font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                                 <TrendingUp className="w-4 h-4 text-emerald-500" />
-                                Proof-of-Action ROI
+                                {t("intelBur.roi")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-8 space-y-8">
@@ -90,23 +92,23 @@ export const IntelligenceBureau = () => {
                                 <div className="flex justify-between items-end mb-4">
                                     <p className="text-4xl font-black text-foreground">$12.40</p>
                                     <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 mb-2">
-                                        <ArrowUpRight className="w-3 h-3 mr-1" /> 14% yield
+                                        <ArrowUpRight className="w-3 h-3 mr-1" /> {t("intelBur.yield")}
                                     </Badge>
                                 </div>
-                                <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Avg. Cost Per Verified Action (CPVA)</p>
+                                <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">{t("intelBur.cpva")}</p>
                             </div>
 
                             <div className="space-y-6">
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-                                        <span>Photo Verifications</span>
+                                        <span>{t("intelBur.photos")}</span>
                                         <span className="text-primary">82%</span>
                                     </div>
                                     <Progress value={82} className="h-2" />
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-                                        <span>Venue Check-ins</span>
+                                        <span>{t("intelBur.checkins")}</span>
                                         <span className="text-accent">64%</span>
                                     </div>
                                     <Progress value={64} className="h-2 bg-accent/10" />
@@ -119,7 +121,7 @@ export const IntelligenceBureau = () => {
                         <CardHeader className="p-6">
                             <CardTitle className="text-sm font-black uppercase tracking-widest text-white/40 flex items-center gap-2">
                                 <Flame className="w-4 h-4 text-primary" />
-                                Niche Velocity
+                                {t("intelBur.velocity")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 h-[200px]">
@@ -142,15 +144,15 @@ export const IntelligenceBureau = () => {
                 <div className="lg:col-span-8 space-y-6">
                     <div className="flex items-center justify-between">
                         <h3 className="font-serif text-2xl font-bold flex items-center gap-3">
-                            The Moment Library
-                            <Badge variant="outline" className="rounded-full bg-primary/5 text-primary border-primary/20">Live</Badge>
+                            {t("intelBur.library")}
+                            <Badge variant="outline" className="rounded-full bg-primary/5 text-primary border-primary/20">{t("intelBur.live")}</Badge>
                         </h3>
                         <div className="flex gap-2">
                             <div className="relative group">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                                 <input 
                                     className="bg-card border border-border/60 rounded-xl h-10 pl-10 pr-4 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary w-48 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
-                                    placeholder="Search moments..."
+                                    placeholder={t("intelBur.search")}
                                 />
                             </div>
                             <Button variant="outline" size="icon" className="rounded-xl h-10 w-10 border-border/60">
@@ -183,23 +185,23 @@ export const IntelligenceBureau = () => {
                                             {moment.category}
                                         </Badge>
                                         <Badge className="bg-primary/80 backdrop-blur-md text-white border-none uppercase tracking-widest text-[9px] font-black">
-                                            Active Intel
+                                            {t("intelBur.activeIntel")}
                                         </Badge>
                                     </div>
 
                                     <div className="absolute bottom-0 left-0 p-6 w-full">
-                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 mb-1">Current Momentum</p>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 mb-1">{t("intelBur.momentum")}</p>
                                         <h4 className="font-serif text-xl font-bold text-white mb-4 line-clamp-1">{moment.title}</h4>
                                         
                                         <div className="grid grid-cols-2 gap-3 pb-2 border-t border-white/10 pt-4">
                                             <div>
-                                                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Host Impact</p>
-                                                <p className="text-xs font-bold text-white">{(moment as any).host_profile?.full_name || "Unknown Mayor"}</p>
+                                                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">{t("intelBur.hostImpact")}</p>
+                                                <p className="text-xs font-bold text-white">{(moment as any).host_profile?.full_name || t("intelBur.unknownHost")}</p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Velocity</p>
+                                                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">{t("intelBur.velLabel")}</p>
                                                 <p className="text-xs font-bold text-primary flex items-center justify-end">
-                                                    <Zap className="w-3 h-3 mr-1 fill-primary" /> High
+                                                    <Zap className="w-3 h-3 mr-1 fill-primary" /> {t("intelBur.velHigh")}
                                                 </p>
                                             </div>
                                         </div>
@@ -208,7 +210,7 @@ export const IntelligenceBureau = () => {
                                     {/* Action Hover */}
                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[2px] bg-black/40">
                                         <Button variant="hero" className="rounded-2xl h-12 px-6 font-black uppercase tracking-widest text-xs">
-                                            View Performance Details
+                                            {t("intelBur.viewPerf")}
                                         </Button>
                                     </div>
                                 </div>
@@ -217,9 +219,9 @@ export const IntelligenceBureau = () => {
                     )}
 
                     <div className="p-8 bg-muted/50 border border-border border-dashed rounded-[2rem] text-center">
-                        <p className="text-muted-foreground text-sm font-medium mb-4">Want deeper intelligence on specific niches or competing campaigns?</p>
+                        <p className="text-muted-foreground text-sm font-medium mb-4">{t("intelBur.deeper")}</p>
                         <Button variant="outline" className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-10">
-                            Unlock Competitor Benchmarking
+                            {t("intelBur.unlock")}
                         </Button>
                     </div>
                 </div>
