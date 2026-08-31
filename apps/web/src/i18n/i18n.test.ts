@@ -179,6 +179,8 @@ describe("localization", () => {
       "kycAdmin.approve",
       "psAdmin.title",
       "psAdmin.createCycle",
+      "piecesAdmin.title",
+      "piecesAdmin.createPool",
     ] as const;
 
     supportedLocales.forEach((locale) => {
