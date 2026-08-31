@@ -173,6 +173,8 @@ describe("localization", () => {
       "brandCreate.launch",
       "pilotCompile.generate",
       "pilotCompile.savePlan",
+      "featAdmin.title",
+      "featAdmin.activate",
     ] as const;
 
     supportedLocales.forEach((locale) => {
