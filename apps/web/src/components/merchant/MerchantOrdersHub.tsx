@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 interface OrderItem {
   id: string;
@@ -40,8 +42,19 @@ export function MerchantOrdersHub({
   onOpenScanner?: () => void;
 }) {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const statusLabel = (status: OrderItem["status"]) => {
+    const keys: Record<OrderItem["status"], TranslationKey> = {
+      pending: "merchOrders.stPending",
+      preparing: "merchOrders.stPreparing",
+      ready: "merchOrders.stReady",
+      completed: "merchOrders.stCompleted",
+    };
+    return t(keys[status]);
+  };
 
   const [orders, setOrders] = useState<OrderItem[]>([
     {
@@ -109,8 +122,8 @@ export function MerchantOrdersHub({
       prev.map((ord) => (ord.id === orderId ? { ...ord, status: newStatus } : ord))
     );
     toast({
-      title: "Order Updated! ✅",
-      description: `Order marked as ${newStatus}. Customer notified.`,
+      title: t("merchOrders.updated"),
+      description: t("merchOrders.updatedCopy", { status: statusLabel(newStatus) }),
     });
   };
 
@@ -135,13 +148,13 @@ export function MerchantOrdersHub({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Order & Fulfillment Command</h2>
+              <h2 className="text-2xl font-black text-white">{t("merchOrders.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase">
-                {activeCount} Active in Queue
+                {t("merchOrders.active", { count: activeCount })}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Live pickup orders, Lynk payments, and member point redemptions.
+              {t("merchOrders.copy")}
             </p>
           </div>
         </div>
@@ -149,12 +162,12 @@ export function MerchantOrdersHub({
         {/* Rapid KPI Chips */}
         <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
           <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-            <p className="text-[10px] uppercase font-bold text-white/50">Today's Volume</p>
+            <p className="text-[10px] uppercase font-bold text-white/50">{t("merchOrders.volume")}</p>
             <p className="text-base font-black text-emerald-400">${totalVolume.toFixed(2)}</p>
           </div>
           <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-            <p className="text-[10px] uppercase font-bold text-white/50">Avg Handover</p>
-            <p className="text-base font-black text-white">4.8 mins</p>
+            <p className="text-[10px] uppercase font-bold text-white/50">{t("merchOrders.handover")}</p>
+            <p className="text-base font-black text-white">{t("merchOrders.handoverVal")}</p>
           </div>
         </div>
       </div>
@@ -163,11 +176,11 @@ export function MerchantOrdersHub({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {[
-            { value: "all", label: "All Orders" },
-            { value: "pending", label: "New / Pending" },
-            { value: "preparing", label: "Preparing" },
-            { value: "ready", label: "Ready for Pickup" },
-            { value: "completed", label: "Completed" },
+            { value: "all", label: t("merchOrders.all") },
+            { value: "pending", label: t("merchOrders.pending") },
+            { value: "preparing", label: t("merchOrders.preparing") },
+            { value: "ready", label: t("merchOrders.ready") },
+            { value: "completed", label: t("merchOrders.completed") },
           ].map((tab) => (
             <button
               key={tab.value}
@@ -188,7 +201,7 @@ export function MerchantOrdersHub({
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search order or customer..."
+            placeholder={t("merchOrders.search")}
             className="h-10 pl-9 rounded-2xl border-white/10 bg-white/5 text-white text-xs"
           />
         </div>
@@ -221,7 +234,7 @@ export function MerchantOrdersHub({
                     {order.isRepeat && (
                       <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[9px] font-extrabold flex items-center gap-1">
                         <Sparkles className="h-2.5 w-2.5" />
-                        Loyal Guest
+                        {t("merchOrders.loyal")}
                       </span>
                     )}
                   </div>
@@ -242,7 +255,7 @@ export function MerchantOrdersHub({
                       : "bg-white/20 text-white"
                   }`}
                 >
-                  {order.status}
+                  {statusLabel(order.status)}
                 </Badge>
               </div>
 
@@ -267,10 +280,12 @@ export function MerchantOrdersHub({
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-mono uppercase text-white/70">
                     {order.paymentMethod === "lynk"
-                      ? "Lynk Paid"
+                      ? t("merchOrders.lynk")
                       : order.paymentMethod === "points"
-                      ? "Points"
-                      : "Card"}
+                      ? t("merchOrders.points")
+                      : order.paymentMethod === "cash"
+                      ? t("merchOrders.cash")
+                      : t("merchOrders.card")}
                   </span>
                   <span className="font-black text-sm text-emerald-400">${order.total.toFixed(2)}</span>
                 </div>
@@ -283,7 +298,7 @@ export function MerchantOrdersHub({
                     onClick={() => updateOrderStatus(order.id, "preparing")}
                     className="w-full h-10 rounded-2xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs"
                   >
-                    Accept & Start Preparing
+                    {t("merchOrders.accept")}
                   </Button>
                 )}
                 {isPreparing && (
@@ -292,7 +307,7 @@ export function MerchantOrdersHub({
                     className="w-full h-10 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold text-xs"
                   >
                     <PackageCheck className="h-4 w-4 mr-1.5" />
-                    Mark Ready for Pickup
+                    {t("merchOrders.markReady")}
                   </Button>
                 )}
                 {isReady && (
@@ -301,14 +316,14 @@ export function MerchantOrdersHub({
                     className="w-full h-10 rounded-2xl bg-emerald-400 hover:bg-emerald-500 text-black font-extrabold text-xs"
                   >
                     <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                    Confirm Customer Handover
+                    {t("merchOrders.confirmHand")}
                   </Button>
                 )}
                 {isDone && (
                   <div className="text-center py-1">
                     <span className="text-[11px] text-emerald-400 font-bold flex items-center justify-center gap-1">
                       <CheckCircle2 className="h-3.5 w-3.5" />
-                      Handover Complete & Points Awarded
+                      {t("merchOrders.done")}
                     </span>
                   </div>
                 )}

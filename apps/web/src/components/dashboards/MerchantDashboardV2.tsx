@@ -22,6 +22,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/i18n/I18nContext";
 import { useMerchantVenues } from "@/hooks/useVenues";
 import { useMerchantEconomy } from "@/hooks/useStakeholderEconomy";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -42,6 +43,7 @@ import MerchantYieldAnalytics from "@/components/merchant/MerchantYieldAnalytics
 
 export function MerchantDashboardV2() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const { data: venues, isLoading: venuesLoading } = useMerchantVenues();
   const { data: stats, isLoading: statsLoading } = useMerchantEconomy();
   const { data: economy, isLoading: economyLoading } = useMerchantEconomy();
@@ -88,15 +90,15 @@ export function MerchantDashboardV2() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">
-                Merchant Command Station
+                {t("merchStation.title")}
               </h1>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-[10px] font-black uppercase tracking-wider">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Shift Live • {venueCount} {venueCount === 1 ? "Location" : "Locations"} Active</span>
+                <span>{venueCount === 1 ? t("merchStation.shiftOne", { count: venueCount }) : t("merchStation.shiftMany", { count: venueCount })}</span>
               </span>
             </div>
             <p className="text-xs text-white/60 mt-0.5">
-              Live foot traffic, point-of-sale scanner, inventory drops, and settlement runway.
+              {t("merchStation.copy")}
             </p>
           </div>
         </div>
@@ -108,7 +110,7 @@ export function MerchantDashboardV2() {
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 transition group"
           >
             <QrCode className="h-4 w-4 text-emerald-400 group-hover:scale-110 transition" />
-            <span className="text-xs font-black text-white">Scan Terminal</span>
+            <span className="text-xs font-black text-white">{t("merchStation.scan")}</span>
           </button>
 
           <Link
@@ -116,7 +118,7 @@ export function MerchantDashboardV2() {
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-white/10 bg-white/5 hover:border-emerald-400/40 hover:bg-white/10 transition"
           >
             <Gem className="h-4 w-4 text-emerald-400" />
-            <span className="text-xs font-black text-white">Node Vault</span>
+            <span className="text-xs font-black text-white">{t("merchStation.vault")}</span>
           </Link>
         </div>
       </div>
@@ -126,14 +128,14 @@ export function MerchantDashboardV2() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-black font-black text-[10px] uppercase tracking-wider">
-              Shift Roadmap
+              {t("merchStation.roadmap")}
             </span>
             <span className="font-bold text-white text-xs sm:text-sm">
-              Today's Operating Loop
+              {t("merchStation.loop")}
             </span>
           </div>
           <span className="text-[11px] text-white/50 font-medium">
-            Broadcast Perk &rarr; Verify Door &rarr; Settle Yield
+            {t("merchStation.loopSteps")}
           </span>
         </div>
 
@@ -145,8 +147,8 @@ export function MerchantDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">1</span>
               <div>
-                <p className="font-bold text-white text-xs">Launch Happy Hour Drop</p>
-                <p className="text-[10px] text-emerald-400 font-semibold">Attract nearby explorers</p>
+                <p className="font-bold text-white text-xs">{t("merchStation.step1")}</p>
+                <p className="text-[10px] text-emerald-400 font-semibold">{t("merchStation.step1Hint")}</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-emerald-400 transition" />
@@ -159,8 +161,8 @@ export function MerchantDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">2</span>
               <div>
-                <p className="font-bold text-white text-xs">Scan & Verify Door Passes</p>
-                <p className="text-[10px] text-amber-300 font-semibold">Credit proof & reward points</p>
+                <p className="font-bold text-white text-xs">{t("merchStation.step2")}</p>
+                <p className="text-[10px] text-amber-300 font-semibold">{t("merchStation.step2Hint")}</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-emerald-400 transition" />
@@ -173,8 +175,8 @@ export function MerchantDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">3</span>
               <div>
-                <p className="font-bold text-white text-xs">Review Node Yield & Settlement</p>
-                <p className="text-[10px] text-teal-300 font-semibold">Disburse Lynk / Bank payout</p>
+                <p className="font-bold text-white text-xs">{t("merchStation.step3")}</p>
+                <p className="text-[10px] text-teal-300 font-semibold">{t("merchStation.step3Hint")}</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-emerald-400 transition" />
@@ -185,11 +187,11 @@ export function MerchantDashboardV2() {
       {/* 3. The 4 Operational Console Navigation Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
-          { id: "storefront", label: "Storefront & Drops", icon: Store, hint: "Catalog & perks", count: "Live" },
-          { id: "redemptions", label: "POS Scanner", icon: QrCode, hint: "Door verification", count: "Active" },
-          { id: "commerce", label: "Orders & Fulfillment", icon: ShoppingBag, hint: "Pickups & tickets", count: "4 Open" },
-          { id: "venues", label: "Venue Studio", icon: MapPin, hint: "Spaces & moments", count: `${venueCount} Places` },
-          { id: "analytics", label: "Yield & Analytics", icon: BarChart3, hint: "GMV & Node APY", count: "12.5%" },
+          { id: "storefront", label: t("merchStation.tabStore"), icon: Store, hint: t("merchStation.tabStoreHint"), count: t("merchStation.tabStoreCount") },
+          { id: "redemptions", label: t("merchStation.tabScan"), icon: QrCode, hint: t("merchStation.tabScanHint"), count: t("merchStation.tabScanCount") },
+          { id: "commerce", label: t("merchStation.tabOrders"), icon: ShoppingBag, hint: t("merchStation.tabOrdersHint"), count: t("merchStation.tabOrdersCount") },
+          { id: "venues", label: t("merchStation.tabVenues"), icon: MapPin, hint: t("merchStation.tabVenuesHint"), count: t("merchStation.tabVenuesCount", { count: venueCount }) },
+          { id: "analytics", label: t("merchStation.tabPayout"), icon: BarChart3, hint: t("merchStation.tabPayoutHint"), count: t("merchStation.tabPayoutCount") },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -227,11 +229,11 @@ export function MerchantDashboardV2() {
         <div className="min-w-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <TabsList className="sr-only">
-              <TabsTrigger value="storefront">Storefront</TabsTrigger>
-              <TabsTrigger value="redemptions">Scanner</TabsTrigger>
-              <TabsTrigger value="commerce">Orders</TabsTrigger>
-              <TabsTrigger value="venues">Venues</TabsTrigger>
-              <TabsTrigger value="analytics">Yield</TabsTrigger>
+              <TabsTrigger value="storefront">{t("merchStation.srStore")}</TabsTrigger>
+              <TabsTrigger value="redemptions">{t("merchStation.srScan")}</TabsTrigger>
+              <TabsTrigger value="commerce">{t("merchStation.srOrders")}</TabsTrigger>
+              <TabsTrigger value="venues">{t("merchStation.srVenues")}</TabsTrigger>
+              <TabsTrigger value="analytics">{t("merchStation.srPayout")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="storefront" className="mt-0">

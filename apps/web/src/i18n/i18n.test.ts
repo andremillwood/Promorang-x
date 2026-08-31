@@ -203,6 +203,12 @@ describe("localization", () => {
       "merchOps.validate",
       "merchOps.fulfill",
       "merchOps.confirmMoney",
+      "merchScan.verify",
+      "merchScan.approved",
+      "merchOrders.accept",
+      "merchOrders.markReady",
+      "merchStation.title",
+      "merchStation.vault",
     ] as const;
 
     supportedLocales.forEach((locale) => {
