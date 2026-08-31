@@ -224,6 +224,10 @@ describe("localization", () => {
       "brandOpp.title",
       "radarBoard.title",
       "radarBoard.discoveries",
+      "hostFind.title",
+      "hostFind.sponsor",
+      "crePub.publish",
+      "crePub.published",
     ] as const;
 
     supportedLocales.forEach((locale) => {

@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { MediaGalleryUpload, type GalleryImage } from "@/components/MediaGalleryUpload";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 import { Film, ImagePlus, Link2, Loader2, Upload, ArrowRight, Eye, ShieldCheck, Gift } from "lucide-react";
 import { cultureImages } from "@/data/culture-demo";
 
@@ -22,6 +23,7 @@ type CreatorMissionPublisherProps = {
 export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisherProps) {
   const { session } = useAuth();
   const { toast } = useToast();
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [platform, setPlatform] = useState("youtube");
   const [title, setTitle] = useState("");
@@ -62,8 +64,8 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
     },
     onSuccess: (content) => {
       toast({
-        title: "Content published",
-        description: "Your story can stand alone, launch a moment, or become a mission when you are ready.",
+        title: t("crePub.published"),
+        description: t("crePub.publishedCopy"),
       });
       setTitle("");
       setDescription("");
@@ -81,7 +83,7 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
     },
     onError: (error: Error) => {
       toast({
-        title: "Publish failed",
+        title: t("crePub.publishFail"),
         description: error.message,
         variant: "destructive",
       });
@@ -128,12 +130,12 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
       if (target === "banner") setBannerImageUrl(imageUrl || "");
       else setMediaUrl(imageUrl || "");
       toast({
-        title: "Image uploaded",
-        description: target === "banner" ? "Your mission banner image is ready." : "Your content preview image is ready.",
+        title: t("crePub.imgOk"),
+        description: target === "banner" ? t("crePub.bannerReady") : t("crePub.previewReady"),
       });
     } catch (error) {
       toast({
-        title: "Image upload failed",
+        title: t("crePub.imgFail"),
         description: error instanceof Error ? error.message : "Failed to upload image",
         variant: "destructive",
       });
@@ -154,7 +156,7 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
       ]);
     } catch (error) {
       toast({
-        title: "Gallery upload failed",
+        title: t("crePub.galleryFail"),
         description: error instanceof Error ? error.message : "Failed to upload gallery images",
         variant: "destructive",
       });
@@ -166,10 +168,10 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
   return (
     <section className="space-y-8">
       <div className="max-w-3xl">
-        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Shape the story</p>
-        <h3 className="mt-3 font-serif text-4xl font-semibold leading-[0.98] tracking-[-0.04em] text-foreground sm:text-5xl">Give people something worth following somewhere.</h3>
+        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("crePub.eyebrow")}</p>
+        <h3 className="mt-3 font-serif text-4xl font-semibold leading-[0.98] tracking-[-0.04em] text-foreground sm:text-5xl">{t("crePub.title")}</h3>
         <p className="mt-4 text-sm leading-7 text-muted-foreground">
-          Start with the story itself. It can live on its own, launch a release moment, support an existing gathering, or become a mission that moves people into the world.
+          {t("crePub.copy")}
         </p>
       </div>
 
@@ -177,23 +179,23 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
         <div className="overflow-hidden rounded-[2rem] border border-border/60 bg-card/55">
           <div className="space-y-6 p-6 sm:p-8">
             <div className="space-y-2">
-              <Label>What is the story called?</Label>
-              <Input className="h-12 rounded-xl" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Sydney Secret: The Hidden Roast Route" />
+              <Label>{t("crePub.storyName")}</Label>
+              <Input className="h-12 rounded-xl" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t("crePub.storyPh")} />
             </div>
 
             <div className="space-y-2">
-              <Label>Why should someone care?</Label>
+              <Label>{t("crePub.why")}</Label>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="rounded-xl"
-                placeholder="Share the point of view, invitation, or feeling at the heart of this story."
+                placeholder={t("crePub.whyPh")}
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Where does it live?</Label>
+              <Label>{t("crePub.whereLives")}</Label>
               <div className="flex flex-wrap gap-2">
                 {platformOptions.map((option) => (
                   <button
@@ -213,16 +215,16 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
             </div>
 
             <div className="space-y-2">
-              <Label>Where can people experience it?</Label>
+              <Label>{t("crePub.whereExp")}</Label>
               <Input className="h-12 rounded-xl" value={platformUrl} onChange={(e) => setPlatformUrl(e.target.value)} placeholder="https://youtube.com/watch?v=..." />
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-3">
-                <Label>The image people meet first</Label>
+                <Label>{t("crePub.firstImage")}</Label>
                 <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
                   <Upload className="h-3.5 w-3.5" />
-                  Upload Image
+                  {t("crePub.uploadImage")}
                   <input type="file" accept="image/*" className="hidden" onChange={(event) => handleImageUpload(event, "thumbnail")} />
                 </label>
               </div>
@@ -231,23 +233,23 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
                 {uploadingImage ? (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Uploading preview image...
+                    {t("crePub.uploading")}
                   </div>
                 ) : mediaUrl ? (
                   <div className="space-y-3">
                     <img
                       src={mediaUrl}
-                      alt="Content preview"
+                      alt={t("crePub.previewAlt")}
                       className="h-40 w-full rounded-xl object-cover"
                     />
                     <p className="text-xs text-muted-foreground">
-                      This image will be used as the mission preview in discovery and creator surfaces.
+                      {t("crePub.previewHint")}
                     </p>
                   </div>
                 ) : (
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <ImagePlus className="h-4 w-4 text-primary" />
-                    Add a preview image by URL or upload to make the story more legible in feeds and missions.
+                    {t("crePub.addPreview")}
                   </div>
                 )}
               </div>
@@ -255,21 +257,21 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
 
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-3">
-                <Label>A wider image for the invitation</Label>
+                <Label>{t("crePub.wider")}</Label>
                 <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
                   <Upload className="h-3.5 w-3.5" />
-                  Upload Banner
+                  {t("crePub.uploadBanner")}
                   <input type="file" accept="image/*" className="hidden" onChange={(event) => handleImageUpload(event, "banner")} />
                 </label>
               </div>
               <Input value={bannerImageUrl} onChange={(e) => setBannerImageUrl(e.target.value)} placeholder="https://..." />
               {bannerImageUrl ? (
-                <img src={bannerImageUrl} alt="Mission banner preview" className="h-32 w-full rounded-xl object-cover" />
+                <img src={bannerImageUrl} alt={t("crePub.bannerAlt")} className="h-32 w-full rounded-xl object-cover" />
               ) : null}
             </div>
 
             <div className="space-y-2">
-              <Label>More of the story</Label>
+              <Label>{t("crePub.moreStory")}</Label>
               <MediaGalleryUpload
                 value={galleryImages}
                 onChange={setGalleryImages}
@@ -284,7 +286,7 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
               disabled={!publisherReady || createContent.isPending || uploadingImage}
             >
               {createContent.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Film className="mr-2 h-4 w-4" />}
-              Publish story <ArrowRight className="ml-2 h-4 w-4" />
+              {t("crePub.publish")} <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -295,22 +297,22 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-5 text-white">
               <Badge className="mb-3 bg-orange-500 text-black">{platform}</Badge>
-              <h4 className="font-serif text-3xl font-semibold leading-tight">{title || "Your story appears here"}</h4>
-              <p className="mt-2 line-clamp-2 text-sm text-white/60">{description || "Add the promise, point of view, or invitation that gives people a reason to care."}</p>
+              <h4 className="font-serif text-3xl font-semibold leading-tight">{title || t("crePub.appears")}</h4>
+              <p className="mt-2 line-clamp-2 text-sm text-white/60">{description || t("crePub.promisePh")}</p>
             </div>
           </div>
           <div className="p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3">
-              <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">How people will meet it</p><p className="mt-1 text-sm text-white/50">{publisherReady ? "Ready to publish, then connect to a Moment or mission." : "Add a title and destination to continue."}</p></div>
+              <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">{t("crePub.howMeet")}</p><p className="mt-1 text-sm text-white/50">{publisherReady ? t("crePub.ready") : t("crePub.needTitle")}</p></div>
               <Eye className="h-5 w-5 text-orange-400" />
             </div>
             <div className="mt-6 grid grid-cols-5 gap-1">
               {[
-                { label: "Story", icon: Film },
-                { label: "Audience", icon: Eye },
-                { label: "Action", icon: ArrowRight },
-                { label: "Proof", icon: ShieldCheck },
-                { label: "Unlock", icon: Gift },
+                { label: t("crePub.stageStory"), icon: Film },
+                { label: t("crePub.stageAud"), icon: Eye },
+                { label: t("crePub.stageAction"), icon: ArrowRight },
+                { label: t("crePub.stageProof"), icon: ShieldCheck },
+                { label: t("crePub.stageUnlock"), icon: Gift },
               ].map((stage, index) => (
                 <div key={stage.label} className="text-center">
                   <div className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full border ${index === 0 ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}><stage.icon className="h-3.5 w-3.5" /></div>
@@ -320,7 +322,7 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
             </div>
             <div className="mt-6 border-t border-white/10 pt-5 text-sm leading-6 text-white/50">
               <Link2 className="mb-2 h-4 w-4 text-orange-400" />
-              After publishing, the story stays selected while you choose where it should lead.
+              {t("crePub.after")}
             </div>
           </div>
         </div>
