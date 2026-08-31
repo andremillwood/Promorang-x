@@ -62,7 +62,7 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
     const nextCountry = getCountryMarket(routeCountry);
     const nextCity = firstCityHubForSlug(routeCountry, routeCity) ?? getCityHubByCountry(nextCountry.code);
     setCountryCode(nextCountry.code);
-    setLocale(nextCountry.locale);
+    setLocale(nextCountry.locale, { explicit: false });
     if (nextCity) {
       setCityId(nextCity.id);
       window.localStorage.setItem(CITY_STORAGE_KEY, nextCity.id);
@@ -76,7 +76,7 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
     const next = getCountryMarket(value);
     window.localStorage.setItem(STORAGE_KEY, next.code);
     setCountryCode(next.code);
-    setLocale(next.locale);
+    setLocale(next.locale, { explicit: false });
     setCityId((currentId) => {
       const currentHub = resolveCityHub(currentId);
       if (currentHub?.countryCode === next.code) return currentId;
@@ -95,7 +95,7 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
     const nextCountry = getCountryMarket(next.countryCode);
     window.localStorage.setItem(STORAGE_KEY, nextCountry.code);
     setCountryCode(nextCountry.code);
-    setLocale(nextCountry.locale);
+    setLocale(nextCountry.locale, { explicit: false });
   }, [setLocale]);
 
   const value = useMemo<MarketContextValue>(() => ({

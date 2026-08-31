@@ -10,6 +10,10 @@ export const localeNames: Record<Locale, string> = {
 
 const en = {
   "language.label": "Language",
+  "theme.label": "Appearance",
+  "theme.light": "Light",
+  "theme.dark": "Dark",
+  "theme.system": "System",
   "nav.explore": "Explore",
   "nav.tools": "Tools & AI",
   "nav.economy": "Economy",
@@ -995,6 +999,8 @@ const en = {
   "settings.notifications": "Notifications",
   "settings.payouts": "Payouts",
   "settings.account": "Privacy & account",
+  "settings.appearance": "Language & appearance",
+  "settings.appearanceCopy": "These choices stay with you while signed in. Changing city or market will not reset them.",
   "settings.photo": "Profile photo",
   "settings.photoHelp": "Select the avatar to upload a new photo.",
   "settings.basic": "Basic information",
@@ -5005,6 +5011,10 @@ export type TranslationKey = keyof typeof en;
 
 const es: Record<TranslationKey, string> = {
   "language.label": "Idioma",
+  "theme.label": "Apariencia",
+  "theme.light": "Claro",
+  "theme.dark": "Oscuro",
+  "theme.system": "Sistema",
   "nav.explore": "Explorar",
   "nav.tools": "Herramientas e IA",
   "nav.economy": "Economía",
@@ -5989,6 +5999,8 @@ const es: Record<TranslationKey, string> = {
   "settings.notifications": "Notificaciones",
   "settings.payouts": "Pagos",
   "settings.account": "Privacidad y cuenta",
+  "settings.appearance": "Idioma y apariencia",
+  "settings.appearanceCopy": "Estas opciones se mantienen mientras estás conectado. Cambiar de ciudad o mercado no las restablece.",
   "settings.photo": "Foto de perfil",
   "settings.photoHelp": "Selecciona el avatar para subir una nueva foto.",
   "settings.basic": "Información básica",
@@ -9997,6 +10009,10 @@ const es: Record<TranslationKey, string> = {
 
 const ptBR: Record<TranslationKey, string> = {
   "language.label": "Idioma",
+  "theme.label": "Aparência",
+  "theme.light": "Claro",
+  "theme.dark": "Escuro",
+  "theme.system": "Sistema",
   "nav.explore": "Explorar",
   "nav.tools": "Ferramentas e IA",
   "nav.economy": "Economia",
@@ -10981,6 +10997,8 @@ const ptBR: Record<TranslationKey, string> = {
   "settings.notifications": "Notificações",
   "settings.payouts": "Pagamentos",
   "settings.account": "Privacidade e conta",
+  "settings.appearance": "Idioma e aparência",
+  "settings.appearanceCopy": "Essas escolhas permanecem enquanto você estiver conectado. Mudar de cidade ou mercado não as redefine.",
   "settings.photo": "Foto do perfil",
   "settings.photoHelp": "Selecione o avatar para enviar uma nova foto.",
   "settings.basic": "Informações básicas",

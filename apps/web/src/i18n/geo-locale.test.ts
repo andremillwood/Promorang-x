@@ -1,9 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import {
   countryCodeToLocale,
-  detectBrowserLocale,
   getSavedLocalePreference,
+  hasExplicitLocaleChoice,
+  markExplicitLocaleChoice,
   saveLocalePreference,
+  shouldApplyMarketLocale,
 } from "./geo-locale";
 
 describe("geo-locale mapping and persistence", () => {
@@ -44,5 +46,15 @@ describe("geo-locale mapping and persistence", () => {
 
     saveLocalePreference("pt-BR");
     expect(getSavedLocalePreference()).toBe("pt-BR");
+  });
+
+  it("blocks market locale overrides after an explicit language choice", () => {
+    expect(hasExplicitLocaleChoice()).toBe(false);
+    expect(shouldApplyMarketLocale()).toBe(true);
+
+    markExplicitLocaleChoice();
+
+    expect(hasExplicitLocaleChoice()).toBe(true);
+    expect(shouldApplyMarketLocale()).toBe(false);
   });
 });

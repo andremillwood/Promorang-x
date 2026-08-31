@@ -5,6 +5,8 @@ import {
   detectBrowserLocale,
   detectGeoIpLocale,
   getSavedLocalePreference,
+  hasExplicitLocaleChoice,
+  markExplicitLocaleChoice,
   saveLocalePreference,
 } from "./geo-locale";
 
@@ -25,9 +27,14 @@ const getInitialLocale = (): Locale => {
   return detectBrowserLocale();
 };
 
+export type SetLocaleOptions = {
+  /** User-facing language pickers should leave this true (default). Market / geo suggestions pass false. */
+  explicit?: boolean;
+};
+
 type I18nValue = {
   locale: Locale;
-  setLocale: (locale: Locale) => void;
+  setLocale: (locale: Locale, options?: SetLocaleOptions) => void;
   t: (key: TranslationKey, variables?: Record<string, string | number>) => string;
   formatNumber: (value: number, options?: Intl.NumberFormatOptions) => string;
   formatDate: (value: Date | string | number, options?: Intl.DateTimeFormatOptions) => string;
@@ -39,9 +46,12 @@ const I18nContext = createContext<I18nValue | null>(null);
 export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
   const [locale, setLocaleState] = useState<Locale>(getInitialLocale);
 
-  const setLocale = useCallback((nextLocale: Locale) => {
+  const setLocale = useCallback((nextLocale: Locale, options?: SetLocaleOptions) => {
     if (!supportedLocales.includes(nextLocale)) return;
+    const isExplicit = options?.explicit !== false;
+    if (!isExplicit && hasExplicitLocaleChoice()) return;
     saveLocalePreference(nextLocale);
+    if (isExplicit) markExplicitLocaleChoice();
     const nextPath = localizePath(window.location.pathname, nextLocale);
     if (nextPath !== window.location.pathname) {
       window.location.assign(`${nextPath}${window.location.search}${window.location.hash}`);
