@@ -243,6 +243,12 @@ describe("localization", () => {
       "hostFund.title",
       "hostImpact.title",
       "hostImpact.gems",
+      "pulseDesk.title",
+      "pulseDesk.openMoment",
+      "sponReq.accept",
+      "sponReq.emptyTitle",
+      "sceneMx.title",
+      "sceneMx.heatmap",
     ] as const;
 
     supportedLocales.forEach((locale) => {

@@ -2,13 +2,15 @@ import { Users, Target, Heart, TrendingUp, ShieldCheck, MapPin, Zap } from "luci
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/I18nContext";
 
 export function CommunityImpactMatrix() {
+  const { t } = useI18n();
   const metrics = [
-    { label: "Scene Density", value: "High", score: 92, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Retention Rate", value: "78%", score: 78, color: "text-purple-600", bg: "bg-purple-50" },
-    { label: "Viral Index", value: "3.4x", score: 85, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { label: "Avg. Participant Value", value: "$64", score: 64, color: "text-orange-600", bg: "bg-orange-50" },
+    { label: t("sceneMx.density"), value: t("sceneMx.high"), score: 92, color: "text-blue-600", bg: "bg-blue-50" },
+    { label: t("sceneMx.retention"), value: "78%", score: 78, color: "text-purple-600", bg: "bg-purple-50" },
+    { label: t("sceneMx.viral"), value: "3.4x", score: 85, color: "text-emerald-600", bg: "bg-emerald-50" },
+    { label: t("sceneMx.avgValue"), value: "$64", score: 64, color: "text-orange-600", bg: "bg-orange-50" },
   ];
 
   return (
@@ -19,10 +21,10 @@ export function CommunityImpactMatrix() {
         <div className="relative z-10 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-white mb-4">
                 <ShieldCheck className="w-4 h-4 text-primary" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Verified Social Density</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary">{t("sceneMx.verified")}</span>
             </div>
-            <h2 className="mb-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">The Scene Matrix</h2>
-            <p className="text-white/60 text-sm max-w-sm mx-auto">This is how sponsors see your audience value. Real souls, real actions.</p>
+            <h2 className="mb-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">{t("sceneMx.title")}</h2>
+            <p className="text-white/60 text-sm max-w-sm mx-auto">{t("sceneMx.subtitle")}</p>
         </div>
       </div>
 
@@ -39,8 +41,8 @@ export function CommunityImpactMatrix() {
                     <div className={cn("h-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-1000", metric.color.replace('text', 'bg'))} style={{ width: `${metric.score}%` }} />
                 </div>
                 <div className="flex justify-between items-center text-[9px] font-bold text-muted-foreground">
-                    <span>Baseline</span>
-                    <span className={metric.color}>Rank {metric.score/10 > 8 ? 'S' : 'A'}</span>
+                    <span>{t("sceneMx.baseline")}</span>
+                    <span className={metric.color}>{t("sceneMx.rank", { rank: metric.score/10 > 8 ? 'S' : 'A' })}</span>
                 </div>
             </div>
           </div>
@@ -52,7 +54,7 @@ export function CommunityImpactMatrix() {
           <CardHeader className="border-b border-primary/10">
               <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-primary" />
-                  Presence Heatmap
+                  {t("sceneMx.heatmap")}
               </CardTitle>
           </CardHeader>
           <CardContent className="p-8">
@@ -61,8 +63,8 @@ export function CommunityImpactMatrix() {
                   <div className="relative z-10 text-center space-y-3">
                       <Zap className="w-8 h-8 text-primary mx-auto opacity-50" />
                       <div>
-                          <p className="text-xs font-bold text-foreground">Dominant in: <span className="text-primary italic">SoHo, Downtown, Artisan Districts</span></p>
-                          <p className="text-[10px] text-muted-foreground mt-1">Your scene is concentrated in high-spend cultural corridors.</p>
+                          <p className="text-xs font-bold text-foreground">{t("sceneMx.dominant")} <span className="text-primary italic">SoHo, Downtown, Artisan Districts</span></p>
+                          <p className="text-[10px] text-muted-foreground mt-1">{t("sceneMx.heatmapHint")}</p>
                       </div>
                   </div>
               </div>
@@ -75,8 +77,8 @@ export function CommunityImpactMatrix() {
                   <Heart className="w-4 h-4 text-primary" />
               </div>
               <div>
-                  <p className="text-[10px] font-bold uppercase tracking-tighter">Scene Pulse</p>
-                  <p className="text-xs text-white/60">Loyalty level is at an all-time high.</p>
+                  <p className="text-[10px] font-bold uppercase tracking-tighter">{t("sceneMx.pulse")}</p>
+                  <p className="text-xs text-white/60">{t("sceneMx.loyalty")}</p>
               </div>
           </div>
           <div className="flex items-center gap-1 text-emerald-500 font-bold text-xs italic">
