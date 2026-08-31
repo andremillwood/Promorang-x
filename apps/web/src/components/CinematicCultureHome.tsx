@@ -79,14 +79,14 @@ type PublicContent = Tables<"view_public_content_directory">;
 type PublicMission = Pick<Tables<"moment_bounties">, "id" | "title" | "description" | "payout_amount" | "target_category" | "expires_at">;
 
 const vibeCards = [
-  { label: "Music Lover", icon: Music2, image: momentConcert, href: "/discover/moments?category=music" },
-  { label: "Nightlife", icon: Martini, image: jazzNight, href: "/discover/moments?category=social" },
-  { label: "Sports Fan", icon: Trophy, image: openMic, href: "/discover/moments?category=outdoor" },
-  { label: "Foodie", icon: Utensils, image: cookingClass, href: "/discover/moments?category=food" },
-  { label: "Creative", icon: Camera, image: streetArt, href: "/discover/moments?category=arts" },
-  { label: "Networking", icon: Users, image: momentCoffee, href: "/discover/moments?category=networking" },
-  { label: "Fitness", icon: Heart, image: momentYoga, href: "/discover/moments?category=fitness" },
-  { label: "Outdoor", icon: Mountain, image: hiking, href: "/discover/moments?category=outdoor" },
+  { labelKey: "home.vibeMusic" as const, icon: Music2, image: momentConcert, href: "/discover/moments?category=music" },
+  { labelKey: "home.vibeNightlife" as const, icon: Martini, image: jazzNight, href: "/discover/moments?category=social" },
+  { labelKey: "home.vibeSports" as const, icon: Trophy, image: openMic, href: "/discover/moments?category=outdoor" },
+  { labelKey: "home.vibeFood" as const, icon: Utensils, image: cookingClass, href: "/discover/moments?category=food" },
+  { labelKey: "home.vibeCreative" as const, icon: Camera, image: streetArt, href: "/discover/moments?category=arts" },
+  { labelKey: "home.vibeNetworking" as const, icon: Users, image: momentCoffee, href: "/discover/moments?category=networking" },
+  { labelKey: "home.vibeFitness" as const, icon: Heart, image: momentYoga, href: "/discover/moments?category=fitness" },
+  { labelKey: "home.vibeOutdoor" as const, icon: Mountain, image: hiking, href: "/discover/moments?category=outdoor" },
 ];
 
 const trendingCards = cultureEvents;
@@ -288,15 +288,14 @@ function ImageCard({
 }
 
 function SampleOptIn({ onShow, noun, loading = false }: { onShow: () => void; noun: string; loading?: boolean }) {
+  const { t } = useI18n();
   return (
     <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.025] px-6 py-10 text-center">
       <p className="text-lg font-black text-white">
-        {loading ? `Looking for live ${noun.toLowerCase()}…` : `No live ${noun.toLowerCase()} are available yet.`}
+        {loading ? t("home.lookingLive", { noun: noun.toLowerCase() }) : t("home.noLive", { noun: noun.toLowerCase() })}
       </p>
       <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-white/50">
-        {loading
-          ? "This section will update as soon as the live directory responds."
-          : "We keep examples separate so it is always clear what is live. You can view labeled samples if you would like to see how this section works."}
+        {loading ? t("home.lookingCopy") : t("home.sampleCopy")}
       </p>
       {!loading ? (
         <button
@@ -305,7 +304,7 @@ function SampleOptIn({ onShow, noun, loading = false }: { onShow: () => void; no
           className="mt-5 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] px-5 py-3 text-xs font-black uppercase tracking-wide text-white transition hover:border-primary hover:text-primary"
         >
           <PlayCircle className="h-4 w-4" />
-          Show sample previews
+          {t("home.showSamples")}
         </button>
       ) : null}
     </div>
@@ -790,7 +789,7 @@ export default function CinematicCultureHome() {
                   </ImageCard>
                 </Link>
               ))}
-            </div> : <SampleOptIn onShow={() => setShowSamples(true)} noun="Moments" loading={discoveryQuery.isLoading} />}
+            </div> : <SampleOptIn onShow={() => setShowSamples(true)} noun={t("home.nounMoments")} loading={discoveryQuery.isLoading} />}
           </div>
 
           <div className="pt-12">
@@ -1204,14 +1203,14 @@ export default function CinematicCultureHome() {
 
       {showSamples ? <>
       <div className="container px-6 py-12 md:py-16">
-        <SampleContentNotice noun="moments, scenes, and activity" className="mb-8" />
-        <SectionHeader eyebrow="Find your vibe" title="What are you" accent="into?" />
+        <SampleContentNotice noun={t("home.sampleNoun")} className="mb-8" />
+        <SectionHeader eyebrow={t("home.findVibe")} title={t("home.whatAreYou")} accent={t("home.into")} />
         <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-none">
           {vibeCards.map((vibe) => (
-            <Link key={vibe.label} to={vibe.href} className="group min-w-[132px] md:min-w-[168px]">
+            <Link key={vibe.labelKey} to={vibe.href} className="group min-w-[132px] md:min-w-[168px]">
               <ImageCard image={vibe.image} className="h-36 md:h-44">
                 <vibe.icon className="mb-5 h-8 w-8 text-white drop-shadow" />
-                <p className="text-sm font-black text-white">{vibe.label}</p>
+                <p className="text-sm font-black text-white">{t(vibe.labelKey)}</p>
               </ImageCard>
             </Link>
           ))}
@@ -1219,7 +1218,7 @@ export default function CinematicCultureHome() {
       </div>
 
       <div className="container px-6 py-6 md:py-10">
-        <SectionHeader eyebrow="The cultural pulse" title="Trending" accent="this week" action="View all" />
+        <SectionHeader eyebrow={t("home.culturalPulse")} title={t("home.trending")} accent={t("home.thisWeek")} action={t("home.viewAll")} />
         <div className="grid grid-flow-col auto-cols-[72%] gap-4 overflow-x-auto pb-3 scrollbar-none sm:auto-cols-[42%] lg:grid-flow-row lg:grid-cols-5 lg:overflow-visible">
           {trendingCards.map((card) => (
             <Link key={card.slug} to={`/events/${card.slug}`}>
@@ -1237,7 +1236,7 @@ export default function CinematicCultureHome() {
       </div>
 
       <div className="container px-6 py-6 md:py-10">
-        <SectionHeader eyebrow="Real people. Real stories." title="This is why we show up." />
+        <SectionHeader eyebrow={t("home.realStories")} title={t("home.whyShowUp")} />
         <div className="grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[38%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
           {storyCards.map((story) => (
             <ImageCard key={story.name} image={story.image} className="h-44">
@@ -1255,29 +1254,29 @@ export default function CinematicCultureHome() {
       </div>
 
       <div className="container px-6 py-6 md:py-10">
-        <SectionHeader eyebrow="Scenes" title="More than moments. Find your" accent="scene." action="Explore all scenes" />
+        <SectionHeader eyebrow={t("home.scenes")} title={t("home.moreThanMoments")} accent={t("home.sceneAccent")} action={t("home.exploreScenes")} />
         <div className="grid grid-flow-col auto-cols-[48%] gap-3 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[24%] lg:grid-flow-row lg:grid-cols-7 lg:overflow-visible">
           {scenes.map((scene) => (
             <Link key={scene.slug} to={`/scenes/${scene.slug}`} className="rounded-2xl border border-white/10 bg-white/[0.04] p-2 transition hover:border-primary/50">
               <ImageCard image={scene.image} className="h-28 rounded-xl">
                 <h3 className="text-xl font-black uppercase leading-none tracking-[-0.05em]">{scene.title}</h3>
               </ImageCard>
-              <p className="mt-2 text-center text-xs font-bold text-white/70">{scene.momentsHosted} moments</p>
+              <p className="mt-2 text-center text-xs font-bold text-white/70">{t("home.momentsCount", { count: scene.momentsHosted })}</p>
             </Link>
           ))}
         </div>
       </div>
 
       <div className="container px-6 py-6 md:py-10">
-        <SectionHeader eyebrow="Live right now" title="Happening in" accent="Kingston" action="View all live moments" />
+        <SectionHeader eyebrow={t("home.liveNow")} title={t("home.happeningIn")} accent={t("home.kingston")} action={t("home.viewLive")} />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {liveNow.map((item) => (
             <Link key={item.slug} to={`/events/${item.slug}`}>
               <ImageCard image={item.image} className="h-52">
-                <span className="mb-auto w-fit rounded-md bg-red-600 px-2 py-1 text-[10px] font-black uppercase">Live</span>
+                <span className="mb-auto w-fit rounded-md bg-red-600 px-2 py-1 text-[10px] font-black uppercase">{t("home.liveBadge")}</span>
                 <h3 className="text-3xl font-black uppercase leading-none tracking-[-0.06em]">{item.shortTitle}</h3>
                 <p className="mt-2 text-sm text-white/75">
-                  <span className="text-2xl font-black text-white">{item.attending}</span> people in motion
+                  <span className="text-2xl font-black text-white">{item.attending}</span> {t("home.peopleMotion")}
                 </p>
                 <p className="mt-1 flex items-center gap-1 text-xs text-white/60"><MapPin className="h-3 w-3 text-primary" /> {item.city}</p>
               </ImageCard>
@@ -1287,7 +1286,7 @@ export default function CinematicCultureHome() {
       </div>
 
       <div className="container px-6 py-6 md:py-10">
-        <SectionHeader eyebrow="The feed" title="Every" accent="moment. All in one place." action="Explore the feed" />
+        <SectionHeader eyebrow={t("home.theFeed")} title={t("home.every")} accent={t("home.momentPlace")} action={t("home.exploreFeed")} />
         <div className="grid grid-flow-col auto-cols-[42%] gap-4 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[22%] lg:grid-flow-row lg:grid-cols-6 lg:overflow-visible">
           {feedItems.map((item) => (
             <Link key={item.user} to="/pulse">
@@ -1304,7 +1303,7 @@ export default function CinematicCultureHome() {
       </div>
 
       <div className="container px-6 py-6 md:py-10">
-        <SectionHeader eyebrow="Creators" title="The culture" accent="makers." action="Discover more creators" />
+        <SectionHeader eyebrow={t("home.creators")} title={t("home.culture")} accent={t("home.makers")} action={t("home.discoverCreators")} />
         <div className="grid grid-flow-col auto-cols-[72%] gap-3 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[28%] lg:grid-flow-row lg:grid-cols-6 lg:overflow-visible">
           {creators.map((creator) => (
             <Link key={creator.name} to={`/creators/${creator.handle}`} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.07] p-3 transition hover:border-primary/50">
@@ -1312,7 +1311,7 @@ export default function CinematicCultureHome() {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-black">{creator.name}</p>
                 <p className="truncate text-xs text-white/60">{creator.role}</p>
-                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary">{creator.followers} followers</p>
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary">{t("home.followers", { count: creator.followers })}</p>
               </div>
               <ArrowRight className="h-4 w-4 text-primary" />
             </Link>

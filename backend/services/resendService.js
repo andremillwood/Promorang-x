@@ -1350,8 +1350,7 @@ async function sendKycAdditionalInfoEmail(userEmail, userName, requestData = {})
  * Streak milestone email
  */
 async function sendStreakMilestoneEmail(userEmail, userName, streakData) {
-  const { days, bonusGems, bonusPoints } = streakData;
-
+  const { days, bonusGems, bonusPoints, locale } = streakData;
   const milestoneEmojis = {
     7: '🔥',
     14: '⚡',
@@ -1361,35 +1360,43 @@ async function sendStreakMilestoneEmail(userEmail, userName, streakData) {
     365: '👑',
   };
   const emoji = milestoneEmojis[days] || '🎯';
+  const contentData = getEmailContent('streakMilestone', locale, {
+    name: userName || 'there',
+    days,
+    emoji,
+    bonusGems: bonusGems || 0,
+    bonusPoints: bonusPoints || 0,
+  });
+  const dashboardUrl = getLocalizedEmailUrl('/dashboard', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: `${days}-Day Streak! ${emoji}`,
-    preheader: `You've been active for ${days} days straight!`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Incredible dedication! You've maintained your streak for <strong>${days} days</strong>!</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">${emoji} Streak Milestone</p>
-        <div class="value">${days} Days</div>
+        <p style="margin: 0; font-weight: 600;">${contentData.milestoneLabel}</p>
+        <div class="value">${contentData.daysLabel}</div>
         ${bonusGems || bonusPoints ? `
-          <p style="margin: 8px 0 0; font-size: 14px;">Bonus: +${bonusGems || 0} Gems, +${bonusPoints || 0} Points</p>
+          <p style="margin: 8px 0 0; font-size: 14px;">${contentData.bonusLabel}</p>
         ` : ''}
       </div>
       
-      <p>Keep it up – the longer your streak, the bigger the rewards!</p>
+      <p>${contentData.keepGoing}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/dashboard`,
-    ctaText: 'Continue Your Streak',
+    ctaUrl: dashboardUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `${emoji} ${days}-Day Streak Achievement!`,
+    subject: contentData.subject,
     html,
-    text: `Amazing! You've maintained a ${days}-day streak. Keep going!`,
-    tags: [{ name: 'type', value: 'streak-milestone' }],
+    text: `${contentData.preheader} ${contentData.keepGoing}`,
+    tags: [{ name: 'type', value: 'streak-milestone' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1397,32 +1404,35 @@ async function sendStreakMilestoneEmail(userEmail, userName, streakData) {
  * Quest completed
  */
 async function sendQuestCompletedEmail(userEmail, userName, questData) {
-  const { title, rewards } = questData;
+  const { title, rewards, locale } = questData;
+  const contentData = getEmailContent('questCompleted', locale, { name: userName || 'there', title });
+  const questsUrl = getLocalizedEmailUrl('/quests', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Quest Complete! 🎯',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>You've completed a quest:</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
         <p style="margin: 0; font-weight: 600;">🎯 ${title}</p>
         <div class="value">${rewards}</div>
       </div>
       
-      <p>Check the Quests page for more opportunities!</p>
+      <p>${contentData.moreCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/quests`,
-    ctaText: 'View More Quests',
+    ctaUrl: questsUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `🎯 Quest Complete: ${title}`,
+    subject: contentData.subject,
     html,
-    text: `You completed "${title}" and earned ${rewards}!`,
-    tags: [{ name: 'type', value: 'quest-completed' }],
+    text: `${contentData.preheader} ${rewards || ''}`,
+    tags: [{ name: 'type', value: 'quest-completed' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1430,33 +1440,41 @@ async function sendQuestCompletedEmail(userEmail, userName, questData) {
  * Achievement unlocked
  */
 async function sendAchievementUnlockedEmail(userEmail, userName, achievementData) {
-  const { title, description, rewardGems, rewardPoints } = achievementData;
+  const { title, description, rewardGems, rewardPoints, locale } = achievementData;
+  const contentData = getEmailContent('achievementUnlocked', locale, {
+    name: userName || 'there',
+    title,
+    rewardGems: rewardGems || 0,
+    rewardPoints: rewardPoints || 0,
+  });
+  const profileUrl = getLocalizedEmailUrl('/profile', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Achievement Unlocked! 🏅',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>You've unlocked a new achievement!</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
         <p style="margin: 0; font-weight: 600;">🏅 ${title}</p>
         <p style="margin: 8px 0; color: #666;">${description}</p>
         ${rewardGems || rewardPoints ? `
-          <div class="value">+${rewardGems || 0} Gems, +${rewardPoints || 0} Points</div>
+          <div class="value">${contentData.rewardLabel}</div>
         ` : ''}
       </div>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/profile`,
-    ctaText: 'View All Achievements',
+    ctaUrl: profileUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `🏅 Achievement: ${title}`,
+    subject: contentData.subject,
     html,
-    text: `You unlocked "${title}"! ${description}`,
-    tags: [{ name: 'type', value: 'achievement-unlocked' }],
+    text: `${contentData.preheader} ${description || ''}`,
+    tags: [{ name: 'type', value: 'achievement-unlocked' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1464,19 +1482,27 @@ async function sendAchievementUnlockedEmail(userEmail, userName, achievementData
  * Coupon earned (refactored from old emailNotifications.js)
  */
 async function sendCouponEarnedEmail(userEmail, userName, couponData) {
-  const { title, description, value, value_unit, source_label, expires_at } = couponData;
+  const { title, description, value, value_unit, source_label, expires_at, locale } = couponData;
+  const contentData = getEmailContent('couponEarned', locale, { name: userName || 'there', title });
+  const rewardsUrl = getLocalizedEmailUrl('/rewards', locale, EMAIL_CONFIG.frontendUrl);
+  const dateLocale = contentData.locale === 'es-419' ? 'es' : contentData.locale === 'pt-BR' ? 'pt-BR' : 'en-US';
 
   const valueDisplay = value_unit === 'percentage'
     ? `${value}% OFF`
     : `${value} ${value_unit}`;
+  const expiresDisplay = new Date(expires_at).toLocaleDateString(dateLocale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 
   const html = getBaseTemplate({
-    title: 'You Earned a Reward! 🎁',
-    preheader: `Use your new reward: ${title}`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Congratulations! You've earned a new reward:</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
         <p style="margin: 0; font-weight: 600;">🎁 ${title}</p>
@@ -1485,25 +1511,21 @@ async function sendCouponEarnedEmail(userEmail, userName, couponData) {
       </div>
       
       <div class="meta-info">
-        <strong>How you earned it:</strong> ${source_label}<br>
-        <strong>Expires:</strong> ${new Date(expires_at).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })}
+        <strong>${contentData.howLabel}:</strong> ${source_label}<br>
+        <strong>${contentData.expiresLabel}:</strong> ${expiresDisplay}
       </div>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/rewards`,
-    ctaText: 'View & Redeem Reward',
-    footerNote: 'Check your Rewards tab regularly to discover new perks!',
+    ctaUrl: rewardsUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `🎁 You Earned: ${title}`,
+    subject: contentData.subject,
     html,
-    text: `You earned "${title}" - ${valueDisplay}. Expires: ${new Date(expires_at).toLocaleDateString()}. Redeem at ${EMAIL_CONFIG.frontendUrl}/rewards`,
-    tags: [{ name: 'type', value: 'coupon-earned' }],
+    text: `${contentData.preheader} ${valueDisplay}. ${contentData.expiresLabel}: ${expiresDisplay}. ${rewardsUrl}`,
+    tags: [{ name: 'type', value: 'coupon-earned' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1511,50 +1533,57 @@ async function sendCouponEarnedEmail(userEmail, userName, couponData) {
  * Weekly rewards digest
  */
 async function sendWeeklyDigestEmail(userEmail, userName, stats) {
-  const { earned_this_week, available_count, expiring_soon, total_gems, streak_days } = stats;
+  const { earned_this_week, available_count, expiring_soon, total_gems, streak_days, locale } = stats;
+  const contentData = getEmailContent('weeklyDigest', locale, {
+    name: userName || 'there',
+    earned: earned_this_week || 0,
+    count: expiring_soon || 0,
+  });
+  const dashboardUrl = getLocalizedEmailUrl('/dashboard', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Your Weekly Summary 📊',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Here's your Promorang activity for this week:</p>
+      <p>${contentData.intro}</p>
       
       <table style="width: 100%; margin: 20px 0; border-collapse: collapse;">
         <tr>
           <td style="text-align: center; padding: 15px; background: #f8f9ff; border-radius: 8px 0 0 8px;">
             <div style="font-size: 24px; font-weight: 700; color: ${BRAND.primary};">${earned_this_week || 0}</div>
-            <div style="font-size: 12px; color: #666;">Rewards Earned</div>
+            <div style="font-size: 12px; color: #666;">${contentData.rewardsEarned}</div>
           </td>
           <td style="text-align: center; padding: 15px; background: #f8f9ff;">
             <div style="font-size: 24px; font-weight: 700; color: ${BRAND.primary};">${total_gems || 0}</div>
-            <div style="font-size: 12px; color: #666;">Total Gems</div>
+            <div style="font-size: 12px; color: #666;">${contentData.totalGems}</div>
           </td>
           <td style="text-align: center; padding: 15px; background: #f8f9ff; border-radius: 0 8px 8px 0;">
             <div style="font-size: 24px; font-weight: 700; color: ${BRAND.primary};">${streak_days || 0}</div>
-            <div style="font-size: 12px; color: #666;">Day Streak</div>
+            <div style="font-size: 12px; color: #666;">${contentData.dayStreak}</div>
           </td>
         </tr>
       </table>
       
       ${expiring_soon > 0 ? `
       <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
-        ⚠️ <strong>Action Required:</strong> You have ${expiring_soon} reward${expiring_soon > 1 ? 's' : ''} expiring soon!
+        ⚠️ ${contentData.expiring}
       </div>
       ` : ''}
       
-      <p>Keep up the great work and keep earning!</p>
+      <p>${contentData.keepGoing}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/dashboard`,
-    ctaText: 'View Dashboard',
+    ctaUrl: dashboardUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `📊 Weekly Summary: ${earned_this_week} Rewards Earned`,
+    subject: contentData.subject,
     html,
-    text: `This week: ${earned_this_week} rewards earned, ${total_gems} total gems, ${streak_days}-day streak.`,
-    tags: [{ name: 'type', value: 'weekly-digest' }],
+    text: `${contentData.preheader} ${earned_this_week || 0} / ${total_gems || 0} / ${streak_days || 0}`,
+    tags: [{ name: 'type', value: 'weekly-digest' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1660,34 +1689,41 @@ async function sendEventReminderEmail(userEmail, userName, eventData) {
  * Support ticket created
  */
 async function sendSupportTicketCreatedEmail(userEmail, userName, ticketData) {
-  const { ticketId, subject, category } = ticketData;
+  const { ticketId, subject, category, locale } = ticketData;
+  const contentData = getEmailContent('supportTicketCreated', locale, {
+    name: userName || 'there',
+    ticketId,
+    subject,
+  });
+  const ticketUrl = getLocalizedEmailUrl(`/support/tickets/${ticketId}`, locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Support Ticket Created',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>We've received your support request:</p>
+      <p>${contentData.intro}</p>
       
       <div class="meta-info">
-        <strong>Ticket ID:</strong> #${ticketId}<br>
-        <strong>Category:</strong> ${category}<br>
-        <strong>Subject:</strong> ${subject}
+        <strong>${contentData.ticketIdLabel}:</strong> #${ticketId}<br>
+        <strong>${contentData.categoryLabel}:</strong> ${category}<br>
+        <strong>${contentData.subjectLabel}:</strong> ${subject}
       </div>
       
-      <p>Our team will review your request and get back to you soon. Most tickets are resolved within 24-48 hours.</p>
+      <p>${contentData.etaCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/support/tickets/${ticketId}`,
-    ctaText: 'View Ticket',
+    ctaUrl: ticketUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Support Ticket #${ticketId}: ${subject}`,
+    subject: contentData.subject,
     html,
-    text: `Support ticket created. ID: #${ticketId}. Subject: ${subject}. We'll respond within 24-48 hours.`,
+    text: `${contentData.preheader} #${ticketId}. ${subject}`,
     replyTo: EMAIL_CONFIG.supportEmail,
-    tags: [{ name: 'type', value: 'support-ticket' }],
+    tags: [{ name: 'type', value: 'support-ticket' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1695,31 +1731,37 @@ async function sendSupportTicketCreatedEmail(userEmail, userName, ticketData) {
  * Support ticket response
  */
 async function sendSupportTicketResponseEmail(userEmail, userName, ticketData) {
-  const { ticketId, subject, responsePreview } = ticketData;
+  const { ticketId, subject, responsePreview, locale } = ticketData;
+  const contentData = getEmailContent('supportTicketResponse', locale, {
+    name: userName || 'there',
+    ticketId,
+  });
+  const ticketUrl = getLocalizedEmailUrl(`/support/tickets/${ticketId}`, locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'New Response to Your Ticket',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>We've responded to your support ticket:</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0;"><strong>Ticket #${ticketId}:</strong> ${subject}</p>
+        <p style="margin: 0;"><strong>${contentData.ticketLabel}</strong> ${subject}</p>
         <p style="margin: 10px 0 0; color: #666;">"${responsePreview}..."</p>
       </div>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/support/tickets/${ticketId}`,
-    ctaText: 'View Full Response',
+    ctaUrl: ticketUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Re: Support Ticket #${ticketId}`,
+    subject: contentData.subject,
     html,
-    text: `New response to ticket #${ticketId}: ${responsePreview}...`,
+    text: `${contentData.preheader} ${responsePreview || ''}...`,
     replyTo: EMAIL_CONFIG.supportEmail,
-    tags: [{ name: 'type', value: 'support-response' }],
+    tags: [{ name: 'type', value: 'support-response' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1730,144 +1772,175 @@ async function sendSupportTicketResponseEmail(userEmail, userName, ticketData) {
 /**
  * Team invitation email - invites a user to join an advertiser account
  */
-async function sendTeamInvitationEmail({ to, accountName, accountLogo, inviterName, role, message, token, expiresAt }) {
+async function sendTeamInvitationEmail({ to, accountName, accountLogo, inviterName, role, message, token, expiresAt, locale }) {
+  const contentData = getEmailContent('teamInvitation', locale, {
+    accountName,
+    inviterName,
+  });
+  const dateLocale = contentData.locale === 'es-419' ? 'es' : contentData.locale === 'pt-BR' ? 'pt-BR' : 'en-US';
+  const expiresDisplay = new Date(expiresAt).toLocaleDateString(dateLocale, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  const expiresCopy = getEmailContent('teamInvitation', locale, {
+    accountName,
+    inviterName,
+    expires: expiresDisplay,
+  }).expiresCopy;
   const roleDescriptions = {
-    admin: 'full access to manage campaigns, team members, and settings',
-    manager: 'access to create and manage campaigns and content',
-    viewer: 'read-only access to view dashboards and analytics',
+    admin: contentData.roleAdmin,
+    manager: contentData.roleManager,
+    viewer: contentData.roleViewer,
   };
+  const inviteUrl = getLocalizedEmailUrl(`/invite/${token}`, locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: `You're Invited to ${accountName}! 👥`,
-    preheader: `${inviterName} invited you to collaborate on ${accountName}`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi there,</p>
+      <p>${contentData.greeting}</p>
       
-      <p><strong>${inviterName}</strong> has invited you to join their team on Promorang!</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
         ${accountLogo ? `<img src="${accountLogo}" alt="${accountName}" style="width: 60px; height: 60px; border-radius: 8px; margin-bottom: 10px;">` : ''}
         <p style="margin: 0; font-weight: 600; font-size: 18px;">🏢 ${accountName}</p>
-        <p style="margin: 8px 0 0;">Your role: <strong style="text-transform: capitalize;">${role}</strong></p>
+        <p style="margin: 8px 0 0;">${contentData.roleLabel}: <strong style="text-transform: capitalize;">${role}</strong></p>
         <p style="margin: 4px 0 0; font-size: 14px; color: #666;">${roleDescriptions[role] || ''}</p>
       </div>
       
       ${message ? `
       <div class="meta-info">
-        <strong>Personal message from ${inviterName}:</strong><br>
+        <strong>${contentData.personalMessage}</strong><br>
         "${message}"
       </div>
       ` : ''}
       
-      <p>Click the button below to accept this invitation and start collaborating!</p>
+      <p>${contentData.acceptCopy}</p>
       
-      <p style="font-size: 13px; color: #888;">This invitation expires on ${new Date(expiresAt).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })}.</p>
+      <p style="font-size: 13px; color: #888;">${expiresCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/invite/${token}`,
-    ctaText: 'Accept Invitation',
-    footerNote: "If you don't recognize this invitation, you can safely ignore this email.",
+    ctaUrl: inviteUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to,
-    subject: `👥 ${inviterName} invited you to ${accountName} on Promorang`,
+    subject: contentData.subject,
     html,
-    text: `${inviterName} invited you to join ${accountName} as ${role}. Accept at: ${EMAIL_CONFIG.frontendUrl}/invite/${token}`,
-    tags: [{ name: 'type', value: 'team-invitation' }],
+    text: `${contentData.preheader} ${inviteUrl}`,
+    tags: [{ name: 'type', value: 'team-invitation' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 /**
  * Notification to inviter when invitation is accepted
  */
-async function sendInvitationAcceptedEmail({ to, newMemberName, accountName }) {
+async function sendInvitationAcceptedEmail({ to, newMemberName, accountName, locale }) {
+  const contentData = getEmailContent('invitationAccepted', locale, { newMemberName, accountName });
+  const teamUrl = getLocalizedEmailUrl('/advertiser/settings/team', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'New Team Member! 🎉',
-    preheader: `${newMemberName} joined your team`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Great news!</p>
+      <p>${contentData.intro}</p>
       
-      <p><strong>${newMemberName}</strong> has accepted your invitation and joined your team on <strong>${accountName}</strong>.</p>
+      <p>${contentData.body}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">✅ Team Member Added</p>
-        <p style="margin: 8px 0 0;">${newMemberName} is now part of your team and can start collaborating.</p>
+        <p style="margin: 0; font-weight: 600;">✅ ${contentData.addedLabel}</p>
+        <p style="margin: 8px 0 0;">${contentData.addedCopy}</p>
       </div>
       
-      <p>You can manage team permissions at any time from your account settings.</p>
+      <p>${contentData.manageCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/advertiser/settings/team`,
-    ctaText: 'View Team',
+    ctaUrl: teamUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to,
-    subject: `🎉 ${newMemberName} joined ${accountName}`,
+    subject: contentData.subject,
     html,
-    text: `${newMemberName} accepted your invitation and joined ${accountName}. View your team at ${EMAIL_CONFIG.frontendUrl}/advertiser/settings/team`,
-    tags: [{ name: 'type', value: 'team-member-joined' }],
+    text: `${contentData.preheader} ${teamUrl}`,
+    tags: [{ name: 'type', value: 'team-member-joined' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 /**
  * Notification when a user is removed from a team
  */
-async function sendTeamRemovalEmail({ to, userName, accountName, removedByName }) {
+async function sendTeamRemovalEmail({ to, userName, accountName, removedByName, locale }) {
+  const contentData = getEmailContent('teamRemoval', locale, {
+    name: userName || 'there',
+    accountName,
+    removedByName,
+  });
+  const dashboardUrl = getLocalizedEmailUrl('/dashboard', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'Team Access Removed',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Your access to <strong>${accountName}</strong> on Promorang has been removed by ${removedByName}.</p>
+      <p>${contentData.intro}</p>
       
-      <p>If you believe this was a mistake, please contact the account owner or our support team.</p>
+      <p>${contentData.helpCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/dashboard`,
-    ctaText: 'Go to Dashboard',
+    ctaUrl: dashboardUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to,
-    subject: `Your access to ${accountName} has been removed`,
+    subject: contentData.subject,
     html,
-    text: `Your access to ${accountName} has been removed by ${removedByName}. If this was a mistake, please contact support.`,
-    tags: [{ name: 'type', value: 'team-removal' }],
+    text: `${contentData.preheader} ${contentData.helpCopy}`,
+    tags: [{ name: 'type', value: 'team-removal' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 /**
  * Notification when a user's role is changed
  */
-async function sendRoleChangedEmail({ to, userName, accountName, oldRole, newRole, changedByName }) {
+async function sendRoleChangedEmail({ to, userName, accountName, oldRole, newRole, changedByName, locale }) {
+  const contentData = getEmailContent('roleChanged', locale, {
+    name: userName || 'there',
+    accountName,
+    changedByName,
+  });
+  const dashboardUrl = getLocalizedEmailUrl('/advertiser/dashboard', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'Team Role Updated',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Your role on <strong>${accountName}</strong> has been updated by ${changedByName}.</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0;">Previous role: <span style="text-transform: capitalize;">${oldRole}</span></p>
-        <p style="margin: 8px 0 0; font-weight: 600;">New role: <span style="text-transform: capitalize; color: ${BRAND.primary};">${newRole}</span></p>
+        <p style="margin: 0;">${contentData.previousRole}: <span style="text-transform: capitalize;">${oldRole}</span></p>
+        <p style="margin: 8px 0 0; font-weight: 600;">${contentData.newRole}: <span style="text-transform: capitalize; color: ${BRAND.primary};">${newRole}</span></p>
       </div>
       
-      <p>Your permissions have been updated accordingly.</p>
+      <p>${contentData.permissionsCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/advertiser/dashboard`,
-    ctaText: 'View Dashboard',
+    ctaUrl: dashboardUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to,
-    subject: `Your role on ${accountName} has been updated`,
+    subject: contentData.subject,
     html,
-    text: `Your role on ${accountName} has been changed from ${oldRole} to ${newRole} by ${changedByName}.`,
-    tags: [{ name: 'type', value: 'team-role-changed' }],
+    text: `${contentData.preheader} ${oldRole} → ${newRole}`,
+    tags: [{ name: 'type', value: 'team-role-changed' }, { name: 'locale', value: contentData.locale }],
   });
 }
 

@@ -255,6 +255,128 @@ const EMAIL_TRANSLATIONS = {
       ctaText: 'Update Verification'
     },
 
+    streakMilestone: {
+      subject: '{{emoji}} {{days}}-day streak achievement!',
+      title: '{{days}}-day streak! {{emoji}}',
+      preheader: "You've been active for {{days}} days straight!",
+      greeting: 'Hi {{name}},',
+      intro: "Incredible dedication! You've kept your streak going for <strong>{{days}} days</strong>!",
+      milestoneLabel: '{{emoji}} Streak milestone',
+      daysLabel: '{{days}} days',
+      bonusLabel: 'Bonus: +{{bonusGems}} Gems, +{{bonusPoints}} Points',
+      keepGoing: 'Keep it up — the longer your streak, the bigger the rewards.',
+      ctaText: 'Continue your streak'
+    },
+    questCompleted: {
+      subject: 'Quest complete: {{title}}',
+      title: 'Quest complete!',
+      preheader: 'You finished {{title}}.',
+      greeting: 'Hi {{name}},',
+      intro: "You've completed a quest:",
+      moreCopy: 'Check the Quests page for more opportunities.',
+      ctaText: 'View more quests'
+    },
+    achievementUnlocked: {
+      subject: 'Achievement: {{title}}',
+      title: 'Achievement unlocked!',
+      preheader: 'You unlocked {{title}}.',
+      greeting: 'Hi {{name}},',
+      intro: "You've unlocked a new achievement!",
+      rewardLabel: '+{{rewardGems}} Gems, +{{rewardPoints}} Points',
+      ctaText: 'View all achievements'
+    },
+    couponEarned: {
+      subject: 'You earned: {{title}}',
+      title: 'You earned a reward!',
+      preheader: 'Use your new reward: {{title}}',
+      greeting: 'Hi {{name}},',
+      intro: "Congratulations! You've earned a new reward:",
+      howLabel: 'How you earned it',
+      expiresLabel: 'Expires',
+      ctaText: 'View and redeem reward',
+      footerNote: 'Check your Rewards tab regularly to discover new perks.'
+    },
+    weeklyDigest: {
+      subject: 'Weekly summary: {{earned}} rewards earned',
+      title: 'Your weekly summary',
+      preheader: 'Your Promorang activity this week.',
+      greeting: 'Hi {{name}},',
+      intro: "Here's your Promorang activity for this week:",
+      rewardsEarned: 'Rewards earned',
+      totalGems: 'Total Gems',
+      dayStreak: 'Day streak',
+      expiring: 'Action needed: you have {{count}} reward(s) expiring soon.',
+      keepGoing: 'Keep up the great work and keep earning.',
+      ctaText: 'View dashboard'
+    },
+    supportTicketCreated: {
+      subject: 'Support ticket #{{ticketId}}: {{subject}}',
+      title: 'Support ticket created',
+      preheader: "We've received your support request.",
+      greeting: 'Hi {{name}},',
+      intro: "We've received your support request:",
+      ticketIdLabel: 'Ticket ID',
+      categoryLabel: 'Category',
+      subjectLabel: 'Subject',
+      etaCopy: 'Our team will review your request and get back to you soon. Most tickets are resolved within 24-48 hours.',
+      ctaText: 'View ticket'
+    },
+    supportTicketResponse: {
+      subject: 'Re: Support ticket #{{ticketId}}',
+      title: 'New response to your ticket',
+      preheader: 'Support replied to ticket #{{ticketId}}.',
+      greeting: 'Hi {{name}},',
+      intro: "We've responded to your support ticket:",
+      ticketLabel: 'Ticket #{{ticketId}}:',
+      ctaText: 'View full response'
+    },
+    teamInvitation: {
+      subject: '{{inviterName}} invited you to {{accountName}} on Promorang',
+      title: "You're invited to {{accountName}}",
+      preheader: '{{inviterName}} invited you to collaborate on {{accountName}}',
+      greeting: 'Hi there,',
+      intro: '<strong>{{inviterName}}</strong> has invited you to join their team on Promorang.',
+      roleLabel: 'Your role',
+      roleAdmin: 'full access to manage campaigns, team members, and settings',
+      roleManager: 'access to create and manage campaigns and content',
+      roleViewer: 'read-only access to view dashboards and analytics',
+      personalMessage: 'Personal message from {{inviterName}}:',
+      acceptCopy: 'Click the button below to accept this invitation and start collaborating.',
+      expiresCopy: 'This invitation expires on {{expires}}.',
+      ctaText: 'Accept invitation',
+      footerNote: "If you don't recognize this invitation, you can safely ignore this email."
+    },
+    invitationAccepted: {
+      subject: '{{newMemberName}} joined {{accountName}}',
+      title: 'New team member',
+      preheader: '{{newMemberName}} joined your team',
+      intro: 'Great news!',
+      body: '<strong>{{newMemberName}}</strong> accepted your invitation and joined your team on <strong>{{accountName}}</strong>.',
+      addedLabel: 'Team member added',
+      addedCopy: '{{newMemberName}} is now part of your team and can start collaborating.',
+      manageCopy: 'You can manage team permissions at any time from your account settings.',
+      ctaText: 'View team'
+    },
+    teamRemoval: {
+      subject: 'Your access to {{accountName}} has been removed',
+      title: 'Team access removed',
+      preheader: 'Your access to {{accountName}} was removed.',
+      greeting: 'Hi {{name}},',
+      intro: 'Your access to <strong>{{accountName}}</strong> on Promorang has been removed by {{removedByName}}.',
+      helpCopy: 'If you believe this was a mistake, please contact the account owner or our support team.',
+      ctaText: 'Go to dashboard'
+    },
+    roleChanged: {
+      subject: 'Your role on {{accountName}} has been updated',
+      title: 'Team role updated',
+      preheader: 'Your role on {{accountName}} changed.',
+      greeting: 'Hi {{name}},',
+      intro: 'Your role on <strong>{{accountName}}</strong> has been updated by {{changedByName}}.',
+      previousRole: 'Previous role',
+      newRole: 'New role',
+      permissionsCopy: 'Your permissions have been updated accordingly.',
+      ctaText: 'View dashboard'
+    },
 
   },
   'es-419': {
@@ -475,6 +597,128 @@ const EMAIL_TRANSLATIONS = {
       ctaText: 'Actualizar verificación'
     },
 
+    streakMilestone: {
+      subject: '¡{{emoji}} Racha de {{days}} días!',
+      title: '¡Racha de {{days}} días! {{emoji}}',
+      preheader: 'Llevas {{days}} días activos seguidos.',
+      greeting: 'Hola {{name}},',
+      intro: '¡Qué constancia! Has mantenido tu racha durante <strong>{{days}} días</strong>.',
+      milestoneLabel: '{{emoji}} Hito de racha',
+      daysLabel: '{{days}} días',
+      bonusLabel: 'Bono: +{{bonusGems}} Gemas, +{{bonusPoints}} Puntos',
+      keepGoing: 'Sigue así: cuanto más larga la racha, más grandes las recompensas.',
+      ctaText: 'Continuar tu racha'
+    },
+    questCompleted: {
+      subject: 'Misión completa: {{title}}',
+      title: '¡Misión completa!',
+      preheader: 'Terminaste {{title}}.',
+      greeting: 'Hola {{name}},',
+      intro: 'Completaste una misión:',
+      moreCopy: 'Revisa la página de Misiones para más oportunidades.',
+      ctaText: 'Ver más misiones'
+    },
+    achievementUnlocked: {
+      subject: 'Logro: {{title}}',
+      title: '¡Logro desbloqueado!',
+      preheader: 'Desbloqueaste {{title}}.',
+      greeting: 'Hola {{name}},',
+      intro: '¡Desbloqueaste un nuevo logro!',
+      rewardLabel: '+{{rewardGems}} Gemas, +{{rewardPoints}} Puntos',
+      ctaText: 'Ver todos los logros'
+    },
+    couponEarned: {
+      subject: 'Ganaste: {{title}}',
+      title: '¡Ganaste una recompensa!',
+      preheader: 'Usa tu nueva recompensa: {{title}}',
+      greeting: 'Hola {{name}},',
+      intro: '¡Felicidades! Ganaste una nueva recompensa:',
+      howLabel: 'Cómo la ganaste',
+      expiresLabel: 'Vence',
+      ctaText: 'Ver y canjear recompensa',
+      footerNote: 'Revisa tu pestaña de Recompensas para descubrir nuevos beneficios.'
+    },
+    weeklyDigest: {
+      subject: 'Resumen semanal: {{earned}} recompensas ganadas',
+      title: 'Tu resumen semanal',
+      preheader: 'Tu actividad en Promorang esta semana.',
+      greeting: 'Hola {{name}},',
+      intro: 'Así estuvo tu actividad en Promorang esta semana:',
+      rewardsEarned: 'Recompensas ganadas',
+      totalGems: 'Gemas totales',
+      dayStreak: 'Racha de días',
+      expiring: 'Acción necesaria: tienes {{count}} recompensa(s) por vencer pronto.',
+      keepGoing: 'Sigue así y sigue ganando.',
+      ctaText: 'Ver panel'
+    },
+    supportTicketCreated: {
+      subject: 'Ticket de soporte #{{ticketId}}: {{subject}}',
+      title: 'Ticket de soporte creado',
+      preheader: 'Recibimos tu solicitud de soporte.',
+      greeting: 'Hola {{name}},',
+      intro: 'Recibimos tu solicitud de soporte:',
+      ticketIdLabel: 'ID del ticket',
+      categoryLabel: 'Categoría',
+      subjectLabel: 'Asunto',
+      etaCopy: 'Nuestro equipo revisará tu solicitud y te responderá pronto. La mayoría se resuelven en 24-48 horas.',
+      ctaText: 'Ver ticket'
+    },
+    supportTicketResponse: {
+      subject: 'Re: Ticket de soporte #{{ticketId}}',
+      title: 'Nueva respuesta a tu ticket',
+      preheader: 'Soporte respondió al ticket #{{ticketId}}.',
+      greeting: 'Hola {{name}},',
+      intro: 'Respondimos a tu ticket de soporte:',
+      ticketLabel: 'Ticket #{{ticketId}}:',
+      ctaText: 'Ver respuesta completa'
+    },
+    teamInvitation: {
+      subject: '{{inviterName}} te invitó a {{accountName}} en Promorang',
+      title: 'Te invitaron a {{accountName}}',
+      preheader: '{{inviterName}} te invitó a colaborar en {{accountName}}',
+      greeting: 'Hola,',
+      intro: '<strong>{{inviterName}}</strong> te invitó a unirte a su equipo en Promorang.',
+      roleLabel: 'Tu rol',
+      roleAdmin: 'acceso total para gestionar campañas, equipo y ajustes',
+      roleManager: 'acceso para crear y gestionar campañas y contenido',
+      roleViewer: 'acceso de solo lectura a paneles y analítica',
+      personalMessage: 'Mensaje personal de {{inviterName}}:',
+      acceptCopy: 'Haz clic en el botón para aceptar la invitación y empezar a colaborar.',
+      expiresCopy: 'Esta invitación vence el {{expires}}.',
+      ctaText: 'Aceptar invitación',
+      footerNote: 'Si no reconoces esta invitación, puedes ignorar este correo.'
+    },
+    invitationAccepted: {
+      subject: '{{newMemberName}} se unió a {{accountName}}',
+      title: 'Nuevo miembro del equipo',
+      preheader: '{{newMemberName}} se unió a tu equipo',
+      intro: '¡Buenas noticias!',
+      body: '<strong>{{newMemberName}}</strong> aceptó tu invitación y se unió a tu equipo en <strong>{{accountName}}</strong>.',
+      addedLabel: 'Miembro agregado',
+      addedCopy: '{{newMemberName}} ya forma parte de tu equipo y puede colaborar.',
+      manageCopy: 'Puedes gestionar permisos cuando quieras desde los ajustes de la cuenta.',
+      ctaText: 'Ver equipo'
+    },
+    teamRemoval: {
+      subject: 'Tu acceso a {{accountName}} fue eliminado',
+      title: 'Acceso al equipo eliminado',
+      preheader: 'Tu acceso a {{accountName}} fue eliminado.',
+      greeting: 'Hola {{name}},',
+      intro: '{{removedByName}} eliminó tu acceso a <strong>{{accountName}}</strong> en Promorang.',
+      helpCopy: 'Si crees que fue un error, contacta al dueño de la cuenta o a soporte.',
+      ctaText: 'Ir al panel'
+    },
+    roleChanged: {
+      subject: 'Tu rol en {{accountName}} se actualizó',
+      title: 'Rol de equipo actualizado',
+      preheader: 'Tu rol en {{accountName}} cambió.',
+      greeting: 'Hola {{name}},',
+      intro: '{{changedByName}} actualizó tu rol en <strong>{{accountName}}</strong>.',
+      previousRole: 'Rol anterior',
+      newRole: 'Nuevo rol',
+      permissionsCopy: 'Tus permisos se actualizaron en consecuencia.',
+      ctaText: 'Ver panel'
+    },
 
   },
   'pt-BR': {
@@ -695,6 +939,128 @@ const EMAIL_TRANSLATIONS = {
       ctaText: 'Atualizar verificação'
     },
 
+    streakMilestone: {
+      subject: '{{emoji}} Sequência de {{days}} dias!',
+      title: 'Sequência de {{days}} dias! {{emoji}}',
+      preheader: 'Você está ativo há {{days}} dias seguidos.',
+      greeting: 'Olá {{name}},',
+      intro: 'Que constância! Você manteve sua sequência por <strong>{{days}} dias</strong>.',
+      milestoneLabel: '{{emoji}} Marco da sequência',
+      daysLabel: '{{days}} dias',
+      bonusLabel: 'Bônus: +{{bonusGems}} Gemas, +{{bonusPoints}} Pontos',
+      keepGoing: 'Continue: quanto maior a sequência, maiores as recompensas.',
+      ctaText: 'Continuar sua sequência'
+    },
+    questCompleted: {
+      subject: 'Missão concluída: {{title}}',
+      title: 'Missão concluída!',
+      preheader: 'Você concluiu {{title}}.',
+      greeting: 'Olá {{name}},',
+      intro: 'Você concluiu uma missão:',
+      moreCopy: 'Veja a página de Missões para mais oportunidades.',
+      ctaText: 'Ver mais missões'
+    },
+    achievementUnlocked: {
+      subject: 'Conquista: {{title}}',
+      title: 'Conquista desbloqueada!',
+      preheader: 'Você desbloqueou {{title}}.',
+      greeting: 'Olá {{name}},',
+      intro: 'Você desbloqueou uma nova conquista!',
+      rewardLabel: '+{{rewardGems}} Gemas, +{{rewardPoints}} Pontos',
+      ctaText: 'Ver todas as conquistas'
+    },
+    couponEarned: {
+      subject: 'Você ganhou: {{title}}',
+      title: 'Você ganhou uma recompensa!',
+      preheader: 'Use sua nova recompensa: {{title}}',
+      greeting: 'Olá {{name}},',
+      intro: 'Parabéns! Você ganhou uma nova recompensa:',
+      howLabel: 'Como você ganhou',
+      expiresLabel: 'Expira',
+      ctaText: 'Ver e resgatar recompensa',
+      footerNote: 'Confira a aba de Recompensas para descobrir novos benefícios.'
+    },
+    weeklyDigest: {
+      subject: 'Resumo semanal: {{earned}} recompensas ganhas',
+      title: 'Seu resumo semanal',
+      preheader: 'Sua atividade na Promorang nesta semana.',
+      greeting: 'Olá {{name}},',
+      intro: 'Veja sua atividade na Promorang nesta semana:',
+      rewardsEarned: 'Recompensas ganhas',
+      totalGems: 'Gemas totais',
+      dayStreak: 'Sequência de dias',
+      expiring: 'Ação necessária: você tem {{count}} recompensa(s) expirando em breve.',
+      keepGoing: 'Continue assim e continue ganhando.',
+      ctaText: 'Ver painel'
+    },
+    supportTicketCreated: {
+      subject: 'Ticket de suporte #{{ticketId}}: {{subject}}',
+      title: 'Ticket de suporte criado',
+      preheader: 'Recebemos seu pedido de suporte.',
+      greeting: 'Olá {{name}},',
+      intro: 'Recebemos seu pedido de suporte:',
+      ticketIdLabel: 'ID do ticket',
+      categoryLabel: 'Categoria',
+      subjectLabel: 'Assunto',
+      etaCopy: 'Nossa equipe vai revisar seu pedido e responder em breve. A maioria se resolve em 24-48 horas.',
+      ctaText: 'Ver ticket'
+    },
+    supportTicketResponse: {
+      subject: 'Re: Ticket de suporte #{{ticketId}}',
+      title: 'Nova resposta no seu ticket',
+      preheader: 'O suporte respondeu o ticket #{{ticketId}}.',
+      greeting: 'Olá {{name}},',
+      intro: 'Respondemos ao seu ticket de suporte:',
+      ticketLabel: 'Ticket #{{ticketId}}:',
+      ctaText: 'Ver resposta completa'
+    },
+    teamInvitation: {
+      subject: '{{inviterName}} convidou você para {{accountName}} na Promorang',
+      title: 'Você foi convidado para {{accountName}}',
+      preheader: '{{inviterName}} convidou você para colaborar em {{accountName}}',
+      greeting: 'Olá,',
+      intro: '<strong>{{inviterName}}</strong> convidou você para entrar na equipe na Promorang.',
+      roleLabel: 'Seu papel',
+      roleAdmin: 'acesso total para gerenciar campanhas, equipe e configurações',
+      roleManager: 'acesso para criar e gerenciar campanhas e conteúdo',
+      roleViewer: 'acesso somente leitura a painéis e análises',
+      personalMessage: 'Mensagem pessoal de {{inviterName}}:',
+      acceptCopy: 'Clique no botão para aceitar o convite e começar a colaborar.',
+      expiresCopy: 'Este convite expira em {{expires}}.',
+      ctaText: 'Aceitar convite',
+      footerNote: 'Se você não reconhece este convite, pode ignorar este e-mail.'
+    },
+    invitationAccepted: {
+      subject: '{{newMemberName}} entrou em {{accountName}}',
+      title: 'Novo membro da equipe',
+      preheader: '{{newMemberName}} entrou na sua equipe',
+      intro: 'Boa notícia!',
+      body: '<strong>{{newMemberName}}</strong> aceitou seu convite e entrou na equipe de <strong>{{accountName}}</strong>.',
+      addedLabel: 'Membro adicionado',
+      addedCopy: '{{newMemberName}} agora faz parte da equipe e já pode colaborar.',
+      manageCopy: 'Você pode gerenciar permissões a qualquer momento nas configurações da conta.',
+      ctaText: 'Ver equipe'
+    },
+    teamRemoval: {
+      subject: 'Seu acesso a {{accountName}} foi removido',
+      title: 'Acesso da equipe removido',
+      preheader: 'Seu acesso a {{accountName}} foi removido.',
+      greeting: 'Olá {{name}},',
+      intro: '{{removedByName}} removeu seu acesso a <strong>{{accountName}}</strong> na Promorang.',
+      helpCopy: 'Se achar que foi um engano, fale com o dono da conta ou com o suporte.',
+      ctaText: 'Ir ao painel'
+    },
+    roleChanged: {
+      subject: 'Seu papel em {{accountName}} foi atualizado',
+      title: 'Papel da equipe atualizado',
+      preheader: 'Seu papel em {{accountName}} mudou.',
+      greeting: 'Olá {{name}},',
+      intro: '{{changedByName}} atualizou seu papel em <strong>{{accountName}}</strong>.',
+      previousRole: 'Papel anterior',
+      newRole: 'Novo papel',
+      permissionsCopy: 'Suas permissões foram atualizadas de acordo.',
+      ctaText: 'Ver painel'
+    },
 
   }
 };

@@ -71,6 +71,13 @@ describe("localization", () => {
       "feed.latest",
       "billing.confirmed",
       "moment.notFound",
+      "search.noResults",
+      "contact.openTickets",
+      "home.findVibe",
+      "home.liveBadge",
+      "support.title",
+      "support.generalContact",
+      "support.appeal",
     ] as const;
 
     supportedLocales.forEach((locale) => {

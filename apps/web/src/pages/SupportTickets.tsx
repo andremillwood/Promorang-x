@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertCircle, ArrowRight, Inbox, LifeBuoy, Loader2, Plus } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 type SupportTicket = {
   id: string;
@@ -29,7 +31,15 @@ const statusTone: Record<string, string> = {
   closed: "bg-zinc-500/10 text-zinc-700 border-zinc-500/20",
 };
 
+const statusKeys: Record<string, TranslationKey> = {
+  open: "support.statusOpen",
+  in_progress: "support.statusProgress",
+  resolved: "support.statusResolved",
+  closed: "support.statusClosed",
+};
+
 export default function SupportTickets() {
+  const { t, formatDate } = useI18n();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const receiptId = searchParams.get("receipt");
@@ -40,7 +50,7 @@ export default function SupportTickets() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
-    subject: receiptProduct ? `Problem with ${receiptProduct}` : "",
+    subject: receiptProduct ? t("support.problemWith", { product: receiptProduct }) : "",
     category: "other",
     message: "",
     priority: "medium",
@@ -68,11 +78,11 @@ export default function SupportTickets() {
       });
       const payload = await response.json().catch(() => []);
       if (!response.ok) {
-        throw new Error(payload.error || "Failed to load support tickets");
+        throw new Error(payload.error || t("support.loadFail"));
       }
       setTickets(Array.isArray(payload) ? payload : []);
     } catch (fetchError) {
-      setError(fetchError instanceof Error ? fetchError.message : "Failed to load support tickets");
+      setError(fetchError instanceof Error ? fetchError.message : t("support.loadFail"));
     } finally {
       setLoading(false);
     }
@@ -91,12 +101,12 @@ export default function SupportTickets() {
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok || payload.success === false) {
-        throw new Error(payload.error || "Failed to submit support ticket");
+        throw new Error(payload.error || t("support.submitFail"));
       }
 
       toast({
-        title: "Support request submitted",
-        description: "Your ticket is now in the support queue.",
+        title: t("support.submitted"),
+        description: t("support.submittedCopy"),
       });
 
       setForm({
@@ -113,7 +123,7 @@ export default function SupportTickets() {
         navigate(`/support/tickets/${payload.ticketId}`);
       }
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Failed to submit support ticket");
+      setError(submitError instanceof Error ? submitError.message : t("support.submitFail"));
     } finally {
       setSubmitting(false);
     }
@@ -126,19 +136,19 @@ export default function SupportTickets() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO title="Support Tickets | Promorang" description="View and create support tickets for your Promorang account." />
+      <SEO title={t("support.seoTitle")} description={t("support.seoCopy")} />
 
       <main className="pt-24 pb-20 px-6">
         <div className="container max-w-6xl mx-auto space-y-10">
           <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
-              <h1 className="font-serif text-4xl font-bold">Support tickets</h1>
+              <h1 className="font-serif text-4xl font-bold">{t("support.title")}</h1>
               <p className="mt-3 text-muted-foreground">
-                Track account issues, payout questions, and operational problems in one place.
+                {t("support.copy")}
               </p>
             </div>
             <Button variant="outline" asChild>
-              <Link to="/contact">General contact</Link>
+              <Link to="/contact">{t("support.generalContact")}</Link>
             </Button>
           </section>
 
@@ -146,8 +156,8 @@ export default function SupportTickets() {
             <div className="border border-border bg-card rounded-xl p-6">
               <div className="mb-6 flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-semibold">Your queue</h2>
-                  <p className="text-sm text-muted-foreground">Open the exact ticket linked from support emails.</p>
+                  <h2 className="text-xl font-semibold">{t("support.yourQueue")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("support.queueCopy")}</p>
                 </div>
                 <LifeBuoy className="h-5 w-5 text-primary" />
               </div>
@@ -155,7 +165,7 @@ export default function SupportTickets() {
               {loading ? (
                 <div className="flex min-h-[240px] items-center justify-center text-muted-foreground">
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Loading tickets
+                  {t("support.loading")}
                 </div>
               ) : error ? (
                 <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
@@ -164,9 +174,9 @@ export default function SupportTickets() {
               ) : orderedTickets.length === 0 ? (
                 <div className="flex min-h-[240px] flex-col items-center justify-center text-center">
                   <Inbox className="mb-4 h-10 w-10 text-muted-foreground" />
-                  <p className="font-medium">No tickets yet</p>
+                  <p className="font-medium">{t("support.empty")}</p>
                   <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                    Submit a support request here instead of sending fragmented email threads.
+                    {t("support.emptyCopy")}
                   </p>
                 </div>
               ) : (
@@ -182,11 +192,11 @@ export default function SupportTickets() {
                           <p className="text-sm text-muted-foreground">#{ticket.id.slice(0, 8)}</p>
                           <h3 className="truncate font-semibold">{ticket.subject}</h3>
                           <p className="mt-1 text-sm text-muted-foreground">
-                            {new Date(ticket.created_at).toLocaleString()}
+                            {formatDate(ticket.created_at, { dateStyle: "medium", timeStyle: "short" })}
                           </p>
                         </div>
                         <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${statusTone[ticket.status] || "bg-muted text-foreground border-border"}`}>
-                          {ticket.status.replace("_", " ")}
+                          {statusKeys[ticket.status] ? t(statusKeys[ticket.status]) : ticket.status.replace("_", " ")}
                         </span>
                       </div>
                     </Link>
@@ -201,64 +211,77 @@ export default function SupportTickets() {
                   <Plus className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold">{receiptId ? "Report a commerce problem" : "New support request"}</h2>
-                  <p className="text-sm text-muted-foreground">{receiptId ? `This case will be attached to ${receiptProduct || "your receipt"} and routed to the merchant.` : "Use this for account-specific issues that need follow-up."}</p>
+                  <h2 className="text-xl font-semibold">{receiptId ? t("support.reportCommerce") : t("support.newRequest")}</h2>
+                  <p className="text-sm text-muted-foreground">{receiptId ? t("support.commerceCopy", { product: receiptProduct || t("support.yourReceipt") }) : t("support.accountCopy")}</p>
                 </div>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                {receiptId ? <div className="space-y-2"><label htmlFor="reason" className="text-sm font-medium">What went wrong?</label><select id="reason" value={form.reason} onChange={(event)=>setForm((current)=>({...current,reason:event.target.value}))} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"><option value="reward_not_honoured">Reward not honoured</option><option value="code_failed">Code failed</option><option value="merchant_closed">Merchant was closed</option><option value="offer_differed">Offer differed</option><option value="purchase_problem">Purchase problem</option><option value="other">Something else</option></select><p className="text-xs text-muted-foreground">Receipt #{receiptId.slice(0,8)} · Merchant response due within 18 hours.</p></div> : null}
+                {receiptId ? (
+                  <div className="space-y-2">
+                    <label htmlFor="reason" className="text-sm font-medium">{t("support.whatWrong")}</label>
+                    <select id="reason" value={form.reason} onChange={(event) => setForm((current) => ({ ...current, reason: event.target.value }))} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                      <option value="reward_not_honoured">{t("support.reasonReward")}</option>
+                      <option value="code_failed">{t("support.reasonCode")}</option>
+                      <option value="merchant_closed">{t("support.reasonClosed")}</option>
+                      <option value="offer_differed">{t("support.reasonDiffered")}</option>
+                      <option value="purchase_problem">{t("support.reasonPurchase")}</option>
+                      <option value="other">{t("support.reasonOther")}</option>
+                    </select>
+                    <p className="text-xs text-muted-foreground">{t("support.receiptDue", { id: receiptId.slice(0, 8) })}</p>
+                  </div>
+                ) : null}
                 <div className="space-y-2">
-                  <label htmlFor="subject" className="text-sm font-medium">Subject</label>
+                  <label htmlFor="subject" className="text-sm font-medium">{t("support.subject")}</label>
                   <Input
                     id="subject"
                     value={form.subject}
                     onChange={(event) => setForm((current) => ({ ...current, subject: event.target.value }))}
-                    placeholder="What needs attention?"
+                    placeholder={t("support.subjectPh")}
                     required
                   />
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <label htmlFor="category" className="text-sm font-medium">Category</label>
+                    <label htmlFor="category" className="text-sm font-medium">{t("support.category")}</label>
                     <select
                       id="category"
                       value={form.category}
                       onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}
                       className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     >
-                      <option value="account">Account</option>
-                      <option value="billing">Billing</option>
-                      <option value="content_report">Content report</option>
-                      <option value="feature_request">Feature request</option>
-                      <option value="bug">Bug</option>
-                      <option value="other">Other</option>
+                      <option value="account">{t("support.catAccount")}</option>
+                      <option value="billing">{t("support.catBilling")}</option>
+                      <option value="content_report">{t("support.catContent")}</option>
+                      <option value="feature_request">{t("support.catFeature")}</option>
+                      <option value="bug">{t("support.catBug")}</option>
+                      <option value="other">{t("support.catOther")}</option>
                     </select>
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="priority" className="text-sm font-medium">Priority</label>
+                    <label htmlFor="priority" className="text-sm font-medium">{t("support.priority")}</label>
                     <select
                       id="priority"
                       value={form.priority}
                       onChange={(event) => setForm((current) => ({ ...current, priority: event.target.value }))}
                       className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
+                      <option value="low">{t("support.low")}</option>
+                      <option value="medium">{t("support.medium")}</option>
+                      <option value="high">{t("support.high")}</option>
                     </select>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="message" className="text-sm font-medium">Details</label>
+                  <label htmlFor="message" className="text-sm font-medium">{t("support.details")}</label>
                   <Textarea
                     id="message"
                     value={form.message}
                     onChange={(event) => setForm((current) => ({ ...current, message: event.target.value }))}
-                    placeholder="Include the affected Moment, payout, merchant, or approximate time so support can trace it."
+                    placeholder={t("support.detailsPh")}
                     className="min-h-[180px]"
                     required
                   />
@@ -273,7 +296,7 @@ export default function SupportTickets() {
 
                 <Button type="submit" className="w-full" disabled={submitting}>
                   {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
-                  {submitting ? "Submitting" : "Submit ticket"}
+                  {submitting ? t("support.submitting") : t("support.submit")}
                 </Button>
               </form>
             </div>
