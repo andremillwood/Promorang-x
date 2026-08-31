@@ -277,6 +277,10 @@ describe("localization", () => {
       "brandTreas.fund",
       "shareFeed.title",
       "auditDlg.title",
+      "adminDesk.title",
+      "adminDesk.iCommand",
+      "o2oAn.title",
+      "brandEst.continue",
     ] as const;
 
     supportedLocales.forEach((locale) => {

@@ -71,6 +71,7 @@ import { AdminDiscoveryAcquisitionTab } from "@/components/admin/AdminDiscoveryA
 import { PromoPilotCompiler } from "@/components/campaigns/PromoPilotCompiler";
 import { AdminVerificationHub } from "@/components/admin/AdminVerificationHub";
 import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 const ADMIN_TABS = new Set([
   "command",
@@ -104,67 +105,73 @@ const ADMIN_TABS = new Set([
 
 type AdminNavItem = {
   value: string;
-  label: string;
+  labelKey: TranslationKey;
   icon: LucideIcon;
-  badge?: string;
+  badgeKey?: TranslationKey;
+  badgeCount?: number;
 };
 
-const ADMIN_NAV_GROUPS: Array<{ label: string; items: AdminNavItem[] }> = [
+type AdminNavGroup = {
+  labelKey: TranslationKey;
+  items: AdminNavItem[];
+};
+
+const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
   {
-    label: "Master Telemetry",
+    labelKey: "adminDesk.gTelemetry",
     items: [
-      { value: "command", label: "Master Command", icon: Shield, badge: "Live" },
-      { value: "verification-hub", label: "Verification Hub", icon: ShieldCheck, badge: "3 New" },
-      { value: "overview", label: "Analytics & ROI", icon: BarChart3 },
-      { value: "growth", label: "Growth Radar", icon: TrendingUp },
-      { value: "discovery", label: "Discovery Loop", icon: Target },
-      { value: "leads", label: "Leads & CRM", icon: ContactRound },
+      { value: "command", labelKey: "adminDesk.iCommand", icon: Shield, badgeKey: "adminDesk.badgeLive" },
+      { value: "verification-hub", labelKey: "adminDesk.iVerify", icon: ShieldCheck, badgeKey: "adminDesk.badgeNew", badgeCount: 3 },
+      { value: "overview", labelKey: "adminDesk.iOverview", icon: BarChart3 },
+      { value: "growth", labelKey: "adminDesk.iGrowth", icon: TrendingUp },
+      { value: "discovery", labelKey: "adminDesk.iDiscovery", icon: Target },
+      { value: "leads", labelKey: "adminDesk.iLeads", icon: ContactRound },
     ],
   },
   {
-    label: "Operations & Supply",
+    labelKey: "adminDesk.gOps",
     items: [
-      { value: "moments", label: "Moments Directory", icon: Calendar },
-      { value: "claimable-pages", label: "Create for Owners", icon: UserPlus },
-      { value: "users", label: "User Accounts", icon: Users },
-      { value: "applications", label: "Host Applications", icon: Sparkles },
-      { value: "pioneer", label: "Pioneer Audit", icon: Target },
-      { value: "enrichment-review", label: "Scout Proof Review", icon: ClipboardCheck },
-      { value: "event-review", label: "Event Evidence", icon: Calendar },
-      { value: "operations", label: "Live Operations", icon: Activity },
+      { value: "moments", labelKey: "adminDesk.iMoments", icon: Calendar },
+      { value: "claimable-pages", labelKey: "adminDesk.iOwners", icon: UserPlus },
+      { value: "users", labelKey: "adminDesk.iUsers", icon: Users },
+      { value: "applications", labelKey: "adminDesk.iApps", icon: Sparkles },
+      { value: "pioneer", labelKey: "adminDesk.iPioneer", icon: Target },
+      { value: "enrichment-review", labelKey: "adminDesk.iScout", icon: ClipboardCheck },
+      { value: "event-review", labelKey: "adminDesk.iEvent", icon: Calendar },
+      { value: "operations", labelKey: "adminDesk.iOps", icon: Activity },
     ],
   },
   {
-    label: "Trust, Nodes & Treasury",
+    labelKey: "adminDesk.gTrust",
     items: [
-      { value: "moderation", label: "Moderation Queue", icon: Scale },
-      { value: "payouts", label: "Payouts & Escrow", icon: DollarSign },
-      { value: "economy", label: "Gem Node Economy", icon: Coins },
-      { value: "access", label: "Access & PromoKeys", icon: KeyRound },
-      { value: "audit", label: "Audit Ledger", icon: Shield },
+      { value: "moderation", labelKey: "adminDesk.iMod", icon: Scale },
+      { value: "payouts", labelKey: "adminDesk.iPayouts", icon: DollarSign },
+      { value: "economy", labelKey: "adminDesk.iEconomy", icon: Coins },
+      { value: "access", labelKey: "adminDesk.iAccess", icon: KeyRound },
+      { value: "audit", labelKey: "adminDesk.iAudit", icon: Shield },
     ],
   },
   {
-    label: "Platform Services",
+    labelKey: "adminDesk.gServices",
     items: [
-      { value: "promopush", label: "PromoPush Broadcast", icon: Megaphone },
-      { value: "catalog", label: "Catalog Manager", icon: Store },
-      { value: "commerce", label: "Commerce & Orders", icon: ShoppingBag },
-      { value: "support", label: "Support Desk", icon: LifeBuoy },
+      { value: "promopush", labelKey: "adminDesk.iPromo", icon: Megaphone },
+      { value: "catalog", labelKey: "adminDesk.iCatalog", icon: Store },
+      { value: "commerce", labelKey: "adminDesk.iCommerce", icon: ShoppingBag },
+      { value: "support", labelKey: "adminDesk.iSupport", icon: LifeBuoy },
     ],
   },
   {
-    label: "System & Engine",
+    labelKey: "adminDesk.gSystem",
     items: [
-      { value: "compiler", label: "Campaign Compiler", icon: Radio },
-      { value: "proof-builder", label: "Proof Builder", icon: CheckCircle },
-      { value: "config", label: "System Config", icon: Settings },
+      { value: "compiler", labelKey: "adminDesk.iCompiler", icon: Radio },
+      { value: "proof-builder", labelKey: "adminDesk.iProof", icon: CheckCircle },
+      { value: "config", labelKey: "adminDesk.iConfig", icon: Settings },
     ],
   },
 ];
 
 const AdminDashboard = () => {
-  const { t, formatNumber } = useI18n();
+  const { t } = useI18n();
   const { user, loading: authLoading } = useAuth();
   const isAdmin = useIsAdmin();
   const { data: stats, isLoading: statsLoading } = usePlatformStats();
@@ -225,13 +232,13 @@ const AdminDashboard = () => {
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl font-bold tracking-tight text-white">Platform Administration</h1>
+                <h1 className="text-xl font-bold tracking-tight text-white">{t("adminDesk.title")}</h1>
                 <span className="px-2 py-0.5 rounded-md bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] font-mono font-bold tracking-wide uppercase">
-                  ROOT • {activeItem.label}
+                  {t("adminDesk.root", { label: t(activeItem.labelKey) })}
                 </span>
               </div>
               <p className="text-[11px] text-white/50 mt-0.5">
-                Master operational state, node telemetry, verification triage, and treasury controls.
+                {t("adminDesk.subtitle")}
               </p>
             </div>
           </div>
@@ -243,7 +250,7 @@ const AdminDashboard = () => {
               <Input
                 value={navSearch}
                 onChange={(e) => setNavSearch(e.target.value)}
-                placeholder="Jump to tool..."
+                placeholder={t("adminDesk.search")}
                 className="h-8 pl-8 rounded-lg border-white/10 bg-white/5 text-white text-xs placeholder:text-white/40 focus:border-cyan-500/50"
               />
             </div>
@@ -254,7 +261,7 @@ const AdminDashboard = () => {
               className="h-8 px-3 rounded-lg bg-cyan-400 hover:bg-cyan-500 text-black font-extrabold text-xs shadow-md shadow-cyan-400/20"
             >
               <ShieldCheck className="h-3.5 w-3.5 mr-1" />
-              Proof Hub
+              {t("adminDesk.proofHub")}
             </Button>
 
             <Button
@@ -263,7 +270,7 @@ const AdminDashboard = () => {
               className="h-8 px-3 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs"
             >
               <Megaphone className="h-3 w-3 mr-1 text-primary" />
-              PromoPush
+              {t("adminDesk.promoPush")}
             </Button>
           </div>
         </div>
@@ -275,7 +282,7 @@ const AdminDashboard = () => {
 
             return (
               <button
-                key={group.label}
+                key={group.labelKey}
                 onClick={() => handleTabChange(group.items[0].value)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition flex items-center gap-1.5 ${
                   isGroupActive
@@ -283,7 +290,7 @@ const AdminDashboard = () => {
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
-                {group.label}
+                {t(group.labelKey)}
               </button>
             );
           })}
@@ -306,10 +313,10 @@ const AdminDashboard = () => {
                 }`}
               >
                 <Icon className={`h-3.5 w-3.5 ${isActive ? "text-cyan-400" : "text-white/40"}`} />
-                <span>{item.label}</span>
-                {item.badge && (
+                <span>{t(item.labelKey)}</span>
+                {item.badgeKey && (
                   <span className="px-1.5 py-0.2 rounded bg-cyan-400/20 text-cyan-300 text-[9px] font-mono font-bold">
-                    {item.badge}
+                    {item.badgeCount != null ? t(item.badgeKey, { count: item.badgeCount }) : t(item.badgeKey)}
                   </span>
                 )}
               </button>
@@ -321,7 +328,7 @@ const AdminDashboard = () => {
         {navSearch.trim().length > 0 && (
           <div className="p-2 rounded-xl bg-[#141822] border border-cyan-500/30 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5">
             {allNavItems
-              .filter((item) => item.label.toLowerCase().includes(navSearch.toLowerCase()))
+              .filter((item) => t(item.labelKey).toLowerCase().includes(navSearch.toLowerCase()))
               .map((item) => {
                 const Icon = item.icon;
                 return (
@@ -334,7 +341,7 @@ const AdminDashboard = () => {
                     className="flex items-center gap-2 p-2 rounded-lg text-left text-xs text-white/80 hover:bg-cyan-500/10 hover:text-cyan-300 transition"
                   >
                     <Icon className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
-                    <span className="truncate">{item.label}</span>
+                    <span className="truncate">{t(item.labelKey)}</span>
                   </button>
                 );
               })}

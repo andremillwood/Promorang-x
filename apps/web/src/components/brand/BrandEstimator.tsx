@@ -3,15 +3,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Calculator, Zap, ShieldCheck, TrendingUp, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { useI18n } from "@/i18n/I18nContext";
 
 const TIERS = [
-  { name: "Seeker", multiplier: 1, baseCost: 5, reach: 50 },
-  { name: "Herald", multiplier: 1.25, baseCost: 8, reach: 500 },
-  { name: "Luminary", multiplier: 1.5, baseCost: 15, reach: 5000 },
-  { name: "Eminence", multiplier: 2.0, baseCost: 40, reach: 50000 },
+  { nameKey: "brandEst.tier.seeker" as const, multiplier: 1, baseCost: 5, reach: 50 },
+  { nameKey: "brandEst.tier.herald" as const, multiplier: 1.25, baseCost: 8, reach: 500 },
+  { nameKey: "brandEst.tier.luminary" as const, multiplier: 1.5, baseCost: 15, reach: 5000 },
+  { nameKey: "brandEst.tier.eminence" as const, multiplier: 2.0, baseCost: 40, reach: 50000 },
 ];
 
 export const BrandEstimator = () => {
+  const { t, formatNumber } = useI18n();
   const [targetActions, setTargetActions] = useState(50);
   const [selectedTier, setSelectedTier] = useState(1); // Default to Herald
 
@@ -31,13 +33,13 @@ export const BrandEstimator = () => {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary mb-6">
               <Calculator className="w-4 h-4" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-primary">Plan the shared value</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-primary">{t("brandEst.badge")}</span>
             </div>
             <h2 className="mb-6 font-serif text-4xl font-semibold leading-[.98] tracking-[-.04em] md:text-5xl">
-              What should participation make possible?
+              {t("brandEst.title")}
             </h2>
             <p className="mb-8 text-base leading-7 text-muted-foreground">
-              Estimate the Gems needed to recognize a defined number of verified participant actions. This is a planning guide; funding is only secured when the activation reserve is created.
+              {t("brandEst.copy")}
             </p>
             
             <div className="space-y-8">
@@ -45,7 +47,7 @@ export const BrandEstimator = () => {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <label className="text-sm font-bold text-foreground flex items-center gap-2">
-                    Verified actions you want to recognize
+                    {t("brandEst.actions")}
                     <Info className="w-3 h-3 text-muted-foreground cursor-help" />
                   </label>
                   <span className="text-2xl font-serif font-bold text-primary italic">{targetActions}</span>
@@ -62,11 +64,11 @@ export const BrandEstimator = () => {
 
               {/* Tier Selection */}
               <div className="space-y-4">
-                <label className="text-sm font-bold text-foreground">Participation level</label>
+                <label className="text-sm font-bold text-foreground">{t("brandEst.level")}</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {TIERS.map((t, i) => (
+                  {TIERS.map((tierOpt, i) => (
                     <button
-                      key={t.name}
+                      key={tierOpt.nameKey}
                       onClick={() => setSelectedTier(i)}
                       className={`p-3 rounded-xl border text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                         selectedTier === i 
@@ -75,9 +77,9 @@ export const BrandEstimator = () => {
                       }`}
                     >
                       <p className={`text-[10px] font-black uppercase tracking-tighter mb-1 ${selectedTier === i ? "text-primary" : "text-muted-foreground"}`}>
-                        {t.name}
+                        {t(tierOpt.nameKey)}
                       </p>
-                      <p className="text-xs font-bold text-foreground">{t.baseCost} Gems per action</p>
+                      <p className="text-xs font-bold text-foreground">{t("brandEst.gemsPer", { count: tierOpt.baseCost })}</p>
                     </button>
                   ))}
                 </div>
@@ -92,12 +94,12 @@ export const BrandEstimator = () => {
               className="relative bg-charcoal rounded-[3rem] border border-white/10 p-8 md:p-12 shadow-2xl"
             >
               <div className="flex items-center justify-between mb-10 border-b border-white/10 pb-6">
-                <h4 className="font-serif text-xl text-white">Estimated activation reserve</h4>
+                <h4 className="font-serif text-xl text-white">{t("brandEst.reserve")}</h4>
                 <div className="text-right">
                   <p className="text-primary text-3xl font-serif font-bold italic">
-                    {totalFunding.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} Gems
+                    {t("brandEst.gemsAmt", { count: formatNumber(totalFunding, { maximumFractionDigits: 0 }) })}
                   </p>
-                  <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">US${totalFunding.toLocaleString(undefined, { maximumFractionDigits: 0 })} platform value</p>
+                  <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">{t("brandEst.usdVal", { amount: formatNumber(totalFunding, { maximumFractionDigits: 0 }) })}</p>
                 </div>
               </div>
 
@@ -105,14 +107,14 @@ export const BrandEstimator = () => {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-white/60 mb-1">
                     <ShieldCheck className="w-3 h-3" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Gems per verified action</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest">{t("brandEst.perAction")}</span>
                   </div>
-                  <p className="text-white text-xl font-bold">{cpva.toFixed(2)} Gems</p>
+                  <p className="text-white text-xl font-bold">{t("brandEst.gemsAmt", { count: cpva.toFixed(2) })}</p>
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-white/60 mb-1">
                     <TrendingUp className="w-3 h-3" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Possible reach</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest">{t("brandEst.reach")}</span>
                   </div>
                   <AnimatePresence mode="wait">
                     <motion.p 
@@ -122,7 +124,7 @@ export const BrandEstimator = () => {
                       exit={{ opacity: 0, y: -10 }}
                       className="text-primary text-xl font-bold"
                     >
-                      {totalReach.toLocaleString()}+
+                      {formatNumber(totalReach)}+
                     </motion.p>
                   </AnimatePresence>
                 </div>
@@ -130,22 +132,22 @@ export const BrandEstimator = () => {
 
               <div className="p-6 bg-white/5 rounded-2xl border border-white/10 space-y-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/40">Participant value</span>
-                  <span className="text-white font-medium">{subtotal.toLocaleString()} Gems</span>
+                  <span className="text-white/40">{t("brandEst.partValue")}</span>
+                  <span className="text-white font-medium">{t("brandEst.gemsAmt", { count: formatNumber(subtotal) })}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/40">Platform fee (15%)</span>
-                  <span className="text-primary font-medium">{platformFee.toLocaleString()} Gems</span>
+                  <span className="text-white/40">{t("brandEst.fee")}</span>
+                  <span className="text-primary font-medium">{t("brandEst.gemsAmt", { count: formatNumber(platformFee) })}</span>
                 </div>
               </div>
 
               <div className="mt-10">
                 <Button variant="hero" className="w-full" size="xl">
-                  Continue with this plan
+                  {t("brandEst.continue")}
                   <Zap className="w-4 h-4 ml-2" />
                 </Button>
                 <p className="text-center text-[10px] text-white/20 mt-4 uppercase font-black tracking-widest">
-                  This estimate does not secure or move Gems
+                  {t("brandEst.disclaimer")}
                 </p>
               </div>
             </motion.div>
