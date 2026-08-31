@@ -136,6 +136,9 @@ describe("localization", () => {
       "orgWork.going",
       "staffScan.title",
       "staffScan.confirm",
+      "couponHub.badge",
+      "couponHub.claimBonus",
+      "ugcReview.approve",
     ] as const;
 
     supportedLocales.forEach((locale) => {
