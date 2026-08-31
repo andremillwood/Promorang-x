@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Store, Users } from "lucide-react";
-import { getOpeningMove, openingHref, type OpeningPathChoice } from "@promorang/shared";
+import { openingHref, type OpeningPathChoice } from "@promorang/shared";
 import { TicketPass, PlainEnglish } from "@/components/promorang/SignatureObjects";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOpeningMove, writeOpeningPathChoice } from "@/hooks/useOpeningMove";
@@ -16,14 +16,9 @@ export function FirstNightMove() {
     writeOpeningPathChoice(choice);
     if (choice === "place") {
       await claimRole("host");
+      return;
     }
-    const next = getOpeningMove({
-      role: choice === "place" ? "host" : "participant",
-      pathChoice: choice,
-      hostedMomentCount: 0,
-      joinedMomentCount: 0,
-    });
-    navigate(openingHref(next.destination));
+    navigate(openingHref("discover"));
   };
 
   if (move.path === "choose_path") {

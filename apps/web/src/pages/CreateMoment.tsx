@@ -151,6 +151,15 @@ export function CreateMoment() {
     },
   });
 
+  useEffect(() => {
+    if (!firstNight || startsAt) return;
+    const date = new Date();
+    date.setHours(20, 0, 0, 0);
+    if (date.getTime() < Date.now()) date.setDate(date.getDate() + 1);
+    const localIso = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    setStartsAt(localIso);
+  }, [firstNight, startsAt]);
+
   if (!user) {
     return (
       <div className="min-h-screen bg-[#0a0a0b] text-white flex flex-col items-center justify-center p-6 text-center">
@@ -210,15 +219,6 @@ export function CreateMoment() {
       if (found.capacity) setMaxParticipants(found.capacity);
     }
   };
-
-  useEffect(() => {
-    if (!firstNight || startsAt) return;
-    const date = new Date();
-    date.setHours(20, 0, 0, 0);
-    if (date.getTime() < Date.now()) date.setDate(date.getDate() + 1);
-    const localIso = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-    setStartsAt(localIso);
-  }, [firstNight, startsAt]);
 
   const handlePresetDate = (daysAhead: number, defaultHour = 20) => {
     const date = new Date();
