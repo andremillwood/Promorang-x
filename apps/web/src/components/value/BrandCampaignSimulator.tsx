@@ -17,13 +17,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 type ObjectiveType = "foot_traffic" | "ugc_creator" | "cultural_takeover";
 
 interface ObjectiveConfig {
   id: ObjectiveType;
-  title: string;
-  desc: string;
+  titleKey: TranslationKey;
+  descKey: TranslationKey;
   perCheckinRatio: number; // % of budget
   perUgcRatio: number;
 }
@@ -31,28 +33,29 @@ interface ObjectiveConfig {
 const OBJECTIVES: Record<ObjectiveType, ObjectiveConfig> = {
   foot_traffic: {
     id: "foot_traffic",
-    title: "In-Person Sampling & Foot-Traffic",
-    desc: "Maximize verified physical diner and attendee arrivals at partner venues.",
+    titleKey: "brandCamp.footTitle",
+    descKey: "brandCamp.footDesc",
     perCheckinRatio: 0.85,
     perUgcRatio: 0.15,
   },
   ugc_creator: {
     id: "ugc_creator",
-    title: "Authentic Creator Video Drops",
-    desc: "Engage local tastemakers for high-energy video content and scene curation.",
+    titleKey: "brandCamp.ugcTitle",
+    descKey: "brandCamp.ugcDesc",
     perCheckinRatio: 0.2,
     perUgcRatio: 0.8,
   },
   cultural_takeover: {
     id: "cultural_takeover",
-    title: "Full Cultural Scene Takeover",
-    desc: "Balanced footprint: sponsor top venues, back cultural events, and commission creator drops.",
+    titleKey: "brandCamp.takeoverTitle",
+    descKey: "brandCamp.takeoverDesc",
     perCheckinRatio: 0.5,
     perUgcRatio: 0.5,
   },
 };
 
 export const BrandCampaignSimulator: React.FC = () => {
+  const { t, formatNumber } = useI18n();
   const [budget, setBudget] = useState<number>(10000);
   const [objective, setObjective] = useState<ObjectiveType>("cultural_takeover");
 
@@ -89,13 +92,13 @@ export const BrandCampaignSimulator: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold tracking-wider uppercase mb-2">
             <Building2 className="w-3.5 h-3.5" />
-            Brand & Sponsor ROI Allocator
+            {t("brandCamp.badge")}
           </div>
           <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            Auditable In-Person Foot-Traffic & UGC
+            {t("brandCamp.title")}
           </h3>
           <p className="text-sm text-white/60 mt-1 max-w-xl">
-            Eliminate programmatic ad fraud. Pay only when verified customers walk through doors and authentic creators drop content.
+            {t("brandCamp.copy")}
           </p>
         </div>
 
@@ -103,7 +106,7 @@ export const BrandCampaignSimulator: React.FC = () => {
           variant="outline"
           className="self-start md:self-auto border-blue-500/40 bg-blue-500/10 text-blue-300 font-mono text-xs px-3 py-1.5"
         >
-          ZERO-BOT ATTRIBUTION
+          {t("brandCamp.zeroBot")}
         </Badge>
       </div>
 
@@ -112,7 +115,7 @@ export const BrandCampaignSimulator: React.FC = () => {
         <div className="lg:col-span-7 space-y-6">
           {/* Objective Selector */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-white/80">Select Campaign Objective</label>
+            <label className="text-xs font-semibold text-white/80">{t("brandCamp.objective")}</label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {(Object.keys(OBJECTIVES) as ObjectiveType[]).map((key) => {
                 const item = OBJECTIVES[key];
@@ -126,8 +129,8 @@ export const BrandCampaignSimulator: React.FC = () => {
                         : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white"
                     }`}
                   >
-                    <div className="font-bold">{item.title}</div>
-                    <div className="text-[10px] text-white/50 mt-1 line-clamp-2">{item.desc}</div>
+                    <div className="font-bold">{t(item.titleKey)}</div>
+                    <div className="text-[10px] text-white/50 mt-1 line-clamp-2">{t(item.descKey)}</div>
                   </button>
                 );
               })}
@@ -138,9 +141,9 @@ export const BrandCampaignSimulator: React.FC = () => {
           <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-6">
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-white/90">Total Campaign Escrow Budget</span>
+                <span className="font-semibold text-white/90">{t("brandCamp.budget")}</span>
                 <span className="font-mono text-blue-400 font-bold text-sm">
-                  ${budget.toLocaleString()} USD
+                  {t("brandCamp.usd", { amount: formatNumber(budget) })}
                 </span>
               </div>
               <Slider
@@ -152,9 +155,9 @@ export const BrandCampaignSimulator: React.FC = () => {
                 className="py-1 cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-white/40 font-mono">
-                <span>$2.5k (Local activation)</span>
-                <span>$25k (Multi-venue campaign)</span>
-                <span>$50k+ (Enterprise takeover)</span>
+                <span>{t("brandCamp.local")}</span>
+                <span>{t("brandCamp.multi")}</span>
+                <span>{t("brandCamp.enterprise")}</span>
               </div>
             </div>
           </div>
@@ -162,27 +165,27 @@ export const BrandCampaignSimulator: React.FC = () => {
           {/* Yield Forecast Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-              <div className="text-[10px] uppercase font-mono tracking-wider text-white/50">Verified Arrivals</div>
+              <div className="text-[10px] uppercase font-mono tracking-wider text-white/50">{t("brandCamp.arrivals")}</div>
               <div className="text-lg md:text-xl font-black text-white mt-1">
-                {results.verifiedArrivals.toLocaleString()}
+                {formatNumber(results.verifiedArrivals)}
               </div>
-              <div className="text-[10px] text-blue-300/80 mt-0.5">In-person proof</div>
+              <div className="text-[10px] text-blue-300/80 mt-0.5">{t("brandCamp.inPerson")}</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/30">
-              <div className="text-[10px] uppercase font-mono tracking-wider text-purple-300">Creator UGC Drops</div>
+              <div className="text-[10px] uppercase font-mono tracking-wider text-purple-300">{t("brandCamp.ugcDrops")}</div>
               <div className="text-lg md:text-xl font-black text-purple-400 mt-1">
-                {results.ugcVideoDrops} videos
+                {t("brandCamp.videos", { count: formatNumber(results.ugcVideoDrops) })}
               </div>
-              <div className="text-[10px] text-purple-300/80 mt-0.5">Authentic local media</div>
+              <div className="text-[10px] text-purple-300/80 mt-0.5">{t("brandCamp.localMedia")}</div>
             </div>
 
             <div className="col-span-2 sm:col-span-1 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-              <div className="text-[10px] uppercase font-mono tracking-wider text-emerald-300">Ad Fraud Avoided</div>
+              <div className="text-[10px] uppercase font-mono tracking-wider text-emerald-300">{t("brandCamp.fraud")}</div>
               <div className="text-lg md:text-xl font-black text-emerald-400 mt-1">
-                ${Math.round(results.adFraudWasteAvoided).toLocaleString()}
+                ${formatNumber(Math.round(results.adFraudWasteAvoided))}
               </div>
-              <div className="text-[10px] text-emerald-300/80 mt-0.5">Zero bot clicks</div>
+              <div className="text-[10px] text-emerald-300/80 mt-0.5">{t("brandCamp.zeroClicks")}</div>
             </div>
           </div>
         </div>
@@ -192,31 +195,31 @@ export const BrandCampaignSimulator: React.FC = () => {
           <div className="p-6 rounded-3xl bg-gradient-to-b from-blue-950/40 via-zinc-900 to-zinc-950 border border-blue-500/30 shadow-2xl space-y-6">
             <div className="flex items-center justify-between">
               <span className="text-xs uppercase font-mono tracking-widest text-blue-300">
-                Auditable Campaign Yield
+                {t("brandCamp.yield")}
               </span>
               <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-400">
-                <ShieldCheck className="w-3.5 h-3.5" /> SMART ESCROW
+                <ShieldCheck className="w-3.5 h-3.5" /> {t("brandCamp.smartEscrow")}
               </div>
             </div>
 
             <div>
               <div className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                {results.estimatedOrganicReach.toLocaleString()}
-                <span className="text-sm font-semibold text-white/50 ml-2">Estimated Impressions</span>
+                {formatNumber(results.estimatedOrganicReach)}
+                <span className="text-sm font-semibold text-white/50 ml-2">{t("brandCamp.impressions")}</span>
               </div>
               <div className="text-xs text-blue-300 font-mono mt-1">
-                100% human-verified engagement & physical foot-traffic
+                {t("brandCamp.human")}
               </div>
             </div>
 
             <div className="space-y-2.5 pt-4 border-t border-white/10 text-xs">
               <div className="flex justify-between text-white/70">
-                <span>Escrow Hold Structure:</span>
-                <span className="font-mono font-bold text-white">Funds released on verified proof</span>
+                <span>{t("brandCamp.escrowHold")}</span>
+                <span className="font-mono font-bold text-white">{t("brandCamp.released")}</span>
               </div>
               <div className="flex justify-between text-white/70">
-                <span>Receipt Verification:</span>
-                <span className="font-mono font-bold text-emerald-400">Cryptographic audit trail</span>
+                <span>{t("brandCamp.receiptVerif")}</span>
+                <span className="font-mono font-bold text-emerald-400">{t("brandCamp.audit")}</span>
               </div>
             </div>
           </div>
@@ -225,17 +228,17 @@ export const BrandCampaignSimulator: React.FC = () => {
           <div className="p-5 rounded-2xl bg-blue-500/10 border border-blue-500/30 space-y-3">
             <div className="flex items-center gap-2 text-blue-300 text-xs font-bold uppercase tracking-wider">
               <CheckCircle2 className="w-4 h-4" />
-              Launch Your Escrow Campaign
+              {t("brandCamp.launch")}
             </div>
             <p className="text-xs text-white/70">
-              Deploy your <strong>${budget.toLocaleString()}</strong> campaign brief with zero bot waste and full receipt transparency.
+              {t("brandCamp.deployCopy", { amount: `$${formatNumber(budget)}` })}
             </p>
             <Button
               asChild
               className="w-full h-11 bg-blue-500 hover:bg-blue-600 text-white font-black text-sm shadow-xl shadow-blue-500/20"
             >
               <Link to={`/for-brands?budget=${budget}&objective=${objective}`}>
-                Deploy Escrow Campaign Brief
+                {t("brandCamp.deployCta")}
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Link>
             </Button>

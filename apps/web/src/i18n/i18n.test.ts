@@ -104,6 +104,10 @@ describe("localization", () => {
       "receipt.copyLink",
       "receipt.shareTweet",
       "merchantRoi.title",
+      "guestPerk.title",
+      "creatorEarn.title",
+      "brandCamp.title",
+      "hostSynd.title",
     ] as const;
 
     supportedLocales.forEach((locale) => {
