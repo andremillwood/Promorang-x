@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,15 +15,15 @@ import { Search, MapPin, Users, DollarSign, Calendar, TrendingUp, Sparkles } fro
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-const CATEGORIES = [
-    { value: "", label: "All Categories" },
-    { value: "social", label: "Social Gathering" },
-    { value: "fitness", label: "Fitness & Wellness" },
-    { value: "food", label: "Food & Drink" },
-    { value: "music", label: "Music & Entertainment" },
-    { value: "networking", label: "Networking" },
-    { value: "outdoor", label: "Outdoor Adventure" },
-    { value: "arts", label: "Arts & Culture" },
+const CATEGORIES: Array<{ value: string; label: TranslationKey }> = [
+    { value: "all", label: "hostFind.allCats" },
+    { value: "social", label: "hostFind.catSocial" },
+    { value: "fitness", label: "hostFind.catFitness" },
+    { value: "food", label: "hostFind.catFood" },
+    { value: "music", label: "hostFind.catMusic" },
+    { value: "networking", label: "hostFind.catNet" },
+    { value: "outdoor", label: "hostFind.catOutdoor" },
+    { value: "arts", label: "hostFind.catArts" },
 ];
 
 interface Host {
@@ -46,6 +48,7 @@ interface Moment {
 const HostDiscovery = () => {
     const { user } = useAuth();
     const { toast } = useToast();
+    const { t, formatDate } = useI18n();
     const [searchParams] = useSearchParams();
     const campaignId = searchParams.get('campaignId');
 
@@ -54,7 +57,7 @@ const HostDiscovery = () => {
     const [isSponsoring, setIsSponsoring] = useState<string | null>(null);
 
     // Filters
-    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("all");
     const [locationFilter, setLocationFilter] = useState("");
     const [minAudience, setMinAudience] = useState(10);
     const [maxCost, setMaxCost] = useState(500);
@@ -67,7 +70,7 @@ const HostDiscovery = () => {
         setIsLoading(true);
         try {
             const params = new URLSearchParams();
-            if (selectedCategory) params.append('categories', selectedCategory);
+            if (selectedCategory && selectedCategory !== "all") params.append('categories', selectedCategory);
             if (locationFilter) params.append('locations', locationFilter);
             params.append('minAudienceSize', minAudience.toString());
             params.append('maxCostPerMoment', maxCost.toString());
@@ -84,7 +87,7 @@ const HostDiscovery = () => {
             setHosts(fetchedHosts);
         } catch (error: any) {
             toast({
-                title: "Error fetching hosts",
+                title: t("hostFind.fetchErr"),
                 description: error.message,
                 variant: "destructive",
             });
@@ -96,8 +99,8 @@ const HostDiscovery = () => {
     const handleSponsor = async (momentId: string, amount: number) => {
         if (!campaignId) {
             toast({
-                title: "No campaign selected",
-                description: "Please create a campaign first",
+                title: t("hostFind.noCampTitle"),
+                description: t("hostFind.noCampCopy"),
                 variant: "destructive",
             });
             return;
@@ -124,15 +127,15 @@ const HostDiscovery = () => {
             }
 
             toast({
-                title: "Moment Sponsored! 🎉",
-                description: "Your sponsorship is now active.",
+                title: t("hostFind.sponsored"),
+                description: t("hostFind.sponsoredCopy"),
             });
 
             // Refresh hosts to update UI
             fetchHosts();
         } catch (error: any) {
             toast({
-                title: "Error sponsoring moment",
+                title: t("hostFind.sponsorErr"),
                 description: error.message,
                 variant: "destructive",
             });
@@ -146,10 +149,10 @@ const HostDiscovery = () => {
             {/* Header */}
             <div>
                 <h1 className="font-serif text-3xl font-bold text-foreground mb-2">
-                    Discover Hosts
+                    {t("hostFind.title")}
                 </h1>
                 <p className="text-muted-foreground">
-                    Find and sponsor moments that align with your campaign goals
+                    {t("hostFind.copy")}
                 </p>
             </div>
 
@@ -158,21 +161,21 @@ const HostDiscovery = () => {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Search className="w-5 h-5" />
-                        Filter Hosts
+                        {t("hostFind.filter")}
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
-                            <Label htmlFor="category">Category</Label>
+                            <Label htmlFor="category">{t("hostFind.category")}</Label>
                             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                                 <SelectTrigger id="category">
-                                    <SelectValue placeholder="All Categories" />
+                                    <SelectValue placeholder={t("hostFind.allCats")} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {CATEGORIES.map((cat) => (
                                         <SelectItem key={cat.value} value={cat.value}>
-                                            {cat.label}
+                                            {t(cat.label)}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -180,17 +183,17 @@ const HostDiscovery = () => {
                         </div>
 
                         <div>
-                            <Label htmlFor="location">Location</Label>
+                            <Label htmlFor="location">{t("hostFind.location")}</Label>
                             <Input
                                 id="location"
-                                placeholder="e.g., New York"
+                                placeholder={t("hostFind.locPh")}
                                 value={locationFilter}
                                 onChange={(e) => setLocationFilter(e.target.value)}
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="minAudience">Min Audience</Label>
+                            <Label htmlFor="minAudience">{t("hostFind.minAud")}</Label>
                             <Input
                                 id="minAudience"
                                 type="number"
@@ -201,7 +204,7 @@ const HostDiscovery = () => {
                         </div>
 
                         <div>
-                            <Label htmlFor="maxCost">Max Cost ($)</Label>
+                            <Label htmlFor="maxCost">{t("hostFind.maxCost")}</Label>
                             <Input
                                 id="maxCost"
                                 type="number"
@@ -214,7 +217,7 @@ const HostDiscovery = () => {
 
                     <Button onClick={fetchHosts} className="mt-4">
                         <Search className="w-4 h-4 mr-2" />
-                        Search
+                        {t("hostFind.search")}
                     </Button>
                 </CardContent>
             </Card>
@@ -229,7 +232,7 @@ const HostDiscovery = () => {
                     <Card>
                         <CardContent className="py-12 text-center">
                             <p className="text-muted-foreground">
-                                No hosts found matching your criteria. Try adjusting your filters.
+                                {t("hostFind.empty")}
                             </p>
                         </CardContent>
                     </Card>
@@ -241,7 +244,7 @@ const HostDiscovery = () => {
                                     <div>
                                         <CardTitle className="flex items-center gap-2">
                                             {host.hostName}
-                                            <Badge variant="secondary">{host.moments.length} Moments</Badge>
+                                            <Badge variant="secondary">{t("hostFind.moments", { count: host.moments.length })}</Badge>
                                         </CardTitle>
                                         <CardDescription className="mt-1">
                                             {host.hostEmail}
@@ -250,11 +253,11 @@ const HostDiscovery = () => {
                                     <div className="text-right">
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <Users className="w-4 h-4" />
-                                            {host.totalAudience} Total Reach
+                                            {t("hostFind.reach", { count: host.totalAudience })}
                                         </div>
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                                             <DollarSign className="w-4 h-4" />
-                                            ${Math.round(host.avgCostPerMoment)} Avg Cost
+                                            {t("hostFind.avgCost", { amount: Math.round(host.avgCostPerMoment) })}
                                         </div>
                                     </div>
                                 </div>
@@ -280,11 +283,11 @@ const HostDiscovery = () => {
                                                     </div>
                                                     <div className="flex items-center gap-1">
                                                         <Calendar className="w-3 h-3" />
-                                                        {new Date(moment.startsAt).toLocaleDateString()}
+                                                        {formatDate(moment.startsAt)}
                                                     </div>
                                                     <div className="flex items-center gap-1">
                                                         <Users className="w-3 h-3" />
-                                                        {moment.audienceSize} expected
+                                                        {t("hostFind.expected", { count: moment.audienceSize })}
                                                     </div>
                                                 </div>
                                             </div>
@@ -294,7 +297,7 @@ const HostDiscovery = () => {
                                                         ${moment.estimatedCost}
                                                     </p>
                                                     <p className="text-xs text-muted-foreground">
-                                                        Estimated Cost
+                                                        {t("hostFind.estCost")}
                                                     </p>
                                                 </div>
                                                 <Button
@@ -303,11 +306,11 @@ const HostDiscovery = () => {
                                                     disabled={isSponsoring === moment.id || !campaignId}
                                                 >
                                                     {isSponsoring === moment.id ? (
-                                                        "Sponsoring..."
+                                                        t("hostFind.sponsoring")
                                                     ) : (
                                                         <>
                                                             <Sparkles className="w-4 h-4 mr-2" />
-                                                            Sponsor
+                                                            {t("hostFind.sponsor")}
                                                         </>
                                                     )}
                                                 </Button>
@@ -325,7 +328,7 @@ const HostDiscovery = () => {
                 <Card className="border-amber-500/50 bg-amber-500/5">
                     <CardContent className="py-4">
                         <p className="text-sm text-amber-700 dark:text-amber-400">
-                            ⚠️ No campaign selected. Create a campaign first to sponsor moments.
+                            {t("hostFind.noCampaign")}
                         </p>
                     </CardContent>
                 </Card>

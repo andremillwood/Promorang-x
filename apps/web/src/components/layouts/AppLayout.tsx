@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { useI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 
 interface AppLayoutProps {
@@ -14,6 +15,7 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children }: AppLayoutProps) => {
     const { user, roles, activeRole, loading, profile } = useAuth();
+    const { t } = useI18n();
     const location = useLocation();
 
     const [showRankCelebration, setShowRankCelebration] = useState(false);
@@ -75,7 +77,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground animate-pulse">
-                Initializing...
+                {t("common.initializing")}
             </div>
         );
     }

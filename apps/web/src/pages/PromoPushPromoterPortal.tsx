@@ -3,6 +3,7 @@ import { Download, QrCode, ScanLine, ShieldCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePromoPushPromoterAssignments } from "@/hooks/usePromoPush";
+import { useI18n } from "@/i18n/I18nContext";
 
 function downloadQr(label: string, code: string) {
   const svg = document.getElementById(`promoter-qr-${code}`);
@@ -16,6 +17,7 @@ function downloadQr(label: string, code: string) {
 }
 
 export default function PromoPushPromoterPortal() {
+  const { t, formatNumber } = useI18n();
   const assignmentsQuery = usePromoPushPromoterAssignments();
   const assignments = assignmentsQuery.data || [];
 
@@ -34,22 +36,22 @@ export default function PromoPushPromoterPortal() {
         <div className="border-b border-white/10 pb-6">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#FF6A00]/40 bg-[#FF6A00]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-[#FFC300]">
             <QrCode className="h-3.5 w-3.5" />
-            Promoter Portal
+            {t("pushPortal.badge")}
           </div>
-          <h1 className="text-3xl font-black tracking-tight sm:text-5xl">Assigned street activations</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">Access campaign QR codes, download printable assets, and review personal scan-to-proof performance.</p>
+          <h1 className="text-3xl font-black tracking-tight sm:text-5xl">{t("pushPortal.title")}</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">{t("pushPortal.lede")}</p>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           {[
-            { label: "Scans", value: totals.scans, icon: ScanLine },
-            { label: "Joins", value: totals.joins, icon: Users },
-            { label: "Verified Actions", value: totals.verified, icon: ShieldCheck },
+            { label: t("pushPortal.scans"), value: totals.scans, icon: ScanLine },
+            { label: t("pushPortal.joins"), value: totals.joins, icon: Users },
+            { label: t("pushPortal.verifiedActions"), value: totals.verified, icon: ShieldCheck },
           ].map((metric) => (
             <Card key={metric.label} className="border-white/10 bg-white/[0.04] text-white">
               <CardContent className="p-4">
                 <metric.icon className="mb-3 h-5 w-5 text-[#FF6A00]" />
-                <p className="text-2xl font-black">{metric.value.toLocaleString()}</p>
+                <p className="text-2xl font-black">{formatNumber(metric.value)}</p>
                 <p className="text-xs font-medium text-white/55">{metric.label}</p>
               </CardContent>
             </Card>
@@ -58,17 +60,17 @@ export default function PromoPushPromoterPortal() {
 
         <div className="mt-8 grid gap-4 lg:grid-cols-2">
           {assignmentsQuery.isLoading ? (
-            <p className="text-white/60">Loading assignments...</p>
+            <p className="text-white/60">{t("pushPortal.loading")}</p>
           ) : assignments.length === 0 ? (
             <Card className="border-dashed border-white/20 bg-white/[0.03] text-white lg:col-span-2">
-              <CardContent className="p-8 text-center text-white/65">No active assignments yet. Approved promoters will see campaign QR codes here.</CardContent>
+              <CardContent className="p-8 text-center text-white/65">{t("pushPortal.empty")}</CardContent>
             </Card>
           ) : (
             assignments.map((assignment) => (
               <Card key={assignment.id} className="border-white/10 bg-white/[0.04] text-white">
                 <CardHeader>
-                  <CardTitle>{assignment.campaign?.title || "PromoPush Campaign"}</CardTitle>
-                  <p className="text-sm text-white/55">{assignment.campaign?.geo_label || "Assigned zone"}</p>
+                  <CardTitle>{assignment.campaign?.title || t("pushPortal.fallbackTitle")}</CardTitle>
+                  <p className="text-sm text-white/55">{assignment.campaign?.geo_label || t("pushPortal.assignedZone")}</p>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-[160px_1fr]">
                   {assignment.channel?.tracking_link && (
@@ -80,24 +82,24 @@ export default function PromoPushPromoterPortal() {
                     <div className="grid grid-cols-3 gap-2 text-sm">
                       <div className="rounded-md bg-black/35 p-3">
                         <p className="font-black">{assignment.channel?.metrics?.clicks || 0}</p>
-                        <p className="text-xs text-white/55">Scans</p>
+                        <p className="text-xs text-white/55">{t("pushPortal.scans")}</p>
                       </div>
                       <div className="rounded-md bg-black/35 p-3">
                         <p className="font-black">{assignment.channel?.metrics?.joins || 0}</p>
-                        <p className="text-xs text-white/55">Joins</p>
+                        <p className="text-xs text-white/55">{t("pushPortal.joins")}</p>
                       </div>
                       <div className="rounded-md bg-black/35 p-3">
                         <p className="font-black">{assignment.channel?.metrics?.proof_verified || 0}</p>
-                        <p className="text-xs text-white/55">Verified</p>
+                        <p className="text-xs text-white/55">{t("pushPortal.verified")}</p>
                       </div>
                     </div>
                     <Button className="w-full bg-[#FF6A00] text-white hover:bg-[#e65f00]" onClick={() => downloadQr(assignment.channel?.label || "promopush", assignment.channel?.tracking_code)}>
                       <Download className="mr-2 h-4 w-4" />
-                      Download QR
+                      {t("pushPortal.downloadQr")}
                     </Button>
                     {assignment.flyer_url && (
                       <Button asChild variant="outline" className="w-full border-white/20 bg-transparent text-white hover:bg-white/10">
-                        <a href={assignment.flyer_url} target="_blank" rel="noreferrer">Download Flyer</a>
+                        <a href={assignment.flyer_url} target="_blank" rel="noreferrer">{t("pushPortal.downloadFlyer")}</a>
                       </Button>
                     )}
                   </div>

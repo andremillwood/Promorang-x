@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowRight, Check, CircleDot, Sparkles } from "lucide-react";
 import SEO from "@/components/SEO";
+import { useI18n } from "@/i18n/I18nContext";
 
 const ArlaCampaignHub = lazy(() => import("./ArlaCampaignHub"));
 
@@ -104,6 +105,7 @@ const campaigns: Record<string, any> = {
 };
 
 export default function CampaignLanding() {
+  const { t } = useI18n();
   const { campaign = "kingston-comes-alive" } = useParams();
 
   // If the campaign is Arla, render the Arla Campaign Hub directly
@@ -142,11 +144,11 @@ export default function CampaignLanding() {
                   {c.cta}
                   <ArrowRight className="h-5 w-5" />
                 </Link>
-                <span className="text-xs text-white/40">Free result · 3–5 minutes · No account required</span>
+                <span className="text-xs text-white/40">{t("campLand.freeResult")}</span>
               </div>
             </div>
             <aside className="border border-white/15 bg-white/[.04] p-6">
-              <p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">This is for you if</p>
+              <p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">{t("campLand.forYouIf")}</p>
               <div className="mt-5 space-y-4">
                 {c.fit.map((item: string) => (
                   <p key={item} className="flex gap-3 text-sm leading-6 text-white/65">
@@ -161,7 +163,7 @@ export default function CampaignLanding() {
       </section>
       <section className="border-b border-white/10 bg-[#f0ece2] px-6 py-20 text-[#171713] md:py-28">
         <div className="mx-auto max-w-7xl">
-          <p className="text-xs font-black uppercase tracking-[.2em] text-[#ef5b19]">How it moves</p>
+          <p className="text-xs font-black uppercase tracking-[.2em] text-[#ef5b19]">{t("campLand.howMoves")}</p>
           <div className="mt-8 grid border-l border-t border-black/15 md:grid-cols-3">
             {c.steps.map(([title, body]: string[], i: number) => (
               <article key={title} className="min-h-64 border-b border-r border-black/15 p-7">
@@ -177,14 +179,14 @@ export default function CampaignLanding() {
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[.7fr_1.3fr]">
           <div>
             <Sparkles className="h-8 w-8 text-primary" />
-            <p className="mt-5 text-xs font-black uppercase tracking-[.2em] text-primary">Why Promorang</p>
+            <p className="mt-5 text-xs font-black uppercase tracking-[.2em] text-primary">{t("campLand.why")}</p>
           </div>
           <div>
             <h2 className="font-serif text-4xl font-bold leading-tight md:text-6xl">
-              Most people do not need more information. They need the right decision to feel easier.
+              {t("campLand.whyTitle")}
             </h2>
             <p className="mt-6 max-w-3xl text-base leading-8 text-white/50">
-              Promorang connects declared intent to an immediate next move, then lets verified participation improve the invitations, partnerships and commercial decisions that follow.
+              {t("campLand.whyLede")}
             </p>
             <Link to={funnel} className="mt-8 inline-flex items-center gap-2 text-sm font-black text-primary">
               {c.cta}
@@ -197,7 +199,7 @@ export default function CampaignLanding() {
         <CircleDot className="mx-auto h-8 w-8" />
         <p className="mt-5 text-xs font-black uppercase tracking-[.2em] text-black/55">{c.audience}</p>
         <h2 className="mx-auto mt-4 max-w-4xl font-serif text-5xl font-bold leading-none md:text-7xl">
-          Start with a useful result.
+          {t("campLand.startResult")}
         </h2>
         <Link
           to={funnel}

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface StoryItem {
   id: string;
@@ -32,6 +33,7 @@ interface StoryItem {
 }
 
 export function CreatorStudioConsole() {
+  const { t, formatNumber } = useI18n();
   const stories: StoryItem[] = [
     {
       id: "story-1",
@@ -81,13 +83,13 @@ export function CreatorStudioConsole() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Creator Media Studio & Showcase</h2>
+              <h2 className="text-2xl font-black text-white">{t("creStudio.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 text-[10px] font-extrabold uppercase">
-                {stories.length} Published Stories
+                {t("creStudio.published", { count: stories.length })}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Curate your portfolio of cultural stories, track virality, and link content to live moment bounties.
+              {t("creStudio.subtitle")}
             </p>
           </div>
         </div>
@@ -98,7 +100,7 @@ export function CreatorStudioConsole() {
         >
           <Link to="/content-share">
             <Plus className="h-4 w-4 mr-1.5" />
-            Submit New Story
+            {t("creStudio.submit")}
           </Link>
         </Button>
       </div>
@@ -132,15 +134,15 @@ export function CreatorStudioConsole() {
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1 font-bold">
                     <Eye className="h-3.5 w-3.5 text-purple-400" />
-                    {story.views.toLocaleString()}
+                    {formatNumber(story.views)}
                   </span>
                   <span className="flex items-center gap-1 font-bold">
                     <Flame className="h-3.5 w-3.5 text-pink-400" />
-                    {story.likes.toLocaleString()}
+                    {formatNumber(story.likes)}
                   </span>
                 </div>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold text-[10px]">
-                  +{story.conversions} Footfalls
+                  {t("creStudio.footfalls", { count: story.conversions })}
                 </span>
               </div>
             </div>
@@ -153,13 +155,13 @@ export function CreatorStudioConsole() {
                 </h3>
                 <p className="text-[11px] text-white/50 flex items-center gap-1 mt-1">
                   <MapPin className="h-3 w-3 text-purple-400" />
-                  Linked to {story.momentTitle}
+                  {t("creStudio.linkedTo", { title: story.momentTitle })}
                 </p>
               </div>
 
               <div className="pt-2 border-t border-white/5 flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] uppercase font-bold text-white/40">Bounty Earned</p>
+                  <p className="text-[10px] uppercase font-bold text-white/40">{t("creStudio.bountyEarned")}</p>
                   <p className="text-sm font-black text-emerald-400">${story.bountyEarned}.00</p>
                 </div>
 
@@ -170,7 +172,7 @@ export function CreatorStudioConsole() {
                   className="h-8 px-3 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs"
                 >
                   <Link to={`/explore/content`}>
-                    <span>View Live</span>
+                    <span>{t("creStudio.viewLive")}</span>
                     <ArrowRight className="h-3 w-3 ml-1" />
                   </Link>
                 </Button>

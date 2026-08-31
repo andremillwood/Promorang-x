@@ -23,6 +23,7 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface KYCSubmissionFormProps {
   onSubmitted: () => void;
@@ -33,6 +34,12 @@ const API_BASE = import.meta.env.VITE_API_URL || 'https://api.promorang.co/api';
 export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useI18n();
+  const idTypeLabels: Record<string, string> = {
+    passport: t("kyc.idPassport"),
+    drivers_license: t("kyc.idLicense"),
+    national_id: t("kyc.idNational"),
+  };
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   
@@ -137,17 +144,17 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
 
       if (response.ok) {
         toast({
-          title: 'KYC Submitted',
-          description: 'Your documents have been submitted for review. This usually takes 1-2 business days.',
+          title: t("kyc.submitted"),
+          description: t("kyc.submittedDays"),
         });
         onSubmitted();
       } else {
-        throw new Error('Failed to submit KYC');
+        throw new Error(t("kyc.submitError"));
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to submit KYC. Please try again.',
+        title: t("kyc.submitError"),
+        description: t("kyc.submitError"),
         variant: 'destructive',
       });
     } finally {
@@ -159,7 +166,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="firstName">First Name *</Label>
+          <Label htmlFor="firstName">{t("kyc.firstName")}</Label>
           <Input
             id="firstName"
             name="firstName"
@@ -169,7 +176,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="lastName">Last Name *</Label>
+          <Label htmlFor="lastName">{t("kyc.lastName")}</Label>
           <Input
             id="lastName"
             name="lastName"
@@ -181,7 +188,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+        <Label htmlFor="dateOfBirth">{t("kyc.dob")}</Label>
         <Input
           id="dateOfBirth"
           name="dateOfBirth"
@@ -194,7 +201,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="nationality">Nationality *</Label>
+          <Label htmlFor="nationality">{t("kyc.nationality")}</Label>
           <Input
             id="nationality"
             name="nationality"
@@ -204,7 +211,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="countryOfResidence">Country of Residence *</Label>
+          <Label htmlFor="countryOfResidence">{t("kyc.residence")}</Label>
           <Input
             id="countryOfResidence"
             name="countryOfResidence"
@@ -216,7 +223,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="phoneNumber">Phone Number</Label>
+        <Label htmlFor="phoneNumber">{t("kyc.phone")}</Label>
         <Input
           id="phoneNumber"
           name="phoneNumber"
@@ -231,7 +238,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
   const renderStep2 = () => (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="addressLine1">Address Line 1 *</Label>
+        <Label htmlFor="addressLine1">{t("kyc.address1")}</Label>
         <Input
           id="addressLine1"
           name="addressLine1"
@@ -242,7 +249,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="addressLine2">Address Line 2</Label>
+        <Label htmlFor="addressLine2">{t("kyc.address2")}</Label>
         <Input
           id="addressLine2"
           name="addressLine2"
@@ -253,7 +260,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
 
       <div className="grid grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="city">City *</Label>
+          <Label htmlFor="city">{t("kyc.city")}</Label>
           <Input
             id="city"
             name="city"
@@ -263,7 +270,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="state">State/Province</Label>
+          <Label htmlFor="state">{t("kyc.state")}</Label>
           <Input
             id="state"
             name="state"
@@ -272,7 +279,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="postalCode">Postal Code *</Label>
+          <Label htmlFor="postalCode">{t("kyc.postal")}</Label>
           <Input
             id="postalCode"
             name="postalCode"
@@ -284,18 +291,18 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="occupation">Occupation</Label>
+        <Label htmlFor="occupation">{t("kyc.occupation")}</Label>
         <Input
           id="occupation"
           name="occupation"
           value={formData.occupation}
           onChange={handleInputChange}
-          placeholder="e.g., Software Engineer"
+          placeholder={t("kyc.occupationPh")}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="sourceOfFunds">Source of Funds</Label>
+        <Label htmlFor="sourceOfFunds">{t("kyc.source")}</Label>
         <select
           id="sourceOfFunds"
           name="sourceOfFunds"
@@ -303,14 +310,14 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
           onChange={handleInputChange}
           className="w-full p-2 border rounded"
         >
-          <option value="">Select...</option>
-          <option value="salary">Salary</option>
-          <option value="business">Business Income</option>
-          <option value="investment">Investment</option>
-          <option value="savings">Savings</option>
-          <option value="inheritance">Inheritance</option>
-          <option value="gift">Gift</option>
-          <option value="other">Other</option>
+          <option value="">{t("kyc.select")}</option>
+          <option value="salary">{t("kyc.fundSalary")}</option>
+          <option value="business">{t("kyc.fundBusiness")}</option>
+          <option value="investment">{t("kyc.fundInvestment")}</option>
+          <option value="savings">{t("kyc.fundSavings")}</option>
+          <option value="inheritance">{t("kyc.fundInheritance")}</option>
+          <option value="gift">{t("kyc.fundGift")}</option>
+          <option value="other">{t("kyc.fundOther")}</option>
         </select>
       </div>
     </div>
@@ -319,7 +326,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
   const renderStep3 = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label>ID Document Type *</Label>
+        <Label>{t("kyc.idType")}</Label>
         <div className="flex gap-2">
           {['passport', 'drivers_license', 'national_id'].map((type) => (
             <Button
@@ -329,7 +336,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
               size="sm"
               onClick={() => setFormData({ ...formData, idDocumentType: type })}
             >
-              {type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+              {idTypeLabels[type] || type}
             </Button>
           ))}
         </div>
@@ -337,7 +344,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
 
       {/* ID Front */}
       <div className="space-y-2">
-        <Label>ID Document Front *</Label>
+        <Label>{t("kyc.idFront")}</Label>
         <div 
           className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-violet-500 transition-colors"
           onClick={() => frontFileRef.current?.click()}
@@ -346,15 +353,15 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
             <div className="relative">
               <img 
                 src={uploadedUrls.idDocumentFrontUrl} 
-                alt="ID Front Preview"
+                alt={t("kyc.idFrontAlt")}
                 className="max-h-32 mx-auto rounded"
               />
-              <Badge className="absolute top-2 right-2 bg-green-500">Uploaded</Badge>
+              <Badge className="absolute top-2 right-2 bg-green-500">{t("kyc.uploaded")}</Badge>
             </div>
           ) : (
             <>
               <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">Click to upload ID front</p>
+              <p className="text-sm text-muted-foreground">{t("kyc.uploadFront")}</p>
             </>
           )}
           <input
@@ -369,7 +376,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
 
       {/* ID Back */}
       <div className="space-y-2">
-        <Label>ID Document Back</Label>
+        <Label>{t("kyc.idBack")}</Label>
         <div 
           className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-violet-500 transition-colors"
           onClick={() => backFileRef.current?.click()}
@@ -378,15 +385,15 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
             <div className="relative">
               <img 
                 src={uploadedUrls.idDocumentBackUrl} 
-                alt="ID Back Preview"
+                alt={t("kyc.idBackAlt")}
                 className="max-h-32 mx-auto rounded"
               />
-              <Badge className="absolute top-2 right-2 bg-green-500">Uploaded</Badge>
+              <Badge className="absolute top-2 right-2 bg-green-500">{t("kyc.uploaded")}</Badge>
             </div>
           ) : (
             <>
               <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">Click to upload ID back (if applicable)</p>
+              <p className="text-sm text-muted-foreground">{t("kyc.uploadBack")}</p>
             </>
           )}
           <input
@@ -405,9 +412,9 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
     <div className="space-y-6">
       {/* Selfie */}
       <div className="space-y-2">
-        <Label>Selfie with ID *</Label>
+        <Label>{t("kyc.selfie")}</Label>
         <div className="text-sm text-muted-foreground mb-2">
-          Take a photo of yourself holding your ID document
+          {t("kyc.selfieHint")}
         </div>
         <div 
           className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-violet-500 transition-colors"
@@ -417,15 +424,15 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
             <div className="relative">
               <img 
                 src={uploadedUrls.selfieUrl} 
-                alt="Selfie Preview"
+                alt={t("kyc.selfieAlt")}
                 className="max-h-32 mx-auto rounded"
               />
-              <Badge className="absolute top-2 right-2 bg-green-500">Uploaded</Badge>
+              <Badge className="absolute top-2 right-2 bg-green-500">{t("kyc.uploaded")}</Badge>
             </div>
           ) : (
             <>
               <Camera className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">Click to upload selfie</p>
+              <p className="text-sm text-muted-foreground">{t("kyc.uploadSelfie")}</p>
             </>
           )}
           <input
@@ -441,9 +448,9 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
 
       {/* Proof of Address */}
       <div className="space-y-2">
-        <Label>Proof of Address (Optional)</Label>
+        <Label>{t("kyc.proof")}</Label>
         <div className="text-sm text-muted-foreground mb-2">
-          Utility bill, bank statement, or government letter (for higher limits)
+          {t("kyc.proofHint")}
         </div>
         <div 
           className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-violet-500 transition-colors"
@@ -453,15 +460,15 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
             <div className="relative">
               <img 
                 src={uploadedUrls.proofOfAddressUrl} 
-                alt="Proof of Address Preview"
+                alt={t("kyc.proofAlt")}
                 className="max-h-32 mx-auto rounded"
               />
-              <Badge className="absolute top-2 right-2 bg-green-500">Uploaded</Badge>
+              <Badge className="absolute top-2 right-2 bg-green-500">{t("kyc.uploaded")}</Badge>
             </div>
           ) : (
             <>
               <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">Click to upload proof of address</p>
+              <p className="text-sm text-muted-foreground">{t("kyc.uploadProof")}</p>
             </>
           )}
           <input
@@ -497,10 +504,10 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="h-5 w-5" />
-          Identity Verification
+          {t("kyc.formTitle")}
         </CardTitle>
         <CardDescription>
-          Submit your documents to start trading. This usually takes 1-2 business days to review.
+          {t("kyc.formCopy")}
         </CardDescription>
       </CardHeader>
       
@@ -523,10 +530,10 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
 
         {/* Step Labels */}
         <div className="flex justify-between text-xs text-muted-foreground mb-6">
-          <span>Personal Info</span>
-          <span>Address</span>
-          <span>ID Document</span>
-          <span>Verification</span>
+          <span>{t("kyc.stepPersonal")}</span>
+          <span>{t("kyc.stepAddress")}</span>
+          <span>{t("kyc.stepId")}</span>
+          <span>{t("kyc.stepVerify")}</span>
         </div>
 
         {/* Form Content */}
@@ -543,7 +550,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
             disabled={step === 1}
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
-            Back
+            {t("kyc.back")}
           </Button>
           
           {step < 4 ? (
@@ -551,7 +558,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
               onClick={() => setStep(step + 1)}
               disabled={!canProceed()}
             >
-              Next
+              {t("kyc.next")}
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (
@@ -565,7 +572,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
               ) : (
                 <CheckCircle className="h-4 w-4 mr-1" />
               )}
-              Submit for Review
+              {t("kyc.submitReview")}
             </Button>
           )}
         </div>

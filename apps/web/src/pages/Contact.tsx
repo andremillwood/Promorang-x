@@ -89,7 +89,7 @@ const ContactPage = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-lg">{t("contact.emailUs")}</h3>
-                                        <p className="text-muted-foreground mb-2">For general inquiries and support.</p>
+                                        <p className="text-muted-foreground mb-2">{t("contact.emailCopy")}</p>
                                         <a href="mailto:support@promorang.co" className="text-primary font-semibold hover:underline">
                                             support@promorang.co
                                         </a>
@@ -102,9 +102,9 @@ const ContactPage = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-lg">{t("contact.chat")}</h3>
-                                        <p className="text-muted-foreground mb-2">Use a structured support ticket if you need account-specific follow-up.</p>
+                                        <p className="text-muted-foreground mb-2">{t("contact.chatCopy")}</p>
                                         <Link to="/support/tickets" className="text-primary font-semibold hover:underline">
-                                            Open support tickets
+                                            {t("contact.openTickets")}
                                         </Link>
                                     </div>
                                 </div>
@@ -116,7 +116,7 @@ const ContactPage = () => {
                                     <div>
                                         <h3 className="font-bold text-lg">{t("contact.partnerships")}</h3>
                                         <p className="text-muted-foreground">
-                                            Brands, venues, communities, and agencies can use the same form for partnership requests.
+                                            {t("contact.partnershipsCopy")}
                                         </p>
                                     </div>
                                 </div>
@@ -125,7 +125,7 @@ const ContactPage = () => {
                             <div className="p-8 bg-gradient-primary rounded-3xl text-white">
                                 <h3 className="text-2xl font-bold mb-4">{t("contact.community")}</h3>
                                 <p className="opacity-90 mb-6">
-                                    Follow us on social media for the latest updates and featured moments.
+                                    {t("contact.communityCopy")}
                                 </p>
                                 <div className="flex gap-4">
                                     {/* Social links placeholder */}
@@ -165,7 +165,7 @@ const ContactPage = () => {
                                                 id="first-name"
                                                 value={formData.firstName}
                                                 onChange={(event) => handleChange("firstName", event.target.value)}
-                                                placeholder="Jane"
+                                                placeholder={t("contact.firstPh")}
                                                 required
                                             />
                                         </div>
@@ -175,7 +175,7 @@ const ContactPage = () => {
                                                 id="last-name"
                                                 value={formData.lastName}
                                                 onChange={(event) => handleChange("lastName", event.target.value)}
-                                                placeholder="Doe"
+                                                placeholder={t("contact.lastPh")}
                                             />
                                         </div>
                                     </div>
@@ -186,7 +186,7 @@ const ContactPage = () => {
                                             type="email"
                                             value={formData.email}
                                             onChange={(event) => handleChange("email", event.target.value)}
-                                            placeholder="jane@example.com"
+                                            placeholder={t("contact.emailPh")}
                                             required
                                         />
                                     </div>
@@ -198,11 +198,11 @@ const ContactPage = () => {
                                             onChange={(event) => handleChange("topic", event.target.value)}
                                             className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                                         >
-                                            <option value="general">General question</option>
-                                            <option value="support">Account support</option>
-                                            <option value="partnership">Partnership</option>
-                                            <option value="billing">Billing or payouts</option>
-                                            <option value="safety">Trust and safety</option>
+                                            <option value="general">{t("contact.topicGeneral")}</option>
+                                            <option value="support">{t("contact.topicSupport")}</option>
+                                            <option value="partnership">{t("contact.topicPartnership")}</option>
+                                            <option value="billing">{t("contact.topicBilling")}</option>
+                                            <option value="safety">{t("contact.topicSafety")}</option>
                                         </select>
                                     </div>
                                     <div className="space-y-2">
@@ -211,7 +211,7 @@ const ContactPage = () => {
                                             id="subject"
                                             value={formData.subject}
                                             onChange={(event) => handleChange("subject", event.target.value)}
-                                            placeholder="How can we help?"
+                                            placeholder={t("contact.subjectPh")}
                                             required
                                         />
                                     </div>
@@ -221,7 +221,7 @@ const ContactPage = () => {
                                             id="message"
                                             value={formData.message}
                                             onChange={(event) => handleChange("message", event.target.value)}
-                                            placeholder="Tell us more about what you're looking for..."
+                                            placeholder={t("contact.messagePh")}
                                             className="min-h-[150px]"
                                             required
                                         />

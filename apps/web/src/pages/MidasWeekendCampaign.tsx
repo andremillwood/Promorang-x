@@ -27,8 +27,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { getSiteUrl } from '@/lib/discovery';
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function MidasWeekendCampaign() {
+  const { t } = useI18n();
   const [activeDay, setActiveDay] = useState<'both' | 'sat' | 'sun'>('both');
   const [selectedPerk, setSelectedPerk] = useState<'express' | 'drink' | 'vip'>('express');
   const [phoneInput, setPhoneInput] = useState('');
@@ -37,24 +39,24 @@ export default function MidasWeekendCampaign() {
 
   const handleVotePoll = (optText: string) => {
     setVotedOption(optText);
-    toast.success(`Vote logged for "${optText}"! Claim your gate perk below.`, { duration: 4000 });
+    toast.success(t("midasWeek.voteToast", { option: optText }), { duration: 4000 });
   };
 
   const handleClaimPerk = (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneInput.trim()) {
-      toast.error("Please enter your WhatsApp or phone number to receive your pass code.");
+      toast.error(t("midasWeek.phoneToast"));
       return;
     }
     setIsClaimed(true);
-    toast.success("🎟️ Gate Pass Key PR-MIDAS-876 unlocked! Sent to your phone & WhatsApp.", { duration: 6000 });
+    toast.success(t("midasWeek.unlockToast"), { duration: 6000 });
   };
 
   const handleShareSquad = () => {
     const shareText = "Yo! Grab your Express Entry pass and pre-sold tickets for Midas Summer Finale Weekend at Plantation Cove (Vanessa Bling on Sat Aug 29 & Capleton Live on Sun Aug 30): https://promorang.co/campaigns/midas";
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
     window.open(whatsappUrl, '_blank');
-    toast.success("Opening WhatsApp to invite your squad! 1.8x multiplier active.");
+    toast.success(t("midasWeek.waToast"));
   };
 
   return (
@@ -79,7 +81,7 @@ export default function MidasWeekendCampaign() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-white font-black tracking-widest text-sm hover:opacity-90">
             <span className="w-2.5 h-2.5 rounded-full bg-[#ff5a1f] shadow-[0_0_0_4px_#ff5a1f33]" />
-            <span className="font-serif text-base tracking-normal">PROMORANG <em className="text-[#ff5a1f] not-italic font-sans font-bold text-xs tracking-wider uppercase ml-1">PRESENTS</em></span>
+              <span className="font-serif text-base tracking-normal">PROMORANG <em className="text-[#ff5a1f] not-italic font-sans font-bold text-xs tracking-wider uppercase ml-1">{t("midasWeek.presents")}</em></span>
           </Link>
           <div className="flex items-center gap-3">
             <Link
@@ -87,7 +89,7 @@ export default function MidasWeekendCampaign() {
               className="hidden sm:inline-flex items-center gap-1 text-xs font-mono text-stone-300 hover:text-white px-3 py-1.5 border border-white/15 rounded-sm"
             >
               <MapPin className="w-3.5 h-3.5 text-[#10b981]" />
-              <span>Plantation Cove Guide</span>
+              <span>{t("midasWeek.venueGuide")}</span>
             </Link>
             <a
               href="https://aitix.app/sophisticated"
@@ -95,7 +97,7 @@ export default function MidasWeekendCampaign() {
               rel="noopener noreferrer"
               className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-4 py-2.5 rounded-sm flex items-center gap-1.5 uppercase tracking-wider shadow-md"
             >
-              <span>Get Aitix Tickets</span>
+              <span>{t("midasWeek.getTickets")}</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -145,7 +147,7 @@ export default function MidasWeekendCampaign() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
             <div>
               <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest block">
-                The Weekend Lineup
+                {t("midasWeek.lineup")}
               </span>
               <h2 className="font-serif text-3xl font-bold text-white mt-1">
                 Choose Your Experience or Attend Both
@@ -160,7 +162,7 @@ export default function MidasWeekendCampaign() {
                   activeDay === 'both' ? 'bg-[#ff5a1f] text-white font-bold' : 'bg-white/5 text-stone-400 border border-white/10'
                 }`}
               >
-                Both Days
+                {t("midasWeek.bothDays")}
               </button>
               <button
                 onClick={() => setActiveDay('sat')}
@@ -168,7 +170,7 @@ export default function MidasWeekendCampaign() {
                   activeDay === 'sat' ? 'bg-[#ff5a1f] text-white font-bold' : 'bg-white/5 text-stone-400 border border-white/10'
                 }`}
               >
-                Saturday Only
+                {t("midasWeek.satOnly")}
               </button>
               <button
                 onClick={() => setActiveDay('sun')}
@@ -176,7 +178,7 @@ export default function MidasWeekendCampaign() {
                   activeDay === 'sun' ? 'bg-[#a855f7] text-white font-bold' : 'bg-white/5 text-stone-400 border border-white/10'
                 }`}
               >
-                Sunday Only
+                {t("midasWeek.sunOnly")}
               </button>
             </div>
           </div>
@@ -210,8 +212,8 @@ export default function MidasWeekendCampaign() {
                       Headlined by <strong>Vanessa Bling</strong> live in concert alongside Illusion, Trippple X, Bishop Escobar, and Fyah Prince. Hosted drinks from 4:00 PM – 7:00 PM.
                     </p>
                     <div className="p-3 bg-black/40 border border-white/10 rounded-sm font-mono text-xs text-stone-300 flex justify-between">
-                      <span>Admission: <strong>J$5,000 Pre-sold</strong></span>
-                      <span className="text-stone-400">J$6,000 Gate</span>
+                      <span>{t("midasWeek.admission")} <strong>J$5,000 Pre-sold</strong></span>
+                      <span className="text-stone-400">J$6,000 {t("midasWeek.gate")}</span>
                     </div>
                   </div>
                 </div>
@@ -223,14 +225,14 @@ export default function MidasWeekendCampaign() {
                     rel="noopener noreferrer"
                     className="flex-1 bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs py-3 rounded-sm text-center uppercase tracking-wider shadow-md flex items-center justify-center gap-1.5"
                   >
-                    <span>Buy on Aitix</span>
+                    <span>{t("midasWeek.buyAitix")}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                   <Link
                     to="/moments/sophisticated"
                     className="px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/15 text-xs font-mono text-stone-300 rounded-sm"
                   >
-                    Moment Hub ➔
+                    {t("midasWeek.momentHub")} ➔
                   </Link>
                 </div>
               </div>
@@ -263,8 +265,8 @@ export default function MidasWeekendCampaign() {
                       Headlined by <strong>Capleton ("The Fireman" / King Shango)</strong>, Nesbeth, and Dean Fraser with DJ Delano (Renaissance), Bass Odyssey, and DJ Rors.
                     </p>
                     <div className="p-3 bg-black/40 border border-white/10 rounded-sm font-mono text-xs text-stone-300 flex justify-between">
-                      <span>Admission: <strong>J$5,000 Pre-sold</strong></span>
-                      <span className="text-stone-400">J$7,000 Gate</span>
+                      <span>{t("midasWeek.admission")} <strong>J$5,000 Pre-sold</strong></span>
+                      <span className="text-stone-400">J$7,000 {t("midasWeek.gate")}</span>
                     </div>
                   </div>
                 </div>
@@ -276,14 +278,14 @@ export default function MidasWeekendCampaign() {
                     rel="noopener noreferrer"
                     className="flex-1 bg-[#a855f7] hover:bg-[#b86bf7] text-white font-mono font-bold text-xs py-3 rounded-sm text-center uppercase tracking-wider shadow-md flex items-center justify-center gap-1.5"
                   >
-                    <span>Buy on Aitix</span>
+                    <span>{t("midasWeek.buyAitix")}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                   <Link
                     to="/moments/encore-live-featuring-capleton"
                     className="px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/15 text-xs font-mono text-stone-300 rounded-sm"
                   >
-                    Moment Hub ➔
+                    {t("midasWeek.momentHub")} ➔
                   </Link>
                 </div>
               </div>
@@ -298,10 +300,10 @@ export default function MidasWeekendCampaign() {
           <div className="space-y-2 max-w-3xl">
             <div className="flex items-center gap-2">
               <span className="bg-[#ff5a1f] text-white text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded-sm">
-                Unlock Free Gate Priority
+                {t("midasWeek.unlockGate")}
               </span>
               <span className="text-xs font-mono text-[#ffcf38]">
-                Limited to First 50 Voters
+                {t("midasWeek.first50")}
               </span>
             </div>
             <h3 className="font-serif text-3xl sm:text-4xl font-bold text-white">
@@ -314,7 +316,7 @@ export default function MidasWeekendCampaign() {
 
           {/* Poll Options */}
           <div className="space-y-3 max-w-2xl">
-            <span className="text-xs font-mono text-stone-400 uppercase block">1. Cast Your 1-Tap Vote:</span>
+            <span className="text-xs font-mono text-stone-400 uppercase block">{t("midasWeek.castVote")}</span>
             {[
               '🏖️ Beach party & oceanfront vibes (Sophisticated)',
               '🎤 Live reggae concert & conscious stage show (Capleton)',
@@ -338,13 +340,13 @@ export default function MidasWeekendCampaign() {
 
           {/* Claim Form */}
           <div className="border-t border-white/10 pt-6 space-y-4 max-w-2xl">
-            <span className="text-xs font-mono text-stone-400 uppercase block">2. Enter WhatsApp to Receive Your Pass Code:</span>
+            <span className="text-xs font-mono text-stone-400 uppercase block">{t("midasWeek.enterWa")}</span>
             
             {isClaimed ? (
               <div className="p-6 bg-emerald-950/30 border-2 border-emerald-500/50 rounded-sm space-y-3">
                 <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
                   <CheckCircle2 className="w-5 h-5" />
-                  <span>PASS KEY RESERVED: #PR-MIDAS-876</span>
+                  <span>{t("midasWeek.passReserved")}</span>
                 </div>
                 <p className="text-xs text-stone-300 leading-relaxed">
                   Your express gate pass and 200 culture points are active for your phone number. Show this pass at the Plantation Cove entrance for fast-track entry!
@@ -354,7 +356,7 @@ export default function MidasWeekendCampaign() {
                   className="bg-[#10b981] hover:bg-[#059669] text-black font-mono font-black text-xs px-5 py-3 rounded-sm uppercase tracking-wider flex items-center gap-2 shadow-md"
                 >
                   <Share2 className="w-4 h-4" />
-                  <span>Forward Pass to Squad on WhatsApp (1.8x Multiplier)</span>
+                  <span>{t("midasWeek.forwardSquad")}</span>
                 </button>
               </div>
             ) : (
@@ -363,7 +365,7 @@ export default function MidasWeekendCampaign() {
                   <Phone className="w-4 h-4 text-stone-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="tel"
-                    placeholder="+1 (876) 000-0000"
+                    placeholder={t("midasWeek.phonePh")}
                     value={phoneInput}
                     onChange={(e) => setPhoneInput(e.target.value)}
                     className="w-full bg-black/60 border border-white/20 text-xs text-white pl-10 pr-4 py-3 rounded-sm font-mono focus:outline-none focus:border-[#ff5a1f]"
@@ -373,7 +375,7 @@ export default function MidasWeekendCampaign() {
                   type="submit"
                   className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-6 py-3 rounded-sm uppercase tracking-wider shadow-[3px_3px_0_#000]"
                 >
-                  Claim Express Gate Pass Key
+                  {t("midasWeek.claimPass")}
                 </Button>
               </form>
             )}
@@ -385,8 +387,8 @@ export default function MidasWeekendCampaign() {
         <section className="p-8 rounded-sm bg-gradient-to-r from-emerald-950/40 via-black to-black border-2 border-emerald-500/40 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-1.5 text-center sm:text-left">
             <div className="flex items-center justify-center sm:justify-start gap-2">
-              <span className="text-xs font-mono font-bold text-[#10b981] uppercase">Roll with Your Crew</span>
-              <Badge className="bg-[#10b981] text-black font-bold text-[10px]">1.8x SQUAD ENGINE</Badge>
+              <span className="text-xs font-mono font-bold text-[#10b981] uppercase">{t("midasWeek.rollCrew")}</span>
+              <Badge className="bg-[#10b981] text-black font-bold text-[10px]">{t("midasWeek.squadBadge")}</Badge>
             </div>
             <h4 className="font-serif text-2xl font-bold text-white">Don't Party Alone at Plantation Cove</h4>
             <p className="text-xs text-stone-300 max-w-xl">
@@ -398,7 +400,7 @@ export default function MidasWeekendCampaign() {
             className="bg-[#10b981] hover:bg-[#059669] text-black font-mono font-bold text-xs px-6 py-3.5 rounded-sm uppercase tracking-wider shadow-[4px_4px_0_#000] flex items-center gap-2 shrink-0"
           >
             <Share2 className="w-4 h-4" />
-            <span>Send to Crew on WhatsApp</span>
+            <span>{t("midasWeek.sendCrew")}</span>
           </button>
         </section>
 
@@ -406,29 +408,29 @@ export default function MidasWeekendCampaign() {
         <section className="rounded-sm border border-white/15 bg-[#141210] p-6 sm:p-8 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
             <div>
-              <span className="text-xs font-mono font-bold text-[#10b981] uppercase tracking-wider block">Official Venue</span>
+              <span className="text-xs font-mono font-bold text-[#10b981] uppercase tracking-wider block">{t("midasWeek.officialVenue")}</span>
               <h3 className="font-serif text-2xl font-bold text-white">Grizzly's Plantation Cove · Priory, St. Ann</h3>
             </div>
             <Link
               to="/venues/plantation-cove"
               className="text-xs font-mono text-[#ffcf38] hover:underline flex items-center gap-1"
             >
-              <span>Explore Venue Guide</span>
+              <span>{t("midasWeek.exploreVenue")}</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-stone-300">
             <div className="space-y-1">
-              <strong className="text-white block font-bold">Directions & Access:</strong>
+              <strong className="text-white block font-bold">{t("midasWeek.directions")}</strong>
               <p>Located on the North Coast Highway, Priory, St. Ann. 15 minutes from Ocho Rios, 50 minutes from Montego Bay.</p>
             </div>
             <div className="space-y-1">
-              <strong className="text-white block font-bold">Gate & Bar Timing:</strong>
+              <strong className="text-white block font-bold">{t("midasWeek.gateTiming")}</strong>
               <p>Gates open at 4:00 PM sharp. Hosted drinks on Saturday run from 4:00 PM – 7:00 PM. Concert starts 6:00 PM.</p>
             </div>
             <div className="space-y-1">
-              <strong className="text-white block font-bold">Authorized Ticket Outlets:</strong>
+              <strong className="text-white block font-bold">{t("midasWeek.outlets")}</strong>
               <p>Aitix Online (aitix.app/sophisticated, aitix.app/culturerising), 8Rivaz Ultra Lounge, and official St. Ann outlets.</p>
             </div>
           </div>
@@ -448,7 +450,7 @@ export default function MidasWeekendCampaign() {
               to="/proposals/midas"
               className="text-xs font-mono text-stone-400 hover:text-white px-3 py-2 border border-white/15 rounded-sm"
             >
-              Commercial Brief
+              {t("midasWeek.commercial")}
             </Link>
             <a
               href="https://aitix.app/sophisticated"
@@ -456,7 +458,7 @@ export default function MidasWeekendCampaign() {
               rel="noopener noreferrer"
               className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-5 py-2.5 rounded-sm uppercase tracking-wider shadow-md"
             >
-              Get Tickets on Aitix
+              {t("midasWeek.getTicketsAitix")}
             </a>
           </div>
         </div>

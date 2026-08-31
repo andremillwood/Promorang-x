@@ -19,6 +19,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 interface VerificationItem {
   id: string;
@@ -34,7 +36,15 @@ interface VerificationItem {
   status: "pending" | "approved" | "rejected";
 }
 
+const TYPE_LABELS: Record<VerificationItem["type"], TranslationKey> = {
+  scout_proof: "verifyHub.type.scout_proof",
+  host_application: "verifyHub.type.host_application",
+  pioneer_checkin: "verifyHub.type.pioneer_checkin",
+  media_bounty: "verifyHub.type.media_bounty",
+};
+
 export function AdminVerificationHub() {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [filterType, setFilterType] = useState<string>("all");
 
@@ -86,13 +96,13 @@ export function AdminVerificationHub() {
     );
     if (decision === "approved") {
       toast({
-        title: "Evidence Approved! 🛡️",
-        description: `Verified '${title}'. Escrow disbursed points & gems to user.`,
+        title: t("verifyHub.toastOk"),
+        description: t("verifyHub.toastOkBody", { title }),
       });
     } else {
       toast({
-        title: "Submission Rejected",
-        description: `Marked '${title}' as insufficient evidence.`,
+        title: t("verifyHub.toastNo"),
+        description: t("verifyHub.toastNoBody", { title }),
         variant: "destructive",
       });
     }
@@ -115,25 +125,25 @@ export function AdminVerificationHub() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Unified Verification & Proof Triage Hub</h2>
+              <h2 className="text-2xl font-black text-white">{t("verifyHub.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[10px] font-extrabold uppercase">
-                {pendingCount} Pending Triage
+                {t("verifyHub.badge", { count: pendingCount })}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Side-by-side evidence inspection, GPS location validation, host applications, and automated point disbursal.
+              {t("verifyHub.copy")}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
           <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-            <p className="text-[10px] uppercase font-bold text-white/50">Avg Review Time</p>
-            <p className="text-base font-black text-cyan-400">1.8 mins</p>
+            <p className="text-[10px] uppercase font-bold text-white/50">{t("verifyHub.avgTime")}</p>
+            <p className="text-base font-black text-cyan-400">{t("verifyHub.avgVal")}</p>
           </div>
           <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-            <p className="text-[10px] uppercase font-bold text-white/50">Approval Rate</p>
-            <p className="text-base font-black text-white">96.2%</p>
+            <p className="text-[10px] uppercase font-bold text-white/50">{t("verifyHub.approval")}</p>
+            <p className="text-base font-black text-white">{t("verifyHub.approvalVal")}</p>
           </div>
         </div>
       </div>
@@ -141,10 +151,10 @@ export function AdminVerificationHub() {
       {/* 2. Filter Navigation Chips */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         {[
-          { id: "all", label: "All Evidence Types" },
-          { id: "scout_proof", label: "Scout Proofs & Check-Ins" },
-          { id: "host_application", label: "Host & Venue Applications" },
-          { id: "media_bounty", label: "Creator Media Bounties" },
+          { id: "all", label: t("verifyHub.all") },
+          { id: "scout_proof", label: t("verifyHub.scout") },
+          { id: "host_application", label: t("verifyHub.host") },
+          { id: "media_bounty", label: t("verifyHub.media") },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -181,7 +191,7 @@ export function AdminVerificationHub() {
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <span className="px-2.5 py-0.5 rounded-full bg-white/10 border border-white/15 text-[10px] font-mono text-white/80 uppercase">
-                    {item.type.replace("_", " ")}
+                    {t(TYPE_LABELS[item.type])}
                   </span>
                   <span className="text-[10px] text-white/50">{item.timestamp}</span>
                 </div>
@@ -190,7 +200,7 @@ export function AdminVerificationHub() {
                   {item.title}
                 </h3>
                 <p className="text-xs text-white/70 mt-1">
-                  Applicant: <span className="font-bold text-white">{item.applicant}</span>{" "}
+                  {t("verifyHub.applicant", { name: item.applicant })}{" "}
                   <span className="text-cyan-300">({item.tier})</span>
                 </p>
               </div>
@@ -199,7 +209,7 @@ export function AdminVerificationHub() {
               <div className="relative rounded-2xl overflow-hidden h-44 bg-black border border-white/5">
                 <img
                   src={item.evidenceUrl}
-                  alt="Evidence Preview"
+                  alt={t("verifyHub.evidenceAlt")}
                   className="w-full h-full object-cover opacity-85"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
@@ -210,7 +220,7 @@ export function AdminVerificationHub() {
                     <span className="truncate">{item.location}</span>
                   </span>
                   <span className="px-2 py-0.5 rounded-full bg-cyan-400/20 text-cyan-300 font-bold text-[10px]">
-                    +{item.reward.points} Pts
+                    {t("verifyHub.pts", { count: item.reward.points })}
                   </span>
                 </div>
               </div>
@@ -230,7 +240,7 @@ export function AdminVerificationHub() {
                       className="h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold text-xs flex-1 shadow-md"
                     >
                       <CheckCircle2 className="h-4 w-4 mr-1" />
-                      Approve & Credit
+                      {t("verifyHub.approve")}
                     </Button>
                     <Button
                       size="sm"
@@ -247,7 +257,7 @@ export function AdminVerificationHub() {
                       isApproved ? "text-emerald-400" : "text-red-400"
                     }`}>
                       {isApproved ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                      {isApproved ? "Approved & Disbursed" : "Rejected"}
+                      {isApproved ? t("verifyHub.approved") : t("verifyHub.rejected")}
                     </span>
                   </div>
                 )}

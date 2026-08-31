@@ -162,12 +162,12 @@ export function PieceProfile() {
       });
       const data = await response.json();
       if (!response.ok || data.success === false) throw new Error(data.error || 'Pool creation failed');
-      toast({ title: 'Pool created', description: 'This piece now has a liquidity pool.' });
+      toast({ title: t("pieceProfile.poolCreated"), description: t("pieceProfile.poolCreatedCopy") });
       fetchProfile();
     } catch (error: any) {
       toast({
-        title: 'Pool not created',
-        description: error.message || 'Check that you have enough pieces and Gems.',
+        title: t("pieceProfile.poolFail"),
+        description: error.message || t("pieceProfile.poolFailCopy"),
         variant: 'destructive',
       });
     } finally {
@@ -184,10 +184,10 @@ export function PieceProfile() {
       setIsSwapping(false);
       const totalCost = (count * currentPrice).toFixed(2);
       toast({
-        title: swapTab === 'buy' ? "🎉 Pieces Purchased!" : "Pieces Sold!",
+        title: swapTab === 'buy' ? t("pieceProfile.purchased") : t("pieceProfile.soldToast"),
         description: swapTab === 'buy'
-          ? `Successfully acquired ${count} ${title} pieces for ${totalCost} Gems.`
-          : `Successfully sold ${count} ${title} pieces for ${totalCost} Gems.`,
+          ? t("pieceProfile.acquired", { count, title, cost: totalCost })
+          : t("pieceProfile.soldCopy", { count, title, cost: totalCost }),
       });
     }, 1000);
   };
@@ -203,8 +203,8 @@ export function PieceProfile() {
   if (!profile) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-12 text-center">
-        <Button asChild variant="ghost"><Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" />Marketplace</Link></Button>
-        <h1 className="mt-6 text-2xl font-bold">Piece not found</h1>
+        <Button asChild variant="ghost"><Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" />{t("pieceProfile.marketplace")}</Link></Button>
+        <h1 className="mt-6 text-2xl font-bold">{t("pieceProfile.notFound")}</h1>
       </div>
     );
   }
@@ -224,13 +224,13 @@ export function PieceProfile() {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between gap-4 mb-4">
             <Button asChild variant="ghost" size="sm" className="px-0 text-muted-foreground hover:text-foreground">
-              <Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" /> Marketplace</Link>
+              <Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" /> {t("pieceProfile.marketplace")}</Link>
             </Button>
 
             {/* Creator / Owner Management Shortcut */}
             <Button asChild variant="outline" size="sm" className="border-amber-500/40 text-amber-300 hover:bg-amber-500/10 font-bold">
               <Link to={`/pieces/${profile.piece_type}/${profile.asset_id}/manage`} className="flex items-center gap-1.5">
-                <Crown className="w-3.5 h-3.5 text-amber-400" /> Syndicate Creator Studio
+                <Crown className="w-3.5 h-3.5 text-amber-400" /> {t("pieceProfile.studio")}
               </Link>
             </Button>
           </div>
@@ -239,15 +239,15 @@ export function PieceProfile() {
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <Badge className="capitalize font-black text-[11px] bg-primary/20 text-primary border-primary/30">
-                  {profile.piece_type} Piece
+                  {t("pieceProfile.pieceType", { type: profile.piece_type })}
                 </Badge>
                 {profile.pool && (
                   <Badge variant="outline" className="text-emerald-400 border-emerald-500/30 bg-emerald-500/10 flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" /> Live AMM Pool
+                    <TrendingUp className="w-3 h-3" /> {t("pieceProfile.livePool")}
                   </Badge>
                 )}
                 <Badge variant="outline" className="text-cyan-400 border-cyan-500/30 bg-cyan-500/10">
-                  18.4% Est. APR
+                  {t("pieceProfile.estApr")}
                 </Badge>
               </div>
 
@@ -262,26 +262,26 @@ export function PieceProfile() {
               <Card className="overflow-hidden border-cyan-500/30 bg-gradient-to-br from-neutral-900/90 via-black to-neutral-950/90 shadow-2xl backdrop-blur-xl">
                 <CardHeader className="border-b border-white/10 pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-bold text-white uppercase tracking-wider">Market Snapshot</CardTitle>
+                    <CardTitle className="text-sm font-bold text-white uppercase tracking-wider">{t("pieceProfile.marketSnapshot")}</CardTitle>
                     <Sparkles className="h-4 w-4 text-cyan-400 animate-pulse" />
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-4 text-white">
                   <div className="flex justify-between items-baseline">
-                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Piece Price</span>
-                    <span className="text-2xl font-black text-cyan-400">{currentPrice.toFixed(2)} Gems</span>
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t("pieceProfile.piecePrice")}</span>
+                    <span className="text-2xl font-black text-cyan-400">{t("pieceProfile.gems", { amount: currentPrice.toFixed(2) })}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
-                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">24h Volume</span>
-                    <span className="font-semibold text-white/90">{Number(profile.pool?.volume_24h || profile.stats?.volume_24h || 0).toFixed(0)} Gems</span>
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t("pieceProfile.volume24h")}</span>
+                    <span className="font-semibold text-white/90">{t("pieceProfile.gems", { amount: Number(profile.pool?.volume_24h || profile.stats?.volume_24h || 0).toFixed(0) })}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
-                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Co-Producers</span>
-                    <span className="font-semibold text-emerald-400">{Number(profile.stats?.holder_count || 24)} Backers</span>
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t("pieceProfile.coProducers")}</span>
+                    <span className="font-semibold text-emerald-400">{t("pieceProfile.backers", { count: Number(profile.stats?.holder_count || 24) })}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
-                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Market Cap</span>
-                    <span className="font-semibold text-white/90">{Number(profile.stats?.market_cap || 12500).toFixed(2)} Gems</span>
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t("pieceProfile.marketCap")}</span>
+                    <span className="font-semibold text-white/90">{t("pieceProfile.gems", { amount: Number(profile.stats?.market_cap || 12500).toFixed(2) })}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -300,28 +300,28 @@ export function PieceProfile() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-xl font-bold flex items-center gap-2">
-                      <Award className="w-5 h-5 text-amber-400" /> Co-Producer Shareholder Perks
+                      <Award className="w-5 h-5 text-amber-400" /> {t("pieceProfile.perksTitle")}
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      Exclusive rewards and access unlocked by holding minimum share thresholds.
+                      {t("pieceProfile.perksDesc")}
                     </CardDescription>
                   </div>
                   <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30">
-                    Tiered Utility
+                    {t("pieceProfile.tiered")}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="pt-5 space-y-3">
                 {[
-                  { shares: 5, title: 'Priority Access & Presale', desc: '15% ticket discount + guaranteed early-bird access to all syndicated events.' },
-                  { shares: 15, title: 'VIP Backstage & Hospitality', desc: 'Complimentary VIP admission + backstage access badge + 2 drink tokens.' },
-                  { shares: 25, title: 'Co-Producer Executive Vote', desc: 'Direct governance vote on artist lineups, dates, and sponsor selection.' },
+                  { shares: 5, title: t("pieceProfile.perk1Title"), desc: t("pieceProfile.perk1Desc") },
+                  { shares: 15, title: t("pieceProfile.perk2Title"), desc: t("pieceProfile.perk2Desc") },
+                  { shares: 25, title: t("pieceProfile.perk3Title"), desc: t("pieceProfile.perk3Desc") },
                 ].map((tier) => (
                   <div key={tier.shares} className="p-4 rounded-2xl border border-amber-500/20 bg-neutral-900/50 flex items-start justify-between gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs font-black">
-                          Hold {tier.shares}+ Pieces
+                          {t("pieceProfile.hold", { count: tier.shares })}
                         </Badge>
                         <h4 className="font-bold text-sm text-foreground">{tier.title}</h4>
                       </div>
@@ -345,19 +345,19 @@ export function PieceProfile() {
                   <Gem className="h-5 w-5 text-primary" />
                   <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{t("pieceProfile.connectedAsset")}</p>
                   <p className="mt-2 text-sm font-semibold capitalize">{profile.piece_type}: {title}</p>
-                  <p className="mt-2 text-xs leading-5 text-muted-foreground">A Piece stays attached to this source; it is not a general Promorang share.</p>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">{t("pieceProfile.notShare")}</p>
                 </div>
                 <div className="rounded-xl border bg-muted/20 p-4">
                   <BadgeCheck className="h-5 w-5 text-primary" />
                   <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{t("pieceProfile.disclosedSource")}</p>
-                  <p className="mt-2 text-sm font-semibold">{profile.journey?.summary || "No benefit source has been disclosed."}</p>
-                  <p className="mt-2 text-xs leading-5 text-muted-foreground">Holding alone does not promise a financial return.</p>
+                  <p className="mt-2 text-sm font-semibold">{profile.journey?.summary || t("pieceProfile.noBenefit")}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">{t("pieceProfile.noReturn")}</p>
                 </div>
                 <div className="rounded-xl border bg-muted/20 p-4">
                   <Users className="h-5 w-5 text-primary" />
                   <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{t("pieceProfile.liquidityNow")}</p>
-                  <p className="mt-2 text-sm font-semibold">{profile.pool ? `${Number(profile.stats?.holder_count || 24)} holders · active pool` : "No active pool"}</p>
-                  <p className="mt-2 text-xs leading-5 text-muted-foreground">A pool enables exchange; it does not guarantee a buyer, stable price or easy exit.</p>
+                  <p className="mt-2 text-sm font-semibold">{profile.pool ? t("pieceProfile.holdersPool", { count: Number(profile.stats?.holder_count || 24) }) : t("pieceProfile.noPool")}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">{t("pieceProfile.poolDisclaimer")}</p>
                 </div>
               </div>
             </GuidanceDisclosure>
@@ -387,9 +387,9 @@ export function PieceProfile() {
             <Card className="border-cyan-500/30 bg-gradient-to-br from-cyan-950/20 via-neutral-900/90 to-black/95 shadow-xl">
               <CardHeader className="border-b border-cyan-500/20 pb-3">
                 <CardTitle className="text-base font-bold flex items-center justify-between">
-                  <span>Quick Trade Pieces</span>
+                  <span>{t("pieceProfile.quickTrade")}</span>
                   <Badge variant="outline" className="text-[10px] border-cyan-500/30 text-cyan-400">
-                    AMM Swap
+                    {t("pieceProfile.ammSwap")}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -401,7 +401,7 @@ export function PieceProfile() {
                     className={`font-bold text-xs ${swapTab === 'buy' ? 'bg-cyan-500 text-black hover:bg-cyan-400' : 'text-muted-foreground'}`}
                     onClick={() => setSwapTab('buy')}
                   >
-                    Buy Pieces
+                    {t("pieceProfile.buyPieces")}
                   </Button>
                   <Button
                     size="sm"
@@ -409,12 +409,12 @@ export function PieceProfile() {
                     className={`font-bold text-xs ${swapTab === 'sell' ? 'bg-rose-500 text-white hover:bg-rose-400' : 'text-muted-foreground'}`}
                     onClick={() => setSwapTab('sell')}
                   >
-                    Sell Pieces
+                    {t("pieceProfile.sellPieces")}
                   </Button>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="swap-count" className="text-xs font-bold">Number of Pieces</Label>
+                  <Label htmlFor="swap-count" className="text-xs font-bold">{t("pieceProfile.numberOf")}</Label>
                   <Input
                     id="swap-count"
                     type="number"
@@ -427,12 +427,12 @@ export function PieceProfile() {
 
                 <div className="rounded-xl border border-cyan-500/20 bg-cyan-950/20 p-3 space-y-1.5 text-xs">
                   <div className="flex justify-between text-muted-foreground">
-                    <span>Estimated Total:</span>
-                    <span className="font-bold text-foreground">{estimatedSwapCost} Gems</span>
+                    <span>{t("pieceProfile.estTotal")}</span>
+                    <span className="font-bold text-foreground">{t("pieceProfile.gems", { amount: estimatedSwapCost })}</span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
-                    <span>Pool Swap Fee:</span>
-                    <span>0.3% (~{(parseFloat(estimatedSwapCost) * 0.003).toFixed(2)} Gems)</span>
+                    <span>{t("pieceProfile.swapFee")}</span>
+                    <span>{t("pieceProfile.feeGems", { amount: (parseFloat(estimatedSwapCost) * 0.003).toFixed(2) })}</span>
                   </div>
                 </div>
 
@@ -445,7 +445,7 @@ export function PieceProfile() {
                       : 'bg-rose-600 hover:bg-rose-500 text-white'
                   }`}
                 >
-                  {isSwapping ? "Executing Trade..." : `${swapTab === 'buy' ? 'Buy' : 'Sell'} for ${estimatedSwapCost} Gems`}
+                  {isSwapping ? t("pieceProfile.executing") : swapTab === 'buy' ? t("pieceProfile.buyFor", { cost: estimatedSwapCost }) : t("pieceProfile.sellFor", { cost: estimatedSwapCost })}
                 </Button>
               </CardContent>
             </Card>
@@ -468,10 +468,10 @@ export function PieceProfile() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 grid grid-cols-2 gap-2">
-                <Button asChild variant="outline" size="sm"><Link to="/portfolio">Portfolio</Link></Button>
-                <Button asChild variant="outline" size="sm"><Link to="/marketplace">Marketplace</Link></Button>
-                <Button asChild variant="outline" size="sm"><Link to={`/pieces/${profile.piece_type}/${profile.asset_id}/manage`}>Creator Studio</Link></Button>
-                <Button asChild variant="outline" size="sm"><Link to="/wallet">Wallet</Link></Button>
+                <Button asChild variant="outline" size="sm"><Link to="/portfolio">{t("pieceProfile.portfolio")}</Link></Button>
+                <Button asChild variant="outline" size="sm"><Link to="/marketplace">{t("pieceProfile.marketplace")}</Link></Button>
+                <Button asChild variant="outline" size="sm"><Link to={`/pieces/${profile.piece_type}/${profile.asset_id}/manage`}>{t("pieceProfile.creatorStudio")}</Link></Button>
+                <Button asChild variant="outline" size="sm"><Link to="/wallet">{t("pieceProfile.wallet")}</Link></Button>
               </CardContent>
             </Card>
           </aside>

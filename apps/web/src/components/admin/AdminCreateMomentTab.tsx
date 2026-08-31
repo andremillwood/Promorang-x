@@ -28,21 +28,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Badge } from "@/components/ui/badge";
 import { venueCategories } from "@/lib/moment-taxonomy";
 import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo, toMomentProofEnum } from "@/lib/jamaica-geo";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
-const categories = [
-    { value: "social", label: "Social Gathering" },
-    { value: "workshop", label: "Workshop" },
-    { value: "fitness", label: "Fitness & Wellness" },
-    { value: "food", label: "Food & Drink" },
-    { value: "music", label: "Music & Entertainment" },
-    { value: "networking", label: "Networking" },
-    { value: "outdoor", label: "Outdoor Adventure" },
-    { value: "arts", label: "Arts & Culture" },
+const categories: { value: string; labelKey: TranslationKey }[] = [
+    { value: "social", labelKey: "actBehalf.catSocial" },
+    { value: "workshop", labelKey: "actBehalf.catWorkshop" },
+    { value: "fitness", labelKey: "actBehalf.catFitness" },
+    { value: "food", labelKey: "actBehalf.catFood" },
+    { value: "music", labelKey: "actBehalf.catMusic" },
+    { value: "networking", labelKey: "actBehalf.catNetwork" },
+    { value: "outdoor", labelKey: "actBehalf.catOutdoor" },
+    { value: "arts", labelKey: "actBehalf.catArts" },
 ];
 
 const DEFAULT_MOMENT_TYPE = "community";
 
 export const AdminCreateMomentTab = () => {
+    const { t } = useI18n();
     const { session } = useAuth();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
@@ -178,8 +181,8 @@ export const AdminCreateMomentTab = () => {
                     <Sparkles className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                    <h2 className="text-2xl font-bold">Acting On-Behalf-Of</h2>
-                    <p className="text-muted-foreground text-sm">Create moments for hosts or platform events.</p>
+                    <h2 className="text-2xl font-bold">{t("actBehalf.title")}</h2>
+                    <p className="text-muted-foreground text-sm">{t("actBehalf.copy")}</p>
                 </div>
             </div>
 
@@ -189,24 +192,24 @@ export const AdminCreateMomentTab = () => {
                         <CardHeader>
                             <CardTitle className="text-lg flex items-center gap-2">
                                 <Calendar className="w-4 h-4 text-primary" />
-                                Moment Details
+                                {t("actBehalf.details")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label>Title</Label>
+                                <Label>{t("actBehalf.titleLbl")}</Label>
                                 <Input 
                                     required 
-                                    placeholder="e.g., Grand Opening Celebration" 
+                                    placeholder={t("actBehalf.titlePh")} 
                                     value={formData.title}
                                     onChange={e => setFormData({...formData, title: e.target.value})}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Description</Label>
+                                <Label>{t("actBehalf.desc")}</Label>
                                 <Textarea 
                                     required 
-                                    placeholder="Explain the purpose of this moment..." 
+                                    placeholder={t("actBehalf.descPh")} 
                                     rows={4}
                                     value={formData.description}
                                     onChange={e => setFormData({...formData, description: e.target.value})}
@@ -214,20 +217,20 @@ export const AdminCreateMomentTab = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Category</Label>
+                                    <Label>{t("actBehalf.category")}</Label>
                                     <Select value={formData.category} onValueChange={v => setFormData({...formData, category: v})}>
                                         <SelectTrigger>
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {categories.map(cat => (
-                                                <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                                                <SelectItem key={cat.value} value={cat.value}>{t(cat.labelKey)}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Max Participants</Label>
+                                    <Label>{t("actBehalf.max")}</Label>
                                     <Input 
                                         type="number" 
                                         value={formData.maxParticipants}
@@ -242,17 +245,17 @@ export const AdminCreateMomentTab = () => {
                         <CardHeader>
                             <CardTitle className="text-lg flex items-center gap-2">
                                 <MapPin className="w-4 h-4 text-primary" />
-                                Logistics & Venue
+                                {t("actBehalf.logistics")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label>Link to Venue (Optional)</Label>
+                                <Label>{t("actBehalf.linkVenue")}</Label>
                                 <Select value={formData.venueId} onValueChange={handleVenueChange}>
                                     <SelectTrigger>
                                         <div className="flex items-center gap-2">
                                             <Store className="w-4 h-4 text-muted-foreground" />
-                                            <SelectValue placeholder="Select a registered venue" />
+                                            <SelectValue placeholder={t("actBehalf.venuePh")} />
                                         </div>
                                     </SelectTrigger>
                                     <SelectContent>
@@ -263,37 +266,37 @@ export const AdminCreateMomentTab = () => {
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label>Manual Address</Label>
+                                <Label>{t("actBehalf.address")}</Label>
                                 <Input 
                                     required 
-                                    placeholder="e.g., 12 Hope Road, Kingston, Jamaica" 
+                                    placeholder={t("actBehalf.addressPh")} 
                                     value={formData.location}
                                     onChange={e => setFormData({...formData, location: e.target.value})}
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Venue Category</Label>
+                                    <Label>{t("actBehalf.venueCat")}</Label>
                                     <Select value={formData.venueCategory} onValueChange={v => setFormData({...formData, venueCategory: v})}>
                                         <SelectTrigger>
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {venueCategories.map(cat => (
-                                                <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                                                <SelectItem key={cat.value} value={cat.value}>{t((`tax.venue.${cat.value}`) as TranslationKey)}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Proof type</Label>
+                                    <Label>{t("actBehalf.proof")}</Label>
                                     <Select value={formData.proofType} onValueChange={v => setFormData({...formData, proofType: v})}>
                                         <SelectTrigger>
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {LOCAL_DROP_PROOF_OPTIONS.map(option => (
-                                                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                                                <SelectItem key={option.value} value={option.value}>{t(option.labelKey as TranslationKey)}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
@@ -301,7 +304,7 @@ export const AdminCreateMomentTab = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Starts At</Label>
+                                    <Label>{t("actBehalf.starts")}</Label>
                                     <Input 
                                         type="datetime-local" 
                                         required 
@@ -310,7 +313,7 @@ export const AdminCreateMomentTab = () => {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Ends At</Label>
+                                    <Label>{t("actBehalf.ends")}</Label>
                                     <Input 
                                         type="datetime-local" 
                                         value={formData.endsAt}
@@ -327,22 +330,22 @@ export const AdminCreateMomentTab = () => {
                         <CardHeader>
                             <CardTitle className="text-sm uppercase tracking-widest flex items-center gap-2">
                                 <UserPlus className="w-4 h-4 text-primary" />
-                                Target Host
+                                {t("actBehalf.host")}
                             </CardTitle>
-                            <CardDescription>Select the vendor who will own this moment.</CardDescription>
+                            <CardDescription>{t("actBehalf.hostCopy")}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Select value={selectedHostId} onValueChange={setSelectedHostId}>
                                     <SelectTrigger className="pl-9 h-12">
-                                        <SelectValue placeholder="Search hosts..." />
+                                        <SelectValue placeholder={t("actBehalf.hostPh")} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {hosts.map(h => (
                                             <SelectItem key={h.user_id} value={h.user_id}>
                                                 <div className="flex flex-col">
-                                                    <span className="font-bold">{h.profiles?.full_name || "Merchant"}</span>
+                                                    <span className="font-bold">{h.profiles?.full_name || t("actBehalf.merchant")}</span>
                                                     <span className="text-[10px] text-muted-foreground">{h.profiles?.email}</span>
                                                 </div>
                                             </SelectItem>
@@ -352,7 +355,7 @@ export const AdminCreateMomentTab = () => {
                             </div>
                             {selectedHostId && (
                                 <Badge variant="secondary" className="bg-primary/10 text-primary border-none w-full justify-center py-1">
-                                    Host Selected: {hosts.find(h => h.user_id === selectedHostId)?.profiles?.full_name}
+                                    {t("actBehalf.hostSelected", { name: hosts.find(h => h.user_id === selectedHostId)?.profiles?.full_name || t("actBehalf.merchant") })}
                                 </Badge>
                             )}
                         </CardContent>
@@ -362,7 +365,7 @@ export const AdminCreateMomentTab = () => {
                                 className="w-full shadow-glow py-6 text-lg font-serif" 
                                 disabled={isSubmitting || !selectedHostId}
                             >
-                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Publish Instantly"}
+                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : t("actBehalf.publish")}
                             </Button>
                         </CardFooter>
                     </Card>
@@ -370,13 +373,13 @@ export const AdminCreateMomentTab = () => {
                     <div className="bg-secondary/50 rounded-xl p-6 border border-border space-y-4">
                         <h4 className="font-bold text-sm flex items-center gap-2">
                             <CheckCircle2 className="w-4 h-4 text-primary" />
-                            Admin Privileges
+                            {t("actBehalf.privs")}
                         </h4>
                         <div className="space-y-2 text-xs text-muted-foreground">
-                            <p>• Bypasses standard moderation</p>
-                            <p>• Automatically marked as 'joinable'</p>
-                            <p>• Immediately visible in global feed</p>
-                            <p>• Can act for any Host or Brand</p>
+                            <p>• {t("actBehalf.priv1")}</p>
+                            <p>• {t("actBehalf.priv2")}</p>
+                            <p>• {t("actBehalf.priv3")}</p>
+                            <p>• {t("actBehalf.priv4")}</p>
                         </div>
                     </div>
                 </div>

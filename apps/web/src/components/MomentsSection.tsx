@@ -6,18 +6,21 @@ import { MomentCard } from "@/components/MomentCard";
 import { DemoEventBanner } from "@/components/DemoEventBanner";
 import { demoMoments as moments } from "@/data/demo-moments";
 import { supabase } from "@/integrations/supabase/client";
-import { getTaxonomyLabel } from "@/lib/moment-taxonomy";
+import { taxonomyLabelKey } from "@/lib/moment-taxonomy";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
-const filters = [
-  { value: "All", label: "All" },
-  { value: "drop", label: "Drops" },
-  { value: "ritual", label: "Rituals" },
-  { value: "service", label: "Services" },
-  { value: "content", label: "Creator Missions" },
-  { value: "grocery", label: "Grocery" },
+const filters: { value: string; labelKey: TranslationKey }[] = [
+  { value: "All", labelKey: "momSect.filterAll" },
+  { value: "drop", labelKey: "momSect.filterDrops" },
+  { value: "ritual", labelKey: "momSect.filterRituals" },
+  { value: "service", labelKey: "momSect.filterServices" },
+  { value: "content", labelKey: "momSect.filterCreator" },
+  { value: "grocery", labelKey: "momSect.filterGrocery" },
 ];
 
 const MomentsSection = () => {
+  const { t } = useI18n();
   const [activeCategory, setActiveCategory] = useState("All");
 
   const { data: liveMoments } = useQuery({
@@ -51,60 +54,53 @@ const MomentsSection = () => {
     <section className="relative overflow-hidden bg-gradient-warm py-14 md:py-20" data-tour="moments-section">
       <div className="absolute right-0 top-24 h-80 w-80 rounded-full bg-primary/10 blur-[100px]" />
       <div className="container relative z-10 px-6">
-        {/* Demo Event Banner */}
         {showingExamples && (
           <div className="max-w-5xl mx-auto mb-8">
             <DemoEventBanner variant="home" />
           </div>
         )}
 
-        {/* Section Header */}
         <div className="mb-8 grid gap-6 lg:grid-cols-[1fr_0.55fr] lg:items-end">
           <div className="max-w-2xl">
             <p className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-primary">
-              {showingExamples ? "Example Playbooks" : "Live Discovery"}
+              {showingExamples ? t("momSect.exampleKicker") : t("momSect.liveKicker")}
             </p>
             <h2 className="font-serif text-3xl md:text-5xl font-bold text-foreground mb-4">
-              {showingExamples ? "Learn the moment pattern." : "Find something worth showing up for."}
+              {showingExamples ? t("momSect.exampleTitle") : t("momSect.liveTitle")}
             </h2>
             <p className="text-lg leading-8 text-muted-foreground">
-              {showingExamples
-                ? "These examples show the kinds of drops, rituals, creator missions, and local experiences Promorang can bring into your city. The point is simple: find the room, show up, and let the Mark start opening more."
-                : "Browse live moments across retail, service, wellness, community, and creator-led unlocks. Each one can help you earn points, become known, and unlock what comes next."}
+              {showingExamples ? t("momSect.exampleBody") : t("momSect.liveBody")}
             </p>
           </div>
           <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">Moment signal</p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">{t("momSect.signal")}</p>
             <p className="mt-2 font-serif text-3xl font-bold text-foreground">
-              {showingExamples ? "Examples teach." : "Join once."}
+              {showingExamples ? t("momSect.exampleTeach") : t("momSect.liveJoin")}
             </p>
             <p className="font-serif text-3xl font-bold text-primary">
-              {showingExamples ? "Live moments convert." : "Return stronger."}
+              {showingExamples ? t("momSect.exampleConvert") : t("momSect.liveReturn")}
             </p>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              {showingExamples
-                ? "Examples are labeled as patterns so live moments can stay easy to recognize."
-                : "Every card below is a doorway into people, places, perks, and progress."}
+              {showingExamples ? t("momSect.exampleSignalBody") : t("momSect.liveSignalBody")}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               <Link
                 to="/explore/moments"
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
               >
-                Explore all
+                {t("momSect.exploreAll")}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/create/moment"
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-bold text-foreground transition hover:bg-secondary"
               >
-                Create one
+                {t("momSect.createOne")}
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Category Pills */}
         <div className="flex flex-wrap gap-3 mb-8">
           {filters.map((filter) => (
             <button
@@ -115,62 +111,61 @@ const MomentsSection = () => {
                 : "bg-card text-muted-foreground hover:bg-secondary hover:text-foreground border border-border shadow-sm"
                 }`}
             >
-              {filter.label}
+              {t(filter.labelKey)}
             </button>
           ))}
         </div>
 
         {showingExamples && (
           <div className="mb-8 flex flex-wrap gap-2">
-            {["fashion_retail", "personal_service", "grocery", "fitness_wellness", "content"].map((tag) => (
+            {["fashion_retail", "personal_service", "grocery", "fitness_wellness", "content"].map((tag) => {
+              const key = taxonomyLabelKey("venue", tag) || taxonomyLabelKey("arch", tag);
+              return (
               <span
                 key={tag}
                 className="rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary"
               >
-                {getTaxonomyLabel(tag)}
+                {key ? t(key as TranslationKey) : tag}
               </span>
-            ))}
+              );
+            })}
           </div>
         )}
 
-        {/* Moments Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {filteredMoments.map((moment) => (
             <MomentCard key={moment.id} moment={moment as any} />
           ))}
         </div>
 
-        {/* Enhanced CTA Section */}
         <div className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
           <div className="text-center max-w-3xl mx-auto">
             <h3 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-4">
-              {showingExamples ? "Nothing near you yet? That can be your opening." : "Ready to create your own moments?"}
+              {showingExamples ? t("momSect.exampleCtaTitle") : t("momSect.liveCtaTitle")}
             </h3>
             <p className="text-lg text-muted-foreground mb-8">
-              {showingExamples
-                ? "If your area is still quiet, help start the first drop, ritual, service unlock, or community gathering. Promorang is built for the people who make a place feel alive."
-                : "Whether you're a host, creator, merchant, or brand, Promorang makes it possible to program real-world interactions people want to join, remember, and return to."}
+              {showingExamples ? t("momSect.exampleCtaBody") : t("momSect.liveCtaBody")}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 to="/create/moment"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] shadow-soft hover:shadow-elevated"
               >
-                Host a Moment
+                {t("momSect.hostMoment")}
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 to="/for-brands"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-foreground rounded-full font-medium hover:bg-secondary/80 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
               >
-                For Businesses
+                {t("momSect.forBusinesses")}
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 to="/explore/moments"
                 className="inline-flex items-center gap-2 text-primary font-medium hover:underline underline-offset-4"
               >
-                Explore all moments
+                {t("momSect.exploreAllMoments")}
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>

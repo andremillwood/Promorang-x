@@ -18,18 +18,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 
 export function BrandOpportunityRadar() {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [activeCategory, setActiveCategory] = useState("all");
   const [sponsoredMoments, setSponsoredMoments] = useState<string[]>([]);
 
   const handleSponsor = (momentTitle: string, momentId: string) => {
     setSponsoredMoments((prev) => [...prev, momentId]);
     toast({
-      title: "Sponsorship Offer Dispatched! 🎯",
-      description: `Dispatched brand offer to '${momentTitle}'. Host notified for escrow lock.`,
+      title: t("brandOpp.toastTitle"),
+      description: t("brandOpp.toastCopy", { title: momentTitle }),
     });
   };
 
@@ -90,30 +92,30 @@ export function BrandOpportunityRadar() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Find Events & Places to Sponsor</h2>
+              <h2 className="text-2xl font-black text-white">{t("brandOpp.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-primary/20 border border-primary/40 text-primary text-[10px] font-extrabold uppercase">
-                Curated Opportunities
+                {t("brandOpp.badge")}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Connect your brand with popular local festivals, art walks, dining hubs, and concerts.
+              {t("brandOpp.copy")}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 text-xs text-white/60">
           <Sparkles className="h-4 w-4 text-primary" />
-          <span>Recommended for Your Brand</span>
+          <span>{t("brandOpp.recommended")}</span>
         </div>
       </div>
 
       {/* 2. Category Filter Strip */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         {[
-          { id: "all", label: "All Opportunities" },
-          { id: "art", label: "Art & Culture" },
-          { id: "music", label: "Music & Dining" },
-          { id: "tech", label: "Community & Tech" },
+          { id: "all", label: t("brandOpp.all") },
+          { id: "art", label: t("brandOpp.art") },
+          { id: "music", label: t("brandOpp.music") },
+          { id: "tech", label: t("brandOpp.tech") },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -150,7 +152,7 @@ export function BrandOpportunityRadar() {
 
                 <div className="absolute top-3 left-3 flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-full bg-primary text-black font-black text-[10px] uppercase tracking-wider shadow-md">
-                    {opp.fitScore}% Fit Match
+                    {t("brandOpp.fit", { score: opp.fitScore })}
                   </span>
                   <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white font-bold text-[10px]">
                     {opp.category}
@@ -173,7 +175,7 @@ export function BrandOpportunityRadar() {
                 <div className="flex items-center justify-between text-xs text-white/70 border-b border-white/5 pb-3">
                   <div className="flex items-center gap-1.5">
                     <Users className="h-3.5 w-3.5 text-primary" />
-                    <span>~{opp.expectedAttendance} Attendees</span>
+                    <span>{t("brandOpp.attendees", { count: opp.expectedAttendance })}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5 text-amber-400" />
@@ -184,7 +186,7 @@ export function BrandOpportunityRadar() {
                 {/* 3 Match Signals */}
                 <div className="space-y-1.5">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-white/50">
-                    Why It Matches Your Brand:
+                    {t("brandOpp.why")}
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {opp.matchReasons.map((reason, idx) => (
@@ -201,14 +203,14 @@ export function BrandOpportunityRadar() {
                 {/* Sponsorship Slot & Trigger */}
                 <div className="pt-2 border-t border-white/5 flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] uppercase font-bold text-white/40">Sponsor Tier</p>
+                    <p className="text-[10px] uppercase font-bold text-white/40">{t("brandOpp.tier")}</p>
                     <p className="text-xs font-black text-white">{opp.sponsorshipTier}</p>
                   </div>
 
                   {isSponsored ? (
                     <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold text-xs flex items-center gap-1">
                       <CheckCircle2 className="h-3.5 w-3.5" />
-                      Offer Sent
+                      {t("brandOpp.offerSent")}
                     </span>
                   ) : (
                     <Button
@@ -217,7 +219,7 @@ export function BrandOpportunityRadar() {
                       className="h-9 px-4 rounded-xl bg-primary hover:bg-primary/90 text-black font-extrabold text-xs shadow-md"
                     >
                       <DollarSign className="h-3.5 w-3.5 mr-1" />
-                      Sponsor Slot
+                      {t("brandOpp.sponsor")}
                     </Button>
                   )}
                 </div>

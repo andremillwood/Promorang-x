@@ -22,6 +22,7 @@ import {
   ScrollText
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
 import { 
   calculateAndDistributeDividends, 
   checkCircuitBreaker,
@@ -84,6 +85,7 @@ interface PoolAuditLog {
 export default function PiecesAdmin() {
   const { user, profile, session } = useAuth();
   const { toast } = useToast();
+  const { t, formatDate } = useI18n();
   const [activeTab, setActiveTab] = useState('dividends');
   const [dividends, setDividends] = useState<Dividend[]>([]);
   const [pools, setPools] = useState<Pool[]>([]);
@@ -197,19 +199,19 @@ export default function PiecesAdmin() {
 
       const result = await response.json();
       if (!response.ok || result.success === false) {
-        throw new Error(result.error || 'Failed to create pool');
+        throw new Error(result.error || t('piecesAdmin.createFail'));
       }
 
       toast({
-        title: 'Pool Created',
-        description: 'The liquidity pool is now active.',
+        title: t('piecesAdmin.poolCreated'),
+        description: t('piecesAdmin.poolCreatedDesc'),
       });
       loadPools();
       loadAuditLogs();
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to create pool',
+        title: t('piecesAdmin.errTitle'),
+        description: error.message || t('piecesAdmin.createFail'),
         variant: 'destructive'
       });
     } finally {
@@ -230,11 +232,11 @@ export default function PiecesAdmin() {
         body: JSON.stringify({ status }),
       });
       const result = await response.json();
-      if (!response.ok || result.success === false) throw new Error(result.error || 'Failed to update approval');
-      toast({ title: 'Asset Updated', description: `Trading approval changed to ${status}.` });
+      if (!response.ok || result.success === false) throw new Error(result.error || t('piecesAdmin.approvalFail'));
+      toast({ title: t('piecesAdmin.assetUpdated'), description: t('piecesAdmin.approvalChanged', { status: status ?? '' }) });
       await Promise.all([loadAssets(), loadPools(), loadAuditLogs()]);
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Failed to update approval', variant: 'destructive' });
+      toast({ title: t('piecesAdmin.errTitle'), description: error.message || t('piecesAdmin.approvalFail'), variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -256,19 +258,19 @@ export default function PiecesAdmin() {
 
       const result = await response.json();
       if (!response.ok || result.success === false) {
-        throw new Error(result.error || 'Failed to update pool');
+        throw new Error(result.error || t('piecesAdmin.poolUpdateFail'));
       }
 
       toast({
-        title: 'Pool Updated',
-        description: `Pool status changed to ${status}.`,
+        title: t('piecesAdmin.poolUpdated'),
+        description: t('piecesAdmin.poolStatusChanged', { status }),
       });
       loadPools();
       loadAuditLogs();
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to update pool',
+        title: t('piecesAdmin.errTitle'),
+        description: error.message || t('piecesAdmin.poolUpdateFail'),
         variant: 'destructive'
       });
     } finally {
@@ -281,15 +283,15 @@ export default function PiecesAdmin() {
     try {
       await setupTestData();
       toast({
-        title: 'Test Data Created',
-        description: 'Sample liquidity pool, holdings, and dividends created successfully.',
+        title: t('piecesAdmin.testCreated'),
+        description: t('piecesAdmin.testCreatedDesc'),
       });
       loadDividends();
       loadPools();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to create test data',
+        title: t('piecesAdmin.errTitle'),
+        description: t('piecesAdmin.testFail'),
         variant: 'destructive'
       });
     } finally {
@@ -309,21 +311,21 @@ export default function PiecesAdmin() {
 
       if (dividendId) {
         toast({
-          title: 'Dividend Calculated',
-          description: `Dividend ${dividendId} created successfully.`,
+          title: t('piecesAdmin.divCalc'),
+          description: t('piecesAdmin.divCalcDesc', { id: dividendId }),
         });
         loadDividends();
       } else {
         toast({
-          title: 'No Revenue',
-          description: 'No revenue found for the specified period.',
+          title: t('piecesAdmin.noRevenue'),
+          description: t('piecesAdmin.noRevenueDesc'),
           variant: 'warning'
         });
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to calculate dividend',
+        title: t('piecesAdmin.errTitle'),
+        description: t('piecesAdmin.divCalcFail'),
         variant: 'destructive'
       });
     } finally {
@@ -336,14 +338,14 @@ export default function PiecesAdmin() {
     try {
       await monitorAllPools();
       toast({
-        title: 'Monitoring Complete',
-        description: 'All pools checked for circuit breaker triggers.',
+        title: t('piecesAdmin.monComplete'),
+        description: t('piecesAdmin.monDesc'),
       });
       loadPools();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Monitoring check failed',
+        title: t('piecesAdmin.errTitle'),
+        description: t('piecesAdmin.monFail'),
         variant: 'destructive'
       });
     } finally {
@@ -356,14 +358,14 @@ export default function PiecesAdmin() {
     try {
       await autoDistributeDividend(dividendId);
       toast({
-        title: 'Dividend Distributed',
-        description: 'All claims have been auto-distributed.',
+        title: t('piecesAdmin.divDist'),
+        description: t('piecesAdmin.divDistDesc'),
       });
       loadDividends();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to distribute dividend',
+        title: t('piecesAdmin.errTitle'),
+        description: t('piecesAdmin.divDistFail'),
         variant: 'destructive'
       });
     } finally {
@@ -377,9 +379,9 @@ export default function PiecesAdmin() {
         <Card>
           <CardContent className="p-8 text-center">
             <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold">Admin Access Required</h2>
+            <h2 className="text-xl font-semibold">{t('piecesAdmin.deniedTitle')}</h2>
             <p className="text-muted-foreground mt-2">
-              You need admin privileges to access this panel.
+              {t('piecesAdmin.deniedCopy')}
             </p>
           </CardContent>
         </Card>
@@ -391,14 +393,14 @@ export default function PiecesAdmin() {
     <div className="space-y-6 p-4 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-2xl font-bold sm:text-3xl">Pieces Trading Admin</h1>
+          <h1 className="text-2xl font-bold sm:text-3xl">{t('piecesAdmin.title')}</h1>
           <p className="text-muted-foreground">
-            Manage dividends, liquidity pools, and circuit breakers
+            {t('piecesAdmin.lede')}
           </p>
         </div>
         <Button onClick={handleSetupTestData} disabled={loading}>
           <RefreshCw className="w-4 h-4 mr-2" />
-          Setup Test Data
+          {t('piecesAdmin.setupTest')}
         </Button>
       </div>
 
@@ -406,23 +408,23 @@ export default function PiecesAdmin() {
         <TabsList className="grid w-full min-w-[760px] grid-cols-5">
           <TabsTrigger value="dividends">
             <Calculator className="w-4 h-4 mr-2" />
-            Dividends
+            {t('piecesAdmin.tabDiv')}
           </TabsTrigger>
           <TabsTrigger value="pools">
             <TrendingUp className="w-4 h-4 mr-2" />
-            Liquidity Pools
+            {t('piecesAdmin.tabPools')}
           </TabsTrigger>
           <TabsTrigger value="assets">
             <Shield className="w-4 h-4 mr-2" />
-            Asset Approval
+            {t('piecesAdmin.tabAssets')}
           </TabsTrigger>
           <TabsTrigger value="monitoring">
             <Activity className="w-4 h-4 mr-2" />
-            Monitoring
+            {t('piecesAdmin.tabMon')}
           </TabsTrigger>
           <TabsTrigger value="audit">
             <ScrollText className="w-4 h-4 mr-2" />
-            Audit
+            {t('piecesAdmin.tabAudit')}
           </TabsTrigger>
         </TabsList>
 
@@ -430,9 +432,9 @@ export default function PiecesAdmin() {
         <TabsContent value="dividends" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Calculate New Dividend</CardTitle>
+              <CardTitle>{t('piecesAdmin.calcTitle')}</CardTitle>
               <CardDescription>
-                Calculate and distribute dividends for a specific period
+                {t('piecesAdmin.calcDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -442,19 +444,19 @@ export default function PiecesAdmin() {
                 className="w-full"
               >
                 <Calculator className="w-4 h-4 mr-2" />
-                Calculate Q1 2025 Dividend
+                {t('piecesAdmin.calcQ1')}
               </Button>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Recent Dividends</CardTitle>
+              <CardTitle>{t('piecesAdmin.recent')}</CardTitle>
             </CardHeader>
             <CardContent>
               {dividends.length === 0 ? (
                 <p className="text-muted-foreground text-center py-4">
-                  No dividends calculated yet
+                  {t('piecesAdmin.noDiv')}
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -471,8 +473,7 @@ export default function PiecesAdmin() {
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {dividend.pieces_eligible} pieces eligible • 
-                          ${dividend.dividend_per_piece?.toFixed(4)} per piece
+                          {t('piecesAdmin.piecesElig', { count: dividend.pieces_eligible, amount: dividend.dividend_per_piece?.toFixed(4) ?? '0' })}
                         </p>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
@@ -503,15 +504,15 @@ export default function PiecesAdmin() {
         <TabsContent value="pools" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Create Liquidity Pool</CardTitle>
+              <CardTitle>{t('piecesAdmin.createTitle')}</CardTitle>
               <CardDescription>
-                Create an approved AMM pool for a published asset. Start with content pools; add moment, host, and venue approvals once those asset contracts are finalized.
+                {t('piecesAdmin.createDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
                 <label className="space-y-2">
-                  <span className="text-sm font-medium">Piece Type</span>
+                  <span className="text-sm font-medium">{t('piecesAdmin.pieceType')}</span>
                   <select
                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     value={poolForm.piece_type}
@@ -523,15 +524,15 @@ export default function PiecesAdmin() {
                       }));
                     }}
                   >
-                    <option value="content">Content</option>
-                    <option value="moment" disabled>Moment</option>
-                    <option value="host" disabled>Host</option>
-                    <option value="venue" disabled>Venue</option>
+                    <option value="content">{t('piecesAdmin.typeContent')}</option>
+                    <option value="moment" disabled>{t('piecesAdmin.typeMoment')}</option>
+                    <option value="host" disabled>{t('piecesAdmin.typeHost')}</option>
+                    <option value="venue" disabled>{t('piecesAdmin.typeVenue')}</option>
                   </select>
                 </label>
 
                 <label className="space-y-2 lg:col-span-2">
-                  <span className="text-sm font-medium">Approved Asset</span>
+                  <span className="text-sm font-medium">{t('piecesAdmin.approvedAsset')}</span>
                   <select
                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     value={poolForm.asset_id}
@@ -546,7 +547,7 @@ export default function PiecesAdmin() {
                 </label>
 
                 <label className="space-y-2">
-                  <span className="text-sm font-medium">Pieces</span>
+                  <span className="text-sm font-medium">{t('piecesAdmin.pieces')}</span>
                   <Input
                     type="number"
                     min="1"
@@ -556,7 +557,7 @@ export default function PiecesAdmin() {
                 </label>
 
                 <label className="space-y-2">
-                  <span className="text-sm font-medium">Gems</span>
+                  <span className="text-sm font-medium">{t('piecesAdmin.gems')}</span>
                   <Input
                     type="number"
                     min="1"
@@ -568,7 +569,7 @@ export default function PiecesAdmin() {
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                 <label className="space-y-2 sm:w-48">
-                  <span className="text-sm font-medium">Swap Fee</span>
+                  <span className="text-sm font-medium">{t('piecesAdmin.swapFee')}</span>
                   <Input
                     type="number"
                     min="0"
@@ -582,7 +583,7 @@ export default function PiecesAdmin() {
                   disabled={loading || !poolForm.asset_id}
                 >
                   <TrendingUp className="w-4 h-4 mr-2" />
-                  Create Pool
+                  {t('piecesAdmin.createPool')}
                 </Button>
               </div>
             </CardContent>
@@ -590,15 +591,15 @@ export default function PiecesAdmin() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Liquidity Pools</CardTitle>
+              <CardTitle>{t('piecesAdmin.poolsTitle')}</CardTitle>
               <CardDescription>
-                Active AMM liquidity pools and their status
+                {t('piecesAdmin.poolsDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {pools.length === 0 ? (
                 <p className="text-muted-foreground text-center py-4">
-                  No liquidity pools found. Create test data to get started.
+                  {t('piecesAdmin.noPools')}
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -616,15 +617,14 @@ export default function PiecesAdmin() {
                         </div>
                         <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
                           <span className="font-medium">
-                            {pool.pieces_reserve?.toLocaleString()} pieces
+                            {t('piecesAdmin.piecesCount', { count: pool.pieces_reserve?.toLocaleString() ?? 0 })}
                           </span>
                           <span className="text-muted-foreground">
-                            @ ${pool.last_price?.toFixed(2)}
+                            {t('piecesAdmin.priceAt', { price: pool.last_price?.toFixed(2) ?? '0' })}
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          ${pool.currency_reserve?.toLocaleString()} liquidity • 
-                          Vol: ${pool.volume_24h?.toLocaleString()} (24h)
+                          {t('piecesAdmin.liqVol', { liq: pool.currency_reserve?.toLocaleString() ?? 0, vol: pool.volume_24h?.toLocaleString() ?? 0 })}
                         </p>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
@@ -635,17 +635,17 @@ export default function PiecesAdmin() {
                         </Badge>
                         {pool.status !== 'active' && (
                           <Button size="sm" variant="outline" onClick={() => handlePoolStatus(pool.id, 'active')} disabled={loading}>
-                            Activate
+                            {t('piecesAdmin.activate')}
                           </Button>
                         )}
                         {pool.status === 'active' && (
                           <Button size="sm" variant="outline" onClick={() => handlePoolStatus(pool.id, 'paused')} disabled={loading}>
-                            Pause
+                            {t('piecesAdmin.pause')}
                           </Button>
                         )}
                         {pool.status !== 'closed' && (
                           <Button size="sm" variant="destructive" onClick={() => handlePoolStatus(pool.id, 'closed')} disabled={loading}>
-                            Close
+                            {t('piecesAdmin.close')}
                           </Button>
                         )}
                       </div>
@@ -660,14 +660,14 @@ export default function PiecesAdmin() {
         <TabsContent value="assets" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Trading Asset Approval</CardTitle>
+              <CardTitle>{t('piecesAdmin.assetsTitle')}</CardTitle>
               <CardDescription>
-                Publishing makes an asset visible. Approval separately authorizes Pieces trading and liquidity pools.
+                {t('piecesAdmin.assetsDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {assets.length === 0 ? (
-                <p className="py-4 text-center text-muted-foreground">No published assets found.</p>
+                <p className="py-4 text-center text-muted-foreground">{t('piecesAdmin.noAssets')}</p>
               ) : assets.map((asset) => (
                 <div key={asset.id} className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
@@ -681,13 +681,13 @@ export default function PiecesAdmin() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {asset.approval_status !== 'approved' && (
-                      <Button size="sm" onClick={() => handleAssetApproval(asset, 'approved')} disabled={loading}>Approve</Button>
+                      <Button size="sm" onClick={() => handleAssetApproval(asset, 'approved')} disabled={loading}>{t('piecesAdmin.approve')}</Button>
                     )}
                     {asset.approval_status === 'approved' && (
-                      <Button size="sm" variant="outline" onClick={() => handleAssetApproval(asset, 'suspended')} disabled={loading}>Suspend</Button>
+                      <Button size="sm" variant="outline" onClick={() => handleAssetApproval(asset, 'suspended')} disabled={loading}>{t('piecesAdmin.suspend')}</Button>
                     )}
                     {asset.approval_status !== 'rejected' && (
-                      <Button size="sm" variant="destructive" onClick={() => handleAssetApproval(asset, 'rejected')} disabled={loading}>Reject</Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleAssetApproval(asset, 'rejected')} disabled={loading}>{t('piecesAdmin.reject')}</Button>
                     )}
                   </div>
                 </div>
@@ -700,9 +700,9 @@ export default function PiecesAdmin() {
         <TabsContent value="monitoring" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Circuit Breaker Monitoring</CardTitle>
+              <CardTitle>{t('piecesAdmin.monTitle')}</CardTitle>
               <CardDescription>
-                Monitor pools for price anomalies and trigger circuit breakers
+                {t('piecesAdmin.monCardDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -712,23 +712,23 @@ export default function PiecesAdmin() {
                 className="w-full"
               >
                 <Shield className="w-4 h-4 mr-2" />
-                {monitoring ? 'Checking...' : 'Check All Pools Now'}
+                {monitoring ? t('piecesAdmin.checking') : t('piecesAdmin.checkNow')}
               </Button>
 
               <div className="p-4 bg-muted rounded-lg">
-                <h4 className="font-medium mb-2">Monitoring Status</h4>
+                <h4 className="font-medium mb-2">{t('piecesAdmin.monStatus')}</h4>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    Circuit breaker checks: Automated
+                    {t('piecesAdmin.checksAuto')}
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    Price anomaly detection: Active
+                    {t('piecesAdmin.anomaly')}
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    Auto-pause on trigger: Enabled
+                    {t('piecesAdmin.autoPause')}
                   </li>
                 </ul>
               </div>
@@ -737,17 +737,17 @@ export default function PiecesAdmin() {
 
           <Card>
             <CardHeader>
-              <CardTitle>System Health</CardTitle>
+              <CardTitle>{t('piecesAdmin.health')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="p-3 border rounded-lg text-center">
                   <div className="text-2xl font-bold">{pools.length}</div>
-                  <div className="text-sm text-muted-foreground">Active Pools</div>
+                  <div className="text-sm text-muted-foreground">{t('piecesAdmin.activePools')}</div>
                 </div>
                 <div className="p-3 border rounded-lg text-center">
                   <div className="text-2xl font-bold">{dividends.length}</div>
-                  <div className="text-sm text-muted-foreground">Dividends</div>
+                  <div className="text-sm text-muted-foreground">{t('piecesAdmin.dividends')}</div>
                 </div>
               </div>
             </CardContent>
@@ -760,21 +760,21 @@ export default function PiecesAdmin() {
             <CardHeader>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <CardTitle>Pool Audit Logs</CardTitle>
+                  <CardTitle>{t('piecesAdmin.auditTitle')}</CardTitle>
                   <CardDescription>
-                    Lifecycle records for admin-created pools, user-created pools, and status changes.
+                    {t('piecesAdmin.auditDesc')}
                   </CardDescription>
                 </div>
                 <Button variant="outline" onClick={loadAuditLogs}>
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  Refresh
+                  {t('piecesAdmin.refresh')}
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
               {auditLogs.length === 0 ? (
                 <p className="text-muted-foreground text-center py-4">
-                  No pool audit events recorded yet.
+                  {t('piecesAdmin.noAudit')}
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -786,18 +786,18 @@ export default function PiecesAdmin() {
                           {log.piece_type && <Badge>{log.piece_type}</Badge>}
                           {log.previous_status && log.new_status && (
                             <span className="text-sm text-muted-foreground">
-                              {log.previous_status} to {log.new_status}
+                              {t('piecesAdmin.statusTo', { from: log.previous_status, to: log.new_status })}
                             </span>
                           )}
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(log.created_at).toLocaleString()}
+                          {formatDate(log.created_at)}
                         </span>
                       </div>
                       <div className="mt-2 grid gap-1 text-xs text-muted-foreground md:grid-cols-3">
-                        <span>Pool: {log.pool_id || 'n/a'}</span>
-                        <span>Asset: {log.asset_id || 'n/a'}</span>
-                        <span>Actor: {log.actor_id || 'system'}</span>
+                        <span>{t('piecesAdmin.poolId', { id: log.pool_id || t('piecesAdmin.na') })}</span>
+                        <span>{t('piecesAdmin.assetId', { id: log.asset_id || t('piecesAdmin.na') })}</span>
+                        <span>{t('piecesAdmin.actorId', { id: log.actor_id || 'system' })}</span>
                       </div>
                     </div>
                   ))}

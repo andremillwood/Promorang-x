@@ -22,12 +22,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useBrandCampaigns } from "@/hooks/useCampaigns";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 
 export function BrandCampaignFlightDeck({
   onLaunchNew,
 }: {
   onLaunchNew?: () => void;
 }) {
+  const { t, formatNumber } = useI18n();
   const { toast } = useToast();
   const { data: rawCampaigns = [], isLoading } = useBrandCampaigns();
   const [filterState, setFilterState] = useState<"all" | "live" | "scheduled" | "completed">("all");
@@ -79,8 +81,8 @@ export function BrandCampaignFlightDeck({
 
   const handleBoostBudget = (campaignTitle: string) => {
     toast({
-      title: "Flight Pacing Boosted! 🚀",
-      description: `Allocated +$500 to '${campaignTitle}' for peak weekend foot traffic.`,
+      title: t("flyDeck.boostTitle"),
+      description: t("flyDeck.boostBody", { title: campaignTitle }),
     });
   };
 
@@ -101,13 +103,13 @@ export function BrandCampaignFlightDeck({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Your Sponsored Promotions</h2>
+              <h2 className="text-2xl font-black text-white">{t("flyDeck.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-primary/20 border border-primary/40 text-primary text-[10px] font-extrabold uppercase">
-                {campaigns.filter((c: any) => c.is_active).length} Active Campaigns
+                {t("flyDeck.badge", { count: campaigns.filter((c: any) => c.is_active).length })}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Track how your budget turns into social media buzz, real store visits, and sales.
+              {t("flyDeck.copy")}
             </p>
           </div>
         </div>
@@ -118,7 +120,7 @@ export function BrandCampaignFlightDeck({
         >
           <Link to="/create/campaign">
             <Plus className="h-4 w-4 mr-1.5" />
-            Start New Promotion
+            {t("flyDeck.start")}
           </Link>
         </Button>
       </div>
@@ -127,9 +129,9 @@ export function BrandCampaignFlightDeck({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {[
-            { id: "all", label: "All Campaigns" },
-            { id: "live", label: "Currently Active" },
-            { id: "scheduled", label: "Upcoming / Scheduled" },
+            { id: "all", label: t("flyDeck.all") },
+            { id: "live", label: t("flyDeck.live") },
+            { id: "scheduled", label: t("flyDeck.upcoming") },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -147,7 +149,7 @@ export function BrandCampaignFlightDeck({
 
         <div className="flex items-center gap-2 text-xs text-white/60">
           <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Real-Time Proof Loop Active</span>
+          <span>{t("flyDeck.realtime")}</span>
         </div>
       </div>
 
@@ -171,10 +173,10 @@ export function BrandCampaignFlightDeck({
                       ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                       : "bg-white/10 text-white/60 border border-white/10"
                   }`}>
-                    {campaign.is_active ? "Live Flight" : "Scheduled"}
+                    {campaign.is_active ? t("flyDeck.liveFlight") : t("flyDeck.scheduled")}
                   </span>
                   <span className="text-xs text-primary font-bold font-mono">
-                    ROI: {campaign.roi || "4.5x"}
+                    {t("flyDeck.roi", { value: campaign.roi || "4.5x" })}
                   </span>
                 </div>
 
@@ -189,9 +191,13 @@ export function BrandCampaignFlightDeck({
               {/* Spend Meter */}
               <div className="space-y-1.5 p-3.5 rounded-2xl bg-black/40 border border-white/5">
                 <div className="flex items-center justify-between text-xs font-semibold">
-                  <span className="text-white/60">Budget Used So Far</span>
+                  <span className="text-white/60">{t("flyDeck.budgetUsed")}</span>
                   <span className="text-white font-mono font-bold">
-                    ${spent.toLocaleString()} of ${budget.toLocaleString()} spent ({pacePercent}%)
+                    {t("flyDeck.spentOf", {
+                      spent: `$${formatNumber(spent)}`,
+                      budget: `$${formatNumber(budget)}`,
+                      pct: pacePercent,
+                    })}
                   </span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
@@ -205,15 +211,15 @@ export function BrandCampaignFlightDeck({
               {/* Real World Performance Dials */}
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-white/50">People Reached</p>
-                  <p className="text-base font-black text-white">{(campaign.impressions || 0).toLocaleString()}</p>
+                  <p className="text-[10px] font-bold uppercase text-white/50">{t("flyDeck.reached")}</p>
+                  <p className="text-base font-black text-white">{formatNumber(campaign.impressions || 0)}</p>
                 </div>
                 <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-white/50">In-Person Visits</p>
-                  <p className="text-base font-black text-emerald-400">{(campaign.redemptions || 0).toLocaleString()}</p>
+                  <p className="text-[10px] font-bold uppercase text-white/50">{t("flyDeck.visits")}</p>
+                  <p className="text-base font-black text-emerald-400">{formatNumber(campaign.redemptions || 0)}</p>
                 </div>
                 <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-white/50">Creators Posting</p>
+                  <p className="text-[10px] font-bold uppercase text-white/50">{t("flyDeck.posting")}</p>
                   <p className="text-base font-black text-amber-400">{campaign.creatorsCount || 6}</p>
                 </div>
               </div>
@@ -227,7 +233,7 @@ export function BrandCampaignFlightDeck({
                   className="h-9 px-3 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs flex-1"
                 >
                   <Flame className="h-3.5 w-3.5 mr-1.5 text-primary" />
-                  Add +$500 to Reach More People
+                  {t("flyDeck.boost")}
                 </Button>
 
                 <Button
@@ -236,7 +242,7 @@ export function BrandCampaignFlightDeck({
                   className="h-9 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
                 >
                   <Link to={`/dashboard/campaigns/${campaign.id}`}>
-                    <span>Manage Hub</span>
+                    <span>{t("flyDeck.manage")}</span>
                     <ArrowRight className="h-3.5 w-3.5 ml-1" />
                   </Link>
                 </Button>

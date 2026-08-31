@@ -53,8 +53,8 @@ export function ShareButton({
     await navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     toast({
-      title: "Link Copied!",
-      description: "Your unique PromoShare referral link is ready to share.",
+      title: t("shareButton.linkCopied"),
+      description: t("shareButton.linkCopiedDesc"),
     });
     setTimeout(() => setCopied(false), 2500);
   };
@@ -80,7 +80,7 @@ export function ShareButton({
       name: "WhatsApp",
       icon: MessageCircle,
       color: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25",
-      action: () => window.open(`https://wa.me/?text=${encodeURIComponent(`${shareText}\n\n👉 Join here: ${shareUrl}`)}`, "_blank"),
+      action: () => window.open(`https://wa.me/?text=${encodeURIComponent(`${shareText}\n\n👉 ${t("shareBtn.joinHere")} ${shareUrl}`)}`, "_blank"),
     },
     {
       name: "Twitter / X",
@@ -118,8 +118,8 @@ export function ShareButton({
                 <Share2 className="w-4 h-4" />
               </div>
               <div>
-                <DialogTitle className="text-base font-black">Share & Earn</DialogTitle>
-                <p className="text-[11px] text-white/50">Invite friends & earn rewards when they join</p>
+                <DialogTitle className="text-base font-black">{t("shareBtn.title")}</DialogTitle>
+                <p className="text-[11px] text-white/50">{t("shareBtn.invite")}</p>
               </div>
             </div>
           </div>
@@ -138,7 +138,7 @@ export function ShareButton({
             <div className="min-w-0 flex-1">
               <p className="text-xs font-black text-white truncate">{title}</p>
               {venueName && <p className="text-[11px] text-primary font-medium truncate mt-0.5">{venueName}</p>}
-              <p className="text-[10px] text-white/50 line-clamp-1 mt-0.5">{description || "Discover live moments on Promorang"}</p>
+              <p className="text-[10px] text-white/50 line-clamp-1 mt-0.5">{description || t("shareBtn.fallbackDesc")}</p>
             </div>
           </div>
 
@@ -148,9 +148,9 @@ export function ShareButton({
               <Gem className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-xs font-black text-amber-200">PromoShare Reward</p>
+              <p className="text-xs font-black text-amber-200">{t("shareBtn.rewardTitle")}</p>
               <p className="text-[11px] text-white/70 leading-relaxed mt-0.5">
-                Earn <strong className="text-white">50 Gems ($0.50)</strong> for every friend who RSVPs + <strong className="text-white">10% commission</strong> on ticket passes.
+                {t("shareBtn.rewardCopy")}
               </p>
             </div>
           </div>
@@ -192,12 +192,12 @@ export function ShareButton({
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5 mr-1.5" />
-                  Copied
+                  {t("shareButton.copied")}
                 </>
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5 mr-1.5" />
-                  Copy Link
+                  {t("shareButton.copyLink")}
                 </>
               )}
             </Button>

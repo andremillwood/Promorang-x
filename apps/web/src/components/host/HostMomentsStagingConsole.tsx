@@ -18,9 +18,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useHostedMoments } from "@/hooks/useMoments";
+import { useI18n } from "@/i18n/I18nContext";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 
 export function HostMomentsStagingConsole() {
+  const { t, formatDate } = useI18n();
   const { data: rawHosted = [], isLoading } = useHostedMoments();
 
   const moments = rawHosted.length > 0 ? rawHosted : [
@@ -64,13 +66,13 @@ export function HostMomentsStagingConsole() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Live Moments & Stage Lineup</h2>
+              <h2 className="text-2xl font-black text-white">{t("hostLineup.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-extrabold uppercase">
-                {moments.length} Staged Stages
+                {t("hostLineup.staged", { count: moments.length })}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Publish gatherings, manage RSVP capacity, configure door rewards, and broadcast sub-moments.
+              {t("hostLineup.subtitle")}
             </p>
           </div>
         </div>
@@ -81,7 +83,7 @@ export function HostMomentsStagingConsole() {
         >
           <Link to="/create/moment">
             <Plus className="h-4 w-4 mr-1.5" />
-            Stage New Moment
+            {t("hostLineup.stageNew")}
           </Link>
         </Button>
       </div>
@@ -109,11 +111,11 @@ export function HostMomentsStagingConsole() {
 
                 <div className="absolute top-4 left-4 flex items-center gap-2">
                   <span className="px-3 py-1 rounded-full bg-amber-400 text-black font-black text-[10px] uppercase tracking-wider shadow-md">
-                    {moment.category || "Live Moment"}
+                    {moment.category || t("hostLineup.liveFallback")}
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white font-bold text-[10px] flex items-center gap-1">
                     <Clock className="h-3 w-3 text-amber-400" />
-                    {new Date(moment.starts_at).toLocaleDateString()}
+                    {formatDate(moment.starts_at, { dateStyle: "medium" })}
                   </span>
                 </div>
 
@@ -137,9 +139,9 @@ export function HostMomentsStagingConsole() {
                 {/* RSVP Capacity Progress Meter */}
                 <div className="space-y-1.5 p-3.5 rounded-2xl bg-black/40 border border-white/5">
                   <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="text-white/60">Stage Capacity / RSVPs</span>
+                    <span className="text-white/60">{t("hostLineup.capacity")}</span>
                     <span className="text-white font-mono font-bold">
-                      {rsvps} / {capacity} Guests ({occupancy}%)
+                      {t("hostLineup.guests", { rsvps, capacity, occupancy })}
                     </span>
                   </div>
                   <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
@@ -153,7 +155,7 @@ export function HostMomentsStagingConsole() {
                 {/* Reward & Footer Actions */}
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/5">
                   <span className="text-xs font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20">
-                    Reward: {moment.reward}
+                    {t("hostLineup.reward", { value: moment.reward })}
                   </span>
 
                   <div className="flex items-center gap-2">
@@ -165,7 +167,7 @@ export function HostMomentsStagingConsole() {
                     >
                       <Link to={`/moments/${moment.id}`}>
                         <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                        Preview
+                        {t("hostLineup.preview")}
                       </Link>
                     </Button>
 
@@ -175,7 +177,7 @@ export function HostMomentsStagingConsole() {
                       className="h-9 px-4 rounded-xl bg-amber-400 hover:bg-amber-500 text-black font-extrabold text-xs"
                     >
                       <Link to={`/dashboard/moments/${moment.id}`}>
-                        <span>Stage Controls</span>
+                        <span>{t("hostLineup.controls")}</span>
                         <ArrowRight className="h-3.5 w-3.5 ml-1" />
                       </Link>
                     </Button>

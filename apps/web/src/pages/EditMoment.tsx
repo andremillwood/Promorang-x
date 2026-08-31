@@ -45,6 +45,7 @@ import {
 import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo, toMomentProofEnum } from "@/lib/jamaica-geo";
 import type { Tables } from "@/integrations/supabase/types";
 import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const recurrenceWeekdayOptions = [
@@ -474,7 +475,7 @@ const EditMoment = () => {
                 <SelectContent>
                   {momentCategories.map((cat) => (
                     <SelectItem key={cat.value} value={cat.value}>
-                      {cat.label}
+                      {t(`tax.moment.${cat.value}` as TranslationKey)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -494,7 +495,7 @@ const EditMoment = () => {
                   <SelectContent>
                     {venueCategories.map((item) => (
                       <SelectItem key={item.value} value={item.value}>
-                        {item.label}
+                        {t((`tax.venue.${item.value}`) as TranslationKey)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -513,7 +514,7 @@ const EditMoment = () => {
                   <SelectContent>
                     {momentArchetypes.map((item) => (
                       <SelectItem key={item.value} value={item.value}>
-                        {item.label}
+                        {t((`tax.arch.${item.value}`) as TranslationKey)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -533,7 +534,7 @@ const EditMoment = () => {
                 <SelectContent>
                   {conversionTypes.map((item) => (
                     <SelectItem key={item.value} value={item.value}>
-                      {item.label}
+                      {t((`tax.conv.${item.value}`) as TranslationKey)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -720,7 +721,7 @@ const EditMoment = () => {
                 <SelectContent>
                   {LOCAL_DROP_PROOF_OPTIONS.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
-                      {option.label}
+                      {t(option.labelKey as TranslationKey)}
                     </SelectItem>
                   ))}
                 </SelectContent>

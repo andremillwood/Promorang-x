@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { triggerHaptic } from "@/lib/nativeWebApis";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface DeviceNotificationStepProps {
   onComplete: () => void;
@@ -27,6 +28,7 @@ interface DeviceNotificationStepProps {
 export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNotificationStepProps) {
   const { isSubscribed, subscribe, loading } = usePushNotifications();
   const { toast } = useToast();
+  const { t } = useI18n();
   const [isMobile, setIsMobile] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -56,8 +58,8 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
     await navigator.clipboard.writeText(mobileUrl);
     setCopied(true);
     toast({
-      title: "Mobile Link Copied!",
-      description: "Send this link to your phone to open Promorang on mobile.",
+      title: t("onboarding.linkCopied"),
+      description: t("onboarding.linkCopiedCopy"),
     });
     setTimeout(() => setCopied(false), 2000);
   };
@@ -65,26 +67,26 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
   const notificationBenefits = [
     {
       icon: Ticket,
-      title: "Door Passes & Start Countdowns",
-      desc: "1-hour countdowns before your live Moments start and instant QR passes at the door.",
+      title: t("onboarding.benefitDoor"),
+      desc: t("onboarding.benefitDoorCopy"),
       color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
     },
     {
       icon: MapPin,
-      title: "Nearby Member Perks",
-      desc: "Geofenced alerts when walking near partner restaurants, clubs, and cultural venues.",
+      title: t("onboarding.benefitNearby"),
+      desc: t("onboarding.benefitNearbyCopy"),
       color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
     },
     {
       icon: Sparkles,
-      title: "Creator Drops & VIP Passes",
-      desc: "Instant notice when favorite tastemakers release unreleased tracks, videos, or tickets.",
+      title: t("onboarding.benefitDrops"),
+      desc: t("onboarding.benefitDropsCopy"),
       color: "text-primary bg-primary/10 border-primary/20",
     },
     {
       icon: Gem,
-      title: "Real-Time Earnings & Commissions",
-      desc: "Instant cash and Gem payout notifications whenever friends RSVP through your PromoShare.",
+      title: t("onboarding.benefitEarn"),
+      desc: t("onboarding.benefitEarnCopy"),
       color: "text-sky-400 bg-sky-500/10 border-sky-500/20",
     },
   ];
@@ -97,12 +99,12 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
           {isMobile ? <Bell className="h-7 w-7 animate-pulse" /> : <Smartphone className="h-7 w-7 text-primary" />}
         </div>
         <h2 className="text-2xl sm:text-3xl font-black">
-          {isMobile ? "Never Miss a Moment or Perk" : "Connect Promorang to Your Phone"}
+          {isMobile ? t("onboarding.neverMiss") : t("onboarding.connectPhone")}
         </h2>
         <p className="text-sm text-white/60 max-w-md mx-auto">
           {isMobile
-            ? "Enable real-time phone alerts for door access, nearby perks, and PromoShare payouts."
-            : "Scan this code with your phone camera to take your door passes and live alerts on the go."}
+            ? t("onboarding.neverMissCopy")
+            : t("onboarding.connectPhoneCopy")}
         </p>
       </div>
 
@@ -132,11 +134,12 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
         <div className="space-y-3 pt-2">
           {isIOS && (
             <div className="p-3 rounded-2xl border border-primary/30 bg-primary/10 text-xs text-white/80 flex items-center gap-2">
-              <span className="shrink-0 font-bold text-primary">Tip for iPhone:</span>
+              <span className="shrink-0 font-bold text-primary">{t("onboarding.iosTip")}</span>
               <span>
-                Tap <Share className="h-3.5 w-3.5 inline text-primary mx-0.5" /> then{" "}
-                <strong className="text-white">Add to Home Screen</strong>{" "}
-                <PlusSquare className="h-3.5 w-3.5 inline text-primary mx-0.5" /> for full lock-screen alerts.
+                {t("onboarding.iosTipCopy")}{" "}
+                <Share className="h-3.5 w-3.5 inline text-primary mx-0.5" />
+                <strong className="text-white">{t("onboarding.addHome")}</strong>
+                <PlusSquare className="h-3.5 w-3.5 inline text-primary mx-0.5" />
               </span>
             </div>
           )}
@@ -150,12 +153,12 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
             {isSubscribed ? (
               <>
                 <CheckCircle2 className="h-4 w-4 mr-2 text-emerald-400" />
-                Alerts Active on This Device
+                {t("onboarding.alertsActive")}
               </>
             ) : (
               <>
                 <Bell className="h-4 w-4 mr-2" />
-                {loading ? "Enabling..." : "Enable Real-Time Alerts"}
+                {loading ? t("onboarding.enabling") : t("onboarding.enableAlerts")}
               </>
             )}
           </Button>
@@ -164,7 +167,7 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
             onClick={onComplete}
             className="w-full py-2.5 text-xs text-white/40 hover:text-white transition font-medium text-center"
           >
-            Maybe Later &rarr; Enter Platform
+            {t("onboarding.maybeLater")}
           </button>
         </div>
       ) : (
@@ -174,17 +177,17 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
             <div className="p-2 rounded-2xl bg-[#0e0e11] border border-white/15 shrink-0 shadow-lg">
               <img
                 src={qrCodeUrl}
-                alt="Scan with phone"
+                alt={t("onboarding.scanAlt")}
                 className="h-32 w-32 rounded-xl object-contain"
               />
             </div>
             <div className="space-y-2 flex-1">
               <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] font-bold">
-                <QrCode className="h-3 w-3" /> Scan with Camera
+                <QrCode className="h-3 w-3" /> {t("onboarding.scanCamera")}
               </div>
-              <h4 className="text-sm font-bold text-white">Instant Mobile Sync</h4>
+              <h4 className="text-sm font-bold text-white">{t("onboarding.mobileSync")}</h4>
               <p className="text-xs text-white/60 leading-relaxed">
-                Open your phone camera, point it at this QR code, and tap the link to enable your mobile passes & alerts.
+                {t("onboarding.mobileSyncCopy")}
               </p>
               <Button
                 variant="outline"
@@ -193,7 +196,7 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
                 className="h-8 rounded-xl text-xs font-bold border-white/15 hover:bg-white/10 text-white gap-1.5"
               >
                 {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-                {copied ? "Copied Link" : "Copy Mobile Link"}
+                {copied ? t("onboarding.copiedLink") : t("onboarding.copyMobile")}
               </Button>
             </div>
           </div>
@@ -203,7 +206,7 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
             onClick={onComplete}
             className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-sm shadow-[0_0_20px_rgba(255,106,0,0.3)]"
           >
-            <span>Continue to Platform</span>
+            <span>{t("onboarding.continuePlatform")}</span>
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </div>

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
+import { useI18n } from '@/i18n/I18nContext';
 import { ValueReceiptData } from './TactileValueReceipt';
 
 interface ProofPassportCardProps {
@@ -82,6 +83,7 @@ export const ProofPassportCard: React.FC<ProofPassportCardProps> = ({
   recentReceipts = DEFAULT_SAMPLE_RECEIPTS,
   onSelectReceipt,
 }) => {
+  const { t, formatNumber } = useI18n();
   return (
     <div className="w-full bg-gradient-to-br from-zinc-900 via-zinc-950 to-black border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl text-white space-y-6">
       {/* Header Banner */}
@@ -89,21 +91,21 @@ export const ProofPassportCard: React.FC<ProofPassportCardProps> = ({
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/30 rounded-full text-xs font-bold text-amber-400 mb-2">
             <ShieldCheck className="w-4 h-4 text-amber-400" />
-            <span>IMMUTABLE PROOF OF VALUE PASSPORT</span>
+            <span>{t("passport.badge")}</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-black tracking-tight">{userHandle}&apos;s Verified Canon</h2>
+          <h2 className="text-2xl md:text-3xl font-black tracking-tight">{t("passport.canon", { handle: userHandle })}</h2>
           <p className="text-xs md:text-sm text-zinc-400 max-w-xl mt-1">
-            Every receipt in your passport is cryptographically signed and permanent. This is your verifiable reputation record for brands, hosts, and community access.
+            {t("passport.copy")}
           </p>
         </div>
 
         <div className="flex flex-col items-start md:items-end bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 min-w-[220px]">
-          <span className="text-xs text-zinc-400 font-medium">Standing Status</span>
+          <span className="text-xs text-zinc-400 font-medium">{t("passport.standing")}</span>
           <div className="flex items-center gap-2 mt-1">
             <Award className="w-5 h-5 text-emerald-400" />
             <span className="text-sm font-bold text-emerald-300">{pioneerRank}</span>
           </div>
-          <span className="mt-1.5 text-[10px] text-zinc-500 font-mono">100% AUDITED HISTORY</span>
+          <span className="mt-1.5 text-[10px] text-zinc-500 font-mono">{t("passport.audited")}</span>
         </div>
       </div>
 
@@ -112,41 +114,41 @@ export const ProofPassportCard: React.FC<ProofPassportCardProps> = ({
         {/* Metric 1 */}
         <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-4">
           <div className="flex items-center justify-between text-zinc-400 mb-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Commerce Driven</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">{t("passport.commerce")}</span>
             <Coins className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-2xl font-black text-white">${totalCommerceDriven.toLocaleString()}</div>
-          <p className="text-[10px] text-zinc-400 mt-1">Verified merchant spend</p>
+          <div className="text-2xl font-black text-white">${formatNumber(totalCommerceDriven)}</div>
+          <p className="text-[10px] text-zinc-400 mt-1">{t("passport.commerceSub")}</p>
         </div>
 
         {/* Metric 2 */}
         <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-4">
           <div className="flex items-center justify-between text-zinc-400 mb-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Verified Footfall</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">{t("passport.footfall")}</span>
             <MapPin className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-2xl font-black text-emerald-400">{totalFootfall} Visits</div>
-          <p className="text-[10px] text-zinc-400 mt-1">Scanned door check-ins</p>
+          <div className="text-2xl font-black text-emerald-400">{t("passport.visits", { count: formatNumber(totalFootfall) })}</div>
+          <p className="text-[10px] text-zinc-400 mt-1">{t("passport.footfallSub")}</p>
         </div>
 
         {/* Metric 3 */}
         <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-4">
           <div className="flex items-center justify-between text-zinc-400 mb-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Media Reach Proven</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">{t("passport.media")}</span>
             <Video className="w-4 h-4 text-purple-400" />
           </div>
-          <div className="text-2xl font-black text-purple-300">{totalMediaImpressions.toLocaleString()}</div>
-          <p className="text-[10px] text-zinc-400 mt-1">Audited campaign views</p>
+          <div className="text-2xl font-black text-purple-300">{formatNumber(totalMediaImpressions)}</div>
+          <p className="text-[10px] text-zinc-400 mt-1">{t("passport.mediaSub")}</p>
         </div>
 
         {/* Metric 4 */}
         <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-4">
           <div className="flex items-center justify-between text-zinc-400 mb-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Rewards Claimed</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">{t("passport.rewards")}</span>
             <Sparkles className="w-4 h-4 text-orange-400" />
           </div>
-          <div className="text-2xl font-black text-orange-400">+{totalGemsEarned.toLocaleString()} Gems</div>
-          <p className="text-[10px] text-zinc-400 mt-1">Direct cash &amp; dividend yield</p>
+          <div className="text-2xl font-black text-orange-400">{t("passport.gems", { count: formatNumber(totalGemsEarned) })}</div>
+          <p className="text-[10px] text-zinc-400 mt-1">{t("passport.rewardsSub")}</p>
         </div>
       </div>
 
@@ -155,9 +157,9 @@ export const ProofPassportCard: React.FC<ProofPassportCardProps> = ({
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-2">
             <FileCheck className="w-4 h-4 text-amber-400" />
-            <span>Recent Verified Value Receipts</span>
+            <span>{t("passport.recent")}</span>
           </h3>
-          <span className="text-xs text-zinc-500 font-mono">AUTOMATICALLY SEALED</span>
+          <span className="text-xs text-zinc-500 font-mono">{t("passport.sealed")}</span>
         </div>
 
         <div className="space-y-2.5">
@@ -175,7 +177,7 @@ export const ProofPassportCard: React.FC<ProofPassportCardProps> = ({
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-sm text-white">{rec.actionTitle}</span>
                     <Badge variant="outline" className="text-[10px] bg-emerald-500/10 border-emerald-500/30 text-emerald-400">
-                      Verified
+                      {t("passport.verified")}
                     </Badge>
                   </div>
                   <div className="text-xs text-zinc-400 mt-0.5 flex items-center gap-2">

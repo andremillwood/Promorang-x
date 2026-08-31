@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Sparkles, ShieldCheck, ArrowRight, Download, Share2 } from 'lucide-react';
 import { TactileValueReceipt, ValueReceiptData } from './TactileValueReceipt';
+import { useI18n } from '@/i18n/I18nContext';
 import { triggerHaptic } from '@/lib/haptics';
 import { hapticAudio } from '@/lib/hapticAudio';
 
@@ -17,6 +18,7 @@ export const ProofReceiptModal: React.FC<ProofReceiptModalProps> = ({
   receipt,
   onDepositToVault,
 }) => {
+  const { t } = useI18n();
   if (!isOpen) return null;
 
   const handleSeal = () => {
@@ -44,11 +46,11 @@ export const ProofReceiptModal: React.FC<ProofReceiptModalProps> = ({
         <div className="text-center mb-4 space-y-1 text-white">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 border border-emerald-500/40 rounded-full text-xs font-bold text-emerald-400 mb-1">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>ACTION VERIFIED &amp; INDEXED</span>
+            <span>{t("proofModal.verified")}</span>
           </div>
-          <h2 className="text-2xl font-black tracking-tight">Official Proof of Value Receipt</h2>
+          <h2 className="text-2xl font-black tracking-tight">{t("proofModal.title")}</h2>
           <p className="text-xs text-zinc-400 max-w-sm mx-auto">
-            This receipt has been permanently stamped with cryptographic proof and added to your verified reputation history.
+            {t("proofModal.copy")}
           </p>
         </div>
 
@@ -68,7 +70,7 @@ export const ProofReceiptModal: React.FC<ProofReceiptModalProps> = ({
             className="flex-1 py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold rounded-2xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl shadow-amber-500/20 active:scale-[0.98] transition-all"
           >
             <Sparkles className="w-4 h-4" />
-            <span>Tear &amp; Deposit to Proof Passport</span>
+            <span>{t("proofModal.deposit")}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

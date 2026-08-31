@@ -201,11 +201,11 @@ const PromoShare = () => {
       if (result.success) {
         setData(result.data);
       } else {
-        toast.error('Failed to load PromoShare data');
+        toast.error(t("promoshare.loadError"));
       }
     } catch (error) {
       console.error('Error fetching PromoShare data:', error);
-      toast.error('Failed to load PromoShare data');
+      toast.error(t("promoshare.loadError"));
     } finally {
       setLoading(false);
     }
@@ -242,12 +242,12 @@ const PromoShare = () => {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'winner': return 'Winner';
-      case 'qualified': return 'Qualified';
-      case 'boosted': return 'Boosted';
-      case 'not_qualified': return 'Not Qualified';
-      case 'disqualified': return 'Disqualified';
-      default: return 'In Progress';
+      case 'winner': return t("promoshare.statusWinner");
+      case 'qualified': return t("promoshare.statusQualified");
+      case 'boosted': return t("promoshare.statusBoosted");
+      case 'not_qualified': return t("promoshare.statusNotQualified");
+      case 'disqualified': return t("promoshare.statusDisqualified");
+      default: return t("promoshare.statusInProgress");
     }
   };
 
@@ -256,13 +256,13 @@ const PromoShare = () => {
     const now = new Date();
     const diff = end.getTime() - now.getTime();
 
-    if (diff <= 0) return 'Ended';
+    if (diff <= 0) return t("promoshare.ended");
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
-    if (days > 0) return `${days}d ${hours}h remaining`;
-    return `${hours}h remaining`;
+    if (days > 0) return t("promoshare.remainDh", { days, hours });
+    return t("promoshare.remainH", { hours });
   };
 
   if (loading) {
@@ -277,24 +277,24 @@ const PromoShare = () => {
     return (
       <div className="mx-auto max-w-6xl px-4 py-8">
         <SEO
-          title="PromoShare - Verified Distribution"
-          description="PromoShare attributes the visits, joins, referrals, and actions that content and sharing help generate."
+          title={t("promoshare.seoTitle")}
+          description={t("promoshare.seoCopyEmpty")}
         />
         <SurfaceHero
           eyebrow="PromoShare"
-          title="See what your influence actually moved."
-          body="PromoShare connects useful content and sharing to verified visits, joins, referrals, and purchases. Funded rewards and draws can sit on top of that proof; they are not the purpose of the system."
-          meta={['verified attribution', 'creator impact', 'funded outcomes']}
-          primary={user ? undefined : { label: 'Sign in', href: '/auth' }}
-          secondary={{ label: 'Find drops', href: '/content-drops' }}
+          title={t("promoshare.seeInfluence")}
+          body={t("promoshare.seeInfluenceBody")}
+          meta={[t("promoshare.metaAttr"), t("promoshare.metaImpact"), t("promoshare.metaOutcomes")]}
+          primary={user ? undefined : { label: t("promoshare.signIn"), href: '/auth' }}
+          secondary={{ label: t("promoshare.findDrops"), href: '/content-drops' }}
         />
         <div className="pr-feed-surface mt-6 p-8 text-center">
             <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">
-              {user ? 'Unable to Load PromoShare' : 'Sign In Required'}
+              {user ? t("promoshare.unableLoad") : t("promoshare.signInRequired")}
             </h2>
             <p className="text-muted-foreground">
-              {user ? 'PromoShare could not load right now. Try again shortly.' : 'Sign in to view your PromoShare standing, weight, and reward cycles.'}
+              {user ? t("promoshare.loadFail") : t("promoshare.signInCopy")}
             </p>
         </div>
       </div>
@@ -310,14 +310,14 @@ const PromoShare = () => {
   const recentReceiptItems = (data.recent_entries || []).slice(0, 4).map((entry) => ({
     label: entry.source_action?.replaceAll('_', ' ') || entry.source_type,
     detail: `${entry.cycles?.cycle_name || entry.cycles?.cycle_type || 'PromoShare'} · ${new Date(entry.created_at).toLocaleDateString()}`,
-    value: `+${entry.entry_count} entries`,
+    value: t("promoshare.plusEntries", { count: entry.entry_count }),
   }));
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <SEO
-        title="PromoShare - Verified Distribution"
-        description="Track how content and sharing generate verified participation and attributable outcomes across Promorang."
+        title={t("promoshare.seoTitle")}
+        description={t("promoshare.seoCopy")}
       />
       {/* Featured Pool Banner - PromoShare Homepage Banner ($200/day) */}
       {featuredPools.length > 0 && (
@@ -327,10 +327,10 @@ const PromoShare = () => {
               key={pool.id}
               pool={{
                 id: pool.entity_id,
-                name: pool.entity_data?.title || 'Featured Pool',
+                name: pool.entity_data?.title || t("promoshare.featuredPool"),
                 description: pool.entity_data?.description,
                 prize_pool: pool.entity_data?.prize_pool || 0,
-                sponsor_name: pool.user?.display_name || 'Sponsor',
+                sponsor_name: pool.user?.display_name || t("promoshare.sponsor"),
                 sponsor_logo: pool.user?.profile_image,
                 end_date: pool.end_date,
                 participant_count: pool.entity_data?.participant_count || 0,
@@ -364,7 +364,7 @@ const PromoShare = () => {
           {primaryCycle ? (
             <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
               <p className="text-xs font-bold text-white/45">{t("promoshare.nearestUnlock")}</p>
-              <p className="mt-2 text-sm font-semibold">{primaryCycle.eligible ? `${primaryCycle.cycle_name} is open to you.` : 'Complete another verified move, moment, or referral to increase your weight.'}</p>
+              <p className="mt-2 text-sm font-semibold">{primaryCycle.eligible ? t("promoshare.cycleOpen", { name: primaryCycle.cycle_name }) : t("promoshare.completeMove")}</p>
             </div>
           ) : null}
 
@@ -378,33 +378,33 @@ const PromoShare = () => {
               <CardContent className="space-y-4">
                 <GuidanceDisclosure
                   id="promoshare:sponsor-outcome"
-                  title="How sponsored outcomes work"
-                  summary="Brands and merchants define the action, fund delivery or rewards, and measure what actually happened."
+                  title={t("promoshare.howSponsored")}
+                  summary={t("promoshare.howSponsoredSummary")}
                   className="mt-0"
                 >
                   <p className="text-sm leading-7 text-muted-foreground">
-                    Brands and merchants power content and Moments by defining the action, funding delivery or rewards, and measuring what actually happened.
+                    {t("promoshare.howSponsoredBody")}
                   </p>
                 </GuidanceDisclosure>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-lg bg-muted p-3">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Active Pools</p>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("promoshare.activePools")}</p>
                     <p className="mt-1 text-2xl font-bold">{activeSponsorPools.length}</p>
                   </div>
                   <div className="rounded-lg bg-muted p-3">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Total Pools</p>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("promoshare.totalPools")}</p>
                     <p className="mt-1 text-2xl font-bold">{sponsorPools.length}</p>
                   </div>
                 </div>
                 <p className="text-sm leading-7 text-muted-foreground">
-                  Connect funding to a Moment, creator prompt, merchant offer, or campaign. PromoShare then attributes qualified visits, check-ins, content, referrals, and sales instead of reporting vague exposure.
+                  {t("promoshare.sponsorConnect")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild size="sm">
-                    <Link to="/sponsor-dashboard">Manage Pools</Link>
+                    <Link to="/sponsor-dashboard">{t("promoshare.managePools")}</Link>
                   </Button>
                   <Button asChild variant="outline" size="sm">
-                    <Link to="/dashboard">Open Brand Dashboard</Link>
+                    <Link to="/dashboard">{t("promoshare.openBrandDash")}</Link>
                   </Button>
                 </div>
                 {sponsorPools.length > 0 && (
@@ -415,7 +415,7 @@ const PromoShare = () => {
                           <div className="min-w-0">
                             <p className="font-medium">{pool.cycle_name}</p>
                             <p className="text-xs text-muted-foreground">
-                              {pool.sponsor_config?.prize_pool || 0} prize pool • {pool.metrics?.qualified_users || 0} qualified users
+                              {t("promoshare.prizeQualified", { prize: pool.sponsor_config?.prize_pool || 0, count: pool.metrics?.qualified_users || 0 })}
                             </p>
                           </div>
                           <Badge variant="secondary">{pool.status}</Badge>
@@ -436,34 +436,34 @@ const PromoShare = () => {
               <CardContent className="space-y-4">
                 <GuidanceDisclosure
                   id="promoshare:host-layer"
-                  title="How your Moments feed PromoShare"
-                  summary="Your Moments can build recurring qualification instead of one-off check-ins."
+                  title={t("promoshare.howMoments")}
+                  summary={t("promoshare.howMomentsSummary")}
                   className="mt-0"
                 >
                   <p className="text-sm leading-7 text-muted-foreground">
-                    Hosts influence PromoShare by creating moments that produce verified joins, proof-approved movement, repeat attendance, and credible referral loops. PromoShare should help you see whether your programming is generating durable relevance.
+                    {t("promoshare.howMomentsBody")}
                   </p>
                 </GuidanceDisclosure>
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div className="rounded-lg bg-muted p-3">
-                    <p className="text-sm font-medium">Join Moments</p>
-                    <p className="mt-1 text-xs text-muted-foreground">First-time joins now count into qualification.</p>
+                    <p className="text-sm font-medium">{t("promoshare.joinMoments")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t("promoshare.joinMomentsCopy")}</p>
                   </div>
                   <div className="rounded-lg bg-muted p-3">
-                    <p className="text-sm font-medium">Verify Proof</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Proof-approved movement now carries higher PromoShare weight.</p>
+                    <p className="text-sm font-medium">{t("promoshare.verifyProof")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t("promoshare.verifyProofCopy")}</p>
                   </div>
                   <div className="rounded-lg bg-muted p-3">
-                    <p className="text-sm font-medium">Repeat Returns</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Recurring activity improves the cycle signal over time.</p>
+                    <p className="text-sm font-medium">{t("promoshare.repeatReturns")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t("promoshare.repeatReturnsCopy")}</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild size="sm">
-                    <Link to="/moments">Browse Moments</Link>
+                    <Link to="/moments">{t("promoshare.browseMoments")}</Link>
                   </Button>
                   <Button asChild variant="outline" size="sm">
-                    <Link to="/create/moment">Create Moment</Link>
+                    <Link to="/create/moment">{t("promoshare.createMoment")}</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -476,7 +476,7 @@ const PromoShare = () => {
         <ContributionReceipt
           title={t("promoshare.recentReceipts")}
           items={recentReceiptItems.length ? recentReceiptItems : [
-            { label: t("promoshare.noReceiptsYet"), detail: t("promoshare.noReceiptsDesc"), value: '0 entries' },
+            { label: t("promoshare.noReceiptsYet"), detail: t("promoshare.noReceiptsDesc"), value: t("promoshare.zeroEntries") },
           ]}
         />
       </div>
@@ -560,7 +560,7 @@ const PromoShare = () => {
                       {primaryCycle.cycle_name || `${primaryCycle.cycle_type} PromoShare`}
                     </CardTitle>
                     <CardDescription>
-                      Your current standing in the active cycle
+                      {t("promoshare.cycleStanding")}
                     </CardDescription>
                   </div>
                   <Badge className={getStatusColor(primaryCycle.status)}>
@@ -573,8 +573,8 @@ const PromoShare = () => {
                 <div className="flex items-center gap-4">
                   <div className="flex-1">
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Your Weight Score</span>
-                      <span className="text-sm text-muted-foreground">{primaryCycle.weight} points</span>
+                      <span className="text-sm font-medium">{t("promoshare.weightScore")}</span>
+                      <span className="text-sm text-muted-foreground">{t("promoshare.weightPoints", { count: primaryCycle.weight })}</span>
                     </div>
                     <Progress value={Math.min((primaryCycle.weight / 50) * 100, 100)} className="h-3" />
                   </div>
@@ -583,7 +583,7 @@ const PromoShare = () => {
                 {/* Progress to Qualification */}
                 {!primaryCycle.eligible && (
                   <div className="space-y-3">
-                    <p className="text-sm font-medium">Complete these to qualify:</p>
+                    <p className="text-sm font-medium">{t("promoshare.completeQualify")}</p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -596,7 +596,7 @@ const PromoShare = () => {
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium">Verified Actions</p>
+                          <p className="text-sm font-medium">{t("promoshare.verifiedActions")}</p>
                           <p className="text-xs text-muted-foreground">
                             {primaryCycle.progress_to_qualify?.moves?.current || 0} / {primaryCycle.progress_to_qualify?.moves?.required || 3}
                           </p>
@@ -614,7 +614,7 @@ const PromoShare = () => {
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium">Join Moments</p>
+                          <p className="text-sm font-medium">{t("promoshare.joinMoments")}</p>
                           <p className="text-xs text-muted-foreground">
                             {primaryCycle.progress_to_qualify?.moments?.current || 0} / {primaryCycle.progress_to_qualify?.moments?.required || 1}
                           </p>
@@ -632,7 +632,7 @@ const PromoShare = () => {
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium">Refer Friends</p>
+                          <p className="text-sm font-medium">{t("promoshare.referFriends")}</p>
                           <p className="text-xs text-muted-foreground">
                             {primaryCycle.progress_to_qualify?.referrals?.current || 0} / {primaryCycle.progress_to_qualify?.referrals?.required || 1}
                           </p>
@@ -646,9 +646,9 @@ const PromoShare = () => {
                   <div className="flex items-center gap-3 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
                     <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
                     <div>
-                      <p className="font-medium text-green-800 dark:text-green-300">You're Qualified!</p>
+                      <p className="font-medium text-green-800 dark:text-green-300">{t("promoshare.youQualified")}</p>
                       <p className="text-sm text-green-700 dark:text-green-400">
-                        Your activity has earned you {primaryCycle.weight} weight points. Keep participating to increase your chances!
+                        {t("promoshare.youQualifiedCopy", { count: primaryCycle.weight })}
                       </p>
                     </div>
                   </div>
@@ -659,13 +659,13 @@ const PromoShare = () => {
 
           <GuidanceDisclosure
             id="promoshare:eligibility-rules"
-            title="How PromoShare eligibility works"
-            summary="Verified actions, proof rules, and pool cycles decide where your entries count."
+            title={t("promoshare.howEligibility")}
+            summary={t("promoshare.howEligibilitySummary")}
           >
             <PromoShareEligibilityPanel
-              actionLabel="verified check-ins, content, referrals, or repeat visits"
-              proofLabel="the pool proof rule"
-              poolLabel="daily, weekly, grand, sponsor, and moment pools"
+              actionLabel={t("psElig.actionLive")}
+              proofLabel={t("psElig.proofLive")}
+              poolLabel={t("psElig.poolLive")}
               funded={Boolean(data.draws?.some((draw) => draw.jackpot_amount > 0 || draw.poolItems?.length))}
             />
           </GuidanceDisclosure>
@@ -679,27 +679,27 @@ const PromoShare = () => {
               <CardHeader>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <CardTitle className="capitalize">{draw.cycle_type} Draw</CardTitle>
+                    <CardTitle className="capitalize">{t("promoshare.drawLabel", { type: draw.cycle_type })}</CardTitle>
                     <CardDescription>{formatTimeRemaining(draw.end_at)}</CardDescription>
                   </div>
-                  <Badge variant="secondary">{draw.userTickets} entries</Badge>
+                  <Badge variant="secondary">{t("promoshare.entriesBadge", { count: draw.userTickets })}</Badge>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm text-muted-foreground mb-1">Jackpot</p>
-                      <p className="text-2xl font-bold text-primary">{draw.jackpot_amount.toLocaleString()} Gems</p>
+                      <p className="text-sm text-muted-foreground mb-1">{t("promoshare.jackpot")}</p>
+                      <p className="text-2xl font-bold text-primary">{t("promoshare.gems", { amount: draw.jackpot_amount.toLocaleString() })}</p>
                     </div>
                     <Separator orientation="vertical" className="hidden h-12 sm:block" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm text-muted-foreground mb-1">Total Entries</p>
+                      <p className="text-sm text-muted-foreground mb-1">{t("promoshare.totalEntries")}</p>
                       <p className="text-2xl font-bold">{draw.totalTickets.toLocaleString()}</p>
                     </div>
                     <Separator orientation="vertical" className="hidden h-12 sm:block" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm text-muted-foreground mb-1">Your Chance</p>
+                      <p className="text-sm text-muted-foreground mb-1">{t("promoshare.yourChance")}</p>
                       <p className="text-2xl font-bold">
                         {draw.totalTickets > 0 ? ((draw.userTickets / draw.totalTickets) * 100).toFixed(2) : 0}%
                       </p>
@@ -708,7 +708,7 @@ const PromoShare = () => {
 
                   {draw.poolItems && draw.poolItems.length > 0 && (
                     <div className="pt-4 border-t">
-                      <p className="text-sm font-medium mb-3">Pool Prizes:</p>
+                      <p className="text-sm font-medium mb-3">{t("promoshare.poolPrizes")}</p>
                       <div className="flex flex-wrap gap-2">
                         {draw.poolItems.map((item) => (
                           <Badge key={item.id} variant="outline" className="px-3 py-1">
@@ -723,7 +723,7 @@ const PromoShare = () => {
                     <PromoShareTicketDrawModal
                       jackpotAmount={draw.jackpot_amount || 1000}
                       userTickets={draw.userTickets > 0 ? draw.userTickets : 5}
-                      poolTitle={`${draw.cycle_type.toUpperCase()} Prize Draw`}
+                      poolTitle={t("promoshare.prizeDraw", { type: draw.cycle_type.toUpperCase() })}
                     />
                   </div>
                 </div>
@@ -735,8 +735,8 @@ const PromoShare = () => {
             <Card>
               <CardContent className="py-12 text-center">
                 <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Active Cycles</h3>
-                <p className="text-muted-foreground">Check back soon for new PromoShare opportunities</p>
+                <h3 className="text-lg font-semibold mb-2">{t("promoshare.noCycles")}</h3>
+                <p className="text-muted-foreground">{t("promoshare.noCyclesCopy")}</p>
               </CardContent>
             </Card>
           )}
@@ -746,8 +746,8 @@ const PromoShare = () => {
         <TabsContent value="activity" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Your verified actions that earned PromoShare entries</CardDescription>
+              <CardTitle>{t("promoshare.recentActivity")}</CardTitle>
+              <CardDescription>{t("promoshare.recentActivityDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[400px]">
@@ -776,7 +776,7 @@ const PromoShare = () => {
                       </div>
                       <div className="text-right">
                         <Badge variant="secondary" className="mb-1">
-                          +{entry.weight_value} weight
+                          {t("promoshare.plusWeight", { count: entry.weight_value })}
                         </Badge>
                         <p className="text-xs text-muted-foreground">
                           {new Date(entry.created_at).toLocaleDateString()}
@@ -788,9 +788,9 @@ const PromoShare = () => {
                   {(!data.recent_entries || data.recent_entries.length === 0) && (
                     <div className="text-center py-8">
                       <Activity className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">No recent activity</p>
+                      <p className="text-muted-foreground">{t("promoshare.noActivity")}</p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Complete verified actions to earn entries
+                        {t("promoshare.noActivityCopy")}
                       </p>
                     </div>
                   )}
@@ -804,7 +804,7 @@ const PromoShare = () => {
             cycle.entries_breakdown && Object.keys(cycle.entries_breakdown).length > 0 && (
               <Card key={cycle.cycle_id}>
                 <CardHeader>
-                  <CardTitle className="text-base">{cycle.cycle_name || cycle.cycle_type} - Activity Breakdown</CardTitle>
+                  <CardTitle className="text-base">{t("promoshare.activityBreakdown", { name: cycle.cycle_name || cycle.cycle_type })}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -825,8 +825,8 @@ const PromoShare = () => {
         <TabsContent value="history" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Win History</CardTitle>
-              <CardDescription>Your past PromoShare wins and rewards</CardDescription>
+              <CardTitle>{t("promoshare.winHistory")}</CardTitle>
+              <CardDescription>{t("promoshare.winHistoryDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               {data.history && data.history.length > 0 ? (
@@ -851,7 +851,7 @@ const PromoShare = () => {
                         </div>
                       </div>
                       <Badge className={win.claimed ? 'bg-green-500' : 'bg-amber-500'}>
-                        {win.claimed ? 'Claimed' : 'Pending'}
+                        {win.claimed ? t("promoshare.claimed") : t("promoshare.pending")}
                       </Badge>
                     </div>
                   ))}
@@ -859,10 +859,10 @@ const PromoShare = () => {
               ) : (
                 <div className="text-center py-12">
                   <History className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Wins Yet</h3>
-                  <p className="text-muted-foreground mb-4">Keep participating to increase your chances</p>
+                  <h3 className="text-lg font-semibold mb-2">{t("promoshare.noWins")}</h3>
+                  <p className="text-muted-foreground mb-4">{t("promoshare.noWinsCopy")}</p>
                   <Button onClick={() => setActiveTab('overview')}>
-                    View Active Cycles
+                    {t("promoshare.viewCycles")}
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>

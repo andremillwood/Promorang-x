@@ -44,6 +44,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { getSiteUrl } from '@/lib/discovery';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface AttendeeRecord {
   id: string;
@@ -159,6 +160,7 @@ const SAMPLE_DEMO_ATTENDEES: AttendeeRecord[] = [
 ];
 
 export default function MidasHostPortal() {
+  const { t } = useI18n();
   const [filterMoment, setFilterMoment] = useState<'all' | 'sophisticated' | 'capleton'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'attendees' | 'polls' | 'squads' | 'gate' | 'broadcast'>('attendees');
@@ -221,17 +223,17 @@ export default function MidasHostPortal() {
     if (match) {
       setScannedAttendee(match);
       setScanStatus('success');
-      toast.success(`🎉 Verified: ${match.name} (${match.status})`);
+      toast.success(t("midasHost.toastVerified", { name: match.name, status: match.status }));
     } else {
       setScanStatus('not_found');
-      toast.error('Pass token or phone not found in Midas attendee database.');
+      toast.error(t("midasHost.toastNotFound"));
     }
   };
 
   const handleSendBroadcast = (e: React.FormEvent) => {
     e.preventDefault();
     if (!broadcastSubject.trim() || !broadcastBody.trim()) {
-      toast.error('Please enter a campaign subject and message body.');
+      toast.error(t("midasHost.toastNeedFields"));
       return;
     }
 
@@ -242,15 +244,20 @@ export default function MidasHostPortal() {
       subject: broadcastSubject,
       segment: broadcastSegment === 'vip' ? 'VIP Superfans (Tier 3+)' : broadcastSegment === 'squad_leaders' ? 'Top Squad Leaders' : 'All Attendees',
       channels: broadcastChannel === 'both' ? ['In-App Push', 'Direct Email'] : broadcastChannel === 'in_app' ? ['In-App Push'] : ['Direct Email'],
-      sentAt: 'Just now',
+      sentAt: t("midasHost.justNow"),
       recipientsCount: count || 1,
-      openRate: 'Queued',
-      clickRate: 'Queued',
+      openRate: t("midasHost.statusQueued"),
+      clickRate: t("midasHost.statusQueued"),
       status: 'Delivered'
     };
 
     setBroadcastHistory([newCampaign, ...broadcastHistory]);
-    toast.success(`🚀 Audience Broadcast dispatched to ${count} attendees via ${broadcastChannel === 'both' ? 'In-App Alert & Email' : broadcastChannel.toUpperCase()}!`, {
+    const channelLabel = broadcastChannel === 'both'
+      ? t("midasHost.toastChBoth")
+      : broadcastChannel === 'in_app'
+        ? t("midasHost.chInApp")
+        : t("midasHost.chEmail");
+    toast.success(t("midasHost.toastDispatched", { count, channel: channelLabel }), {
       duration: 5000
     });
   };
@@ -276,7 +283,7 @@ export default function MidasHostPortal() {
     setIsDemoMode(false);
     setAttendeesList([]);
     localStorage.setItem('promorang_midas_host_mode', 'production');
-    toast.success("✨ Demo data successfully purged! Portal is now in clean Production Mode, ready for real partygoer RSVPs.", {
+    toast.success(t("midasHost.toastPurged"), {
       duration: 5000
     });
   };
@@ -286,7 +293,7 @@ export default function MidasHostPortal() {
     setIsDemoMode(true);
     setAttendeesList(SAMPLE_DEMO_ATTENDEES);
     localStorage.setItem('promorang_midas_host_mode', 'demo');
-    toast.info("Switched to Preview Simulation Mode. You can purge this data at any time with one click.", {
+    toast.info(t("midasHost.toastPreview"), {
       duration: 4000
     });
   };
@@ -306,7 +313,7 @@ export default function MidasHostPortal() {
 
   const handleExportCSV = () => {
     if (attendeesList.length === 0) {
-      toast.info("No attendee records yet. Export will be active once real attendees claim passes.");
+      toast.info(t("midasHost.toastNoExport"));
       return;
     }
     const csvContent = "data:text/csv;charset=utf-8," + 
@@ -320,14 +327,14 @@ export default function MidasHostPortal() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success(`Downloaded ${isDemoMode ? 'Sample Preview' : 'Live Verified'} Contact Directory (CSV)!`);
+    toast.success(t("midasHost.toastExported", { type: isDemoMode ? t("midasHost.exportSample") : t("midasHost.exportLive") }));
   };
 
   return (
     <main className="min-h-screen bg-[#0d0c0a] text-[#f4efe5] selection:bg-[#ff5a1f] selection:text-white font-sans antialiased pb-32">
       <SEO
-        title="MIDAS ENTERTAINMENT — Host Intelligence & Attendee Operations"
-        description="Live promoter command center for Midas Entertainment: Real-time vote counts, captured attendee phone numbers, squad referrals, and gate check-in status."
+        title={t("midasHost.seoTitle")}
+        description={t("midasHost.seoDesc")}
         url={getSiteUrl("/hosts/midas")}
       />
 
@@ -345,7 +352,7 @@ export default function MidasHostPortal() {
           <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center gap-2 text-white font-black tracking-widest text-sm hover:opacity-90 transition-opacity">
               <span className="w-2.5 h-2.5 rounded-full bg-[#ff5a1f] shadow-[0_0_0_4px_#ff5a1f33]" />
-              <span className="font-serif tracking-normal text-base">PROMORANG <em className="text-[#ff5a1f] not-italic font-sans font-bold text-xs tracking-wider uppercase ml-1">HOST PORTAL</em></span>
+              <span className="font-serif tracking-normal text-base">PROMORANG <em className="text-[#ff5a1f] not-italic font-sans font-bold text-xs tracking-wider uppercase ml-1">{t("midasHost.hostPortal")}</em></span>
             </Link>
             <span className="text-[#ffffff25] text-sm">/</span>
             <span className="text-[#c9c0b5] text-xs font-mono font-bold uppercase tracking-wider">
@@ -360,9 +367,9 @@ export default function MidasHostPortal() {
               target="_blank"
               rel="noopener noreferrer"
               className="hidden lg:inline-flex items-center gap-1 text-xs font-mono text-stone-300 hover:text-white px-2.5 py-1.5 border border-white/15 rounded-sm"
-              title="View the public audience campaign landing page"
+              title={t("midasHost.publicHubTitle")}
             >
-              <span>Public Festival Hub</span>
+              <span>{t("midasHost.publicHub")}</span>
               <ExternalLink className="w-3 h-3 text-[#ff5a1f]" />
             </Link>
             <Link
@@ -370,9 +377,9 @@ export default function MidasHostPortal() {
               target="_blank"
               rel="noopener noreferrer"
               className="hidden lg:inline-flex items-center gap-1 text-xs font-mono text-[#ffcf38] hover:text-white px-2.5 py-1.5 border border-[#ffcf38]/30 rounded-sm"
-              title="Open Brand Sponsorship & Sponsor ROI Proposal Deck"
+              title={t("midasHost.sponsorDeckTitle")}
             >
-              <span>Brand Sponsor Deck</span>
+              <span>{t("midasHost.sponsorDeck")}</span>
               <ExternalLink className="w-3 h-3" />
             </Link>
 
@@ -380,21 +387,21 @@ export default function MidasHostPortal() {
               <button
                 onClick={handlePurgeDemoData}
                 className="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 text-xs font-mono font-bold px-3 sm:px-4 py-2 rounded-sm flex items-center gap-1.5 transition-all shadow-sm"
-                title="Purge all simulated preview data and lock portal into clean production state"
+                title={t("midasHost.purgeTitle")}
               >
                 <Trash2 className="w-3.5 h-3.5 text-red-400" />
-                <span className="hidden sm:inline">Purge Demo Data</span>
-                <span className="sm:hidden">Purge</span>
+                <span className="hidden sm:inline">{t("midasHost.purgeDemo")}</span>
+                <span className="sm:hidden">{t("midasHost.purgeShort")}</span>
               </button>
             ) : (
               <button
                 onClick={handleLoadDemoPreview}
                 className="bg-[#ffffff0d] hover:bg-[#ffffff18] text-[#ffcf38] border border-[#ffcf38]/40 text-xs font-mono font-bold px-3 sm:px-4 py-2 rounded-sm flex items-center gap-1.5 transition-all"
-                title="Load sample simulated records to test the dashboard view"
+                title={t("midasHost.previewTitle")}
               >
                 <Eye className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Load Sample Preview</span>
-                <span className="sm:hidden">Preview</span>
+                <span className="hidden sm:inline">{t("midasHost.loadPreview")}</span>
+                <span className="sm:hidden">{t("midasHost.previewShort")}</span>
               </button>
             )}
 
@@ -403,8 +410,8 @@ export default function MidasHostPortal() {
               className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-3 sm:px-4 py-2 rounded-sm shadow-[3px_3px_0_#000] flex items-center gap-1.5 uppercase tracking-wider"
             >
               <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Export Contact List</span>
-              <span className="sm:hidden">Export</span>
+              <span className="hidden sm:inline">{t("midasHost.exportList")}</span>
+              <span className="sm:hidden">{t("midasHost.exportShort")}</span>
             </Button>
           </div>
         </div>
@@ -417,7 +424,7 @@ export default function MidasHostPortal() {
             <div className="flex items-center gap-2 text-amber-300">
               <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
               <span>
-                <strong>PREVIEW SIMULATION MODE ACTIVE:</strong> You are viewing sample attendee records and simulated telemetry. Click <strong>"Purge Demo Data"</strong> anytime to reset to a clean zero-state for live launch.
+                {t("midasHost.previewBanner")}
               </span>
             </div>
             <button
@@ -425,7 +432,7 @@ export default function MidasHostPortal() {
               className="bg-amber-400 hover:bg-amber-300 text-black font-mono font-black uppercase text-[11px] px-3 py-1 rounded-sm shrink-0 flex items-center gap-1 transition-colors"
             >
               <Trash2 className="w-3 h-3" />
-              <span>Purge & Arm for Live Launch</span>
+              <span>{t("midasHost.purgeArm")}</span>
             </button>
           </div>
         </div>
@@ -438,14 +445,14 @@ export default function MidasHostPortal() {
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="font-mono">
-                <strong>PRODUCTION MODE (CLEAN ZERO-STATE):</strong> Portal is armed and ready to receive real live partygoer RSVPs and WhatsApp squad shares.
+                {t("midasHost.prodBanner")}
               </span>
             </div>
             <button
               onClick={handleLoadDemoPreview}
               className="text-[11px] font-mono text-stone-400 hover:text-white underline underline-offset-2"
             >
-              View simulated sample preview
+              {t("midasHost.viewSimPreview")}
             </button>
           </div>
         </div>
@@ -459,7 +466,7 @@ export default function MidasHostPortal() {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <span className="bg-[#ff5a1f] text-white text-[10px] font-mono font-black uppercase px-2.5 py-0.5 rounded-sm">
-                  Verified Host & Promoter
+                  {t("midasHost.verifiedHost")}
                 </span>
                 <span className="text-xs font-mono text-[#ffcf38]">
                   Co-Promoter: 8Rivaz Ultra Lounge
@@ -467,7 +474,7 @@ export default function MidasHostPortal() {
                 <span className={`text-[10px] font-mono px-2 py-0.5 rounded-sm border ${
                   isDemoMode ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
                 }`}>
-                  {isDemoMode ? 'SIMULATION PREVIEW' : 'PRODUCTION LIVE AT 0'}
+                  {isDemoMode ? t("midasHost.simPreview") : t("midasHost.prodLive")}
                 </span>
               </div>
               <h1 className="font-serif text-3xl sm:text-5xl font-bold text-white tracking-tight">
@@ -482,42 +489,42 @@ export default function MidasHostPortal() {
             {/* KPI Counters (Dynamic based on Mode) */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-1">
-                <span className="text-[10px] font-mono text-stone-400 uppercase block">Total Poll Votes</span>
+                <span className="text-[10px] font-mono text-stone-400 uppercase block">{t("midasHost.kpiVotes")}</span>
                 <strong className="text-2xl font-serif font-bold text-white block">
                   {isDemoMode ? '240' : '0'}
                 </strong>
                 <span className="text-[10px] text-stone-400 font-mono">
-                  {isDemoMode ? 'Sample Simulation' : 'Live at Launch'}
+                  {isDemoMode ? t("midasHost.kpiSampleSim") : t("midasHost.kpiLiveLaunch")}
                 </span>
               </div>
 
               <div className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-1">
-                <span className="text-[10px] font-mono text-stone-400 uppercase block">Captured Contacts</span>
+                <span className="text-[10px] font-mono text-stone-400 uppercase block">{t("midasHost.kpiContacts")}</span>
                 <strong className="text-2xl font-serif font-bold text-[#ff5a1f] block">
                   {isDemoMode ? '418' : '0'}
                 </strong>
                 <span className="text-[10px] text-stone-400 font-mono">
-                  {isDemoMode ? 'Sample Directory' : 'Real Phone/WhatsApp'}
+                  {isDemoMode ? t("midasHost.kpiSampleDir") : t("midasHost.kpiRealPhone")}
                 </span>
               </div>
 
               <div className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-1">
-                <span className="text-[10px] font-mono text-stone-400 uppercase block">Squad Multiplier</span>
+                <span className="text-[10px] font-mono text-stone-400 uppercase block">{t("midasHost.kpiSquad")}</span>
                 <strong className="text-2xl font-serif font-bold text-[#a855f7] block">
                   {isDemoMode ? '1.8x' : '0.0x'}
                 </strong>
                 <span className="text-[10px] text-purple-300 font-mono">
-                  {isDemoMode ? '752 Crew Reach' : '0 Shares Logged'}
+                  {isDemoMode ? t("midasHost.kpiCrewReach", { count: 752 }) : t("midasHost.kpiSharesZero")}
                 </span>
               </div>
 
               <div className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-1">
-                <span className="text-[10px] font-mono text-stone-400 uppercase block">Gate Passes Claimed</span>
+                <span className="text-[10px] font-mono text-stone-400 uppercase block">{t("midasHost.kpiPasses")}</span>
                 <strong className="text-2xl font-serif font-bold text-[#10b981] block">
                   {isDemoMode ? '62 / 92' : '0 / 92'}
                 </strong>
                 <span className="text-[10px] text-emerald-300 font-mono">
-                  {isDemoMode ? '67% Inventory Used' : '100% Inventory Open'}
+                  {isDemoMode ? t("midasHost.kpiInvUsed", { percent: 67 }) : t("midasHost.kpiInvOpen")}
                 </span>
               </div>
             </div>
@@ -531,11 +538,11 @@ export default function MidasHostPortal() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex space-x-2 sm:space-x-4 overflow-x-auto py-3 text-xs font-mono uppercase tracking-wider scrollbar-none">
             {[
-              { id: 'attendees', label: '1. Captured Attendees & Phone Numbers', icon: Users, count: isDemoMode ? '418 (Sample)' : '0 (Live)' },
-              { id: 'polls', label: '2. Live Discovery Poll Breakdown', icon: Vote, count: isDemoMode ? '240 (Sample)' : '0 (Live)' },
-              { id: 'squads', label: '3. Referral Squad Leaderboard', icon: Share2, count: isDemoMode ? '1.8x' : '0x' },
-              { id: 'gate', label: '4. Gate Passes & Live QR Scanner', icon: Ticket, count: isDemoMode ? '62 / 92' : '0 / 92' },
-              { id: 'broadcast', label: '5. Audience Broadcast (In-App & Email)', icon: Send, count: `${broadcastHistory.length} Sent` }
+              { id: 'attendees', label: t("midasHost.tabAttendees"), icon: Users, count: isDemoMode ? t("midasHost.countSample", { count: 418 }) : t("midasHost.countLive") },
+              { id: 'polls', label: t("midasHost.tabPolls"), icon: Vote, count: isDemoMode ? t("midasHost.countSample", { count: 240 }) : t("midasHost.countLive") },
+              { id: 'squads', label: t("midasHost.tabSquads"), icon: Share2, count: isDemoMode ? '1.8x' : '0x' },
+              { id: 'gate', label: t("midasHost.tabGate"), icon: Ticket, count: isDemoMode ? '62 / 92' : '0 / 92' },
+              { id: 'broadcast', label: t("midasHost.tabBroadcast"), icon: Send, count: t("midasHost.countSent", { count: broadcastHistory.length }) }
             ].map(tab => {
               const TabIcon = tab.icon;
               return (
@@ -570,14 +577,14 @@ export default function MidasHostPortal() {
             {/* Table Action Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-sm bg-[#141210] border border-[#ffffff15]">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-mono text-stone-400 uppercase font-bold mr-2">Filter Event:</span>
+                <span className="text-xs font-mono text-stone-400 uppercase font-bold mr-2">{t("midasHost.filterEvent")}</span>
                 <button
                   onClick={() => setFilterMoment('all')}
                   className={`px-3 py-1 text-xs font-mono uppercase rounded-sm border ${
                     filterMoment === 'all' ? 'bg-[#ff5a1f] border-[#ff5a1f] text-white font-bold' : 'border-[#ffffff15] text-stone-400'
                   }`}
                 >
-                  All Events ({filteredAttendees.length})
+                  {t("midasHost.allEvents", { count: filteredAttendees.length })}
                 </button>
                 <button
                   onClick={() => setFilterMoment('sophisticated')}
@@ -602,7 +609,7 @@ export default function MidasHostPortal() {
                   <Search className="w-3.5 h-3.5 text-stone-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Search attendee or phone..."
+                    placeholder={t("midasHost.searchPh")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="bg-black/60 border border-[#ffffff20] text-xs text-white pl-8 pr-3 py-1.5 rounded-sm focus:outline-none focus:border-[#ff5a1f] font-mono"
@@ -615,7 +622,7 @@ export default function MidasHostPortal() {
                     size="sm"
                     className="border-red-500/40 bg-red-500/10 hover:bg-red-500/20 text-red-300 text-xs font-mono uppercase"
                   >
-                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Purge Demo Data
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> {t("midasHost.purgeDemo")}
                   </Button>
                 )}
                 <Button
@@ -624,7 +631,7 @@ export default function MidasHostPortal() {
                   size="sm"
                   className="border-[#ffffff20] bg-white/5 hover:bg-white/10 text-xs font-mono uppercase"
                 >
-                  <Download className="w-3.5 h-3.5 mr-1" /> Export CSV
+                    <Download className="w-3.5 h-3.5 mr-1" /> {t("midasHost.exportCsv")}
                 </Button>
               </div>
             </div>
@@ -636,9 +643,9 @@ export default function MidasHostPortal() {
                   <Inbox className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-serif text-lg font-bold text-white">No Attendees Captured Yet</h4>
+                  <h4 className="font-serif text-lg font-bold text-white">{t("midasHost.emptyTitle")}</h4>
                   <p className="text-xs text-stone-400 max-w-md mx-auto">
-                    The portal is in <strong>Production Mode (Zero-State)</strong> and ready for real attendee RSVPs. As attendees vote on Promorang and claim their perks, their verified numbers and referral squad depth will populate here automatically.
+                    {t("midasHost.emptyBody")}
                   </p>
                 </div>
                 <div className="pt-3 flex flex-wrap justify-center gap-3">
@@ -646,13 +653,13 @@ export default function MidasHostPortal() {
                     onClick={handleLoadDemoPreview}
                     className="bg-white/10 hover:bg-white/15 text-stone-200 border border-white/20 px-4 py-2 rounded-sm text-xs font-mono"
                   >
-                    Load Sample Preview Data ➔
+                    {t("midasHost.loadSampleData")} ➔
                   </button>
                   <Link
                     to="/proposals/midas"
                     className="text-xs font-mono text-[#ff5a1f] hover:underline flex items-center gap-1 self-center"
                   >
-                    <span>View Activation Brief</span>
+                    <span>{t("midasHost.viewBrief")}</span>
                     <ExternalLink className="w-3 h-3" />
                   </Link>
                 </div>
@@ -662,13 +669,13 @@ export default function MidasHostPortal() {
                 <table className="w-full text-left text-xs font-sans">
                   <thead className="bg-[#0a0908] border-b border-[#ffffff15] text-[10px] font-mono uppercase tracking-wider text-stone-400">
                     <tr>
-                      <th className="py-3 px-4">Attendee Name</th>
-                      <th className="py-3 px-4">Phone / WhatsApp</th>
-                      <th className="py-3 px-4">Preferred Event</th>
-                      <th className="py-3 px-4">Perk Unlocked</th>
-                      <th className="py-3 px-4 text-center">Squad Invites</th>
-                      <th className="py-3 px-4">Gate Status</th>
-                      <th className="py-3 px-4 text-right">Points</th>
+                      <th className="py-3 px-4">{t("midasHost.colName")}</th>
+                      <th className="py-3 px-4">{t("midasHost.colPhone")}</th>
+                      <th className="py-3 px-4">{t("midasHost.colEvent")}</th>
+                      <th className="py-3 px-4">{t("midasHost.colPerk")}</th>
+                      <th className="py-3 px-4 text-center">{t("midasHost.colInvites")}</th>
+                      <th className="py-3 px-4">{t("midasHost.colStatus")}</th>
+                      <th className="py-3 px-4 text-right">{t("midasHost.colPoints")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#ffffff0c]">
@@ -682,7 +689,7 @@ export default function MidasHostPortal() {
                             <span className="block">{att.name}</span>
                             {att.isDemoSample && (
                               <span className="text-[9px] font-mono text-amber-400/80 uppercase font-bold tracking-wider">
-                                [SIMULATED SAMPLE]
+                                {t("midasHost.simSample")}
                               </span>
                             )}
                           </div>
@@ -702,7 +709,7 @@ export default function MidasHostPortal() {
                           {att.perkUnlocked}
                         </td>
                         <td className="py-3.5 px-4 text-center font-mono font-bold text-[#ffcf38]">
-                          {att.squadInvitesSent} friends
+                          {t("midasHost.friends", { count: att.squadInvitesSent })}
                         </td>
                         <td className="py-3.5 px-4">
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">
@@ -721,17 +728,17 @@ export default function MidasHostPortal() {
             )}
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-stone-400 font-mono">
-              <span>Showing {filteredAttendees.length} {isDemoMode ? 'sample simulation' : 'live'} records</span>
+              <span>{t("midasHost.showing", { count: filteredAttendees.length, mode: isDemoMode ? t("midasHost.modeSample") : t("midasHost.modeLive") })}</span>
               {isDemoMode ? (
                 <button
                   onClick={handlePurgeDemoData}
                   className="text-red-400 hover:text-red-300 underline flex items-center gap-1"
                 >
                   <Trash2 className="w-3 h-3" />
-                  <span>Purge these sample records for production launch</span>
+                  <span>{t("midasHost.purgeRecords")}</span>
                 </button>
               ) : (
-                <span className="text-emerald-400">✓ Production Mode Active · Real Contact Captures Only</span>
+                <span className="text-emerald-400">✓ {t("midasHost.prodActive")}</span>
               )}
             </div>
 
@@ -744,19 +751,19 @@ export default function MidasHostPortal() {
             <div className="max-w-3xl space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
-                  Community Poll Insights
+                  {t("midasHost.pollsKicker")}
                 </span>
                 {isDemoMode && (
                   <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-sm border border-amber-500/30">
-                    SAMPLE PROJECTION
+                    {t("midasHost.sampleProjection")}
                   </span>
                 )}
               </div>
-              <h3 className="font-serif text-3xl font-bold text-white">Live Discovery Poll Response Breakdown</h3>
+              <h3 className="font-serif text-3xl font-bold text-white">{t("midasHost.pollsTitle")}</h3>
               <p className="text-stone-300 text-sm">
                 {isDemoMode
-                  ? 'Simulated response distribution based on Jamaican partygoer preferences.'
-                  : 'Real-time poll votes recorded across Promorang once campaign promotion is published.'}
+                  ? t("midasHost.pollsDescDemo")
+                  : t("midasHost.pollsDescLive")}
               </p>
             </div>
 
@@ -767,7 +774,7 @@ export default function MidasHostPortal() {
                 <div className="flex items-center justify-between border-b border-[#ffffff15] pb-3">
                   <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase">Summer Finale Poll</span>
                   <span className="text-xs font-mono text-stone-400">
-                    {isDemoMode ? '142 Sample Votes' : '0 Total Votes'}
+                    {isDemoMode ? t("midasHost.sampleVotes", { count: 142 }) : t("midasHost.totalVotesZero")}
                   </span>
                 </div>
 
@@ -780,7 +787,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">1. Beach party & oceanfront vibes</span>
                       <span className="text-[#ff5a1f] font-mono">
-                        {isDemoMode ? '68 votes (48%)' : '0 votes (0%)'}
+                        {isDemoMode ? t("midasHost.voteLine", { count: 68, percent: 48 }) : t("midasHost.voteZero")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -793,7 +800,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">2. Live concert & conscious stage show</span>
                       <span className="text-[#a855f7] font-mono">
-                        {isDemoMode ? '42 votes (30%)' : '0 votes (0%)'}
+                        {isDemoMode ? t("midasHost.voteLine", { count: 42, percent: 30 }) : t("midasHost.voteZero")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -806,7 +813,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">3. Club night & high-energy indoor party</span>
                       <span className="text-stone-400 font-mono">
-                        {isDemoMode ? '19 votes (13%)' : '0 votes (0%)'}
+                        {isDemoMode ? t("midasHost.voteLine", { count: 19, percent: 13 }) : t("midasHost.voteZero")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -818,7 +825,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">4. Chill lounge & food lyme</span>
                       <span className="text-stone-400 font-mono">
-                        {isDemoMode ? '9 votes (6%)' : '0 votes (0%)'}
+                        {isDemoMode ? t("midasHost.voteLine", { count: 9, percent: 6 }) : t("midasHost.voteZero")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -830,7 +837,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">5. Haven't decided yet</span>
                       <span className="text-stone-400 font-mono">
-                        {isDemoMode ? '4 votes (3%)' : '0 votes (0%)'}
+                        {isDemoMode ? t("midasHost.voteLine", { count: 4, percent: 3 }) : t("midasHost.voteZero")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -843,7 +850,7 @@ export default function MidasHostPortal() {
                   to="/discover"
                   className="text-xs font-mono text-[#ff5a1f] hover:underline flex items-center gap-1 pt-2"
                 >
-                  <span>View live on Consumer Discovery feed</span>
+                  <span>{t("midasHost.viewDiscovery")}</span>
                   <ExternalLink className="w-3 h-3" />
                 </Link>
               </div>
@@ -853,7 +860,7 @@ export default function MidasHostPortal() {
                 <div className="flex items-center justify-between border-b border-[#ffffff15] pb-3">
                   <span className="text-xs font-mono font-bold text-[#a855f7] uppercase">Live Culture Poll</span>
                   <span className="text-xs font-mono text-stone-400">
-                    {isDemoMode ? '98 Sample Votes' : '0 Total Votes'}
+                    {isDemoMode ? t("midasHost.sampleVotes", { count: 98 }) : t("midasHost.totalVotesZero")}
                   </span>
                 </div>
 
@@ -866,7 +873,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">1. Reggae & conscious roots vibration</span>
                       <span className="text-[#a855f7] font-mono">
-                        {isDemoMode ? '44 votes (45%)' : '0 votes (0%)'}
+                        {isDemoMode ? t("midasHost.voteLine", { count: 44, percent: 45 }) : t("midasHost.voteZero")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -879,7 +886,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">2. Dancehall energy & top selectors</span>
                       <span className="text-[#ff5a1f] font-mono">
-                        {isDemoMode ? '29 votes (30%)' : '0 votes (0%)'}
+                        {isDemoMode ? t("midasHost.voteLine", { count: 29, percent: 30 }) : t("midasHost.voteZero")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -892,7 +899,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">3. Afrobeats & crossover rhythm</span>
                       <span className="text-stone-400 font-mono">
-                        {isDemoMode ? '12 votes (12%)' : '0 votes (0%)'}
+                        {isDemoMode ? t("midasHost.voteLine", { count: 12, percent: 12 }) : t("midasHost.voteZero")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -904,7 +911,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">4. Hip Hop & sound clashes</span>
                       <span className="text-stone-400 font-mono">
-                        {isDemoMode ? '7 votes (7%)' : '0 votes (0%)'}
+                        {isDemoMode ? t("midasHost.voteLine", { count: 7, percent: 7 }) : t("midasHost.voteZero")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -916,7 +923,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">5. Depends strictly on who is performing</span>
                       <span className="text-stone-400 font-mono">
-                        {isDemoMode ? '6 votes (6%)' : '0 votes (0%)'}
+                        {isDemoMode ? t("midasHost.voteLine", { count: 6, percent: 6 }) : t("midasHost.voteZero")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -929,7 +936,7 @@ export default function MidasHostPortal() {
                   to="/discover"
                   className="text-xs font-mono text-[#a855f7] hover:underline flex items-center gap-1 pt-2"
                 >
-                  <span>View live on Consumer Discovery feed</span>
+                  <span>{t("midasHost.viewDiscovery")}</span>
                   <ExternalLink className="w-3 h-3" />
                 </Link>
               </div>
@@ -944,19 +951,19 @@ export default function MidasHostPortal() {
             <div className="max-w-3xl space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-widest">
-                  Viral Word-of-Mouth Engine
+                  {t("midasHost.squadsKicker")}
                 </span>
                 {isDemoMode && (
                   <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-sm border border-amber-500/30">
-                    SAMPLE PROJECTION
+                    {t("midasHost.sampleProjection")}
                   </span>
                 )}
               </div>
-              <h3 className="font-serif text-3xl font-bold text-white">WhatsApp Referral Squad Tracking</h3>
+              <h3 className="font-serif text-3xl font-bold text-white">{t("midasHost.squadsTitle")}</h3>
               <p className="text-stone-300 text-sm">
                 {isDemoMode
-                  ? 'Sample visualization of top squad referrers who forwarded passes on WhatsApp.'
-                  : 'Real squad referral trees will populate live as partygoers share passes with their crew.'}
+                  ? t("midasHost.squadsDescDemo")
+                  : t("midasHost.squadsDescLive")}
               </p>
             </div>
 
@@ -964,7 +971,7 @@ export default function MidasHostPortal() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
-                  <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase block">Top Squad Builder (Sample)</span>
+                  <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase block">{t("midasHost.topBuilder")}</span>
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-[#ff5a1f]/20 text-[#ff5a1f] font-mono font-bold text-lg flex items-center justify-center">
                       J
@@ -976,19 +983,19 @@ export default function MidasHostPortal() {
                   </div>
                   <div className="p-3 bg-black/40 border border-[#ffffff15] rounded-sm space-y-1 text-xs">
                     <div className="flex justify-between font-bold">
-                      <span>Squad Invites Verified:</span>
-                      <span className="text-[#ffcf38] font-mono">7 Friends Joined</span>
+                      <span>{t("midasHost.invitesVerified")}</span>
+                      <span className="text-[#ffcf38] font-mono">{t("midasHost.friendsJoined", { count: 7 })}</span>
                     </div>
                     <div className="flex justify-between font-bold">
-                      <span>Perk Unlocked:</span>
+                      <span>{t("midasHost.perkUnlocked")}</span>
                       <span className="text-emerald-400 font-mono">Soundcheck Double Pass</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono text-stone-400 block">Status: Capleton Backstage Guest List</span>
+                  <span className="text-[10px] font-mono text-stone-400 block">{t("midasHost.statusLabel")} Capleton Backstage Guest List</span>
                 </div>
 
                 <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
-                  <span className="text-xs font-mono font-bold text-[#a855f7] uppercase block">Runner-Up Squad Builder (Sample)</span>
+                  <span className="text-xs font-mono font-bold text-[#a855f7] uppercase block">{t("midasHost.runnerUp")}</span>
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-[#a855f7]/20 text-[#a855f7] font-mono font-bold text-lg flex items-center justify-center">
                       S
@@ -1000,35 +1007,35 @@ export default function MidasHostPortal() {
                   </div>
                   <div className="p-3 bg-black/40 border border-[#ffffff15] rounded-sm space-y-1 text-xs">
                     <div className="flex justify-between font-bold">
-                      <span>Squad Invites Verified:</span>
-                      <span className="text-[#ffcf38] font-mono">5 Friends Joined</span>
+                      <span>{t("midasHost.invitesVerified")}</span>
+                      <span className="text-[#ffcf38] font-mono">{t("midasHost.friendsJoined", { count: 5 })}</span>
                     </div>
                     <div className="flex justify-between font-bold">
-                      <span>Perk Unlocked:</span>
+                      <span>{t("midasHost.perkUnlocked")}</span>
                       <span className="text-purple-400 font-mono">VIP Deck Upgrade</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono text-stone-400 block">Status: VIP Access Pass Confirmed</span>
+                  <span className="text-[10px] font-mono text-stone-400 block">{t("midasHost.statusLabel")} VIP Access Pass Confirmed</span>
                 </div>
 
                 <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
-                  <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">Viral Economics Summary</span>
+                  <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">{t("midasHost.viralSummary")}</span>
                   <div className="space-y-2 text-xs">
                     <div className="flex justify-between border-b border-[#ffffff15] pb-2">
-                      <span className="text-stone-400">Direct Voters:</span>
+                      <span className="text-stone-400">{t("midasHost.directVoters")}</span>
                       <strong className="text-white font-mono">240</strong>
                     </div>
                     <div className="flex justify-between border-b border-[#ffffff15] pb-2">
-                      <span className="text-stone-400">Squad Shares Sent:</span>
-                      <strong className="text-[#ffcf38] font-mono">432 shares</strong>
+                      <span className="text-stone-400">{t("midasHost.sharesSent")}</span>
+                      <strong className="text-[#ffcf38] font-mono">{t("midasHost.sharesCount", { count: 432 })}</strong>
                     </div>
                     <div className="flex justify-between border-b border-[#ffffff15] pb-2">
-                      <span className="text-stone-400">Viral Multiplier:</span>
+                      <span className="text-stone-400">{t("midasHost.viralMult")}</span>
                       <strong className="text-emerald-400 font-mono">1.8x</strong>
                     </div>
                     <div className="flex justify-between pt-1">
-                      <span className="text-stone-400">Total Audience Reach:</span>
-                      <strong className="text-white font-mono font-bold">752 Partygoers</strong>
+                      <span className="text-stone-400">{t("midasHost.totalReach")}</span>
+                      <strong className="text-white font-mono font-bold">{t("midasHost.partygoers", { count: 752 })}</strong>
                     </div>
                   </div>
                 </div>
@@ -1037,9 +1044,9 @@ export default function MidasHostPortal() {
             ) : (
               <div className="p-10 text-center rounded-sm border-2 border-dashed border-[#ffffff15] bg-[#141210] space-y-3">
                 <Share2 className="w-8 h-8 text-stone-500 mx-auto" />
-                <h4 className="font-serif text-lg font-bold text-white">0 Squad Shares Logged (Production Zero-State)</h4>
+                <h4 className="font-serif text-lg font-bold text-white">{t("midasHost.squadsEmptyTitle")}</h4>
                 <p className="text-xs text-stone-400 max-w-md mx-auto">
-                  When partygoers tap "Send to Crew on WhatsApp", their squad referral chains and top crew ambassadors will automatically populate this leaderboard.
+                  {t("midasHost.squadsEmptyBody")}
                 </p>
               </div>
             )}
@@ -1053,17 +1060,17 @@ export default function MidasHostPortal() {
             <div className="max-w-3xl space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono font-bold text-[#10b981] uppercase tracking-widest">
-                  Gate & Venue Capacity Management
+                  {t("midasHost.gateKicker")}
                 </span>
                 {isDemoMode && (
                   <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-sm border border-amber-500/30">
-                    LIVE GATE DEMO
+                    {t("midasHost.liveGateDemo")}
                   </span>
                 )}
               </div>
-              <h3 className="font-serif text-3xl font-bold text-white">Gate Operations & Loyalty Scanner</h3>
+              <h3 className="font-serif text-3xl font-bold text-white">{t("midasHost.gateTitle")}</h3>
               <p className="text-stone-300 text-sm">
-                Door staff QR lookup: instantly verify tickets, detect Partygoer Loyalty Rank, and view exact staff fulfillment directives.
+                {t("midasHost.gateDesc")}
               </p>
             </div>
 
@@ -1075,14 +1082,14 @@ export default function MidasHostPortal() {
                     <ScanLine className="w-5 h-5 animate-pulse" />
                   </div>
                   <div>
-                    <h4 className="font-serif text-lg font-bold text-white">Live Gate Access Terminal</h4>
-                    <span className="text-[11px] font-mono text-emerald-300">Station #1 · Main Entry & VIP Lane</span>
+                    <h4 className="font-serif text-lg font-bold text-white">{t("midasHost.terminalTitle")}</h4>
+                    <span className="text-[11px] font-mono text-emerald-300">{t("midasHost.stationLabel", { number: 1 })}</span>
                   </div>
                 </div>
 
                 {/* Quick Attendee Switcher for Demo */}
                 <div className="flex items-center gap-2 flex-wrap text-xs font-mono">
-                  <span className="text-stone-400 text-[10px] uppercase">Quick Scan Test:</span>
+                  <span className="text-stone-400 text-[10px] uppercase">{t("midasHost.quickScan")}</span>
                   <button
                     onClick={() => handleRunGateScan('Shanice')}
                     className="px-2.5 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/40 rounded-sm hover:bg-purple-500/30"
@@ -1112,7 +1119,7 @@ export default function MidasHostPortal() {
                     type="text"
                     value={scanInput}
                     onChange={(e) => setScanInput(e.target.value)}
-                    placeholder="Scan QR token or type attendee phone number / name..."
+                    placeholder={t("midasHost.scanPh")}
                     className="w-full bg-black/60 border border-[#ffffff20] text-white pl-10 pr-4 py-3 rounded-sm text-sm font-mono focus:border-emerald-500 outline-none"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleRunGateScan(scanInput);
@@ -1123,7 +1130,7 @@ export default function MidasHostPortal() {
                   onClick={() => handleRunGateScan(scanInput || 'Shanice')}
                   className="bg-emerald-500 hover:bg-emerald-600 text-black font-bold font-mono text-xs px-6 rounded-sm"
                 >
-                  <QrCode className="w-4 h-4 mr-2" /> Validate Ticket
+                  <QrCode className="w-4 h-4 mr-2" /> {t("midasHost.validate")}
                 </Button>
               </div>
 
@@ -1134,20 +1141,20 @@ export default function MidasHostPortal() {
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                       <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400 font-bold">
-                        Ticket Validated · Access Granted
+                        {t("midasHost.ticketOk")}
                       </span>
                     </div>
                     <h4 className="text-xl font-serif font-bold text-white">{scannedAttendee.name}</h4>
                     <p className="text-xs font-mono text-stone-400">{scannedAttendee.phone}</p>
                     <div className="pt-2">
-                      <span className="text-[10px] font-mono text-stone-400 block uppercase">Event Moment</span>
+                      <span className="text-[10px] font-mono text-stone-400 block uppercase">{t("midasHost.eventMoment")}</span>
                       <strong className="text-xs text-white block">{scannedAttendee.preferredMoment}</strong>
                     </div>
                   </div>
 
                   <div className="space-y-2 border-b lg:border-b-0 lg:border-r border-[#ffffff15] pb-4 lg:pb-0 lg:pr-4">
                     <span className="text-[10px] font-mono uppercase text-purple-300 font-bold block">
-                      Partygoer Loyalty Rank
+                      {t("midasHost.loyaltyRank")}
                     </span>
                     <div className="flex items-center gap-2">
                       <Award className="w-5 h-5 text-[#ffcf38]" />
@@ -1155,18 +1162,18 @@ export default function MidasHostPortal() {
                         {scannedAttendee.pointsEarned >= 350
                           ? '⭐ Tier 3: Culture Insider (Midas Superfan)'
                           : scannedAttendee.pointsEarned >= 200
-                          ? 'Tier 2: Scene Regular'
-                          : 'Tier 1: Scout'}
+                          ? t("midasHost.tier2")
+                          : t("midasHost.tier1")}
                       </strong>
                     </div>
                     <div className="p-2.5 bg-[#141210] rounded-sm text-xs font-mono text-stone-300 space-y-1">
                       <div className="flex justify-between">
-                        <span>Vault Legacy Points:</span>
-                        <strong className="text-[#ffcf38]">{scannedAttendee.pointsEarned} pts</strong>
+                        <span>{t("midasHost.vaultPoints")}</span>
+                        <strong className="text-[#ffcf38]">{t("midasHost.pts", { count: scannedAttendee.pointsEarned })}</strong>
                       </div>
                       <div className="flex justify-between">
-                        <span>Squad Crew Size:</span>
-                        <strong className="text-emerald-400">{scannedAttendee.squadInvitesSent} Referred</strong>
+                        <span>{t("midasHost.crewSize")}</span>
+                        <strong className="text-emerald-400">{t("midasHost.referred", { count: scannedAttendee.squadInvitesSent })}</strong>
                       </div>
                     </div>
                   </div>
@@ -1174,16 +1181,16 @@ export default function MidasHostPortal() {
                   {/* High-Visibility Door Staff Directives */}
                   <div className="space-y-2">
                     <span className="text-[10px] font-mono uppercase text-[#ff5a1f] font-bold block">
-                      Door Staff Fulfillment Directive
+                      {t("midasHost.staffDirective")}
                     </span>
                     <div className="p-3 bg-emerald-950/40 border border-emerald-500/50 rounded-sm space-y-1.5 text-xs">
                       <strong className="text-emerald-300 font-bold block flex items-center gap-1.5">
                         <CheckCheck className="w-4 h-4 text-emerald-400" />
                         {scannedAttendee.perkUnlocked.includes('VIP')
-                          ? 'GIVE GOLD VIP WRISTBAND'
+                          ? t("midasHost.dirVip")
                           : scannedAttendee.perkUnlocked.includes('Soundcheck')
-                          ? 'GIVE BACKSTAGE ALL-ACCESS PASS'
-                          : 'GIVE EXPRESS ACCESS WRISTBAND'}
+                          ? t("midasHost.dirSoundcheck")
+                          : t("midasHost.dirExpress")}
                       </strong>
                       <p className="text-stone-300 text-[11px] leading-snug">
                         {scannedAttendee.perkUnlocked.includes('VIP')
@@ -1194,7 +1201,7 @@ export default function MidasHostPortal() {
                       </p>
                     </div>
                     <span className="text-[10px] font-mono text-stone-400 block pt-1">
-                      Moment Memory Piece automatically minted to user Vault upon entry.
+                      {t("midasHost.pieceMinted")}
                     </span>
                   </div>
                 </div>
@@ -1208,13 +1215,13 @@ export default function MidasHostPortal() {
                 <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase block">Tier 1 · Speed</span>
                 <h4 className="font-serif text-lg font-bold text-white">Express Entry Wristbands</h4>
                 <div className="text-2xl font-serif font-black text-white">
-                  {isDemoMode ? '38' : '0'} <span className="text-xs font-mono text-stone-400">/ 50 Allocated</span>
+                  {isDemoMode ? '38' : '0'} <span className="text-xs font-mono text-stone-400">{t("midasHost.allocated", { total: 50 })}</span>
                 </div>
                 <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
                   <div className={`bg-[#ff5a1f] h-full ${isDemoMode ? 'w-[76%]' : 'w-[0%]'}`} />
                 </div>
                 <span className="text-[11px] font-mono text-emerald-400 block">
-                  {isDemoMode ? '12 Wristbands Remaining' : '50 Wristbands Available at Launch'}
+                  {isDemoMode ? t("midasHost.wristRemain", { count: 12 }) : t("midasHost.wristAvail", { count: 50 })}
                 </span>
               </div>
 
@@ -1222,13 +1229,13 @@ export default function MidasHostPortal() {
                 <span className="text-xs font-mono font-bold text-[#a855f7] uppercase block">Tier 2 · High Value</span>
                 <h4 className="font-serif text-lg font-bold text-white">VIP Deck Upgrades</h4>
                 <div className="text-2xl font-serif font-black text-white">
-                  {isDemoMode ? '7' : '0'} <span className="text-xs font-mono text-stone-400">/ 10 Allocated</span>
+                  {isDemoMode ? '7' : '0'} <span className="text-xs font-mono text-stone-400">{t("midasHost.allocated", { total: 10 })}</span>
                 </div>
                 <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
                   <div className={`bg-[#a855f7] h-full ${isDemoMode ? 'w-[70%]' : 'w-[0%]'}`} />
                 </div>
                 <span className="text-[11px] font-mono text-emerald-400 block">
-                  {isDemoMode ? '3 VIP Upgrades Remaining' : '10 VIP Upgrades Available at Launch'}
+                  {isDemoMode ? t("midasHost.vipRemain", { count: 3 }) : t("midasHost.vipAvail", { count: 10 })}
                 </span>
               </div>
 
@@ -1242,7 +1249,7 @@ export default function MidasHostPortal() {
                   <div className={`bg-[#ffcf38] h-full ${isDemoMode ? 'w-[100%]' : 'w-[0%]'}`} />
                 </div>
                 <span className="text-[11px] font-mono text-[#ffcf38] block">
-                  {isDemoMode ? '100% Claimed by Top Referrers' : '2 Passes Open for Top Referrers'}
+                  {isDemoMode ? t("midasHost.claimedReferrers") : t("midasHost.passesOpen", { count: 2 })}
                 </span>
               </div>
 
@@ -1250,13 +1257,13 @@ export default function MidasHostPortal() {
                 <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">Tier 4 · Early Arrival</span>
                 <h4 className="font-serif text-lg font-bold text-white">Hosted Drinks Passes (Pre-6PM)</h4>
                 <div className="text-2xl font-serif font-black text-white">
-                  {isDemoMode ? '24' : '0'} <span className="text-xs font-mono text-stone-400">/ 30 Claimed</span>
+                  {isDemoMode ? '24' : '0'} <span className="text-xs font-mono text-stone-400">{t("midasHost.claimedOf", { total: 30 })}</span>
                 </div>
                 <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
                   <div className={`bg-[#10b981] h-full ${isDemoMode ? 'w-[80%]' : 'w-[0%]'}`} />
                 </div>
                 <span className="text-[11px] font-mono text-emerald-400 block">
-                  {isDemoMode ? '6 Tokens Remaining' : '30 Tokens Available at Launch'}
+                  {isDemoMode ? t("midasHost.tokensRemain", { count: 6 }) : t("midasHost.tokensAvail", { count: 30 })}
                 </span>
               </div>
 
@@ -1270,13 +1277,13 @@ export default function MidasHostPortal() {
             <div className="max-w-3xl space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
-                  Direct Audience Re-Engagement Engine
+                  {t("midasHost.bcastKicker")}
                 </span>
                 <span className="text-[10px] font-mono bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-sm border border-purple-500/30">
-                  IN-APP & EMAIL CHANNELS
+                  {t("midasHost.channelsBadge")}
                 </span>
               </div>
-              <h3 className="font-serif text-3xl font-bold text-white">Audience Broadcast & Loyalty Drops</h3>
+              <h3 className="font-serif text-3xl font-bold text-white">{t("midasHost.bcastTitle")}</h3>
               <p className="text-stone-300 text-sm">
                 Re-engage past attendees, broadcast holiday presales (December & Easter), or drop sponsored perks directly into fans' Promorang Vaults without paying for social ads.
               </p>
@@ -1288,14 +1295,14 @@ export default function MidasHostPortal() {
               <div className="lg:col-span-2 p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-6">
                 <div className="flex items-center justify-between border-b border-[#ffffff15] pb-4">
                   <h4 className="font-serif text-lg font-bold text-white flex items-center gap-2">
-                    <Send className="w-4 h-4 text-[#ff5a1f]" /> Compose Audience Broadcast
+                    <Send className="w-4 h-4 text-[#ff5a1f]" /> {t("midasHost.composeTitle")}
                   </h4>
-                  <span className="text-[11px] font-mono text-emerald-400">Zero Spam · Guaranteed Delivery</span>
+                  <span className="text-[11px] font-mono text-emerald-400">{t("midasHost.zeroSpam")}</span>
                 </div>
 
                 {/* Pre-built Templates */}
                 <div className="space-y-2">
-                  <label className="text-xs font-mono text-stone-400 block uppercase">1-Click Campaign Templates</label>
+                  <label className="text-xs font-mono text-stone-400 block uppercase">{t("midasHost.templates")}</label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <button
                       type="button"
@@ -1328,66 +1335,66 @@ export default function MidasHostPortal() {
                   {/* Target Audience Segment */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-xs font-mono text-stone-400 block uppercase">Target Audience Segment</label>
+                      <label className="text-xs font-mono text-stone-400 block uppercase">{t("midasHost.targetSegment")}</label>
                       <select
                         value={broadcastSegment}
                         onChange={(e) => setBroadcastSegment(e.target.value as any)}
                         className="w-full bg-black/60 border border-[#ffffff20] text-white px-3.5 py-2.5 rounded-sm text-xs font-mono focus:border-[#ff5a1f] outline-none"
                       >
-                        <option value="all">All Verified Attendees ({isDemoMode ? '418 Fans' : attendeesList.length})</option>
-                        <option value="vip">VIP Superfans / Tier 3+ ({isDemoMode ? '42 Fans' : '0'})</option>
-                        <option value="squad_leaders">Top Squad Leaders ({isDemoMode ? '24 Leaders' : '0'})</option>
-                        <option value="unclaimed_perks">Unclaimed Perk Holders ({isDemoMode ? '86 Fans' : '0'})</option>
+                        <option value="all">{t("midasHost.segAll", { count: isDemoMode ? 418 : attendeesList.length })}</option>
+                        <option value="vip">{t("midasHost.segVip", { count: isDemoMode ? 42 : 0 })}</option>
+                        <option value="squad_leaders">{t("midasHost.segLeaders", { count: isDemoMode ? 24 : 0 })}</option>
+                        <option value="unclaimed_perks">{t("midasHost.segUnclaimed", { count: isDemoMode ? 86 : 0 })}</option>
                       </select>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs font-mono text-stone-400 block uppercase">Broadcast Channel</label>
+                      <label className="text-xs font-mono text-stone-400 block uppercase">{t("midasHost.channelLabel")}</label>
                       <select
                         value={broadcastChannel}
                         onChange={(e) => setBroadcastChannel(e.target.value as any)}
                         className="w-full bg-black/60 border border-[#ffffff20] text-white px-3.5 py-2.5 rounded-sm text-xs font-mono focus:border-[#ff5a1f] outline-none"
                       >
-                        <option value="both">In-App Push & Direct Email (Recommended)</option>
-                        <option value="in_app">In-App Notification Banner Only</option>
-                        <option value="email">Direct Email Announcement Only</option>
+                        <option value="both">{t("midasHost.chBoth")}</option>
+                        <option value="in_app">{t("midasHost.chInApp")}</option>
+                        <option value="email">{t("midasHost.chEmail")}</option>
                       </select>
                     </div>
                   </div>
 
                   {/* Subject Line */}
                   <div className="space-y-2">
-                    <label className="text-xs font-mono text-stone-400 block uppercase">Campaign Subject / Notification Header</label>
+                    <label className="text-xs font-mono text-stone-400 block uppercase">{t("midasHost.subjectLabel")}</label>
                     <input
                       type="text"
                       value={broadcastSubject}
                       onChange={(e) => setBroadcastSubject(e.target.value)}
-                      placeholder="e.g. Exclusive Presale Live for Midas VIPs..."
+                      placeholder={t("midasHost.subjectPh")}
                       className="w-full bg-black/60 border border-[#ffffff20] text-white px-3.5 py-2.5 rounded-sm text-xs font-mono focus:border-[#ff5a1f] outline-none"
                     />
                   </div>
 
                   {/* Body Content */}
                   <div className="space-y-2">
-                    <label className="text-xs font-mono text-stone-400 block uppercase">Broadcast Message Body & Call-to-Action</label>
+                    <label className="text-xs font-mono text-stone-400 block uppercase">{t("midasHost.bodyLabel")}</label>
                     <textarea
                       rows={4}
                       value={broadcastBody}
                       onChange={(e) => setBroadcastBody(e.target.value)}
-                      placeholder="Write announcement details..."
+                      placeholder={t("midasHost.bodyPh")}
                       className="w-full bg-black/60 border border-[#ffffff20] text-white p-3.5 rounded-sm text-xs font-mono focus:border-[#ff5a1f] outline-none"
                     />
                   </div>
 
                   <div className="pt-2 flex items-center justify-between">
                     <span className="text-[11px] font-mono text-stone-400">
-                      Recipients: <strong className="text-white">{isDemoMode ? (broadcastSegment === 'vip' ? '42 Fans' : broadcastSegment === 'squad_leaders' ? '24 Leaders' : '418 Fans') : attendeesList.length}</strong>
+                      {t("midasHost.recipients")} <strong className="text-white">{isDemoMode ? (broadcastSegment === 'vip' ? t("midasHost.fansCount", { count: 42 }) : broadcastSegment === 'squad_leaders' ? t("midasHost.leadersCount", { count: 24 }) : t("midasHost.fansCount", { count: 418 })) : attendeesList.length}</strong>
                     </span>
                     <Button
                       type="submit"
                       className="bg-[#ff5a1f] hover:bg-[#e04b00] text-white font-bold font-mono text-xs px-8 py-3 rounded-sm"
                     >
-                      <Send className="w-3.5 h-3.5 mr-2" /> Dispatch Audience Broadcast
+                      <Send className="w-3.5 h-3.5 mr-2" /> {t("midasHost.dispatch")}
                     </Button>
                   </div>
                 </form>
@@ -1397,15 +1404,15 @@ export default function MidasHostPortal() {
               <div className="space-y-6">
                 <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
                   <span className="text-xs font-mono font-bold text-emerald-400 uppercase block">
-                    Re-Engagement Performance
+                    {t("midasHost.perfTitle")}
                   </span>
                   <div className="grid grid-cols-2 gap-3 text-xs font-mono">
                     <div className="p-3 bg-black/40 rounded-sm border border-white/10">
-                      <span className="text-stone-400 text-[10px] block uppercase">Avg Open Rate</span>
+                      <span className="text-stone-400 text-[10px] block uppercase">{t("midasHost.avgOpen")}</span>
                       <strong className="text-xl text-emerald-400 block mt-1">87.1%</strong>
                     </div>
                     <div className="p-3 bg-black/40 rounded-sm border border-white/10">
-                      <span className="text-stone-400 text-[10px] block uppercase">Ticket Click-Through</span>
+                      <span className="text-stone-400 text-[10px] block uppercase">{t("midasHost.clickThrough")}</span>
                       <strong className="text-xl text-[#ffcf38] block mt-1">69.8%</strong>
                     </div>
                   </div>
@@ -1417,22 +1424,22 @@ export default function MidasHostPortal() {
                 {/* Campaign History Log */}
                 <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
                   <span className="text-xs font-mono font-bold text-stone-300 uppercase block">
-                    Broadcast Dispatch History
+                    {t("midasHost.historyTitle")}
                   </span>
                   <div className="space-y-3">
                     {broadcastHistory.map((cmp) => (
                       <div key={cmp.id} className="p-3 bg-black/40 rounded-sm border border-white/10 space-y-2">
                         <div className="flex items-center justify-between text-xs">
                           <strong className="text-white text-xs truncate max-w-[200px]">{cmp.subject}</strong>
-                          <span className="text-[10px] font-mono text-emerald-400 font-bold">{cmp.status}</span>
+                          <span className="text-[10px] font-mono text-emerald-400 font-bold">{cmp.status === 'Delivered' ? t("midasHost.statusDelivered") : t("midasHost.statusQueued")}</span>
                         </div>
                         <div className="flex justify-between text-[10px] font-mono text-stone-400">
                           <span>{cmp.segment}</span>
                           <span>{cmp.sentAt}</span>
                         </div>
                         <div className="flex items-center gap-3 text-[10px] font-mono pt-1 border-t border-white/10 text-stone-300">
-                          <span>Opens: <strong className="text-emerald-400">{cmp.openRate}</strong></span>
-                          <span>Clicks: <strong className="text-[#ffcf38]">{cmp.clickRate}</strong></span>
+                          <span>{t("midasHost.opens")} <strong className="text-emerald-400">{cmp.openRate === 'Queued' ? t("midasHost.statusQueued") : cmp.openRate}</strong></span>
+                          <span>{t("midasHost.clicks")} <strong className="text-[#ffcf38]">{cmp.clickRate === 'Queued' ? t("midasHost.statusQueued") : cmp.clickRate}</strong></span>
                         </div>
                       </div>
                     ))}
@@ -1450,7 +1457,7 @@ export default function MidasHostPortal() {
       <footer className="mt-24 border-t-2 border-[#ffffff15] bg-[#070605] py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-1 text-center sm:text-left">
-            <span className="font-serif font-bold text-lg text-white">PROMORANG <i className="text-[#ff5a1f] not-italic">HOST PORTAL</i></span>
+            <span className="font-serif font-bold text-lg text-white">PROMORANG <i className="text-[#ff5a1f] not-italic">{t("midasHost.hostPortal")}</i></span>
             <p className="text-xs text-[#887f74]">Midas Entertainment Live Operations · Plantation Cove, St. Ann, Jamaica</p>
           </div>
           <div className="flex items-center gap-4">
@@ -1461,7 +1468,7 @@ export default function MidasHostPortal() {
                 className="font-mono text-xs px-5 py-3 rounded-sm uppercase tracking-wider"
               >
                 <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                <span>Purge Demo Data</span>
+                <span>{t("midasHost.purgeDemo")}</span>
               </Button>
             ) : (
               <Button
@@ -1470,14 +1477,14 @@ export default function MidasHostPortal() {
                 className="font-mono text-xs px-5 py-3 rounded-sm uppercase tracking-wider border-white/20"
               >
                 <Eye className="w-3.5 h-3.5 mr-1.5" />
-                <span>Load Sample Preview</span>
+                <span>{t("midasHost.loadPreview")}</span>
               </Button>
             )}
             <Link
               to="/proposals/midas"
               className="bg-[#ffffff0a] hover:bg-[#ffffff15] text-stone-300 hover:text-white font-mono text-xs px-5 py-3 rounded-sm border border-[#ffffff15]"
             >
-              Proposal Brief
+              {t("midasHost.proposalBrief")}
             </Link>
           </div>
         </div>

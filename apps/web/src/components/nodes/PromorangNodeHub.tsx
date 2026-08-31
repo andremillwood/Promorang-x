@@ -8,6 +8,7 @@ import { ProofReceiptModal } from "@/components/value/ProofReceiptModal";
 import { ValueReceiptData } from "@/components/value/TactileValueReceipt";
 import { TactileButton } from "@/components/ui/TactileButton";
 import { NightTrail, PlainEnglish, StatusChip, TicketPass } from "@/components/promorang/SignatureObjects";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface NodeHubProps {
   userTier?: "free" | "premium" | "super";
@@ -24,6 +25,7 @@ export const PromorangNodeHub = ({
   onUpgradeTier,
   onStake,
 }: NodeHubProps) => {
+  const { t, formatNumber, formatDate } = useI18n();
   const [activeReceipt, setActiveReceipt] = useState<ValueReceiptData | null>(null);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
 
@@ -39,24 +41,24 @@ export const PromorangNodeHub = ({
       id: `rec_node_stake_${Date.now()}`,
       receiptNumber: `REC-VAULT-${Math.floor(1000 + Math.random() * 9000)}`,
       actorHandle: "@community_backer",
-      actorName: "Community pot",
+      actorName: t("nodesHub.actorName"),
       actionType: "commerce",
-      actionTitle: "Set money aside in a community pot",
-      targetEntity: "Local perks & check-in float",
-      timestamp: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      actionTitle: t("nodesHub.receiptAction"),
+      targetEntity: t("nodesHub.receiptTarget"),
+      timestamp: formatDate(new Date(), { month: "short", day: "numeric", year: "numeric" }),
       status: "verified",
-      verificationMethod: "Promorang savings record",
+      verificationMethod: t("nodesHub.verificationMethod"),
       proofHash: `0x${Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`,
-      hostQuote: "This money still belongs to you. It backs local perks until you take it out.",
-      hostSigner: "Promorang community pots",
+      hostQuote: t("nodesHub.receiptHostQuote"),
+      hostSigner: t("nodesHub.receiptHostSigner"),
       metrics: [
-        { label: "Set aside", value: `$${amount}.00`, highlight: true },
-        { label: "Free draw tickets", value: `+${(amount * multiplier) / 10} tickets` },
-        { label: "Can withdraw", value: "Anytime" },
+        { label: t("nodesHub.receiptSetAside"), value: `$${amount}.00`, highlight: true },
+        { label: t("nodesHub.receiptTickets"), value: t("nodesHub.receiptTicketsValue", { count: (amount * multiplier) / 10 }) },
+        { label: t("nodesHub.receiptWithdraw"), value: t("nodesHub.anytime") },
       ],
       rewards: [
-        { type: "cash", label: "Your money, still yours", value: `$${amount}.00` },
-        { type: "keys", label: "Prize draw entries", value: `+${Math.floor((amount / 10) * multiplier)} tickets` },
+        { type: "cash", label: t("nodesHub.receiptRewardMoney"), value: `$${amount}.00` },
+        { type: "keys", label: t("nodesHub.receiptRewardTickets"), value: t("nodesHub.receiptTicketsValue", { count: Math.floor((amount / 10) * multiplier) }) },
       ],
     };
 
@@ -68,29 +70,29 @@ export const PromorangNodeHub = ({
     <div className="mx-auto w-full max-w-6xl space-y-12 px-4 text-white md:px-6">
       <header className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
         <div>
-          <p className="text-xs font-bold tracking-[0.2em] text-amber-300">Save & Win</p>
+          <p className="text-xs font-bold tracking-[0.2em] text-amber-300">{t("nodesHub.eyebrow")}</p>
           <h1 className="mt-3 font-serif text-4xl font-bold leading-[1.05] md:text-6xl">
-            Set money aside. Stay in the draws. Take it out whenever.
+            {t("nodesHub.title")}
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-zinc-300 md:text-lg">
-            Community pots back local discounts and check-ins. You keep 100% of what you put in. While it sits there, you collect free tickets into weekly and monthly prize draws.
+            {t("nodesHub.copy")}
           </p>
           <div className="mt-6 max-w-xl">
             <PlainEnglish>
-              This is not investing. It is money in a jar that also buys you raffle tickets. The jar is still yours.
+              {t("nodesHub.plainEnglish")}
             </PlainEnglish>
           </div>
           <div className="mt-6 flex flex-wrap gap-2">
-            <StatusChip ok>{userTier} member · {multiplier}× tickets</StatusChip>
+            <StatusChip ok>{t("nodesHub.memberTickets", { tier: userTier, multiplier })}</StatusChip>
             <StatusChip>
-              <Flame className="h-3.5 w-3.5 text-amber-300" /> {streakDays}-day streak · +{streakBoostPct}%
+              <Flame className="h-3.5 w-3.5 text-amber-300" /> {t("nodesHub.streakBoost", { days: streakDays, pct: streakBoostPct })}
             </StatusChip>
-            <StatusChip>{totalTickets.toLocaleString()} tickets in hand</StatusChip>
+            <StatusChip>{t("nodesHub.ticketsInHand", { count: formatNumber(totalTickets) })}</StatusChip>
           </div>
         </div>
         <TangibleNodeCard
-          nodeName="Local perks pot"
-          nodeCategory="Partner discounts"
+          nodeName={t("nodesHub.localPerksPot")}
+          nodeCategory={t("nodesHub.partnerDiscounts")}
           userTier={userTier}
           stakedAmount={stakedBalance}
           multiplier={multiplier}
@@ -100,48 +102,48 @@ export const PromorangNodeHub = ({
       </header>
 
       <NightTrail
-        eyebrow="How a pot works"
-        title="Four beats, zero loss"
+        eyebrow={t("nodesHub.howEyebrow")}
+        title={t("nodesHub.howTitle")}
         steps={[
-          { label: "Set aside", title: "You park some money", text: "It still belongs to you. Pull it out whenever you want." },
-          { label: "It works", title: "Shops use that parked money", text: "It helps power discounts and check-in perks nearby." },
-          { label: "Tickets", title: "You get draw entries", text: "Membership and streaks can multiply how many tickets you hold." },
-          { label: "Draw", title: "Sunday and month-end", text: "If you win, the prize is extra. If you don't, your money is still there." },
+          { label: t("nodesHub.step1Label"), title: t("nodesHub.step1Title"), text: t("nodesHub.step1Text") },
+          { label: t("nodesHub.step2Label"), title: t("nodesHub.step2Title"), text: t("nodesHub.step2Text") },
+          { label: t("nodesHub.step3Label"), title: t("nodesHub.step3Title"), text: t("nodesHub.step3Text") },
+          { label: t("nodesHub.step4Label"), title: t("nodesHub.step4Title"), text: t("nodesHub.step4Text") },
         ]}
       />
 
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
         <NodeLiveTelemetryTicker />
         <div className="space-y-4">
-          <p className="text-xs font-bold tracking-[0.2em] text-primary">This week's tickets</p>
-          <h2 className="font-serif text-3xl font-bold">Three pots. Pick the night.</h2>
+          <p className="text-xs font-bold tracking-[0.2em] text-primary">{t("nodesHub.thisWeek")}</p>
+          <h2 className="font-serif text-3xl font-bold">{t("nodesHub.threePots")}</h2>
           <TicketPass
-            kicker="Weekly · everyone"
-            title="Sunday community treat"
-            detail={`$1,250 already in. You are holding ${totalTickets} tickets. Funded by check-ins and local sponsors.`}
-            stub="SUN"
-            stubLabel="Draw"
+            kicker={t("nodesHub.weeklyKicker")}
+            title={t("nodesHub.sundayTitle")}
+            detail={t("nodesHub.sundayDetail", { count: totalTickets })}
+            stub={t("nodesHub.sundayStub")}
+            stubLabel={t("nodesHub.sundayStubLabel")}
           />
           <article className="overflow-hidden rounded-[1.6rem] border border-amber-400/30">
             <div className="relative h-36">
               <img src={jackpotMegaVault} alt="" className="size-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#120e0a] to-transparent" />
-              <p className="absolute bottom-3 left-4 font-serif text-xl font-bold text-white">Monthly city mega pot · $6,500</p>
+              <p className="absolute bottom-3 left-4 font-serif text-xl font-bold text-white">{t("nodesHub.megaTitle")}</p>
             </div>
             <div className="bg-[#120e0a] p-4 text-sm text-zinc-300">
-              Pro and Super members. Built from city-wide shopping and venue check-ins.
+              {t("nodesHub.megaCopy")}
             </div>
           </article>
           <TicketPass
-            kicker="Season · Super members"
-            title="Season champion pot"
-            detail="$35,000 at season end for people who kept showing up."
-            stub="S3"
-            stubLabel="Season"
+            kicker={t("nodesHub.seasonKicker")}
+            title={t("nodesHub.seasonTitle")}
+            detail={t("nodesHub.seasonDetail")}
+            stub={t("nodesHub.seasonStub")}
+            stubLabel={t("nodesHub.seasonStubLabel")}
           />
           {userTier !== "super" ? (
             <TactileButton variant="obsidian" size="lg" fullWidth onClick={onUpgradeTier}>
-              See Super for the season pot
+              {t("nodesHub.seeSuper")}
             </TactileButton>
           ) : null}
         </div>
@@ -150,12 +152,12 @@ export const PromorangNodeHub = ({
       <div className="flex flex-wrap gap-3 pb-4">
         <TactileButton variant="primary" size="lg" asChild>
           <Link to="/economy">
-            How the rest of Promorang works
+            {t("nodesHub.howRest")}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </TactileButton>
         <TactileButton variant="obsidian" size="lg" asChild>
-          <Link to="/explore/moments">Go find a Moment</Link>
+          <Link to="/explore/moments">{t("nodesHub.findMoment")}</Link>
         </TactileButton>
       </div>
 

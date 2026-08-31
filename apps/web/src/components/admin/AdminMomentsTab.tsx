@@ -27,11 +27,22 @@ import {
   Clock,
   Pencil,
 } from "lucide-react";
-import { format } from "date-fns";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
-const STATUS_FILTERS = ["all", "draft", "scheduled", "joinable", "active", "closed", "archived"];
+const STATUS_FILTERS = ["all", "draft", "scheduled", "joinable", "active", "closed", "archived"] as const;
+const STATUS_LABEL: Record<(typeof STATUS_FILTERS)[number], TranslationKey> = {
+  all: "momDesk.stAll",
+  draft: "momDesk.stDraft",
+  scheduled: "momDesk.stScheduled",
+  joinable: "momDesk.stJoinable",
+  active: "momDesk.stActive",
+  closed: "momDesk.stClosed",
+  archived: "momDesk.stArchived",
+};
 
 export function AdminMomentsTab() {
+  const { t, formatDate } = useI18n();
   const { data: moments, isLoading } = useMomentsForApproval();
   const updateStatus = useUpdateMomentStatus();
   
@@ -54,9 +65,9 @@ export function AdminMomentsTab() {
 
   const getVisibilityBadge = (visibility: string) => {
     switch (visibility) {
-      case "open": return <Badge variant="secondary">Open</Badge>;
-      case "invite": return <Badge variant="outline">Invite Only</Badge>;
-      case "private": return <Badge variant="outline">Private</Badge>;
+      case "open": return <Badge variant="secondary">{t("momDesk.visOpen")}</Badge>;
+      case "invite": return <Badge variant="outline">{t("momDesk.visInvite")}</Badge>;
+      case "private": return <Badge variant="outline">{t("momDesk.visPrivate")}</Badge>;
       default: return null;
     }
   };
@@ -77,7 +88,7 @@ export function AdminMomentsTab() {
         <div className="relative flex-1 sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search moments..."
+            placeholder={t("momDesk.search")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -94,7 +105,7 @@ export function AdminMomentsTab() {
               onClick={() => setStatusFilter(status)}
               className="snap-start"
             >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
+              {t(STATUS_LABEL[status])}
             </Button>
           ))}
           </div>
@@ -105,7 +116,7 @@ export function AdminMomentsTab() {
       {filteredMoments?.length === 0 ? (
         <div className="bg-card border border-border rounded-xl p-8 text-center">
           <Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <p className="text-muted-foreground">No moments found</p>
+          <p className="text-muted-foreground">{t("momDesk.empty")}</p>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -138,7 +149,7 @@ export function AdminMomentsTab() {
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      {format(new Date(moment.starts_at), "MMM d, yyyy 'at' h:mm a")}
+                      {formatDate(moment.starts_at, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
                     </span>
                   </div>
                   
@@ -151,7 +162,7 @@ export function AdminMomentsTab() {
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-sm text-muted-foreground">
-                        Hosted by {moment.host_profile.full_name || "Anonymous"}
+                        {t("momDesk.hostedBy", { name: moment.host_profile.full_name || t("momDesk.anon") })}
                       </span>
                     </div>
                   )}
@@ -161,13 +172,13 @@ export function AdminMomentsTab() {
                   <Button variant="outline" size="sm" className="shrink-0" asChild>
                     <Link to={`/moments/${moment.id}`}>
                       <Eye className="w-4 h-4 mr-1" />
-                      View
+                      {t("momDesk.view")}
                     </Link>
                   </Button>
                   <Button variant="outline" size="sm" className="shrink-0" asChild>
                     <Link to={`/moments/${moment.id}/edit`}>
                       <Pencil className="w-4 h-4 mr-1" />
-                      Edit
+                      {t("momDesk.edit")}
                     </Link>
                   </Button>
                   
@@ -178,35 +189,35 @@ export function AdminMomentsTab() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Change Status</DropdownMenuLabel>
+                      <DropdownMenuLabel>{t("momDesk.changeStatus")}</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => handleStatusUpdate(moment.id, "joinable")}
                         disabled={moment.status === "joinable"}
                       >
                         <CheckCircle className="w-4 h-4 mr-2 text-emerald-500" />
-                        Approve (Joinable)
+                        {t("momDesk.approveJoin")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleStatusUpdate(moment.id, "active")}
                         disabled={moment.status === "active"}
                       >
                         <CheckCircle className="w-4 h-4 mr-2 text-primary" />
-                        Set Active
+                        {t("momDesk.setActive")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleStatusUpdate(moment.id, "closed")}
                         disabled={moment.status === "closed"}
                       >
                         <XCircle className="w-4 h-4 mr-2 text-muted-foreground" />
-                        Close
+                        {t("momDesk.close")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleStatusUpdate(moment.id, "archived")}
                         disabled={moment.status === "archived"}
                       >
                         <Archive className="w-4 h-4 mr-2" />
-                        Archive
+                        {t("momDesk.archive")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -219,7 +230,7 @@ export function AdminMomentsTab() {
 
       {/* Total count */}
       <p className="text-sm text-muted-foreground">
-        Showing {filteredMoments?.length || 0} of {moments?.length || 0} moments
+        {t("momDesk.showing", { shown: filteredMoments?.length || 0, total: moments?.length || 0 })}
       </p>
     </div>
   );

@@ -6,6 +6,7 @@ import type { DiscoveryObject, MomentObject, SceneObject } from "@/lib/consumer-
 import { supabase } from "@/integrations/supabase/client";
 import { useConsumerHomeLiveData } from "@/hooks/useConsumerHomeLiveData";
 import { useConsumerInteractions } from "@/hooks/useConsumerInteractions";
+import { useI18n } from "@/i18n/I18nContext";
 
 const fallbackMoment: MomentObject = {
   id: "preview-ilhh",
@@ -21,23 +22,21 @@ const fallbackMoment: MomentObject = {
   accessLabel: "Member access available",
 };
 
-const formatMomentTime = (value?: string | null) => {
-  if (!value) return undefined;
-  try {
-    return new Intl.DateTimeFormat("en-US", {
-      weekday: "short",
-      hour: "numeric",
-      minute: "2-digit",
-    }).format(new Date(value));
-  } catch {
-    return undefined;
-  }
-};
-
 const ConsumerHomePreview = () => {
+  const { t, formatDate, formatNumber } = useI18n();
   const live = useConsumerHomeLiveData();
   const interactions = useConsumerInteractions();
   const { user, profile } = live;
+
+  const formatMomentTime = (value?: string | null) => {
+    if (!value) return undefined;
+    const formatted = formatDate(value, {
+      weekday: "short",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    return formatted || undefined;
+  };
 
   const liveMoments = useQuery({
     queryKey: ["consumer-home-preview-moments"],
@@ -66,17 +65,17 @@ const ConsumerHomePreview = () => {
     return {
       id: next.id,
       kind: "moment",
-      eyebrow: "Happening next",
+      eyebrow: t("consHome.happeningNext"),
       title: next.title,
-      subtitle: next.description || [next.venue_name, next.location].filter(Boolean).join(" · ") || "A live Moment surfaced by Promorang.",
+      subtitle: next.description || [next.venue_name, next.location].filter(Boolean).join(" · ") || t("consHome.liveMoment"),
       imageUrl: next.image_url || fallbackMoment.imageUrl,
       href: `/moments/${next.slug || next.id}`,
       startsAt: formatMomentTime(next.starts_at),
       venueName: next.venue_name || undefined,
       location: next.location || undefined,
-      accessLabel: "Open Moment",
+      accessLabel: t("consPrev.openMoment"),
     };
-  }, [liveMoments.data]);
+  }, [liveMoments.data, t, formatDate]);
 
   const rawScenes = live.scenes.data || [];
   const sceneObjects = useMemo<SceneObject[]>(() => {
@@ -91,29 +90,29 @@ const ConsumerHomePreview = () => {
       id: scene.id,
       kind: "scene" as const,
       title: scene.title,
-      subtitle: scene.description || `${scene.city || "Kingston"} culture and activity.`,
+      subtitle: scene.description || t("consHome.sceneCulture", { city: scene.city || "Kingston" }),
       imageUrl: scene.image_url || null,
       href: `/scenes/${scene.slug}`,
       memberCount: Number(scene.member_count || 0),
       signalCount: Number(scene.signal_count || 0),
       trendingCount: Number(scene.trending_count || 0),
     }));
-  }, [rawScenes]);
+  }, [rawScenes, t]);
 
   const discoveryObjects = useMemo<DiscoveryObject[]>(() => {
     return (live.discoveries.data || []).slice(0, 3).map((item: any) => ({
       id: item.id,
       kind: "discovery" as const,
-      eyebrow: item.category ? String(item.category).replaceAll("_", " ") : "Discovery",
-      title: item.title || item.name || "Worth a closer look",
+      eyebrow: item.category ? String(item.category).replaceAll("_", " ") : t("consHome.discovery"),
+      title: item.title || item.name || t("consHome.closerLook"),
       subtitle: item.description || item.location_address || item.city || undefined,
       imageUrl: item.cover_image || item.image_url || null,
       href: `/discoveries/${item.slug || item.id}`,
-      question: item.title || "Would you explore this?",
+      question: item.title || t("consHome.exploreQ"),
       options: [],
       totalSignals: Number(item.checkin_count || item.save_count || 0),
     }));
-  }, [live.discoveries.data]);
+  }, [live.discoveries.data, t]);
 
   const poll = live.polls.data?.[0] as any;
   const pollOptions = (poll?.discovery_options || []).map((option: any) => ({
@@ -127,7 +126,7 @@ const ConsumerHomePreview = () => {
     user?.user_metadata?.display_name ||
     user?.user_metadata?.full_name ||
     user?.email?.split("@")[0] ||
-    "there";
+    t("consHome.fallbackName");
   const initial = displayName.charAt(0).toUpperCase();
   const referralStats = live.referralStats.data;
   const referralCode = live.referralCodes.data?.[0]?.code;
@@ -140,12 +139,12 @@ const ConsumerHomePreview = () => {
       actions={<div className="grid h-9 w-9 place-items-center rounded-full bg-foreground text-xs font-black text-background">{initial}</div>}
     >
       <section className="pb-7 pt-2 md:pb-10 md:pt-6">
-        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">Kingston · Live consumer preview</p>
+        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">{t("consHome.kicker", { city: "Kingston" })}</p>
         <h1 className="mt-2 max-w-4xl font-serif text-4xl font-semibold leading-[0.98] tracking-[-0.045em] sm:text-5xl lg:text-7xl">
-          {user ? `Welcome back, ${displayName}.` : "Find what is worth moving for."}
+          {user ? t("consHome.welcome", { name: displayName }) : t("consHome.guestTitle")}
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
-          Moments, discoveries, Scenes, access, social distribution and cultural proof—surfaced when useful instead of exposed as a wall of mechanics.
+          {t("consHome.lede")}
         </p>
       </section>
 
@@ -153,24 +152,24 @@ const ConsumerHomePreview = () => {
         <div>
           <ConsumerObjectCard item={featuredMoment} emphasis="feature" />
           <div className="mt-3 flex flex-wrap gap-2">
-            <a href={featuredMoment.href || "/discover"} className="rounded-full bg-primary px-4 py-2 text-sm font-black text-primary-foreground">Open Moment</a>
+            <a href={featuredMoment.href || "/discover"} className="rounded-full bg-primary px-4 py-2 text-sm font-black text-primary-foreground">{t("consPrev.openMoment")}</a>
             <button
               type="button"
               onClick={() => interactions.shareInvite(referralCode)}
               className="rounded-full border border-border bg-card px-4 py-2 text-sm font-black hover:border-primary hover:text-primary"
             >
-              Invite someone
+              {t("consHome.inviteSomeone")}
             </button>
           </div>
 
           {live.plans.length > 0 && (
             <section className="mt-8 border-y border-border py-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Your plans</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{t("consHome.yourPlans")}</p>
               <div className="mt-3 grid gap-3 sm:grid-cols-3">
                 {live.plans.map((moment: any) => (
                   <a key={moment.id} href={`/moments/${moment.id}`} className="group block border-l-2 border-primary/40 pl-3">
                     <strong className="block text-sm group-hover:text-primary">{moment.title}</strong>
-                    <span className="mt-1 block text-xs text-muted-foreground">{formatMomentTime(moment.starts_at)} · {moment.venue_name || moment.location || "Location TBA"}</span>
+                    <span className="mt-1 block text-xs text-muted-foreground">{formatMomentTime(moment.starts_at)} · {moment.venue_name || moment.location || t("consPrev.locationTba")}</span>
                   </a>
                 ))}
               </div>
@@ -180,10 +179,10 @@ const ConsumerHomePreview = () => {
           <div className="mt-10">
             <div className="mb-5 flex items-end justify-between gap-4">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Your Scenes</p>
-                <h2 className="mt-1 font-serif text-3xl font-semibold tracking-[-0.035em] md:text-4xl">Where culture is moving</h2>
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{t("consHome.yourScenes")}</p>
+                <h2 className="mt-1 font-serif text-3xl font-semibold tracking-[-0.035em] md:text-4xl">{t("consHome.scenesTitle")}</h2>
               </div>
-              <a href="/scenes" className="hidden text-sm font-semibold text-muted-foreground hover:text-primary sm:block">Explore all</a>
+              <a href="/scenes" className="hidden text-sm font-semibold text-muted-foreground hover:text-primary sm:block">{t("consHome.exploreAll")}</a>
             </div>
             <div className="grid gap-5 md:grid-cols-3">
               {sceneObjects.map((scene, index) => {
@@ -198,7 +197,7 @@ const ConsumerHomePreview = () => {
                         onClick={() => interactions.joinScene.mutate(rawScene)}
                         className="mt-2 w-full rounded-full border border-border bg-card px-3 py-2 text-xs font-black hover:border-primary hover:text-primary disabled:opacity-50"
                       >
-                        Join Scene
+                        {t("consHome.joinScene")}
                       </button>
                     )}
                   </div>
@@ -211,10 +210,10 @@ const ConsumerHomePreview = () => {
             <section className="mt-12">
               <div className="mb-5 flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Fresh discoveries</p>
-                  <h2 className="mt-1 font-serif text-3xl font-semibold tracking-[-0.035em] md:text-4xl">Worth noticing</h2>
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{t("consHome.fresh")}</p>
+                  <h2 className="mt-1 font-serif text-3xl font-semibold tracking-[-0.035em] md:text-4xl">{t("consHome.noticing")}</h2>
                 </div>
-                <a href="/discover" className="text-sm font-semibold text-muted-foreground hover:text-primary">Open Discover</a>
+                <a href="/discover" className="text-sm font-semibold text-muted-foreground hover:text-primary">{t("consHome.openDiscover")}</a>
               </div>
               <div className="grid gap-5 md:grid-cols-3">
                 {discoveryObjects.map((item) => <ConsumerObjectCard key={item.id} item={item} />)}
@@ -225,16 +224,16 @@ const ConsumerHomePreview = () => {
 
         <aside className="space-y-7">
           <section className="border-t border-border pt-5 lg:sticky lg:top-24">
-            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Quick signal</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{t("consHome.quickSignal")}</p>
             <h2 className="mt-2 font-serif text-3xl font-semibold leading-tight tracking-[-0.035em]">
               {poll?.question || "Would you go to a live dancehall set at Devon House this Friday?"}
             </h2>
-            <p className="mt-3 text-sm text-muted-foreground">{Number(poll?.total_votes || 342).toLocaleString()} people have signaled so far.</p>
+            <p className="mt-3 text-sm text-muted-foreground">{t("consHome.signaled", { count: formatNumber(Number(poll?.total_votes || 342)) })}</p>
             <div className="mt-5 flex flex-wrap gap-2">
               {(pollOptions.length ? pollOptions : [
-                { id: "yes", label: "Yes" },
-                { id: "maybe", label: "Maybe" },
-                { id: "no", label: "Not for me" },
+                { id: "yes", label: t("consHome.yes") },
+                { id: "maybe", label: t("consHome.maybe") },
+                { id: "no", label: t("consHome.notForMe") },
               ]).map((option: any) => (
                 poll?.id ? (
                   <button
@@ -256,42 +255,42 @@ const ConsumerHomePreview = () => {
           </section>
 
           <section className="border-t border-border pt-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Your value</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{t("consHome.yourValue")}</p>
             <div className="mt-3 flex items-end justify-between gap-4">
-              <div><strong className="text-4xl tracking-[-0.05em]">{live.pointsBalance.toLocaleString()}</strong><p className="mt-1 text-sm text-muted-foreground">PromoPoints</p></div>
-              <a href="/rewards" className="rounded-full bg-primary px-4 py-2.5 text-sm font-black text-primary-foreground">Rewards</a>
+              <div><strong className="text-4xl tracking-[-0.05em]">{formatNumber(live.pointsBalance)}</strong><p className="mt-1 text-sm text-muted-foreground">{t("consHome.promoPoints")}</p></div>
+              <a href="/rewards" className="rounded-full bg-primary px-4 py-2.5 text-sm font-black text-primary-foreground">{t("consHome.rewards")}</a>
             </div>
-            <p className="mt-4 text-sm leading-6 text-muted-foreground">{activeKeys.length} active access {activeKeys.length === 1 ? "perk" : "perks"}{activeKeys[0] ? ` · ${activeKeys[0].venue_name}` : ""}.</p>
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">{t(activeKeys.length === 1 ? "consHome.perkSingular" : "consHome.perkPlural", { count: activeKeys.length })}{activeKeys[0] ? ` · ${activeKeys[0].venue_name}` : ""}.</p>
             {activeKeys[0] && (
-              <a href="/access" className="mt-3 inline-flex rounded-full border border-primary/30 px-3 py-2 text-xs font-black text-primary">Open access pass →</a>
+              <a href="/access" className="mt-3 inline-flex rounded-full border border-primary/30 px-3 py-2 text-xs font-black text-primary">{t("consHome.openAccess")}</a>
             )}
           </section>
 
           <section className="border-t border-border pt-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Bring your people</p>
-            <h3 className="mt-2 text-xl font-black tracking-[-0.03em]">Your network should compound.</h3>
+            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{t("consHome.bringPeople")}</p>
+            <h3 className="mt-2 text-xl font-black tracking-[-0.03em]">{t("consHome.networkTitle")}</h3>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-              <div className="bg-card p-3"><strong className="block text-xl">{referralStats?.referrals.totalClicks || 0}</strong><span className="text-[10px] text-muted-foreground">Clicks</span></div>
-              <div className="bg-card p-3"><strong className="block text-xl">{referralStats?.referrals.totalSignups || 0}</strong><span className="text-[10px] text-muted-foreground">Joined</span></div>
-              <div className="bg-card p-3"><strong className="block text-xl">{referralStats?.referrals.totalConversions || 0}</strong><span className="text-[10px] text-muted-foreground">Active</span></div>
+              <div className="bg-card p-3"><strong className="block text-xl">{referralStats?.referrals.totalClicks || 0}</strong><span className="text-[10px] text-muted-foreground">{t("consHome.clicks")}</span></div>
+              <div className="bg-card p-3"><strong className="block text-xl">{referralStats?.referrals.totalSignups || 0}</strong><span className="text-[10px] text-muted-foreground">{t("consHome.joined")}</span></div>
+              <div className="bg-card p-3"><strong className="block text-xl">{referralStats?.referrals.totalConversions || 0}</strong><span className="text-[10px] text-muted-foreground">{t("consHome.active")}</span></div>
             </div>
             <button
               type="button"
               onClick={() => interactions.shareInvite(referralCode)}
               className="mt-4 inline-flex rounded-full bg-primary px-4 py-2.5 text-sm font-black text-primary-foreground"
             >
-              {referralCode ? `Invite with ${referralCode}` : "Invite friends"}
+              {referralCode ? t("consHome.inviteWith", { code: referralCode }) : t("consHome.inviteFriends")}
             </button>
           </section>
 
           <section className="border-t border-border pt-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Your cultural proof</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{t("consHome.culturalProof")}</p>
             <div className="mt-3 flex items-end justify-between gap-3">
-              <div><strong className="text-3xl tracking-[-0.04em]">{piecePositions.length}</strong><p className="text-sm text-muted-foreground">Piece positions</p></div>
-              <div className="text-right"><strong className="text-lg">{Number(live.pieces.data?.total_value || 0).toFixed(0)}</strong><p className="text-xs text-muted-foreground">Gems value</p></div>
+              <div><strong className="text-3xl tracking-[-0.04em]">{piecePositions.length}</strong><p className="text-sm text-muted-foreground">{t("consHome.piecePositions")}</p></div>
+              <div className="text-right"><strong className="text-lg">{Number(live.pieces.data?.total_value || 0).toFixed(0)}</strong><p className="text-xs text-muted-foreground">{t("consHome.gemsValue")}</p></div>
             </div>
-            <p className="mt-3 text-xs leading-5 text-muted-foreground">Verified participation can surface here as durable cultural proof instead of as another onboarding concept.</p>
-            <a href="/portfolio" className="mt-4 inline-flex text-sm font-black text-primary">Open your Pieces →</a>
+            <p className="mt-3 text-xs leading-5 text-muted-foreground">{t("consHome.proofLede")}</p>
+            <a href="/portfolio" className="mt-4 inline-flex text-sm font-black text-primary">{t("consHome.openPieces")}</a>
           </section>
         </aside>
       </section>

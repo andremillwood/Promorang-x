@@ -26,6 +26,7 @@ import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { TeamSlashModal } from "@/components/TeamSlashModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
+import { useI18n } from "@/i18n/I18nContext";
 
 // Modular Brand Consoles
 import BrandCampaignFlightDeck from "@/components/brand/BrandCampaignFlightDeck";
@@ -35,6 +36,7 @@ import BrandCorrelationMap from "@/components/brand/BrandCorrelationMap";
 import BrandIntelligenceConsole from "@/components/brand/BrandIntelligenceConsole";
 
 export function BrandDashboardV2() {
+  const { t } = useI18n();
   const { user, organizations, activeOrgId, profile } = useAuth();
   const { data: campaigns, isLoading: campaignsLoading } = useBrandCampaigns();
   const { isLoading: statsLoading } = useBrandStats();
@@ -49,7 +51,7 @@ export function BrandDashboardV2() {
 
   const activeOrg = organizations.find((org) => org.id === activeOrgId);
   const activeBrandName =
-    activeOrg?.name || profile?.display_name || user?.user_metadata?.full_name || "Brand Partner";
+    activeOrg?.name || profile?.display_name || user?.user_metadata?.full_name || t("brandStage.partner");
 
   useEffect(() => {
     const requestedTab = searchParams.get("tab");
@@ -85,15 +87,15 @@ export function BrandDashboardV2() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">
-                {activeBrandName} Flight Command
+                {t("brandStage.flight", { name: activeBrandName })}
               </h1>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-primary/40 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                <span>Omni-Channel Flight Live</span>
+                <span>{t("brandStage.liveBadge")}</span>
               </span>
             </div>
             <p className="text-xs text-white/60 mt-0.5">
-              Live campaign pacing, creator bounty pipeline, and O2O footfall verification.
+              {t("brandStage.subtitle")}
             </p>
           </div>
         </div>
@@ -105,7 +107,7 @@ export function BrandDashboardV2() {
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-black transition"
           >
             <Plus className="h-4 w-4" />
-            <span>Launch Flight</span>
+            <span>{t("brandStage.launch")}</span>
           </Link>
 
           <Link
@@ -113,7 +115,7 @@ export function BrandDashboardV2() {
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-white/10 bg-white/5 hover:border-primary/40 hover:bg-white/10 transition"
           >
             <Coins className="h-4 w-4 text-primary" />
-            <span className="text-xs font-black text-white">Brand Escrow</span>
+            <span className="text-xs font-black text-white">{t("brandStage.escrow")}</span>
           </Link>
         </div>
       </div>
@@ -123,14 +125,14 @@ export function BrandDashboardV2() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded-full bg-primary text-black font-black text-[10px] uppercase tracking-wider">
-              How It Works
+              {t("brandStage.how")}
             </span>
             <span className="font-bold text-white text-xs sm:text-sm">
-              Your 3-Step Sponsoring System
+              {t("brandStage.system")}
             </span>
           </div>
           <span className="text-[11px] text-white/50 font-medium">
-            1. Pick an Event &rarr; 2. Local Creators Share Your Brand &rarr; 3. Verified People Walk in the Door
+            {t("brandStage.steps")}
           </span>
         </div>
 
@@ -142,8 +144,8 @@ export function BrandDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">1</span>
               <div>
-                <p className="font-bold text-white text-xs">Sponsor an Event or Place</p>
-                <p className="text-[10px] text-primary font-semibold">Drop discounts onto local cards</p>
+                <p className="font-bold text-white text-xs">{t("brandStage.step1")}</p>
+                <p className="text-[10px] text-primary font-semibold">{t("brandStage.step1Hint")}</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-primary transition" />
@@ -156,8 +158,8 @@ export function BrandDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">2</span>
               <div>
-                <p className="font-bold text-white text-xs">Review Social Posts</p>
-                <p className="text-[10px] text-amber-300 font-semibold">Creators post authentic videos</p>
+                <p className="font-bold text-white text-xs">{t("brandStage.step2")}</p>
+                <p className="text-[10px] text-amber-300 font-semibold">{t("brandStage.step2Hint")}</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-amber-400 transition" />
@@ -170,8 +172,8 @@ export function BrandDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">3</span>
               <div>
-                <p className="font-bold text-white text-xs">See Real-World Results</p>
-                <p className="text-[10px] text-cyan-300 font-semibold">Track real check-ins & sales</p>
+                <p className="font-bold text-white text-xs">{t("brandStage.step3")}</p>
+                <p className="text-[10px] text-cyan-300 font-semibold">{t("brandStage.step3Hint")}</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-cyan-400 transition" />
@@ -182,11 +184,11 @@ export function BrandDashboardV2() {
       {/* 3. The 5 Operational Brand Navigation Arenas */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
-          { id: "campaigns", label: "Active Promotions", icon: Megaphone, hint: "Live campaigns & budget", count: `${activeCampaigns.length || 2} Live` },
-          { id: "opportunities", label: "Find Events to Sponsor", icon: Target, hint: "Top local events & venues", count: "3 Ready" },
-          { id: "creators", label: "Creator Posts", icon: Users, hint: "Review photo & video posts", count: "1 Ready" },
-          { id: "correlation", label: "Customer Foot-Traffic", icon: Link2, hint: "See who visited in person", count: "4.9x ROI" },
-          { id: "insights", label: "Budget & Payouts", icon: Coins, hint: "Safe escrow & balances", count: "$6.4k Safe" },
+          { id: "campaigns", label: t("brandStage.tabCamp"), hint: t("brandStage.tabCampHint"), icon: Megaphone, count: t("brandStage.countLive", { count: activeCampaigns.length || 2 }) },
+          { id: "opportunities", label: t("brandStage.tabOpp"), hint: t("brandStage.tabOppHint"), icon: Target, count: t("brandStage.countReady", { count: 3 }) },
+          { id: "creators", label: t("brandStage.tabCre"), hint: t("brandStage.tabCreHint"), icon: Users, count: t("brandStage.countReady", { count: 1 }) },
+          { id: "correlation", label: t("brandStage.tabTraffic"), hint: t("brandStage.tabTrafficHint"), icon: Link2, count: t("brandStage.countRoi") },
+          { id: "insights", label: t("brandStage.tabBudget"), hint: t("brandStage.tabBudgetHint"), icon: Coins, count: t("brandStage.countSafe") },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -224,11 +226,11 @@ export function BrandDashboardV2() {
         <div className="min-w-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <TabsList className="sr-only">
-              <TabsTrigger value="campaigns">Flight Deck</TabsTrigger>
-              <TabsTrigger value="opportunities">Radar</TabsTrigger>
-              <TabsTrigger value="creators">Creators</TabsTrigger>
-              <TabsTrigger value="correlation">Proof Map</TabsTrigger>
-              <TabsTrigger value="insights">Treasury</TabsTrigger>
+              <TabsTrigger value="campaigns">{t("brandStage.srDeck")}</TabsTrigger>
+              <TabsTrigger value="opportunities">{t("brandStage.srRadar")}</TabsTrigger>
+              <TabsTrigger value="creators">{t("brandStage.srCreators")}</TabsTrigger>
+              <TabsTrigger value="correlation">{t("brandStage.srMap")}</TabsTrigger>
+              <TabsTrigger value="insights">{t("brandStage.srTreasury")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="campaigns" className="mt-0">

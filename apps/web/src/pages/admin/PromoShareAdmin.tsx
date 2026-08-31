@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { toast } from 'sonner';
+import { useI18n } from '@/i18n/I18nContext';
 import { API_BASE_URL } from '@/lib/api';
 import {
   Play,
@@ -73,6 +74,7 @@ interface SimulationResult {
 
 const PromoShareAdmin = () => {
   const { user, session } = useAuth();
+  const { t, formatDate } = useI18n();
   const [activeTab, setActiveTab] = useState('cycles');
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [selectedCycle, setSelectedCycle] = useState<Cycle | null>(null);
@@ -133,12 +135,12 @@ const PromoShareAdmin = () => {
       const result = await response.json();
       if (result.success) {
         setSimulationResult(result.data);
-        toast.success('Simulation completed');
+        toast.success(t('psAdmin.toastSimOk'));
       } else {
-        toast.error(result.error || 'Simulation failed');
+        toast.error(result.error || t('psAdmin.toastSimFail'));
       }
     } catch (error) {
-      toast.error('Simulation failed');
+      toast.error(t('psAdmin.toastSimFail'));
     } finally {
       setLoading(false);
     }
@@ -146,7 +148,7 @@ const PromoShareAdmin = () => {
 
   const executeDraw = async (tiered: boolean = false) => {
     if (!selectedCycle || !session?.access_token) return;
-    if (!confirm(`Are you sure you want to execute the ${tiered ? 'tiered ' : ''}draw? This cannot be undone.`)) {
+    if (!confirm(t(tiered ? 'psAdmin.confirmTiered' : 'psAdmin.confirmDraw'))) {
       return;
     }
 
@@ -165,13 +167,13 @@ const PromoShareAdmin = () => {
       });
       const result = await response.json();
       if (result.success) {
-        toast.success(`Draw executed! ${result.data.total_winners || result.data.winners?.length || 0} winners selected.`);
+        toast.success(t('psAdmin.toastDrawOk', { count: result.data.total_winners || result.data.winners?.length || 0 }));
         fetchCycles(session.access_token);
       } else {
-        toast.error(result.error || 'Draw failed');
+        toast.error(result.error || t('psAdmin.toastDrawFail'));
       }
     } catch (error) {
-      toast.error('Draw execution failed');
+      toast.error(t('psAdmin.toastDrawExecFail'));
     } finally {
       setLoading(false);
     }
@@ -237,14 +239,14 @@ const PromoShareAdmin = () => {
       });
       const result = await response.json();
       if (result.success) {
-        toast.success('Cycle created successfully');
+        toast.success(t('psAdmin.toastCycleOk'));
         fetchCycles(session.access_token);
         setActiveTab('cycles');
       } else {
-        toast.error(result.error || 'Failed to create cycle');
+        toast.error(result.error || t('psAdmin.toastCycleFail'));
       }
     } catch (error) {
-      toast.error('Failed to create cycle');
+      toast.error(t('psAdmin.toastCycleFail'));
     } finally {
       setLoading(false);
     }
@@ -260,12 +262,12 @@ const PromoShareAdmin = () => {
       });
       const result = await response.json();
       if (result.success) {
-        toast.success(`Recalculated stats for ${result.data.processed} users`);
+        toast.success(t('psAdmin.toastRecalcOk', { count: result.data.processed }));
       } else {
-        toast.error('Recalculation failed');
+        toast.error(t('psAdmin.toastRecalcFail'));
       }
     } catch (error) {
-      toast.error('Recalculation failed');
+      toast.error(t('psAdmin.toastRecalcFail'));
     } finally {
       setLoading(false);
     }
@@ -290,22 +292,22 @@ const PromoShareAdmin = () => {
             <Crown className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">PromoShare Admin</h1>
+            <h1 className="text-3xl font-bold">{t('psAdmin.title')}</h1>
             <GuidanceDisclosure
               id="promoshare-admin:overview"
-              eyebrow="Admin guide"
-              title="What this control room manages"
-              summary="Cycles, simulations, qualified users, audit history, and reward configuration live here."
+              eyebrow={t('psAdmin.guideEyebrow')}
+              title={t('psAdmin.guideTitle')}
+              summary={t('psAdmin.guideSummary')}
               className="mt-2"
               tone="light"
             >
-              <p className="text-sm text-muted-foreground">Manage cycles, run draws, and configure rewards.</p>
+              <p className="text-sm text-muted-foreground">{t('psAdmin.guideBody')}</p>
             </GuidanceDisclosure>
           </div>
         </div>
         <Button onClick={() => setActiveTab('create')}>
           <Plus className="w-4 h-4 mr-2" />
-          New Cycle
+          {t('psAdmin.newCycle')}
         </Button>
       </div>
 
@@ -314,7 +316,7 @@ const PromoShareAdmin = () => {
         <Card className="mb-6">
           <CardContent className="py-4">
             <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-              <Label className="text-sm font-medium sm:whitespace-nowrap">Selected Cycle:</Label>
+              <Label className="text-sm font-medium sm:whitespace-nowrap">{t('psAdmin.selectedCycle')}</Label>
               <select
                 className="flex-1 p-2 border rounded-md bg-background"
                 value={selectedCycle?.id || ''}
@@ -342,11 +344,11 @@ const PromoShareAdmin = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full min-w-[620px] grid-cols-5 lg:w-fit">
-          <TabsTrigger value="cycles">Cycles</TabsTrigger>
-          <TabsTrigger value="simulation">Simulation</TabsTrigger>
-          <TabsTrigger value="users">Qualified Users</TabsTrigger>
-          <TabsTrigger value="audit">Audit Log</TabsTrigger>
-          <TabsTrigger value="create">Create Cycle</TabsTrigger>
+          <TabsTrigger value="cycles">{t('psAdmin.tabCycles')}</TabsTrigger>
+          <TabsTrigger value="simulation">{t('psAdmin.tabSim')}</TabsTrigger>
+          <TabsTrigger value="users">{t('psAdmin.tabUsers')}</TabsTrigger>
+          <TabsTrigger value="audit">{t('psAdmin.tabAudit')}</TabsTrigger>
+          <TabsTrigger value="create">{t('psAdmin.tabCreate')}</TabsTrigger>
         </TabsList>
 
         {/* CYCLES TAB */}
@@ -360,13 +362,13 @@ const PromoShareAdmin = () => {
                     <Badge className={getStatusColor(cycle.status)}>{cycle.status}</Badge>
                   </div>
                   <CardDescription>
-                    {new Date(cycle.start_at).toLocaleDateString()} - {new Date(cycle.end_at).toLocaleDateString()}
+                    {formatDate(cycle.start_at)} - {formatDate(cycle.end_at)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm">
-                    <p><strong>Eligibility:</strong> {cycle.eligibility_config?.min_verified_moves} moves, {cycle.eligibility_config?.min_moments_joined} moments</p>
-                    <p><strong>Weights:</strong> Base {cycle.weight_config?.base_entry}, Move {cycle.weight_config?.move_weight}, Moment {cycle.weight_config?.moment_weight}</p>
+                    <p><strong>{t('psAdmin.eligibility')}</strong> {t('psAdmin.eligVals', { moves: cycle.eligibility_config?.min_verified_moves ?? 0, moments: cycle.eligibility_config?.min_moments_joined ?? 0 })}</p>
+                    <p><strong>{t('psAdmin.weights')}</strong> {t('psAdmin.weightVals', { base: cycle.weight_config?.base_entry ?? 0, move: cycle.weight_config?.move_weight ?? 0, moment: cycle.weight_config?.moment_weight ?? 0 })}</p>
                   </div>
                   <div className="flex gap-2 mt-4">
                     <Button
@@ -375,7 +377,7 @@ const PromoShareAdmin = () => {
                       className="flex-1"
                       onClick={() => setSelectedCycle(cycle)}
                     >
-                      Select
+                      {t('psAdmin.select')}
                     </Button>
                     {cycle.status === 'active' && (
                       <Button
@@ -385,7 +387,7 @@ const PromoShareAdmin = () => {
                         disabled={loading}
                       >
                         <Play className="w-4 h-4 mr-1" />
-                        Draw
+                        {t('psAdmin.draw')}
                       </Button>
                     )}
                   </div>
@@ -398,11 +400,11 @@ const PromoShareAdmin = () => {
             <Card>
               <CardContent className="py-12 text-center">
                 <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Cycles Found</h3>
-                <p className="text-muted-foreground mb-4">Create your first PromoShare cycle to get started</p>
+                <h3 className="text-lg font-semibold mb-2">{t('psAdmin.emptyTitle')}</h3>
+                <p className="text-muted-foreground mb-4">{t('psAdmin.emptyCopy')}</p>
                 <Button onClick={() => setActiveTab('create')}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Cycle
+                  {t('psAdmin.createCycle')}
                 </Button>
               </CardContent>
             </Card>
@@ -415,17 +417,17 @@ const PromoShareAdmin = () => {
             <>
               <Card>
                 <CardHeader>
-                  <CardTitle>Draw Simulation</CardTitle>
+                  <CardTitle>{t('psAdmin.simTitle')}</CardTitle>
                   <GuidanceDisclosure
                     id="promoshare-admin:draw-simulation"
-                    eyebrow="Simulation guide"
-                    title="Preview outcomes before execution"
-                    summary="Run simulation and recalculate stats before committing a live draw."
+                    eyebrow={t('psAdmin.simEyebrow')}
+                    title={t('psAdmin.simGuideTitle')}
+                    summary={t('psAdmin.simGuideSummary')}
                     className="mt-3"
                     tone="light"
                   >
                     <CardDescription>
-                      Preview the draw results before executing.
+                      {t('psAdmin.simDesc')}
                     </CardDescription>
                   </GuidanceDisclosure>
                 </CardHeader>
@@ -433,23 +435,23 @@ const PromoShareAdmin = () => {
                   <div className="flex gap-2 mb-6">
                     <Button onClick={simulateDraw} disabled={loading}>
                       <Eye className="w-4 h-4 mr-2" />
-                      Run Simulation
+                      {t('psAdmin.runSim')}
                     </Button>
                     {selectedCycle.status === 'active' && (
                       <>
                         <Button variant="secondary" onClick={() => executeDraw(false)} disabled={loading}>
                           <Play className="w-4 h-4 mr-2" />
-                          Execute Legacy Draw
+                          {t('psAdmin.execLegacy')}
                         </Button>
                         <Button variant="default" onClick={() => executeDraw(true)} disabled={loading}>
                           <Trophy className="w-4 h-4 mr-2" />
-                          Execute Tiered Draw
+                          {t('psAdmin.execTiered')}
                         </Button>
                       </>
                     )}
                     <Button variant="outline" onClick={recalculateStats} disabled={loading}>
                       <RotateCcw className="w-4 h-4 mr-2" />
-                      Recalculate Stats
+                      {t('psAdmin.recalc')}
                     </Button>
                   </div>
 
@@ -458,43 +460,43 @@ const PromoShareAdmin = () => {
                       {/* Stats Overview */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="p-4 rounded-lg bg-muted">
-                          <p className="text-sm text-muted-foreground">Eligible Users</p>
+                          <p className="text-sm text-muted-foreground">{t('psAdmin.eligible')}</p>
                           <p className="text-2xl font-bold">{simulationResult.eligible_users}</p>
                         </div>
                         <div className="p-4 rounded-lg bg-muted">
-                          <p className="text-sm text-muted-foreground">Projected Winners</p>
+                          <p className="text-sm text-muted-foreground">{t('psAdmin.projected')}</p>
                           <p className="text-2xl font-bold">{simulationResult.projected_winners}</p>
                         </div>
                         <div className="p-4 rounded-lg bg-muted">
-                          <p className="text-sm text-muted-foreground">Avg Weight</p>
+                          <p className="text-sm text-muted-foreground">{t('psAdmin.avgWeight')}</p>
                           <p className="text-2xl font-bold">{simulationResult.weight_stats?.average}</p>
                         </div>
                         <div className="p-4 rounded-lg bg-muted">
-                          <p className="text-sm text-muted-foreground">Highest Weight</p>
+                          <p className="text-sm text-muted-foreground">{t('psAdmin.highWeight')}</p>
                           <p className="text-2xl font-bold">{simulationResult.weight_stats?.highest}</p>
                         </div>
                       </div>
 
                       {/* Buckets */}
                       <div>
-                        <h4 className="font-semibold mb-3">Distribution Buckets</h4>
+                        <h4 className="font-semibold mb-3">{t('psAdmin.buckets')}</h4>
                         <div className="space-y-3">
                           {simulationResult.buckets?.map((bucket) => (
                             <Card key={bucket.name}>
                               <CardContent className="py-4">
                                 <div className="flex items-center justify-between mb-2">
                                   <h5 className="font-medium capitalize">{bucket.name.replace('_', ' ')}</h5>
-                                  <Badge>{bucket.projected_winners} winners</Badge>
+                                  <Badge>{t('psAdmin.winners', { count: bucket.projected_winners })}</Badge>
                                 </div>
                                 <p className="text-sm text-muted-foreground mb-2">
-                                  From pool of {bucket.candidate_pool} candidates
+                                  {t('psAdmin.fromPool', { count: bucket.candidate_pool })}
                                 </p>
                                 {bucket.top_candidates && bucket.top_candidates.length > 0 && (
                                   <div className="text-sm">
-                                    <span className="text-muted-foreground">Top candidates: </span>
+                                    <span className="text-muted-foreground">{t('psAdmin.topCandidates')} </span>
                                     {bucket.top_candidates.map((c, i) => (
                                       <span key={c.user_id} className="font-medium">
-                                        User {c.user_id.slice(0, 8)}... ({c.weight} weight)
+                                        {t('psAdmin.userWeight', { id: c.user_id.slice(0, 8), weight: c.weight })}
                                         {i < bucket.top_candidates.length - 1 ? ', ' : ''}
                                       </span>
                                     ))}
@@ -514,8 +516,8 @@ const PromoShareAdmin = () => {
             <Card>
               <CardContent className="py-12 text-center">
                 <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Cycle Selected</h3>
-                <p className="text-muted-foreground">Select a cycle to run simulation</p>
+                <h3 className="text-lg font-semibold mb-2">{t('psAdmin.noCycleTitle')}</h3>
+                <p className="text-muted-foreground">{t('psAdmin.noCycleCopy')}</p>
               </CardContent>
             </Card>
           )}
@@ -527,12 +529,12 @@ const PromoShareAdmin = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Qualified Users</CardTitle>
-                  <CardDescription>Users eligible for the current cycle</CardDescription>
+                  <CardTitle>{t('psAdmin.usersTitle')}</CardTitle>
+                  <CardDescription>{t('psAdmin.usersDesc')}</CardDescription>
                 </div>
                 <Button onClick={fetchQualifiedUsers}>
                   <Users className="w-4 h-4 mr-2" />
-                  Refresh
+                  {t('psAdmin.refresh')}
                 </Button>
               </div>
             </CardHeader>
@@ -549,15 +551,15 @@ const PromoShareAdmin = () => {
                           <span className="text-sm text-muted-foreground w-8">#{index + 1}</span>
                           <div>
                             <p className="font-medium">{user.users?.username || user.users?.email || user.user_id}</p>
-                            <p className="text-xs text-muted-foreground">{user.users?.user_tier || 'free'} tier</p>
+                            <p className="text-xs text-muted-foreground">{t('psAdmin.tier', { tier: user.users?.user_tier || 'free' })}</p>
                           </div>
                         </div>
                         <div className="text-right">
                           <Badge variant="secondary" className="mb-1">
-                            Weight: {user.final_weight}
+                            {t('psAdmin.weight', { weight: user.final_weight })}
                           </Badge>
                           <p className="text-xs text-muted-foreground">
-                            {user.verified_moves_count} moves, {user.moments_joined_count} moments
+                            {t('psAdmin.userStats', { moves: user.verified_moves_count, moments: user.moments_joined_count })}
                           </p>
                         </div>
                       </div>
@@ -566,9 +568,9 @@ const PromoShareAdmin = () => {
                 ) : (
                   <div className="text-center py-8">
                     <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">No qualified users found</p>
+                    <p className="text-muted-foreground">{t('psAdmin.noUsers')}</p>
                     <Button variant="outline" className="mt-4" onClick={fetchQualifiedUsers}>
-                      Load Users
+                      {t('psAdmin.loadUsers')}
                     </Button>
                   </div>
                 )}
@@ -583,12 +585,12 @@ const PromoShareAdmin = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Audit Log</CardTitle>
-                  <CardDescription>Complete history of PromoShare operations</CardDescription>
+                  <CardTitle>{t('psAdmin.auditTitle')}</CardTitle>
+                  <CardDescription>{t('psAdmin.auditDesc')}</CardDescription>
                 </div>
                 <Button onClick={fetchAuditLog}>
                   <Activity className="w-4 h-4 mr-2" />
-                  Refresh
+                  {t('psAdmin.refresh')}
                 </Button>
               </div>
             </CardHeader>
@@ -607,7 +609,7 @@ const PromoShareAdmin = () => {
                         <div className="flex-1 min-w-0">
                           <p className="font-medium capitalize">{log.action_type.replace('_', ' ')}</p>
                           <p className="text-sm text-muted-foreground">
-                            by {log.actor_type} • {new Date(log.created_at).toLocaleString()}
+                            {t('psAdmin.byActor', { actor: log.actor_type, date: formatDate(log.created_at) })}
                           </p>
                           {log.payload && Object.keys(log.payload).length > 0 && (
                             <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto">
@@ -621,9 +623,9 @@ const PromoShareAdmin = () => {
                 ) : (
                   <div className="text-center py-8">
                     <Activity className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">No audit entries found</p>
+                    <p className="text-muted-foreground">{t('psAdmin.noAudit')}</p>
                     <Button variant="outline" className="mt-4" onClick={fetchAuditLog}>
-                      Load Audit Log
+                      {t('psAdmin.loadAudit')}
                     </Button>
                   </div>
                 )}
@@ -636,38 +638,38 @@ const PromoShareAdmin = () => {
         <TabsContent value="create">
           <Card>
             <CardHeader>
-              <CardTitle>Create New Cycle</CardTitle>
+              <CardTitle>{t('psAdmin.createTitle')}</CardTitle>
               <GuidanceDisclosure
                 id="promoshare-admin:create-cycle"
-                eyebrow="Cycle guide"
-                title="How cycle settings shape eligibility"
-                summary="Set the window, minimum activity, and weighting before opening a new PromoShare cycle."
+                eyebrow={t('psAdmin.cycleEyebrow')}
+                title={t('psAdmin.cycleGuideTitle')}
+                summary={t('psAdmin.cycleGuideSummary')}
                 className="mt-3"
                 tone="light"
               >
-                <CardDescription>Configure a new PromoShare cycle.</CardDescription>
+                <CardDescription>{t('psAdmin.cycleDesc')}</CardDescription>
               </GuidanceDisclosure>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Cycle Type</Label>
+                  <Label>{t('psAdmin.cycleType')}</Label>
                   <select
                     className="w-full p-2 border rounded-md bg-background"
                     value={newCycle.cycle_type}
                     onChange={(e) => setNewCycle({ ...newCycle, cycle_type: e.target.value })}
                   >
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="grand">Grand</option>
-                    <option value="campaign">Campaign-Specific</option>
+                    <option value="daily">{t('psAdmin.typeDaily')}</option>
+                    <option value="weekly">{t('psAdmin.typeWeekly')}</option>
+                    <option value="monthly">{t('psAdmin.typeMonthly')}</option>
+                    <option value="grand">{t('psAdmin.typeGrand')}</option>
+                    <option value="campaign">{t('psAdmin.typeCampaign')}</option>
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Cycle Name</Label>
+                  <Label>{t('psAdmin.cycleName')}</Label>
                   <Input
-                    placeholder="e.g., March Monthly Draw"
+                    placeholder={t('psAdmin.namePh')}
                     value={newCycle.cycle_name}
                     onChange={(e) => setNewCycle({ ...newCycle, cycle_name: e.target.value })}
                   />
@@ -676,7 +678,7 @@ const PromoShareAdmin = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Start Date</Label>
+                  <Label>{t('psAdmin.start')}</Label>
                   <Input
                     type="datetime-local"
                     value={newCycle.start_at}
@@ -684,7 +686,7 @@ const PromoShareAdmin = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>End Date</Label>
+                  <Label>{t('psAdmin.end')}</Label>
                   <Input
                     type="datetime-local"
                     value={newCycle.end_at}
@@ -696,10 +698,10 @@ const PromoShareAdmin = () => {
               <Separator />
 
               <div>
-                <h4 className="font-semibold mb-4">Eligibility Requirements</h4>
+                <h4 className="font-semibold mb-4">{t('psAdmin.eligReqs')}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label>Min Verified Moves</Label>
+                    <Label>{t('psAdmin.minMoves')}</Label>
                     <Input
                       type="number"
                       value={newCycle.min_verified_moves}
@@ -707,7 +709,7 @@ const PromoShareAdmin = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Min Moments Joined</Label>
+                    <Label>{t('psAdmin.minMoments')}</Label>
                     <Input
                       type="number"
                       value={newCycle.min_moments_joined}
@@ -715,7 +717,7 @@ const PromoShareAdmin = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Min Referrals</Label>
+                    <Label>{t('psAdmin.minRefs')}</Label>
                     <Input
                       type="number"
                       value={newCycle.min_referrals}
@@ -728,10 +730,10 @@ const PromoShareAdmin = () => {
               <Separator />
 
               <div>
-                <h4 className="font-semibold mb-4">Weight Configuration</h4>
+                <h4 className="font-semibold mb-4">{t('psAdmin.weightCfg')}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <Label>Base Entry</Label>
+                    <Label>{t('psAdmin.baseEntry')}</Label>
                     <Input
                       type="number"
                       value={newCycle.base_entry}
@@ -739,7 +741,7 @@ const PromoShareAdmin = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Move Weight</Label>
+                    <Label>{t('psAdmin.moveWeight')}</Label>
                     <Input
                       type="number"
                       value={newCycle.move_weight}
@@ -747,7 +749,7 @@ const PromoShareAdmin = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Moment Weight</Label>
+                    <Label>{t('psAdmin.momentWeight')}</Label>
                     <Input
                       type="number"
                       value={newCycle.moment_weight}
@@ -755,7 +757,7 @@ const PromoShareAdmin = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Referral Weight</Label>
+                    <Label>{t('psAdmin.refWeight')}</Label>
                     <Input
                       type="number"
                       value={newCycle.referral_weight}
@@ -771,7 +773,7 @@ const PromoShareAdmin = () => {
                 disabled={loading || !newCycle.cycle_name || !newCycle.start_at || !newCycle.end_at}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Create Cycle
+                {t('psAdmin.createCycle')}
               </Button>
             </CardContent>
           </Card>

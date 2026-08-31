@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/i18n/I18nContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { StoryGamificationRail } from "@/components/StoryGamificationRail";
@@ -32,6 +33,7 @@ import CreatorEarningsVault from "@/components/creator/CreatorEarningsVault";
 import CreatorReputationDeck from "@/components/creator/CreatorReputationDeck";
 
 export function CreatorDashboardV2() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -74,15 +76,15 @@ export function CreatorDashboardV2() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">
-                Creator Command Studio
+                {t("creStage.title")}
               </h1>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-purple-500/40 bg-purple-500/10 text-purple-300 text-[10px] font-black uppercase tracking-wider">
                 <span className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />
-                <span>Vanguard Creator Active</span>
+                <span>{t("creStage.active")}</span>
               </span>
             </div>
             <p className="text-xs text-white/60 mt-0.5">
-              Publish cultural media, claim brand bounties, track social-to-door footfalls, and cash out earnings.
+              {t("creStage.subtitle")}
             </p>
           </div>
         </div>
@@ -94,7 +96,7 @@ export function CreatorDashboardV2() {
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-purple-400/40 bg-purple-400/10 hover:bg-purple-400/20 text-purple-300 text-xs font-black transition"
           >
             <Plus className="h-4 w-4" />
-            <span>Submit Story</span>
+            <span>{t("creStage.submit")}</span>
           </Link>
 
           <Link
@@ -102,7 +104,7 @@ export function CreatorDashboardV2() {
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-white/10 bg-white/5 hover:border-purple-400/40 hover:bg-white/10 transition"
           >
             <Gem className="h-4 w-4 text-purple-400" />
-            <span className="text-xs font-black text-white">Creator Vault</span>
+            <span className="text-xs font-black text-white">{t("creStage.vault")}</span>
           </Link>
         </div>
       </div>
@@ -112,14 +114,14 @@ export function CreatorDashboardV2() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded-full bg-purple-500 text-black font-black text-[10px] uppercase tracking-wider">
-              Creator Loop
+              {t("creStage.loop")}
             </span>
             <span className="font-bold text-white text-xs sm:text-sm">
-              Today's Creative Flow
+              {t("creStage.todayFlow")}
             </span>
           </div>
           <span className="text-[11px] text-white/50 font-medium">
-            Claim Briefs &rarr; Film & Publish &rarr; Collect Bounties
+            {t("creStage.flowPath")}
           </span>
         </div>
 
@@ -131,8 +133,8 @@ export function CreatorDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs">1</span>
               <div>
-                <p className="font-bold text-white text-xs">Claim Brand Missions</p>
-                <p className="text-[10px] text-purple-300 font-semibold">$100-$250 payouts active</p>
+                <p className="font-bold text-white text-xs">{t("creStage.step1Title")}</p>
+                <p className="text-[10px] text-purple-300 font-semibold">{t("creStage.step1Hint")}</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-purple-400 transition" />
@@ -145,8 +147,8 @@ export function CreatorDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs">2</span>
               <div>
-                <p className="font-bold text-white text-xs">Publish Story & Reel</p>
-                <p className="text-[10px] text-pink-300 font-semibold">Track views & virality index</p>
+                <p className="font-bold text-white text-xs">{t("creStage.step2Title")}</p>
+                <p className="text-[10px] text-pink-300 font-semibold">{t("creStage.step2Hint")}</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-pink-400 transition" />
@@ -159,8 +161,8 @@ export function CreatorDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs">3</span>
               <div>
-                <p className="font-bold text-white text-xs">Withdraw Earnings</p>
-                <p className="text-[10px] text-emerald-300 font-semibold">Lynk instant direct cashout</p>
+                <p className="font-bold text-white text-xs">{t("creStage.step3Title")}</p>
+                <p className="text-[10px] text-emerald-300 font-semibold">{t("creStage.step3Hint")}</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-emerald-400 transition" />
@@ -171,11 +173,11 @@ export function CreatorDashboardV2() {
       {/* 3. The 5 Operational Creator Arenas */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
-          { id: "studio", label: "Media Studio", icon: Film, hint: "Published stories", count: "3 Live" },
-          { id: "missions", label: "Bounties Board", icon: Target, hint: "Brand briefs", count: "$1.2k Pool" },
-          { id: "attribution", label: "O2O Smart Links", icon: Link2, hint: "Door check-ins", count: "158 Visits" },
-          { id: "earnings", label: "Earnings Vault", icon: Coins, hint: "Cash & Gems", count: "$465 Ready" },
-          { id: "reputation", label: "Cultural Tiers", icon: Award, hint: "Vibe score & rank", count: "L2 Vanguard" },
+          { id: "studio", label: t("creStage.tabStudio"), icon: Film, hint: t("creStage.tabStudioHint"), count: t("creStage.tabStudioCount") },
+          { id: "missions", label: t("creStage.tabMissions"), icon: Target, hint: t("creStage.tabMissionsHint"), count: t("creStage.tabMissionsCount") },
+          { id: "attribution", label: t("creStage.tabLinks"), icon: Link2, hint: t("creStage.tabLinksHint"), count: t("creStage.tabLinksCount") },
+          { id: "earnings", label: t("creStage.tabEarn"), icon: Coins, hint: t("creStage.tabEarnHint"), count: t("creStage.tabEarnCount") },
+          { id: "reputation", label: t("creStage.tabRep"), icon: Award, hint: t("creStage.tabRepHint"), count: t("creStage.tabRepCount") },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -213,11 +215,11 @@ export function CreatorDashboardV2() {
         <div className="min-w-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <TabsList className="sr-only">
-              <TabsTrigger value="studio">Studio</TabsTrigger>
-              <TabsTrigger value="missions">Bounties</TabsTrigger>
-              <TabsTrigger value="attribution">Attribution</TabsTrigger>
-              <TabsTrigger value="earnings">Earnings</TabsTrigger>
-              <TabsTrigger value="reputation">Reputation</TabsTrigger>
+              <TabsTrigger value="studio">{t("creStage.srStudio")}</TabsTrigger>
+              <TabsTrigger value="missions">{t("creStage.srMissions")}</TabsTrigger>
+              <TabsTrigger value="attribution">{t("creStage.srLinks")}</TabsTrigger>
+              <TabsTrigger value="earnings">{t("creStage.srEarn")}</TabsTrigger>
+              <TabsTrigger value="reputation">{t("creStage.srRep")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="studio" className="mt-0">

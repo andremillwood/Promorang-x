@@ -1,5 +1,7 @@
 import React from 'react';
 import { Calendar, Zap, Lock, DollarSign, Trophy, Sparkles, Compass, PartyPopper } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
+import type { TranslationKey } from '@/i18n/translations';
 
 export type OpsDayStage = 
   | 'MONDAY_KICKOFF' 
@@ -112,20 +114,36 @@ export const OPS_STAGE_META: Record<OpsDayStage, {
   },
 };
 
+const STAGE_COPY: Record<OpsDayStage, {
+  day: TranslationKey;
+  badge: TranslationKey;
+  tagline: TranslationKey;
+}> = {
+  MONDAY_KICKOFF: { day: 'opsWeek.mon.day', badge: 'opsWeek.mon.badge', tagline: 'opsWeek.mon.tagline' },
+  TUESDAY_PROOF: { day: 'opsWeek.tue.day', badge: 'opsWeek.tue.badge', tagline: 'opsWeek.tue.tagline' },
+  WEDNESDAY_FREEZE: { day: 'opsWeek.wed.day', badge: 'opsWeek.wed.badge', tagline: 'opsWeek.wed.tagline' },
+  THURSDAY_CAMPAIGNS: { day: 'opsWeek.thu.day', badge: 'opsWeek.thu.badge', tagline: 'opsWeek.thu.tagline' },
+  FRIDAY_PAYOUTS: { day: 'opsWeek.fri.day', badge: 'opsWeek.fri.badge', tagline: 'opsWeek.fri.tagline' },
+  SATURDAY_GALA: { day: 'opsWeek.sat.day', badge: 'opsWeek.sat.badge', tagline: 'opsWeek.sat.tagline' },
+  SUNDAY_DIGEST: { day: 'opsWeek.sun.day', badge: 'opsWeek.sun.badge', tagline: 'opsWeek.sun.tagline' },
+};
+
 export const OpsTheatreStatusPill: React.FC<OpsTheatreStatusProps> = ({
   forcedStage,
   showDetails = false,
   onOpenOrientation,
 }) => {
+  const { t } = useI18n();
   const stage = forcedStage || getCurrentOpsStage();
   const meta = OPS_STAGE_META[stage];
+  const copy = STAGE_COPY[stage];
   const Icon = meta.icon;
 
   return (
     <div 
       onClick={onOpenOrientation}
       className={`group cursor-pointer transition-all duration-300 inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full border backdrop-blur-xl ${meta.badgeBg} hover:border-orange-500/50 hover:scale-[1.02] shadow-lg`}
-      title="Click to view the Promorang Ops Theatre guide"
+      title={t('opsWeek.guideTitle')}
     >
       <span className="relative flex h-2 w-2">
         <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${meta.dotColor}`}></span>
@@ -135,17 +153,17 @@ export const OpsTheatreStatusPill: React.FC<OpsTheatreStatusProps> = ({
       <Icon className={`w-3.5 h-3.5 ${meta.textColor}`} />
 
       <span className="text-xs font-black text-white tracking-wide">
-        {meta.dayLabel}: <span className={meta.textColor}>{meta.badgeText}</span>
+        {t(copy.day)}: <span className={meta.textColor}>{t(copy.badge)}</span>
       </span>
 
       {showDetails && (
         <span className="hidden md:inline-block text-[11px] text-gray-400 border-l border-gray-700/60 pl-2">
-          {meta.tagline}
+          {t(copy.tagline)}
         </span>
       )}
 
       <span className="text-[10px] text-gray-500 group-hover:text-orange-400 transition-colors uppercase tracking-wider font-semibold">
-        Show Guide
+        {t('opsWeek.showGuide')}
       </span>
     </div>
   );

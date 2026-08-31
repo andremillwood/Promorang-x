@@ -39,6 +39,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://api.promorang.co";
 
@@ -64,9 +65,8 @@ type WorkItem = {
   sla: string;
 };
 
-const formatNumber = (value: number) => Number(value || 0).toLocaleString();
-
 export function AdminCommandCenter() {
+  const { t, formatNumber } = useI18n();
   const { session } = useAuth();
   const { toast } = useToast();
   const stats = usePlatformStats();
@@ -97,90 +97,90 @@ export function AdminCommandCenter() {
     return [
       {
         id: "support",
-        title: "Support Escalations & Inquiries",
-        detail: `${op?.support.high_priority_open || 0} urgent · oldest ${Math.round(op?.support.oldest_open_hours || 0)}h`,
+        title: t("cmdCtr.wSupport"),
+        detail: t("cmdCtr.wSupportDetail", { urgent: op?.support.high_priority_open || 0, hours: Math.round(op?.support.oldest_open_hours || 0) }),
         count: op?.support.open_escalations || 2,
         priority: "critical",
-        priorityLabel: "P0 URGENT",
-        owner: "Support Ops",
+        priorityLabel: t("cmdCtr.p0"),
+        owner: t("cmdCtr.wSupportOwner"),
         href: "/admin?tab=support",
-        closeWhen: "Target: 100% first-contact SLA within 4h",
+        closeWhen: t("cmdCtr.wSupportClose"),
         icon: LifeBuoy,
-        metricLabel: "open tickets",
-        sla: "< 2h SLA",
+        metricLabel: t("cmdCtr.wSupportMetric"),
+        sla: t("cmdCtr.wSupportSla"),
       },
       {
         id: "trust",
-        title: "Proof & Evidence Triage Queue",
-        detail: `${mod?.pending_proofs || 3} scout proofs · ${mod?.pending_content || 1} UGC bounties`,
+        title: t("cmdCtr.wTrust"),
+        detail: t("cmdCtr.wTrustDetail", { proofs: mod?.pending_proofs || 3, ugc: mod?.pending_content || 1 }),
         count: (mod?.pending_proofs || 3) + (mod?.pending_content || 1) + flaggedUsers,
         priority: "critical",
-        priorityLabel: "P0 URGENT",
-        owner: "Trust & Safety",
+        priorityLabel: t("cmdCtr.p0"),
+        owner: t("cmdCtr.wTrustOwner"),
         href: "/admin?tab=verification-hub",
-        closeWhen: "Attendee proof & scout verification pipeline",
+        closeWhen: t("cmdCtr.wTrustClose"),
         icon: ShieldCheck,
-        metricLabel: "pending",
-        sla: "< 6h SLA",
+        metricLabel: t("cmdCtr.wTrustMetric"),
+        sla: t("cmdCtr.wTrustSla"),
       },
       {
         id: "money",
-        title: "Pending Escrow & Payout Releases",
-        detail: `${op?.redemptions.pending_requests || 4} redemptions · ${(op?.kyc.pending_review || 1)} KYC pending`,
+        title: t("cmdCtr.wMoney"),
+        detail: t("cmdCtr.wMoneyDetail", { redemptions: op?.redemptions.pending_requests || 4, kyc: op?.kyc.pending_review || 1 }),
         count: (op?.redemptions.pending_requests || 4) + (op?.kyc.pending_review || 1),
         priority: "high",
-        priorityLabel: "P1 HIGH",
-        owner: "Finance & Treasury",
+        priorityLabel: t("cmdCtr.p1"),
+        owner: t("cmdCtr.wMoneyOwner"),
         href: "/admin?tab=payouts",
-        closeWhen: "Disburse qualified merchant & host earnings",
+        closeWhen: t("cmdCtr.wMoneyClose"),
         icon: WalletCards,
-        metricLabel: "blocked",
-        sla: "Same-Day",
+        metricLabel: t("cmdCtr.wMoneyMetric"),
+        sla: t("cmdCtr.wMoneySla"),
       },
       {
         id: "supply",
-        title: "Host Applications & Moments Supply",
-        detail: `${stats.data?.momentsThisWeek || 8} moments live this week across ${hostSupply || 14} hosts`,
+        title: t("cmdCtr.wSupply"),
+        detail: t("cmdCtr.wSupplyDetail", { moments: stats.data?.momentsThisWeek || 8, hosts: hostSupply || 14 }),
         count: Math.max(0, 10 - (stats.data?.momentsThisWeek || 8)),
         priority: "growth",
-        priorityLabel: "P2 SUPPLY",
-        owner: "Host Operations",
+        priorityLabel: t("cmdCtr.p2"),
+        owner: t("cmdCtr.wSupplyOwner"),
         href: "/admin?tab=applications",
-        closeWhen: "Target: 10+ live stages weekly in Kingston",
+        closeWhen: t("cmdCtr.wSupplyClose"),
         icon: CalendarClock,
-        metricLabel: "to target",
-        sla: "Weekly KPI",
+        metricLabel: t("cmdCtr.wSupplyMetric"),
+        sla: t("cmdCtr.wSupplySla"),
       },
     ];
-  }, [moderation.data, operations.data, stats.data, users.data]);
+  }, [moderation.data, operations.data, stats.data, users.data, t]);
 
   const recentActivity = [
     {
       id: "act-1",
-      title: "Scout Proof Verified",
+      title: t("cmdCtr.act1"),
       meta: "Kingston Waterfront Stage • +250 Gems minted",
-      time: "2m ago",
+      time: t("cmdCtr.ago2m"),
       type: "success",
     },
     {
       id: "act-2",
-      title: "Escrow Release Triggered",
+      title: t("cmdCtr.act2"),
       meta: "$1,250.00 disburse to Host #842 (Midas Ent)",
-      time: "14m ago",
+      time: t("cmdCtr.ago14m"),
       type: "treasury",
     },
     {
       id: "act-3",
-      title: "KYC Tier 2 Verification",
+      title: t("cmdCtr.act3"),
       meta: "User @andre.m submitted ID verification",
-      time: "32m ago",
+      time: t("cmdCtr.ago32m"),
       type: "security",
     },
     {
       id: "act-4",
-      title: "PromoPush Broadcast Sent",
+      title: t("cmdCtr.act4"),
       meta: "412 mobile devices reached • 89% read rate",
-      time: "1h ago",
+      time: t("cmdCtr.ago1h"),
       type: "broadcast",
     },
   ];
@@ -195,15 +195,15 @@ export function AdminCommandCenter() {
     ]);
     setTimeout(() => setIsRefreshing(false), 500);
     toast({
-      title: "Telemetry Refreshed",
-      description: "Live node metrics & work queues updated.",
+      title: t("cmdCtr.toastSync"),
+      description: t("cmdCtr.toastSyncBody"),
     });
   };
 
   const handleBroadcastAlert = () => {
     toast({
-      title: "System Broadcast Dispatched! 📡",
-      description: "Push announcement broadcast to all active mobile & web clients.",
+      title: t("cmdCtr.toastCast"),
+      description: t("cmdCtr.toastCastBody"),
     });
   };
 
@@ -219,17 +219,16 @@ export function AdminCommandCenter() {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono font-bold tracking-wider text-cyan-300 uppercase">
-                Node Cluster: Primary Active
+                {t("cmdCtr.cluster")}
               </span>
               <span className="text-white/30">•</span>
               <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5" /> 99.98% SLA
+                <CheckCircle2 className="h-3.5 w-3.5" /> {t("cmdCtr.sla")}
               </span>
             </div>
             <p className="text-[11px] text-white/50 font-mono mt-0.5">
-              LATENCY: <span className="text-white/90 font-bold">22ms</span> &nbsp;|&nbsp; WS PEERS:{" "}
-              <span className="text-white/90 font-bold">412 active</span> &nbsp;|&nbsp; SETTLEMENT:{" "}
-              <span className="text-emerald-400 font-bold">HEALTHY</span>
+              {t("cmdCtr.latency", { ms: 22 })} &nbsp;|&nbsp; {t("cmdCtr.peers", { count: 412 })} &nbsp;|&nbsp; {t("cmdCtr.settle")}{" "}
+              <span className="text-emerald-400 font-bold">{t("cmdCtr.healthy")}</span>
             </p>
           </div>
         </div>
@@ -243,7 +242,7 @@ export function AdminCommandCenter() {
             className="h-8 px-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-semibold"
           >
             <RefreshCw className={`h-3 w-3 mr-1.5 ${isRefreshing ? "animate-spin text-cyan-400" : ""}`} />
-            Sync Telemetry
+            {t("cmdCtr.sync")}
           </Button>
 
           <Button
@@ -253,7 +252,7 @@ export function AdminCommandCenter() {
           >
             <Link to="/admin?tab=verification-hub">
               <ShieldCheck className="h-3.5 w-3.5 mr-1" />
-              Proof Hub
+              {t("cmdCtr.proofHub")}
             </Link>
           </Button>
 
@@ -264,7 +263,7 @@ export function AdminCommandCenter() {
             className="h-8 px-3 rounded-lg border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-bold text-xs"
           >
             <Zap className="h-3 w-3 mr-1 text-amber-400" />
-            Broadcast
+            {t("cmdCtr.broadcast")}
           </Button>
         </div>
       </div>
@@ -274,7 +273,7 @@ export function AdminCommandCenter() {
         {/* Card 1: Total Explorers */}
         <div className="p-4 rounded-2xl border border-white/10 bg-gradient-to-b from-[#12161f] to-[#0c0f15] hover:border-cyan-500/40 transition flex flex-col justify-between group">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-white/50 uppercase tracking-wider">Total Explorers</span>
+            <span className="text-[11px] font-semibold text-white/50 uppercase tracking-wider">{t("cmdCtr.explorers")}</span>
             <div className="h-7 w-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-105 transition">
               <Users className="h-3.5 w-3.5" />
             </div>
@@ -288,7 +287,7 @@ export function AdminCommandCenter() {
                 <ArrowUpRight className="h-2.5 w-2.5 mr-0.5" /> +14.2%
               </span>
             </div>
-            <p className="text-[11px] text-cyan-300/80 font-medium mt-0.5">Across Kingston & Montego Bay</p>
+            <p className="text-[11px] text-cyan-300/80 font-medium mt-0.5">{t("cmdCtr.explorersHint")}</p>
           </div>
           <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 w-[68%]" />
@@ -298,7 +297,7 @@ export function AdminCommandCenter() {
         {/* Card 2: Live Moments */}
         <div className="p-4 rounded-2xl border border-white/10 bg-gradient-to-b from-[#12161f] to-[#0c0f15] hover:border-primary/40 transition flex flex-col justify-between group">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-white/50 uppercase tracking-wider">Live Moments</span>
+            <span className="text-[11px] font-semibold text-white/50 uppercase tracking-wider">{t("cmdCtr.moments")}</span>
             <div className="h-7 w-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-105 transition">
               <CalendarClock className="h-3.5 w-3.5" />
             </div>
@@ -309,10 +308,10 @@ export function AdminCommandCenter() {
                 {formatNumber(stats.data?.totalMoments || 48)}
               </span>
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/15 text-primary">
-                8 this weekend
+                {t("cmdCtr.weekend", { count: 8 })}
               </span>
             </div>
-            <p className="text-[11px] text-white/60 font-medium mt-0.5">High activation capacity</p>
+            <p className="text-[11px] text-white/60 font-medium mt-0.5">{t("cmdCtr.momentsHint")}</p>
           </div>
           <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-orange-500 to-amber-400 w-[84%]" />
@@ -322,7 +321,7 @@ export function AdminCommandCenter() {
         {/* Card 3: Gems in Circulation */}
         <div className="p-4 rounded-2xl border border-white/10 bg-gradient-to-b from-[#12161f] to-[#0c0f15] hover:border-emerald-500/40 transition flex flex-col justify-between group">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-white/50 uppercase tracking-wider">Gems in Circulation</span>
+            <span className="text-[11px] font-semibold text-white/50 uppercase tracking-wider">{t("cmdCtr.gemsCirc")}</span>
             <div className="h-7 w-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition">
               <Gem className="h-3.5 w-3.5" />
             </div>
@@ -331,10 +330,10 @@ export function AdminCommandCenter() {
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-black tracking-tight text-white">84,200</span>
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400">
-                100% Backed
+                {t("cmdCtr.backed")}
               </span>
             </div>
-            <p className="text-[11px] text-emerald-400/80 font-medium mt-0.5">Audited Liquidity Nodes</p>
+            <p className="text-[11px] text-emerald-400/80 font-medium mt-0.5">{t("cmdCtr.gemsHint")}</p>
           </div>
           <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 w-[92%]" />
@@ -344,7 +343,7 @@ export function AdminCommandCenter() {
         {/* Card 4: Brand Escrow Pool */}
         <div className="p-4 rounded-2xl border border-white/10 bg-gradient-to-b from-[#12161f] to-[#0c0f15] hover:border-amber-500/40 transition flex flex-col justify-between group">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-white/50 uppercase tracking-wider">Brand Escrow Pool</span>
+            <span className="text-[11px] font-semibold text-white/50 uppercase tracking-wider">{t("cmdCtr.escrow")}</span>
             <div className="h-7 w-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 transition">
               <DollarSign className="h-3.5 w-3.5" />
             </div>
@@ -353,10 +352,10 @@ export function AdminCommandCenter() {
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-black tracking-tight text-white">$24,650</span>
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300">
-                Active
+                {t("cmdCtr.active")}
               </span>
             </div>
-            <p className="text-[11px] text-amber-300/80 font-medium mt-0.5">Campaign funding locked</p>
+            <p className="text-[11px] text-amber-300/80 font-medium mt-0.5">{t("cmdCtr.escrowHint")}</p>
           </div>
           <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 w-[76%]" />
@@ -373,11 +372,11 @@ export function AdminCommandCenter() {
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-cyan-400" />
                 <h3 className="font-bold text-sm text-white tracking-wide">
-                  Decision Runway & Triage Priorities
+                  {t("cmdCtr.runway")}
                 </h3>
               </div>
               <span className="text-[11px] font-mono text-cyan-400/80 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/20">
-                4 Action Items
+                {t("cmdCtr.actionItems", { count: 4 })}
               </span>
             </div>
 
@@ -444,7 +443,7 @@ export function AdminCommandCenter() {
                         }`}
                       >
                         <Link to={item.href}>
-                          <span>Resolve</span>
+                          <span>{t("cmdCtr.resolve")}</span>
                           <ArrowRight className="h-3 w-3 ml-1" />
                         </Link>
                       </Button>
@@ -462,11 +461,11 @@ export function AdminCommandCenter() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Activity className="h-4 w-4 text-emerald-400" />
-                <h3 className="font-bold text-sm text-white tracking-wide">Live Audit & Activity</h3>
+                <h3 className="font-bold text-sm text-white tracking-wide">{t("cmdCtr.liveAudit")}</h3>
               </div>
               <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Real-Time Stream
+                {t("cmdCtr.realtime")}
               </span>
             </div>
 
@@ -492,22 +491,22 @@ export function AdminCommandCenter() {
             <div className="p-3.5 rounded-xl bg-gradient-to-r from-cyan-950/40 to-blue-950/30 border border-cyan-500/20">
               <div className="flex items-center justify-between text-[11px] font-semibold text-cyan-300">
                 <span className="flex items-center gap-1.5">
-                  <Server className="h-3.5 w-3.5" /> Node Infrastructure
+                  <Server className="h-3.5 w-3.5" /> {t("cmdCtr.infra")}
                 </span>
-                <span className="font-mono text-emerald-400">All Nodes Green</span>
+                <span className="font-mono text-emerald-400">{t("cmdCtr.allGreen")}</span>
               </div>
               <div className="grid grid-cols-3 gap-2 mt-2.5 pt-2 border-t border-white/10 text-center font-mono text-[10px]">
                 <div>
-                  <span className="text-white/40 block">KINGSTON</span>
-                  <span className="text-white font-bold">ACTIVE</span>
+                  <span className="text-white/40 block">{t("cmdCtr.king")}</span>
+                  <span className="text-white font-bold">{t("cmdCtr.statusActive")}</span>
                 </div>
                 <div>
-                  <span className="text-white/40 block">MOBAY</span>
-                  <span className="text-white font-bold">ACTIVE</span>
+                  <span className="text-white/40 block">{t("cmdCtr.mobay")}</span>
+                  <span className="text-white font-bold">{t("cmdCtr.statusActive")}</span>
                 </div>
                 <div>
-                  <span className="text-white/40 block">ESCROW</span>
-                  <span className="text-emerald-400 font-bold">SYNCED</span>
+                  <span className="text-white/40 block">{t("cmdCtr.escrowNode")}</span>
+                  <span className="text-emerald-400 font-bold">{t("cmdCtr.synced")}</span>
                 </div>
               </div>
             </div>

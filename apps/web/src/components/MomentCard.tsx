@@ -4,7 +4,8 @@ import { Bookmark, MapPin, Calendar, Users, Clock, Flame, Sparkles, Repeat2 } fr
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { Tables } from "@/integrations/supabase/types";
-import { getTaxonomyLabel, momentArchetypes, venueCategories, conversionTypes } from "@/lib/moment-taxonomy";
+import { taxonomyLabelKey } from "@/lib/moment-taxonomy";
+import type { TranslationKey } from "@/i18n/translations";
 import { buildMomentPath } from "@/lib/discovery";
 import { MomentValuePath } from "@/components/moments/MomentValuePath";
 import { ContentProvenanceBadge } from "@/components/content/ContentProvenance";
@@ -68,33 +69,16 @@ const categoryGradients: Record<string, string> = {
   arts: "from-fuchsia-400/20 to-violet-500/30",
 };
 
-const getOriginLabel = (moment: Moment) => {
+const getOriginMeta = (moment: Moment) => {
   if (moment.isExample || moment.content_origin === "demo" || moment.content_origin === "platform_seed") {
     return null;
   }
 
   if (moment.content_origin === "scraped" || moment.content_origin === "imported") {
-    return { label: "Discovered listing", tone: "bg-sky-600/90 text-white", Icon: Sparkles };
+    return { tone: "bg-sky-600/90 text-white", Icon: Sparkles };
   }
 
   return null;
-};
-
-const getRecurrenceLabel = (moment: Moment) => {
-  if (!moment.recurrence_enabled || !moment.recurrence_frequency) return null;
-  const frequency = moment.recurrence_frequency;
-  const interval = Number(moment.recurrence_interval || 1);
-  if (frequency === "daily") return interval > 1 ? `Every ${interval} days` : "Daily";
-  if (frequency === "monthly") return interval > 1 ? `Every ${interval} months` : "Monthly";
-  return interval > 1 ? `Every ${interval} weeks` : "Weekly";
-};
-
-const formActionLabel = (conversionType?: string | null) => {
-  if (!conversionType) return null;
-  return conversionType
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
 };
 
 /**
@@ -156,17 +140,29 @@ export function MomentCard({
 
   const gradient = categoryGradients[moment.category] || "from-primary/20 to-accent/30";
   const emoji = categoryEmojis[moment.category] || "✨";
-  const archetypeLabel = getTaxonomyLabel(momentArchetypes, moment.moment_archetype);
-  const venueCategoryLabel = getTaxonomyLabel(venueCategories, moment.venue_category);
-  const conversionLabel = getTaxonomyLabel(conversionTypes, moment.conversion_type);
-  const originLabel = getOriginLabel(moment);
-  const recurrenceLabel = getRecurrenceLabel(moment);
+  const archKey = taxonomyLabelKey("arch", moment.moment_archetype);
+  const venueKey = taxonomyLabelKey("venue", moment.venue_category);
+  const convKey = taxonomyLabelKey("conv", moment.conversion_type);
+  const momentCatKey = taxonomyLabelKey("moment", moment.category);
+  const archetypeLabel = archKey ? t(archKey as TranslationKey) : "";
+  const venueCategoryLabel = venueKey ? t(venueKey as TranslationKey) : "";
+  const conversionLabel = convKey ? t(convKey as TranslationKey) : "";
+  const originMeta = getOriginMeta(moment);
+  const recurrenceEnabled = Boolean(moment.recurrence_enabled && moment.recurrence_frequency);
+  const recurrenceInterval = Number(moment.recurrence_interval || 1);
+  const recurrenceLabel = !recurrenceEnabled
+    ? null
+    : moment.recurrence_frequency === "daily"
+      ? (recurrenceInterval > 1 ? t("momentCard.everyDays", { n: recurrenceInterval }) : t("momentCard.daily"))
+      : moment.recurrence_frequency === "monthly"
+        ? (recurrenceInterval > 1 ? t("momentCard.everyMonths", { n: recurrenceInterval }) : t("momentCard.monthly"))
+        : (recurrenceInterval > 1 ? t("momentCard.everyWeeks", { n: recurrenceInterval }) : t("momentCard.weekly"));
   const momentStatus = getMomentStatus(moment);
   const occurrence = momentStatus.occurrence;
   const isPast = momentStatus.isPast;
   const isExampleMoment = Boolean(moment.isExample || moment.content_origin === "demo" || moment.content_origin === "platform_seed");
-  const actionLabel = conversionLabel || formActionLabel(moment.conversion_type) || "Check-in";
-  const unlockLabel = moment.reward ? "Reward available" : recurrenceLabel ? "Build standing" : "Earn a Mark";
+  const actionLabel = conversionLabel || t("momentCard.checkIn");
+  const unlockLabel = moment.reward ? t("momentCard.rewardAvail") : recurrenceLabel ? t("momentCard.buildStanding") : t("momentCard.earnMark");
 
   return (
     <Link
@@ -225,7 +221,7 @@ export function MomentCard({
               isSaved && "bg-primary text-primary-foreground hover:bg-primary"
             )}
             onClick={handleSave}
-            aria-label={isSaved ? "Remove saved moment" : "Save moment"}
+            aria-label={isSaved ? t("momentCard.unsaveAria") : t("momentCard.saveAria")}
           >
             <Bookmark className={cn("h-4 w-4", isSaved && "fill-current")} />
           </Button>
@@ -234,17 +230,17 @@ export function MomentCard({
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {isPast ? (
             <span className="w-fit rounded-full border border-red-500/40 bg-red-500/80 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-md backdrop-blur-sm">
-              Concluded
+              {t("momentCard.concluded")}
             </span>
           ) : (
             <span className="w-fit rounded-full border border-white/15 bg-black/70 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-md backdrop-blur-sm">
               {t("momentCard.badge")}
             </span>
           )}
-          {originLabel && (
-            <span className={cn("px-2.5 py-1 backdrop-blur-sm text-xs font-semibold rounded-full shadow-md flex items-center gap-1", originLabel.tone)}>
-              <originLabel.Icon className="h-3 w-3" />
-              {originLabel.label}
+          {originMeta && (
+            <span className={cn("px-2.5 py-1 backdrop-blur-sm text-xs font-semibold rounded-full shadow-md flex items-center gap-1", originMeta.tone)}>
+              <originMeta.Icon className="h-3 w-3" />
+              {t("momentCard.discovered")}
             </span>
           )}
           {recurrenceLabel && (
@@ -283,10 +279,10 @@ export function MomentCard({
 
         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
           <span className="px-2.5 py-1 bg-background/90 backdrop-blur-sm text-foreground text-xs font-medium rounded-full shadow-sm">
-            {(moment.category || "General").charAt(0).toUpperCase() + (moment.category || "General").slice(1)}
+            {momentCatKey ? t(momentCatKey as TranslationKey) : (moment.category || t("momentCard.categoryGeneral"))}
           </span>
           <span className="rounded-full bg-black/65 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur-sm">
-            {isExampleMoment ? "Learn pattern" : "Join path"}
+            {isExampleMoment ? t("momentCard.learnPattern") : t("momentCard.joinPath")}
           </span>
         </div>
       </div>
@@ -356,7 +352,7 @@ export function MomentCard({
           className="mt-4"
           steps={[
             { label: actionLabel },
-            { label: moment.proof_type || "Proof" },
+            { label: moment.proof_type || t("momentCard.proofFallback") },
             { label: unlockLabel },
           ]}
         />
@@ -383,7 +379,7 @@ export function MomentCard({
                 ? "bg-zinc-800 text-zinc-300 group-hover:bg-zinc-700 group-hover:text-white"
                 : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"
             )}>
-              {isPast ? "View Recap & Proof" : t("momentCard.viewDetails")}
+              {isPast ? t("momentCard.viewRecap") : t("momentCard.viewDetails")}
             </span>
           </div>
         </div>

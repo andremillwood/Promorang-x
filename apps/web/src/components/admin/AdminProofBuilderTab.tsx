@@ -24,6 +24,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useI18n } from "@/i18n/I18nContext";
 
 type CountResult = {
   value: number;
@@ -76,8 +77,8 @@ function percent(value: number, target: number) {
   return Math.min(100, Math.round((value / target) * 100));
 }
 
-function formatCount(result: CountResult) {
-  return result.available ? result.value.toLocaleString() : "Setup";
+function formatCount(result: CountResult, setup: string) {
+  return result.available ? result.value.toLocaleString() : setup;
 }
 
 function ProofMetricCard({
@@ -108,6 +109,7 @@ function ProofMetricCard({
 }
 
 function ProofLadderStep({ step }: { step: ProofStep }) {
+  const { t, formatNumber } = useI18n();
   const progress = step.unavailable ? 0 : percent(step.value, step.target);
   const complete = progress >= 100;
 
@@ -121,10 +123,10 @@ function ProofLadderStep({ step }: { step: ProofStep }) {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <p className="font-bold text-foreground">{step.label}</p>
-              {complete ? <Badge className="bg-emerald-600">Ready</Badge> : <Badge variant="outline">Build</Badge>}
+              {complete ? <Badge className="bg-emerald-600">{t("proofBld.ready")}</Badge> : <Badge variant="outline">{t("proofBld.build")}</Badge>}
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              {step.unavailable ? "Data relation is not available in this environment." : `${step.value.toLocaleString()} of ${step.target.toLocaleString()} target`}
+              {step.unavailable ? t("proofBld.unavailable") : t("proofBld.ofTarget", { value: formatNumber(step.value), target: formatNumber(step.target) })}
             </p>
           </div>
         </div>
@@ -138,6 +140,7 @@ function ProofLadderStep({ step }: { step: ProofStep }) {
 }
 
 export function AdminProofBuilderTab() {
+  const { t } = useI18n();
   const proofQuery = useQuery({
     queryKey: ["admin-proof-builder"],
     queryFn: async (): Promise<ProofBuilderData> => {
@@ -189,42 +192,42 @@ export function AdminProofBuilderTab() {
 
     return [
       {
-        label: "Moment supply",
+        label: t("proofBld.stepSupply"),
         target: 40,
         value: data.moments30d.value,
         icon: CalendarPlus,
-        action: "Create",
+        action: t("proofBld.actCreate"),
         href: "/create/moment",
       },
       {
-        label: "Incentive supply",
+        label: t("proofBld.stepIncentive"),
         target: 15,
         value: data.rewardMoments30d.value + data.offers.value,
         icon: Gift,
-        action: "Offers",
+        action: t("proofBld.actOffers"),
         href: "/offers",
         unavailable: !data.offers.available,
       },
       {
-        label: "Verified action",
+        label: t("proofBld.stepAction"),
         target: 500,
         value: data.checkIns30d.value + data.verifiedProofs.value,
         icon: QrCode,
-        action: "Moments",
+        action: t("proofBld.actMoments"),
         href: "/admin?tab=moments",
         unavailable: !data.verifiedProofs.available && data.checkIns30d.value === 0,
       },
       {
-        label: "Stakeholder proof",
+        label: t("proofBld.stepStake"),
         target: 50,
         value: data.offerRedemptions.value + data.rewards30d.value,
         icon: PackageCheck,
-        action: "Rewards",
+        action: t("proofBld.actRewards"),
         href: "/offers",
         unavailable: !data.offerRedemptions.available,
       },
     ];
-  }, [data]);
+  }, [data, t]);
 
   const proofScore = proofSteps.length
     ? Math.round(proofSteps.reduce((sum, step) => sum + percent(step.value, step.target), 0) / proofSteps.length)
@@ -236,61 +239,61 @@ export function AdminProofBuilderTab() {
         <div>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-6 w-6 text-primary" />
-            <h2 className="text-2xl font-bold">Proof Builder</h2>
+            <h2 className="text-2xl font-bold">{t("proofBld.title")}</h2>
           </div>
           <GuidanceDisclosure
             id="admin-proof-builder:workspace-context"
-            eyebrow="Proof guide"
-            title="What this workspace is for"
-            summary="Move from product capability into visible market proof: supply, incentives, verified participation, and reports."
+            eyebrow={t("proofBld.guideEyebrow")}
+            title={t("proofBld.guideTitle")}
+            summary={t("proofBld.guideSum")}
             className="mt-3 max-w-3xl"
             tone="light"
           >
             <p className="text-sm text-muted-foreground">
-              Use this superadmin workspace to move Promorang from product capability into visible market proof: moment supply, funded incentives, verified participation, and stakeholder reports.
+              {t("proofBld.guideBody")}
             </p>
           </GuidanceDisclosure>
         </div>
         <Button variant="outline" onClick={() => proofQuery.refetch()} disabled={proofQuery.isFetching}>
           {proofQuery.isFetching ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-          Refresh
+          {t("proofBld.refresh")}
         </Button>
       </div>
 
       <Card className="overflow-hidden border-primary/20">
         <CardContent className="grid gap-6 p-5 lg:grid-cols-[1.1fr_0.9fr] lg:p-6">
           <div>
-            <Badge variant="outline" className="border-primary/30 text-primary">Activation bridge</Badge>
-            <h3 className="mt-4 font-serif text-3xl font-bold text-foreground">Build the proof that makes Promorang obvious.</h3>
+            <Badge variant="outline" className="border-primary/30 text-primary">{t("proofBld.bridge")}</Badge>
+            <h3 className="mt-4 font-serif text-3xl font-bold text-foreground">{t("proofBld.hero")}</h3>
             <GuidanceDisclosure
               id="admin-proof-builder:activation-bridge"
-              eyebrow="Activation guide"
-              title="What evidence should prove"
-              summary="The useful packet is simple: people showed up, value issued, rewards redeemed, and stakeholders can see what happened."
+              eyebrow={t("proofBld.actEyebrow")}
+              title={t("proofBld.actTitle")}
+              summary={t("proofBld.actSum")}
               className="mt-3"
               tone="light"
             >
               <p className="text-sm leading-6 text-muted-foreground">
-                The target is not more abstract features. The target is a repeatable evidence packet: people showed up, value was issued, rewards were redeemed, and a venue or brand can see what happened.
+                {t("proofBld.actBody")}
               </p>
             </GuidanceDisclosure>
             <div className="mt-5 flex flex-wrap gap-2">
               <Button asChild>
                 <Link to="/create/moment">
                   <CalendarPlus className="mr-2 h-4 w-4" />
-                  Create proof moment
+                  {t("proofBld.createMom")}
                 </Link>
               </Button>
               <Button asChild variant="outline">
                 <Link to="/offers">
                   <Gift className="mr-2 h-4 w-4" />
-                  Attach incentive
+                  {t("proofBld.attach")}
                 </Link>
               </Button>
               <Button asChild variant="outline">
                 <Link to="/admin?tab=promopush">
                   <Megaphone className="mr-2 h-4 w-4" />
-                  Drive traffic
+                  {t("proofBld.traffic")}
                 </Link>
               </Button>
             </div>
@@ -298,14 +301,14 @@ export function AdminProofBuilderTab() {
           <div className="rounded-xl border border-border bg-muted/30 p-5">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-muted-foreground">Proof readiness</p>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-muted-foreground">{t("proofBld.readiness")}</p>
                 <p className="mt-2 text-4xl font-black text-foreground">{proofQuery.isLoading ? "--" : `${proofScore}%`}</p>
               </div>
               <Target className="h-10 w-10 text-primary" />
             </div>
             <Progress value={proofQuery.isLoading ? 0 : proofScore} className="mt-4 h-3" />
             <p className="mt-4 text-sm text-muted-foreground">
-              First critical mass target: 40 moments, 15 funded incentives, 500 verified actions, and 50 reward or redemption outcomes in a 30-day window.
+              {t("proofBld.target")}
             </p>
           </div>
         </CardContent>
@@ -318,17 +321,17 @@ export function AdminProofBuilderTab() {
       ) : data ? (
         <>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <ProofMetricCard label="Moments in 30d" value={formatCount(data.moments30d)} helper={`${data.moments7d.value} created in the last 7 days`} icon={CalendarPlus} tone="bg-blue-500/10 text-blue-600" />
-            <ProofMetricCard label="Joins in 30d" value={formatCount(data.joined30d)} helper="Intent before physical proof" icon={Users} tone="bg-emerald-500/10 text-emerald-600" />
-            <ProofMetricCard label="Check-ins in 30d" value={formatCount(data.checkIns30d)} helper="Verified attendance signal" icon={QrCode} tone="bg-primary/10 text-primary" />
-            <ProofMetricCard label="Rewards in 30d" value={formatCount(data.rewards30d)} helper="Issued value participants can feel" icon={BadgeDollarSign} tone="bg-amber-500/10 text-amber-700" />
+            <ProofMetricCard label={t("proofBld.mom30")} value={formatCount(data.moments30d, t("proofBld.setup"))} helper={t("proofBld.mom7", { count: data.moments7d.value })} icon={CalendarPlus} tone="bg-blue-500/10 text-blue-600" />
+            <ProofMetricCard label={t("proofBld.joins30")} value={formatCount(data.joined30d, t("proofBld.setup"))} helper={t("proofBld.joinsHelp")} icon={Users} tone="bg-emerald-500/10 text-emerald-600" />
+            <ProofMetricCard label={t("proofBld.check30")} value={formatCount(data.checkIns30d, t("proofBld.setup"))} helper={t("proofBld.checkHelp")} icon={QrCode} tone="bg-primary/10 text-primary" />
+            <ProofMetricCard label={t("proofBld.rew30")} value={formatCount(data.rewards30d, t("proofBld.setup"))} helper={t("proofBld.rewHelp")} icon={BadgeDollarSign} tone="bg-amber-500/10 text-amber-700" />
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
             <Card>
               <CardHeader>
-                <CardTitle>Proof Ladder</CardTitle>
-                <CardDescription>Work these four constraints until the story becomes self-evident.</CardDescription>
+                <CardTitle>{t("proofBld.ladder")}</CardTitle>
+                <CardDescription>{t("proofBld.ladderCopy")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {proofSteps.map((step) => <ProofLadderStep key={step.label} step={step} />)}
@@ -337,24 +340,24 @@ export function AdminProofBuilderTab() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Operator Playbook</CardTitle>
+                <CardTitle>{t("proofBld.playbook")}</CardTitle>
                 <GuidanceDisclosure
                   id="admin-proof-builder:operator-playbook"
-                  eyebrow="Playbook guide"
-                  title="How to make proof repeatable"
-                  summary="Use these actions to stop the loop from depending on manual event maintenance."
+                  eyebrow={t("proofBld.playEyebrow")}
+                  title={t("proofBld.playTitle")}
+                  summary={t("proofBld.playSum")}
                   className="mt-3"
                   tone="light"
                 >
-                  <CardDescription>Use these actions to stop the loop from depending on you manually keeping events alive.</CardDescription>
+                  <CardDescription>{t("proofBld.playBody")}</CardDescription>
                 </GuidanceDisclosure>
               </CardHeader>
               <CardContent className="space-y-4">
                 {[
-                  { icon: CalendarPlus, title: "Seed 10 claimable moments", text: "Create simple public moments for real venues or hosts, then invite owners to claim and repeat them." },
-                  { icon: Gift, title: "Attach one offer to each priority moment", text: "Start with low-cost rewards: discount, free add-on, early entry, raffle entry, or Gems from a small pool." },
-                  { icon: QrCode, title: "Force every activation through check-in", text: "QR or code check-in must be the proof spine. No report is useful if attendance is not verified." },
-                  { icon: ClipboardList, title: "Package the Monday proof report", text: "For every real activation, capture check-ins, redemptions, UGC, referrals, repeat visitors, and estimated spend." },
+                  { icon: CalendarPlus, title: t("proofBld.seedTitle"), text: t("proofBld.seedText") },
+                  { icon: Gift, title: t("proofBld.offerTitle"), text: t("proofBld.offerText") },
+                  { icon: QrCode, title: t("proofBld.qrTitle"), text: t("proofBld.qrText") },
+                  { icon: ClipboardList, title: t("proofBld.reportTitle"), text: t("proofBld.reportText") },
                 ].map((item) => (
                   <div key={item.title} className="flex gap-3 rounded-xl border border-border bg-background p-4">
                     <div className="rounded-lg bg-primary/10 p-2 text-primary">
@@ -374,32 +377,32 @@ export function AdminProofBuilderTab() {
             <Card>
               <CardContent className="p-5">
                 <MapPin className="mb-3 h-5 w-5 text-orange-600" />
-                <p className="text-2xl font-black">{formatCount(data.venues)}</p>
-                <p className="mt-1 font-semibold">Active venues</p>
-                <p className="mt-1 text-xs text-muted-foreground">Venue supply available for proof moments.</p>
+                <p className="text-2xl font-black">{formatCount(data.venues, t("proofBld.setup"))}</p>
+                <p className="mt-1 font-semibold">{t("proofBld.venues")}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t("proofBld.venuesHelp")}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-5">
                 <Gift className="mb-3 h-5 w-5 text-pink-600" />
-                <p className="text-2xl font-black">{formatCount(data.offers)}</p>
-                <p className="mt-1 font-semibold">Configured offers</p>
-                <p className="mt-1 text-xs text-muted-foreground">Coupons, rewards, access, products, or custom value.</p>
+                <p className="text-2xl font-black">{formatCount(data.offers, t("proofBld.setup"))}</p>
+                <p className="mt-1 font-semibold">{t("proofBld.offers")}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t("proofBld.offersHelp")}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-5">
                 <CheckCircle2 className="mb-3 h-5 w-5 text-emerald-600" />
-                <p className="text-2xl font-black">{formatCount(data.offerRedemptions)}</p>
-                <p className="mt-1 font-semibold">Offer redemptions</p>
-                <p className="mt-1 text-xs text-muted-foreground">The strongest venue/brand proof signal.</p>
+                <p className="text-2xl font-black">{formatCount(data.offerRedemptions, t("proofBld.setup"))}</p>
+                <p className="mt-1 font-semibold">{t("proofBld.redemptions")}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t("proofBld.redemptionsHelp")}</p>
               </CardContent>
             </Card>
           </div>
         </>
       ) : (
         <Card>
-          <CardContent className="p-8 text-center text-muted-foreground">Proof data could not be loaded.</CardContent>
+          <CardContent className="p-8 text-center text-muted-foreground">{t("proofBld.loadFail")}</CardContent>
         </Card>
       )}
     </div>

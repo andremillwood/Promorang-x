@@ -58,6 +58,8 @@ import {
   Navigation,
 } from 'lucide-react';
 import { PromorangMap } from '@/components/PromorangMap';
+import { useI18n } from '@/i18n/I18nContext';
+import type { TranslationKey } from '@/i18n/translations';
 
 interface Booking {
   id: string;
@@ -96,20 +98,27 @@ const PLACEMENT_TYPE_COLORS: Record<string, string> = {
   promoshare_push_notification: '#84cc16',
 };
 
-const PLACEMENT_TYPE_NAMES: Record<string, string> = {
-  homepage_hero: 'Homepage Hero',
-  homepage_featured: 'Homepage Featured',
-  category_featured: 'Category Featured',
-  moment_featured: 'Featured Moment',
-  moment_category_boost: 'Moment Boost',
-  promoshare_homepage_banner: 'PromoShare Banner',
-  promoshare_sponsored_badge: 'Sponsored Badge',
-  promoshare_push_notification: 'Push Notification',
+const PLACEMENT_TYPE_KEYS: Record<string, TranslationKey> = {
+  homepage_hero: "sponsorAn.placeHero",
+  homepage_featured: "sponsorAn.placeFeatured",
+  category_featured: "sponsorAn.placeCategory",
+  moment_featured: "sponsorAn.placeMoment",
+  moment_category_boost: "sponsorAn.placeBoost",
+  promoshare_homepage_banner: "sponsorAn.placeBanner",
+  promoshare_sponsored_badge: "sponsorAn.placeBadge",
+  promoshare_push_notification: "sponsorAn.placePush",
+};
+
+const STATUS_KEYS: Record<string, TranslationKey> = {
+  active: "sponsorAn.statusActive",
+  completed: "sponsorAn.statusCompleted",
+  pending_payment: "sponsorAn.statusPending",
 };
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://api.promorang.co/api';
 
 export default function SponsorAnalyticsDashboard() {
+  const { t, formatNumber, formatDate } = useI18n();
   const { user, token } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -153,7 +162,7 @@ export default function SponsorAnalyticsDashboard() {
       }
     } catch (error) {
       console.error('Error fetching bookings:', error);
-      toast.error('Failed to load bookings');
+      toast.error(t("sponsorAn.toastLoad"));
     } finally {
       setIsLoading(false);
     }
@@ -171,7 +180,7 @@ export default function SponsorAnalyticsDashboard() {
         date.setDate(date.getDate() - i);
         
         data.push({
-          date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          date: formatDate(date, { month: 'short', day: 'numeric' }),
           impressions: Math.floor(Math.random() * 1000) + 500,
           clicks: Math.floor(Math.random() * 100) + 20,
           ctr: parseFloat((Math.random() * 5 + 2).toFixed(2)),
@@ -185,6 +194,8 @@ export default function SponsorAnalyticsDashboard() {
   };
 
   const currentBooking = bookings.find(b => b.id === selectedBooking);
+  const placementName = (type: string) => (PLACEMENT_TYPE_KEYS[type] ? t(PLACEMENT_TYPE_KEYS[type]) : type);
+  const statusLabel = (status: string) => (STATUS_KEYS[status] ? t(STATUS_KEYS[status]) : status);
 
   const getTotalStats = () => {
     const activeBookings = bookings.filter(b => b.status === 'active');
@@ -220,21 +231,21 @@ export default function SponsorAnalyticsDashboard() {
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <TrendingUp className="w-8 h-8 text-primary" />
-              Campaign Analytics
+              {t("sponsorAn.title")}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Track performance of your featured placements and sponsored content
+              {t("sponsorAn.lede")}
             </p>
           </div>
           
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Button variant="outline" onClick={() => navigate('/featured')}>
               <Zap className="w-4 h-4 mr-2" />
-              New Campaign
+              {t("sponsorAn.newCampaign")}
             </Button>
             <Button variant="outline">
               <Download className="w-4 h-4 mr-2" />
-              Export
+              {t("sponsorAn.export")}
             </Button>
           </div>
         </div>
@@ -244,7 +255,7 @@ export default function SponsorAnalyticsDashboard() {
           <div className="mb-6">
             <Select value={selectedBooking} onValueChange={setSelectedBooking}>
               <SelectTrigger className="w-full md:w-96">
-                <SelectValue placeholder="Select a campaign to view" />
+                <SelectValue placeholder={t("sponsorAn.selectCampaign")} />
               </SelectTrigger>
               <SelectContent>
                 {bookings.map((booking) => (
@@ -254,13 +265,13 @@ export default function SponsorAnalyticsDashboard() {
                         variant={booking.status === 'active' ? 'default' : 'secondary'}
                         className="text-xs"
                       >
-                        {booking.status}
+                        {statusLabel(booking.status)}
                       </Badge>
                       <span className="truncate max-w-[200px]">
-                        {PLACEMENT_TYPE_NAMES[booking.placement_type] || booking.placement_type}
+                        {placementName(booking.placement_type)}
                       </span>
                       <span className="text-muted-foreground">
-                        - {booking.entity_name || 'Untitled'}
+                        - {booking.entity_name || t("sponsorAn.untitled")}
                       </span>
                     </div>
                   </SelectItem>
@@ -273,12 +284,12 @@ export default function SponsorAnalyticsDashboard() {
         {bookings.length === 0 ? (
           <Card className="p-12 text-center">
             <Crown className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No Campaigns Yet</h3>
+            <h3 className="text-xl font-semibold mb-2">{t("sponsorAn.emptyTitle")}</h3>
             <p className="text-muted-foreground mb-4">
-              You haven't created any featured placements yet. Start your first campaign to see analytics here.
+              {t("sponsorAn.emptyCopy")}
             </p>
             <Button onClick={() => navigate('/featured')}>
-              Create Your First Campaign
+              {t("sponsorAn.emptyCta")}
             </Button>
           </Card>
         ) : (
@@ -287,7 +298,7 @@ export default function SponsorAnalyticsDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("sponsorAn.totalSpent")}</CardTitle>
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -295,46 +306,46 @@ export default function SponsorAnalyticsDashboard() {
                     ${stats.totalSpent.toFixed(2)}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Across {bookings.length} campaigns
+                    {t("sponsorAn.across", { count: bookings.length })}
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Impressions</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("sponsorAn.impressions")}</CardTitle>
                   <Eye className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {stats.totalImpressions.toLocaleString()}
+                    {formatNumber(stats.totalImpressions)}
                   </div>
                     <div className="flex items-center text-xs text-green-600 dark:text-green-400">
                     <ArrowUpRight className="w-3 h-3 mr-1" />
-                    <span>+12.5% this week</span>
+                    <span>{t("sponsorAn.weekUp", { pct: "12.5" })}</span>
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Clicks</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("sponsorAn.clicks")}</CardTitle>
                   <MousePointer className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {stats.totalClicks.toLocaleString()}
+                    {formatNumber(stats.totalClicks)}
                   </div>
                     <div className="flex items-center text-xs text-green-600 dark:text-green-400">
                     <ArrowUpRight className="w-3 h-3 mr-1" />
-                    <span>+8.2% this week</span>
+                    <span>{t("sponsorAn.weekUp", { pct: "8.2" })}</span>
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Avg. CTR</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("sponsorAn.avgCtr")}</CardTitle>
                   <Target className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -342,7 +353,7 @@ export default function SponsorAnalyticsDashboard() {
                     {stats.avgCtr}%
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Industry avg: 2.5%
+                    {t("sponsorAn.industryAvg", { pct: "2.5" })}
                   </p>
                 </CardContent>
               </Card>
@@ -351,26 +362,26 @@ export default function SponsorAnalyticsDashboard() {
             {/* Charts Section */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <TabsList className="min-w-[640px]">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="impressions">Impressions</TabsTrigger>
-                <TabsTrigger value="clicks">Clicks</TabsTrigger>
-                <TabsTrigger value="ctr">CTR</TabsTrigger>
-                <TabsTrigger value="performance">Performance</TabsTrigger>
-                <TabsTrigger value="foottraffic">Foot-Traffic & Heatmap</TabsTrigger>
+                <TabsTrigger value="overview">{t("sponsorAn.tabOverview")}</TabsTrigger>
+                <TabsTrigger value="impressions">{t("sponsorAn.tabImpressions")}</TabsTrigger>
+                <TabsTrigger value="clicks">{t("sponsorAn.tabClicks")}</TabsTrigger>
+                <TabsTrigger value="ctr">{t("sponsorAn.tabCtr")}</TabsTrigger>
+                <TabsTrigger value="performance">{t("sponsorAn.tabPerf")}</TabsTrigger>
+                <TabsTrigger value="foottraffic">{t("sponsorAn.tabFoot")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
                 {/* Date Range Selector */}
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-                  <span className="text-sm text-muted-foreground">Date Range:</span>
+                  <span className="text-sm text-muted-foreground">{t("sponsorAn.dateRange")}</span>
                   <Select value={dateRange} onValueChange={setDateRange}>
                     <SelectTrigger className="w-32">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="7d">Last 7 Days</SelectItem>
-                      <SelectItem value="30d">Last 30 Days</SelectItem>
-                      <SelectItem value="90d">Last 90 Days</SelectItem>
+                      <SelectItem value="7d">{t("sponsorAn.last7")}</SelectItem>
+                      <SelectItem value="30d">{t("sponsorAn.last30")}</SelectItem>
+                      <SelectItem value="90d">{t("sponsorAn.last90")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -378,9 +389,9 @@ export default function SponsorAnalyticsDashboard() {
                 {/* Combined Chart */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Campaign Overview</CardTitle>
+                    <CardTitle>{t("sponsorAn.overviewTitle")}</CardTitle>
                     <CardDescription>
-                      Impressions and clicks over time
+                      {t("sponsorAn.overviewDesc")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -407,7 +418,7 @@ export default function SponsorAnalyticsDashboard() {
                             stroke="#3b82f6" 
                             fillOpacity={1} 
                             fill="url(#colorImpressions)" 
-                            name="Impressions"
+                            name={t("sponsorAn.seriesImpressions")}
                           />
                           <Area 
                             type="monotone" 
@@ -415,7 +426,7 @@ export default function SponsorAnalyticsDashboard() {
                             stroke="#10b981" 
                             fillOpacity={1} 
                             fill="url(#colorClicks)" 
-                            name="Clicks"
+                            name={t("sponsorAn.seriesClicks")}
                           />
                         </AreaChart>
                       </ResponsiveContainer>
@@ -427,31 +438,31 @@ export default function SponsorAnalyticsDashboard() {
                 {currentBooking && (
                   <Card>
                     <CardHeader>
-                      <CardTitle>Campaign Details</CardTitle>
+                      <CardTitle>{t("sponsorAn.details")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-4">
                           <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                            <span className="text-muted-foreground">Placement Type</span>
+                            <span className="text-muted-foreground">{t("sponsorAn.placement")}</span>
                             <span className="font-medium">
-                              {PLACEMENT_TYPE_NAMES[currentBooking.placement_type]}
+                              {placementName(currentBooking.placement_type)}
                             </span>
                           </div>
                           <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                            <span className="text-muted-foreground">Content</span>
+                            <span className="text-muted-foreground">{t("sponsorAn.content")}</span>
                             <span className="max-w-full truncate font-medium sm:max-w-[200px]">
                               {currentBooking.entity_name}
                             </span>
                           </div>
                           <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                            <span className="text-muted-foreground">Duration</span>
+                            <span className="text-muted-foreground">{t("sponsorAn.duration")}</span>
                             <span className="font-medium">
-                              {currentBooking.duration_days} days
+                              {t("sponsorAn.durationDays", { count: currentBooking.duration_days })}
                             </span>
                           </div>
                           <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                            <span className="text-muted-foreground">Total Cost</span>
+                            <span className="text-muted-foreground">{t("sponsorAn.totalCost")}</span>
                             <span className="font-medium">
                               ${currentBooking.total_amount.toFixed(2)}
                             </span>
@@ -460,25 +471,25 @@ export default function SponsorAnalyticsDashboard() {
                         
                         <div className="space-y-4">
                           <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                            <span className="text-muted-foreground">Impressions</span>
+                            <span className="text-muted-foreground">{t("sponsorAn.impressionsLabel")}</span>
                             <span className="font-medium">
-                              {currentBooking.analytics?.impressions?.toLocaleString() || '0'}
+                              {formatNumber(currentBooking.analytics?.impressions || 0)}
                             </span>
                           </div>
                           <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                            <span className="text-muted-foreground">Clicks</span>
+                            <span className="text-muted-foreground">{t("sponsorAn.clicksLabel")}</span>
                             <span className="font-medium">
-                              {currentBooking.analytics?.clicks?.toLocaleString() || '0'}
+                              {formatNumber(currentBooking.analytics?.clicks || 0)}
                             </span>
                           </div>
                           <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                            <span className="text-muted-foreground">CTR</span>
+                            <span className="text-muted-foreground">{t("sponsorAn.ctrLabel")}</span>
                             <span className="font-medium">
                               {currentBooking.analytics?.ctr?.toFixed(2) || '0.00'}%
                             </span>
                           </div>
                           <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                            <span className="text-muted-foreground">Cost Per Click</span>
+                            <span className="text-muted-foreground">{t("sponsorAn.cpc")}</span>
                             <span className="font-medium">
                               ${currentBooking.analytics?.clicks > 0
                                 ? (currentBooking.total_amount / currentBooking.analytics.clicks).toFixed(2)
@@ -495,7 +506,7 @@ export default function SponsorAnalyticsDashboard() {
               <TabsContent value="impressions">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Impressions Over Time</CardTitle>
+                    <CardTitle>{t("sponsorAn.impressionsTime")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="h-[300px]">
@@ -505,7 +516,7 @@ export default function SponsorAnalyticsDashboard() {
                           <XAxis dataKey="date" />
                           <YAxis />
                           <Tooltip />
-                          <Bar dataKey="impressions" fill="#3b82f6" name="Impressions" />
+                          <Bar dataKey="impressions" fill="#3b82f6" name={t("sponsorAn.seriesImpressions")} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -516,7 +527,7 @@ export default function SponsorAnalyticsDashboard() {
               <TabsContent value="clicks">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Clicks Over Time</CardTitle>
+                    <CardTitle>{t("sponsorAn.clicksTime")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="h-[300px]">
@@ -526,7 +537,7 @@ export default function SponsorAnalyticsDashboard() {
                           <XAxis dataKey="date" />
                           <YAxis />
                           <Tooltip />
-                          <Bar dataKey="clicks" fill="#10b981" name="Clicks" />
+                          <Bar dataKey="clicks" fill="#10b981" name={t("sponsorAn.seriesClicks")} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -537,7 +548,7 @@ export default function SponsorAnalyticsDashboard() {
               <TabsContent value="ctr">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Click-Through Rate Trend</CardTitle>
+                    <CardTitle>{t("sponsorAn.ctrTrend")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="h-[300px]">
@@ -552,7 +563,7 @@ export default function SponsorAnalyticsDashboard() {
                             dataKey="ctr" 
                             stroke="#8b5cf6" 
                             strokeWidth={2}
-                            name="CTR %"
+                            name={t("sponsorAn.seriesCtr")}
                           />
                         </LineChart>
                       </ResponsiveContainer>
@@ -564,13 +575,13 @@ export default function SponsorAnalyticsDashboard() {
               <TabsContent value="performance">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Campaign Performance by Placement Type</CardTitle>
+                    <CardTitle>{t("sponsorAn.perfTitle")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="h-[300px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={bookings.map(b => ({
-                          type: PLACEMENT_TYPE_NAMES[b.placement_type] || b.placement_type,
+                          type: placementName(b.placement_type),
                           impressions: b.analytics?.impressions || 0,
                           clicks: b.analytics?.clicks || 0,
                           spend: b.total_amount,
@@ -579,8 +590,8 @@ export default function SponsorAnalyticsDashboard() {
                           <XAxis dataKey="type" angle={-45} textAnchor="end" height={80} />
                           <YAxis />
                           <Tooltip />
-                          <Bar dataKey="spend" fill="#f59e0b" name="Spend ($)" />
-                          <Bar dataKey="clicks" fill="#10b981" name="Clicks" />
+                          <Bar dataKey="spend" fill="#f59e0b" name={t("sponsorAn.seriesSpend")} />
+                          <Bar dataKey="clicks" fill="#10b981" name={t("sponsorAn.seriesClicks")} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -592,38 +603,38 @@ export default function SponsorAnalyticsDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Verified On-Site Check-Ins</CardTitle>
+                      <CardTitle className="text-sm font-medium">{t("sponsorAn.checkins")}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold text-emerald-500">142 Attendees</div>
-                      <p className="text-xs text-muted-foreground mt-1">98.4% Geofence Accuracy</p>
+                      <div className="text-2xl font-bold text-emerald-500">{t("sponsorAn.attendees", { count: 142 })}</div>
+                      <p className="text-xs text-muted-foreground mt-1">{t("sponsorAn.geofence", { pct: "98.4" })}</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Avg Travel Radius</CardTitle>
+                      <CardTitle className="text-sm font-medium">{t("sponsorAn.radius")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-blue-500">2.4 km</div>
-                      <p className="text-xs text-muted-foreground mt-1">From venue location</p>
+                      <p className="text-xs text-muted-foreground mt-1">{t("sponsorAn.fromVenue")}</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Peak Foot-Traffic Hour</CardTitle>
+                      <CardTitle className="text-sm font-medium">{t("sponsorAn.peakHour")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-orange-500">9:30 PM - 11 PM</div>
-                      <p className="text-xs text-muted-foreground mt-1">Highest check-in velocity</p>
+                      <p className="text-xs text-muted-foreground mt-1">{t("sponsorAn.peakHint")}</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Perk Claim Rate</CardTitle>
+                      <CardTitle className="text-sm font-medium">{t("sponsorAn.perkRate")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-purple-500">76.8%</div>
-                      <p className="text-xs text-muted-foreground mt-1">Verified coupon redemptions</p>
+                      <p className="text-xs text-muted-foreground mt-1">{t("sponsorAn.redemptions")}</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -632,10 +643,10 @@ export default function SponsorAnalyticsDashboard() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <MapPin className="w-5 h-5 text-primary" />
-                      Live Check-In Density & Geofence Map
+                      {t("sponsorAn.mapTitle")}
                     </CardTitle>
                     <CardDescription>
-                      Interactive map of verified attendee check-ins and venue geofence radius
+                      {t("sponsorAn.mapDesc")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>

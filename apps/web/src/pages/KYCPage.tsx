@@ -76,8 +76,8 @@ export function KYCPage() {
     } catch (error) {
       console.error('Failed to fetch KYC status:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load KYC status',
+        title: t("kyc.loadError"),
+        description: t("kyc.loadError"),
         variant: 'destructive',
       });
     } finally {
@@ -89,21 +89,21 @@ export function KYCPage() {
     setShowForm(false);
     fetchStatus();
     toast({
-      title: 'KYC Submitted',
-      description: 'Your documents have been submitted and are pending review.',
+      title: t("kyc.submitted"),
+      description: t("kyc.submittedCopy"),
     });
   };
 
   const getStatusBadge = (kycStatus: string) => {
     switch (kycStatus) {
       case 'verified':
-        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="h-3 w-3 mr-1" /> Verified</Badge>;
+        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="h-3 w-3 mr-1" /> {t("kyc.verified")}</Badge>;
       case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800"><Clock className="h-3 w-3 mr-1" /> Pending Review</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-800"><Clock className="h-3 w-3 mr-1" /> {t("kyc.pendingReview")}</Badge>;
       case 'rejected':
-        return <Badge className="bg-red-100 text-red-800"><XCircle className="h-3 w-3 mr-1" /> Rejected</Badge>;
+        return <Badge className="bg-red-100 text-red-800"><XCircle className="h-3 w-3 mr-1" /> {t("kyc.rejected")}</Badge>;
       default:
-        return <Badge className="bg-muted text-muted-foreground"><AlertTriangle className="h-3 w-3 mr-1" /> Not Submitted</Badge>;
+        return <Badge className="bg-muted text-muted-foreground"><AlertTriangle className="h-3 w-3 mr-1" /> {t("kyc.notSubmitted")}</Badge>;
     }
   };
 
@@ -126,9 +126,9 @@ export function KYCPage() {
           </h1>
           <GuidanceDisclosure
             id="kyc:unlock-context"
-            eyebrow="Verification guide"
-            title="Why identity verification is needed"
-            summary="KYC unlocks trading, Gem withdrawals, and higher transaction limits."
+            eyebrow={t("kyc.guideEyebrow")}
+            title={t("kyc.guideTitle")}
+            summary={t("kyc.guideSummary")}
             className="mt-3"
             tone="light"
           >
@@ -201,7 +201,7 @@ export function KYCPage() {
                   className="mt-4" 
                   onClick={() => window.location.href = '/marketplace'}
                 >
-                  Go to Marketplace
+                  {t("kyc.goMarketplace")}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>
@@ -209,52 +209,52 @@ export function KYCPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-yellow-600">
                   <Clock className="h-5 w-5" />
-                  <span className="font-medium">Under Review</span>
+                  <span className="font-medium">{t("kyc.underReview")}</span>
                 </div>
                 <p className="text-muted-foreground">
-                  Your documents have been submitted and are being reviewed. This usually takes 1-2 business days.
+                  {t("kyc.underReviewCopy")}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Submitted: {status.submitted_at ? new Date(status.submitted_at).toLocaleDateString() : 'N/A'}
+                  {t("kyc.submittedOn", { date: status.submitted_at ? new Date(status.submitted_at).toLocaleDateString() : t("kyc.na") })}
                 </p>
               </div>
             ) : status?.kyc_status === 'rejected' ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-red-600">
                   <XCircle className="h-5 w-5" />
-                  <span className="font-medium">Verification Rejected</span>
+                  <span className="font-medium">{t("kyc.rejectedTitle")}</span>
                 </div>
                 <p className="text-muted-foreground">
-                  Your KYC submission was rejected. Please review the feedback and submit again.
+                  {t("kyc.rejectedCopy")}
                 </p>
                 <Button 
                   onClick={() => setShowForm(true)}
                   variant="outline"
                 >
-                  Resubmit KYC
+                  {t("kyc.resubmit")}
                 </Button>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <AlertTriangle className="h-5 w-5" />
-                  <span className="font-medium">Verification Required</span>
+                  <span className="font-medium">{t("kyc.required")}</span>
                 </div>
                 <GuidanceDisclosure
                   id="kyc:required-unlocks"
-                  eyebrow="Unlock guide"
-                  title="What verification opens"
-                  summary="Piece trading, Gem withdrawals, and higher limits become available after verification."
+                  eyebrow={t("kyc.unlockEyebrow")}
+                  title={t("kyc.unlockTitle")}
+                  summary={t("kyc.unlockSummary")}
                   className="mt-3"
                   tone="light"
                 >
                   <p className="text-muted-foreground">
-                    Complete identity verification to unlock:
+                    {t("kyc.unlockIntro")}
                   </p>
                   <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                    <li>Piece trading</li>
-                    <li>Gem withdrawals</li>
-                    <li>Higher transaction limits</li>
+                    <li>{t("kyc.unlockTrade")}</li>
+                    <li>{t("kyc.unlockWithdraw")}</li>
+                    <li>{t("kyc.unlockLimits")}</li>
                   </ul>
                 </GuidanceDisclosure>
               </div>
@@ -273,26 +273,26 @@ export function KYCPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
-                Submission History
+                {t("kyc.history")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div className="flex justify-between py-2 border-b">
-                  <span className="text-muted-foreground">Submission ID</span>
+                  <span className="text-muted-foreground">{t("kyc.submissionId")}</span>
                   <span className="font-mono text-sm">{status.submission_id}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
-                  <span className="text-muted-foreground">Submitted</span>
-                  <span>{status.submitted_at ? new Date(status.submitted_at).toLocaleString() : 'N/A'}</span>
+                  <span className="text-muted-foreground">{t("kyc.submittedLabel")}</span>
+                  <span>{status.submitted_at ? new Date(status.submitted_at).toLocaleString() : t("kyc.na")}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
-                  <span className="text-muted-foreground">Status</span>
+                  <span className="text-muted-foreground">{t("kyc.statusLabel")}</span>
                   {getStatusBadge(status.kyc_status)}
                 </div>
                 <div className="flex justify-between py-2">
-                  <span className="text-muted-foreground">Verification Level</span>
-                  <Badge variant="outline">{status.kyc_level || 'N/A'}</Badge>
+                  <span className="text-muted-foreground">{t("kyc.levelLabel")}</span>
+                  <Badge variant="outline">{status.kyc_level || t("kyc.na")}</Badge>
                 </div>
               </div>
             </CardContent>

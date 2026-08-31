@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { useHasRole, useHostApplication, useCheckHostUnlock } from '@/hooks/useRoles';
 import { useAuth } from '@/contexts/AuthContext';
 import { HostApplicationModal } from './HostApplicationModal';
+import { useI18n } from '@/i18n/I18nContext';
 
 export function HostUnlockBanner() {
+    const { t } = useI18n();
     const { profile } = useAuth();
     const { data: hasHost, isLoading: loadingRole } = useHasRole('host');
     const { data: application, isLoading: loadingApp } = useHostApplication();
@@ -29,11 +31,10 @@ export function HostUnlockBanner() {
                     </div>
                     <div className="flex-1">
                         <h3 className="font-serif text-lg font-bold mb-1">
-                            A New Chapter Awaits... 🎉
+                            {t("hostUnlock.chapterTitle")}
                         </h3>
                         <p className="text-sm text-muted-foreground mb-3">
-                            Your consistent presence has earned you the level of **Eminence**. 
-                            You're now ready to host your own community moments.
+                            {t("hostUnlock.chapterCopy")}
                         </p>
                         <Button
                             onClick={() => checkUnlock.mutate()}
@@ -41,7 +42,7 @@ export function HostUnlockBanner() {
                             className="gap-2"
                         >
                             <Sparkles className="w-4 h-4" />
-                            {checkUnlock.isPending ? 'Unlocking...' : 'Start Hosting'}
+                            {checkUnlock.isPending ? t("hostUnlock.unlocking") : t("hostUnlock.startHosting")}
                         </Button>
                     </div>
                 </div>
@@ -59,10 +60,10 @@ export function HostUnlockBanner() {
                     </div>
                     <div className="flex-1">
                         <h3 className="font-serif text-lg font-bold mb-1">
-                            Application Under Review
+                            {t("hostUnlock.reviewTitle")}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                            We're reviewing your Host application. You'll hear from us within 24 hours!
+                            {t("hostUnlock.reviewCopy")}
                         </p>
                     </div>
                 </div>
@@ -80,20 +81,20 @@ export function HostUnlockBanner() {
                     </div>
                     <div className="flex-1">
                         <h3 className="font-serif text-lg font-bold mb-1">
-                            Application Not Approved
+                            {t("hostUnlock.rejectedTitle")}
                         </h3>
                         <p className="text-sm text-muted-foreground mb-2">
-                            {application.rejection_reason || 'Your application was not approved at this time.'}
+                            {application.rejection_reason || t("hostUnlock.rejectedDefault")}
                         </p>
                         <p className="text-xs text-muted-foreground mb-3">
-                            Keep building your Access Rank! You can apply again or wait until Rank 3 for auto-unlock.
+                            {t("hostUnlock.rejectedHint")}
                         </p>
                         <Button
                             variant="outline"
                             onClick={() => setShowModal(true)}
                             size="sm"
                         >
-                            Apply Again
+                            {t("hostUnlock.applyAgain")}
                         </Button>
                     </div>
                 </div>
@@ -119,11 +120,10 @@ export function HostUnlockBanner() {
                     </div>
                     <div className="flex-1">
                         <h3 className="font-serif text-lg font-bold mb-1">
-                            Ready to Lead the Community?
+                            {t("hostUnlock.readyTitle")}
                         </h3>
                         <p className="text-sm text-muted-foreground mb-3">
-                            You're building a great track record! Apply now to become a Host, 
-                            or reach the level of **Eminence** for an automatic invitation.
+                            {t("hostUnlock.readyCopy")}
                         </p>
                         <div className="flex gap-3">
                             <Button
@@ -131,11 +131,11 @@ export function HostUnlockBanner() {
                                 className="gap-2"
                             >
                                 <Sparkles className="w-4 h-4" />
-                                Apply to Host
+                                {t("hostUnlock.applyHost")}
                             </Button>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <CheckCircle className="w-4 h-4" />
-                                <span>Invited at Rank 3 ({3 - maturityState} more stories)</span>
+                                <span>{t("hostUnlock.invitedRank", { count: 3 - maturityState })}</span>
                             </div>
                         </div>
                     </div>

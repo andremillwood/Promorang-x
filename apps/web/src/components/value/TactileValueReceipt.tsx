@@ -19,6 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 import { ReceiptStoryModal } from "./ReceiptStoryModal";
 
 export interface ValueReceiptData {
@@ -70,6 +71,7 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
   allowTear = true,
 }) => {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const [isTorn, setIsTorn] = useState(false);
@@ -110,14 +112,18 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     toast({
-      title: "Receipt Link Copied!",
-      description: "Public proof link copied to clipboard.",
+      title: t("receipt.copiedTitle"),
+      description: t("receipt.copiedCopy"),
     });
     setTimeout(() => setCopied(false), 2500);
   };
 
   const handleShareX = () => {
-    const text = `Verified contribution proof on @promorang: ${receipt.actionTitle} for ${receipt.targetEntity}. Check the receipt: ${shareUrl}`;
+    const text = t("receipt.shareTweet", {
+      title: receipt.actionTitle,
+      entity: receipt.targetEntity,
+      url: shareUrl,
+    });
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
   };
 
@@ -125,8 +131,8 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
     if (isTorn) return;
     setIsTorn(true);
     toast({
-      title: "Receipt Claimed & Sealed!",
-      description: "Rewards and proof status deposited into your Vault.",
+      title: t("receipt.claimedTitle"),
+      description: t("receipt.claimedCopy"),
     });
   };
 
@@ -174,15 +180,15 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-serif text-lg font-black tracking-wider text-white">PROMORANG</span>
-                <span className="text-[9px] font-mono tracking-widest text-primary uppercase">PROOF OF VALUE</span>
+                <span className="text-[9px] font-mono tracking-widest text-primary uppercase">{t("receipt.proofOfValue")}</span>
               </div>
               <p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-white/40">
-                REC: {receipt.receiptNumber || receipt.id.slice(0, 12).toUpperCase()}
+                {t("receipt.rec", { id: receipt.receiptNumber || receipt.id.slice(0, 12).toUpperCase() })}
               </p>
             </div>
             <div className="flex flex-col items-end">
               <Badge className="border-emerald-500/30 bg-emerald-500/15 font-mono text-[10px] font-bold text-emerald-400">
-                <ShieldCheck className="mr-1 h-3 w-3" /> VERIFIED PROOF
+                <ShieldCheck className="mr-1 h-3 w-3" /> {t("receipt.verifiedProof")}
               </Badge>
               <span className="mt-1 font-mono text-[10px] text-white/40">{receipt.timestamp}</span>
             </div>
@@ -195,12 +201,12 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
                 {receipt.actorHandle.replace("@", "").slice(0, 2).toUpperCase()}
               </div>
               <div>
-                <p className="text-xs font-medium text-white/50">CONTRIBUTOR</p>
+                <p className="text-xs font-medium text-white/50">{t("receipt.contributor")}</p>
                 <p className="text-sm font-bold text-white">{receipt.actorHandle}</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-xs font-medium text-white/50">TARGET ENTITY</p>
+              <p className="text-xs font-medium text-white/50">{t("receipt.target")}</p>
               <p className="text-sm font-bold text-primary">{receipt.targetEntity}</p>
             </div>
           </div>
@@ -213,7 +219,7 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
             </div>
             {receipt.verificationMethod && (
               <p className="mt-1.5 text-[11px] text-white/55">
-                Verified via <span className="font-mono text-emerald-400">{receipt.verificationMethod}</span>
+                {t("receipt.verifiedVia")} <span className="font-mono text-emerald-400">{receipt.verificationMethod}</span>
               </p>
             )}
           </div>
@@ -221,9 +227,9 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
           {/* Causation / Impact Metrics Rail */}
           <div className="mt-5">
             <div className="mb-2 flex items-center justify-between">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">CAUSATION & IMPACT TRAIL</span>
+              <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">{t("receipt.impactTrail")}</span>
               <span className="text-[10px] font-medium text-emerald-400 flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" /> 100% Attributed
+                <TrendingUp className="h-3 w-3" /> {t("receipt.attributed")}
               </span>
             </div>
 
@@ -247,7 +253,7 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
 
           {/* Value Captured / Unlocked Strip */}
           <div className="mt-5 border-t border-dashed border-white/15 pt-4">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">VALUE UNLOCKED & KEPT</p>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">{t("receipt.valueUnlocked")}</p>
             <div className="mt-2.5 space-y-2">
               {receipt.rewards.map((r, i) => (
                 <div
@@ -276,7 +282,7 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
           {receipt.hostQuote && (
             <div className="mt-5 rounded-xl border border-amber-500/25 bg-amber-500/[0.05] p-3.5 text-xs text-amber-200/90">
               <div className="flex items-center gap-1.5 font-mono text-[10px] text-amber-400 uppercase tracking-wider">
-                <Quote className="h-3 w-3" /> Host Endorsement
+                <Quote className="h-3 w-3" /> {t("receipt.hostEndorsement")}
               </div>
               <p className="mt-1.5 italic leading-relaxed">"{receipt.hostQuote}"</p>
               {receipt.hostSigner && (
@@ -299,7 +305,7 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
                 }`}
               >
                 <Scissors className="mr-2 h-3.5 w-3.5" />
-                {isTorn ? "✓ Claimed & Deposited to Vault" : "Tear Perforation to Claim & Seal"}
+                {isTorn ? t("receipt.claimedVault") : t("receipt.tearClaim")}
               </Button>
             </div>
           )}
@@ -308,11 +314,11 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
           <div className="mt-5 flex items-center justify-between border-t border-dashed border-white/15 pt-4 text-[10px]">
             <div className="font-mono text-white/35">
               <p>HASH: {receipt.proofHash || `0x${receipt.id.replace(/-/g, "").slice(0, 16)}...`}</p>
-              <p>STATUS: PERMANENT VAULT RECORD</p>
+              <p>{t("receipt.statusVault")}</p>
             </div>
             <div className="flex items-center gap-1.5 font-mono text-emerald-400">
               <CheckCircle2 className="h-3.5 w-3.5" />
-              <span>IMMUTABLE</span>
+              <span>{t("receipt.immutable")}</span>
             </div>
           </div>
 
@@ -326,23 +332,23 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
                 className="flex-1 border-white/15 bg-white/[0.04] text-xs font-semibold text-white hover:bg-white/10 hover:text-white"
               >
                 {copied ? <Check className="mr-1.5 h-3.5 w-3.5 text-emerald-400" /> : <Copy className="mr-1.5 h-3.5 w-3.5 text-white/70" />}
-                {copied ? "Link Copied" : "Copy Link"}
+                {copied ? t("receipt.linkCopied") : t("receipt.copyLink")}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsStoryModalOpen(true)}
                 className="border-primary/30 bg-primary/10 px-3 text-xs text-primary hover:bg-primary/20"
-                title="Create 9:16 Social Story"
+                title={t("receipt.storyTitle")}
               >
-                <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Story
+                <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> {t("receipt.story")}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleShareX}
                 className="border-white/15 bg-white/[0.04] px-3 text-xs text-white hover:bg-white/10"
-                title="Share on X"
+                title={t("receipt.shareX")}
               >
                 <Share2 className="h-3.5 w-3.5" />
               </Button>
@@ -352,7 +358,7 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
                   size="sm"
                   onClick={onInspectProof}
                   className="border-white/15 bg-white/[0.04] px-3 text-xs text-white hover:bg-white/10"
-                  title="Inspect Proof"
+                  title={t("receipt.inspect")}
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                 </Button>

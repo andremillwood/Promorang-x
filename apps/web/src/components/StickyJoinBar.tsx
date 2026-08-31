@@ -5,6 +5,7 @@ import { SaveButton } from "@/components/SaveButton";
 import { Gift, Users, Flame, ChevronDown, Share2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { AccessState } from "@/lib/access";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface StickyJoinBarProps {
     momentId: string;
@@ -51,6 +52,7 @@ export function StickyJoinBar({
     const [isExpanded, setIsExpanded] = useState(false);
 
     const { toast } = useToast();
+    const { t } = useI18n();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -64,11 +66,11 @@ export function StickyJoinBar({
     }, []);
 
     const handlePingSquad = async () => {
-        const text = `I'm going to ${title}! Download Promorang and join me so we can unlock the Squad Bounty 🔒🔥`;
+        const text = t("joinBar.shareText", { title });
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: 'Join my Squad on Promorang!',
+                    title: t("joinBar.shareTitle"),
                     text: text,
                     url: window.location.href
                 });
@@ -78,8 +80,8 @@ export function StickyJoinBar({
         } else {
             await navigator.clipboard.writeText(`${text} ${window.location.href}`);
             toast({
-                title: "Squad Link Copied! 🔗",
-                description: "Paste this in your group chat to assemble your squad.",
+                title: t("joinBar.linkCopied"),
+                description: t("joinBar.linkCopiedCopy"),
             });
         }
     };
@@ -89,13 +91,13 @@ export function StickyJoinBar({
     const isFull = spotsLeft !== null && spotsLeft <= 0;
 
     const getButtonContent = () => {
-        if (isPast) return "Moment Ended";
-        if (!isLoggedIn) return "Sign In to Join";
-        if (isHost) return "Manage Moment";
-        if (isJoined) return "You're Joined ✓";
-        if (isFull) return "Moment Full";
+        if (isPast) return t("joinBar.ended");
+        if (!isLoggedIn) return t("joinBar.signIn");
+        if (isHost) return t("joinBar.manage");
+        if (isJoined) return t("joinBar.joined");
+        if (isFull) return t("joinBar.full");
         if (accessState && accessState.key !== "available") return accessState.ctaLabel;
-        return isJoining ? "Joining..." : "Join This Moment";
+        return isJoining ? t("joinBar.joining") : t("joinBar.join");
     };
 
     const getButtonVariant = () => {
@@ -123,7 +125,7 @@ export function StickyJoinBar({
                             <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                     <Users className="h-4 w-4" />
-                                    {participantCount} joined
+                                    {t("joinBar.joinedCount", { count: participantCount })}
                                 </span>
                                 {accessState && !isJoined && (
                                     <span className="font-medium text-foreground">
@@ -153,7 +155,7 @@ export function StickyJoinBar({
                                 onClick={() => setIsExpanded(!isExpanded)}
                                 className="flex min-h-[44px] items-center gap-2 rounded-full px-2 text-muted-foreground transition-colors hover:text-foreground"
                                 aria-expanded={isExpanded}
-                                aria-label={isExpanded ? "Collapse moment quick details" : "Expand moment quick details"}
+                                aria-label={isExpanded ? t("joinBar.collapse") : t("joinBar.expand")}
                             >
                                 <ChevronDown
                                     className={cn(
@@ -168,19 +170,19 @@ export function StickyJoinBar({
                                     {isAlmostFull && !isJoined && !isPast && (
                                         <span className="flex items-center gap-1 text-xs font-medium text-red-500 animate-pulse">
                                             <Flame className="h-3 w-3" />
-                                            {spotsLeft} spots left
+                                            {t("joinBar.spotsLeft", { count: spotsLeft ?? 0 })}
                                         </span>
                                     )}
                                     {participantCount > 10 && !isAlmostFull && (
                                         <span className="flex items-center gap-1 text-xs font-medium text-orange-500">
                                             <Flame className="h-3 w-3" />
-                                            Trending
+                                            {t("joinBar.trending")}
                                         </span>
                                     )}
                                 </div>
                                 <p className="text-sm text-muted-foreground truncate">
-                                    {participantCount} {participantCount === 1 ? "person" : "people"} joined
-                                    {maxParticipants && ` • ${maxParticipants - participantCount} spots left`}
+                                    {participantCount === 1 ? t("joinBar.personJoined", { count: participantCount }) : t("joinBar.peopleJoined", { count: participantCount })}
+                                    {maxParticipants ? ` • ${t("joinBar.spotsLeft", { count: maxParticipants - participantCount })}` : ""}
                                     {accessState && !isJoined && ` • ${accessState.label}`}
                                 </p>
                             </div>
@@ -198,7 +200,7 @@ export function StickyJoinBar({
                                     className="shrink-0 whitespace-nowrap border-amber-400/40 text-amber-600 dark:text-amber-300"
                                 >
                                     <Sparkles className="mr-2 h-4 w-4" />
-                                    {missionCount} Missions · +{missionPointTotal}
+                                    {t("joinBar.missions", { count: missionCount, points: missionPointTotal })}
                                 </Button>
                             ) : null}
                             {isJoined && !isPast && !isHost && (
@@ -209,7 +211,7 @@ export function StickyJoinBar({
                                     className="shrink-0 whitespace-nowrap border-accent text-accent hover:bg-accent/10"
                                 >
                                     <Share2 className="w-4 h-4 mr-2" />
-                                    Ping Squad
+                                    {t("joinBar.ping")}
                                 </Button>
                             )}
                             <Button
@@ -226,7 +228,7 @@ export function StickyJoinBar({
                     {!isExpanded && (
                         <div className="mt-2 flex items-center gap-2 text-xs font-medium text-muted-foreground sm:hidden">
                             <Sparkles className="h-3.5 w-3.5 text-primary" />
-                            Tap the chevron for quick details and squad actions.
+                            {t("joinBar.tapHint")}
                         </div>
                     )}
                 </div>

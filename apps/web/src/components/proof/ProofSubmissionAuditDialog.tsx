@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { CheckCircle2, Clock3, Gift, Loader2, ReceiptText, ScanSearch, ShieldCheck, Sparkles } from "lucide-react";
+import { Clock3, Gift, Loader2, ReceiptText, ScanSearch, ShieldCheck, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/i18n/I18nContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -73,6 +73,7 @@ export function ProofSubmissionAuditDialog({
   triggerLabel?: string;
 }) {
   const { session } = useAuth();
+  const { t, formatDate } = useI18n();
   const [open, setOpen] = useState(false);
 
   const auditQuery = useQuery({
@@ -101,9 +102,9 @@ export function ProofSubmissionAuditDialog({
       </DialogTrigger>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Proof Submission Audit</DialogTitle>
+          <DialogTitle>{t("auditDlg.title")}</DialogTitle>
           <DialogDescription>
-            Follow the chain from proof submission through verification, reward, memory, and payout.
+            {t("auditDlg.desc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -126,14 +127,14 @@ export function ProofSubmissionAuditDialog({
           <div className="space-y-5">
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Submission</p>
-                <p className="mt-2 text-sm font-semibold text-foreground">{audit.submission.moment?.title || "Untitled moment"}</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t("auditDlg.submission")}</p>
+                <p className="mt-2 text-sm font-semibold text-foreground">{audit.submission.moment?.title || t("auditDlg.untitled")}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {audit.submission.proof_bundle?.proof_type || "Unknown proof"} • {format(new Date(audit.submission.created_at), "MMM d, h:mm a")}
+                  {audit.submission.proof_bundle?.proof_type || t("auditDlg.unknown")} • {formatDate(audit.submission.created_at, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
                 </p>
               </div>
               <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Status</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t("auditDlg.status")}</p>
                 <div className="mt-2 flex items-center gap-2">
                   <Badge variant="outline" className={audit.submission.submission_state === "verified" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700" : audit.submission.submission_state === "rejected" ? "border-destructive/20 bg-destructive/10 text-destructive" : "border-amber-500/20 bg-amber-500/10 text-amber-700"}>
                     {audit.submission.submission_state}
@@ -144,11 +145,11 @@ export function ProofSubmissionAuditDialog({
                 ) : null}
               </div>
               <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Outcomes</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t("auditDlg.outcomes")}</p>
                 <div className="mt-2 space-y-1 text-sm text-foreground">
-                  <p>{audit.reward_count} reward record(s)</p>
-                  <p>{audit.memory_count} memory record(s)</p>
-                  <p>{audit.payout_count} payout record(s)</p>
+                  <p>{t("auditDlg.rewards", { count: audit.reward_count })}</p>
+                  <p>{t("auditDlg.memories", { count: audit.memory_count })}</p>
+                  <p>{t("auditDlg.payouts", { count: audit.payout_count })}</p>
                 </div>
               </div>
             </div>
@@ -157,7 +158,7 @@ export function ProofSubmissionAuditDialog({
               <div className="overflow-hidden rounded-2xl border border-border bg-muted">
                 <img
                   src={audit.submission.proof_bundle.evidence_url}
-                  alt="Proof evidence"
+                  alt={t("auditDlg.evidenceAlt")}
                   className="max-h-72 w-full object-cover"
                 />
               </div>
@@ -165,13 +166,13 @@ export function ProofSubmissionAuditDialog({
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Audit Timeline</p>
-                <p className="text-xs text-muted-foreground">{audit.timeline.length} tracked events</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{t("auditDlg.timeline")}</p>
+                <p className="text-xs text-muted-foreground">{t("auditDlg.events", { count: audit.timeline.length })}</p>
               </div>
 
               {audit.timeline.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-border bg-card/50 p-6 text-center text-sm text-muted-foreground">
-                  No audit events were found for this submission.
+                  {t("auditDlg.empty")}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -187,7 +188,7 @@ export function ProofSubmissionAuditDialog({
                             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                               <p className="font-medium text-foreground">{entry.title}</p>
                               <p className="text-xs text-muted-foreground">
-                                {format(new Date(entry.at), "MMM d, h:mm a")}
+                                {formatDate(entry.at, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
                               </p>
                             </div>
                             {entry.detail ? (
@@ -205,7 +206,7 @@ export function ProofSubmissionAuditDialog({
         ) : (
           <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Loading audit details...
+            {t("auditDlg.loading")}
           </div>
         )}
       </DialogContent>

@@ -16,8 +16,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { useI18n } from "@/i18n/I18nContext";
 
 export const HostSyndicateSimulator: React.FC = () => {
+  const { t, formatNumber } = useI18n();
   const [productionCost, setProductionCost] = useState<number>(3500);
   const [venueCapacity, setVenueCapacity] = useState<number>(200);
   const [ticketPrice, setTicketPrice] = useState<number>(35);
@@ -63,13 +65,13 @@ export const HostSyndicateSimulator: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold tracking-wider uppercase mb-2">
             <Ticket className="w-3.5 h-3.5" />
-            Event Producer & Syndicate Simulator
+            {t("hostSynd.badge")}
           </div>
           <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            De-Risk Production Costs Before Doors Open
+            {t("hostSynd.title")}
           </h3>
           <p className="text-sm text-white/60 mt-1 max-w-xl">
-            Never risk personal savings on venue deposits or talent. Calculate how many Co-Producer Backers you need to achieve 100% breakeven before opening night.
+            {t("hostSynd.copy")}
           </p>
         </div>
 
@@ -77,7 +79,7 @@ export const HostSyndicateSimulator: React.FC = () => {
           variant="outline"
           className="self-start md:self-auto border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-mono text-xs px-3 py-1.5"
         >
-          ZERO-RISK PRODUCTION
+          {t("hostSynd.zeroRisk")}
         </Badge>
       </div>
 
@@ -88,9 +90,9 @@ export const HostSyndicateSimulator: React.FC = () => {
             {/* Upfront Production Cost */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-white/90">Upfront Production Budget (Venue, Sound, Talent)</span>
+                <span className="font-semibold text-white/90">{t("hostSynd.budget")}</span>
                 <span className="font-mono text-cyan-400 font-bold text-sm">
-                  ${productionCost.toLocaleString()} USD
+                  {t("hostSynd.usd", { amount: formatNumber(productionCost) })}
                 </span>
               </div>
               <Slider
@@ -102,18 +104,18 @@ export const HostSyndicateSimulator: React.FC = () => {
                 className="py-1 cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-white/40 font-mono">
-                <span>$500 (Intimate)</span>
-                <span>$5,000 (Concert/Party)</span>
-                <span>$15,000+ (Festival/Showcase)</span>
+                <span>{t("hostSynd.intimate")}</span>
+                <span>{t("hostSynd.concert")}</span>
+                <span>{t("hostSynd.festival")}</span>
               </div>
             </div>
 
             {/* Venue Capacity */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-white/90">Total Venue Guest Capacity</span>
+                <span className="font-semibold text-white/90">{t("hostSynd.capacity")}</span>
                 <span className="font-mono text-white/90 font-bold text-sm">
-                  {venueCapacity} capacity
+                  {t("hostSynd.capacityCount", { count: formatNumber(venueCapacity) })}
                 </span>
               </div>
               <Slider
@@ -130,7 +132,7 @@ export const HostSyndicateSimulator: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-semibold text-white/80">GA Ticket Price</span>
+                  <span className="font-semibold text-white/80">{t("hostSynd.gaPrice")}</span>
                   <span className="font-mono text-emerald-400 font-bold">${ticketPrice}</span>
                 </div>
                 <Slider
@@ -145,7 +147,7 @@ export const HostSyndicateSimulator: React.FC = () => {
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-semibold text-white/80">Co-Producer Tier</span>
+                  <span className="font-semibold text-white/80">{t("hostSynd.coTier")}</span>
                   <span className="font-mono text-amber-400 font-bold">${coProducerTierPrice}</span>
                 </div>
                 <Slider
@@ -168,15 +170,18 @@ export const HostSyndicateSimulator: React.FC = () => {
               </div>
               <div>
                 <div className="text-xs font-bold text-white">
-                  Built-in Viral Street Team
+                  {t("hostSynd.streetTeam")}
                 </div>
                 <div className="text-[11px] text-white/70">
-                  Your {syndicateMetrics.backersNeededForBreakeven} Co-Producers will organically drive ~{syndicateMetrics.guaranteedPeerArrivals} peer ticket sales.
+                  {t("hostSynd.streetCopy", {
+                    backers: formatNumber(syndicateMetrics.backersNeededForBreakeven),
+                    peers: formatNumber(syndicateMetrics.guaranteedPeerArrivals),
+                  })}
                 </div>
               </div>
             </div>
             <Badge className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[10px]">
-              ORGANIC FLYWHEEL
+              {t("hostSynd.flywheel")}
             </Badge>
           </div>
         </div>
@@ -186,38 +191,41 @@ export const HostSyndicateSimulator: React.FC = () => {
           <div className="p-6 rounded-3xl bg-gradient-to-b from-cyan-950/40 via-zinc-900 to-zinc-950 border border-cyan-500/30 shadow-2xl space-y-6">
             <div className="flex items-center justify-between">
               <span className="text-xs uppercase font-mono tracking-widest text-cyan-300">
-                Syndicate Breakeven Target
+                {t("hostSynd.target")}
               </span>
               <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-400">
-                <ShieldCheck className="w-3.5 h-3.5" /> 100% PRE-FUNDED
+                <ShieldCheck className="w-3.5 h-3.5" /> {t("hostSynd.prefunded")}
               </div>
             </div>
 
             {/* Target Backers */}
             <div>
               <div className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                {syndicateMetrics.backersNeededForBreakeven}
-                <span className="text-base font-semibold text-white/50 ml-2">Co-Producer Backers</span>
+                {formatNumber(syndicateMetrics.backersNeededForBreakeven)}
+                <span className="text-base font-semibold text-white/50 ml-2">{t("hostSynd.backers")}</span>
               </div>
               <div className="text-xs text-cyan-300 font-mono mt-1">
-                at ${coProducerTierPrice}/pass = ${productionCost.toLocaleString()} (100% Breakeven)
+                {t("hostSynd.atPass", {
+                  price: `$${formatNumber(coProducerTierPrice)}`,
+                  budget: `$${formatNumber(productionCost)}`,
+                })}
               </div>
             </div>
 
             {/* Projected Net Profit */}
             <div className="space-y-2.5 pt-4 border-t border-white/10 text-xs">
               <div className="flex justify-between text-white/70">
-                <span>General Admission Tickets Left:</span>
-                <span className="font-mono font-bold text-white">{syndicateMetrics.remainingCap} tickets</span>
+                <span>{t("hostSynd.gaLeft")}</span>
+                <span className="font-mono font-bold text-white">{t("hostSynd.tickets", { count: formatNumber(syndicateMetrics.remainingCap) })}</span>
               </div>
               <div className="flex justify-between text-white/70">
-                <span>Projected GA Box Office Revenue:</span>
-                <span className="font-mono font-bold text-white">${syndicateMetrics.projectedGaRevenue.toLocaleString()}</span>
+                <span>{t("hostSynd.gaRev")}</span>
+                <span className="font-mono font-bold text-white">${formatNumber(syndicateMetrics.projectedGaRevenue)}</span>
               </div>
               <div className="flex justify-between text-white/70">
-                <span>Projected Net Producer Profit:</span>
+                <span>{t("hostSynd.netProfit")}</span>
                 <span className="font-mono font-bold text-emerald-400 text-sm">
-                  +${syndicateMetrics.netProducerProfit.toLocaleString()} USD
+                  {t("hostSynd.profitUsd", { amount: formatNumber(syndicateMetrics.netProducerProfit) })}
                 </span>
               </div>
             </div>
@@ -227,17 +235,17 @@ export const HostSyndicateSimulator: React.FC = () => {
           <div className="p-5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 space-y-3">
             <div className="flex items-center gap-2 text-cyan-300 text-xs font-bold uppercase tracking-wider">
               <CheckCircle2 className="w-4 h-4" />
-              Open Your Syndicate in Minutes
+              {t("hostSynd.open")}
             </div>
             <p className="text-xs text-white/70">
-              Create your event page and issue Co-Producer passes to fund your <strong>${productionCost.toLocaleString()}</strong> budget with zero out-of-pocket risk.
+              {t("hostSynd.openCopy", { amount: `$${formatNumber(productionCost)}` })}
             </p>
             <Button
               asChild
               className="w-full h-11 bg-cyan-500 hover:bg-cyan-600 text-gray-950 font-black text-sm shadow-xl shadow-cyan-500/20"
             >
               <Link to={`/hosting?budget=${productionCost}&cap=${venueCapacity}`}>
-                Launch Syndicate & Open Pre-Sales
+                {t("hostSynd.launchCta")}
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Link>
             </Button>

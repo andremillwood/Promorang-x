@@ -18,10 +18,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 import { HostPulseControlPanel } from "@/components/host/HostPulseControlPanel";
 
 export function HostLivePulseConsole() {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [announcementText, setAnnouncementText] = useState("");
   const [pulseActive, setPulseActive] = useState(true);
 
@@ -29,8 +31,8 @@ export function HostLivePulseConsole() {
     e.preventDefault();
     if (!announcementText.trim()) return;
     toast({
-      title: "Stage Announcement Pushed! 📢",
-      description: `Broadcast to 68 attendees in the room: "${announcementText}"`,
+      title: t("hostPulse.toastTitle"),
+      description: t("hostPulse.toastBody", { count: 68, text: announcementText }),
     });
     setAnnouncementText("");
   };
@@ -52,14 +54,14 @@ export function HostLivePulseConsole() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Live On-Site Pulse & Stage Transmitter</h2>
+              <h2 className="text-2xl font-black text-white">{t("hostPulse.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse inline-block mr-1" />
-                Beacon Live
+                {t("hostPulse.beacon")}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Real-time room occupancy, live attendee reception, and micro-broadcast push notifications.
+              {t("hostPulse.subtitle")}
             </p>
           </div>
         </div>
@@ -67,12 +69,12 @@ export function HostLivePulseConsole() {
         {/* Live Attendance Pills */}
         <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
           <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-            <p className="text-[10px] uppercase font-bold text-white/50">Checked In Now</p>
-            <p className="text-base font-black text-amber-400">68 Guests</p>
+            <p className="text-[10px] uppercase font-bold text-white/50">{t("hostPulse.checkedIn")}</p>
+            <p className="text-base font-black text-amber-400">{t("hostPulse.guests", { count: 68 })}</p>
           </div>
           <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-            <p className="text-[10px] uppercase font-bold text-white/50">Vibe Level</p>
-            <p className="text-base font-black text-emerald-400">98% High</p>
+            <p className="text-[10px] uppercase font-bold text-white/50">{t("hostPulse.vibe")}</p>
+            <p className="text-base font-black text-emerald-400">{t("hostPulse.vibeHigh")}</p>
           </div>
         </div>
       </div>
@@ -85,35 +87,39 @@ export function HostLivePulseConsole() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Megaphone className="h-5 w-5 text-amber-400" />
-                <h3 className="font-bold text-base text-white">Instant In-Room Stage Broadcast</h3>
+                <h3 className="font-bold text-base text-white">{t("hostPulse.broadcastTitle")}</h3>
               </div>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-bold uppercase">
-                Push Beacon
+                {t("hostPulse.pushBeacon")}
               </span>
             </div>
 
             <p className="text-xs text-white/60">
-              Sends an instant high-priority vibrating notification to all checked-in attendees inside your venue.
+              {t("hostPulse.broadcastHint")}
             </p>
 
             <form onSubmit={handleBroadcast} className="space-y-3">
               <Input
                 value={announcementText}
                 onChange={(e) => setAnnouncementText(e.target.value)}
-                placeholder="e.g. Free Rum Punch Tasting starting at the main bar in 5 mins! 🍹"
+                placeholder={t("hostPulse.announcePh")}
                 className="h-12 rounded-2xl border-white/15 bg-white/5 text-white text-xs focus:border-amber-400"
               />
 
               <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                 <div className="flex gap-2">
-                  {["🍹 Flash Tasting", "🎵 Next Set", "📸 Photo Drop"].map((tag) => (
+                  {[
+                    { key: "tasting" as const, emoji: "🍹", label: t("hostPulse.tagTasting") },
+                    { key: "set" as const, emoji: "🎵", label: t("hostPulse.tagSet") },
+                    { key: "photo" as const, emoji: "📸", label: t("hostPulse.tagPhoto") },
+                  ].map((tag) => (
                     <button
-                      key={tag}
+                      key={tag.key}
                       type="button"
-                      onClick={() => setAnnouncementText(`${tag}: Announcement to all guests!`)}
+                      onClick={() => setAnnouncementText(t("hostPulse.tagFill", { tag: `${tag.emoji} ${tag.label}` }))}
                       className="px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white text-[11px] font-semibold transition"
                     >
-                      {tag}
+                      {tag.emoji} {tag.label}
                     </button>
                   ))}
                 </div>
@@ -124,7 +130,7 @@ export function HostLivePulseConsole() {
                   className="h-10 px-5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-black font-extrabold text-xs shadow-md"
                 >
                   <Volume2 className="h-4 w-4 mr-1.5" />
-                  Push to Room
+                  {t("hostPulse.push")}
                 </Button>
               </div>
             </form>
@@ -142,10 +148,10 @@ export function HostLivePulseConsole() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-amber-400" />
-                <h3 className="font-bold text-sm text-white">Live In-Venue Attendees</h3>
+                <h3 className="font-bold text-sm text-white">{t("hostPulse.attendees")}</h3>
               </div>
               <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">
-                Sync Active
+                {t("hostPulse.sync")}
               </span>
             </div>
 

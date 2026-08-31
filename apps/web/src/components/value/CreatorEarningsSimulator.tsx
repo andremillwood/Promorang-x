@@ -17,10 +17,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 interface NicheOption {
   id: string;
-  name: string;
+  nameKey: TranslationKey;
   avgBounty: number;
   perArrivalRate: number;
   sampleBrand: string;
@@ -29,28 +31,28 @@ interface NicheOption {
 const NICHES: NicheOption[] = [
   {
     id: "nightlife",
-    name: "Nightlife & Music",
+    nameKey: "creatorEarn.nightlife",
     avgBounty: 250,
     perArrivalRate: 12,
     sampleBrand: "Soundstage Sessions",
   },
   {
     id: "culinary",
-    name: "Culinary & Cocktails",
+    nameKey: "creatorEarn.culinary",
     avgBounty: 200,
     perArrivalRate: 10,
     sampleBrand: "District Food Crawl",
   },
   {
     id: "arts",
-    name: "Culture & Visual Arts",
+    nameKey: "creatorEarn.arts",
     avgBounty: 180,
     perArrivalRate: 8,
     sampleBrand: "Underground Gallery Walk",
   },
   {
     id: "wellness",
-    name: "Wellness & Active Lifestyle",
+    nameKey: "creatorEarn.wellness",
     avgBounty: 220,
     perArrivalRate: 14,
     sampleBrand: "Sunrise Sound Bath",
@@ -58,6 +60,7 @@ const NICHES: NicheOption[] = [
 ];
 
 export const CreatorEarningsSimulator: React.FC = () => {
+  const { t, formatNumber } = useI18n();
   const [selectedNiche, setSelectedNiche] = useState<NicheOption>(NICHES[0]);
   const [dropsPerMonth, setDropsPerMonth] = useState<number>(3);
   const [arrivalsPerDrop, setArrivalsPerDrop] = useState<number>(25);
@@ -89,13 +92,13 @@ export const CreatorEarningsSimulator: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-bold tracking-wider uppercase mb-2">
             <Gem className="w-3.5 h-3.5" />
-            Tastemaker Payout Simulator
+            {t("creatorEarn.badge")}
           </div>
           <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            Predictable Creator Monetization
+            {t("creatorEarn.title")}
           </h3>
           <p className="text-sm text-white/60 mt-1 max-w-xl">
-            Never depend on arbitrary algorithm RPMs or cheap promo codes. Get paid in cash + gems for verified scene curation and guest arrivals.
+            {t("creatorEarn.copy")}
           </p>
         </div>
 
@@ -103,7 +106,7 @@ export const CreatorEarningsSimulator: React.FC = () => {
           variant="outline"
           className="self-start md:self-auto border-purple-500/40 bg-purple-500/10 text-purple-300 font-mono text-xs px-3 py-1.5"
         >
-          DIRECT ESCROW PAYOUTS
+          {t("creatorEarn.escrow")}
         </Badge>
       </div>
 
@@ -112,7 +115,7 @@ export const CreatorEarningsSimulator: React.FC = () => {
         <div className="lg:col-span-7 space-y-6">
           {/* Niche Selector */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-white/80">Select Your Primary Curation Vibe</label>
+            <label className="text-xs font-semibold text-white/80">{t("creatorEarn.vibe")}</label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {NICHES.map((niche) => (
                 <button
@@ -124,8 +127,8 @@ export const CreatorEarningsSimulator: React.FC = () => {
                       : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white"
                   }`}
                 >
-                  <div className="font-bold">{niche.name}</div>
-                  <div className="text-[10px] text-purple-300 mt-1">${niche.perArrivalRate}/arrival</div>
+                  <div className="font-bold">{t(niche.nameKey)}</div>
+                  <div className="text-[10px] text-purple-300 mt-1">{t("creatorEarn.perArrival", { amount: formatNumber(niche.perArrivalRate) })}</div>
                 </button>
               ))}
             </div>
@@ -136,9 +139,9 @@ export const CreatorEarningsSimulator: React.FC = () => {
             {/* Curated Drops per Month */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-white/90">Curated Media Drops / Recommendations per Month</span>
+                <span className="font-semibold text-white/90">{t("creatorEarn.dropsLabel")}</span>
                 <span className="font-mono text-purple-400 font-bold text-sm">
-                  {dropsPerMonth} drops / month
+                  {t("creatorEarn.dropsCount", { count: formatNumber(dropsPerMonth) })}
                 </span>
               </div>
               <Slider
@@ -150,18 +153,18 @@ export const CreatorEarningsSimulator: React.FC = () => {
                 className="py-1 cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-white/40 font-mono">
-                <span>1 drop (Weekend casual)</span>
-                <span>6 drops</span>
-                <span>12 drops (Full-time curator)</span>
+                <span>{t("creatorEarn.drop1")}</span>
+                <span>{t("creatorEarn.drop6")}</span>
+                <span>{t("creatorEarn.drop12")}</span>
               </div>
             </div>
 
             {/* Verified Arrivals per Drop */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-white/90">Estimated Verified Guest Check-Ins per Drop</span>
+                <span className="font-semibold text-white/90">{t("creatorEarn.arrivalsLabel")}</span>
                 <span className="font-mono text-amber-400 font-bold text-sm">
-                  {arrivalsPerDrop} arrivals / drop
+                  {t("creatorEarn.arrivalsCount", { count: formatNumber(arrivalsPerDrop) })}
                 </span>
               </div>
               <Slider
@@ -173,9 +176,9 @@ export const CreatorEarningsSimulator: React.FC = () => {
                 className="py-1 cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-white/40 font-mono">
-                <span>5 arrivals</span>
-                <span>50 arrivals</span>
-                <span>150+ arrivals</span>
+                <span>{t("creatorEarn.arrivals5")}</span>
+                <span>{t("creatorEarn.arrivals50")}</span>
+                <span>{t("creatorEarn.arrivals150")}</span>
               </div>
             </div>
           </div>
@@ -188,15 +191,18 @@ export const CreatorEarningsSimulator: React.FC = () => {
               </div>
               <div>
                 <div className="text-xs font-bold text-white">
-                  Sample Open Bounty: {selectedNiche.sampleBrand}
+                  {t("creatorEarn.sampleBounty", { brand: selectedNiche.sampleBrand })}
                 </div>
                 <div className="text-[11px] text-white/60">
-                  ${selectedNiche.avgBounty} base media drop fee + ${selectedNiche.perArrivalRate} per verified guest
+                  {t("creatorEarn.sampleFee", {
+                    bounty: formatNumber(selectedNiche.avgBounty),
+                    rate: formatNumber(selectedNiche.perArrivalRate),
+                  })}
                 </div>
               </div>
             </div>
             <Badge className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px]">
-              AVAILABLE NOW
+              {t("creatorEarn.available")}
             </Badge>
           </div>
         </div>
@@ -206,37 +212,37 @@ export const CreatorEarningsSimulator: React.FC = () => {
           <div className="p-6 rounded-3xl bg-gradient-to-b from-purple-950/40 via-zinc-900 to-zinc-950 border border-purple-500/30 shadow-2xl space-y-6">
             <div className="flex items-center justify-between">
               <span className="text-xs uppercase font-mono tracking-widest text-purple-300">
-                Projected Monthly Income
+                {t("creatorEarn.projected")}
               </span>
               <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-400">
-                <ShieldCheck className="w-3.5 h-3.5" /> ESCROW SECURED
+                <ShieldCheck className="w-3.5 h-3.5" /> {t("creatorEarn.escrowSecured")}
               </div>
             </div>
 
             {/* Big Cash Display */}
             <div>
               <div className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                ${earnings.totalMonthlyCash.toLocaleString()}
-                <span className="text-sm font-semibold text-white/50 ml-1.5">/ month</span>
+                ${formatNumber(earnings.totalMonthlyCash)}
+                <span className="text-sm font-semibold text-white/50 ml-1.5">{t("creatorEarn.perMonth")}</span>
               </div>
               <div className="text-xs text-amber-300 font-mono mt-1 flex items-center gap-1">
-                <Gem className="w-3.5 h-3.5" /> +{earnings.totalGems.toLocaleString()} VIP Gems
+                <Gem className="w-3.5 h-3.5" /> {t("creatorEarn.vipGems", { count: formatNumber(earnings.totalGems) })}
               </div>
             </div>
 
             {/* Breakdown List */}
             <div className="space-y-2.5 pt-4 border-t border-white/10 text-xs">
               <div className="flex justify-between text-white/70">
-                <span>Verified Arrival Rewards:</span>
-                <span className="font-mono font-bold text-white">${earnings.arrivalPayout.toLocaleString()}</span>
+                <span>{t("creatorEarn.arrivalRewards")}</span>
+                <span className="font-mono font-bold text-white">${formatNumber(earnings.arrivalPayout)}</span>
               </div>
               <div className="flex justify-between text-white/70">
-                <span>Direct Media Drop Retainers:</span>
-                <span className="font-mono font-bold text-white">${earnings.contentBounties.toLocaleString()}</span>
+                <span>{t("creatorEarn.retainers")}</span>
+                <span className="font-mono font-bold text-white">${formatNumber(earnings.contentBounties)}</span>
               </div>
               <div className="flex justify-between text-white/70">
-                <span>Total Monthly Verified Guests:</span>
-                <span className="font-mono font-bold text-purple-400">{earnings.totalArrivals} guests</span>
+                <span>{t("creatorEarn.totalGuests")}</span>
+                <span className="font-mono font-bold text-purple-400">{t("creatorEarn.guestsCount", { count: formatNumber(earnings.totalArrivals) })}</span>
               </div>
             </div>
           </div>
@@ -245,17 +251,17 @@ export const CreatorEarningsSimulator: React.FC = () => {
           <div className="p-5 rounded-2xl bg-purple-500/10 border border-purple-500/30 space-y-3">
             <div className="flex items-center gap-2 text-purple-300 text-xs font-bold uppercase tracking-wider">
               <CheckCircle2 className="w-4 h-4" />
-              Claim Your Creator Profile
+              {t("creatorEarn.claimProfile")}
             </div>
             <p className="text-xs text-white/70">
-              Lock in your creator handle and start curating bounties with your projected <strong>${earnings.totalMonthlyCash.toLocaleString()}</strong> monthly earning potential.
+              {t("creatorEarn.lockIn", { amount: `$${formatNumber(earnings.totalMonthlyCash)}` })}
             </p>
             <Button
               asChild
               className="w-full h-11 bg-purple-500 hover:bg-purple-600 text-white font-black text-sm shadow-xl shadow-purple-500/20"
             >
               <Link to={`/for-creators?projEarn=${earnings.totalMonthlyCash}&niche=${selectedNiche.id}`}>
-                Claim Creator Handle & Access Bounties
+                {t("creatorEarn.claimCta")}
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Link>
             </Button>

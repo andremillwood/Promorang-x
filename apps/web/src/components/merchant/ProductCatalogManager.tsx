@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -65,6 +67,35 @@ interface Product {
 const ProductCatalogManager = () => {
     const { user, session } = useAuth();
     const { toast } = useToast();
+    const { t } = useI18n();
+
+    const kindLabel = (value?: string) => {
+        const keys: Record<string, TranslationKey> = {
+            product: "merchCat.kindProduct",
+            service: "merchCat.kindService",
+            experience: "merchCat.kindExp",
+            perk: "merchCat.kindPerk",
+        };
+        return value && keys[value] ? t(keys[value]) : (value || t("merchCat.kindProduct"));
+    };
+    const fulfillLabel = (value?: string) => {
+        const keys: Record<string, TranslationKey> = {
+            pickup: "merchCat.pickup",
+            booking: "merchCat.booking",
+            reservation: "merchCat.reservation",
+            online: "merchCat.online",
+            onsite: "merchCat.onsite",
+        };
+        return value && keys[value] ? t(keys[value]) : (value || t("merchCat.pickup"));
+    };
+    const visLabel = (value?: string) => {
+        const keys: Record<string, TranslationKey> = {
+            public: "merchCat.visPublic",
+            moment_participants: "merchCat.visMoment",
+            hidden: "merchCat.visHidden",
+        };
+        return value && keys[value] ? t(keys[value]) : (value || t("merchCat.visPublic"));
+    };
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -113,7 +144,7 @@ const ProductCatalogManager = () => {
             setProducts(data);
         } catch (error: any) {
             toast({
-                title: "Error",
+                title: t("merchCat.err"),
                 description: error.message,
                 variant: "destructive",
             });
@@ -168,8 +199,8 @@ const ProductCatalogManager = () => {
             if (!response.ok) throw new Error('Failed to save product');
 
             toast({
-                title: "Success",
-                description: `Product ${editingProduct ? 'updated' : 'created'} successfully`,
+                title: t("merchCat.ok"),
+                description: editingProduct ? t("merchCat.updated") : t("merchCat.created"),
             });
 
             setIsDialogOpen(false);
@@ -177,7 +208,7 @@ const ProductCatalogManager = () => {
             fetchProducts();
         } catch (error: any) {
             toast({
-                title: "Error",
+                title: t("merchCat.err"),
                 description: error.message,
                 variant: "destructive",
             });
@@ -210,7 +241,7 @@ const ProductCatalogManager = () => {
     };
 
     const handleDelete = async (productId: string) => {
-        if (!confirm('Are you sure you want to delete this product?')) return;
+        if (!confirm(t("merchCat.confirmDel"))) return;
 
         try {
             const response = await fetch(`${API_URL}/api/merchant/products/${productId}`, {
@@ -223,14 +254,14 @@ const ProductCatalogManager = () => {
             if (!response.ok) throw new Error('Failed to delete product');
 
             toast({
-                title: "Success",
-                description: "Product deleted successfully",
+                title: t("merchCat.ok"),
+                description: t("merchCat.deleted"),
             });
 
             fetchProducts();
         } catch (error: any) {
             toast({
-                title: "Error",
+                title: t("merchCat.err"),
                 description: error.message,
                 variant: "destructive",
             });
@@ -271,8 +302,8 @@ const ProductCatalogManager = () => {
         <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                    <h2 className="text-2xl font-bold text-foreground">Product Catalog</h2>
-                    <p className="text-muted-foreground">Manage your products and inventory</p>
+                    <h2 className="text-2xl font-bold text-foreground">{t("merchCat.title")}</h2>
+                    <p className="text-muted-foreground">{t("merchCat.copy")}</p>
                 </div>
 
                 <Dialog open={isDialogOpen} onOpenChange={(open) => {
@@ -282,21 +313,21 @@ const ProductCatalogManager = () => {
                     <DialogTrigger asChild>
                         <Button>
                             <Plus className="w-4 h-4 mr-2" />
-                            Add Product
+                            {t("merchCat.add")}
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl">
                         <DialogHeader>
-                            <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+                            <DialogTitle>{editingProduct ? t("merchCat.edit") : t("merchCat.addNew")}</DialogTitle>
                             <DialogDescription>
-                                {editingProduct ? 'Update product details' : 'Create a new product in your catalog'}
+                                {editingProduct ? t("merchCat.updateDetails") : t("merchCat.createCopy")}
                             </DialogDescription>
                         </DialogHeader>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div className="sm:col-span-2">
-                                    <Label htmlFor="name">Product Name *</Label>
+                                    <Label htmlFor="name">{t("merchCat.name")}</Label>
                                     <Input
                                         id="name"
                                         value={formData.name}
@@ -306,7 +337,7 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div className="sm:col-span-2">
-                                    <Label htmlFor="description">Description</Label>
+                                    <Label htmlFor="description">{t("merchCat.desc")}</Label>
                                     <Textarea
                                         id="description"
                                         value={formData.description}
@@ -316,7 +347,7 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="category">Category</Label>
+                                    <Label htmlFor="category">{t("merchCat.category")}</Label>
                                     <Select
                                         value={formData.category}
                                         onValueChange={(value) => setFormData({
@@ -327,38 +358,38 @@ const ProductCatalogManager = () => {
                                         })}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select category" />
+                                            <SelectValue placeholder={t("merchCat.selectCat")} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="food">Food & Beverage</SelectItem>
-                                            <SelectItem value="retail">Retail</SelectItem>
-                                            <SelectItem value="service">Service</SelectItem>
-                                            <SelectItem value="entertainment">Entertainment</SelectItem>
-                                            <SelectItem value="other">Other</SelectItem>
+                                            <SelectItem value="food">{t("merchCat.catFood")}</SelectItem>
+                                            <SelectItem value="retail">{t("merchCat.catRetail")}</SelectItem>
+                                            <SelectItem value="service">{t("merchCat.catService")}</SelectItem>
+                                            <SelectItem value="entertainment">{t("merchCat.catEnt")}</SelectItem>
+                                            <SelectItem value="other">{t("merchCat.catOther")}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="listing_kind">Storefront Type</Label>
+                                    <Label htmlFor="listing_kind">{t("merchCat.storeType")}</Label>
                                     <Select
                                         value={formData.listing_kind}
                                         onValueChange={(value) => setFormData({ ...formData, listing_kind: value })}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Listing type" />
+                                            <SelectValue placeholder={t("merchCat.listingType")} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="product">Product</SelectItem>
-                                            <SelectItem value="service">Service</SelectItem>
-                                            <SelectItem value="experience">Experience</SelectItem>
-                                            <SelectItem value="perk">Perk</SelectItem>
+                                            <SelectItem value="product">{t("merchCat.kindProduct")}</SelectItem>
+                                            <SelectItem value="service">{t("merchCat.kindService")}</SelectItem>
+                                            <SelectItem value="experience">{t("merchCat.kindExp")}</SelectItem>
+                                            <SelectItem value="perk">{t("merchCat.kindPerk")}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
 
                                 <div className="sm:col-span-2">
-                                    <Label htmlFor="image_url">Storefront Image URL</Label>
+                                    <Label htmlFor="image_url">{t("merchCat.image")}</Label>
                                     <Input
                                         id="image_url"
                                         value={formData.image_url}
@@ -368,61 +399,61 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="fulfillment_mode">Fulfillment</Label>
+                                    <Label htmlFor="fulfillment_mode">{t("merchCat.fulfillment")}</Label>
                                     <Select
                                         value={formData.fulfillment_mode}
                                         onValueChange={(value) => setFormData({ ...formData, fulfillment_mode: value })}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Fulfillment mode" />
+                                            <SelectValue placeholder={t("merchCat.fulfillMode")} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="pickup">Pickup</SelectItem>
-                                            <SelectItem value="booking">Booking</SelectItem>
-                                            <SelectItem value="reservation">Reservation</SelectItem>
-                                            <SelectItem value="online">Online</SelectItem>
-                                            <SelectItem value="onsite">On-site redemption</SelectItem>
+                                            <SelectItem value="pickup">{t("merchCat.pickup")}</SelectItem>
+                                            <SelectItem value="booking">{t("merchCat.booking")}</SelectItem>
+                                            <SelectItem value="reservation">{t("merchCat.reservation")}</SelectItem>
+                                            <SelectItem value="online">{t("merchCat.online")}</SelectItem>
+                                            <SelectItem value="onsite">{t("merchCat.onsite")}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="visibility">Visibility</Label>
+                                    <Label htmlFor="visibility">{t("merchCat.visibility")}</Label>
                                     <Select
                                         value={formData.visibility}
                                         onValueChange={(value) => setFormData({ ...formData, visibility: value })}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Visibility" />
+                                            <SelectValue placeholder={t("merchCat.visibility")} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="public">Public storefront</SelectItem>
-                                            <SelectItem value="moment_participants">Moment participants</SelectItem>
-                                            <SelectItem value="hidden">Hidden</SelectItem>
+                                            <SelectItem value="public">{t("merchCat.visPublic")}</SelectItem>
+                                            <SelectItem value="moment_participants">{t("merchCat.visMoment")}</SelectItem>
+                                            <SelectItem value="hidden">{t("merchCat.visHidden")}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="discount_type">Discount Type</Label>
+                                    <Label htmlFor="discount_type">{t("merchCat.discType")}</Label>
                                     <Select
                                         value={formData.discount_type}
                                         onValueChange={(value) => setFormData({ ...formData, discount_type: value })}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select type" />
+                                            <SelectValue placeholder={t("merchCat.selectType")} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="percentage">Percentage Off</SelectItem>
-                                            <SelectItem value="fixed_amount">Fixed Amount Off</SelectItem>
-                                            <SelectItem value="bogo">Buy One Get One</SelectItem>
-                                            <SelectItem value="free_item">Free Item</SelectItem>
+                                            <SelectItem value="percentage">{t("merchCat.pctOff")}</SelectItem>
+                                            <SelectItem value="fixed_amount">{t("merchCat.fixedOff")}</SelectItem>
+                                            <SelectItem value="bogo">{t("merchCat.bogo")}</SelectItem>
+                                            <SelectItem value="free_item">{t("merchCat.freeItem")}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="discount_value">Discount Value</Label>
+                                    <Label htmlFor="discount_value">{t("merchCat.discVal")}</Label>
                                     <Input
                                         id="discount_value"
                                         type="number"
@@ -434,7 +465,7 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="price_usd">Price (USD)</Label>
+                                    <Label htmlFor="price_usd">{t("merchCat.priceUsd")}</Label>
                                     <Input
                                         id="price_usd"
                                         type="number"
@@ -445,7 +476,7 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="price_points">Price (earned value)</Label>
+                                    <Label htmlFor="price_points">{t("merchCat.pricePts")}</Label>
                                     <Input
                                         id="price_points"
                                         type="number"
@@ -455,18 +486,18 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="inventory_count">Inventory Count</Label>
+                                    <Label htmlFor="inventory_count">{t("merchCat.inventory")}</Label>
                                     <Input
                                         id="inventory_count"
                                         type="number"
                                         value={formData.inventory_count}
                                         onChange={(e) => setFormData({ ...formData, inventory_count: e.target.value })}
-                                        placeholder="Leave empty for unlimited"
+                                        placeholder={t("merchCat.invPh")}
                                     />
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="low_stock_threshold">Low Stock Alert</Label>
+                                    <Label htmlFor="low_stock_threshold">{t("merchCat.lowStock")}</Label>
                                     <Input
                                         id="low_stock_threshold"
                                         type="number"
@@ -476,7 +507,7 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="booking_url">Booking URL</Label>
+                                    <Label htmlFor="booking_url">{t("merchCat.bookingUrl")}</Label>
                                     <Input
                                         id="booking_url"
                                         value={formData.booking_url}
@@ -486,7 +517,7 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="expires_at">Offer Ends</Label>
+                                    <Label htmlFor="expires_at">{t("merchCat.offerEnds")}</Label>
                                     <Input
                                         id="expires_at"
                                         type="date"
@@ -496,7 +527,7 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="service_duration_minutes">Duration Minutes</Label>
+                                    <Label htmlFor="service_duration_minutes">{t("merchCat.duration")}</Label>
                                     <Input
                                         id="service_duration_minutes"
                                         type="number"
@@ -507,7 +538,7 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="service_capacity">Service Capacity</Label>
+                                    <Label htmlFor="service_capacity">{t("merchCat.capacity")}</Label>
                                     <Input
                                         id="service_capacity"
                                         type="number"
@@ -518,23 +549,23 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div className="sm:col-span-2">
-                                    <Label htmlFor="terms_conditions">Terms / Redemption Notes</Label>
+                                    <Label htmlFor="terms_conditions">{t("merchCat.terms")}</Label>
                                     <Textarea
                                         id="terms_conditions"
                                         value={formData.terms_conditions}
                                         onChange={(e) => setFormData({ ...formData, terms_conditions: e.target.value })}
                                         rows={2}
-                                        placeholder="Valid in-store only, one per customer, show code at counter..."
+                                        placeholder={t("merchCat.termsPh")}
                                     />
                                 </div>
                             </div>
 
                             <div className="flex flex-col gap-3 pt-4 sm:flex-row">
                                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">
-                                    Cancel
+                                    {t("merchCat.cancel")}
                                 </Button>
                                 <Button type="submit" className="flex-1">
-                                    {editingProduct ? 'Update Product' : 'Create Product'}
+                                    {editingProduct ? t("merchCat.update") : t("merchCat.create")}
                                 </Button>
                             </div>
                         </form>
@@ -544,29 +575,29 @@ const ProductCatalogManager = () => {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Products</CardTitle>
+                    <CardTitle>{t("merchCat.products")}</CardTitle>
                     <CardDescription>
-                        {products.length} product{products.length !== 1 ? 's' : ''} in catalog
+                        {products.length === 1 ? t("merchCat.countOne", { count: products.length }) : t("merchCat.countMany", { count: products.length })}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
-                        <p className="text-center text-muted-foreground py-8">Loading products...</p>
+                        <p className="text-center text-muted-foreground py-8">{t("merchCat.loading")}</p>
                     ) : products.length === 0 ? (
                         <p className="text-center text-muted-foreground py-8">
-                            No products yet. Click "Add Product" to get started.
+                            {t("merchCat.empty")}
                         </p>
                     ) : (
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Product</TableHead>
-                                    <TableHead>Storefront</TableHead>
-                                    <TableHead>Price</TableHead>
-                                    <TableHead>Inventory</TableHead>
-                                    <TableHead>Sales</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead>{t("merchCat.colProduct")}</TableHead>
+                                    <TableHead>{t("merchCat.colStore")}</TableHead>
+                                    <TableHead>{t("merchCat.colPrice")}</TableHead>
+                                    <TableHead>{t("merchCat.colInv")}</TableHead>
+                                    <TableHead>{t("merchCat.colSales")}</TableHead>
+                                    <TableHead>{t("merchCat.colStatus")}</TableHead>
+                                    <TableHead className="text-right">{t("merchCat.colActions")}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -576,20 +607,20 @@ const ProductCatalogManager = () => {
                                             <span className="block min-w-[11rem] max-w-[18rem] truncate">{product.name}</span>
                                             {product.discount_value ? (
                                                 <span className="mt-1 block text-xs text-primary">
-                                                    {product.discount_value}{product.discount_type === "percentage" ? "%" : ""} offer
+                                                    {t("merchCat.offer", { value: `${product.discount_value}${product.discount_type === "percentage" ? "%" : ""}` })}
                                                 </span>
                                             ) : null}
                                         </TableCell>
                                         <TableCell>
                                             <div className="min-w-[10rem] space-y-1">
-                                                <span className="block truncate capitalize">{product.listing_kind || product.category || 'Product'}</span>
-                                                <span className="block text-xs text-muted-foreground capitalize">{product.fulfillment_mode || 'pickup'} · {product.visibility || 'public'}</span>
+                                                <span className="block truncate">{kindLabel(product.listing_kind || product.category)}</span>
+                                                <span className="block text-xs text-muted-foreground">{fulfillLabel(product.fulfillment_mode)} · {visLabel(product.visibility)}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell>
                                             {(product.price_usd ?? product.price) && `$${Number(product.price_usd ?? product.price).toFixed(2)}`}
                                             {(product.price_usd ?? product.price) && (product.price_points ?? product.points_cost) && ' / '}
-                                            {(product.price_points ?? product.points_cost) && `${product.price_points ?? product.points_cost} pts`}
+                                            {(product.price_points ?? product.points_cost) && t("merchCat.pts", { count: product.price_points ?? product.points_cost })}
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex min-w-[7rem] items-center gap-2">
@@ -602,14 +633,14 @@ const ProductCatalogManager = () => {
                                                         )}
                                                     </>
                                                 ) : (
-                                                    <span className="text-muted-foreground">Unlimited</span>
+                                                    <span className="text-muted-foreground">{t("merchCat.unlimited")}</span>
                                                 )}
                                             </div>
                                         </TableCell>
                                         <TableCell>{product.total_sales || 0}</TableCell>
                                         <TableCell>
                                             <Badge variant={product.is_active ? "default" : "secondary"}>
-                                                {product.is_active ? 'Active' : 'Inactive'}
+                                                {product.is_active ? t("merchCat.active") : t("merchCat.inactive")}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">

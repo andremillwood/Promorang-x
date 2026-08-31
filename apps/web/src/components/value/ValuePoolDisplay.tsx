@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useValuePool, formatCents } from '@/hooks/useValuePool';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface ValuePoolDisplayProps {
   momentId: string;
@@ -12,6 +13,7 @@ interface ValuePoolDisplayProps {
 }
 
 export function ValuePoolDisplay({ momentId, isHost = false }: ValuePoolDisplayProps) {
+  const { t } = useI18n();
   const { useMomentPool, useDistributionRules, distributePool } = useValuePool();
   
   const { data: pool, isLoading } = useMomentPool(momentId);
@@ -27,10 +29,7 @@ export function ValuePoolDisplay({ momentId, isHost = false }: ValuePoolDisplayP
         <CardContent className="p-6 text-center">
           <DollarSign className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
           <p className="text-muted-foreground">
-            {isHost 
-              ? "Fund this moment to reward your guests for their participation"
-              : "This moment doesn't have a value pool yet"
-            }
+            {isHost ? t("valuePool.hostFund") : t("valuePool.noPool")}
           </p>
         </CardContent>
       </Card>
@@ -51,17 +50,17 @@ export function ValuePoolDisplay({ momentId, isHost = false }: ValuePoolDisplayP
               <DollarSign className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <CardTitle className="text-lg">Value Pool</CardTitle>
+              <CardTitle className="text-lg">{t("valuePool.title")}</CardTitle>
               <CardDescription>
                 {pool.distribution_completed_at 
-                  ? "Value has been distributed to stakeholders"
-                  : "Available to be earned by participants"
+                  ? t("valuePool.distributedCopy")
+                  : t("valuePool.activeCopy")
                 }
               </CardDescription>
             </div>
           </div>
           <Badge variant={pool.distribution_completed_at ? "secondary" : "default"}>
-            {pool.distribution_completed_at ? "Distributed" : "Active"}
+            {pool.distribution_completed_at ? t("valuePool.distributed") : t("valuePool.active")}
           </Badge>
         </div>
       </CardHeader>
@@ -73,7 +72,7 @@ export function ValuePoolDisplay({ momentId, isHost = false }: ValuePoolDisplayP
             {formatCents(totalPool)}
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            Total value to be shared
+            {t("valuePool.totalShare")}
           </p>
         </div>
 
@@ -85,9 +84,9 @@ export function ValuePoolDisplay({ momentId, isHost = false }: ValuePoolDisplayP
                 <Users className="w-4 h-4 text-blue-600" />
               </div>
               <div>
-                <p className="font-medium">Attendance Marks</p>
+                <p className="font-medium">{t("valuePool.attendance")}</p>
                 <p className="text-sm text-muted-foreground">
-                  {pool.base_marks_percentage}% • Split among all who attend
+                  {t("valuePool.attendanceCopy", { pct: pool.base_marks_percentage })}
                 </p>
               </div>
             </div>
@@ -100,9 +99,9 @@ export function ValuePoolDisplay({ momentId, isHost = false }: ValuePoolDisplayP
                 <TrendingUp className="w-4 h-4 text-purple-600" />
               </div>
               <div>
-                <p className="font-medium">Engagement</p>
+                <p className="font-medium">{t("valuePool.engagement")}</p>
                 <p className="text-sm text-muted-foreground">
-                  {pool.engagement_percentage}% • Reviews, photos, referrals
+                  {t("valuePool.engagementCopy", { pct: pool.engagement_percentage })}
                 </p>
               </div>
             </div>
@@ -115,9 +114,9 @@ export function ValuePoolDisplay({ momentId, isHost = false }: ValuePoolDisplayP
                 <PieChart className="w-4 h-4 text-emerald-600" />
               </div>
               <div>
-                <p className="font-medium">Quality Bonus</p>
+                <p className="font-medium">{t("valuePool.quality")}</p>
                 <p className="text-sm text-muted-foreground">
-                  {pool.quality_bonus_percentage}% • Featured testimonials
+                  {t("valuePool.qualityCopy", { pct: pool.quality_bonus_percentage })}
                 </p>
               </div>
             </div>
@@ -128,21 +127,21 @@ export function ValuePoolDisplay({ momentId, isHost = false }: ValuePoolDisplayP
         {/* Contribution Breakdown */}
         {(pool.host_contribution_cents > 0 || pool.venue_contribution_cents > 0 || pool.brand_sponsorship_cents > 0) && (
           <div className="pt-4 border-t">
-            <p className="text-sm font-medium mb-3">Funded by:</p>
+            <p className="text-sm font-medium mb-3">{t("valuePool.fundedBy")}</p>
             <div className="flex flex-wrap gap-2">
               {pool.host_contribution_cents > 0 && (
                 <Badge variant="outline">
-                  Host: {formatCents(pool.host_contribution_cents)}
+                  {t("valuePool.host", { amount: formatCents(pool.host_contribution_cents) })}
                 </Badge>
               )}
               {pool.venue_contribution_cents > 0 && (
                 <Badge variant="outline">
-                  Venue: {formatCents(pool.venue_contribution_cents)}
+                  {t("valuePool.venue", { amount: formatCents(pool.venue_contribution_cents) })}
                 </Badge>
               )}
               {pool.brand_sponsorship_cents > 0 && (
                 <Badge variant="outline" className="bg-amber-100">
-                  Brand Sponsor: {formatCents(pool.brand_sponsorship_cents)}
+                  {t("valuePool.sponsor", { amount: formatCents(pool.brand_sponsorship_cents) })}
                 </Badge>
               )}
             </div>
@@ -157,25 +156,24 @@ export function ValuePoolDisplay({ momentId, isHost = false }: ValuePoolDisplayP
               onClick={() => distributePool.mutate(momentId)}
               disabled={distributePool.isPending}
             >
-              {distributePool.isPending ? 'Distributing...' : 'Distribute Value to Stakeholders'}
+              {distributePool.isPending ? t("valuePool.distributing") : t("valuePool.distribute")}
             </Button>
             <p className="text-xs text-muted-foreground text-center mt-2">
-              This will calculate and record earnings for all participants
+              {t("valuePool.distributeCopy")}
             </p>
           </div>
         )}
 
         <GuidanceDisclosure
           id={`value-pool:${momentId}:distribution`}
-          title="How value distribution works"
-          summary="Value follows verified participation, engagement quality, and tier multipliers."
+          title={t("valuePool.howTitle")}
+          summary={t("valuePool.howSummary")}
           className="mt-0"
         >
           <div className="flex items-start gap-2 text-xs text-muted-foreground">
             <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <p>
-              Value is distributed based on verified participation (Marks), engagement quality,
-              and tier multipliers. Tier multipliers: Guest 1.0x, Regular 1.5x, Mover 2.0x
+              {t("valuePool.howCopy")}
             </p>
           </div>
         </GuidanceDisclosure>

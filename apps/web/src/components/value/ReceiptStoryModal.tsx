@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 import { ValueReceiptData } from "./TactileValueReceipt";
 
 interface ReceiptStoryModalProps {
@@ -27,6 +28,7 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { toast } = useToast();
+  const { t } = useI18n();
   const [downloading, setDownloading] = useState(false);
   const [copiedImage, setCopiedImage] = useState(false);
 
@@ -69,7 +71,7 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
 
     ctx.fillStyle = "#F97316";
     ctx.font = "bold 24px monospace";
-    ctx.fillText("VERIFIED PROOF OF VALUE", 120, 225);
+    ctx.fillText(t("storyModal.proofValue").toUpperCase(), 120, 225);
 
     // Verified Seal
     ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
@@ -81,7 +83,7 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
 
     ctx.fillStyle = "#34D399";
     ctx.font = "bold 26px monospace";
-    ctx.fillText("✓ VERIFIED PROOF", 705, 180);
+    ctx.fillText(`✓ ${t("storyModal.verifiedProof").toUpperCase()}`, 705, 180);
 
     // 5. Main Card Body (Physical Receipt Surface)
     ctx.fillStyle = "rgba(20, 20, 26, 0.92)";
@@ -153,7 +155,7 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
 
     ctx.fillStyle = "#F97316";
     ctx.font = "bold 24px monospace";
-    ctx.fillText("TOTAL VALUE CAPTURED & UNLOCKED", 205, 965);
+    ctx.fillText(t("storyModal.valueCaptured").toUpperCase(), 205, 965);
 
     receipt.rewards.slice(0, 2).forEach((r, i) => {
       ctx.fillStyle = "#FFFFFF";
@@ -170,13 +172,13 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
     // 8. Cryptographic Proof Hash
     ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
     ctx.font = "22px monospace";
-    ctx.fillText(`PROOF HASH: ${receipt.proofHash || "0x98f4e2b83a00c71e"}`, 170, 1220);
-    ctx.fillText("RECORD TYPE: IMMUTABLE VAULT RECEIPT", 170, 1260);
+    ctx.fillText(t("storyModal.proofHash", { hash: receipt.proofHash || "0x98f4e2b83a00c71e" }), 170, 1220);
+    ctx.fillText(t("storyModal.recordType").toUpperCase(), 170, 1260);
 
     // 9. Bottom Footer with Promorang CTA
     ctx.fillStyle = "#FFFFFF";
     ctx.font = "900 34px sans-serif";
-    ctx.fillText("Keep the receipt for what you help grow.", 120, 1660);
+    ctx.fillText(t("storyModal.cta"), 120, 1660);
 
     ctx.fillStyle = "#F97316";
     ctx.font = "bold 26px monospace";
@@ -187,7 +189,7 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
     if (isOpen) {
       setTimeout(drawCanvas, 100);
     }
-  }, [isOpen, receipt]);
+  }, [isOpen, receipt, t]);
 
   const handleDownload = () => {
     const canvas = canvasRef.current;
@@ -200,8 +202,8 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
     link.click();
     setDownloading(false);
     toast({
-      title: "Story Card Downloaded!",
-      description: "Ready to share to Instagram Stories, TikTok, or X.",
+      title: t("storyModal.dlTitle"),
+      description: t("storyModal.dlCopy"),
     });
   };
 
@@ -216,8 +218,8 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
         ]);
         setCopiedImage(true);
         toast({
-          title: "Story Image Copied!",
-          description: "Pasted directly into your clipboard.",
+          title: t("storyModal.copyTitle"),
+          description: t("storyModal.copyCopy"),
         });
         setTimeout(() => setCopiedImage(false), 2500);
       });
@@ -232,7 +234,7 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg font-black">
             <Sparkles className="h-5 w-5 text-primary" />
-            9:16 Social Story Card
+            {t("storyModal.title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -251,7 +253,7 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
             disabled={downloading}
             className="flex-1 bg-primary font-bold text-black hover:bg-primary/90"
           >
-            <Download className="mr-2 h-4 w-4" /> Download PNG
+            <Download className="mr-2 h-4 w-4" /> {t("storyModal.download")}
           </Button>
           <Button
             onClick={handleCopy}
@@ -259,7 +261,7 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
             className="border-white/15 bg-white/[0.05] font-bold text-white hover:bg-white/10"
           >
             {copiedImage ? <Check className="mr-2 h-4 w-4 text-emerald-400" /> : <Copy className="mr-2 h-4 w-4" />}
-            {copiedImage ? "Copied" : "Copy Image"}
+            {copiedImage ? t("storyModal.copied") : t("storyModal.copyImage")}
           </Button>
         </div>
       </DialogContent>

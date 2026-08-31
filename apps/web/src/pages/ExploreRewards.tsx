@@ -35,15 +35,23 @@ import { INITIAL_DEAL_REQUESTS, CommunityDealRequest } from "@/data/rewardsData"
 import { VERIFIED_VENUES, VenueItem } from "@/data/venuesData";
 import { SmartVenuePicker } from "@/components/venues/SmartVenuePicker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
-const POPULAR_PERK_PILLS = [
-  "🍹 Free Welcome Rum Punch with Meal",
-  "🏷️ 15% VIP Member Discount",
-  "🍻 2-for-1 Happy Hour Drafts",
-  "🔑 Skip-the-Line VIP Key & Balcony Access",
-  "🍽️ Free Chips & Guac / Tasting Bite",
-  "☕ Free Size Upgrade on Blue Mountain Coffee",
-];
+const PERK_PILL_KEYS = [
+  "perkHub.pill1",
+  "perkHub.pill2",
+  "perkHub.pill3",
+  "perkHub.pill4",
+  "perkHub.pill5",
+  "perkHub.pill6",
+] as const;
+
+const categoryLabelKey = (category: string): TranslationKey => {
+  if (category === "nightlife") return "perkHub.catNightlifeMusic";
+  if (category === "retail") return "perkHub.catRetailFashion";
+  return "perkHub.catFoodDining";
+};
 
 const VENUE_IMAGE_FALLBACKS: Record<string, string> = {
   "Tacbar": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80",
@@ -66,6 +74,7 @@ const getVenueImage = (venueName?: string | null, customUrl?: string | null) => 
 };
 
 export function ExploreRewards() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const { data: balance } = useUserBalance();
   const { toast } = useToast();
@@ -147,8 +156,8 @@ export function ExploreRewards() {
     );
 
     toast({
-      title: "Community Vote Recorded! 🔥",
-      description: "Your vote was added to the merchant unlock threshold. You earned +10 PromoPoints!",
+      title: t("perkHub.voteToast"),
+      description: t("perkHub.voteToastCopy"),
     });
   };
 
@@ -156,8 +165,8 @@ export function ExploreRewards() {
     e.preventDefault();
     if (!newVenue.trim() || !newPerk.trim()) {
       toast({
-        title: "Missing Information",
-        description: "Please enter at least a venue name and the desired perk.",
+        title: t("perkHub.missingTitle"),
+        description: t("perkHub.missingCopy"),
         variant: "destructive",
       });
       return;
@@ -167,15 +176,10 @@ export function ExploreRewards() {
       id: `req-${Date.now()}`,
       venue_name: newVenue.trim(),
       location: newLocation.trim() || "Kingston, Jamaica",
-      brand_interest: newBrand.trim() || "Local Merchant",
+      brand_interest: newBrand.trim() || t("perkHub.localMerchant"),
       requested_perk: newPerk.trim(),
       category: newCategory,
-      category_label:
-        newCategory === "nightlife"
-          ? "Nightlife & Music"
-          : newCategory === "retail"
-          ? "Retail & Fashion"
-          : "Food & Dining",
+      category_label: t(categoryLabelKey(newCategory)),
       votes_count: 1,
       votes_threshold: 50,
       has_voted: true,
@@ -193,16 +197,16 @@ export function ExploreRewards() {
     setNewPerk("");
 
     toast({
-      title: "Perk Request Published! 🚀",
-      description: "Your deal request is now live for the community to rally behind. (+25 PromoPoints)",
+      title: t("perkHub.published"),
+      description: t("perkHub.publishedCopy"),
     });
   };
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
       <SEO
-        title="Rewards & Deals Hub — Request & Unlock Member Perks | Promorang"
-        description="Vote on community deal requests and rally behind local venues and brands to unlock exclusive perks in Kingston."
+        title={t("perkHub.seoTitle")}
+        description={t("perkHub.seoCopy")}
         url={getSiteUrl("/rewards")}
       />
 
@@ -212,15 +216,15 @@ export function ExploreRewards() {
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <Badge className="rounded-full bg-primary text-white font-bold text-[10px] uppercase tracking-wider border-none shadow-md shadow-primary/20">
-                Demand-Driven Perks & Vouchers
+                {t("perkHub.badge")}
               </Badge>
-              <span className="text-xs text-white/50 font-semibold">Kingston Ecosystem</span>
+              <span className="text-xs text-white/50 font-semibold">{t("perkHub.ecosystem")}</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-              Rewards & Member Perks
+              {t("perkHub.title")}
             </h1>
             <p className="text-white/60 text-xs sm:text-sm max-w-xl">
-              Signal demand for perks at your favorite spots. When enough members vote, Promorang partners with the venue to unlock guaranteed deals.
+              {t("perkHub.copy")}
             </p>
           </div>
 
@@ -231,7 +235,7 @@ export function ExploreRewards() {
               className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs shadow-lg shadow-primary/30 h-11 px-5 gap-1.5"
             >
               <Plus className="h-4 w-4" />
-              <span>Request a Perk at a Spot</span>
+              <span>{t("perkHub.requestCta")}</span>
             </Button>
 
             {/* User Points & Keys Capsule */}
@@ -241,14 +245,14 @@ export function ExploreRewards() {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition text-xs font-bold text-white"
               >
                 <KeyRound className="h-3.5 w-3.5 text-amber-400" />
-                <span>{balance?.promokeys || 0} Keys</span>
+                <span>{t("perkHub.keys", { count: balance?.promokeys || 0 })}</span>
               </Link>
               <Link
                 to="/wallet"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition text-xs font-bold text-white"
               >
                 <Coins className="h-3.5 w-3.5 text-primary" />
-                <span>{balance?.points || 0} Pts</span>
+                <span>{t("perkHub.pts", { count: balance?.points || 0 })}</span>
               </Link>
             </div>
           </div>
@@ -261,15 +265,15 @@ export function ExploreRewards() {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-bold text-[10px] uppercase tracking-wider border border-emerald-500/20">
-                    Live Door Perks
+                    {t("perkHub.liveDoor")}
                   </span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black text-white mt-1 flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
-                  <span>Verified Perks in Upcoming Moments</span>
+                  <span>{t("perkHub.verifiedTitle")}</span>
                 </h2>
                 <p className="text-xs text-white/50">
-                  Guaranteed rewards, drink tokens, and points waiting for you when you RSVP and check in.
+                  {t("perkHub.verifiedCopy")}
                 </p>
               </div>
             </div>
@@ -300,7 +304,7 @@ export function ExploreRewards() {
                       </span>
 
                       <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white/90">
-                        {m.category || "Live Moment"}
+                        {m.category || t("perkHub.liveMoment")}
                       </span>
                     </div>
 
@@ -319,7 +323,7 @@ export function ExploreRewards() {
                       <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
                           <Check className="h-3 w-3" />
-                          <span>Included with Pass</span>
+                          <span>{t("perkHub.includedPass")}</span>
                         </span>
                         <ArrowRight className="h-3.5 w-3.5 text-white/40 group-hover:text-primary group-hover:translate-x-1 transition" />
                       </div>
@@ -338,14 +342,14 @@ export function ExploreRewards() {
               <div className="flex items-center gap-2">
                 <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
                   <Flame className="w-3.5 h-3.5 fill-amber-400" />
-                  Live Community Wishlist
+                  {t("perkHub.wishlist")}
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-1.5">
-                Top Requested Deals in Kingston
+                {t("perkHub.topRequested")}
               </h2>
               <p className="text-xs text-white/60">
-                Vote to charge the unlock meter. Once a request reaches its threshold, Promorang presents the guaranteed customer headcount to the merchant!
+                {t("perkHub.voteCopy")}
               </p>
             </div>
 
@@ -354,7 +358,7 @@ export function ExploreRewards() {
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
               <input
                 type="text"
-                placeholder="Search requested spots or brands..."
+                placeholder={t("perkHub.searchPh")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full rounded-2xl bg-white/5 border border-white/10 pl-10 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-primary transition"
@@ -365,9 +369,9 @@ export function ExploreRewards() {
           {/* Category Filter Pills */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             {[
-              { id: "all", label: "All Requests", icon: Sparkles },
-              { id: "food", label: "Food & Dining 🍽️", icon: Gift },
-              { id: "nightlife", label: "Nightlife & VIP 🍹", icon: Ticket },
+              { id: "all", labelKey: "perkHub.catAll" as const, icon: Sparkles },
+              { id: "food", labelKey: "perkHub.catFood" as const, icon: Gift },
+              { id: "nightlife", labelKey: "perkHub.catNightlife" as const, icon: Ticket },
             ].map((cat) => {
               const isActive = activeCategory === cat.id;
               const Icon = cat.icon;
@@ -382,7 +386,7 @@ export function ExploreRewards() {
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
-                  <span>{cat.label}</span>
+                  <span>{t(cat.labelKey)}</span>
                 </button>
               );
             })}
@@ -417,7 +421,7 @@ export function ExploreRewards() {
                         {req.brand_interest}
                       </span>
                       <span className="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white/70">
-                        {req.category_label}
+                        {t(categoryLabelKey(req.category))}
                       </span>
                     </div>
 
@@ -436,7 +440,7 @@ export function ExploreRewards() {
                   <div className="p-5 space-y-4">
                     <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 space-y-1">
                       <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider">
-                        Requested Perk Deal:
+                        {t("perkHub.requestedPerk")}
                       </span>
                       <p className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
                         <Gift className="h-3.5 w-3.5 shrink-0" />
@@ -447,9 +451,9 @@ export function ExploreRewards() {
                     {/* Progress Gauge */}
                     <div className="space-y-1.5">
                       <div className="flex justify-between items-center text-xs">
-                        <span className="text-white/60 font-medium">Merchant Unlock Threshold</span>
+                        <span className="text-white/60 font-medium">{t("perkHub.unlockThreshold")}</span>
                         <span className={`font-black ${isClose ? "text-emerald-400" : "text-amber-400"}`}>
-                          {req.votes_count} / {req.votes_threshold} Votes ({progressPercent}%)
+                          {t("perkHub.votesPct", { count: req.votes_count, total: req.votes_threshold, pct: progressPercent })}
                         </span>
                       </div>
                       <div className="w-full h-2.5 rounded-full bg-white/10 overflow-hidden">
@@ -459,8 +463,8 @@ export function ExploreRewards() {
                         />
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-white/40 pt-0.5">
-                        <span>Rallied by {req.requester_name}</span>
-                        <span>{req.votes_threshold - req.votes_count} more votes to pitch merchant</span>
+                        <span>{t("perkHub.ralliedBy", { name: req.requester_name })}</span>
+                        <span>{t("perkHub.moreVotes", { count: req.votes_threshold - req.votes_count })}</span>
                       </div>
                     </div>
 
@@ -475,12 +479,12 @@ export function ExploreRewards() {
                         }`}
                       >
                         <ThumbsUp className="h-3.5 w-3.5" />
-                        <span>{req.has_voted ? "Request Backed (+10 Pts)" : "Back Request (+10 Pts)"}</span>
+                        <span>{req.has_voted ? t("perkHub.backed") : t("perkHub.back")}</span>
                       </Button>
 
                       <span className="text-xs font-bold text-primary flex items-center gap-1">
                         <Flame className="h-3.5 w-3.5" />
-                        <span>{req.votes_count} Scouts Rallied</span>
+                        <span>{t("perkHub.scouts", { count: req.votes_count })}</span>
                       </span>
                     </div>
                   </div>
@@ -496,14 +500,14 @@ export function ExploreRewards() {
             <div className="flex items-center gap-2">
               <Store className="h-4 w-4 text-primary" />
               <span className="text-[10px] font-black uppercase tracking-widest text-primary">
-                For Venues, Merchants & Brands
+                {t("perkHub.partnerEyebrow")}
               </span>
             </div>
             <h3 className="text-xl sm:text-2xl font-black text-white">
-              Own a Venue or Represent a Product in Jamaica?
+              {t("perkHub.partnerTitle")}
             </h3>
             <p className="text-xs sm:text-sm text-white/70 leading-relaxed">
-              Activate verified customer demand. Launch a tasting pass, happy hour perk, or sponsored reward with guaranteed attendee attribution.
+              {t("perkHub.partnerCopy")}
             </p>
           </div>
 
@@ -512,14 +516,14 @@ export function ExploreRewards() {
               asChild
               className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs h-11 px-6 shadow-lg shadow-primary/25"
             >
-              <Link to="/create/moment">Offer a Member Perk</Link>
+              <Link to="/create/moment">{t("perkHub.offerPerk")}</Link>
             </Button>
             <Button
               asChild
               variant="outline"
               className="rounded-2xl border-white/15 bg-white/5 text-white hover:bg-white/10 font-bold text-xs h-11 px-5"
             >
-              <Link to="/for-brands">Brand Co-Op Info</Link>
+              <Link to="/for-brands">{t("perkHub.brandInfo")}</Link>
             </Button>
           </div>
         </div>
@@ -531,14 +535,14 @@ export function ExploreRewards() {
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full bg-primary text-black font-black text-[10px] uppercase tracking-wider">
-                Community Deal Request
+                {t("perkHub.modalBadge")}
               </span>
             </div>
             <DialogTitle className="text-xl sm:text-2xl font-black text-white leading-tight">
-              Request a Perk at Your Favorite Spot
+              {t("perkHub.modalTitle")}
             </DialogTitle>
             <DialogDescription className="text-xs text-white/60">
-              Pick a local spot and select what perk would get you to go. When 50 members rally behind it, Promorang pitches the venue with guaranteed customer foot traffic!
+              {t("perkHub.modalCopy")}
             </DialogDescription>
           </DialogHeader>
 
@@ -546,8 +550,8 @@ export function ExploreRewards() {
             {/* 1. Pick Venue or Spot */}
             <div className="space-y-2.5">
               <Label className="text-xs font-bold text-white/90 flex items-center justify-between">
-                <span>1. Where do you want a perk? *</span>
-                <span className="text-[10px] text-primary font-semibold">Verified Kingston Spots</span>
+                <span>{t("perkHub.where")}</span>
+                <span className="text-[10px] text-primary font-semibold">{t("perkHub.verifiedSpots")}</span>
               </Label>
 
               {/* Instant Search Input with Live Autosuggest Dropdown */}
@@ -555,7 +559,7 @@ export function ExploreRewards() {
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
                 <input
                   type="text"
-                  placeholder="Type any spot (e.g. Sweetwood, Dub Club, Chilitos, PriceSmart)..."
+                  placeholder={t("perkHub.venuePh")}
                   value={newVenue}
                   onFocus={() => setVenueDropdownOpen(true)}
                   onChange={(e) => {
@@ -595,14 +599,14 @@ export function ExploreRewards() {
                 {venueDropdownOpen && (
                   <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl border border-white/15 bg-[#14151a] shadow-2xl overflow-hidden backdrop-blur-xl animate-in fade-in-50 zoom-in-95 duration-150">
                     <div className="p-2 border-b border-white/5 bg-white/[0.02] flex items-center justify-between text-[10px] text-white/50 font-bold uppercase tracking-wider">
-                      <span>Verified Kingston Spots ({venueSuggestions.length})</span>
-                      <span>Tap to Auto-Select</span>
+                      <span>{t("perkHub.spotsCount", { count: venueSuggestions.length })}</span>
+                      <span>{t("perkHub.tapSelect")}</span>
                     </div>
                     <div className="max-h-52 overflow-y-auto divide-y divide-white/5">
                       {venueSuggestions.length === 0 ? (
                         <div className="p-3 text-center text-xs text-white/50">
-                          <p>No verified spots matching "{newVenue}".</p>
-                          <p className="text-[11px] text-primary mt-0.5">You can proceed with this custom spot name.</p>
+                          <p>{t("perkHub.noMatch", { query: newVenue })}</p>
+                          <p className="text-[11px] text-primary mt-0.5">{t("perkHub.customOk")}</p>
                         </div>
                       ) : (
                         venueSuggestions.map((v) => (
@@ -652,7 +656,7 @@ export function ExploreRewards() {
               {/* 1-Tap Popular Kingston Spots */}
               <div className="space-y-1.5 pt-1">
                 <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider block">
-                  Or tap a popular spot:
+                  {t("perkHub.orTap")}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {VERIFIED_VENUES.slice(0, 6).map((v) => (
@@ -686,29 +690,32 @@ export function ExploreRewards() {
             {/* 2. What Perk Would Get You to Go */}
             <div className="space-y-2.5 pt-2 border-t border-white/10">
               <Label className="text-xs font-bold text-white/90 flex items-center justify-between">
-                <span>2. What perk would get you to go? *</span>
-                <span className="text-[10px] text-primary font-semibold">1-Click Suggestions</span>
+                <span>{t("perkHub.whatPerk")}</span>
+                <span className="text-[10px] text-primary font-semibold">{t("perkHub.suggestions")}</span>
               </Label>
 
               <div className="flex flex-wrap gap-1.5">
-                {POPULAR_PERK_PILLS.map((pill) => (
-                  <button
-                    key={pill}
-                    type="button"
-                    onClick={() => setNewPerk(pill)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition text-left ${
-                      newPerk === pill
-                        ? "bg-primary text-white border-primary shadow-md"
-                        : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
-                    }`}
-                  >
-                    {pill}
-                  </button>
-                ))}
+                {PERK_PILL_KEYS.map((pillKey) => {
+                  const pill = t(pillKey);
+                  return (
+                    <button
+                      key={pillKey}
+                      type="button"
+                      onClick={() => setNewPerk(pill)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition text-left ${
+                        newPerk === pill
+                          ? "bg-primary text-white border-primary shadow-md"
+                          : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
+                      }`}
+                    >
+                      {pill}
+                    </button>
+                  );
+                })}
               </div>
 
               <Input
-                placeholder="Or type your custom desired perk..."
+                placeholder={t("perkHub.customPerk")}
                 value={newPerk}
                 onChange={(e) => setNewPerk(e.target.value)}
                 className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-11 mt-2"
@@ -724,13 +731,13 @@ export function ExploreRewards() {
                 onClick={() => setRequestModalOpen(false)}
                 className="text-xs text-white/60 hover:text-white"
               >
-                Cancel
+                {t("perkHub.cancel")}
               </Button>
               <Button
                 type="submit"
                 className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs px-7 h-11 shadow-lg shadow-primary/25"
               >
-                Rally Demand & Earn +25 Pts
+                {t("perkHub.rally")}
               </Button>
             </div>
           </form>

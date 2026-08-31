@@ -18,14 +18,16 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { BrandEstimator } from "@/components/brand/BrandEstimator";
 import { IntelligenceBureau } from "@/components/brand/IntelligenceBureau";
+import { useI18n } from "@/i18n/I18nContext";
 
 export function BrandIntelligenceConsole() {
+  const { t } = useI18n();
   const { toast } = useToast();
 
   const handleDepositTreasury = () => {
     toast({
-      title: "Growth Escrow Funded! 🔒",
-      description: "Added $2,500 to smart campaign escrow vault for milestone disbarment.",
+      title: t("brandTreas.toastTitle"),
+      description: t("brandTreas.toastBody"),
     });
   };
 
@@ -39,13 +41,13 @@ export function BrandIntelligenceConsole() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Brand Treasury & Strategic Intelligence</h2>
+              <h2 className="text-2xl font-black text-white">{t("brandTreas.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase">
-                Escrow Protected
+                {t("brandTreas.badge")}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Milestone disbursement vaults, yield multipliers, and AI budget allocation forecasting.
+              {t("brandTreas.copy")}
             </p>
           </div>
         </div>
@@ -55,7 +57,7 @@ export function BrandIntelligenceConsole() {
           className="h-11 px-5 rounded-2xl bg-primary hover:bg-primary/90 text-black font-extrabold text-xs shadow-[0_0_20px_rgba(255,106,0,0.35)]"
         >
           <DollarSign className="h-4 w-4 mr-1.5" />
-          Fund Campaign Escrow
+          {t("brandTreas.fund")}
         </Button>
       </div>
 
@@ -63,7 +65,7 @@ export function BrandIntelligenceConsole() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-white/50">Locked Escrow Vault</span>
+            <span className="text-[10px] uppercase font-bold text-white/50">{t("brandTreas.locked")}</span>
             <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
               <Lock className="h-4 w-4" />
             </span>
@@ -71,29 +73,29 @@ export function BrandIntelligenceConsole() {
           <div>
             <p className="text-3xl font-black text-white">$6,400.00</p>
             <p className="text-xs text-emerald-400 font-semibold mt-1">
-              Released upon verified host & creator proof
+              {t("brandTreas.lockedHint")}
             </p>
           </div>
         </div>
 
         <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-white/50">Gem Liquidity Yield</span>
+            <span className="text-[10px] uppercase font-bold text-white/50">{t("brandTreas.gems")}</span>
             <span className="p-2 rounded-xl bg-primary/10 text-primary">
               <Gem className="h-4 w-4" />
             </span>
           </div>
           <div>
-            <p className="text-3xl font-black text-white">4,200 Gems</p>
+            <p className="text-3xl font-black text-white">{t("brandTreas.gemsAmt", { count: "4,200" })}</p>
             <p className="text-xs text-primary font-semibold mt-1">
-              14.2% APY in Promorang Liquidity Pool
+              {t("brandTreas.gemsHint")}
             </p>
           </div>
         </div>
 
         <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-white/50">Disbursed This Quarter</span>
+            <span className="text-[10px] uppercase font-bold text-white/50">{t("brandTreas.qtr")}</span>
             <span className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
               <TrendingUp className="h-4 w-4" />
             </span>
@@ -101,7 +103,7 @@ export function BrandIntelligenceConsole() {
           <div>
             <p className="text-3xl font-black text-white">$14,850.00</p>
             <p className="text-xs text-cyan-300 font-semibold mt-1">
-              Over 28 successful activations & drops
+              {t("brandTreas.qtrHint")}
             </p>
           </div>
         </div>
@@ -112,7 +114,7 @@ export function BrandIntelligenceConsole() {
         <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-6 space-y-4">
           <div className="flex items-center gap-2">
             <Calculator className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-black text-white">Campaign ROI & Budget Estimator</h3>
+            <h3 className="text-lg font-black text-white">{t("brandTreas.estimator")}</h3>
           </div>
           <BrandEstimator />
         </div>
@@ -120,7 +122,7 @@ export function BrandIntelligenceConsole() {
         <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-6 space-y-4">
           <div className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-black text-white">Agency & Intelligence Bureau</h3>
+            <h3 className="text-lg font-black text-white">{t("brandTreas.bureau")}</h3>
           </div>
           <IntelligenceBureau />
         </div>

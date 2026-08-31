@@ -2,9 +2,11 @@ import { useNavigate } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { PromorangNodeHub } from "@/components/nodes/PromorangNodeHub";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function NodesPage() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const userTier = (user?.user_tier as "free" | "premium" | "super") || "premium";
   const streakDays = user?.points_streak_days || 34;
@@ -12,8 +14,8 @@ export default function NodesPage() {
   return (
     <div className="min-h-screen bg-[#090909] pb-20 pt-24">
       <SEO
-        title="Save & Win community pots | Promorang"
-        description="Set money aside to back local perks. You can take it out anytime. While it sits there, you get free tickets into weekly and monthly prize draws."
+        title={t("nodesHub.seoTitle")}
+        description={t("nodesHub.seoDescription")}
       />
       <PromorangNodeHub
         userTier={userTier}

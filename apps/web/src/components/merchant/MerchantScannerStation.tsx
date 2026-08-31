@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -43,6 +44,7 @@ interface VerifiedRecord {
 export function MerchantScannerStation({ venueName = "Venue Station" }: { venueName?: string }) {
   const { session } = useAuth();
   const { toast } = useToast();
+  const { t } = useI18n();
   const [code, setCode] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
@@ -96,7 +98,7 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
     try {
       let isSuccess = false;
       let perkDetail = "General Admission / Perk Redefined";
-      let customerName = "Verified Guest";
+      let customerName = t("merchScan.guest");
       let points = 100;
 
       // Attempt API validation if merchant session exists
@@ -128,7 +130,7 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
           if (claim.status === "redeemed") {
             setScanResult({
               status: "expired",
-              message: "Pass was already redeemed earlier today.",
+              message: t("merchScan.alreadyRedeemed"),
             });
             setIsVerifying(false);
             return;
@@ -162,25 +164,25 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
             customer: customerName,
             type: targetCode.startsWith("PASS") ? "pass" : targetCode.startsWith("ORD") ? "order" : "coupon",
             perk: perkDetail,
-            timestamp: "Just now",
+            timestamp: t("merchScan.justNow"),
             status: "verified",
             pointsEarned: points,
           };
           setRecentScans((prev) => [newRecord, ...prev.slice(0, 9)]);
           setScanResult({
             status: "success",
-            message: "Validation Successful! Guest verified.",
+            message: t("merchScan.successMsg"),
             data: newRecord,
           });
           setCode("");
           toast({
-            title: "Pass Verified! 🎉",
-            description: `${perkDetail} granted to ${customerName}.`,
+            title: t("merchScan.verifiedToast"),
+            description: t("merchScan.granted", { perk: perkDetail, name: customerName }),
           });
         } else {
           setScanResult({
             status: "invalid",
-            message: "Code not found or unrecognized by the terminal.",
+            message: t("merchScan.notFound"),
           });
         }
       }, 500);
@@ -188,15 +190,15 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
       setIsVerifying(false);
       setScanResult({
         status: "invalid",
-        message: "Network or validation error occurred.",
+        message: t("merchScan.networkErr"),
       });
     }
   };
 
   const sampleCodes = [
-    { label: "VIP Pass", code: "PASS-KGN-2026" },
-    { label: "Foodie Deal", code: "DEAL-FOOD-25" },
-    { label: "Pickup Order", code: "ORD-88210" },
+    { label: t("merchScan.sampleVip"), code: "PASS-KGN-2026" },
+    { label: t("merchScan.sampleDeal"), code: "DEAL-FOOD-25" },
+    { label: t("merchScan.sampleOrder"), code: "ORD-88210" },
   ];
 
   return (
@@ -209,14 +211,14 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-white">Door & Point-of-Sale Terminal</h2>
+              <h2 className="text-xl font-black text-white">{t("merchScan.title")}</h2>
               <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold uppercase tracking-wider animate-pulse">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                Live Active
+                {t("merchScan.live")}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-0.5">
-              Rapid verification for PromoKeys, digital coupons, and in-person check-in proof.
+              {t("merchScan.copy")}
             </p>
           </div>
         </div>
@@ -224,11 +226,11 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
         {/* Rapid KPI Chips */}
         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
           <div className="px-3.5 py-1.5 rounded-2xl border border-white/10 bg-white/5 text-center">
-            <p className="text-[10px] uppercase font-bold text-white/50">Today's Scans</p>
+            <p className="text-[10px] uppercase font-bold text-white/50">{t("merchScan.todayScans")}</p>
             <p className="text-base font-black text-emerald-400">{recentScans.length + 18}</p>
           </div>
           <div className="px-3.5 py-1.5 rounded-2xl border border-white/10 bg-white/5 text-center">
-            <p className="text-[10px] uppercase font-bold text-white/50">Arrival Rate</p>
+            <p className="text-[10px] uppercase font-bold text-white/50">{t("merchScan.arrivalRate")}</p>
             <p className="text-base font-black text-white">99.4%</p>
           </div>
         </div>
@@ -250,14 +252,14 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
                     <div className="absolute inset-x-0 h-0.5 bg-emerald-400 shadow-[0_0_12px_#10b981] animate-bounce" />
                     <Camera className="h-8 w-8 text-emerald-400" />
                   </div>
-                  <p className="text-xs font-bold text-emerald-300">Camera HUD Active • Point at Customer QR</p>
+                  <p className="text-xs font-bold text-emerald-300">{t("merchScan.cameraActive")}</p>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setCameraActive(false)}
                     className="h-8 text-xs border-white/20 bg-white/5 text-white"
                   >
-                    Switch to Manual Code Entry
+                    {t("merchScan.switchManual")}
                   </Button>
                 </div>
               ) : (
@@ -266,9 +268,9 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
                     <QrCode className="h-8 w-8" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-white">Scan Customer QR or Enter Pass Code</h3>
+                    <h3 className="text-base font-bold text-white">{t("merchScan.scanTitle")}</h3>
                     <p className="text-xs text-white/50 mt-0.5">
-                      Supports camera scan, barcode scanners, and direct keyboard input.
+                      {t("merchScan.scanCopy")}
                     </p>
                   </div>
                   <Button
@@ -277,7 +279,7 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
                     className="h-9 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-xs"
                   >
                     <Camera className="h-4 w-4 mr-1.5" />
-                    Launch Camera Scanner
+                    {t("merchScan.launchCam")}
                   </Button>
                 </div>
               )}
@@ -291,7 +293,7 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
                   <Input
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
-                    placeholder="Enter Code (e.g. PASS-KGN-2026 or DEAL-12)"
+                    placeholder={t("merchScan.placeholder")}
                     className="h-12 pl-10 rounded-2xl border-white/15 bg-white/5 text-white font-mono text-sm uppercase tracking-wider focus:border-emerald-500 focus:ring-emerald-500/20"
                   />
                 </div>
@@ -304,7 +306,7 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
                     <RefreshCw className="h-4 w-4 animate-spin" />
                   ) : (
                     <>
-                      <span>Verify</span>
+                      <span>{t("merchScan.verify")}</span>
                       <ArrowRight className="h-4 w-4 ml-1.5" />
                     </>
                   )}
@@ -313,7 +315,7 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
 
               {/* Sample Rapid Tester Badges */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <span className="text-[11px] font-bold text-white/50">Quick test codes:</span>
+                <span className="text-[11px] font-bold text-white/50">{t("merchScan.quickTest")}</span>
                 {sampleCodes.map((item) => (
                   <button
                     key={item.code}
@@ -352,21 +354,21 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold text-sm">
                       {scanResult.status === "success"
-                        ? "Pass & Benefit Approved"
+                        ? t("merchScan.approved")
                         : scanResult.status === "expired"
-                        ? "Pass Already Claimed"
-                        : "Invalid Pass Code"}
+                        ? t("merchScan.alreadyClaimed")
+                        : t("merchScan.invalid")}
                     </h4>
                     {scanResult.data?.pointsEarned && (
                       <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold">
-                        +{scanResult.data.pointsEarned} Points
+                        {t("merchScan.points", { count: scanResult.data.pointsEarned })}
                       </span>
                     )}
                   </div>
                   <p className="text-xs opacity-80">{scanResult.message}</p>
                   {scanResult.data?.perk && (
                     <p className="text-xs font-semibold text-white pt-1">
-                      Perk: <span className="text-emerald-300">{scanResult.data.perk}</span>
+                      {t("merchScan.perk")} <span className="text-emerald-300">{scanResult.data.perk}</span>
                     </p>
                   )}
                 </div>
@@ -381,10 +383,10 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <History className="h-4 w-4 text-emerald-400" />
-                <h3 className="font-bold text-sm text-white">Live Arrival Stream</h3>
+                <h3 className="font-bold text-sm text-white">{t("merchScan.stream")}</h3>
               </div>
               <span className="text-[10px] text-white/50 uppercase font-bold tracking-wider">
-                Real-Time Auditing
+                {t("merchScan.auditing")}
               </span>
             </div>
 
@@ -422,7 +424,7 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
                   <div className="text-right shrink-0">
                     <span className="text-[10px] text-white/40 block">{scan.timestamp}</span>
                     <span className="text-[11px] font-extrabold text-emerald-400">
-                      +{scan.pointsEarned} pts
+                      {t("merchScan.pts", { count: scan.pointsEarned })}
                     </span>
                   </div>
                 </div>
@@ -431,16 +433,16 @@ export function MerchantScannerStation({ venueName = "Venue Station" }: { venueN
 
             {/* Terminal Actions Footer */}
             <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs">
-              <span className="text-white/50">Terminal Security: Encrypted</span>
+              <span className="text-white/50">{t("merchScan.encrypted")}</span>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  toast({ title: "Audit Log Exported", description: "CSV log sent to your registered email." });
+                  toast({ title: t("merchScan.exportToast"), description: t("merchScan.exportCopy") });
                 }}
                 className="h-7 text-xs text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
               >
-                Export Day Log
+                {t("merchScan.export")}
               </Button>
             </div>
           </div>

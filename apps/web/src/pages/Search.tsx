@@ -158,7 +158,14 @@ const SearchPage = () => {
         </form>
 
         <div className="mx-auto mt-5 flex max-w-3xl flex-wrap justify-center gap-2">
-          {["Kingston", "Reward Perks", "Creators", "Music Festivals", "Merchant Deals", "Venues"].map((term) => (
+          {([
+            ["Kingston", "search.chipKingston"],
+            ["Reward Perks", "search.chipPerks"],
+            ["Creators", "search.chipCreators"],
+            ["Music Festivals", "search.chipFestivals"],
+            ["Merchant Deals", "search.chipDeals"],
+            ["Venues", "search.chipVenues"],
+          ] as const).map(([term, labelKey]) => (
             <button
               key={term}
               type="button"
@@ -168,7 +175,7 @@ const SearchPage = () => {
               }}
               className="rounded-full border border-white/10 bg-white/[0.06] px-3.5 py-1.5 text-xs font-bold text-white/80 transition hover:border-[#ff5500] hover:text-[#ff5500]"
             >
-              {term}
+              {t(labelKey)}
             </button>
           ))}
         </div>
@@ -223,11 +230,11 @@ const SearchPage = () => {
                         </div>
                         <h4 className="font-bold text-white text-base truncate group-hover:text-[#ff5500]">{item.title}</h4>
                         <p className="text-xs text-white/50 truncate flex items-center gap-1 mt-1">
-                          <MapPin className="h-3 w-3 text-[#ff5500]" /> {item.venue_name || item.location || "Kingston"}
+                          <MapPin className="h-3 w-3 text-[#ff5500]" /> {item.venue_name || item.location || t("search.fallbackCity")}
                         </p>
                         {item.reward && (
                           <span className="inline-block mt-2 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                            🏆 ${item.reward} Reward
+                            🏆 {t("search.rewardBadge", { reward: item.reward })}
                           </span>
                         )}
                       </Link>
@@ -264,7 +271,7 @@ const SearchPage = () => {
                         getTypeColor(result.result_type)
                       )}>
                         {getTypeIcon(result.result_type)}
-                        {result.result_type}
+                        {{ moment: t("search.typeMoment"), brand: t("search.typeBrand"), merchant: t("search.typeMerchant"), host: t("search.typeHost"), user: t("search.typeUser") }[result.result_type] || result.result_type}
                       </span>
                       <span className="text-xs text-white/40">•</span>
                       <span className="min-w-0 truncate text-xs text-white/50">{result.subtitle}</span>
@@ -285,12 +292,12 @@ const SearchPage = () => {
           ) : (
             <div className="text-center py-20 bg-[#121214] rounded-3xl border border-dashed border-white/10">
               <Frown className="w-12 h-12 text-white/30 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-white">No results found for "{query}"</h3>
+              <h3 className="text-lg font-bold text-white">{t("search.noResults", { query })}</h3>
               <p className="text-white/50 text-sm mt-1 max-w-sm mx-auto">
-                Try a broader keyword, a place, a creator name, or a reward term.
+                {t("search.noResultsCopy")}
               </p>
               <Button variant="link" className="mt-3 text-[#ff5500]" onClick={() => setInputValue("")}>
-                Clear search
+                {t("search.clear")}
               </Button>
             </div>
           )}

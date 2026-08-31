@@ -75,15 +75,15 @@ type GemsBalanceSnapshot = {
 
 const GEM_PACKS = [10, 25, 50, 100];
 
-const formatCurrency = (value: number, currency = "USD") =>
-  new Intl.NumberFormat("en-US", {
+const formatCurrency = (value: number, locale = "en", currency = "USD") =>
+  new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     maximumFractionDigits: 2,
   }).format(value);
 
 const formatSignedValue = (value: number) => `${value >= 0 ? "+" : ""}${Number(value).toLocaleString()}`;
-const errorMessage = (error: unknown) => error instanceof Error ? error.message : "Something went wrong";
+const errorMessage = (error: unknown, fallback: string) => error instanceof Error ? error.message : fallback;
 
 const Wallet = () => {
   const { t, locale, formatNumber } = useI18n();
@@ -159,8 +159,8 @@ const Wallet = () => {
       });
     } catch (error: unknown) {
       toast({
-        title: "Wallet unavailable",
-        description: errorMessage(error) || "Could not load Gems balance.",
+        title: t("wallet.unavailable"),
+        description: errorMessage(error, t("wallet.unavailableCopy")),
         variant: "destructive",
       });
     } finally {
@@ -188,8 +188,8 @@ const Wallet = () => {
       setGemsTransactions(data.transactions || []);
     } catch (error: unknown) {
       toast({
-        title: "Transactions unavailable",
-        description: errorMessage(error) || "Could not load Gems transactions.",
+        title: t("wallet.txUnavailable"),
+        description: errorMessage(error, t("wallet.txUnavailableCopy")),
         variant: "destructive",
       });
     } finally {
@@ -212,8 +212,8 @@ const Wallet = () => {
     setBuyDialogOpen(false);
 
     toast({
-      title: "Payment confirmed",
-      description: "Your Gems balance should update shortly after payment settlement.",
+      title: t("wallet.paymentConfirmed"),
+      description: t("wallet.paymentConfirmedCopy"),
     });
 
     setTimeout(() => {
@@ -234,15 +234,15 @@ const Wallet = () => {
         body: JSON.stringify({ quantity: convertQuantity }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Conversion failed");
+      if (!response.ok) throw new Error(result.error || t("wallet.convertFailedFallback"));
       await refreshWallet();
       setConvertDialogOpen(false);
       toast({
-        title: `${convertQuantity} PromoKey${convertQuantity > 1 ? "s" : ""} unlocked`,
-        description: `${(convertQuantity * PARTICIPANT_ECONOMY.pointsPerPromoKey).toLocaleString()} Points moved into access you can use.`,
+        title: t(convertQuantity > 1 ? "wallet.keysUnlockedPlural" : "wallet.keysUnlocked", { count: convertQuantity }),
+        description: t("wallet.keysUnlockedCopy", { points: formatNumber(convertQuantity * PARTICIPANT_ECONOMY.pointsPerPromoKey) }),
       });
     } catch (error: unknown) {
-      toast({ title: "Could not convert Points", description: errorMessage(error), variant: "destructive" });
+      toast({ title: t("wallet.convertFailed"), description: errorMessage(error, t("common.somethingWentWrong")), variant: "destructive" });
     } finally {
       setConverting(false);
     }
@@ -261,10 +261,10 @@ const Wallet = () => {
       await gemActions.requestWithdrawal.mutateAsync({ amount: Number(withdrawAmount), note: withdrawNote });
       setWithdrawDialogOpen(false);
       setWithdrawNote("");
-      toast({ title: "Withdrawal requested", description: `${Number(withdrawAmount).toLocaleString()} Gems are now pending review.` });
+      toast({ title: t("wallet.withdrawRequested"), description: t("wallet.withdrawRequestedCopy", { count: formatNumber(Number(withdrawAmount)) }) });
       await refreshWallet();
     } catch (error: unknown) {
-      toast({ title: "Could not request withdrawal", description: errorMessage(error), variant: "destructive" });
+      toast({ title: t("wallet.withdrawFailed"), description: errorMessage(error, t("common.somethingWentWrong")), variant: "destructive" });
     }
   };
 
@@ -332,18 +332,18 @@ const Wallet = () => {
       <main className="w-full space-y-8 px-4 sm:px-6 lg:px-8 py-6">
         <GuidanceDisclosure
           id="wallet:economy-path"
-          eyebrow="Wallet path"
-          title="How participation becomes usable value"
-          summary={`Show up, verify, unlock PromoKeys, and earn Gems through funded work. ${pointsPerKey} Points becomes 1 PromoKey.`}
+          eyebrow={t("wallet.pathEyebrow")}
+          title={t("wallet.pathTitle")}
+          summary={t("wallet.pathSummary", { count: pointsPerKey })}
           className="mt-0"
         >
           <section className="overflow-hidden rounded-2xl border border-border bg-card">
             <div className="grid md:grid-cols-4">
               {[
-                ["01", "Show up", "Join a Moment or useful action"],
-                ["02", "Verify", "Proof turns activity into standing"],
-                ["03", "Unlock", `${pointsPerKey} Points becomes 1 PromoKey`],
-                ["04", "Earn", "Funded work settles as Gems"],
+                ["01", t("wallet.stepShowUp"), t("wallet.stepShowUpCopy")],
+                ["02", t("wallet.stepVerify"), t("wallet.stepVerifyCopy")],
+                ["03", t("wallet.stepUnlock"), t("wallet.stepUnlockCopy", { count: pointsPerKey })],
+                ["04", t("wallet.stepEarn"), t("wallet.stepEarnCopy")],
               ].map(([number, title, text], index) => (
                 <div key={number} className={`relative p-5 ${index < 3 ? "border-b border-border md:border-b-0 md:border-r" : ""}`}>
                   <div className="text-[10px] font-black tracking-[0.25em] text-primary">{number}</div>
@@ -358,17 +358,17 @@ const Wallet = () => {
         <section aria-labelledby="available-value-heading" className="space-y-5">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Available now</p>
-              <h2 id="available-value-heading" className="mt-1 text-3xl font-black tracking-[-.045em]">What your value can do</h2>
-              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Each balance has one job. Use it, convert it, or see exactly why it is waiting.</p>
+              <p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">{t("wallet.availableNow")}</p>
+              <h2 id="available-value-heading" className="mt-1 text-3xl font-black tracking-[-.045em]">{t("wallet.whatValueCanDo")}</h2>
+              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{t("wallet.whatValueCanDoCopy")}</p>
             </div>
-            <Button asChild variant="outline" className="rounded-xl"><Link to="/portfolio">View your Pieces <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+            <Button asChild variant="outline" className="rounded-xl"><Link to="/portfolio">{t("wallet.viewPieces")} <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
           </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            <ValueInstrumentCard icon={Coins} label="Participation points" value={formatNumber(points)} meaning="Proof that you showed up and contributed. Turn enough Points into access." status="Builds access" tone="amber" loading={walletLoading} progress={nextKeyProgress} progressLabel={`${Math.max(0, pointsPerKey - (points % pointsPerKey))} to next PromoKey`} actionLabel="Convert to PromoKeys" onAction={() => setConvertDialogOpen(true)} disabled={availableConversions < 1} disabledReason={`Need ${Math.max(0, pointsPerKey - points)} more Points`} />
-            <ValueInstrumentCard icon={KeyRound} label="PromoKeys" value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning="Access for funded Moments, gated drops, and proof-backed experiences." status="Spend for access" tone="orange" loading={walletLoading} actionLabel="Find something to unlock" onAction={() => window.location.assign("/discover")} />
-            <ValueInstrumentCard icon={Gem} label="Gems" value={formatNumber(gemsSnapshot.balance || gems)} meaning="Value earned through funded work. Some Gems may need to clear before withdrawal." status={Number(gemsSnapshot.pending_purchase_redemption_balance || 0) > 0 ? "Partly pending" : "Usable value"} tone="violet" loading={gemsLoading} actionLabel={canBuyGems ? "Buy or manage Gems" : "View Gem details"} onAction={() => { setCheckoutActive(false); setBuyDialogOpen(true); }} />
-            <ValueInstrumentCard icon={DollarSign} label="Withdrawable" value={formatCurrency(Number(gemsSnapshot.withdrawable_balance || 0))} meaning={pendingWithdrawalGems > 0 ? `${formatNumber(pendingWithdrawalGems)} Gems are already under review.` : "The portion currently eligible to request as a payout."} status={pendingWithdrawalGems > 0 ? "Request pending" : "Eligible now"} tone="emerald" loading={gemsLoading || withdrawalsLoading} actionLabel="Request withdrawal" onAction={() => setWithdrawDialogOpen(true)} disabled={!canWithdrawGems || Number(gemsSnapshot.withdrawable_balance || 0) <= 0} disabledReason={!canWithdrawGems ? `Unavailable in ${country.name}` : "Nothing eligible yet"} />
+            <ValueInstrumentCard icon={Coins} label={t("wallet.pointsLabel")} value={formatNumber(points)} meaning={t("wallet.pointsMeaning")} status={t("wallet.pointsStatus")} tone="amber" loading={walletLoading} progress={nextKeyProgress} progressLabel={t("wallet.toNextKey", { count: Math.max(0, pointsPerKey - (points % pointsPerKey)) })} actionLabel={t("wallet.convertKeys")} onAction={() => setConvertDialogOpen(true)} disabled={availableConversions < 1} disabledReason={t("wallet.needMorePoints", { count: Math.max(0, pointsPerKey - points) })} />
+            <ValueInstrumentCard icon={KeyRound} label={t("wallet.keysLabel")} value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning={t("wallet.keysMeaning")} status={t("wallet.keysStatus")} tone="orange" loading={walletLoading} actionLabel={t("wallet.findUnlock")} onAction={() => window.location.assign("/discover")} />
+            <ValueInstrumentCard icon={Gem} label={t("wallet.gemsLabel")} value={formatNumber(gemsSnapshot.balance || gems)} meaning={t("wallet.gemsMeaning")} status={Number(gemsSnapshot.pending_purchase_redemption_balance || 0) > 0 ? t("wallet.gemsPending") : t("wallet.gemsUsable")} tone="violet" loading={gemsLoading} actionLabel={canBuyGems ? t("wallet.buyManage") : t("wallet.viewGemDetails")} onAction={() => { setCheckoutActive(false); setBuyDialogOpen(true); }} />
+            <ValueInstrumentCard icon={DollarSign} label={t("wallet.withdrawableLabel")} value={formatCurrency(Number(gemsSnapshot.withdrawable_balance || 0), locale)} meaning={pendingWithdrawalGems > 0 ? t("wallet.withdrawableMeaningPending", { count: formatNumber(pendingWithdrawalGems) }) : t("wallet.withdrawableMeaning")} status={pendingWithdrawalGems > 0 ? t("wallet.requestPending") : t("wallet.eligibleNow")} tone="emerald" loading={gemsLoading || withdrawalsLoading} actionLabel={t("wallet.requestWithdrawal")} onAction={() => setWithdrawDialogOpen(true)} disabled={!canWithdrawGems || Number(gemsSnapshot.withdrawable_balance || 0) <= 0} disabledReason={!canWithdrawGems ? t("wallet.unavailableIn", { country: country.name }) : t("wallet.nothingEligible")} />
           </div>
         </section>
 
@@ -635,7 +635,7 @@ const Wallet = () => {
                             </span>
                             {transaction.fiat_amount ? (
                               <div className="text-[11px] text-muted-foreground">
-                                {formatCurrency(Number(transaction.fiat_amount), transaction.fiat_currency || "USD")}
+                                {formatCurrency(Number(transaction.fiat_amount), locale, transaction.fiat_currency || "USD")}
                               </div>
                             ) : null}
                           </TableCell>
@@ -686,10 +686,10 @@ const Wallet = () => {
                               onClick={async () => {
                                 try {
                                   await gemActions.cancelWithdrawal.mutateAsync(request.id);
-                                  toast({ title: "Withdrawal cancelled", description: "The Gems returned to your wallet." });
+                                  toast({ title: t("wallet.withdrawCancelled"), description: t("wallet.withdrawCancelledCopy") });
                                   await refreshWallet();
                                 } catch (error: unknown) {
-                                  toast({ title: "Could not cancel request", description: errorMessage(error), variant: "destructive" });
+                                  toast({ title: t("wallet.withdrawFailed"), description: errorMessage(error, t("common.somethingWentWrong")), variant: "destructive" });
                                 }
                               }}
                             >

@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, CheckCircle2, Clock3, LifeBuoy, Loader2, Mail, Send } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://api.promorang.co";
 
@@ -55,6 +56,7 @@ const statusTone: Record<SupportTicket["status"], string> = {
 };
 
 export function AdminSupportTab() {
+  const { t, formatDate } = useI18n();
   const { session } = useAuth();
   const { toast } = useToast();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
@@ -114,7 +116,7 @@ export function AdminSupportTab() {
   async function saveReply() {
     if (!selectedTicket) return;
     if (!replyText.trim()) {
-      setError("A response is required before updating a ticket.");
+      setError(t("suppQ.required"));
       return;
     }
 
@@ -138,8 +140,8 @@ export function AdminSupportTab() {
       }
 
       toast({
-        title: "Support ticket updated",
-        description: "The response was saved and emailed to the user.",
+        title: t("suppQ.toastUpdated"),
+        description: t("suppQ.toastUpdatedBody"),
       });
 
       await fetchTickets();
@@ -157,7 +159,7 @@ export function AdminSupportTab() {
       const response = await fetch(`${API_URL}/api/admin/support/${selectedTicket.id}/resolve-commerce`, { method: "POST", headers, body: JSON.stringify({ remedy, gems: Number(gems), coupon_assignment_id: couponAssignmentId || undefined, notes: replyText.trim() }) });
       const payload = await response.json().catch(()=>({}));
       if (!response.ok) throw new Error(payload.error || "Failed to execute resolution");
-      toast({ title: "Resolution executed", description: remedy === "refund" ? "The refund and customer notification were recorded." : "The customer value and notification were recorded." });
+      toast({ title: t("suppQ.toastResolved"), description: remedy === "refund" ? t("suppQ.toastRefund") : t("suppQ.toastValue") });
       await fetchTickets();
     } catch (resolutionError) { setError(resolutionError instanceof Error ? resolutionError.message : "Failed to execute resolution"); }
     finally { setSaving(false); }
@@ -172,8 +174,8 @@ export function AdminSupportTab() {
           <LifeBuoy className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold">Support Queue</h2>
-          <p className="text-sm text-muted-foreground">{openCount} open or active tickets</p>
+          <h2 className="text-2xl font-bold">{t("suppQ.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("suppQ.openCount", { count: openCount })}</p>
         </div>
       </div>
 
@@ -187,10 +189,10 @@ export function AdminSupportTab() {
       <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-xl border border-border bg-card p-4">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-semibold">Tickets</h3>
+            <h3 className="font-semibold">{t("suppQ.tickets")}</h3>
             <Button variant="outline" size="sm" onClick={() => fetchTickets()} disabled={loading}>
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Clock3 className="mr-2 h-4 w-4" />}
-              Refresh
+              {t("suppQ.refresh")}
             </Button>
           </div>
 
@@ -202,7 +204,7 @@ export function AdminSupportTab() {
             </div>
           ) : tickets.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
-              No support tickets are waiting.
+              {t("suppQ.empty")}
             </div>
           ) : (
             <div className="space-y-3">
@@ -234,17 +236,17 @@ export function AdminSupportTab() {
         <div className="rounded-xl border border-border bg-card p-6">
           {!selectedTicket ? (
             <div className="flex min-h-[360px] items-center justify-center text-muted-foreground">
-              Select a ticket to review.
+              {t("suppQ.select")}
             </div>
           ) : (
             <div className="space-y-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs text-muted-foreground">Ticket #{selectedTicket.id}</p>
+                  <p className="text-xs text-muted-foreground">{t("suppQ.ticketId", { id: selectedTicket.id })}</p>
                   <h3 className="mt-1 text-xl font-semibold">{selectedTicket.subject}</h3>
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                     <Mail className="h-4 w-4" />
-                    <span>{selectedTicket.user?.email || "No email on file"}</span>
+                    <span>{selectedTicket.user?.email || t("suppQ.noEmail")}</span>
                   </div>
                 </div>
                 <Badge variant="outline" className={statusTone[selectedTicket.status]}>
@@ -254,63 +256,63 @@ export function AdminSupportTab() {
 
               <div className="grid gap-3 sm:grid-cols-3">
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs uppercase text-muted-foreground">Category</p>
+                  <p className="text-xs uppercase text-muted-foreground">{t("suppQ.category")}</p>
                   <p className="mt-1 text-sm font-medium capitalize">{selectedTicket.category.replace("_", " ")}</p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs uppercase text-muted-foreground">Priority</p>
+                  <p className="text-xs uppercase text-muted-foreground">{t("suppQ.priority")}</p>
                   <p className="mt-1 text-sm font-medium capitalize">{selectedTicket.priority}</p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs uppercase text-muted-foreground">Created</p>
-                  <p className="mt-1 text-sm font-medium">{new Date(selectedTicket.created_at).toLocaleDateString()}</p>
+                  <p className="text-xs uppercase text-muted-foreground">{t("suppQ.created")}</p>
+                  <p className="mt-1 text-sm font-medium">{formatDate(selectedTicket.created_at)}</p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs uppercase text-muted-foreground">Owner</p>
-                  <p className="mt-1 text-sm font-medium">{selectedTicket.assignee?.display_name || selectedTicket.assignee?.email || "Unassigned"}</p>
+                  <p className="text-xs uppercase text-muted-foreground">{t("suppQ.owner")}</p>
+                  <p className="mt-1 text-sm font-medium">{selectedTicket.assignee?.display_name || selectedTicket.assignee?.email || t("suppQ.unassigned")}</p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs uppercase text-muted-foreground">SLA due</p>
-                  <p className="mt-1 text-sm font-medium">{selectedTicket.sla_due_at ? new Date(selectedTicket.sla_due_at).toLocaleString() : "Not set"}</p>
+                  <p className="text-xs uppercase text-muted-foreground">{t("suppQ.sla")}</p>
+                  <p className="mt-1 text-sm font-medium">{selectedTicket.sla_due_at ? formatDate(selectedTicket.sla_due_at) : t("suppQ.notSet")}</p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs uppercase text-muted-foreground">First response</p>
-                  <p className="mt-1 text-sm font-medium">{selectedTicket.first_response_at ? new Date(selectedTicket.first_response_at).toLocaleString() : "Waiting"}</p>
+                  <p className="text-xs uppercase text-muted-foreground">{t("suppQ.firstResp")}</p>
+                  <p className="mt-1 text-sm font-medium">{selectedTicket.first_response_at ? formatDate(selectedTicket.first_response_at) : t("suppQ.waiting")}</p>
                 </div>
               </div>
 
               <div>
-                <h4 className="mb-2 font-medium">User message</h4>
+                <h4 className="mb-2 font-medium">{t("suppQ.userMsg")}</h4>
                 <div className="whitespace-pre-wrap rounded-lg border border-border bg-muted/30 p-4 text-sm leading-6">
                   {selectedTicket.message}
                 </div>
               </div>
 
-              {selectedTicket.receipt_id ? <div className="rounded-2xl border border-primary/25 bg-primary/[.04] p-4"><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">Execute commerce resolution</p><p className="mt-2 text-sm text-muted-foreground">Receipt #{selectedTicket.receipt_id.slice(0,8)} · {selectedTicket.commerce_reason?.replaceAll("_"," ")}</p><div className="mt-4 grid gap-3 sm:grid-cols-3"><select value={remedy} onChange={(event)=>setRemedy(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm"><option value="refund">Refund purchase</option><option value="restore_reward">Restore reward</option><option value="gems_credit">Credit Gems</option><option value="no_adjustment">No adjustment</option></select>{remedy === "gems_credit" ? <input type="number" min="1" max="100000" value={gems} onChange={(event)=>setGems(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm" placeholder="Gems"/> : null}{remedy === "restore_reward" ? <input value={couponAssignmentId} onChange={(event)=>setCouponAssignmentId(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm" placeholder="Coupon assignment ID"/> : null}<Button onClick={resolveCommerceCase} disabled={saving || !replyText.trim()}><CheckCircle2 className="mr-2 h-4 w-4"/>Execute resolution</Button></div><p className="mt-3 text-xs text-muted-foreground">The response above becomes the decision note. Financial and wallet actions are idempotent.</p></div> : null}
+              {selectedTicket.receipt_id ? <div className="rounded-2xl border border-primary/25 bg-primary/[.04] p-4"><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">{t("suppQ.commerce")}</p><p className="mt-2 text-sm text-muted-foreground">{t("suppQ.receipt", { id: selectedTicket.receipt_id.slice(0,8) })} · {selectedTicket.commerce_reason?.replaceAll("_"," ")}</p><div className="mt-4 grid gap-3 sm:grid-cols-3"><select value={remedy} onChange={(event)=>setRemedy(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm"><option value="refund">{t("suppQ.refund")}</option><option value="restore_reward">{t("suppQ.restore")}</option><option value="gems_credit">{t("suppQ.gems")}</option><option value="no_adjustment">{t("suppQ.noAdj")}</option></select>{remedy === "gems_credit" ? <input type="number" min="1" max="100000" value={gems} onChange={(event)=>setGems(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm" placeholder={t("suppQ.gemsPh")}/> : null}{remedy === "restore_reward" ? <input value={couponAssignmentId} onChange={(event)=>setCouponAssignmentId(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm" placeholder={t("suppQ.couponPh")}/> : null}<Button onClick={resolveCommerceCase} disabled={saving || !replyText.trim()}><CheckCircle2 className="mr-2 h-4 w-4"/>{t("suppQ.execute")}</Button></div><p className="mt-3 text-xs text-muted-foreground">{t("suppQ.commerceNote")}</p></div> : null}
 
               <div className="grid gap-3 sm:grid-cols-[1fr_180px]">
                 <div className="space-y-2">
-                  <label htmlFor="support-reply" className="text-sm font-medium">Response</label>
+                  <label htmlFor="support-reply" className="text-sm font-medium">{t("suppQ.response")}</label>
                   <Textarea
                     id="support-reply"
                     value={replyText}
                     onChange={(event) => setReplyText(event.target.value)}
                     className="min-h-[180px]"
-                    placeholder="Write the response that should be visible to the user and sent by email."
+                    placeholder={t("suppQ.replyPh")}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="support-status" className="text-sm font-medium">Status</label>
+                  <label htmlFor="support-status" className="text-sm font-medium">{t("suppQ.status")}</label>
                   <select
                     id="support-status"
                     value={nextStatus}
                     onChange={(event) => setNextStatus(event.target.value as SupportTicket["status"])}
                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                   >
-                    <option value="open">Open</option>
-                    <option value="in_progress">In progress</option>
-                    <option value="resolved">Resolved</option>
-                    <option value="closed">Closed</option>
+                    <option value="open">{t("suppQ.stOpen")}</option>
+                    <option value="in_progress">{t("suppQ.stProgress")}</option>
+                    <option value="resolved">{t("suppQ.stResolved")}</option>
+                    <option value="closed">{t("suppQ.stClosed")}</option>
                   </select>
                 </div>
               </div>
@@ -318,20 +320,20 @@ export function AdminSupportTab() {
               <div className="flex justify-end">
                 <Button onClick={saveReply} disabled={saving || !replyText.trim()}>
                   {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-                  Save and Email
+                  {t("suppQ.save")}
                 </Button>
               </div>
 
               <div>
-                <h4 className="mb-2 font-medium">Conversation history</h4>
+                <h4 className="mb-2 font-medium">{t("suppQ.history")}</h4>
                 <div className="space-y-2">
                   {(selectedTicket.events || []).length === 0 ? (
-                    <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">No history has been recorded for this ticket yet.</div>
+                    <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">{t("suppQ.noHistory")}</div>
                   ) : selectedTicket.events?.map((event) => (
                     <div key={event.id} className="rounded-lg border border-border p-3 text-sm">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <Badge variant="secondary">{event.event_type.replace("_", " ")}</Badge>
-                        <span className="text-xs text-muted-foreground">{new Date(event.created_at).toLocaleString()}</span>
+                        <span className="text-xs text-muted-foreground">{formatDate(event.created_at)}</span>
                       </div>
                       {event.previous_status && event.new_status && (
                         <p className="mt-2 text-xs text-muted-foreground">{event.previous_status} to {event.new_status}</p>

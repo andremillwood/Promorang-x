@@ -20,13 +20,22 @@ import SEO from "@/components/SEO";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 
 export default function Creators() {
-  const { t } = useI18n();
+  const { t, formatNumber } = useI18n();
+  const creatorTags: { value: string; labelKey: TranslationKey }[] = [
+    { value: "All", labelKey: "creatorsHub.tagAll" },
+    { value: "DJs", labelKey: "creatorsHub.tagDJs" },
+    { value: "Foodies", labelKey: "creatorsHub.tagFoodies" },
+    { value: "Visual", labelKey: "creatorsHub.tagVisual" },
+    { value: "Promoters", labelKey: "creatorsHub.tagPromoters" },
+    { value: "Campus", labelKey: "creatorsHub.tagCampus" },
+  ];
   const [selectedTag, setSelectedTag] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -114,8 +123,8 @@ export default function Creators() {
   return (
     <main className="min-h-screen bg-black pb-24 text-white">
       <SEO
-        title="Creators & Distributors — Promorang"
-        description="Get discovered. Find things worth sharing. Build proof that you move people."
+        title={t("creatorsHub.seoTitle")}
+        description={t("creatorsHub.seoDesc")}
       />
 
       {/* Hero Section */}
@@ -129,20 +138,20 @@ export default function Creators() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <Badge className="bg-purple-500 text-white font-black text-xs uppercase tracking-widest border-none px-3.5 py-1">
-                  Creators → Distribute
+                  {t("creatorsHub.badge")}
                 </Badge>
                 <GlobalTicketBalancePill />
               </div>
 
               <h1 className="max-w-5xl font-sans text-4xl sm:text-6xl lg:text-7xl font-black uppercase leading-[0.88] tracking-[-0.05em]">
-                Get Discovered. <br />
+                {t("creatorsHub.hero1")} <br />
                 <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
-                  Build Proof You Move People.
+                  {t("creatorsHub.hero2")}
                 </span>
               </h1>
 
               <p className="max-w-2xl text-sm sm:text-base leading-relaxed text-white/70">
-                Find things worth sharing across Kingston culture and verified partner perks. When you move people, earn attribution, PromoPoints, and PromoShare draw tickets.
+                {t("creatorsHub.heroCopy")}
               </p>
             </div>
 
@@ -152,7 +161,7 @@ export default function Creators() {
                 <Search className="h-4 w-4 text-purple-400 shrink-0" />
                 <input
                   type="text"
-                  placeholder="Search creators, DJs, pages..."
+                  placeholder={t("creatorsHub.search")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="bg-transparent text-white placeholder-white/40 text-xs w-full focus:outline-none"
@@ -160,17 +169,17 @@ export default function Creators() {
               </div>
 
               <div className="flex flex-wrap gap-1.5 pt-1">
-                {["All", "DJs", "Foodies", "Visual", "Promoters", "Campus"].map((tag) => (
+                {creatorTags.map((tag) => (
                   <button
-                    key={tag}
-                    onClick={() => setSelectedTag(tag)}
+                    key={tag.value}
+                    onClick={() => setSelectedTag(tag.value)}
                     className={`rounded-full px-3 py-1 text-xs font-bold transition-all ${
-                      selectedTag === tag
+                      selectedTag === tag.value
                         ? "bg-purple-500 text-white"
                         : "border border-white/10 bg-white/5 text-white/60 hover:text-white"
                     }`}
                   >
-                    {tag}
+                    {t(tag.labelKey)}
                   </button>
                 ))}
               </div>
@@ -189,22 +198,22 @@ export default function Creators() {
         <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-purple-400">
-              Verified Distributors
+              {t("creatorsHub.verified")}
             </p>
             <h2 className="mt-1 text-3xl font-black tracking-tight text-white">
-              Creator Directory &amp; Distribution Proof
+              {t("creatorsHub.directoryTitle")}
             </h2>
             <p className="text-xs text-white/60 mt-1">
-              Ranked by verifiable audience movement, perk claims generated, and culture engagement.
+              {t("creatorsHub.directoryCopy")}
             </p>
           </div>
           <Button asChild variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20 rounded-2xl text-xs font-bold">
-            <Link to="/for-creators">Join as a Creator →</Link>
+            <Link to="/for-creators">{t("creatorsHub.joinCta")} →</Link>
           </Button>
         </div>
 
         {creatorsQuery.isLoading ? (
-          <p className="py-12 text-center text-sm text-white/45">Loading creators...</p>
+          <p className="py-12 text-center text-sm text-white/45">{t("creatorsHub.loading")}</p>
         ) : filteredCreators.length ? (
           <div className="grid gap-6 md:grid-cols-2">
             {filteredCreators.map((creator: any) => (
@@ -225,7 +234,7 @@ export default function Creators() {
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                      <span>Verified Distributor</span>
+                      <span>{t("creatorsHub.verifiedBadge")}</span>
                     </p>
                     {creator.location && (
                       <span className="text-[10px] text-white/40">{creator.location}</span>
@@ -237,21 +246,21 @@ export default function Creators() {
                   </h3>
 
                   <p className="line-clamp-2 text-xs leading-relaxed text-white/60">
-                    {creator.bio || "Active culture distributor and curator on Promorang."}
+                    {creator.bio || t("creatorsHub.noBio")}
                   </p>
 
                   {/* Distribution Performance Metrics */}
                   <div className="pt-2 flex items-center gap-3 border-t border-white/10 text-[11px] font-mono">
                     <span className="text-purple-300 font-bold">
-                      {creator.distributionMetrics?.peopleMoved || 120}+ Moves
+                      {t("creatorsHub.moves", { n: formatNumber(creator.distributionMetrics?.peopleMoved || 120) })}
                     </span>
                     <span className="text-white/30">·</span>
                     <span className="text-emerald-400 font-bold">
-                      {creator.distributionMetrics?.claimsDriven || 45} Claims
+                      {t("creatorsHub.claims", { n: formatNumber(creator.distributionMetrics?.claimsDriven || 45) })}
                     </span>
                     <span className="text-white/30">·</span>
                     <span className="text-amber-400 font-bold">
-                      {creator.distributionMetrics?.tickets || 12} 🎟️ Tickets
+                      🎟️ {t("creatorsHub.tickets", { n: formatNumber(creator.distributionMetrics?.tickets || 12) })}
                     </span>
                   </div>
                 </div>
@@ -261,9 +270,9 @@ export default function Creators() {
         ) : (
           <div className="rounded-3xl border border-dashed border-white/15 px-6 py-16 text-center">
             <Users className="mx-auto h-9 w-9 text-purple-400" />
-            <h3 className="mt-5 text-2xl font-black">No creators found</h3>
+            <h3 className="mt-5 text-2xl font-black">{t("creatorsHub.emptyTitle")}</h3>
             <p className="mx-auto mt-2 max-w-md text-xs text-white/50">
-              Try adjusting your search query or tag filter.
+              {t("creatorsHub.emptyCopy")}
             </p>
           </div>
         )}
@@ -273,10 +282,10 @@ export default function Creators() {
       <section className="w-full px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid gap-4 rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:grid-cols-4">
           {[
-            { icon: Sparkles, title: "1. Discover", text: "Find exciting Perks, moments, and cultural drops worth talking about." },
-            { icon: Share2, title: "2. Distribute", text: "1-click PromoShare links that carry persistent single-level referral attribution." },
-            { icon: TrendingUp, title: "3. Build Proof", text: "Verifiable reputation based on real foot traffic and claims, not vanity metrics." },
-            { icon: Ticket, title: "4. Win & Earn", text: "Minted PromoPoints, Gems, and PromoShare tickets for every verified action." },
+            { icon: Sparkles, title: t("creatorsHub.pillar1Title"), text: t("creatorsHub.pillar1Copy") },
+            { icon: Share2, title: t("creatorsHub.pillar2Title"), text: t("creatorsHub.pillar2Copy") },
+            { icon: TrendingUp, title: t("creatorsHub.pillar3Title"), text: t("creatorsHub.pillar3Copy") },
+            { icon: Ticket, title: t("creatorsHub.pillar4Title"), text: t("creatorsHub.pillar4Copy") },
           ].map((item) => (
             <div key={item.title} className="rounded-2xl border border-white/10 bg-black/40 p-5 space-y-2">
               <item.icon className="h-6 w-6 text-purple-400" />

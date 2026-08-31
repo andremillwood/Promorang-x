@@ -12,6 +12,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/i18n/I18nContext";
 
 export interface CausationNode {
   id: string;
@@ -37,6 +38,7 @@ export const CausationTree: React.FC<CausationTreeProps> = ({
   className = "",
 }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const { t } = useI18n();
 
   return (
     <div className={`rounded-2xl border border-white/10 bg-[#0c0c11] p-6 text-white ${className}`}>
@@ -45,14 +47,14 @@ export const CausationTree: React.FC<CausationTreeProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <GitFork className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-black uppercase tracking-wider">Causation & Attribution Tree</h3>
+            <h3 className="text-sm font-black uppercase tracking-wider">{t("cause.treeTitle")}</h3>
           </div>
           <p className="mt-1 text-xs text-white/50">
-            Cryptographically tracked downstream human arrivals for <span className="text-primary font-bold">{targetEntity}</span>
+            {t("cause.treeCopy", { entity: targetEntity })}
           </p>
         </div>
         <Badge className="border-emerald-500/30 bg-emerald-500/10 font-mono text-[10px] text-emerald-400">
-          <CheckCircle2 className="mr-1 h-3 w-3" /> DIRECT ATTRIBUTION
+          <CheckCircle2 className="mr-1 h-3 w-3" /> {t("cause.direct")}
         </Badge>
       </div>
 
@@ -67,7 +69,7 @@ export const CausationTree: React.FC<CausationTreeProps> = ({
               <div className="flex items-center gap-2">
                 <span className="font-bold text-white text-sm">{rootNode.actorHandle}</span>
                 <Badge variant="outline" className="border-primary/40 text-[9px] font-bold text-primary">
-                  INITIATOR / ROOT
+                  {t("cause.initiator")}
                 </Badge>
               </div>
               <span className="font-mono text-[10px] text-white/40">{rootNode.timestamp}</span>
@@ -75,7 +77,7 @@ export const CausationTree: React.FC<CausationTreeProps> = ({
             <p className="mt-1 text-xs font-medium text-white/80">{rootNode.action}</p>
             {rootNode.valueContribution && (
               <div className="mt-2 inline-flex items-center gap-1 rounded-md bg-white/[0.06] px-2 py-1 font-mono text-[11px] text-emerald-400">
-                <Sparkles className="h-3 w-3" /> Total Yield: {rootNode.valueContribution}
+                <Sparkles className="h-3 w-3" /> {t("cause.totalYield", { value: rootNode.valueContribution })}
               </div>
             )}
           </div>
@@ -120,7 +122,7 @@ export const CausationTree: React.FC<CausationTreeProps> = ({
                         </span>
                       )}
                       <div className="mt-1 flex items-center justify-end gap-1 text-[10px] font-mono text-emerald-400/80">
-                        <CheckCircle2 className="h-3 w-3" /> Verified
+                        <CheckCircle2 className="h-3 w-3" /> {t("cause.verified")}
                       </div>
                     </div>
                   </div>
@@ -128,7 +130,7 @@ export const CausationTree: React.FC<CausationTreeProps> = ({
                   {/* Verification detail drawer if present */}
                   {child.verificationDetail && (
                     <div className="mt-2.5 rounded-lg border border-white/5 bg-black/40 px-2.5 py-1.5 font-mono text-[10px] text-white/50">
-                      Proof: {child.verificationDetail}
+                      {t("cause.proof", { detail: child.verificationDetail })}
                     </div>
                   )}
                 </div>

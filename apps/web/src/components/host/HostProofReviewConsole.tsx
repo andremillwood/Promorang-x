@@ -13,10 +13,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 import { HostProofReviewPanel } from "@/components/host/HostProofReviewPanel";
 
 export function HostProofReviewConsole() {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [proofs, setProofs] = useState([
     {
       id: "proof-1",
@@ -45,8 +47,8 @@ export function HostProofReviewConsole() {
       prev.map((p) => (p.id === id ? { ...p, status: "approved" } : p))
     );
     toast({
-      title: "Proof Verified! 🏆",
-      description: `Credited ${pts} points and verified arrival proof for ${name}.`,
+      title: t("hostProof.consoleToast"),
+      description: t("hostProof.consoleToastBody", { pts, name }),
     });
   };
 
@@ -60,20 +62,20 @@ export function HostProofReviewConsole() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Attendee Proof & Check-In Verification</h2>
+              <h2 className="text-2xl font-black text-white">{t("hostProof.consoleTitle")}</h2>
               <Badge className="bg-amber-400 text-black font-extrabold uppercase text-[10px]">
-                {proofs.filter((p) => p.status === "pending").length} Needs Review
+                {t("hostProof.needsReview", { count: proofs.filter((p) => p.status === "pending").length })}
               </Badge>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Verify guest check-in selfies, on-site receipts, and release attendance reward points.
+              {t("hostProof.consoleSub")}
             </p>
           </div>
         </div>
 
         <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-          <p className="text-[10px] uppercase font-bold text-white/50">Verification Trust</p>
-          <p className="text-base font-black text-emerald-400">100% Verified</p>
+          <p className="text-[10px] uppercase font-bold text-white/50">{t("hostProof.trust")}</p>
+          <p className="text-base font-black text-emerald-400">{t("hostProof.trustValue")}</p>
         </div>
       </div>
 
@@ -103,7 +105,7 @@ export function HostProofReviewConsole() {
               <div className="relative rounded-2xl overflow-hidden h-48 bg-black border border-white/5">
                 <img
                   src={proof.evidencePhoto}
-                  alt="Guest Proof"
+                  alt={t("hostProof.guestProofAlt")}
                   className="w-full h-full object-cover opacity-85"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
@@ -112,7 +114,7 @@ export function HostProofReviewConsole() {
                     {proof.tier}
                   </span>
                   <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">
-                    +{proof.pointsReward} Points
+                    {t("hostProof.points", { count: proof.pointsReward })}
                   </span>
                 </div>
               </div>
@@ -125,13 +127,13 @@ export function HostProofReviewConsole() {
                     className="w-full h-10 rounded-xl bg-amber-400 hover:bg-amber-500 text-black font-extrabold text-xs shadow-md"
                   >
                     <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                    Approve Check-In (+{proof.pointsReward} Pts)
+                    {t("hostProof.approveCheckin", { count: proof.pointsReward })}
                   </Button>
                 ) : (
                   <div className="text-center py-1">
                     <span className="text-xs font-bold text-emerald-400 flex items-center justify-center gap-1">
                       <CheckCircle2 className="h-4 w-4" />
-                      Proof Approved & Credited
+                      {t("hostProof.approvedCredited")}
                     </span>
                   </div>
                 )}

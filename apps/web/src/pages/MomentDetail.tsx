@@ -71,7 +71,8 @@ import {
   Share2,
 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
-import { getTaxonomyLabel, momentArchetypes, venueCategories } from "@/lib/moment-taxonomy";
+import { taxonomyLabelKey } from "@/lib/moment-taxonomy";
+import type { TranslationKey } from "@/i18n/translations";
 import { buildVenuePath, getSiteUrl, slugifySegment } from "@/lib/discovery";
 import { getAccessState, type AccessQuote } from "@/lib/access";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
@@ -458,8 +459,8 @@ const MomentDetail = () => {
     } catch (error) {
       console.error("Error fetching moment:", error);
       toast({
-        title: "Error loading event",
-        description: "Please try refreshing the page.",
+        title: t("moment.loadError"),
+        description: t("moment.refresh"),
         variant: "destructive",
       });
     } finally {
@@ -552,12 +553,12 @@ const MomentDetail = () => {
         setIsJoined(true);
         setParticipantCount((prev) => prev + 1);
         toast({
-          title: "RSVP Confirmed! 🎉",
-          description: moment.reward ? `Your spot is reserved. Claim your ${moment.reward} on arrival!` : "Your spot is reserved.",
+          title: t("moment.rsvpOk"),
+          description: moment.reward ? t("moment.rsvpReward", { reward: moment.reward }) : t("moment.rsvpReserved"),
         });
         return;
       }
-      throw new Error(payload?.error || "Failed to join event");
+      throw new Error(payload?.error || t("moment.joinFail"));
     }
 
     setIsJoined(true);
@@ -627,9 +628,9 @@ const MomentDetail = () => {
       await joinMoment(paymentIntent.id);
       await fetchMomentEconomy();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to complete ticket order";
+      const message = error instanceof Error ? error.message : t("moment.ticketFail");
       toast({
-        title: "Payment Failed",
+        title: t("moment.payFail"),
         description: message,
         variant: "destructive",
       });
@@ -670,7 +671,7 @@ const MomentDetail = () => {
   const isFull = moment?.max_participants ? participantCount >= moment.max_participants : false;
   const accessState = getAccessState(accessQuote);
   const entryFeeJmd = Number(economy?.economics?.entry_fee_jmd || 0);
-  const rewardLabel = moment?.reward || "Complimentary Item & Verified Badge";
+  const rewardLabel = moment?.reward || t("moment.defaultReward");
 
   const isPast = moment ? !occurrence?.hasFutureOccurrence && new Date(moment.starts_at) < new Date() : false;
   const bannerImage = moment?.banner_image_url || moment?.image_url || null;
@@ -705,10 +706,10 @@ const MomentDetail = () => {
     return (
       <div className="min-h-screen bg-[#0a0a0b] text-white flex items-center justify-center p-6">
         <div className="text-center space-y-4 max-w-md">
-          <h1 className="text-3xl font-extrabold tracking-tight">Event Not Found</h1>
-          <p className="text-white/60 text-sm">This event link may be expired or invalid.</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">{t("moment.notFound")}</h1>
+          <p className="text-white/60 text-sm">{t("moment.refresh")}</p>
           <Button asChild className="rounded-full bg-[#ff5500] text-white hover:bg-[#e04b00] px-6">
-            <Link to="/explore/moments">Browse Events</Link>
+            <Link to="/explore/moments">{t("moment.browse")}</Link>
           </Button>
         </div>
       </div>
@@ -774,7 +775,7 @@ const MomentDetail = () => {
               className="rounded-full border border-white/15 bg-black/50 text-white/90 backdrop-blur-md hover:bg-white/15 hover:text-white transition-all"
               onClick={() => navigate(-1)}
             >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back
+              <ArrowLeft className="mr-2 h-4 w-4" /> {t("momentDetail.back")}
             </Button>
 
             <div className="flex items-center gap-2">
@@ -816,13 +817,13 @@ const MomentDetail = () => {
                 <div className="aspect-[16/10] lg:aspect-[4/5]">
                   <img
                     src={galleryImages[0].url}
-                    alt={`${moment.title} event poster`}
+                    alt={t("momentDetail.posterAlt", { title: moment.title })}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                   />
                 </div>
                 <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10" />
                 <figcaption className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-black/70 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/80 backdrop-blur-md">
-                  Event poster
+                  {t("momentDetail.eventPoster")}
                 </figcaption>
               </figure>
             )}
@@ -830,15 +831,17 @@ const MomentDetail = () => {
               {/* Category & Status Pills */}
               <div className="flex flex-wrap items-center gap-2">
                 <Badge className="rounded-full bg-[#ff5500] text-white font-bold text-xs px-3.5 py-1 uppercase tracking-wider border-none shadow-md shadow-[#ff5500]/20">
-                  {moment.category || "Event"}
+                  {taxonomyLabelKey("moment", moment.category)
+                    ? t(taxonomyLabelKey("moment", moment.category)! as TranslationKey)
+                    : (moment.category || t("momentDetail.categoryFallback"))}
                 </Badge>
                 {isPast ? (
                   <Badge variant="outline" className="rounded-full border-white/20 bg-white/5 text-white/60 text-xs px-3 py-1">
-                    Event Completed
+                    {t("momentDetail.completed")}
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="rounded-full border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-semibold px-3 py-1">
-                    ● RSVP Open
+                    ● {t("momentDetail.rsvpOpen")}
                   </Badge>
                 )}
               </div>
@@ -1038,7 +1041,7 @@ const MomentDetail = () => {
                   </div>
                   <h2 className="text-xl sm:text-2xl font-extrabold text-white">{t("momentDetail.theExperience")}</h2>
                   <p className="text-white/80 leading-relaxed text-base font-normal whitespace-pre-line">
-                    {moment.description || "Join us for an incredible experience with great music, community, and exclusive perks."}
+                    {moment.description || t("moment.fallbackDesc")}
                   </p>
 
                   {/* Official Aitix Ticketing & Flyer Box */}
@@ -1382,7 +1385,7 @@ const MomentDetail = () => {
                     entityId={moment.id}
                     size="md"
                     canInteract={Boolean(isJoined || isHost)}
-                    disabledReason="RSVP to react."
+                    disabledReason={t("moment.rsvpToReact")}
                   />
                 </div>
 
@@ -1437,7 +1440,7 @@ const MomentDetail = () => {
           <aside className="space-y-6">
             <HostProfileCard
               hostId={moment.host_id}
-              name={hostProfile?.display_name || "Event Host"}
+              name={hostProfile?.display_name || t("moment.hostFallback")}
               avatarUrl={hostProfile?.avatar_url}
               memberSince={hostProfile?.created_at}
               momentsHosted={3}

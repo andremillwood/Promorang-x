@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { SubMoment } from './MomentDetailModal';
 import { MomentProps } from './MomentCard';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface MissionActionModalProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
   status,
   onStatusChange
 }) => {
+  const { t } = useI18n();
   const [proofUrl, setProofUrl] = useState('');
   const [note, setNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -80,7 +82,7 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
     } finally {
       setSubmitting(false);
       onStatusChange(mission.id, 'COMPLETED');
-      setSuccessMessage(`Check-in verified! +${mission.points} Points awarded.`);
+      setSuccessMessage(t("missAct.checkinOk", { count: mission.points }));
     }
   };
 
@@ -109,7 +111,7 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
     } finally {
       setSubmitting(false);
       onStatusChange(mission.id, 'SUBMITTED');
-      setSuccessMessage(`Proof submitted! You will receive +${mission.points} points upon host verification.`);
+      setSuccessMessage(t("missAct.proofOk", { count: mission.points }));
     }
   };
 
@@ -157,21 +159,21 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
                 <Award className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-black text-purple-950">Mission Reward</p>
+                <p className="text-xs font-black text-purple-950">{t("missAct.reward")}</p>
                 <p className="text-[11px] text-purple-700 font-medium">
-                  {mission.rewardType === 'EXCLUSIVE_KEY' ? 'PromoKey Tier Access' : 'Verified Community Points'}
+                  {mission.rewardType === 'EXCLUSIVE_KEY' ? t("missAct.rewardKey") : t("missAct.rewardPoints")}
                 </p>
               </div>
             </div>
             <span className="text-lg font-black text-purple-700 bg-purple-100 px-3 py-1 rounded-xl">
-              +{mission.points} pts
+              {t("missAct.pts", { count: mission.points })}
             </span>
           </div>
 
           {/* Description & Steps */}
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-1.5">
-              Mission Instructions
+              {t("missAct.instructions")}
             </h4>
             <p className="text-sm text-gray-700 leading-relaxed">
               {mission.description}
@@ -185,14 +187,14 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="text-sm font-black text-emerald-950">Success!</h4>
+                <h4 className="text-sm font-black text-emerald-950">{t("missAct.success")}</h4>
                 <p className="text-xs text-emerald-700 mt-0.5">{successMessage}</p>
               </div>
               <button
                 onClick={onClose}
                 className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm"
               >
-                Done
+                {t("missAct.done")}
               </button>
             </div>
           ) : (
@@ -203,12 +205,12 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
                   <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 text-xs text-gray-600 space-y-2">
                     <p className="font-semibold text-gray-900 flex items-center">
                       <Sparkles className="w-4 h-4 mr-1 text-purple-600" />
-                      How this works:
+                      {t("missAct.how")}
                     </p>
                     <ul className="list-disc list-inside space-y-1 text-gray-500">
-                      <li>Activate the mission before you begin.</li>
-                      <li>Complete the action at {moment.venueName}.</li>
-                      <li>Verify your check-in or submit photo/link proof to claim your reward.</li>
+                      <li>{t("missAct.step1")}</li>
+                      <li>{t("missAct.step2", { venue: moment.venueName })}</li>
+                      <li>{t("missAct.step3")}</li>
                     </ul>
                   </div>
 
@@ -218,7 +220,7 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
                     className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-xl shadow-lg shadow-purple-600/20 flex items-center justify-center space-x-2 transition-all disabled:opacity-50"
                   >
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                    <span>Activate Mission</span>
+                    <span>{t("missAct.activate")}</span>
                   </button>
                 </div>
               )}
@@ -230,9 +232,9 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-black text-gray-900">Are you at {moment.venueName}?</h4>
+                      <h4 className="text-xs font-black text-gray-900">{t("missAct.atVenue", { venue: moment.venueName })}</h4>
                       <p className="text-[11px] text-gray-500 mt-0.5">
-                        Verify your presence to instantly claim +{mission.points} points.
+                        {t("missAct.verifyHint", { count: mission.points })}
                       </p>
                     </div>
                   </div>
@@ -243,7 +245,7 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
                     className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-xl shadow-lg shadow-emerald-600/20 flex items-center justify-center space-x-2 transition-all disabled:opacity-50"
                   >
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                    <span>Verify Venue Check-In (+{mission.points} pts)</span>
+                    <span>{t("missAct.verifyCheckin", { count: mission.points })}</span>
                   </button>
                 </div>
               )}
@@ -252,12 +254,12 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
                 <form onSubmit={handleSubmitProof} className="space-y-4 pt-2">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1">
-                      Proof Link / Social Post URL <span className="text-purple-600">*</span>
+                      {t("missAct.proofLabel")} <span className="text-purple-600">*</span>
                     </label>
                     <input
                       type="url"
                       required
-                      placeholder="https://instagram.com/p/... or https://tiktok.com/@..."
+                      placeholder={t("missAct.proofPh")}
                       value={proofUrl}
                       onChange={(e) => setProofUrl(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:bg-white transition-all"
@@ -266,11 +268,11 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
 
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1">
-                      Note or Caption (Optional)
+                      {t("missAct.noteLabel")}
                     </label>
                     <textarea
                       rows={2}
-                      placeholder="Add any additional details or tags..."
+                      placeholder={t("missAct.notePh")}
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                       className="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:bg-white transition-all"
@@ -283,7 +285,7 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
                     className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-xl shadow-lg shadow-purple-600/20 flex items-center justify-center space-x-2 transition-all disabled:opacity-50"
                   >
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                    <span>Submit Proof for +{mission.points} pts</span>
+                    <span>{t("missAct.submitPts", { count: mission.points })}</span>
                   </button>
                 </form>
               )}
@@ -292,12 +294,12 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
                 <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-2">
                   <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
                   <h4 className="text-xs font-black text-emerald-950">
-                    {status === 'COMPLETED' ? 'Mission Completed' : 'Proof Under Review'}
+                    {status === 'COMPLETED' ? t("missAct.missionDone") : t("missAct.proofReview")}
                   </h4>
                   <p className="text-[11px] text-emerald-700">
                     {status === 'COMPLETED'
-                      ? `You claimed +${mission.points} points.`
-                      : `Your proof was submitted and is pending verification.`}
+                      ? t("missAct.claimed", { count: mission.points })
+                      : t("missAct.pendingVerify")}
                   </p>
                 </div>
               )}

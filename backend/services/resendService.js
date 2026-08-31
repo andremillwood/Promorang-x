@@ -730,51 +730,56 @@ ${contentData.footerNote}
 /**
  * Password reset email - Premium security experience
  */
-async function sendPasswordResetEmail(userEmail, resetUrl, userName) {
+async function sendPasswordResetEmail(userEmail, resetUrl, userName, options = {}) {
+  const locale = options.locale || 'en';
+  const contentData = getEmailContent('passwordReset', locale, { name: userName || 'there' });
+  const dateLocale = contentData.locale === 'es-419' ? 'es' : contentData.locale === 'pt-BR' ? 'pt-BR' : 'en-US';
+
   const html = getBaseTemplate({
-    title: 'Reset Your Password',
-    preheader: 'Secure your account with a new password.',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>We received a request to reset the password for your Promorang account. Click the button below to securely create a new password.</p>
+      <p>${contentData.intro}</p>
       
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">Request Time</span>
-          <span class="info-card-value">${new Date().toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}</span>
+          <span class="info-card-label">${contentData.requestTime}</span>
+          <span class="info-card-value">${new Date().toLocaleString(dateLocale, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Expires</span>
-          <span class="info-card-value">1 hour</span>
+          <span class="info-card-label">${contentData.expiresLabel}</span>
+          <span class="info-card-value">${contentData.expiresValue}</span>
         </div>
       </div>
       
-      <p style="font-size: 14px; color: ${BRAND.textMuted};">If you didn't request this reset, you can safely ignore this email. Your account remains secure and your password will not be changed.</p>
+      <p style="font-size: 14px; color: ${BRAND.textMuted};">${contentData.securityNote}</p>
     `,
     ctaUrl: resetUrl,
-    ctaText: 'Reset Password',
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   const text = `
-Reset Your Password
+${contentData.title}
 
-Hi ${userName || 'there'},
+${contentData.greeting}
 
-We received a request to reset the password for your Promorang account.
+${contentData.intro}
 
-Reset Link: ${resetUrl}
-This link expires in 1 hour.
+${resetUrl}
+${contentData.expiresLabel}: ${contentData.expiresValue}
 
-If you didn't request this reset, you can safely ignore this email. Your account remains secure.
+${contentData.securityNote}
   `.trim();
 
   return sendEmail({
     to: userEmail,
-    subject: 'Reset your Promorang password',
+    subject: contentData.subject,
     html,
     text,
-    tags: [{ name: 'type', value: 'password-reset' }],
+    tags: [{ name: 'type', value: 'password-reset' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -782,35 +787,38 @@ If you didn't request this reset, you can safely ignore this email. Your account
  * Security alert email (new login)
  */
 async function sendSecurityAlertEmail(userEmail, userName, alertData) {
-  const { alertType, device, location, timestamp } = alertData;
+  const { alertType, device, location, timestamp, locale } = alertData;
+  const contentData = getEmailContent('securityAlert', locale, { name: userName || 'there' });
+  const securityUrl = getLocalizedEmailUrl('/settings/security', locale, EMAIL_CONFIG.frontendUrl);
+  const dateLocale = contentData.locale === 'es-419' ? 'es' : contentData.locale === 'pt-BR' ? 'pt-BR' : 'en-US';
 
   const html = getBaseTemplate({
-    title: 'Security Alert',
-    preheader: 'We noticed a new login to your account.',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>We noticed a new sign-in to your Promorang account:</p>
+      <p>${contentData.intro}</p>
       
       <div class="meta-info">
-        <strong>Device:</strong> ${device || 'Unknown device'}<br>
-        <strong>Location:</strong> ${location || 'Unknown location'}<br>
-        <strong>Time:</strong> ${new Date(timestamp || Date.now()).toLocaleString()}
+        <strong>${contentData.deviceLabel}:</strong> ${device || contentData.unknownDevice}<br>
+        <strong>${contentData.locationLabel}:</strong> ${location || contentData.unknownLocation}<br>
+        <strong>${contentData.timeLabel}:</strong> ${new Date(timestamp || Date.now()).toLocaleString(dateLocale)}
       </div>
       
-      <p>If this was you, no action is needed.</p>
-      <p>If you don't recognize this activity, please secure your account immediately.</p>
+      <p>${contentData.ifYou}</p>
+      <p>${contentData.ifNot}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/settings/security`,
-    ctaText: 'Review Account Security',
+    ctaUrl: securityUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: '⚠️ New login to your Promorang account',
+    subject: contentData.subject,
     html,
-    text: `Security Alert: New login detected. Device: ${device}, Location: ${location}, Time: ${timestamp}. If this wasn't you, please secure your account at ${EMAIL_CONFIG.frontendUrl}/settings/security`,
-    tags: [{ name: 'type', value: 'security-alert' }],
+    text: `${contentData.title}: ${contentData.deviceLabel}: ${device || contentData.unknownDevice}, ${contentData.locationLabel}: ${location || contentData.unknownLocation}. ${contentData.ifNot} ${securityUrl}`,
+    tags: [{ name: 'type', value: 'security-alert' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -822,25 +830,28 @@ async function sendSecurityAlertEmail(userEmail, userName, alertData) {
  * Drop application approved
  */
 async function sendDropApprovedEmail(userEmail, userName, dropData) {
-  const { title, gemReward, deadline } = dropData;
+  const { title, gemReward, deadline, locale } = dropData;
+  const contentData = getEmailContent('dropApproved', locale, { name: userName || 'there', dropTitle: title });
+  const dropsUrl = getLocalizedEmailUrl('/drops', locale, EMAIL_CONFIG.frontendUrl);
+  const dateLocale = contentData.locale === 'es-419' ? 'es' : contentData.locale === 'pt-BR' ? 'pt-BR' : 'en-US';
 
   const html = getBaseTemplate({
-    title: 'Application Approved! ✅',
-    preheader: `Your application for "${title}" has been approved.`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Great news! Your application for the following Drop has been approved:</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
         <p style="margin: 0; font-weight: 600;">📋 ${title}</p>
         <div class="value">+${gemReward} Gems</div>
-        <p style="margin: 0; font-size: 14px;">Potential reward upon completion</p>
+        <p style="margin: 0; font-size: 14px;">${contentData.rewardUponCompletion}</p>
       </div>
       
       ${deadline ? `
       <div class="meta-info">
-        ⏰ <strong>Deadline:</strong> ${new Date(deadline).toLocaleDateString('en-US', {
+        ⏰ <strong>${contentData.deadlineLabel}:</strong> ${new Date(deadline).toLocaleDateString(dateLocale, {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -849,17 +860,17 @@ async function sendDropApprovedEmail(userEmail, userName, dropData) {
       </div>
       ` : ''}
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/drops`,
-    ctaText: 'View Drop Details',
-    footerNote: "Complete the drop requirements to earn your rewards!",
+    ctaUrl: dropsUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `✅ Approved: ${title}`,
+    subject: contentData.subject,
     html,
-    text: `Your application for "${title}" has been approved! Complete it to earn ${gemReward} Gems.`,
-    tags: [{ name: 'type', value: 'drop-approved' }],
+    text: `${contentData.preheader} ${contentData.payoutLabel}: ${gemReward} Gems. ${dropsUrl}`,
+    tags: [{ name: 'type', value: 'drop-approved' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -867,34 +878,36 @@ async function sendDropApprovedEmail(userEmail, userName, dropData) {
  * Drop application rejected
  */
 async function sendDropRejectedEmail(userEmail, userName, dropData) {
-  const { title, reason } = dropData;
+  const { title, reason, locale } = dropData;
+  const contentData = getEmailContent('dropRejected', locale, { name: userName || 'there', dropTitle: title });
+  const dropsUrl = getLocalizedEmailUrl('/drops', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Application Update',
+    title: contentData.title,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Unfortunately, your application for "<strong>${title}</strong>" was not approved this time.</p>
+      <p>${contentData.intro}</p>
       
       ${reason ? `
       <div class="meta-info">
-        <strong>Feedback:</strong> ${reason}
+        <strong>${contentData.feedbackLabel}:</strong> ${reason}
       </div>
       ` : ''}
       
-      <p>Don't worry – there are plenty more opportunities! Check out other available Drops and try again.</p>
+      <p>${contentData.moreCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/drops`,
-    ctaText: 'Browse More Drops',
-    footerNote: 'Each rejection is a step closer to your next approval!',
+    ctaUrl: dropsUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Application Update: ${title}`,
+    subject: contentData.subject,
     html,
-    text: `Your application for "${title}" was not approved. ${reason ? `Feedback: ${reason}` : ''} Browse more drops at ${EMAIL_CONFIG.frontendUrl}/drops`,
-    tags: [{ name: 'type', value: 'drop-rejected' }],
+    text: `${contentData.intro.replace(/<[^>]+>/g, '')} ${reason ? `${contentData.feedbackLabel}: ${reason}` : ''} ${dropsUrl}`,
+    tags: [{ name: 'type', value: 'drop-rejected' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -902,7 +915,10 @@ async function sendDropRejectedEmail(userEmail, userName, dropData) {
  * Drop completed - reward earned - Premium achievement experience
  */
 async function sendDropCompletedEmail(userEmail, userName, dropData) {
-  const { title, gemsEarned, keysEarned, pointsEarned } = dropData;
+  const { title, gemsEarned, keysEarned, pointsEarned, locale } = dropData;
+  const contentData = getEmailContent('dropCompleted', locale, { name: userName || 'there', dropTitle: title });
+  const walletUrl = getLocalizedEmailUrl('/wallet', locale, EMAIL_CONFIG.frontendUrl);
+  const dateLocale = contentData.locale === 'es-419' ? 'es' : contentData.locale === 'pt-BR' ? 'pt-BR' : 'en-US';
 
   const rewards = [];
   if (gemsEarned) rewards.push(`${gemsEarned} Gems`);
@@ -910,43 +926,41 @@ async function sendDropCompletedEmail(userEmail, userName, dropData) {
   if (pointsEarned) rewards.push(`${pointsEarned} Points`);
 
   const html = getBaseTemplate({
-    title: 'Mission Accomplished',
-    preheader: `You earned ${rewards.join(' + ')} for completing ${title}`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Excellent work. You've successfully completed <strong>${title}</strong> and earned rewards for your engagement.</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-card success">
-        <div class="label">Rewards Earned</div>
+        <div class="label">${contentData.earnedLabel}</div>
         <div class="value">${rewards.join(' + ')}</div>
-        <div class="sublabel">Credited to your account</div>
+        <div class="sublabel">${contentData.creditedSublabel}</div>
       </div>
       
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">Completed</span>
-          <span class="info-card-value">${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          <span class="info-card-label">${contentData.completedLabel}</span>
+          <span class="info-card-value">${new Date().toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Status</span>
-          <span class="info-card-value" style="color: ${BRAND.success};">Verified & Paid</span>
+          <span class="info-card-label">${contentData.statusLabel}</span>
+          <span class="info-card-value" style="color: ${BRAND.success};">${contentData.statusValue}</span>
         </div>
       </div>
-      
-      <p style="text-align: center;">Your contributions are valued. Keep up the momentum.</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/wallet`,
-    ctaText: 'View Wallet',
-    footerNote: 'Maintain your daily streak for compounding bonus rewards on every completion.',
+    ctaUrl: walletUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Mission accomplished: ${rewards.join(' + ')} earned`,
+    subject: contentData.subject,
     html,
-    text: `Congratulations! You completed "${title}" and earned ${rewards.join(' + ')}. View your wallet: ${EMAIL_CONFIG.frontendUrl}/wallet`,
-    tags: [{ name: 'type', value: 'drop-completed' }],
+    text: `${contentData.intro.replace(/<[^>]+>/g, '')} ${rewards.join(' + ')}. ${walletUrl}`,
+    tags: [{ name: 'type', value: 'drop-completed' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -957,32 +971,36 @@ async function sendDropCompletedEmail(userEmail, userName, dropData) {
 /**
  * New referral signup notification (to referrer)
  */
-async function sendReferralSignupEmail(referrerEmail, referrerName, referredUserName) {
+async function sendReferralSignupEmail(referrerEmail, referrerName, referredUserName, options = {}) {
+  const locale = options.locale || 'en';
+  const contentData = getEmailContent('referralSignup', locale, { name: referrerName || 'there', referredName: referredUserName });
+  const referralsUrl = getLocalizedEmailUrl('/referrals', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'New Referral! 👥',
-    preheader: `${referredUserName} just joined using your referral link!`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${referrerName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Great news! Someone just joined Promorang using your referral link:</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
         <p style="margin: 0; font-weight: 600;">👤 ${referredUserName}</p>
-        <p style="margin: 8px 0 0; font-size: 14px;">When they become active, you'll earn a bonus!</p>
+        <p style="margin: 8px 0 0; font-size: 14px;">${contentData.bonusHint}</p>
       </div>
       
-      <p>Keep sharing your referral link to grow your network and earnings.</p>
+      <p>${contentData.keepSharing}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/referrals`,
-    ctaText: 'View Referral Stats',
+    ctaUrl: referralsUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: referrerEmail,
-    subject: `👥 ${referredUserName} joined via your referral!`,
+    subject: contentData.subject,
     html,
-    text: `${referredUserName} just joined Promorang using your referral link! View your stats at ${EMAIL_CONFIG.frontendUrl}/referrals`,
-    tags: [{ name: 'type', value: 'referral-signup' }],
+    text: `${contentData.preheader} ${referralsUrl}`,
+    tags: [{ name: 'type', value: 'referral-signup' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -990,34 +1008,36 @@ async function sendReferralSignupEmail(referrerEmail, referrerName, referredUser
  * Referral activation bonus earned
  */
 async function sendReferralActivationEmail(referrerEmail, referrerName, bonusData) {
-  const { referredUserName, gemsEarned, pointsEarned } = bonusData;
+  const { referredUserName, gemsEarned, pointsEarned, locale } = bonusData;
+  const contentData = getEmailContent('referralActivation', locale, { name: referrerName || 'there', referredName: referredUserName, gems: gemsEarned });
+  const referralsUrl = getLocalizedEmailUrl('/referrals', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Referral Bonus Earned! 🎁',
-    preheader: `You earned a bonus because ${referredUserName} became active!`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${referrerName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Your referral <strong>${referredUserName}</strong> has become an active user on Promorang!</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">🎁 Activation Bonus</p>
+        <p style="margin: 0; font-weight: 600;">🎁 ${contentData.bonusLabel}</p>
         <div class="value">+${gemsEarned} Gems</div>
         ${pointsEarned ? `<p style="margin: 0; font-size: 14px;">+${pointsEarned} Points</p>` : ''}
       </div>
       
-      <p>You'll continue earning commissions from their activity. Keep sharing!</p>
+      <p>${contentData.keepSharing}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/referrals`,
-    ctaText: 'View Earnings',
+    ctaUrl: referralsUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: referrerEmail,
-    subject: `🎁 You earned ${gemsEarned} Gems from your referral!`,
+    subject: contentData.subject,
     html,
-    text: `${referredUserName} became active and you earned ${gemsEarned} Gems!`,
-    tags: [{ name: 'type', value: 'referral-activation' }],
+    text: `${contentData.preheader} +${gemsEarned} Gems`,
+    tags: [{ name: 'type', value: 'referral-activation' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1025,31 +1045,33 @@ async function sendReferralActivationEmail(referrerEmail, referrerName, bonusDat
  * Referral commission earned
  */
 async function sendReferralCommissionEmail(referrerEmail, referrerName, commissionData) {
-  const { amount, referredUserName, activityType } = commissionData;
+  const { amount, referredUserName, activityType, locale } = commissionData;
+  const contentData = getEmailContent('referralCommission', locale, { name: referrerName || 'there', referredName: referredUserName, amount });
+  const walletUrl = getLocalizedEmailUrl('/wallet', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Commission Earned! 💰',
+    title: contentData.title,
     content: `
-      <p>Hi ${referrerName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>You just earned a commission from your referral's activity:</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0;">From: <strong>${referredUserName}</strong></p>
-        <p style="margin: 4px 0;">Activity: ${activityType}</p>
+        <p style="margin: 0;">${contentData.fromLabel}: <strong>${referredUserName}</strong></p>
+        <p style="margin: 4px 0;">${contentData.activityLabel}: ${activityType}</p>
         <div class="value">+${amount} Gems</div>
       </div>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/wallet`,
-    ctaText: 'View Wallet',
+    ctaUrl: walletUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: referrerEmail,
-    subject: `💰 Commission: +${amount} Gems from ${referredUserName}`,
+    subject: contentData.subject,
     html,
-    text: `You earned ${amount} Gems in commission from ${referredUserName}'s ${activityType}.`,
-    tags: [{ name: 'type', value: 'referral-commission' }],
+    text: `${contentData.subject}. ${activityType}.`,
+    tags: [{ name: 'type', value: 'referral-commission' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1061,53 +1083,57 @@ async function sendReferralCommissionEmail(referrerEmail, referrerName, commissi
  * Withdrawal request confirmation - Premium financial experience
  */
 async function sendWithdrawalRequestedEmail(userEmail, userName, withdrawalData) {
-  const { amount, paymentMethod, estimatedTime } = withdrawalData;
+  const { amount, paymentMethod, estimatedTime, locale } = withdrawalData;
+  const formatted = `$${amount.toFixed(2)}`;
+  const contentData = getEmailContent('withdrawalRequested', locale, { name: userName || 'there', amount: formatted, method: paymentMethod });
+  const walletUrl = getLocalizedEmailUrl('/wallet', locale, EMAIL_CONFIG.frontendUrl);
+  const dateLocale = contentData.locale === 'es-419' ? 'es' : contentData.locale === 'pt-BR' ? 'pt-BR' : 'en-US';
 
   const html = getBaseTemplate({
-    title: 'Withdrawal Request Received',
-    preheader: `Your withdrawal of $${amount.toFixed(2)} is being processed.`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>We've received your withdrawal request and are processing it through our secure payment system.</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-card">
-        <div class="label">Withdrawal Amount</div>
-        <div class="value" style="color: ${BRAND.text};">$${amount.toFixed(2)}</div>
-        <div class="sublabel">via ${paymentMethod}</div>
+        <div class="label">${contentData.amountLabel}</div>
+        <div class="value" style="color: ${BRAND.text};">${formatted}</div>
+        <div class="sublabel">${contentData.viaLabel}</div>
       </div>
       
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">Requested</span>
-          <span class="info-card-value">${new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+          <span class="info-card-label">${contentData.requestedLabel}</span>
+          <span class="info-card-value">${new Date().toLocaleString(dateLocale, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Method</span>
+          <span class="info-card-label">${contentData.methodLabel}</span>
           <span class="info-card-value">${paymentMethod}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Processing Time</span>
-          <span class="info-card-value">${estimatedTime || '1-3 business days'}</span>
+          <span class="info-card-label">${contentData.processingLabel}</span>
+          <span class="info-card-value">${estimatedTime || contentData.defaultEta}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Status</span>
-          <span class="info-card-value" style="color: ${BRAND.accent};">Pending Review</span>
+          <span class="info-card-label">${contentData.statusLabel}</span>
+          <span class="info-card-value" style="color: ${BRAND.accent};">${contentData.pendingReview}</span>
         </div>
       </div>
       
-      <p style="font-size: 14px; color: ${BRAND.textMuted};">You'll receive a confirmation email once the transfer has been initiated. For security, all withdrawals are reviewed by our team.</p>
+      <p style="font-size: 14px; color: ${BRAND.textMuted};">${contentData.reviewNote}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/wallet`,
-    ctaText: 'View Withdrawal Status',
+    ctaUrl: walletUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Withdrawal request received: $${amount.toFixed(2)}`,
+    subject: contentData.subject,
     html,
-    text: `Your withdrawal of $${amount.toFixed(2)} via ${paymentMethod} is being processed. Estimated time: ${estimatedTime || '1-3 business days'}.`,
-    tags: [{ name: 'type', value: 'withdrawal-requested' }],
+    text: `${contentData.preheader} ${paymentMethod}. ${estimatedTime || contentData.defaultEta}.`,
+    tags: [{ name: 'type', value: 'withdrawal-requested' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1115,189 +1141,204 @@ async function sendWithdrawalRequestedEmail(userEmail, userName, withdrawalData)
  * Withdrawal completed - Premium confirmation experience
  */
 async function sendWithdrawalCompletedEmail(userEmail, userName, withdrawalData) {
-  const { amount, paymentMethod, transactionId } = withdrawalData;
+  const { amount, paymentMethod, transactionId, locale } = withdrawalData;
+  const formatted = `$${amount.toFixed(2)}`;
+  const contentData = getEmailContent('withdrawalCompleted', locale, { name: userName || 'there', amount: formatted, method: paymentMethod });
+  const walletUrl = getLocalizedEmailUrl('/wallet', locale, EMAIL_CONFIG.frontendUrl);
+  const dateLocale = contentData.locale === 'es-419' ? 'es' : contentData.locale === 'pt-BR' ? 'pt-BR' : 'en-US';
 
   const html = getBaseTemplate({
-    title: 'Withdrawal Complete',
-    preheader: `Your $${amount.toFixed(2)} has been sent.`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Your withdrawal has been processed and funds have been sent. The transfer is now complete.</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-card success">
-        <div class="label">Transfer Complete</div>
-        <div class="value">$${amount.toFixed(2)}</div>
-        <div class="sublabel">Sent via ${paymentMethod}</div>
+        <div class="label">${contentData.completeLabel}</div>
+        <div class="value">${formatted}</div>
+        <div class="sublabel">${contentData.sentVia}</div>
       </div>
       
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">Transaction ID</span>
+          <span class="info-card-label">${contentData.txnLabel}</span>
           <span class="info-card-value" style="font-family: monospace; font-size: 13px;">${transactionId || 'N/A'}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Completed</span>
-          <span class="info-card-value">${new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+          <span class="info-card-label">${contentData.completedLabel}</span>
+          <span class="info-card-value">${new Date().toLocaleString(dateLocale, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Status</span>
-          <span class="info-card-value" style="color: ${BRAND.success};">Completed</span>
+          <span class="info-card-label">${contentData.statusLabel}</span>
+          <span class="info-card-value" style="color: ${BRAND.success};">${contentData.completedStatus}</span>
         </div>
       </div>
       
-      <p style="text-align: center;">Thank you for using Promorang. Your funds should appear in your account within the processing time for your selected payment method.</p>
+      <p style="text-align: center;">${contentData.thanks}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/wallet`,
-    ctaText: 'View Transaction History',
-    footerNote: 'Keep this email for your records. Contact support if you have any questions about this transaction.',
+    ctaUrl: walletUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Withdrawal complete: $${amount.toFixed(2)}`,
+    subject: contentData.subject,
     html,
-    text: `Your withdrawal of $${amount.toFixed(2)} via ${paymentMethod} is complete. Transaction ID: ${transactionId}. Thank you for using Promorang.`,
-    tags: [{ name: 'type', value: 'withdrawal-completed' }],
+    text: `${contentData.preheader} ${paymentMethod}. ${transactionId || ''}`,
+    tags: [{ name: 'type', value: 'withdrawal-completed' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 /**
  * KYC verification required
  */
-async function sendKycRequiredEmail(userEmail, userName, reason) {
+async function sendKycRequiredEmail(userEmail, userName, reason, options = {}) {
+  const locale = (typeof reason === 'object' && reason?.locale) || options.locale || 'en';
+  const reasonText = typeof reason === 'string' ? reason : reason?.reason;
+  const contentData = getEmailContent('kycRequired', locale, { name: userName || 'there' });
+  const kycUrl = getLocalizedEmailUrl('/kyc', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'Verification Required',
+    title: contentData.title,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>To continue with your request, we need to verify your identity.</p>
+      <p>${contentData.intro}</p>
       
       <div class="meta-info">
-        ${reason || 'Withdrawals over $500 require identity verification for security.'}
+        ${reasonText || contentData.defaultReason}
       </div>
       
-      <p>This is a quick, secure process that helps protect your account and comply with regulations.</p>
+      <p>${contentData.processNote}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/settings/kyc`,
-    ctaText: 'Start Verification',
-    footerNote: 'Verification typically takes just a few minutes.',
+    ctaUrl: kycUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: '🔐 Identity verification required',
+    subject: contentData.subject,
     html,
-    text: `Identity verification is required. Please complete it at ${EMAIL_CONFIG.frontendUrl}/settings/kyc`,
-    tags: [{ name: 'type', value: 'kyc-required' }],
+    text: `${contentData.intro} ${kycUrl}`,
+    tags: [{ name: 'type', value: 'kyc-required' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 async function sendKycApprovedEmail(userEmail, userName, approvalData = {}) {
-  const { level = 'intermediate', limits } = approvalData;
+  const { level = 'intermediate', limits, locale } = approvalData;
+  const contentData = getEmailContent('kycApproved', locale, { name: userName || 'there' });
+  const walletUrl = getLocalizedEmailUrl('/wallet', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Verification Approved',
-    preheader: 'Your account is now verified for trading and withdrawals.',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
 
-      <p>Your identity verification has been approved. Your account now has <strong>${level}</strong> verification access.</p>
+      <p>${contentData.intro}</p>
 
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">KYC Level</span>
+          <span class="info-card-label">${contentData.levelLabel}</span>
           <span class="info-card-value">${level}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Daily Deposit Limit</span>
+          <span class="info-card-label">${contentData.dailyDeposit}</span>
           <span class="info-card-value">$${limits?.daily_deposit_limit || limits?.daily_deposit || 0}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Daily Withdrawal Limit</span>
+          <span class="info-card-label">${contentData.dailyWithdrawal}</span>
           <span class="info-card-value">$${limits?.daily_withdrawal_limit || limits?.daily_withdrawal || 0}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Max Single Trade</span>
+          <span class="info-card-label">${contentData.maxTrade}</span>
           <span class="info-card-value">$${limits?.max_single_trade || limits?.max_single_trade_amount || 0}</span>
         </div>
       </div>
 
-      <p>You can now continue with trading, withdrawals, and higher account limits.</p>
+      <p>${contentData.continueCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/kyc`,
-    ctaText: 'View Verification',
-    footerNote: 'If anything on your profile looks incorrect, reply to this email and support will review it.',
+    ctaUrl: walletUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: 'Your Promorang verification was approved',
+    subject: contentData.subject,
     html,
-    text: `Your verification was approved at level ${level}. View your status at ${EMAIL_CONFIG.frontendUrl}/kyc`,
-    tags: [{ name: 'type', value: 'kyc-approved' }],
+    text: `${contentData.intro.replace(/<[^>]+>/g, '')} ${walletUrl}`,
+    tags: [{ name: 'type', value: 'kyc-approved' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 async function sendKycRejectedEmail(userEmail, userName, rejectionData = {}) {
-  const { reason, category } = rejectionData;
+  const { reason, category, locale } = rejectionData;
+  const contentData = getEmailContent('kycRejected', locale, { name: userName || 'there' });
+  const kycUrl = getLocalizedEmailUrl('/kyc', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Verification Update',
-    preheader: 'Your identity verification needs changes before approval.',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
 
-      <p>We reviewed your verification submission and could not approve it yet.</p>
+      <p>${contentData.intro}</p>
 
       <div class="meta-info">
-        <strong>Reason:</strong> ${reason || 'Your submission needs clarification or clearer documents.'}<br>
-        ${category ? `<strong>Category:</strong> ${category}` : ''}
+        <strong>${contentData.reasonLabel}:</strong> ${reason || contentData.defaultReason}<br>
+        ${category ? `<strong>${contentData.categoryLabel}:</strong> ${category}` : ''}
       </div>
 
-      <p>You can resubmit with updated information and clearer documentation.</p>
+      <p>${contentData.resubmitCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/kyc`,
-    ctaText: 'Review and Resubmit',
-    footerNote: 'Support can help if you need clarification on the rejection reason.',
+    ctaUrl: kycUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: 'Your Promorang verification needs updates',
+    subject: contentData.subject,
     html,
-    text: `Your verification was not approved. Reason: ${reason || 'Please review your submission and resubmit.'} Visit ${EMAIL_CONFIG.frontendUrl}/kyc`,
-    tags: [{ name: 'type', value: 'kyc-rejected' }],
+    text: `${contentData.intro} ${reason || contentData.defaultReason} ${kycUrl}`,
+    tags: [{ name: 'type', value: 'kyc-rejected' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 async function sendKycAdditionalInfoEmail(userEmail, userName, requestData = {}) {
-  const { requestedInfo } = requestData;
+  const { requestedInfo, locale } = requestData;
+  const contentData = getEmailContent('kycAdditionalInfo', locale, { name: userName || 'there' });
+  const kycUrl = getLocalizedEmailUrl('/kyc', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'More Information Needed',
-    preheader: 'We need one more update to complete your verification.',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
 
-      <p>Your verification review is in progress, but we need additional information before we can finish it.</p>
+      <p>${contentData.intro}</p>
 
       <div class="meta-info">
-        ${requestedInfo || 'Please log in and review your verification request for the exact details.'}
+        ${requestedInfo || contentData.defaultRequest}
       </div>
 
-      <p>Once you update the requested information, the review can continue.</p>
+      <p>${contentData.afterUpdate}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/kyc`,
-    ctaText: 'Update Verification',
+    ctaUrl: kycUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: 'Additional information needed for verification',
+    subject: contentData.subject,
     html,
-    text: `We need more information to complete your verification. ${requestedInfo || ''} Visit ${EMAIL_CONFIG.frontendUrl}/kyc`,
-    tags: [{ name: 'type', value: 'kyc-additional-info' }],
+    text: `${contentData.intro} ${requestedInfo || contentData.defaultRequest} ${kycUrl}`,
+    tags: [{ name: 'type', value: 'kyc-additional-info' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1309,8 +1350,7 @@ async function sendKycAdditionalInfoEmail(userEmail, userName, requestData = {})
  * Streak milestone email
  */
 async function sendStreakMilestoneEmail(userEmail, userName, streakData) {
-  const { days, bonusGems, bonusPoints } = streakData;
-
+  const { days, bonusGems, bonusPoints, locale } = streakData;
   const milestoneEmojis = {
     7: '🔥',
     14: '⚡',
@@ -1320,35 +1360,43 @@ async function sendStreakMilestoneEmail(userEmail, userName, streakData) {
     365: '👑',
   };
   const emoji = milestoneEmojis[days] || '🎯';
+  const contentData = getEmailContent('streakMilestone', locale, {
+    name: userName || 'there',
+    days,
+    emoji,
+    bonusGems: bonusGems || 0,
+    bonusPoints: bonusPoints || 0,
+  });
+  const dashboardUrl = getLocalizedEmailUrl('/dashboard', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: `${days}-Day Streak! ${emoji}`,
-    preheader: `You've been active for ${days} days straight!`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Incredible dedication! You've maintained your streak for <strong>${days} days</strong>!</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">${emoji} Streak Milestone</p>
-        <div class="value">${days} Days</div>
+        <p style="margin: 0; font-weight: 600;">${contentData.milestoneLabel}</p>
+        <div class="value">${contentData.daysLabel}</div>
         ${bonusGems || bonusPoints ? `
-          <p style="margin: 8px 0 0; font-size: 14px;">Bonus: +${bonusGems || 0} Gems, +${bonusPoints || 0} Points</p>
+          <p style="margin: 8px 0 0; font-size: 14px;">${contentData.bonusLabel}</p>
         ` : ''}
       </div>
       
-      <p>Keep it up – the longer your streak, the bigger the rewards!</p>
+      <p>${contentData.keepGoing}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/dashboard`,
-    ctaText: 'Continue Your Streak',
+    ctaUrl: dashboardUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `${emoji} ${days}-Day Streak Achievement!`,
+    subject: contentData.subject,
     html,
-    text: `Amazing! You've maintained a ${days}-day streak. Keep going!`,
-    tags: [{ name: 'type', value: 'streak-milestone' }],
+    text: `${contentData.preheader} ${contentData.keepGoing}`,
+    tags: [{ name: 'type', value: 'streak-milestone' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1356,32 +1404,35 @@ async function sendStreakMilestoneEmail(userEmail, userName, streakData) {
  * Quest completed
  */
 async function sendQuestCompletedEmail(userEmail, userName, questData) {
-  const { title, rewards } = questData;
+  const { title, rewards, locale } = questData;
+  const contentData = getEmailContent('questCompleted', locale, { name: userName || 'there', title });
+  const questsUrl = getLocalizedEmailUrl('/quests', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Quest Complete! 🎯',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>You've completed a quest:</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
         <p style="margin: 0; font-weight: 600;">🎯 ${title}</p>
         <div class="value">${rewards}</div>
       </div>
       
-      <p>Check the Quests page for more opportunities!</p>
+      <p>${contentData.moreCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/quests`,
-    ctaText: 'View More Quests',
+    ctaUrl: questsUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `🎯 Quest Complete: ${title}`,
+    subject: contentData.subject,
     html,
-    text: `You completed "${title}" and earned ${rewards}!`,
-    tags: [{ name: 'type', value: 'quest-completed' }],
+    text: `${contentData.preheader} ${rewards || ''}`,
+    tags: [{ name: 'type', value: 'quest-completed' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1389,33 +1440,41 @@ async function sendQuestCompletedEmail(userEmail, userName, questData) {
  * Achievement unlocked
  */
 async function sendAchievementUnlockedEmail(userEmail, userName, achievementData) {
-  const { title, description, rewardGems, rewardPoints } = achievementData;
+  const { title, description, rewardGems, rewardPoints, locale } = achievementData;
+  const contentData = getEmailContent('achievementUnlocked', locale, {
+    name: userName || 'there',
+    title,
+    rewardGems: rewardGems || 0,
+    rewardPoints: rewardPoints || 0,
+  });
+  const profileUrl = getLocalizedEmailUrl('/profile', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Achievement Unlocked! 🏅',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>You've unlocked a new achievement!</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
         <p style="margin: 0; font-weight: 600;">🏅 ${title}</p>
         <p style="margin: 8px 0; color: #666;">${description}</p>
         ${rewardGems || rewardPoints ? `
-          <div class="value">+${rewardGems || 0} Gems, +${rewardPoints || 0} Points</div>
+          <div class="value">${contentData.rewardLabel}</div>
         ` : ''}
       </div>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/profile`,
-    ctaText: 'View All Achievements',
+    ctaUrl: profileUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `🏅 Achievement: ${title}`,
+    subject: contentData.subject,
     html,
-    text: `You unlocked "${title}"! ${description}`,
-    tags: [{ name: 'type', value: 'achievement-unlocked' }],
+    text: `${contentData.preheader} ${description || ''}`,
+    tags: [{ name: 'type', value: 'achievement-unlocked' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1423,19 +1482,27 @@ async function sendAchievementUnlockedEmail(userEmail, userName, achievementData
  * Coupon earned (refactored from old emailNotifications.js)
  */
 async function sendCouponEarnedEmail(userEmail, userName, couponData) {
-  const { title, description, value, value_unit, source_label, expires_at } = couponData;
+  const { title, description, value, value_unit, source_label, expires_at, locale } = couponData;
+  const contentData = getEmailContent('couponEarned', locale, { name: userName || 'there', title });
+  const rewardsUrl = getLocalizedEmailUrl('/rewards', locale, EMAIL_CONFIG.frontendUrl);
+  const dateLocale = contentData.locale === 'es-419' ? 'es' : contentData.locale === 'pt-BR' ? 'pt-BR' : 'en-US';
 
   const valueDisplay = value_unit === 'percentage'
     ? `${value}% OFF`
     : `${value} ${value_unit}`;
+  const expiresDisplay = new Date(expires_at).toLocaleDateString(dateLocale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 
   const html = getBaseTemplate({
-    title: 'You Earned a Reward! 🎁',
-    preheader: `Use your new reward: ${title}`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Congratulations! You've earned a new reward:</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
         <p style="margin: 0; font-weight: 600;">🎁 ${title}</p>
@@ -1444,25 +1511,21 @@ async function sendCouponEarnedEmail(userEmail, userName, couponData) {
       </div>
       
       <div class="meta-info">
-        <strong>How you earned it:</strong> ${source_label}<br>
-        <strong>Expires:</strong> ${new Date(expires_at).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })}
+        <strong>${contentData.howLabel}:</strong> ${source_label}<br>
+        <strong>${contentData.expiresLabel}:</strong> ${expiresDisplay}
       </div>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/rewards`,
-    ctaText: 'View & Redeem Reward',
-    footerNote: 'Check your Rewards tab regularly to discover new perks!',
+    ctaUrl: rewardsUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `🎁 You Earned: ${title}`,
+    subject: contentData.subject,
     html,
-    text: `You earned "${title}" - ${valueDisplay}. Expires: ${new Date(expires_at).toLocaleDateString()}. Redeem at ${EMAIL_CONFIG.frontendUrl}/rewards`,
-    tags: [{ name: 'type', value: 'coupon-earned' }],
+    text: `${contentData.preheader} ${valueDisplay}. ${contentData.expiresLabel}: ${expiresDisplay}. ${rewardsUrl}`,
+    tags: [{ name: 'type', value: 'coupon-earned' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1470,50 +1533,57 @@ async function sendCouponEarnedEmail(userEmail, userName, couponData) {
  * Weekly rewards digest
  */
 async function sendWeeklyDigestEmail(userEmail, userName, stats) {
-  const { earned_this_week, available_count, expiring_soon, total_gems, streak_days } = stats;
+  const { earned_this_week, available_count, expiring_soon, total_gems, streak_days, locale } = stats;
+  const contentData = getEmailContent('weeklyDigest', locale, {
+    name: userName || 'there',
+    earned: earned_this_week || 0,
+    count: expiring_soon || 0,
+  });
+  const dashboardUrl = getLocalizedEmailUrl('/dashboard', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Your Weekly Summary 📊',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Here's your Promorang activity for this week:</p>
+      <p>${contentData.intro}</p>
       
       <table style="width: 100%; margin: 20px 0; border-collapse: collapse;">
         <tr>
           <td style="text-align: center; padding: 15px; background: #f8f9ff; border-radius: 8px 0 0 8px;">
             <div style="font-size: 24px; font-weight: 700; color: ${BRAND.primary};">${earned_this_week || 0}</div>
-            <div style="font-size: 12px; color: #666;">Rewards Earned</div>
+            <div style="font-size: 12px; color: #666;">${contentData.rewardsEarned}</div>
           </td>
           <td style="text-align: center; padding: 15px; background: #f8f9ff;">
             <div style="font-size: 24px; font-weight: 700; color: ${BRAND.primary};">${total_gems || 0}</div>
-            <div style="font-size: 12px; color: #666;">Total Gems</div>
+            <div style="font-size: 12px; color: #666;">${contentData.totalGems}</div>
           </td>
           <td style="text-align: center; padding: 15px; background: #f8f9ff; border-radius: 0 8px 8px 0;">
             <div style="font-size: 24px; font-weight: 700; color: ${BRAND.primary};">${streak_days || 0}</div>
-            <div style="font-size: 12px; color: #666;">Day Streak</div>
+            <div style="font-size: 12px; color: #666;">${contentData.dayStreak}</div>
           </td>
         </tr>
       </table>
       
       ${expiring_soon > 0 ? `
       <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
-        ⚠️ <strong>Action Required:</strong> You have ${expiring_soon} reward${expiring_soon > 1 ? 's' : ''} expiring soon!
+        ⚠️ ${contentData.expiring}
       </div>
       ` : ''}
       
-      <p>Keep up the great work and keep earning!</p>
+      <p>${contentData.keepGoing}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/dashboard`,
-    ctaText: 'View Dashboard',
+    ctaUrl: dashboardUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `📊 Weekly Summary: ${earned_this_week} Rewards Earned`,
+    subject: contentData.subject,
     html,
-    text: `This week: ${earned_this_week} rewards earned, ${total_gems} total gems, ${streak_days}-day streak.`,
-    tags: [{ name: 'type', value: 'weekly-digest' }],
+    text: `${contentData.preheader} ${earned_this_week || 0} / ${total_gems || 0} / ${streak_days || 0}`,
+    tags: [{ name: 'type', value: 'weekly-digest' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1525,25 +1595,28 @@ async function sendWeeklyDigestEmail(userEmail, userName, stats) {
  * Event ticket purchase confirmation
  */
 async function sendTicketPurchaseEmail(userEmail, userName, ticketData) {
-  const { eventName, tierName, activationCode, eventDate, eventLocation } = ticketData;
+  const { eventName, tierName, activationCode, eventDate, eventLocation, locale } = ticketData;
+  const contentData = getEmailContent('ticketPurchase', locale, { name: userName || 'there', momentTitle: eventName });
+  const ticketsUrl = getLocalizedEmailUrl('/tickets', locale, EMAIL_CONFIG.frontendUrl);
+  const dateLocale = contentData.locale === 'es-419' ? 'es' : contentData.locale === 'pt-BR' ? 'pt-BR' : 'en-US';
 
   const html = getBaseTemplate({
-    title: 'Ticket Confirmed! 🎟️',
-    preheader: `Your ticket for ${eventName} is ready!`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Your ticket has been confirmed!</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
         <p style="margin: 0; font-weight: 600;">🎟️ ${eventName}</p>
-        <p style="margin: 8px 0;">Tier: <strong>${tierName}</strong></p>
+        <p style="margin: 8px 0;">${contentData.tierLabel}: <strong>${tierName}</strong></p>
         <div class="value" style="font-family: monospace;">${activationCode}</div>
-        <p style="margin: 8px 0 0; font-size: 12px;">Your activation code (show at entry)</p>
+        <p style="margin: 8px 0 0; font-size: 12px;">${contentData.codeLabel}</p>
       </div>
       
       <div class="meta-info">
-        📅 <strong>Date:</strong> ${new Date(eventDate).toLocaleDateString('en-US', {
+        📅 <strong>${contentData.dateLabel}:</strong> ${new Date(eventDate).toLocaleDateString(dateLocale, {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -1551,20 +1624,20 @@ async function sendTicketPurchaseEmail(userEmail, userName, ticketData) {
       hour: '2-digit',
       minute: '2-digit'
     })}<br>
-        📍 <strong>Location:</strong> ${eventLocation}
+        📍 <strong>${contentData.locationLabel}:</strong> ${eventLocation}
       </div>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/tickets`,
-    ctaText: 'View My Tickets',
-    footerNote: 'Save this email or take a screenshot of your activation code.',
+    ctaUrl: ticketsUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `🎟️ Ticket Confirmed: ${eventName}`,
+    subject: contentData.subject,
     html,
-    text: `Your ticket for ${eventName} is confirmed! Activation Code: ${activationCode}. Date: ${eventDate}. Location: ${eventLocation}.`,
-    tags: [{ name: 'type', value: 'ticket-purchase' }],
+    text: `${contentData.preheader} ${contentData.codeLabel}: ${activationCode}. ${contentData.dateLabel}: ${eventDate}. ${contentData.locationLabel}: ${eventLocation}.`,
+    tags: [{ name: 'type', value: 'ticket-purchase' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1572,35 +1645,39 @@ async function sendTicketPurchaseEmail(userEmail, userName, ticketData) {
  * Event reminder (24h before)
  */
 async function sendEventReminderEmail(userEmail, userName, eventData) {
-  const { eventName, activationCode, eventDate, eventLocation } = eventData;
+  const { eventName, activationCode, eventDate, eventLocation, locale } = eventData;
+  const contentData = getEmailContent('eventReminder', locale, { name: userName || 'there', momentTitle: eventName });
+  const ticketsUrl = getLocalizedEmailUrl('/tickets', locale, EMAIL_CONFIG.frontendUrl);
+  const dateLocale = contentData.locale === 'es-419' ? 'es' : contentData.locale === 'pt-BR' ? 'pt-BR' : 'en-US';
 
   const html = getBaseTemplate({
-    title: 'Event Tomorrow! ⏰',
-    preheader: `${eventName} is happening tomorrow!`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Just a reminder – your event is <strong>tomorrow</strong>!</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
         <p style="margin: 0; font-weight: 600;">📅 ${eventName}</p>
         <p style="margin: 8px 0;">📍 ${eventLocation}</p>
-        <p style="margin: 8px 0;">🕐 ${new Date(eventDate).toLocaleString()}</p>
+        <p style="margin: 8px 0;">🕐 ${new Date(eventDate).toLocaleString(dateLocale)}</p>
         <div class="value" style="font-family: monospace; font-size: 20px;">${activationCode}</div>
       </div>
       
-      <p>Make sure to bring your activation code for entry!</p>
+      <p>${contentData.bringCode}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/tickets`,
-    ctaText: 'View Ticket',
+    ctaUrl: ticketsUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `⏰ Reminder: ${eventName} is tomorrow!`,
+    subject: contentData.subject,
     html,
-    text: `Reminder: ${eventName} is tomorrow at ${eventLocation}. Your code: ${activationCode}`,
-    tags: [{ name: 'type', value: 'event-reminder' }],
+    text: `${contentData.preheader} ${eventLocation}. ${activationCode}`,
+    tags: [{ name: 'type', value: 'event-reminder' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1612,34 +1689,41 @@ async function sendEventReminderEmail(userEmail, userName, eventData) {
  * Support ticket created
  */
 async function sendSupportTicketCreatedEmail(userEmail, userName, ticketData) {
-  const { ticketId, subject, category } = ticketData;
+  const { ticketId, subject, category, locale } = ticketData;
+  const contentData = getEmailContent('supportTicketCreated', locale, {
+    name: userName || 'there',
+    ticketId,
+    subject,
+  });
+  const ticketUrl = getLocalizedEmailUrl(`/support/tickets/${ticketId}`, locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Support Ticket Created',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>We've received your support request:</p>
+      <p>${contentData.intro}</p>
       
       <div class="meta-info">
-        <strong>Ticket ID:</strong> #${ticketId}<br>
-        <strong>Category:</strong> ${category}<br>
-        <strong>Subject:</strong> ${subject}
+        <strong>${contentData.ticketIdLabel}:</strong> #${ticketId}<br>
+        <strong>${contentData.categoryLabel}:</strong> ${category}<br>
+        <strong>${contentData.subjectLabel}:</strong> ${subject}
       </div>
       
-      <p>Our team will review your request and get back to you soon. Most tickets are resolved within 24-48 hours.</p>
+      <p>${contentData.etaCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/support/tickets/${ticketId}`,
-    ctaText: 'View Ticket',
+    ctaUrl: ticketUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Support Ticket #${ticketId}: ${subject}`,
+    subject: contentData.subject,
     html,
-    text: `Support ticket created. ID: #${ticketId}. Subject: ${subject}. We'll respond within 24-48 hours.`,
+    text: `${contentData.preheader} #${ticketId}. ${subject}`,
     replyTo: EMAIL_CONFIG.supportEmail,
-    tags: [{ name: 'type', value: 'support-ticket' }],
+    tags: [{ name: 'type', value: 'support-ticket' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1647,31 +1731,37 @@ async function sendSupportTicketCreatedEmail(userEmail, userName, ticketData) {
  * Support ticket response
  */
 async function sendSupportTicketResponseEmail(userEmail, userName, ticketData) {
-  const { ticketId, subject, responsePreview } = ticketData;
+  const { ticketId, subject, responsePreview, locale } = ticketData;
+  const contentData = getEmailContent('supportTicketResponse', locale, {
+    name: userName || 'there',
+    ticketId,
+  });
+  const ticketUrl = getLocalizedEmailUrl(`/support/tickets/${ticketId}`, locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'New Response to Your Ticket',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>We've responded to your support ticket:</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0;"><strong>Ticket #${ticketId}:</strong> ${subject}</p>
+        <p style="margin: 0;"><strong>${contentData.ticketLabel}</strong> ${subject}</p>
         <p style="margin: 10px 0 0; color: #666;">"${responsePreview}..."</p>
       </div>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/support/tickets/${ticketId}`,
-    ctaText: 'View Full Response',
+    ctaUrl: ticketUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Re: Support Ticket #${ticketId}`,
+    subject: contentData.subject,
     html,
-    text: `New response to ticket #${ticketId}: ${responsePreview}...`,
+    text: `${contentData.preheader} ${responsePreview || ''}...`,
     replyTo: EMAIL_CONFIG.supportEmail,
-    tags: [{ name: 'type', value: 'support-response' }],
+    tags: [{ name: 'type', value: 'support-response' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1682,144 +1772,175 @@ async function sendSupportTicketResponseEmail(userEmail, userName, ticketData) {
 /**
  * Team invitation email - invites a user to join an advertiser account
  */
-async function sendTeamInvitationEmail({ to, accountName, accountLogo, inviterName, role, message, token, expiresAt }) {
+async function sendTeamInvitationEmail({ to, accountName, accountLogo, inviterName, role, message, token, expiresAt, locale }) {
+  const contentData = getEmailContent('teamInvitation', locale, {
+    accountName,
+    inviterName,
+  });
+  const dateLocale = contentData.locale === 'es-419' ? 'es' : contentData.locale === 'pt-BR' ? 'pt-BR' : 'en-US';
+  const expiresDisplay = new Date(expiresAt).toLocaleDateString(dateLocale, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  const expiresCopy = getEmailContent('teamInvitation', locale, {
+    accountName,
+    inviterName,
+    expires: expiresDisplay,
+  }).expiresCopy;
   const roleDescriptions = {
-    admin: 'full access to manage campaigns, team members, and settings',
-    manager: 'access to create and manage campaigns and content',
-    viewer: 'read-only access to view dashboards and analytics',
+    admin: contentData.roleAdmin,
+    manager: contentData.roleManager,
+    viewer: contentData.roleViewer,
   };
+  const inviteUrl = getLocalizedEmailUrl(`/invite/${token}`, locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: `You're Invited to ${accountName}! 👥`,
-    preheader: `${inviterName} invited you to collaborate on ${accountName}`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi there,</p>
+      <p>${contentData.greeting}</p>
       
-      <p><strong>${inviterName}</strong> has invited you to join their team on Promorang!</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
         ${accountLogo ? `<img src="${accountLogo}" alt="${accountName}" style="width: 60px; height: 60px; border-radius: 8px; margin-bottom: 10px;">` : ''}
         <p style="margin: 0; font-weight: 600; font-size: 18px;">🏢 ${accountName}</p>
-        <p style="margin: 8px 0 0;">Your role: <strong style="text-transform: capitalize;">${role}</strong></p>
+        <p style="margin: 8px 0 0;">${contentData.roleLabel}: <strong style="text-transform: capitalize;">${role}</strong></p>
         <p style="margin: 4px 0 0; font-size: 14px; color: #666;">${roleDescriptions[role] || ''}</p>
       </div>
       
       ${message ? `
       <div class="meta-info">
-        <strong>Personal message from ${inviterName}:</strong><br>
+        <strong>${contentData.personalMessage}</strong><br>
         "${message}"
       </div>
       ` : ''}
       
-      <p>Click the button below to accept this invitation and start collaborating!</p>
+      <p>${contentData.acceptCopy}</p>
       
-      <p style="font-size: 13px; color: #888;">This invitation expires on ${new Date(expiresAt).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })}.</p>
+      <p style="font-size: 13px; color: #888;">${expiresCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/invite/${token}`,
-    ctaText: 'Accept Invitation',
-    footerNote: "If you don't recognize this invitation, you can safely ignore this email.",
+    ctaUrl: inviteUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to,
-    subject: `👥 ${inviterName} invited you to ${accountName} on Promorang`,
+    subject: contentData.subject,
     html,
-    text: `${inviterName} invited you to join ${accountName} as ${role}. Accept at: ${EMAIL_CONFIG.frontendUrl}/invite/${token}`,
-    tags: [{ name: 'type', value: 'team-invitation' }],
+    text: `${contentData.preheader} ${inviteUrl}`,
+    tags: [{ name: 'type', value: 'team-invitation' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 /**
  * Notification to inviter when invitation is accepted
  */
-async function sendInvitationAcceptedEmail({ to, newMemberName, accountName }) {
+async function sendInvitationAcceptedEmail({ to, newMemberName, accountName, locale }) {
+  const contentData = getEmailContent('invitationAccepted', locale, { newMemberName, accountName });
+  const teamUrl = getLocalizedEmailUrl('/advertiser/settings/team', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'New Team Member! 🎉',
-    preheader: `${newMemberName} joined your team`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Great news!</p>
+      <p>${contentData.intro}</p>
       
-      <p><strong>${newMemberName}</strong> has accepted your invitation and joined your team on <strong>${accountName}</strong>.</p>
+      <p>${contentData.body}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">✅ Team Member Added</p>
-        <p style="margin: 8px 0 0;">${newMemberName} is now part of your team and can start collaborating.</p>
+        <p style="margin: 0; font-weight: 600;">✅ ${contentData.addedLabel}</p>
+        <p style="margin: 8px 0 0;">${contentData.addedCopy}</p>
       </div>
       
-      <p>You can manage team permissions at any time from your account settings.</p>
+      <p>${contentData.manageCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/advertiser/settings/team`,
-    ctaText: 'View Team',
+    ctaUrl: teamUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to,
-    subject: `🎉 ${newMemberName} joined ${accountName}`,
+    subject: contentData.subject,
     html,
-    text: `${newMemberName} accepted your invitation and joined ${accountName}. View your team at ${EMAIL_CONFIG.frontendUrl}/advertiser/settings/team`,
-    tags: [{ name: 'type', value: 'team-member-joined' }],
+    text: `${contentData.preheader} ${teamUrl}`,
+    tags: [{ name: 'type', value: 'team-member-joined' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 /**
  * Notification when a user is removed from a team
  */
-async function sendTeamRemovalEmail({ to, userName, accountName, removedByName }) {
+async function sendTeamRemovalEmail({ to, userName, accountName, removedByName, locale }) {
+  const contentData = getEmailContent('teamRemoval', locale, {
+    name: userName || 'there',
+    accountName,
+    removedByName,
+  });
+  const dashboardUrl = getLocalizedEmailUrl('/dashboard', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'Team Access Removed',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Your access to <strong>${accountName}</strong> on Promorang has been removed by ${removedByName}.</p>
+      <p>${contentData.intro}</p>
       
-      <p>If you believe this was a mistake, please contact the account owner or our support team.</p>
+      <p>${contentData.helpCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/dashboard`,
-    ctaText: 'Go to Dashboard',
+    ctaUrl: dashboardUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to,
-    subject: `Your access to ${accountName} has been removed`,
+    subject: contentData.subject,
     html,
-    text: `Your access to ${accountName} has been removed by ${removedByName}. If this was a mistake, please contact support.`,
-    tags: [{ name: 'type', value: 'team-removal' }],
+    text: `${contentData.preheader} ${contentData.helpCopy}`,
+    tags: [{ name: 'type', value: 'team-removal' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 /**
  * Notification when a user's role is changed
  */
-async function sendRoleChangedEmail({ to, userName, accountName, oldRole, newRole, changedByName }) {
+async function sendRoleChangedEmail({ to, userName, accountName, oldRole, newRole, changedByName, locale }) {
+  const contentData = getEmailContent('roleChanged', locale, {
+    name: userName || 'there',
+    accountName,
+    changedByName,
+  });
+  const dashboardUrl = getLocalizedEmailUrl('/advertiser/dashboard', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'Team Role Updated',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Your role on <strong>${accountName}</strong> has been updated by ${changedByName}.</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0;">Previous role: <span style="text-transform: capitalize;">${oldRole}</span></p>
-        <p style="margin: 8px 0 0; font-weight: 600;">New role: <span style="text-transform: capitalize; color: ${BRAND.primary};">${newRole}</span></p>
+        <p style="margin: 0;">${contentData.previousRole}: <span style="text-transform: capitalize;">${oldRole}</span></p>
+        <p style="margin: 8px 0 0; font-weight: 600;">${contentData.newRole}: <span style="text-transform: capitalize; color: ${BRAND.primary};">${newRole}</span></p>
       </div>
       
-      <p>Your permissions have been updated accordingly.</p>
+      <p>${contentData.permissionsCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/advertiser/dashboard`,
-    ctaText: 'View Dashboard',
+    ctaUrl: dashboardUrl,
+    ctaText: contentData.ctaText,
   });
 
   return sendEmail({
     to,
-    subject: `Your role on ${accountName} has been updated`,
+    subject: contentData.subject,
     html,
-    text: `Your role on ${accountName} has been changed from ${oldRole} to ${newRole} by ${changedByName}.`,
-    tags: [{ name: 'type', value: 'team-role-changed' }],
+    text: `${contentData.preheader} ${oldRole} → ${newRole}`,
+    tags: [{ name: 'type', value: 'team-role-changed' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1834,126 +1955,143 @@ async function sendRoleChangedEmail({ to, userName, accountName, oldRole, newRol
 /**
  * Prompt hosts to create their first Moment
  */
-async function sendHostCreateMomentPrompt(userEmail, userName, daysSinceSignup) {
+async function sendHostCreateMomentPrompt(userEmail, userName, daysSinceSignup, options = {}) {
+  const locale = options.locale || (typeof daysSinceSignup === 'object' ? daysSinceSignup.locale : 'en');
+  const days = typeof daysSinceSignup === 'object' ? daysSinceSignup.days : daysSinceSignup;
+  const contentData = getEmailContent('hostCreateMoment', locale, { name: userName || 'there', days });
+  const createUrl = getLocalizedEmailUrl('/moments/create', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'Create Your First Moment',
-    preheader: 'Your community is waiting for content.',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>You signed up ${daysSinceSignup} days ago as a Host, but haven't created your first <strong>Moment</strong> yet.</p>
+      <p>${contentData.intro}</p>
       
-      <p>Moments are your chance to:</p>
+      <p>${contentData.chanceCopy}</p>
       <ul class="feature-list">
-        <li>Share exclusive content with your community</li>
-        <li>Build deeper engagement with followers</li>
-        <li>Monetize your most valuable experiences</li>
-        <li>Grow your influence on the platform</li>
+        <li>${contentData.feature1}</li>
+        <li>${contentData.feature2}</li>
+        <li>${contentData.feature3}</li>
+        <li>${contentData.feature4}</li>
       </ul>
       
       <div class="highlight-card">
-        <div class="label">Getting Started</div>
-        <div class="value" style="font-size: 24px;">Takes 5 Minutes</div>
-        <div class="sublabel">Upload a photo, video, or link and set your access rules</div>
+        <div class="label">${contentData.startLabel}</div>
+        <div class="value" style="font-size: 24px;">${contentData.startValue}</div>
+        <div class="sublabel">${contentData.startSublabel}</div>
       </div>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/moments/create`,
-    ctaText: 'Create My First Moment',
-    footerNote: 'Hosts who create within their first week see 3x more follower engagement.',
+    ctaUrl: createUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: 'Your community is waiting — create your first Moment',
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, create your first Moment to engage your community. Takes 5 minutes: ${EMAIL_CONFIG.frontendUrl}/moments/create`,
-    tags: [{ name: 'type', value: 'host-create-moment-prompt' }],
+    text: `${contentData.preheader} ${createUrl}`,
+    tags: [{ name: 'type', value: 'host-create-moment-prompt' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 /**
  * Prompt hosts who haven't created in a while
  */
-async function sendHostReEngagementPrompt(userEmail, userName, daysSinceLastMoment) {
+async function sendHostReEngagementPrompt(userEmail, userName, daysSinceLastMoment, options = {}) {
+  const locale = options.locale || (typeof daysSinceLastMoment === 'object' ? daysSinceLastMoment.locale : 'en');
+  const days = typeof daysSinceLastMoment === 'object' ? daysSinceLastMoment.days : daysSinceLastMoment;
+  const contentData = getEmailContent('hostReengagement', locale, { name: userName || 'there', days });
+  const createUrl = getLocalizedEmailUrl('/moments/create', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'Your Followers Miss You',
-    preheader: 'It has been a while since your last Moment.',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>It's been <strong>${daysSinceLastMoment} days</strong> since your last Moment. Your followers are eager for new content!</p>
+      <p>${contentData.intro}</p>
       
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">Last Moment</span>
-          <span class="info-card-value">${daysSinceLastMoment} days ago</span>
+          <span class="info-card-label">${contentData.lastLabel}</span>
+          <span class="info-card-value">${contentData.lastValue}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Follower Activity</span>
-          <span class="info-card-value" style="color: ${BRAND.accent};">High</span>
+          <span class="info-card-label">${contentData.activityLabel}</span>
+          <span class="info-card-value" style="color: ${BRAND.accent};">${contentData.activityValue}</span>
         </div>
       </div>
       
-      <p>Fresh content keeps your community engaged and growing. What will you share next?</p>
+      <p>${contentData.nextCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/moments/create`,
-    ctaText: 'Create New Moment',
-    footerNote: 'Consistent hosts build 5x larger audiences over time.',
+    ctaUrl: createUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: 'Your followers are waiting for your next Moment',
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, it's been ${daysSinceLastMoment} days since your last Moment. Create new content: ${EMAIL_CONFIG.frontendUrl}/moments/create`,
-    tags: [{ name: 'type', value: 'host-reengagement-prompt' }],
+    text: `${contentData.preheader} ${createUrl}`,
+    tags: [{ name: 'type', value: 'host-reengagement-prompt' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
 /**
  * Prompt brands/advertisers to sponsor popular Moments
  */
-async function sendBrandSponsorPrompt(userEmail, userName, popularMoments) {
-  const momentsList = popularMoments?.slice(0, 3).map(m => `
+async function sendBrandSponsorPrompt(userEmail, userName, popularMoments, options = {}) {
+  const locale = options.locale || popularMoments?.locale || 'en';
+  const moments = Array.isArray(popularMoments) ? popularMoments : popularMoments?.moments || [];
+  const contentData = getEmailContent('brandSponsor', locale, { name: userName || 'there' });
+  const sponsorUrl = getLocalizedEmailUrl('/sponsor/moments', locale, EMAIL_CONFIG.frontendUrl);
+  const momentsList = moments.slice(0, 3).map((m) => {
+    const byline = getEmailContent('brandSponsor', locale, { hostName: m.hostName, engagement: m.engagement }).byHost;
+    return `
     <div style="margin: 12px 0; padding: 16px; background: ${BRAND.surface}; border-radius: 10px; border-left: 3px solid ${BRAND.primary};">
       <strong style="color: ${BRAND.text};">${m.title}</strong>
-      <p style="margin: 4px 0 0; font-size: 13px; color: ${BRAND.textMuted};">by ${m.hostName} • ${m.engagement} engagements</p>
+      <p style="margin: 4px 0 0; font-size: 13px; color: ${BRAND.textMuted};">${byline}</p>
     </div>
-  `).join('') || '';
+  `;
+  }).join('') || '';
 
   const html = getBaseTemplate({
-    title: 'Sponsor High-Engagement Moments',
-    preheader: 'Put your brand in front of engaged audiences.',
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Moment sponsorship is one of the most effective ways to reach engaged communities on Promorang.</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-card">
-        <div class="label">Why Sponsor?</div>
-        <div class="value" style="font-size: 20px;">3x Higher Engagement</div>
-        <div class="sublabel">vs traditional display advertising</div>
+        <div class="label">${contentData.whyLabel}</div>
+        <div class="value" style="font-size: 20px;">${contentData.whyValue}</div>
+        <div class="sublabel">${contentData.whySublabel}</div>
       </div>
       
-      ${popularMoments?.length ? `
-      <div class="section-title">Trending Now</div>
-      <p>These popular Moments are accepting sponsorships:</p>
+      ${moments.length ? `
+      <div class="section-title">${contentData.trendingLabel}</div>
+      <p>${contentData.trendingCopy}</p>
       ${momentsList}
       ` : ''}
       
-      <p>Sponsoring puts your brand message directly into content that users are actively consuming.</p>
+      <p>${contentData.closeCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/sponsor/moments`,
-    ctaText: 'Browse Sponsorship Opportunities',
-    footerNote: 'Limited sponsorship slots available per Moment — secure your placement early.',
+    ctaUrl: sponsorUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: 'Reach engaged audiences — sponsor trending Moments',
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, sponsor high-engagement Moments for 3x better engagement. Browse opportunities: ${EMAIL_CONFIG.frontendUrl}/sponsor/moments`,
-    tags: [{ name: 'type', value: 'brand-sponsor-prompt' }],
+    text: `${contentData.preheader} ${sponsorUrl}`,
+    tags: [{ name: 'type', value: 'brand-sponsor-prompt' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -1961,40 +2099,49 @@ async function sendBrandSponsorPrompt(userEmail, userName, popularMoments) {
  * Prompt users to consume content (Moments waiting)
  */
 async function sendContentConsumptionPrompt(userEmail, userName, unreadCount, featuredMoment) {
+  const locale = featuredMoment?.locale || (typeof unreadCount === 'object' ? unreadCount.locale : 'en');
+  const count = typeof unreadCount === 'object' ? unreadCount.count : unreadCount;
+  const contentData = getEmailContent('contentConsumption', locale, {
+    name: userName || 'there',
+    count,
+    hostName: featuredMoment?.hostName || '',
+  });
+  const momentsUrl = getLocalizedEmailUrl('/moments', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'Content Waiting For You',
-    preheader: `${unreadCount} new Moment${unreadCount > 1 ? 's' : ''} from creators you follow.`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>You have <strong>${unreadCount} new Moment${unreadCount > 1 ? 's' : ''}</strong> waiting from creators you follow.</p>
+      <p>${contentData.intro}</p>
       
       ${featuredMoment ? `
       <div class="highlight-card" style="text-align: left;">
         <div style="display: flex; gap: 16px; align-items: center;">
           <div style="width: 60px; height: 60px; background: ${BRAND.gradient}; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">◆</div>
           <div>
-            <div class="label" style="text-align: left; margin-bottom: 4px;">Featured Moment</div>
+            <div class="label" style="text-align: left; margin-bottom: 4px;">${contentData.featuredLabel}</div>
             <div style="font-weight: 600; color: ${BRAND.text}; font-size: 16px;">${featuredMoment.title}</div>
-            <div style="font-size: 13px; color: ${BRAND.textMuted};">by ${featuredMoment.hostName}</div>
+            <div style="font-size: 13px; color: ${BRAND.textMuted};">${contentData.byHost}</div>
           </div>
         </div>
       </div>
       ` : ''}
       
-      <p>Don't miss out on exclusive content, behind-the-scenes access, and special offers from your favorite creators.</p>
+      <p>${contentData.missCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/moments`,
-    ctaText: unreadCount > 1 ? `View ${unreadCount} Moments` : 'View Moment',
-    footerNote: 'Engaging with content increases your chances of unlocking exclusive rewards.',
+    ctaUrl: momentsUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `${unreadCount} new Moment${unreadCount > 1 ? 's' : ''} waiting from creators you follow`,
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, you have ${unreadCount} new Moment${unreadCount > 1 ? 's' : ''} waiting. View them: ${EMAIL_CONFIG.frontendUrl}/moments`,
-    tags: [{ name: 'type', value: 'content-consumption-prompt' }],
+    text: `${contentData.preheader} ${momentsUrl}`,
+    tags: [{ name: 'type', value: 'content-consumption-prompt' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -2002,46 +2149,54 @@ async function sendContentConsumptionPrompt(userEmail, userName, unreadCount, fe
  * Alert advertiser when campaign budget is running low
  */
 async function sendLowBudgetAlert(userEmail, userName, campaignData) {
-  const { campaignName, remainingBudget, totalBudget, percentRemaining } = campaignData;
+  const { campaignName, remainingBudget, totalBudget, percentRemaining, locale } = campaignData;
+  const contentData = getEmailContent('lowBudget', locale, {
+    name: userName || 'there',
+    campaignName,
+    percent: percentRemaining,
+    remaining: remainingBudget.toLocaleString(),
+    total: totalBudget.toLocaleString(),
+  });
+  const campaignsUrl = getLocalizedEmailUrl('/advertiser/campaigns', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Campaign Budget Running Low',
-    preheader: `${percentRemaining}% of budget remaining for ${campaignName}`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p>Your campaign <strong>${campaignName}</strong> is running low on budget.</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #fbbf24;">
-        <div class="label" style="color: #92400e;">Remaining Budget</div>
-        <div class="value" style="font-size: 32px; color: #92400e;">${remainingBudget.toLocaleString()} Gems</div>
-        <div class="sublabel" style="color: #a16207;">${percentRemaining}% of ${totalBudget.toLocaleString()} Gems total</div>
+        <div class="label" style="color: #92400e;">${contentData.remainingLabel}</div>
+        <div class="value" style="font-size: 32px; color: #92400e;">${contentData.remainingValue}</div>
+        <div class="sublabel" style="color: #a16207;">${contentData.remainingSublabel}</div>
       </div>
       
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">Campaign</span>
+          <span class="info-card-label">${contentData.campaignLabel}</span>
           <span class="info-card-value">${campaignName}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Status</span>
-          <span class="info-card-value" style="color: ${BRAND.accent};">Active (Low Budget)</span>
+          <span class="info-card-label">${contentData.statusLabel}</span>
+          <span class="info-card-value" style="color: ${BRAND.accent};">${contentData.statusValue}</span>
         </div>
       </div>
       
-      <p>Top up your budget soon to keep your campaign running without interruption.</p>
+      <p>${contentData.topUpCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/advertiser/campaigns`,
-    ctaText: 'Add Budget',
-    footerNote: 'Campaigns with sufficient budget see 40% more completions.',
+    ctaUrl: campaignsUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Campaign "${campaignName}" budget at ${percentRemaining}% — add funds`,
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, your campaign "${campaignName}" is at ${percentRemaining}% budget. Add funds: ${EMAIL_CONFIG.frontendUrl}/advertiser/campaigns`,
-    tags: [{ name: 'type', value: 'low-budget-alert' }],
+    text: `${contentData.preheader} ${campaignsUrl}`,
+    tags: [{ name: 'type', value: 'low-budget-alert' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -2049,35 +2204,42 @@ async function sendLowBudgetAlert(userEmail, userName, campaignData) {
  * Notify host when someone wants to join their Moment
  */
 async function sendParticipationInterestAlert(userEmail, userName, momentData) {
-  const { momentTitle, requesterName, requesterCount } = momentData;
+  const { momentTitle, requesterName, requesterCount, locale } = momentData;
+  const contentData = getEmailContent('participationInterest', locale, {
+    name: userName || 'there',
+    requesterName,
+    momentTitle,
+    count: requesterCount,
+  });
+  const requestsUrl = getLocalizedEmailUrl(`/moments/${momentData.momentId}/requests`, locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'New Participation Request',
-    preheader: `${requesterName} wants to join your Moment`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
-      <p><strong>${requesterName}</strong> wants to participate in your Moment:</p>
+      <p>${contentData.intro}</p>
       
       <div class="highlight-card">
-        <div class="label">Moment</div>
+        <div class="label">${contentData.momentLabel}</div>
         <div class="value" style="font-size: 20px;">${momentTitle}</div>
-        <div class="sublabel">${requesterCount} total requests pending</div>
+        <div class="sublabel">${contentData.pendingCopy}</div>
       </div>
       
-      <p>Review and approve participants to grow your engaged community around this content.</p>
+      <p>${contentData.reviewCopy}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/moments/${momentData.momentId}/requests`,
-    ctaText: 'Review Requests',
-    footerNote: 'Approving engaged participants increases your Moment\'s reach and value.',
+    ctaUrl: requestsUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `${requesterName} wants to join your Moment "${momentTitle}"`,
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, ${requesterName} wants to join your Moment "${momentTitle}". Review: ${EMAIL_CONFIG.frontendUrl}/moments/${momentData.momentId}/requests`,
-    tags: [{ name: 'type', value: 'participation-request' }],
+    text: `${contentData.preheader} ${requestsUrl}`,
+    tags: [{ name: 'type', value: 'participation-request' }, { name: 'locale', value: contentData.locale }],
   });
 }
 
@@ -2085,20 +2247,32 @@ async function sendParticipationInterestAlert(userEmail, userName, momentData) {
  * Notify user of social engagement (comments, likes on their content)
  */
 async function sendSocialEngagementAlert(userEmail, userName, engagementData) {
-  const { type, actorName, contentTitle, count } = engagementData;
-
+  const { type, actorName, contentTitle, count, locale } = engagementData;
+  const verbs = getEmailContent('socialEngagement', locale, {});
   const typeLabels = {
-    comment: 'commented on',
-    like: 'liked',
-    share: 'shared',
-    follow: 'started following',
+    comment: verbs.verbComment,
+    like: verbs.verbLike,
+    share: verbs.verbShare,
+    follow: verbs.verbFollow,
   };
+  const contentData = getEmailContent('socialEngagement', locale, {
+    name: userName || 'there',
+    actorName,
+    verb: typeLabels[type] || type,
+    contentTitle: contentTitle || '',
+    count: Math.max((count || 1) - 1, 0),
+  });
+  const activityUrl = getLocalizedEmailUrl(
+    contentTitle ? `/content/${engagementData.contentId}` : '/profile',
+    locale,
+    EMAIL_CONFIG.frontendUrl,
+  );
 
   const html = getBaseTemplate({
-    title: 'New Engagement',
-    preheader: `${actorName} ${typeLabels[type]} your content`,
+    title: contentData.title,
+    preheader: contentData.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${contentData.greeting}</p>
       
       <div style="display: flex; align-items: center; gap: 16px; margin: 24px 0;">
         <div style="width: 50px; height: 50px; background: ${BRAND.gradient}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: 600;">
@@ -2106,26 +2280,26 @@ async function sendSocialEngagementAlert(userEmail, userName, engagementData) {
         </div>
         <div>
           <p style="margin: 0; font-size: 16px; color: ${BRAND.text};">
-            <strong>${actorName}</strong> ${typeLabels[type]} 
-            ${contentTitle ? `your <strong>${contentTitle}</strong>` : 'you'}
+            <strong>${actorName}</strong> ${typeLabels[type] || type} 
+            ${contentTitle ? contentData.yourContent : contentData.you}
           </p>
-          ${count > 1 ? `<p style="margin: 4px 0 0; font-size: 13px; color: ${BRAND.textMuted};">and ${count - 1} others</p>` : ''}
+          ${count > 1 ? `<p style="margin: 4px 0 0; font-size: 13px; color: ${BRAND.textMuted};">${contentData.andOthers}</p>` : ''}
         </div>
       </div>
       
-      <p>Your content is resonating with the community! Keep creating to build your influence.</p>
+      <p>${contentData.resonating}</p>
     `,
-    ctaUrl: contentTitle ? `${EMAIL_CONFIG.frontendUrl}/content/${engagementData.contentId}` : `${EMAIL_CONFIG.frontendUrl}/profile`,
-    ctaText: 'View Activity',
-    footerNote: 'Engaging back with your community builds stronger relationships.',
+    ctaUrl: activityUrl,
+    ctaText: contentData.ctaText,
+    footerNote: contentData.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `${actorName} ${typeLabels[type]} your content`,
+    subject: contentData.subject,
     html,
-    text: `Hi ${userName}, ${actorName} ${typeLabels[type]} your content. View: ${EMAIL_CONFIG.frontendUrl}/profile`,
-    tags: [{ name: 'type', value: `social-${type}` }],
+    text: `${contentData.preheader} ${activityUrl}`,
+    tags: [{ name: 'type', value: `social-${type}` }, { name: 'locale', value: contentData.locale }],
   });
 }
 

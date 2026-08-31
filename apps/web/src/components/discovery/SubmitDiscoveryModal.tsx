@@ -23,6 +23,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { MapPin, Plus, Sparkles, Image as ImageIcon, Camera } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface SubmitDiscoveryModalProps {
   onSuccess?: () => void;
@@ -30,6 +31,7 @@ interface SubmitDiscoveryModalProps {
 }
 
 export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModalProps) {
+  const { t } = useI18n();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,7 +48,7 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      toast.error("Please enter a title for the discovery.");
+      toast.error(t("submit.needTitle"));
       return;
     }
 
@@ -61,8 +63,8 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
         category,
         description,
         location_address: address,
-        city: city || "Local Spot",
-        country: country || "Global",
+        city: city || t("submit.defaultCity"),
+        country: country || t("submit.defaultCountry"),
         cover_image: finalCover,
         gallery: JSON.stringify([finalCover]),
         creator_id: user?.id || null,
@@ -73,7 +75,7 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
         console.warn("Discovery insert response:", error);
       }
 
-      toast.success("Discovery submitted! Earned 100 PromoPoints + Scout reputation 🎉");
+      toast.success(`${t("submit.published")} ${t("submit.publishedDesc")}`);
       setTitle("");
       setDescription("");
       setAddress("");
@@ -84,7 +86,7 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
       if (onSuccess) onSuccess();
       navigate(`/discoveries/${slug}`);
     } catch (err: any) {
-      toast.error("Discovery submitted successfully!");
+      toast.error(t("submit.failed"));
       setOpen(false);
       navigate(`/discoveries/${slug}`);
     } finally {
@@ -98,7 +100,7 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
         {trigger || (
           <Button variant="default" className="gap-2 bg-primary font-bold hover:bg-orange-500 text-black">
             <Plus className="h-4 w-4" />
-            Submit a Discovery
+            {t("submit.trigger")}
           </Button>
         )}
       </DialogTrigger>
@@ -106,10 +108,10 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-bold">
             <Sparkles className="h-5 w-5 text-primary" />
-            Submit a Cultural Discovery
+            {t("submit.title")}
           </DialogTitle>
           <DialogDescription className="text-white/60 text-xs">
-            Recommend a hidden gem, dining spot, beach, trail, or venue. Earn 100 PromoPoints + Scout reputation!
+            {t("submit.copy")}
           </DialogDescription>
         </DialogHeader>
 
@@ -117,11 +119,11 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
           {/* Title */}
           <div className="space-y-1.5">
             <Label htmlFor="title" className="text-xs font-bold text-white/80">
-              Name of Spot / Discovery Title *
+              {t("submit.nameLabel")}
             </Label>
             <Input
               id="title"
-              placeholder="e.g. Sunset Cove Rooftop, Secret Beach Trail, Kingston Jazz Lounge"
+              placeholder={t("submit.namePh")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="border-white/10 bg-white/[0.06] text-white placeholder:text-white/30"
@@ -132,21 +134,21 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
           {/* Category */}
           <div className="space-y-1.5">
             <Label htmlFor="category" className="text-xs font-bold text-white/80">
-              Category
+              {t("submit.category")}
             </Label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger className="border-white/10 bg-white/[0.06] text-white">
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder={t("submit.selectCategory")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="restaurant">Food & Dining</SelectItem>
-                <SelectItem value="beach">Beaches & Coastlines</SelectItem>
-                <SelectItem value="trail">Hiking & Outdoors</SelectItem>
-                <SelectItem value="hidden_gem">Hidden Gems & Secret Spots</SelectItem>
-                <SelectItem value="attraction">Attractions & Culture</SelectItem>
-                <SelectItem value="nightlife">Nightlife & Bars</SelectItem>
-                <SelectItem value="media">Media & Creative Drops</SelectItem>
-                <SelectItem value="music">Music & Sounds</SelectItem>
+                <SelectItem value="restaurant">{t("submit.catFoodDining")}</SelectItem>
+                <SelectItem value="beach">{t("submit.catBeach")}</SelectItem>
+                <SelectItem value="trail">{t("submit.catTrail")}</SelectItem>
+                <SelectItem value="hidden_gem">{t("submit.catHidden")}</SelectItem>
+                <SelectItem value="attraction">{t("submit.catAttraction")}</SelectItem>
+                <SelectItem value="nightlife">{t("submit.catNightlife")}</SelectItem>
+                <SelectItem value="media">{t("submit.catMedia")}</SelectItem>
+                <SelectItem value="music">{t("submit.catMusic")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -154,20 +156,20 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
           {/* Image Cover URL + Preview */}
           <div className="space-y-1.5">
             <Label htmlFor="coverImage" className="text-xs font-bold text-white/80 flex items-center justify-between">
-              <span>Cover Photo / Image URL</span>
-              <span className="text-[10px] text-white/40">High quality photos get 2x engagement</span>
+              <span>{t("submit.coverPhoto")}</span>
+              <span className="text-[10px] text-white/40">{t("submit.photoHint")}</span>
             </Label>
             <Input
               id="coverImage"
-              placeholder="https://images.unsplash.com/photo-..."
+              placeholder={t("submit.coverPh")}
               value={coverImage}
               onChange={(e) => setCoverImage(e.target.value)}
               className="border-white/10 bg-white/[0.06] text-white placeholder:text-white/30 text-xs"
             />
             {coverImage.trim() ? (
               <div className="relative mt-2 h-32 w-full overflow-hidden rounded-xl border border-white/10">
-                <img src={coverImage} alt="Preview" className="h-full w-full object-cover" />
-                <span className="absolute bottom-2 left-2 rounded-md bg-black/60 px-2 py-0.5 text-[9px] font-bold text-primary backdrop-blur">Image Preview</span>
+                <img src={coverImage} alt={t("submit.preview")} className="h-full w-full object-cover" />
+                <span className="absolute bottom-2 left-2 rounded-md bg-black/60 px-2 py-0.5 text-[9px] font-bold text-primary backdrop-blur">{t("submit.preview")}</span>
               </div>
             ) : null}
           </div>
@@ -175,11 +177,11 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
           {/* Description */}
           <div className="space-y-1.5">
             <Label htmlFor="description" className="text-xs font-bold text-white/80">
-              Why is this spot worth discovering?
+              {t("submit.whySpecial")}
             </Label>
             <Textarea
               id="description"
-              placeholder="Share what makes this place special, best time to visit, recommended dishes/drinks, or unique atmosphere..."
+              placeholder={t("submit.whyPh")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="border-white/10 bg-white/[0.06] text-white placeholder:text-white/30"
@@ -191,11 +193,11 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="city" className="text-xs font-bold text-white/80">
-                City / Region
+                {t("submit.city")}
               </Label>
               <Input
                 id="city"
-                placeholder="e.g. Kingston, Miami, Negril"
+                placeholder={t("submit.cityPh")}
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 className="border-white/10 bg-white/[0.06] text-white placeholder:text-white/30"
@@ -203,11 +205,11 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="country" className="text-xs font-bold text-white/80">
-                Country
+                {t("submit.country")}
               </Label>
               <Input
                 id="country"
-                placeholder="e.g. Jamaica, USA"
+                placeholder={t("submit.countryPh")}
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
                 className="border-white/10 bg-white/[0.06] text-white placeholder:text-white/30"
@@ -217,11 +219,11 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
 
           <div className="space-y-1.5">
             <Label htmlFor="address" className="text-xs font-bold text-white/80">
-              Address / Location Details
+              {t("submit.address")}
             </Label>
             <Input
               id="address"
-              placeholder="e.g. 12 Harbour Street or Near Cliff Marker 4"
+              placeholder={t("submit.addressPh")}
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               className="border-white/10 bg-white/[0.06] text-white placeholder:text-white/30"
@@ -234,7 +236,7 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
               disabled={loading}
               className="w-full h-12 rounded-full font-bold bg-primary hover:bg-orange-400 text-black text-sm"
             >
-              {loading ? "Submitting Discovery..." : "Submit Discovery & Earn 100 Points 🎉"}
+              {loading ? t("submit.publishing") : t("submit.publish")}
             </Button>
           </div>
         </form>

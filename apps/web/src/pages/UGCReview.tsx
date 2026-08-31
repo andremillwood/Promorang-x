@@ -8,11 +8,19 @@ import { useModerateMedia, type MomentMedia } from "@/hooks/useUGC";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 type StatusFilter = "pending" | "approved" | "rejected" | "all";
 
+const STATUS_KEYS: Record<string, TranslationKey> = {
+    pending: "ugcReview.pending",
+    approved: "ugcReview.approved",
+    rejected: "ugcReview.rejected",
+};
+
 const UGCReview = () => {
+    const { t, formatDate, formatNumber } = useI18n();
     const { user } = useAuth();
     const { data: hostedMoments } = useHostedMoments();
     const moderateMedia = useModerateMedia();
@@ -59,11 +67,11 @@ const UGCReview = () => {
         moderateMedia.mutate({ mediaId, status });
     };
 
-    const filterOptions: { value: StatusFilter; label: string; count: number }[] = [
-        { value: "pending", label: "Pending", count: pendingCount },
-        { value: "approved", label: "Approved", count: approvedCount },
-        { value: "rejected", label: "Rejected", count: rejectedCount },
-        { value: "all", label: "All", count: allMedia?.length || 0 },
+    const filterOptions: { value: StatusFilter; label: TranslationKey; count: number }[] = [
+        { value: "pending", label: "ugcReview.pending", count: pendingCount },
+        { value: "approved", label: "ugcReview.approved", count: approvedCount },
+        { value: "rejected", label: "ugcReview.rejected", count: rejectedCount },
+        { value: "all", label: "ugcReview.all", count: allMedia?.length || 0 },
     ];
 
     return (
@@ -78,17 +86,17 @@ const UGCReview = () => {
                     </Button>
                     <div>
                         <h1 className="font-serif text-3xl font-bold tracking-tight">
-                            Review <span className="italic text-primary">Content</span>
+                            {t("ugcReview.title1")} <span className="italic text-primary">{t("ugcReview.title2")}</span>
                         </h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            Approve or reject photos and videos from your moments
+                            {t("ugcReview.lede")}
                         </p>
                     </div>
                 </div>
                 {pendingCount > 0 && (
                     <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-600 text-xs font-bold">
                         <Clock className="w-3.5 h-3.5" />
-                        {pendingCount} pending review
+                        {t("ugcReview.pendingReview", { count: pendingCount })}
                     </div>
                 )}
             </div>
@@ -97,15 +105,15 @@ const UGCReview = () => {
             <div className="grid grid-cols-3 gap-4">
                 <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 text-center">
                     <p className="text-2xl font-bold text-amber-600">{pendingCount}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">Pending</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">{t("ugcReview.pending")}</p>
                 </div>
                 <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-5 text-center">
                     <p className="text-2xl font-bold text-emerald-600">{approvedCount}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">Approved</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">{t("ugcReview.approved")}</p>
                 </div>
                 <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-5 text-center">
                     <p className="text-2xl font-bold text-red-500">{rejectedCount}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">Rejected</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">{t("ugcReview.rejected")}</p>
                 </div>
             </div>
 
@@ -120,7 +128,7 @@ const UGCReview = () => {
                                 : "bg-card border border-border hover:bg-muted"
                             }`}
                     >
-                        {option.label}
+                        {t(option.label)}
                         <span className="text-[10px] opacity-70">({option.count})</span>
                     </button>
                 ))}
@@ -139,12 +147,12 @@ const UGCReview = () => {
                         <Camera className="w-10 h-10 text-primary/40" />
                     </div>
                     <h2 className="font-serif text-2xl font-bold mb-2">
-                        {statusFilter === "pending" ? "No pending content" : "No content found"}
+                        {statusFilter === "pending" ? t("ugcReview.emptyPending") : t("ugcReview.emptyOther")}
                     </h2>
                     <p className="text-muted-foreground max-w-sm">
                         {statusFilter === "pending"
-                            ? "You're all caught up! New submissions from participants will appear here."
-                            : "No content matches this filter."}
+                            ? t("ugcReview.emptyPendingCopy")
+                            : t("ugcReview.emptyOtherCopy")}
                     </p>
                 </div>
             ) : (
@@ -166,7 +174,7 @@ const UGCReview = () => {
                                 ) : (
                                     <img
                                         src={item.media_url}
-                                        alt={item.caption || "Submission"}
+                                        alt={item.caption || t("ugcReview.alt")}
                                         className="w-full h-full object-cover"
                                         loading="lazy"
                                     />
@@ -180,7 +188,7 @@ const UGCReview = () => {
                                                 : "bg-red-500/90 text-white"
                                         }`}
                                 >
-                                    {item.moderation_status}
+                                    {STATUS_KEYS[item.moderation_status] ? t(STATUS_KEYS[item.moderation_status]) : item.moderation_status}
                                 </div>
                             </div>
 
@@ -190,15 +198,15 @@ const UGCReview = () => {
                                     <p className="text-sm text-foreground line-clamp-2">{item.caption}</p>
                                 )}
                                 <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium">
-                                    <span>{momentTitles[item.moment_id] || "Unknown Moment"}</span>
-                                    <span>{format(new Date(item.created_at), "MMM d, h:mm a")}</span>
+                                    <span>{momentTitles[item.moment_id] || t("ugcReview.unknownMoment")}</span>
+                                    <span>{formatDate(item.created_at, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                                     <span className="flex items-center gap-1">
-                                        <Eye className="w-3 h-3" /> {item.view_count} views
+                                        <Eye className="w-3 h-3" /> {t("ugcReview.views", { count: formatNumber(item.view_count) })}
                                     </span>
                                     <span className="flex items-center gap-1">
-                                        <Image className="w-3 h-3" /> {item.media_type}
+                                        <Image className="w-3 h-3" /> {item.media_type === "video" ? t("ugcReview.typeVideo") : t("ugcReview.typePhoto")}
                                     </span>
                                 </div>
 
@@ -211,7 +219,7 @@ const UGCReview = () => {
                                             onClick={() => handleModerate(item.id, "approved")}
                                             disabled={moderateMedia.isPending}
                                         >
-                                            <Check className="w-3.5 h-3.5" /> Approve
+                                            <Check className="w-3.5 h-3.5" /> {t("ugcReview.approve")}
                                         </Button>
                                         <Button
                                             size="sm"
@@ -220,7 +228,7 @@ const UGCReview = () => {
                                             onClick={() => handleModerate(item.id, "rejected")}
                                             disabled={moderateMedia.isPending}
                                         >
-                                            <X className="w-3.5 h-3.5" /> Reject
+                                            <X className="w-3.5 h-3.5" /> {t("ugcReview.reject")}
                                         </Button>
                                     </div>
                                 )}

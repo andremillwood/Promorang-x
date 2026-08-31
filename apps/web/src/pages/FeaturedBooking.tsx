@@ -19,6 +19,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { API_BASE_URL } from '@/lib/api';
+import { useI18n } from '@/i18n/I18nContext';
+import type { TranslationKey } from '@/i18n/translations';
 import { 
   Sparkles, 
   Clock, 
@@ -73,13 +75,14 @@ interface BookingResponse {
   error?: string;
 }
 
-const ENTITY_TYPES = [
-  { value: 'moment', label: 'Moment', icon: Clock },
-  { value: 'content', label: 'Content Piece', icon: Eye },
-  { value: 'promoshare_pool', label: 'PromoShare Pool', icon: Sparkles },
+const ENTITY_TYPES: Array<{ value: string; label: TranslationKey; icon: typeof Clock }> = [
+  { value: 'moment', label: 'featBook.typeMoment', icon: Clock },
+  { value: 'content', label: 'featBook.typeContent', icon: Eye },
+  { value: 'promoshare_pool', label: 'featBook.typePool', icon: Sparkles },
 ];
 
 export default function FeaturedBooking() {
+  const { t } = useI18n();
   const { user, token } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -126,7 +129,7 @@ export default function FeaturedBooking() {
       }
     } catch (error) {
       console.error('Error fetching placement types:', error);
-      toast.error('Failed to load placement options');
+      toast.error(t('featBook.toastLoad'));
     }
   };
   
@@ -183,12 +186,12 @@ export default function FeaturedBooking() {
   
   const handleBooking = async () => {
     if (!selectedPlacement || !entityType || !entityId) {
-      toast.error('Please fill in all required fields');
+      toast.error(t('featBook.toastRequired'));
       return;
     }
     
     if (!availability?.available) {
-      toast.error('No slots available for this placement type');
+      toast.error(t('featBook.toastNoSlots'));
       return;
     }
     
@@ -218,7 +221,7 @@ export default function FeaturedBooking() {
       const data: BookingResponse = await response.json();
       
       if (data.success && data.payment_required) {
-        toast.success('Booking created! Redirecting to payment...');
+        toast.success(t('featBook.toastCreated'));
         
         // Create Stripe checkout session
         const checkoutResponse = await fetch(
@@ -241,14 +244,14 @@ export default function FeaturedBooking() {
           // Redirect to Stripe
           window.location.href = checkoutData.checkoutUrl;
         } else {
-          toast.error('Failed to create payment session');
+          toast.error(t('featBook.toastCheckout'));
         }
       } else if (data.error) {
         toast.error(data.error);
       }
     } catch (error) {
       console.error('Error creating booking:', error);
-      toast.error('Failed to create booking');
+      toast.error(t('featBook.toastBook'));
     } finally {
       setIsBooking(false);
     }
@@ -274,13 +277,13 @@ export default function FeaturedBooking() {
   const getPricingTypeLabel = (type: string) => {
     switch (type) {
       case 'fixed_daily':
-        return 'per day';
+        return t('featBook.perDayLabel');
       case 'cpc':
-        return 'per click';
+        return t('featBook.perClickLabel');
       case 'one_time':
-        return 'flat fee';
+        return t('featBook.flatFeeLabel');
       case 'per_send':
-        return 'per send';
+        return t('featBook.perSendLabel');
       default:
         return '';
     }
@@ -293,11 +296,10 @@ export default function FeaturedBooking() {
         <div className="mb-10 text-center sm:mb-12">
           <h1 className="mb-4 flex flex-col items-center justify-center gap-3 text-3xl font-bold sm:flex-row sm:text-4xl">
             <Sparkles className="w-8 h-8 text-primary" />
-            Featured Placements
+            {t('featBook.title')}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Boost your visibility with premium placements across the platform. 
-            Get your Moments, Content, and PromoShare pools in front of more users.
+            {t('featBook.lede')}
           </p>
         </div>
         
@@ -306,26 +308,26 @@ export default function FeaturedBooking() {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Book Your Placement</CardTitle>
+                <CardTitle>{t('featBook.bookTitle')}</CardTitle>
                 <CardDescription>
-                  Select your content and placement type to get started
+                  {t('featBook.bookDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Entity Selection */}
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Content Type</Label>
+                    <Label>{t('featBook.contentType')}</Label>
                     <Select value={entityType} onValueChange={setEntityType}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select type..." />
+                        <SelectValue placeholder={t('featBook.selectType')} />
                       </SelectTrigger>
                       <SelectContent>
                         {ENTITY_TYPES.map(type => (
                           <SelectItem key={type.value} value={type.value}>
                             <div className="flex items-center gap-2">
                               <type.icon className="w-4 h-4" />
-                              {type.label}
+                              {t(type.label)}
                             </div>
                           </SelectItem>
                         ))}
@@ -334,9 +336,9 @@ export default function FeaturedBooking() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label>Content ID</Label>
+                    <Label>{t('featBook.contentId')}</Label>
                     <Input
-                      placeholder="Enter content/moment/pool ID"
+                      placeholder={t('featBook.idPlaceholder')}
                       value={entityId}
                       onChange={(e) => setEntityId(e.target.value)}
                     />
@@ -345,7 +347,7 @@ export default function FeaturedBooking() {
                 
                 {/* Placement Type Selection */}
                 <div className="space-y-2">
-                  <Label>Placement Type</Label>
+                  <Label>{t('featBook.placementType')}</Label>
                   <div className="grid sm:grid-cols-2 gap-3">
                     {placementTypes.map((type) => (
                       <button
@@ -368,9 +370,9 @@ export default function FeaturedBooking() {
                           <div className="flex-1 min-w-0">
                             <p className="font-medium text-sm">{type.name}</p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              {type.pricing_type === 'fixed_daily' && `$${type.base_price_per_day}/day`}
-                              {type.pricing_type === 'cpc' && `$${type.cost_per_click}/click`}
-                              {type.pricing_type === 'one_time' && `$${type.base_price} flat`}
+                              {type.pricing_type === 'fixed_daily' && t('featBook.perDayPrice', { amount: type.base_price_per_day ?? 0 })}
+                              {type.pricing_type === 'cpc' && t('featBook.perClickPrice', { amount: type.cost_per_click ?? 0 })}
+                              {type.pricing_type === 'one_time' && t('featBook.flatPrice', { amount: type.base_price ?? 0 })}
                             </p>
                           </div>
                         </div>
@@ -387,8 +389,8 @@ export default function FeaturedBooking() {
                     {placementTypes.find(p => p.placement_type === selectedPlacement)?.pricing_type === 'fixed_daily' ? (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between gap-3">
-                          <Label>Duration (Days)</Label>
-                          <span className="text-sm font-medium">{durationDays} days</span>
+                          <Label>{t('featBook.duration')}</Label>
+                          <span className="text-sm font-medium">{t('featBook.days', { count: durationDays })}</span>
                         </div>
                         <Input
                           type="range"
@@ -399,16 +401,16 @@ export default function FeaturedBooking() {
                           className="w-full"
                         />
                         <div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground">
-                          <span>1 day</span>
-                          <span>7 days (10% off)</span>
-                          <span>14 days (15% off)</span>
-                          <span>30 days (25% off)</span>
+                          <span>{t('featBook.day1')}</span>
+                          <span>{t('featBook.day7')}</span>
+                          <span>{t('featBook.day14')}</span>
+                          <span>{t('featBook.day30')}</span>
                         </div>
                       </div>
                     ) : (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between gap-3">
-                          <Label>Budget</Label>
+                          <Label>{t('featBook.budget')}</Label>
                           <span className="text-sm font-medium">${budget}</span>
                         </div>
                         <Input
@@ -421,8 +423,8 @@ export default function FeaturedBooking() {
                           className="w-full"
                         />
                         <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                          <span>$25 min</span>
-                          <span>$500 max</span>
+                          <span>{t('featBook.minBudget')}</span>
+                          <span>{t('featBook.maxBudget')}</span>
                         </div>
                       </div>
                     )}
@@ -436,40 +438,40 @@ export default function FeaturedBooking() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Pricing Summary</CardTitle>
+                <CardTitle>{t('featBook.summary')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {pricing ? (
                   <>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-muted-foreground">Base Price</span>
+                        <span className="text-muted-foreground">{t('featBook.basePrice')}</span>
                         <span>${pricing.base_price.toFixed(2)}</span>
                       </div>
                       
                       {pricing.discount_applied > 0 && (
                         <div className="flex items-center justify-between gap-3 text-green-600 dark:text-green-400">
-                          <span>Volume Discount ({(pricing.discount_applied * 100).toFixed(0)}%)</span>
+                          <span>{t('featBook.volumeDiscount', { pct: (pricing.discount_applied * 100).toFixed(0) })}</span>
                           <span>-${pricing.discount_amount.toFixed(2)}</span>
                         </div>
                       )}
                       
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-muted-foreground">Subtotal</span>
+                        <span className="text-muted-foreground">{t('featBook.subtotal')}</span>
                         <span>${pricing.final_price.toFixed(2)}</span>
                       </div>
                       
                       <Separator />
                       
                       <div className="flex items-center justify-between gap-3 text-sm">
-                        <span className="text-muted-foreground">Platform Fee (15%)</span>
+                        <span className="text-muted-foreground">{t('featBook.platformFee')}</span>
                         <span>${pricing.platform_fee.toFixed(2)}</span>
                       </div>
                       
                       <Separator />
                       
                       <div className="flex items-center justify-between gap-3 text-lg font-bold">
-                        <span>Total</span>
+                        <span>{t('featBook.total')}</span>
                         <span className="text-primary">${pricing.final_price.toFixed(2)}</span>
                       </div>
                     </div>
@@ -480,12 +482,12 @@ export default function FeaturedBooking() {
                           {availability.available ? (
                             <>
                               <Check className="w-4 h-4 text-green-500" />
-                              <span>{availability.slots} slot(s) available</span>
+                              <span>{t(availability.slots === 1 ? 'featBook.slotOne' : 'featBook.slotMany', { count: availability.slots })}</span>
                             </>
                           ) : (
                             <>
                               <div className="w-4 h-4 rounded-full bg-red-500" />
-                              <span className="text-red-500">No slots available</span>
+                              <span className="text-red-500">{t('featBook.noSlots')}</span>
                             </>
                           )}
                         </div>
@@ -494,7 +496,7 @@ export default function FeaturedBooking() {
                   </>
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
-                    <p>Select a placement type to see pricing</p>
+                    <p>{t('featBook.selectPricing')}</p>
                   </div>
                 )}
               </CardContent>
@@ -508,12 +510,12 @@ export default function FeaturedBooking() {
                   {isBooking ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processing...
+                      {t('featBook.processing')}
                     </>
                   ) : (
                     <>
                       <DollarSign className="w-4 h-4 mr-2" />
-                      Proceed to Payment
+                      {t('featBook.proceed')}
                     </>
                   )}
                 </Button>
@@ -523,28 +525,28 @@ export default function FeaturedBooking() {
             {/* Benefits */}
             <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
               <CardHeader>
-                <CardTitle className="text-base">Why Featured?</CardTitle>
+                <CardTitle className="text-base">{t('featBook.why')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
                   <Eye className="w-5 h-5 text-primary mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">3x More Views</p>
-                    <p className="text-xs text-muted-foreground">Featured content gets premium visibility</p>
+                    <p className="font-medium text-sm">{t('featBook.viewsTitle')}</p>
+                    <p className="text-xs text-muted-foreground">{t('featBook.viewsCopy')}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <MousePointer className="w-5 h-5 text-primary mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Higher Engagement</p>
-                    <p className="text-xs text-muted-foreground">Users engage more with promoted content</p>
+                    <p className="font-medium text-sm">{t('featBook.engageTitle')}</p>
+                    <p className="text-xs text-muted-foreground">{t('featBook.engageCopy')}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <TrendingUp className="w-5 h-5 text-primary mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Better ROI</p>
-                    <p className="text-xs text-muted-foreground">More participation = better results</p>
+                    <p className="font-medium text-sm">{t('featBook.roiTitle')}</p>
+                    <p className="text-xs text-muted-foreground">{t('featBook.roiCopy')}</p>
                   </div>
                 </div>
               </CardContent>

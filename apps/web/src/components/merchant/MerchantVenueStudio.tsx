@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useMerchantVenues } from "@/hooks/useVenues";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 
 export function MerchantVenueStudio({
   onOpenMoments,
@@ -29,6 +30,7 @@ export function MerchantVenueStudio({
   onOpenMoments?: () => void;
 }) {
   const { toast } = useToast();
+  const { t } = useI18n();
   const { data: rawVenues = [], isLoading } = useMerchantVenues();
 
   // Fallback demo venues if merchant has none yet
@@ -71,13 +73,13 @@ export function MerchantVenueStudio({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Venue & Physical Spaces Studio</h2>
+              <h2 className="text-2xl font-black text-white">{t("merchVenue.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase">
-                {venues.length} Locations Linked
+                {t("merchVenue.linked", { count: venues.length })}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Manage operating status, on-site cultural drops, table QR signage, and capacity limits.
+              {t("merchVenue.copy")}
             </p>
           </div>
         </div>
@@ -89,7 +91,7 @@ export function MerchantVenueStudio({
           >
             <Link to="/dashboard/venues/add">
               <Plus className="h-4 w-4 mr-1.5" />
-              Add New Location
+              {t("merchVenue.addLoc")}
             </Link>
           </Button>
 
@@ -100,7 +102,7 @@ export function MerchantVenueStudio({
           >
             <Link to="/create/moment">
               <Sparkles className="h-3.5 w-3.5 mr-1.5 text-amber-400" />
-              Host On-Site Moment
+              {t("merchVenue.hostMoment")}
             </Link>
           </Button>
         </div>
@@ -125,7 +127,7 @@ export function MerchantVenueStudio({
               {/* Status Badges on Image */}
               <div className="absolute top-4 left-4 flex items-center gap-2">
                 <span className="px-3 py-1 rounded-full bg-emerald-500 text-black font-black text-[10px] uppercase tracking-wider shadow-md">
-                  Active Venue
+                  {t("merchVenue.active")}
                 </span>
                 <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white font-bold text-[10px] flex items-center gap-1">
                   <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
@@ -150,15 +152,15 @@ export function MerchantVenueStudio({
             <div className="p-6 space-y-5">
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-white/50">Capacity</p>
+                  <p className="text-[10px] font-bold uppercase text-white/50">{t("merchVenue.capacity")}</p>
                   <p className="text-lg font-black text-white">{venue.capacity || 80}</p>
                 </div>
                 <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-white/50">Live Occupancy</p>
+                  <p className="text-[10px] font-bold uppercase text-white/50">{t("merchVenue.occupancy")}</p>
                   <p className="text-lg font-black text-emerald-400">{venue.currentOccupancy || 35}</p>
                 </div>
                 <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-white/50">Linked Moments</p>
+                  <p className="text-[10px] font-bold uppercase text-white/50">{t("merchVenue.moments")}</p>
                   <p className="text-lg font-black text-amber-400">{venue.activeMomentsCount || 1}</p>
                 </div>
               </div>
@@ -173,7 +175,7 @@ export function MerchantVenueStudio({
                 >
                   <Link to={`/moments?venue=${venue.id}`}>
                     <Calendar className="h-3.5 w-3.5 mr-1.5 text-emerald-400" />
-                    Scheduled Moments
+                    {t("merchVenue.scheduled")}
                   </Link>
                 </Button>
 
@@ -185,7 +187,7 @@ export function MerchantVenueStudio({
                 >
                   <Link to={`/discover/venues`}>
                     <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-                    Public Page
+                    {t("merchVenue.publicPage")}
                   </Link>
                 </Button>
 
@@ -196,7 +198,7 @@ export function MerchantVenueStudio({
                 >
                   <Link to={`/create/moment`}>
                     <Plus className="h-3.5 w-3.5 mr-1" />
-                    Drop Perk
+                    {t("merchVenue.dropPerk")}
                   </Link>
                 </Button>
               </div>

@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sparkles, Calculator, CheckCircle2, ShieldCheck, Tag, ArrowRight, Zap, TrendingUp, QrCode, Plus } from "lucide-react";
 import { PostPerkModal } from "@/components/merchant/PostPerkModal";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function MerchantCouponHub() {
+  const { t, formatNumber } = useI18n();
   const [productPrice, setProductPrice] = useState(50);
   const [targetOrders, setTargetOrders] = useState(100);
   const [postPerkOpen, setPostPerkOpen] = useState(false);
@@ -23,18 +25,18 @@ export default function MerchantCouponHub() {
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-400">
               <ShieldCheck className="h-4 w-4 text-emerald-400" />
-              Pay-After-Profit Merchant Engine
+              {t("couponHub.badge")}
             </div>
 
             <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-tight sm:text-6xl text-white">
-              Stop Wasting Dollars on Ads. <br />
+              {t("couponHub.hero1")} <br />
               <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
-                Acquire Real Buyers First. Pay After.
+                {t("couponHub.hero2")}
               </span>
             </h1>
 
             <p className="mt-4 max-w-2xl text-base text-white/70">
-              Issue performance-based loyalty perks and coupons. Zero upfront ad spend, zero subscription fees, and 100% pay-for-performance. You only pay when customers buy.
+              {t("couponHub.lede")}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
@@ -43,7 +45,7 @@ export default function MerchantCouponHub() {
                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-3.5 text-sm font-black text-black shadow-lg shadow-emerald-500/25 transition hover:brightness-110 active:scale-95 cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
-                <span>Launch Zero-Risk Perk Drop</span>
+                <span>{t("couponHub.launch")}</span>
               </button>
 
               <Link
@@ -51,7 +53,7 @@ export default function MerchantCouponHub() {
                 className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 px-6 py-3.5 text-sm font-bold text-white transition active:scale-95"
               >
                 <QrCode className="h-4 w-4 text-emerald-400" />
-                <span>Open Staff QR Scanner</span>
+                <span>{t("couponHub.scanner")}</span>
               </Link>
             </div>
           </div>
@@ -64,12 +66,12 @@ export default function MerchantCouponHub() {
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
             <div className="flex items-center gap-2 text-emerald-400 mb-6">
               <Calculator className="h-5 w-5" />
-              <h2 className="text-xl font-black text-white">Interactive Profit Calculator</h2>
+              <h2 className="text-xl font-black text-white">{t("couponHub.calcTitle")}</h2>
             </div>
 
             <div className="space-y-6">
               <div>
-                <label className="block text-xs font-bold uppercase text-white/70">Average Product Price ($ USD)</label>
+                <label className="block text-xs font-bold uppercase text-white/70">{t("couponHub.avgPrice")}</label>
                 <input
                   type="number"
                   value={productPrice}
@@ -79,7 +81,7 @@ export default function MerchantCouponHub() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-white/70">Target Acquired Customers</label>
+                <label className="block text-xs font-bold uppercase text-white/70">{t("couponHub.targetCustomers")}</label>
                 <input
                   type="number"
                   value={targetOrders}
@@ -90,35 +92,35 @@ export default function MerchantCouponHub() {
             </div>
 
             <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-emerald-300">
-              <span className="font-bold">Zero-Risk Guarantee:</span> If 0 customers purchase, your upfront ad spend is exactly <span className="font-mono font-bold text-white">$0.00</span>.
+              <span className="font-bold">{t("couponHub.zeroRisk")}</span> {t("couponHub.zeroRiskCopy")} <span className="font-mono font-bold text-white">$0.00</span>.
             </div>
           </div>
 
           {/* CALCULATOR BREAKDOWN */}
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 flex flex-col justify-between">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-white/50">Estimated Financial Outcomes</span>
-              <h3 className="mt-2 text-3xl font-black text-[#10B981]">${netRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })} Net Revenue</h3>
-              <p className="mt-1 text-xs text-white/60">Estimated cash collected directly into your store after performance fees.</p>
+              <span className="text-xs font-bold uppercase tracking-widest text-white/50">{t("couponHub.outcomes")}</span>
+              <h3 className="mt-2 text-3xl font-black text-[#10B981]">{t("couponHub.netRevenue", { amount: `$${formatNumber(netRevenue, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` })}</h3>
+              <p className="mt-1 text-xs text-white/60">{t("couponHub.cashCopy")}</p>
 
               <div className="mt-8 space-y-4 border-t border-white/10 pt-6">
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/70">Upfront Ad Spend</span>
+                  <span className="text-white/70">{t("couponHub.upfront")}</span>
                   <span className="font-mono font-bold text-[#10B981]">$0.00 USD</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/70">Gross Order Sales</span>
+                  <span className="text-white/70">{t("couponHub.gross")}</span>
                   <span className="font-mono font-bold text-white">${grossRevenue.toLocaleString()} USD</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/70">Promorang Performance Fee (10%)</span>
+                  <span className="text-white/70">{t("couponHub.fee")}</span>
                   <span className="font-mono font-bold text-white/60">-${platformFee.toLocaleString()} USD</span>
                 </div>
               </div>
             </div>
 
             <button className="mt-8 w-full rounded-xl bg-emerald-500 py-3.5 text-sm font-black text-black transition hover:bg-emerald-400">
-              Claim $1,000 Free Featured Placement Bonus
+              {t("couponHub.claimBonus")}
             </button>
           </div>
         </div>
@@ -127,27 +129,27 @@ export default function MerchantCouponHub() {
         <section className="mt-12 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-emerald-400">Store Performance</p>
-              <h2 className="text-2xl font-black text-white">Live Coupon Redemption Metrics</h2>
+              <p className="text-xs font-bold uppercase tracking-widest text-emerald-400">{t("couponHub.storePerf")}</p>
+              <h2 className="text-2xl font-black text-white">{t("couponHub.liveMetrics")}</h2>
             </div>
-            <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-400">54.9% Conversion Rate</span>
+            <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-400">{t("couponHub.conversion", { pct: "54.9" })}</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <span className="text-xs text-white/60">Issued</span>
+              <span className="text-xs text-white/60">{t("couponHub.issued")}</span>
               <p className="mt-1 text-2xl font-black text-white">500</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <span className="text-xs text-white/60">Claimed</span>
+              <span className="text-xs text-white/60">{t("couponHub.claimed")}</span>
               <p className="mt-1 text-2xl font-black text-white">342</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <span className="text-xs text-white/60">Redeemed Orders</span>
+              <span className="text-xs text-white/60">{t("couponHub.redeemed")}</span>
               <p className="mt-1 text-2xl font-black text-emerald-400">188</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <span className="text-xs text-white/60">Net Store Sales</span>
+              <span className="text-xs text-white/60">{t("couponHub.netSales")}</span>
               <p className="mt-1 text-2xl font-black text-[#10B981]">$8,460.00</p>
             </div>
           </div>

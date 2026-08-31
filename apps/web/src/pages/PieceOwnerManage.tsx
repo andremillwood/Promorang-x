@@ -29,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { TiltCard3D } from '@/components/ui/TiltCard3D';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface Shareholder {
   id: string;
@@ -87,6 +88,7 @@ export function PieceOwnerManage() {
   const { pieceType = 'moment', assetId = 'syndicate_asset' } = useParams<{ pieceType: string; assetId: string }>();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t, formatDate } = useI18n();
 
   const [distributeAmount, setDistributeAmount] = useState<string>("500");
   const [distributionReason, setDistributionReason] = useState<string>("Weekend Event Ticket & VIP Table Share");
@@ -125,8 +127,8 @@ export function PieceOwnerManage() {
   const handleDistributeDividends = async () => {
     if (amountNum <= 0) {
       toast({
-        title: "Invalid Amount",
-        description: "Please specify a positive revenue pool amount to distribute.",
+        title: t("pieceStudio.invalidTitle"),
+        description: t("pieceStudio.invalidDesc"),
         variant: "destructive",
       });
       return;
@@ -148,8 +150,12 @@ export function PieceOwnerManage() {
       setTotalDistributedLifetime(prev => prev + amountNum);
       setIsDistributing(false);
       toast({
-        title: "🎉 Dividends Distributed Successfully!",
-        description: `$${amountNum.toFixed(2)} USD allocated across ${shareholders.length - 1} co-producers ($${dividendPerShare.toFixed(2)}/share).`,
+        title: t("pieceStudio.distSuccess"),
+        description: t("pieceStudio.distSuccessDesc", {
+          amount: amountNum.toFixed(2),
+          count: shareholders.length - 1,
+          per: dividendPerShare.toFixed(2),
+        }),
       });
       setDistributeAmount("");
     }, 1200);
@@ -171,8 +177,8 @@ export function PieceOwnerManage() {
     setNewPerkTitle('');
     setNewPerkDesc('');
     toast({
-      title: "Co-Producer Perk Added",
-      description: `Holders with ${newPerkShares}+ shares now unlock "${newPerkTitle}".`,
+      title: t("pieceStudio.perkAdded"),
+      description: t("pieceStudio.perkAddedDesc", { count: newPerkShares, title: newPerkTitle }),
     });
   };
 
@@ -185,8 +191,8 @@ export function PieceOwnerManage() {
     ]);
     setAnnouncement('');
     toast({
-      title: "Co-Producer Dispatch Sent",
-      description: "All shareholders have been notified of your update.",
+      title: t("pieceStudio.dispatchSent"),
+      description: t("pieceStudio.dispatchSentDesc"),
     });
   };
 
@@ -197,7 +203,7 @@ export function PieceOwnerManage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
           <Button asChild variant="ghost" size="sm" className="mb-4 text-muted-foreground hover:text-foreground">
             <Link to={`/pieces/${pieceType}/${assetId}`}>
-              <ArrowLeft className="mr-2 h-4 w-4" /> View Public Piece Showcase
+              <ArrowLeft className="mr-2 h-4 w-4" /> {t("pieceStudio.viewPublic")}
             </Link>
           </Button>
 
@@ -205,24 +211,24 @@ export function PieceOwnerManage() {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 flex items-center gap-1.5 font-bold uppercase tracking-wider text-[11px]">
-                  <Crown className="w-3.5 h-3.5" /> Creator & Syndicate Studio
+                  <Crown className="w-3.5 h-3.5" /> {t("pieceStudio.badge")}
                 </Badge>
                 <Badge variant="outline" className="capitalize text-xs">
-                  {pieceType} Piece
+                  {t("pieceStudio.pieceType", { type: pieceType })}
                 </Badge>
               </div>
               <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">
-                Manage Syndicate & Dividends
+                {t("pieceStudio.title")}
               </h1>
               <p className="text-sm text-muted-foreground max-w-2xl">
-                Distribute revenue share dividends to co-producers, manage liquidity pool bonding curves, and configure VIP shareholder perks.
+                {t("pieceStudio.lede")}
               </p>
             </div>
 
             <div className="flex items-center gap-3">
               <Button asChild variant="outline" className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10">
                 <Link to={`/pieces/${pieceType}/${assetId}`} target="_blank">
-                  Public Showcase <ExternalLink className="ml-1.5 h-4 w-4" />
+                  {t("pieceStudio.publicShowcase")} <ExternalLink className="ml-1.5 h-4 w-4" />
                 </Link>
               </Button>
             </div>
@@ -236,36 +242,36 @@ export function PieceOwnerManage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="border-border/60 bg-neutral-900/60 backdrop-blur-xl">
             <CardContent className="p-5">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Total Supply Minted</p>
-              <p className="text-2xl font-black text-foreground mt-1">100 Pieces</p>
-              <p className="text-[11px] text-cyan-400 mt-1">70 held · 30 in AMM Pool</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("pieceStudio.supply")}</p>
+              <p className="text-2xl font-black text-foreground mt-1">{t("pieceStudio.supplyValue", { count: 100 })}</p>
+              <p className="text-[11px] text-cyan-400 mt-1">{t("pieceStudio.supplyHint", { held: 70, pool: 30 })}</p>
             </CardContent>
           </Card>
 
           <Card className="border-border/60 bg-neutral-900/60 backdrop-blur-xl">
             <CardContent className="p-5">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Active Co-Producers</p>
-              <p className="text-2xl font-black text-foreground mt-1">{shareholders.length - 1} Backers</p>
-              <p className="text-[11px] text-emerald-400 mt-1">100% active standing</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("pieceStudio.coProducers")}</p>
+              <p className="text-2xl font-black text-foreground mt-1">{t("pieceStudio.backers", { count: shareholders.length - 1 })}</p>
+              <p className="text-[11px] text-emerald-400 mt-1">{t("pieceStudio.standing")}</p>
             </CardContent>
           </Card>
 
           <Card className="border-border/60 bg-neutral-900/60 backdrop-blur-xl">
             <CardContent className="p-5">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Lifetime Yield Distributed</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("pieceStudio.lifetime")}</p>
               <p className="text-2xl font-black text-emerald-400 mt-1">${totalDistributedLifetime.toFixed(2)}</p>
-              <p className="text-[11px] text-muted-foreground mt-1">Direct to shareholder wallets</p>
+              <p className="text-[11px] text-muted-foreground mt-1">{t("pieceStudio.toWallets")}</p>
             </CardContent>
           </Card>
 
           <Card className="border-border/60 bg-neutral-900/60 backdrop-blur-xl">
             <CardContent className="p-5">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">AMM Pool Status</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("pieceStudio.poolStatus")}</p>
               <div className="flex items-center gap-2 mt-1">
                 <span className={`h-2.5 w-2.5 rounded-full ${poolActive ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
-                <p className="text-2xl font-black text-foreground">{poolActive ? "Live (0.3%)" : "Paused"}</p>
+                <p className="text-2xl font-black text-foreground">{poolActive ? t("pieceStudio.live", { fee: "0.3" }) : t("pieceStudio.paused")}</p>
               </div>
-              <p className="text-[11px] text-muted-foreground mt-1">Gems ↔ Piece Swapping active</p>
+              <p className="text-[11px] text-muted-foreground mt-1">{t("pieceStudio.swapping")}</p>
             </CardContent>
           </Card>
         </div>
@@ -274,16 +280,16 @@ export function PieceOwnerManage() {
         <Tabs defaultValue="dividends" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 max-w-2xl bg-neutral-900 border border-border/60 p-1 rounded-xl">
             <TabsTrigger value="dividends" className="font-bold text-xs">
-              <DollarSign className="w-4 h-4 mr-1.5 text-emerald-400" /> Pay Dividends
+              <DollarSign className="w-4 h-4 mr-1.5 text-emerald-400" /> {t("pieceStudio.tabDividends")}
             </TabsTrigger>
             <TabsTrigger value="captable" className="font-bold text-xs">
-              <Users className="w-4 h-4 mr-1.5 text-cyan-400" /> Cap Table
+              <Users className="w-4 h-4 mr-1.5 text-cyan-400" /> {t("pieceStudio.tabCap")}
             </TabsTrigger>
             <TabsTrigger value="perks" className="font-bold text-xs">
-              <Award className="w-4 h-4 mr-1.5 text-amber-400" /> Holder Perks
+              <Award className="w-4 h-4 mr-1.5 text-amber-400" /> {t("pieceStudio.tabPerks")}
             </TabsTrigger>
             <TabsTrigger value="settings" className="font-bold text-xs">
-              <Sliders className="w-4 h-4 mr-1.5 text-primary" /> Pool Controls
+              <Sliders className="w-4 h-4 mr-1.5 text-primary" /> {t("pieceStudio.tabPool")}
             </TabsTrigger>
           </TabsList>
 
@@ -295,14 +301,14 @@ export function PieceOwnerManage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-xl font-bold flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-emerald-400" /> 1-Click Dividend Distribution
+                        <Sparkles className="w-5 h-5 text-emerald-400" /> {t("pieceStudio.distTitle")}
                       </CardTitle>
                       <CardDescription className="text-xs">
-                        Distribute box office, food & beverage, or sponsor revenues instantly to all verified co-producers.
+                        {t("pieceStudio.distDesc")}
                       </CardDescription>
                     </div>
                     <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30">
-                      Instant Settlement
+                      {t("pieceStudio.instant")}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -310,7 +316,7 @@ export function PieceOwnerManage() {
                 <CardContent className="pt-6 space-y-5">
                   <div className="space-y-2">
                     <Label htmlFor="pool-amount" className="font-bold text-sm">
-                      Total Revenue Pool to Distribute (USD / Gems)
+                      {t("pieceStudio.poolAmount")}
                     </Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -329,11 +335,11 @@ export function PieceOwnerManage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="dist-reason" className="font-bold text-sm">
-                      Distribution Source / Memo
+                      {t("pieceStudio.memo")}
                     </Label>
                     <Input
                       id="dist-reason"
-                      placeholder="e.g. Norbrook BBQ Weekend Ticket Settlement"
+                      placeholder={t("pieceStudio.memoPlaceholder")}
                       value={distributionReason}
                       onChange={(e) => setDistributionReason(e.target.value)}
                     />
@@ -342,16 +348,16 @@ export function PieceOwnerManage() {
                   {/* Real-time Calculation Breakdown Box */}
                   <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/25 p-4 space-y-2.5 text-sm">
                     <div className="flex justify-between items-center text-xs text-muted-foreground">
-                      <span>Eligible Co-Producer Shares:</span>
-                      <span className="font-semibold text-foreground">{activeHoldersShares} Pieces</span>
+                      <span>{t("pieceStudio.eligible")}</span>
+                      <span className="font-semibold text-foreground">{t("pieceStudio.eligibleValue", { count: activeHoldersShares })}</span>
                     </div>
                     <div className="flex justify-between items-center text-xs text-muted-foreground">
-                      <span>Estimated Payout per Piece:</span>
-                      <span className="font-bold text-emerald-400 text-sm">${dividendPerShare.toFixed(2)} / piece</span>
+                      <span>{t("pieceStudio.payoutPer")}</span>
+                      <span className="font-bold text-emerald-400 text-sm">{t("pieceStudio.payoutValue", { amount: dividendPerShare.toFixed(2) })}</span>
                     </div>
                     <div className="flex justify-between items-center border-t border-emerald-500/20 pt-2 font-bold text-foreground">
-                      <span>Total Co-Producer Settlement:</span>
-                      <span className="text-emerald-400 text-base">${amountNum.toFixed(2)} USD</span>
+                      <span>{t("pieceStudio.settlement")}</span>
+                      <span className="text-emerald-400 text-base">{t("pieceStudio.settlementValue", { amount: amountNum.toFixed(2) })}</span>
                     </div>
                   </div>
 
@@ -360,7 +366,9 @@ export function PieceOwnerManage() {
                     disabled={isDistributing || amountNum <= 0}
                     className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm uppercase tracking-wider py-6 rounded-xl shadow-lg shadow-emerald-500/20"
                   >
-                    {isDistributing ? "Broadcasting Settlement..." : `Distribute $${amountNum.toFixed(2)} to ${shareholders.length - 1} Co-Producers`}
+                    {isDistributing
+                      ? t("pieceStudio.broadcasting")
+                      : t("pieceStudio.distribute", { amount: amountNum.toFixed(2), count: shareholders.length - 1 })}
                   </Button>
                 </CardContent>
               </Card>
@@ -369,31 +377,31 @@ export function PieceOwnerManage() {
               <Card className="border-border/60 bg-neutral-900/60 backdrop-blur-xl">
                 <CardHeader className="border-b border-border/40 pb-4">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Send className="w-4 h-4 text-cyan-400" /> Post Co-Producer Dispatch
+                    <Send className="w-4 h-4 text-cyan-400" /> {t("pieceStudio.dispatchTitle")}
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    Updates will appear directly in shareholders' portfolio feeds.
+                    {t("pieceStudio.dispatchDesc")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-4">
                   <form onSubmit={handlePostAnnouncement} className="space-y-3">
                     <Input
-                      placeholder="Share revenue milestone or event preview..."
+                      placeholder={t("pieceStudio.dispatchPlaceholder")}
                       value={announcement}
                       onChange={(e) => setAnnouncement(e.target.value)}
                     />
                     <Button type="submit" size="sm" className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs">
-                      Broadcast Update
+                      {t("pieceStudio.broadcast")}
                     </Button>
                   </form>
 
                   <div className="space-y-2 pt-2 border-t border-border/40">
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Recent Dispatches</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("pieceStudio.recent")}</p>
                     {announcements.map((a) => (
                       <div key={a.id} className="p-3 rounded-xl border border-border/50 bg-neutral-950/40 text-xs space-y-1">
                         <div className="flex justify-between text-muted-foreground text-[10px]">
-                          <span>Verified Creator</span>
-                          <span>{a.date}</span>
+                          <span>{t("pieceStudio.verifiedCreator")}</span>
+                          <span>{formatDate(a.date)}</span>
                         </div>
                         <p className="text-foreground font-medium">{a.message}</p>
                       </div>
@@ -410,13 +418,13 @@ export function PieceOwnerManage() {
               <CardHeader className="border-b border-border/40 pb-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg font-bold">Syndicate Cap Table</CardTitle>
+                    <CardTitle className="text-lg font-bold">{t("pieceStudio.capTitle")}</CardTitle>
                     <CardDescription className="text-xs">
-                      Verified list of fractional equity holders and dividend history.
+                      {t("pieceStudio.capDesc")}
                     </CardDescription>
                   </div>
                   <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 font-bold">
-                    {shareholders.length} Registered Accounts
+                    {t("pieceStudio.accounts", { count: shareholders.length })}
                   </Badge>
                 </div>
               </CardHeader>
@@ -425,11 +433,11 @@ export function PieceOwnerManage() {
                   <Table>
                     <TableHeader>
                       <TableRow className="border-border/40">
-                        <TableHead className="text-xs font-bold uppercase">Co-Producer</TableHead>
-                        <TableHead className="text-xs font-bold uppercase">Shares Owned</TableHead>
-                        <TableHead className="text-xs font-bold uppercase">Equity %</TableHead>
-                        <TableHead className="text-xs font-bold uppercase">Lifetime Claimed</TableHead>
-                        <TableHead className="text-xs font-bold uppercase">Member Since</TableHead>
+                        <TableHead className="text-xs font-bold uppercase">{t("pieceStudio.colProducer")}</TableHead>
+                        <TableHead className="text-xs font-bold uppercase">{t("pieceStudio.colShares")}</TableHead>
+                        <TableHead className="text-xs font-bold uppercase">{t("pieceStudio.colEquity")}</TableHead>
+                        <TableHead className="text-xs font-bold uppercase">{t("pieceStudio.colClaimed")}</TableHead>
+                        <TableHead className="text-xs font-bold uppercase">{t("pieceStudio.colSince")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -438,7 +446,7 @@ export function PieceOwnerManage() {
                           <TableCell>
                             <div className="font-bold text-sm text-foreground flex items-center gap-2">
                               {s.id === 'user_5' ? (
-                                <Badge variant="secondary" className="text-[10px]">AMM Pool</Badge>
+                                <Badge variant="secondary" className="text-[10px]">{t("pieceStudio.ammPool")}</Badge>
                               ) : (
                                 <span className="h-2 w-2 rounded-full bg-cyan-400" />
                               )}
@@ -446,7 +454,7 @@ export function PieceOwnerManage() {
                             </div>
                           </TableCell>
                           <TableCell className="font-bold text-sm text-foreground">
-                            {s.shares} Pieces
+                            {t("pieceStudio.shares", { count: s.shares })}
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline" className="text-xs border-cyan-500/20 text-cyan-300">
@@ -457,7 +465,7 @@ export function PieceOwnerManage() {
                             ${s.totalDividendsClaimed.toFixed(2)}
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground">
-                            {s.joinedAt}
+                            {formatDate(s.joinedAt)}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -475,10 +483,10 @@ export function PieceOwnerManage() {
                 <Card className="border-border/60 bg-card/80 backdrop-blur-xl">
                   <CardHeader className="border-b border-border/40 pb-4">
                     <CardTitle className="text-lg font-bold flex items-center gap-2">
-                      <Award className="w-5 h-5 text-amber-400" /> Active Tier Perks
+                      <Award className="w-5 h-5 text-amber-400" /> {t("pieceStudio.perksTitle")}
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      Exclusive rewards automatically unlocked when users meet minimum shareholding thresholds.
+                      {t("pieceStudio.perksDesc")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-4 space-y-3">
@@ -487,7 +495,7 @@ export function PieceOwnerManage() {
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs font-black">
-                              Hold {p.minShares}+ Pieces
+                              {t("pieceStudio.hold", { count: p.minShares })}
                             </Badge>
                             <h4 className="font-bold text-sm text-foreground">{p.title}</h4>
                           </div>
@@ -504,13 +512,13 @@ export function PieceOwnerManage() {
               <Card className="border-border/60 bg-card/80 backdrop-blur-xl">
                 <CardHeader className="border-b border-border/40 pb-4">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <PlusCircle className="w-4 h-4 text-primary" /> Create New Tier Perk
+                    <PlusCircle className="w-4 h-4 text-primary" /> {t("pieceStudio.createPerk")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-4">
                   <form onSubmit={handleAddPerk} className="space-y-4">
                     <div className="space-y-1.5">
-                      <Label htmlFor="perk-shares" className="text-xs font-bold">Minimum Pieces Required</Label>
+                      <Label htmlFor="perk-shares" className="text-xs font-bold">{t("pieceStudio.minPieces")}</Label>
                       <Input
                         id="perk-shares"
                         type="number"
@@ -520,25 +528,25 @@ export function PieceOwnerManage() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="perk-title" className="text-xs font-bold">Perk Title</Label>
+                      <Label htmlFor="perk-title" className="text-xs font-bold">{t("pieceStudio.perkTitle")}</Label>
                       <Input
                         id="perk-title"
-                        placeholder="e.g. VIP Green Room Access"
+                        placeholder={t("pieceStudio.perkTitlePh")}
                         value={newPerkTitle}
                         onChange={(e) => setNewPerkTitle(e.target.value)}
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="perk-desc" className="text-xs font-bold">Perk Description</Label>
+                      <Label htmlFor="perk-desc" className="text-xs font-bold">{t("pieceStudio.perkDesc")}</Label>
                       <Input
                         id="perk-desc"
-                        placeholder="e.g. Free entry plus 1 companion pass."
+                        placeholder={t("pieceStudio.perkDescPh")}
                         value={newPerkDesc}
                         onChange={(e) => setNewPerkDesc(e.target.value)}
                       />
                     </div>
                     <Button type="submit" className="w-full font-bold text-xs">
-                      Publish Perk to Co-Producers
+                      {t("pieceStudio.publishPerk")}
                     </Button>
                   </form>
                 </CardContent>
@@ -551,32 +559,32 @@ export function PieceOwnerManage() {
             <Card className="border-border/60 bg-card/80 backdrop-blur-xl max-w-2xl">
               <CardHeader className="border-b border-border/40 pb-4">
                 <CardTitle className="text-lg font-bold flex items-center gap-2">
-                  <Sliders className="w-5 h-5 text-primary" /> AMM Liquidity Controls
+                  <Sliders className="w-5 h-5 text-primary" /> {t("pieceStudio.ammTitle")}
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  Automated Market Maker pricing rules and swap fees.
+                  {t("pieceStudio.ammDesc")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6 space-y-6">
                 <div className="flex items-center justify-between p-4 rounded-2xl border border-border/60 bg-neutral-900/40">
                   <div>
-                    <p className="font-bold text-sm text-foreground">Market Trading Status</p>
-                    <p className="text-xs text-muted-foreground">Allow public buying and selling of pieces on the marketplace.</p>
+                    <p className="font-bold text-sm text-foreground">{t("pieceStudio.trading")}</p>
+                    <p className="text-xs text-muted-foreground">{t("pieceStudio.tradingDesc")}</p>
                   </div>
                   <Button
                     variant={poolActive ? "default" : "outline"}
                     size="sm"
                     onClick={() => {
                       setPoolActive(!poolActive);
-                      toast({ title: `Trading ${!poolActive ? "Enabled" : "Paused"}` });
+                      toast({ title: !poolActive ? t("pieceStudio.tradingOn") : t("pieceStudio.tradingOff") });
                     }}
                   >
-                    {poolActive ? "Active" : "Paused"}
+                    {poolActive ? t("pieceStudio.active") : t("pieceStudio.paused")}
                   </Button>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="swap-fee" className="font-bold text-sm">AMM Swap Fee Rate (%)</Label>
+                  <Label htmlFor="swap-fee" className="font-bold text-sm">{t("pieceStudio.swapFee")}</Label>
                   <Input
                     id="swap-fee"
                     value={swapFee}
@@ -584,11 +592,11 @@ export function PieceOwnerManage() {
                     type="number"
                     step="0.1"
                   />
-                  <p className="text-xs text-muted-foreground">Standard fee is 0.3%. Fees collect into syndicate reserve pool.</p>
+                  <p className="text-xs text-muted-foreground">{t("pieceStudio.swapHint")}</p>
                 </div>
 
-                <Button className="w-full font-bold" onClick={() => toast({ title: "Pool settings updated successfully!" })}>
-                  Save Configuration
+                <Button className="w-full font-bold" onClick={() => toast({ title: t("pieceStudio.saved") })}>
+                  {t("pieceStudio.save")}
                 </Button>
               </CardContent>
             </Card>

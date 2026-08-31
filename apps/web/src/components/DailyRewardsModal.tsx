@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { X, Calendar, Gift, Sparkles, Check, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Calendar, Gift, Check, Lock } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
+import type { TranslationKey } from '@/i18n/translations';
 
 interface DailyRewardsModalProps {
   isOpen: boolean;
@@ -8,13 +10,13 @@ interface DailyRewardsModalProps {
 }
 
 const STREAK_DAYS = [
-  { day: 1, reward: '10 Gems', claimed: true, icon: '💎' },
-  { day: 2, reward: '25 Gems', claimed: true, icon: '💎' },
-  { day: 3, reward: '1x Piece Boost', claimed: false, current: true, icon: '⚡' },
-  { day: 4, reward: '50 Gems', claimed: false, icon: '💎' },
-  { day: 5, reward: '2x Dividend', claimed: false, icon: '🚀' },
-  { day: 6, reward: '100 Gems', claimed: false, icon: '💎' },
-  { day: 7, reward: 'Mystery Rare Chest', claimed: false, isGrand: true, icon: '👑' },
+  { day: 1, rewardKey: 'streak.r1' as const, claimed: true, icon: '💎' },
+  { day: 2, rewardKey: 'streak.r2' as const, claimed: true, icon: '💎' },
+  { day: 3, rewardKey: 'streak.r3' as const, claimed: false, current: true, icon: '⚡' },
+  { day: 4, rewardKey: 'streak.r4' as const, claimed: false, icon: '💎' },
+  { day: 5, rewardKey: 'streak.r5' as const, claimed: false, icon: '🚀' },
+  { day: 6, rewardKey: 'streak.r6' as const, claimed: false, icon: '💎' },
+  { day: 7, rewardKey: 'streak.r7' as const, claimed: false, isGrand: true, icon: '👑' },
 ];
 
 export const DailyRewardsModal: React.FC<DailyRewardsModalProps> = ({
@@ -22,6 +24,7 @@ export const DailyRewardsModal: React.FC<DailyRewardsModalProps> = ({
   onClose,
   onClaim,
 }) => {
+  const { t } = useI18n();
   const [days, setDays] = useState(STREAK_DAYS);
   const [claimedCurrent, setClaimedCurrent] = useState(false);
 
@@ -32,7 +35,7 @@ export const DailyRewardsModal: React.FC<DailyRewardsModalProps> = ({
     setDays(updated);
     setClaimedCurrent(true);
     if (onClaim) {
-      onClaim(3, '1x Piece Boost');
+      onClaim(3, t("streak.r3"));
     }
   };
 
@@ -50,12 +53,12 @@ export const DailyRewardsModal: React.FC<DailyRewardsModalProps> = ({
         {/* Header */}
         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full text-xs font-semibold text-amber-400 mb-3">
           <Calendar className="w-3.5 h-3.5" />
-          <span>DAILY STREAK BONUS</span>
+          <span>{t("streak.badge")}</span>
         </div>
 
-        <h2 className="text-2xl font-bold text-white mb-1">7-Day Reward Matrix</h2>
+        <h2 className="text-2xl font-bold text-white mb-1">{t("streak.title")}</h2>
         <p className="text-xs text-zinc-400 mb-6">
-          Check in every day to escalate your Promorang dividend yields and Gem drops!
+          {t("streak.copy")}
         </p>
 
         {/* Matrix Grid */}
@@ -71,9 +74,9 @@ export const DailyRewardsModal: React.FC<DailyRewardsModalProps> = ({
                   : 'bg-zinc-950/40 border-zinc-800 text-zinc-500'
               }`}
             >
-              <span className="text-[10px] font-bold text-zinc-400 mb-1">Day {d.day}</span>
+              <span className="text-[10px] font-bold text-zinc-400 mb-1">{t("streak.day", { day: d.day })}</span>
               <span className="text-xl mb-1">{d.icon}</span>
-              <span className="text-[9px] font-semibold truncate max-w-full">{d.reward}</span>
+              <span className="text-[9px] font-semibold truncate max-w-full">{t(d.rewardKey as TranslationKey)}</span>
 
               {d.claimed && (
                 <div className="absolute top-1 right-1 bg-emerald-500 text-black p-0.5 rounded-full">
@@ -96,9 +99,9 @@ export const DailyRewardsModal: React.FC<DailyRewardsModalProps> = ({
                   : 'bg-zinc-950/40 border-zinc-800 text-zinc-500'
               }`}
             >
-              <span className="text-[10px] font-bold text-zinc-400 mb-1">Day {d.day}</span>
+              <span className="text-[10px] font-bold text-zinc-400 mb-1">{t("streak.day", { day: d.day })}</span>
               <span className="text-xl mb-1">{d.icon}</span>
-              <span className="text-[9px] font-semibold truncate max-w-full">{d.reward}</span>
+              <span className="text-[9px] font-semibold truncate max-w-full">{t(d.rewardKey as TranslationKey)}</span>
 
               {!d.claimed && !d.current && (
                 <div className="absolute top-1 right-1 text-zinc-600">
@@ -115,11 +118,11 @@ export const DailyRewardsModal: React.FC<DailyRewardsModalProps> = ({
           className="w-full py-3.5 px-6 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-black shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition-all active:scale-95"
         >
           {claimedCurrent ? (
-            <span>STREAK CLAIMED! RETURN TOMORROW</span>
+            <span>{t("streak.claimed")}</span>
           ) : (
             <>
               <Gift className="w-4 h-4" />
-              <span>CLAIM DAY 3 REWARD</span>
+              <span>{t("streak.claimDay", { day: 3 })}</span>
             </>
           )}
         </button>

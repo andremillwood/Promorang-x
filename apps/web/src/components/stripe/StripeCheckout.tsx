@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, CreditCard, CheckCircle } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -55,6 +56,8 @@ const CheckoutForm = ({ clientSecret, amount, currency, onSuccess, onCancel }: C
     const stripe = useStripe();
     const elements = useElements();
     const { toast } = useToast();
+    const { t } = useI18n();
+    const formattedAmount = `${currency.toUpperCase()} ${amount.toLocaleString()}`;
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentSucceeded, setPaymentSucceeded] = useState(false);
 
@@ -78,15 +81,15 @@ const CheckoutForm = ({ clientSecret, amount, currency, onSuccess, onCancel }: C
 
             if (error) {
                 toast({
-                    title: "Payment Failed",
+                    title: t("stripe.failed"),
                     description: error.message,
                     variant: "destructive",
                 });
             } else if (paymentIntent && paymentIntent.status === 'succeeded') {
                 setPaymentSucceeded(true);
                 toast({
-                    title: "Payment Successful",
-                    description: `Your payment of ${currency.toUpperCase()} ${amount.toLocaleString()} has been processed.`,
+                    title: t("stripe.success"),
+                    description: t("stripe.successCopy", { amount: formattedAmount }),
                 });
                 setTimeout(() => {
                     onSuccess(paymentIntent);
@@ -94,8 +97,8 @@ const CheckoutForm = ({ clientSecret, amount, currency, onSuccess, onCancel }: C
             }
         } catch (err: any) {
             toast({
-                title: "Payment Error",
-                description: err.message || "An unexpected error occurred",
+                title: t("stripe.error"),
+                description: err.message || t("stripe.unexpected"),
                 variant: "destructive",
             });
         } finally {
@@ -108,10 +111,10 @@ const CheckoutForm = ({ clientSecret, amount, currency, onSuccess, onCancel }: C
             <div className="text-center py-8">
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">
-                    Payment Successful!
+                    {t("stripe.success")}
                 </h3>
                 <p className="text-muted-foreground">
-                    Redirecting...
+                    {t("stripe.redirecting")}
                 </p>
             </div>
         );
@@ -129,7 +132,7 @@ const CheckoutForm = ({ clientSecret, amount, currency, onSuccess, onCancel }: C
                     disabled={isProcessing}
                     className="flex-1"
                 >
-                    Cancel
+                    {t("wallet.cancel")}
                 </Button>
                 <Button
                     type="submit"
@@ -139,12 +142,12 @@ const CheckoutForm = ({ clientSecret, amount, currency, onSuccess, onCancel }: C
                     {isProcessing ? (
                         <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Processing...
+                            {t("stripe.processing")}
                         </>
                     ) : (
                         <>
                             <CreditCard className="w-4 h-4 mr-2" />
-                            Pay {currency.toUpperCase()} {amount.toLocaleString()}
+                            {t("stripe.payAmount", { amount: formattedAmount })}
                         </>
                     )}
                 </Button>
@@ -177,6 +180,8 @@ const StripeCheckout = ({
     onCancel,
 }: StripeCheckoutProps) => {
     const { toast } = useToast();
+    const { t } = useI18n();
+    const formattedAmount = `${currency.toUpperCase()} ${amount.toLocaleString()}`;
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [stripeInstance, setStripeInstance] = useState<Stripe | null>(null);
@@ -192,8 +197,8 @@ const StripeCheckout = ({
             const stripe = await getStripe();
             if (!stripe) {
                 toast({
-                    title: "Payment Unavailable",
-                    description: "Payment processing is not configured. Please contact support.",
+                    title: t("stripe.unavailable"),
+                    description: t("stripe.unavailableCopy"),
                     variant: "destructive",
                 });
                 onCancel();
@@ -237,7 +242,7 @@ const StripeCheckout = ({
         } catch (error: any) {
             console.error('Error initializing payment:', error);
             toast({
-                title: "Payment Initialization Failed",
+                title: t("stripe.initFailed"),
                 description: error.message,
                 variant: "destructive",
             });
@@ -253,7 +258,7 @@ const StripeCheckout = ({
                 <CardContent className="py-12">
                     <div className="flex flex-col items-center gap-4">
                         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                        <p className="text-muted-foreground">Initializing payment...</p>
+                        <p className="text-muted-foreground">{t("stripe.initializing")}</p>
                     </div>
                 </CardContent>
             </Card>
@@ -265,10 +270,10 @@ const StripeCheckout = ({
             <Card>
                 <CardContent className="py-8">
                     <p className="text-center text-muted-foreground">
-                        Unable to initialize payment. Please try again.
+                        {t("stripe.unable")}
                     </p>
                     <Button onClick={onCancel} className="mt-4 mx-auto block">
-                        Go Back
+                        {t("stripe.goBack")}
                     </Button>
                 </CardContent>
             </Card>
@@ -290,10 +295,10 @@ const StripeCheckout = ({
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <CreditCard className="w-5 h-5" />
-                    Complete Payment
+                    {t("stripe.complete")}
                 </CardTitle>
                 <CardDescription>
-                    Total: {currency.toUpperCase()} {amount.toLocaleString()}
+                    {t("stripe.total", { amount: formattedAmount })}
                 </CardDescription>
             </CardHeader>
             <CardContent>

@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { HelpCircle, Plus, Sparkles, MapPin, ListPlus, Trash2 } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface AskQuestionModalProps {
   onQuestionCreated?: (newQuestion: any) => void;
@@ -35,6 +36,7 @@ export function AskQuestionModal({
   defaultCity = 'Kingston',
 }: AskQuestionModalProps) {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -55,7 +57,7 @@ export function AskQuestionModal({
 
   const addOptionField = () => {
     if (options.length >= 6) {
-      toast.info('Maximum 6 starting options allowed.');
+      toast.info(t('askQ.maxOpts'));
       return;
     }
     setOptions([...options, '']);
@@ -63,7 +65,7 @@ export function AskQuestionModal({
 
   const removeOptionField = (index: number) => {
     if (options.length <= 2) {
-      toast.error('At least 2 options are required for community voting.');
+      toast.error(t('askQ.minOpts'));
       return;
     }
     setOptions(options.filter((_, i) => i !== index));
@@ -73,13 +75,13 @@ export function AskQuestionModal({
     e.preventDefault();
 
     if (!question.trim()) {
-      toast.error('Please enter a question.');
+      toast.error(t('askQ.needQuestion'));
       return;
     }
 
     const validOptions = options.map((opt) => opt.trim()).filter(Boolean);
     if (validOptions.length < 2) {
-      toast.error('Please provide at least 2 potential answers/venues to vote on.');
+      toast.error(t('askQ.needAnswers'));
       return;
     }
 
@@ -140,7 +142,7 @@ export function AskQuestionModal({
         })),
       };
 
-      toast.success('Question published! The community can now vote and add options.');
+      toast.success(t('askQ.published'));
 
       if (onQuestionCreated) {
         onQuestionCreated(formattedDiscovery);
@@ -151,7 +153,7 @@ export function AskQuestionModal({
       setOptions(['', '', '']);
     } catch (err: any) {
       console.error('Failed to submit question:', err);
-      toast.error(err.message || 'Failed to submit discovery question');
+      toast.error(err.message || t('askQ.fail'));
     } finally {
       setLoading(false);
     }
@@ -166,7 +168,7 @@ export function AskQuestionModal({
             className="rounded-xl border-purple-300 dark:border-purple-800/80 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-bold text-xs"
           >
             <HelpCircle className="w-3.5 h-3.5 mr-1.5 text-purple-600 dark:text-purple-400" />
-            Ask a Discovery Question
+            {t('askQ.trigger')}
           </Button>
         )}
       </DialogTrigger>
@@ -176,25 +178,25 @@ export function AskQuestionModal({
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-2 w-fit">
             <Sparkles className="w-3.5 h-3.5" />
             <span className="text-[10px] font-black uppercase tracking-widest">
-              Demand-to-Supply Engine
+              {t('askQ.badge')}
             </span>
           </div>
           <DialogTitle className="text-xl sm:text-2xl font-black text-white">
-            Ask the City a Question
+            {t('askQ.title')}
           </DialogTitle>
           <DialogDescription className="text-xs text-gray-400">
-            Pose a cultural question or seek a recommendation in any city. When the community votes and reaches the demand threshold, Promorang helps turn the winning answer into an official Moment with exclusive perks.
+            {t('askQ.copy')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-1.5">
             <Label htmlFor="question" className="text-xs font-bold text-gray-300">
-              Your Question
+              {t('askQ.question')}
             </Label>
             <Textarea
               id="question"
-              placeholder="e.g. Which hidden rooftop spot or cocktail bar in Kingston needs an exclusive Friday night pass?"
+              placeholder={t('askQ.questionPh')}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               className="bg-gray-900 border-gray-800 text-white placeholder-gray-500 text-xs rounded-xl min-h-[75px] focus:border-purple-500"
@@ -204,28 +206,28 @@ export function AskQuestionModal({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-gray-300">Category</Label>
+              <Label className="text-xs font-bold text-gray-300">{t('askQ.category')}</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="bg-gray-900 border-gray-800 text-white text-xs rounded-xl">
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder={t('askQ.category')} />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-900 border-gray-800 text-white text-xs">
-                  <SelectItem value="Market Intelligence">Market Intelligence</SelectItem>
-                  <SelectItem value="Nightlife & Dining">Nightlife & Dining</SelectItem>
-                  <SelectItem value="Music & Culture">Music & Culture</SelectItem>
-                  <SelectItem value="Wellness & Movement">Wellness & Movement</SelectItem>
-                  <SelectItem value="Hidden Gems">Hidden Gems</SelectItem>
+                  <SelectItem value="Market Intelligence">{t('askQ.catMarket')}</SelectItem>
+                  <SelectItem value="Nightlife & Dining">{t('askQ.catNight')}</SelectItem>
+                  <SelectItem value="Music & Culture">{t('askQ.catMusic')}</SelectItem>
+                  <SelectItem value="Wellness & Movement">{t('askQ.catWellness')}</SelectItem>
+                  <SelectItem value="Hidden Gems">{t('askQ.catGems')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-gray-300">City / Region</Label>
+              <Label className="text-xs font-bold text-gray-300">{t('askQ.city')}</Label>
               <div className="relative">
                 <MapPin className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="e.g. Kingston, Montego Bay, London"
+                  placeholder={t('askQ.cityPh')}
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   className="bg-gray-900 border-gray-800 text-white placeholder-gray-500 text-xs pl-8 rounded-xl focus:border-purple-500"
@@ -239,9 +241,9 @@ export function AskQuestionModal({
             <div className="flex items-center justify-between">
               <Label className="text-xs font-bold text-gray-300 flex items-center">
                 <ListPlus className="w-3.5 h-3.5 mr-1 text-purple-400" />
-                Starting Options (Min 2)
+                {t('askQ.options')}
               </Label>
-              <span className="text-[10px] text-gray-500">Community can add more later</span>
+              <span className="text-[10px] text-gray-500">{t('askQ.optionsHint')}</span>
             </div>
 
             <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
@@ -252,13 +254,7 @@ export function AskQuestionModal({
                   </span>
                   <Input
                     type="text"
-                    placeholder={`Option ${index + 1} (e.g. ${
-                      index === 0
-                        ? 'Tacbar at Devon House'
-                        : index === 1
-                        ? 'Chilitos JaMexican Courtyard'
-                        : 'AC Lounge Mixology'
-                    })`}
+                    placeholder={t('askQ.optionPh', { n: index + 1 })}
                     value={opt}
                     onChange={(e) => handleOptionChange(index, e.target.value)}
                     className="bg-gray-900 border-gray-800 text-white placeholder-gray-500 text-xs rounded-xl focus:border-purple-500"
@@ -283,7 +279,7 @@ export function AskQuestionModal({
                 className="text-[11px] font-bold text-purple-400 hover:text-purple-300 flex items-center pt-1"
               >
                 <Plus className="w-3.5 h-3.5 mr-1" />
-                Add Another Option
+                {t('askQ.addOption')}
               </button>
             )}
           </div>
@@ -295,14 +291,14 @@ export function AskQuestionModal({
               onClick={() => setOpen(false)}
               className="text-xs text-gray-400 hover:text-white"
             >
-              Cancel
+              {t('askQ.cancel')}
             </Button>
             <Button
               type="submit"
               disabled={loading}
               className="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-purple-600/20"
             >
-              {loading ? 'Publishing...' : 'Publish Question'}
+              {loading ? t('askQ.publishing') : t('askQ.publish')}
             </Button>
           </div>
         </form>

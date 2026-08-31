@@ -12,8 +12,10 @@ import {
   useUpdatePromoPushApplication,
   useUpdatePromoPushCreativeTask,
 } from "@/hooks/usePromoPush";
+import { useI18n } from "@/i18n/I18nContext";
 
 export function AdminPromoPushTab() {
+  const { t } = useI18n();
   const adminQuery = usePromoPushAdmin();
   const assignPromoter = useAssignPromoPushPromoter();
   const updateTask = useUpdatePromoPushCreativeTask();
@@ -39,7 +41,7 @@ export function AdminPromoPushTab() {
     return (
       <div className="flex min-h-64 items-center justify-center text-muted-foreground">
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-        Loading PromoPush operations
+        {t("ppOps.loading")}
       </div>
     );
   }
@@ -48,23 +50,23 @@ export function AdminPromoPushTab() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold">PromoPush Operations</h2>
+          <h2 className="text-2xl font-bold">{t("ppOps.title")}</h2>
           <p className="text-sm text-muted-foreground">
-            Assign street activation promoters, process workforce signups, and move creative support tasks through production.
+            {t("ppOps.copy")}
           </p>
         </div>
         <Button variant="outline" onClick={() => adminQuery.refetch()}>
           <Megaphone className="mr-2 h-4 w-4" />
-          Refresh
+          {t("ppOps.refresh")}
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
         {[
-          { label: "Campaigns", value: data?.campaigns?.length || 0 },
-          { label: "Applications", value: data?.applications?.length || 0 },
-          { label: "Creative Tasks", value: data?.creative_tasks?.length || 0 },
-          { label: "Assignments", value: data?.assignments?.length || 0 },
+          { label: t("ppOps.campaigns"), value: data?.campaigns?.length || 0 },
+          { label: t("ppOps.applications"), value: data?.applications?.length || 0 },
+          { label: t("ppOps.tasks"), value: data?.creative_tasks?.length || 0 },
+          { label: t("ppOps.assignments"), value: data?.assignments?.length || 0 },
         ].map((metric) => (
           <div key={metric.label} className="rounded-xl border border-border bg-card p-4">
             <p className="text-2xl font-black">{metric.value}</p>
@@ -78,17 +80,17 @@ export function AdminPromoPushTab() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <UserPlus className="h-5 w-5 text-primary" />
-              Assign Promoter
+              {t("ppOps.assign")}
             </CardTitle>
-            <CardDescription>Create a personal street activation channel and assignment.</CardDescription>
+            <CardDescription>{t("ppOps.assignCopy")}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={submitAssignment} className="space-y-4">
               <div>
-                <Label>Campaign</Label>
+                <Label>{t("ppOps.campaign")}</Label>
                 <Select value={assignment.campaign_id} onValueChange={(value) => setAssignment((current) => ({ ...current, campaign_id: value }))}>
                   <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="Select active campaign" />
+                    <SelectValue placeholder={t("ppOps.campaignPh")} />
                   </SelectTrigger>
                   <SelectContent>
                     {(data?.campaigns || []).map((campaign) => (
@@ -100,13 +102,13 @@ export function AdminPromoPushTab() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="promoter_id">Promoter user ID</Label>
+                <Label htmlFor="promoter_id">{t("ppOps.promoterId")}</Label>
                 <Input
                   id="promoter_id"
                   required
                   value={assignment.promoter_id}
                   onChange={(event) => setAssignment((current) => ({ ...current, promoter_id: event.target.value }))}
-                  placeholder="UUID from approved application or user profile"
+                  placeholder={t("ppOps.promoterPh")}
                   className="mt-2"
                 />
                 {approvedPromoters.length > 0 && (
@@ -118,25 +120,25 @@ export function AdminPromoPushTab() {
                         className="block text-left hover:text-primary"
                         onClick={() => setAssignment((current) => ({ ...current, promoter_id: application.user_id || "" }))}
                       >
-                        {application.name}: {application.user_id || "link user ID first"}
+                        {application.user_id ? `${application.name}: ${application.user_id}` : t("ppOps.linkFirst", { name: application.name })}
                       </button>
                     ))}
                   </div>
                 )}
               </div>
               <div>
-                <Label htmlFor="flyer_url">Flyer URL</Label>
+                <Label htmlFor="flyer_url">{t("ppOps.flyer")}</Label>
                 <Input
                   id="flyer_url"
                   value={assignment.flyer_url}
                   onChange={(event) => setAssignment((current) => ({ ...current, flyer_url: event.target.value }))}
-                  placeholder="Optional printable asset URL"
+                  placeholder={t("ppOps.flyerPh")}
                   className="mt-2"
                 />
               </div>
               <Button disabled={assignPromoter.isPending || !assignment.campaign_id || !assignment.promoter_id} className="w-full">
                 {assignPromoter.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <QrCode className="mr-2 h-4 w-4" />}
-                Create Assignment
+                {t("ppOps.createAssign")}
               </Button>
             </form>
           </CardContent>
@@ -144,12 +146,12 @@ export function AdminPromoPushTab() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Career Applications</CardTitle>
-            <CardDescription>Promoter, creator, and marketing applicants from public career pages.</CardDescription>
+            <CardTitle>{t("ppOps.careers")}</CardTitle>
+            <CardDescription>{t("ppOps.careersCopy")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {(data?.applications || []).length === 0 ? (
-              <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">No applications yet.</div>
+              <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">{t("ppOps.emptyApps")}</div>
             ) : (
               (data?.applications || []).map((application) => (
                 <div key={application.id} className="rounded-lg border border-border p-4">
@@ -158,7 +160,7 @@ export function AdminPromoPushTab() {
                       <p className="font-semibold">{application.name}</p>
                       <p className="text-xs uppercase tracking-[0.18em] text-primary">{application.applicant_role}</p>
                       <p className="mt-1 text-sm text-muted-foreground">{application.location} · {application.phone}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">{application.area_coverage || "No coverage listed"}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{application.area_coverage || t("ppOps.noCoverage")}</p>
                     </div>
                     <Select
                       value={application.status}
@@ -177,7 +179,7 @@ export function AdminPromoPushTab() {
                   <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
                     <Input
                       defaultValue={application.user_id || ""}
-                      placeholder="Attach user UUID"
+                      placeholder={t("ppOps.attachUuid")}
                       onBlur={(event) => {
                         if (event.target.value !== (application.user_id || "")) {
                           updateApplication.mutate({ id: application.id, user_id: event.target.value });
@@ -186,7 +188,7 @@ export function AdminPromoPushTab() {
                     />
                     <Button type="button" variant="outline" onClick={() => navigator.clipboard.writeText(application.id)}>
                       <Copy className="mr-2 h-4 w-4" />
-                      ID
+                      {t("ppOps.id")}
                     </Button>
                   </div>
                 </div>
@@ -200,18 +202,18 @@ export function AdminPromoPushTab() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Palette className="h-5 w-5 text-primary" />
-            Creative Support Queue
+            {t("ppOps.creative")}
           </CardTitle>
-          <CardDescription>Flyer design, QR layout, and ad creative tasks generated from campaign creation.</CardDescription>
+          <CardDescription>{t("ppOps.creativeCopy")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {(data?.creative_tasks || []).length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">No creative support tasks yet.</div>
+            <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">{t("ppOps.emptyTasks")}</div>
           ) : (
             (data?.creative_tasks || []).map((task) => (
               <div key={task.id} className="grid gap-3 rounded-lg border border-border p-4 lg:grid-cols-[1fr_160px_1fr_1fr]">
                 <div>
-                  <p className="font-semibold">{task.campaign?.title || "Campaign"}</p>
+                  <p className="font-semibold">{task.campaign?.title || t("ppOps.campaignFb")}</p>
                   <p className="text-xs uppercase tracking-[0.18em] text-primary">{task.task_type.replace(/_/g, " ")}</p>
                 </div>
                 <Select value={task.status} onValueChange={(status) => updateTask.mutate({ id: task.id, status })}>
@@ -226,7 +228,7 @@ export function AdminPromoPushTab() {
                 </Select>
                 <Input
                   defaultValue={task.asset_url || ""}
-                  placeholder="Asset URL"
+                  placeholder={t("ppOps.assetPh")}
                   onBlur={(event) => {
                     if (event.target.value !== (task.asset_url || "")) {
                       updateTask.mutate({ id: task.id, asset_url: event.target.value });
@@ -235,7 +237,7 @@ export function AdminPromoPushTab() {
                 />
                 <Textarea
                   defaultValue={task.notes || ""}
-                  placeholder="Notes"
+                  placeholder={t("ppOps.notesPh")}
                   className="min-h-10"
                   onBlur={(event) => {
                     if (event.target.value !== (task.notes || "")) {
@@ -251,23 +253,23 @@ export function AdminPromoPushTab() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Street Assignments</CardTitle>
-          <CardDescription>Personal channels and flyer links assigned to promoters.</CardDescription>
+          <CardTitle>{t("ppOps.street")}</CardTitle>
+          <CardDescription>{t("ppOps.streetCopy")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {(data?.assignments || []).length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">No promoter assignments yet.</div>
+            <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">{t("ppOps.emptyAssign")}</div>
           ) : (
             (data?.assignments || []).map((assignment) => (
               <div key={assignment.id} className="grid gap-3 rounded-lg border border-border p-4 md:grid-cols-[1fr_1fr_auto] md:items-center">
                 <div>
-                  <p className="font-semibold">{assignment.campaign?.title || "Campaign"}</p>
-                  <p className="text-sm text-muted-foreground">Promoter: {assignment.promoter_id}</p>
+                  <p className="font-semibold">{assignment.campaign?.title || t("ppOps.campaignFb")}</p>
+                  <p className="text-sm text-muted-foreground">{t("ppOps.promoterLbl", { id: assignment.promoter_id })}</p>
                 </div>
-                <p className="break-all text-sm text-muted-foreground">{assignment.channel?.tracking_link || "No channel link"}</p>
+                <p className="break-all text-sm text-muted-foreground">{assignment.channel?.tracking_link || t("ppOps.noLink")}</p>
                 <Button type="button" variant="outline" onClick={() => navigator.clipboard.writeText(assignment.channel?.tracking_link || "")}>
                   <Copy className="mr-2 h-4 w-4" />
-                  Copy
+                  {t("ppOps.copy")}
                 </Button>
               </div>
             ))

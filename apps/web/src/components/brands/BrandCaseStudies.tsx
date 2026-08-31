@@ -1,16 +1,17 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, TrendingUp, Users, Receipt, Camera, Trophy, Sparkles, Building2, Flame } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 export interface CaseStudy {
   id: string;
   client: string;
-  category: string;
-  badge: string;
-  title: string;
-  challenge: string;
-  solution: string;
-  metrics: Array<{ label: string; value: string; hint?: string }>;
+  badgeKey: TranslationKey;
+  titleKey: TranslationKey;
+  challengeKey: TranslationKey;
+  solutionKey: TranslationKey;
+  metrics: Array<{ labelKey: TranslationKey; value: string }>;
   icon: typeof Receipt;
   accentColor: string;
   glowColor: string;
@@ -20,15 +21,14 @@ export const CASE_STUDIES: CaseStudy[] = [
   {
     id: "fmcg-retail",
     client: "Lifespan Spring Water & Sunshine Snacks",
-    category: "Enterprise Retail Promotion",
-    badge: "FMCG / Retail Capture",
-    title: "Automated Supermarket Receipt Capture & Sweepstakes Engine",
-    challenge: "Traditional paper-entry and agency sweepstakes suffered from high friction, delayed validation, and zero attributable first-party consumer data.",
-    solution: "Deployed Promorang's automated receipt verification engine. Shoppers scanned retail receipts for instant verified entries, automated random winner draws, and live email/SMS winner notifications.",
+    badgeKey: "brandCases.s1Badge",
+    titleKey: "brandCases.s1Title",
+    challengeKey: "brandCases.s1Challenge",
+    solutionKey: "brandCases.s1Solution",
     metrics: [
-      { label: "Verification Speed", value: "< 5s", hint: "Automated OCR capture" },
-      { label: "Winner Selection", value: "100%", hint: "Compliant & auditable" },
-      { label: "First-Party Data", value: "Verified", hint: "Direct customer leads" },
+      { labelKey: "brandCases.s1m1", value: "< 5s" },
+      { labelKey: "brandCases.s1m2", value: "100%" },
+      { labelKey: "brandCases.s1m3", value: "Verified" },
     ],
     icon: Receipt,
     accentColor: "from-blue-500/20 to-cyan-500/20 border-cyan-500/30",
@@ -37,15 +37,14 @@ export const CASE_STUDIES: CaseStudy[] = [
   {
     id: "ladies-expo",
     client: "Ladies Expo Jamaica",
-    category: "Live Event & Expo Activation",
-    badge: "Live Expo Growth",
-    title: "Selfie & Win: 800+ On-the-Ground Verified Signups in 48 Hours",
-    challenge: "High-traffic expo booth needed an engaging, viral mechanism to convert passing footfall into active, authenticated platform users.",
-    solution: "Launched the 'Engage' Selfie Activation with a $500 cash draw. Attendees snapped a branded selfie, registered their profile, and immediately received digital entry receipts.",
+    badgeKey: "brandCases.s2Badge",
+    titleKey: "brandCases.s2Title",
+    challengeKey: "brandCases.s2Challenge",
+    solutionKey: "brandCases.s2Solution",
     metrics: [
-      { label: "New Signups", value: "800+", hint: "Single weekend activation" },
-      { label: "Photo Submissions", value: "800+", hint: "Authentic UGC captured" },
-      { label: "Cost Per Lead", value: "Near-Zero", hint: "Driven by cash hook" },
+      { labelKey: "brandCases.s2m1", value: "800+" },
+      { labelKey: "brandCases.s2m2", value: "800+" },
+      { labelKey: "brandCases.s2m3", value: "Near-Zero" },
     ],
     icon: Camera,
     accentColor: "from-pink-500/20 to-rose-500/20 border-rose-500/30",
@@ -54,15 +53,14 @@ export const CASE_STUDIES: CaseStudy[] = [
   {
     id: "venue-revival",
     client: "I Luv Hip Hop & Encore Throwback Series",
-    category: "Nightlife & Venue Optimization",
-    badge: "Dead-Night Revival",
-    title: "Filling Empty Venues: Scaling Footfall from 0 to 230+ In-Person Guests",
-    challenge: "Partner venues suffered from slow, unprofitable weeknights with near-zero baseline foot traffic and high overhead.",
-    solution: "Curated exclusive, high-energy cultural rituals (Kingston's only dedicated Hip Hop & 2000s throwback scenes) paired with digital guestlist passes and PromoShare crew incentives.",
+    badgeKey: "brandCases.s3Badge",
+    titleKey: "brandCases.s3Title",
+    challengeKey: "brandCases.s3Challenge",
+    solutionKey: "brandCases.s3Solution",
     metrics: [
-      { label: "Footfall Growth", value: "0 ➔ 230+", hint: "Average per event night" },
-      { label: "Bar & Food Spend", value: "+340%", hint: "Direct venue revenue" },
-      { label: "Community Retention", value: "Repeat", hint: "Bi-weekly loyal crowd" },
+      { labelKey: "brandCases.s3m1", value: "0 ➔ 230+" },
+      { labelKey: "brandCases.s3m2", value: "+340%" },
+      { labelKey: "brandCases.s3m3", value: "Repeat" },
     ],
     icon: Flame,
     accentColor: "from-amber-500/20 to-orange-500/20 border-amber-500/30",
@@ -71,6 +69,7 @@ export const CASE_STUDIES: CaseStudy[] = [
 ];
 
 export function BrandCaseStudies() {
+  const { t } = useI18n();
   return (
     <section className="py-20 bg-charcoal text-white relative overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
@@ -80,14 +79,14 @@ export function BrandCaseStudies() {
         <div className="max-w-3xl mx-auto text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/20 text-primary mb-4 border border-primary/30">
             <Trophy className="w-4 h-4" />
-            <span className="text-xs font-bold uppercase tracking-wider">Proven Commercial Track Record</span>
+            <span className="text-xs font-bold uppercase tracking-wider">{t("brandCases.badge")}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-white mb-4">
-            Tested on the ground. <br />
-            <span className="text-gradient-primary">Proven with real brands & crowds.</span>
+            {t("brandCases.title1")} <br />
+            <span className="text-gradient-primary">{t("brandCases.title2")}</span>
           </h2>
           <p className="text-zinc-300 text-base sm:text-lg">
-            From household FMCG brands to high-energy cultural nightlife, Promorang turns passive promotions into verified human movement.
+            {t("brandCases.copy")}
           </p>
         </div>
 
@@ -108,7 +107,7 @@ export function BrandCaseStudies() {
                 <div>
                   <div className="flex items-center justify-between gap-3 mb-6">
                     <Badge variant="outline" className="border-white/20 bg-white/10 text-white font-medium text-xs">
-                      {study.badge}
+                      {t(study.badgeKey)}
                     </Badge>
                     <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-primary">
                       <Icon className="w-5 h-5" />
@@ -116,11 +115,11 @@ export function BrandCaseStudies() {
                   </div>
 
                   <p className="text-xs font-bold uppercase tracking-widest text-primary mb-1">{study.client}</p>
-                  <h3 className="text-xl font-black tracking-tight text-white mb-4 leading-snug">{study.title}</h3>
+                  <h3 className="text-xl font-black tracking-tight text-white mb-4 leading-snug">{t(study.titleKey)}</h3>
                   
                   <div className="space-y-3 mb-8 text-sm text-zinc-300">
-                    <p className="leading-relaxed"><strong className="text-white">Challenge:</strong> {study.challenge}</p>
-                    <p className="leading-relaxed"><strong className="text-white">Execution:</strong> {study.solution}</p>
+                    <p className="leading-relaxed"><strong className="text-white">{t("brandCases.challenge")}</strong> {t(study.challengeKey)}</p>
+                    <p className="leading-relaxed"><strong className="text-white">{t("brandCases.execution")}</strong> {t(study.solutionKey)}</p>
                   </div>
                 </div>
 
@@ -129,7 +128,7 @@ export function BrandCaseStudies() {
                     {study.metrics.map((m, idx) => (
                       <div key={idx} className="bg-black/30 rounded-xl p-2.5">
                         <p className="text-lg font-black text-white">{m.value}</p>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mt-0.5">{m.label}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mt-0.5">{t(m.labelKey)}</p>
                       </div>
                     ))}
                   </div>

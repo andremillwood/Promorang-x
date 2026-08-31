@@ -52,10 +52,10 @@ import { useI18n } from "@/i18n/I18nContext";
 
 const discoveryCategories = ["Music", "Food", "Nightlife", "Fitness", "Arts", "Fashion", "Wellness", "Community"];
 const preferredTimes = ["Weekday mornings", "Weekday evenings", "Friday nights", "Weekends"];
-const guidanceDensityOptions: Array<{ value: GuidanceDensity; label: string; description: string }> = [
-  { value: "guided", label: "Guided", description: "Open guides the first time you visit a feature." },
-  { value: "compact", label: "Compact", description: "Collapse guides by default, with short context visible." },
-  { value: "minimal", label: "Minimal", description: "Keep guidance behind a small guide button." },
+const guidanceDensityOptions: Array<{ value: GuidanceDensity; labelKey: "settings.guided" | "settings.compact" | "settings.minimal"; copyKey: "settings.guidedCopy" | "settings.compactCopy" | "settings.minimalCopy" }> = [
+  { value: "guided", labelKey: "settings.guided", copyKey: "settings.guidedCopy" },
+  { value: "compact", labelKey: "settings.compact", copyKey: "settings.compactCopy" },
+  { value: "minimal", labelKey: "settings.minimal", copyKey: "settings.minimalCopy" },
 ];
 
 const profileSchema = z.object({
@@ -242,7 +242,12 @@ const Settings = () => {
         const newErrors: Record<string, string> = {};
         error.errors.forEach((err) => {
           if (err.path[0]) {
-            newErrors[err.path[0] as string] = err.message;
+            const field = err.path[0] as string;
+            newErrors[field] = field === "fullName"
+              ? t("settings.errorName")
+              : field === "bio"
+                ? t("settings.errorBio")
+                : t("settings.errorLocation");
           }
         });
         setErrors(newErrors);
@@ -269,7 +274,7 @@ const Settings = () => {
 
       if (error) {
         toast({
-          title: "Photo uploaded, but not saved",
+          title: t("settings.photoNotSaved"),
           description: error.message,
           variant: "destructive",
         });
@@ -278,8 +283,8 @@ const Settings = () => {
 
       setAvatarUrl(url);
       toast({
-        title: "Avatar updated! 📸",
-        description: "Your profile photo has been saved.",
+        title: t("settings.avatarUpdated"),
+        description: t("settings.avatarSaved"),
       });
     }
   };
@@ -581,7 +586,7 @@ const Settings = () => {
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">{t("settings.standing")}</p>
                 <h2 className="mt-3 text-3xl font-black">{t("settings.statusTitle")}</h2>
                 <p className="mt-4 max-w-xl text-sm leading-6 text-white/50">{t("settings.statusCopy")}</p>
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">{[["Explorer", "Current level"], ["Contributor", "Next unlock"], ["Host", "Mastery path"]].map(([title, copy], index) => <div key={title} className={`rounded-lg border p-4 ${index === 0 ? "border-orange-500/50 bg-orange-500/10" : "border-white/10 bg-black/30"}`}><p className="text-xs text-white/35">0{index + 1}</p><p className="mt-5 font-bold">{title}</p><p className="mt-1 text-xs text-white/40">{copy}</p></div>)}</div>
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">{([["settings.rankExplorer", "settings.rankExplorerCopy"], ["settings.rankContributor", "settings.rankContributorCopy"], ["settings.rankHost", "settings.rankHostCopy"]] as const).map(([titleKey, copyKey], index) => <div key={titleKey} className={`rounded-lg border p-4 ${index === 0 ? "border-orange-500/50 bg-orange-500/10" : "border-white/10 bg-black/30"}`}><p className="text-xs text-white/35">0{index + 1}</p><p className="mt-5 font-bold">{t(titleKey)}</p><p className="mt-1 text-xs text-white/40">{t(copyKey)}</p></div>)}</div>
               </div>
               <div className="rounded-lg border border-white/10 bg-[#111] p-6"><LockKeyhole className="h-6 w-6 text-orange-400" /><h3 className="mt-6 text-xl font-black">{t("settings.proofVisibility")}</h3><p className="mt-3 text-sm leading-6 text-white/45">{t("settings.proofVisibilityCopy")}</p><Button asChild variant="outline" className="mt-7 w-full border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white"><Link to="/profile">{t("settings.viewProfile")}</Link></Button></div>
             </div>
@@ -606,7 +611,7 @@ const Settings = () => {
                       id="payoutInfo"
                       value={payoutInfo}
                       onChange={(e) => setPayoutInfo(e.target.value)}
-                      placeholder="Examples:&#10;Zelle: myemail@gmail.com&#10;PayPal: @myhandle&#10;Bank: Routing X, Account Y"
+                      placeholder={t("settings.payoutPlaceholder")}
                       rows={6}
                       className="font-mono text-sm"
                     />
@@ -637,7 +642,7 @@ const Settings = () => {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="font-bold text-foreground">Phone & Lock Screen Notifications</h2>
+                        <h2 className="font-bold text-foreground">{t("settings.pushTitle")}</h2>
                         <span
                           className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
                             pushState.isSubscribed
@@ -645,11 +650,11 @@ const Settings = () => {
                               : "bg-white/10 text-white/50"
                           }`}
                         >
-                          {pushState.isSubscribed ? "Active on this device" : "Disabled"}
+                          {pushState.isSubscribed ? t("settings.pushActive") : t("settings.pushDisabled")}
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        Receive real-time alerts for RSVP countdowns, Moment start times, and Gem payouts.
+                        {t("settings.pushCopy")}
                       </p>
                     </div>
                   </div>
@@ -663,7 +668,7 @@ const Settings = () => {
 
                 {pushState.isSubscribed && (
                   <div className="mt-4 pt-4 border-t border-border/60 flex items-center justify-between">
-                    <p className="text-xs text-muted-foreground">Verify your phone lock screen delivery:</p>
+                    <p className="text-xs text-muted-foreground">{t("settings.pushVerify")}</p>
                     <Button
                       size="sm"
                       variant="outline"
@@ -671,7 +676,7 @@ const Settings = () => {
                       className="rounded-xl text-xs font-bold gap-1.5 border-primary/40 hover:bg-primary/10 text-primary"
                     >
                       <Send className="w-3.5 h-3.5" />
-                      Send Test Alert
+                      {t("settings.sendTest")}
                     </Button>
                   </div>
                 )}
@@ -769,8 +774,8 @@ const Settings = () => {
                         className={`rounded-xl border p-4 text-left transition ${active ? "border-primary bg-primary/10 text-foreground" : "border-border bg-background text-muted-foreground hover:border-primary/40"}`}
                         aria-pressed={active}
                       >
-                        <span className="text-sm font-bold">{option.label}</span>
-                        <span className="mt-2 block text-xs leading-5">{option.description}</span>
+                        <span className="text-sm font-bold">{t(option.labelKey)}</span>
+                        <span className="mt-2 block text-xs leading-5">{t(option.copyKey)}</span>
                       </button>
                     );
                   })}
