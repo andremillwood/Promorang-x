@@ -199,6 +199,10 @@ describe("localization", () => {
       "opsWeek.rhythmTitle",
       "opsWeek.partCta",
       "opsWeek.advCta",
+      "merchOps.liveOps",
+      "merchOps.validate",
+      "merchOps.fulfill",
+      "merchOps.confirmMoney",
     ] as const;
 
     supportedLocales.forEach((locale) => {
