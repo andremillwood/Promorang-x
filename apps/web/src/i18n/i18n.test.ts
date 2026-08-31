@@ -262,6 +262,12 @@ describe("localization", () => {
       "creBounty.claim",
       "creEarn.withdraw",
       "creRep.title",
+      "earnTab.title",
+      "earnTab.settings",
+      "cultDesk.enter",
+      "cultDesk.recTitle",
+      "brandStage.launch",
+      "brandStage.flight",
     ] as const;
 
     supportedLocales.forEach((locale) => {

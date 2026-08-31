@@ -29,23 +29,18 @@ import { useI18n } from "@/i18n/I18nContext";
 import { ShareButton } from "@/components/ShareButton";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
-
-const getOpsTheatreStage = () => {
-  const day = new Date().getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-  const schedule = [
-    { day: "Sunday", phase: "Digest & Vault Teasers", tag: "Weekly Reflection", icon: Sparkles, color: "text-purple-400 bg-purple-500/10 border-purple-500/30" },
-    { day: "Monday", phase: "Radar & Missions Drop", tag: "New Moments Live", icon: Zap, color: "text-amber-400 bg-amber-500/10 border-amber-500/30" },
-    { day: "Tuesday", phase: "Verification & Leaderboards", tag: "Proof Credited", icon: Trophy, color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30" },
-    { day: "Wednesday", phase: "Mid-Week Freeze", tag: "Odds & Polls Locked", icon: Flame, color: "text-blue-400 bg-blue-500/10 border-blue-500/30" },
-    { day: "Thursday", phase: "Campaign Window Launch", tag: "Sub-Moments Open", icon: Sparkles, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" },
-    { day: "Friday", phase: "Gem Payouts & Proof Showcase", tag: "Escrows Disbursed", icon: Gem, color: "text-primary bg-primary/10 border-primary/30" },
-    { day: "Saturday", phase: "Live Moments & Piece Drops", tag: "Real-World Execution", icon: Ticket, color: "text-amber-400 bg-amber-500/10 border-amber-500/30" },
-  ];
-  return schedule[day];
-};
+const WEEKLY_STAGE = [
+  { dayKey: "opsWeek.sun.day", phaseKey: "cultDesk.phase.sun", tagKey: "cultDesk.tag.sun", icon: Sparkles, color: "text-purple-400 bg-purple-500/10 border-purple-500/30" },
+  { dayKey: "opsWeek.mon.day", phaseKey: "cultDesk.phase.mon", tagKey: "cultDesk.tag.mon", icon: Zap, color: "text-amber-400 bg-amber-500/10 border-amber-500/30" },
+  { dayKey: "opsWeek.tue.day", phaseKey: "cultDesk.phase.tue", tagKey: "cultDesk.tag.tue", icon: Trophy, color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30" },
+  { dayKey: "opsWeek.wed.day", phaseKey: "cultDesk.phase.wed", tagKey: "cultDesk.tag.wed", icon: Flame, color: "text-blue-400 bg-blue-500/10 border-blue-500/30" },
+  { dayKey: "opsWeek.thu.day", phaseKey: "cultDesk.phase.thu", tagKey: "cultDesk.tag.thu", icon: Sparkles, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" },
+  { dayKey: "opsWeek.fri.day", phaseKey: "cultDesk.phase.fri", tagKey: "cultDesk.tag.fri", icon: Gem, color: "text-primary bg-primary/10 border-primary/30" },
+  { dayKey: "opsWeek.sat.day", phaseKey: "cultDesk.phase.sat", tagKey: "cultDesk.tag.sat", icon: Ticket, color: "text-amber-400 bg-amber-500/10 border-amber-500/30" },
+] as const;
 
 export function CulturalCommandHome() {
-  const { t } = useI18n();
+  const { t, formatNumber } = useI18n();
   const { user } = useAuth();
   const { data: balance } = useUserBalance();
   const { data: stats } = useParticipantStats();
@@ -53,8 +48,8 @@ export function CulturalCommandHome() {
   const { data: hostedMoments = [] } = useHostedMoments();
   const [showDailyRewards, setShowDailyRewards] = useState(false);
 
-  const firstName = user?.user_metadata?.full_name?.split(" ")[0] || "Explorer";
-  const opsStage = useMemo(() => getOpsTheatreStage(), []);
+  const firstName = user?.user_metadata?.full_name?.split(" ")[0] || t("cultDesk.explorer");
+  const opsStage = WEEKLY_STAGE[new Date().getDay()];
 
   // Prioritize joined upcoming moment or top curated moment
   const upcomingMoment = useMemo(() => {
@@ -70,20 +65,20 @@ export function CulturalCommandHome() {
       location: curated.location,
       starts_at: new Date().toISOString(),
       image_url: curated.image,
-      reward: `${curated.pointsReward} Points`,
-      category: "Featured Stage",
+      reward: t("cultDesk.points", { count: curated.pointsReward }),
+      category: t("cultDesk.featured"),
     };
-  }, [joinedMoments]);
+  }, [joinedMoments, t]);
 
   const curatedMoments = useMemo(() => {
     return CURATED_KINGSTON_MOMENTS.slice(1, 4);
   }, []);
 
   const metricCards = [
-    { label: "Showed Up", value: stats?.checkedIn || 0, detail: "Moments attended", icon: Check, href: "/profile" },
-    { label: "Gems Kept", value: balance?.gems || 0, detail: "Available balance", icon: Gem, href: "/wallet" },
-    { label: "Access Keys", value: balance?.promokeys || 0, detail: "Invitations & passes", icon: KeyRound, href: "/wallet" },
-    { label: "PromoPoints", value: balance?.points || 0, detail: "Community score", icon: Sparkles, href: "/rewards" },
+    { label: t("cultDesk.metricShowed"), value: stats?.checkedIn || 0, detail: t("cultDesk.metricShowedHint"), icon: Check, href: "/profile" },
+    { label: t("cultDesk.metricGems"), value: balance?.gems || 0, detail: t("cultDesk.metricGemsHint"), icon: Gem, href: "/wallet" },
+    { label: t("cultDesk.metricKeys"), value: balance?.promokeys || 0, detail: t("cultDesk.metricKeysHint"), icon: KeyRound, href: "/wallet" },
+    { label: t("cultDesk.metricPts"), value: balance?.points || 0, detail: t("cultDesk.metricPtsHint"), icon: Sparkles, href: "/rewards" },
   ];
 
   return (
@@ -97,16 +92,15 @@ export function CulturalCommandHome() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">
-                Welcome back, {firstName}
+                {t("commandHome.welcome", { name: firstName })}
               </h1>
-              {/* Ops Theatre Showbeat Badge */}
               <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[10px] font-black uppercase tracking-wider ${opsStage.color}`}>
                 <opsStage.icon className="h-3 w-3" />
-                <span>{opsStage.day}: {opsStage.phase}</span>
+                <span>{t(opsStage.dayKey)}: {t(opsStage.phaseKey)}</span>
               </span>
             </div>
             <p className="text-xs text-white/60 mt-0.5">
-              Ops Theatre Stage • Synchronized weekly community momentum
+              {t("cultDesk.opsHint")}
             </p>
           </div>
         </div>
@@ -119,7 +113,7 @@ export function CulturalCommandHome() {
           >
             <Gem className="h-4 w-4 text-primary" />
             <span className="text-sm font-black text-white">{balance?.gems || 0}</span>
-            <span className="text-[10px] text-white/50 font-bold uppercase">Gems</span>
+            <span className="text-[10px] text-white/50 font-bold uppercase">{t("cultDesk.gems")}</span>
           </Link>
 
           <Link
@@ -128,7 +122,7 @@ export function CulturalCommandHome() {
           >
             <KeyRound className="h-4 w-4 text-amber-400" />
             <span className="text-sm font-black text-white">{balance?.promokeys || 0}</span>
-            <span className="text-[10px] text-white/50 font-bold uppercase">Keys</span>
+            <span className="text-[10px] text-white/50 font-bold uppercase">{t("cultDesk.keys")}</span>
           </Link>
         </div>
       </div>
@@ -138,14 +132,14 @@ export function CulturalCommandHome() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded-full bg-primary text-black font-black text-[10px] uppercase tracking-wider">
-              Level 1 Explorer
+              {t("cultDesk.level1")}
             </span>
             <span className="font-bold text-white text-xs sm:text-sm">
-              Your Path to Level 2 Scout Status
+              {t("cultDesk.pathTitle")}
             </span>
           </div>
           <span className="text-[11px] text-white/50 font-medium">
-            Notice &rarr; Move &rarr; Prove &rarr; Unlock
+            {t("cultDesk.pathSteps")}
           </span>
         </div>
 
@@ -158,8 +152,8 @@ export function CulturalCommandHome() {
             <div className="flex items-center gap-2">
               <span className="h-5 w-5 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-[10px]">1</span>
               <div>
-                <p className="font-bold text-white text-[11px]">Cast 1st Poll Vote</p>
-                <p className="text-[10px] text-emerald-400 font-semibold">+50 Points</p>
+                <p className="font-bold text-white text-[11px]">{t("cultDesk.step1")}</p>
+                <p className="text-[10px] text-emerald-400 font-semibold">{t("cultDesk.step1Pts")}</p>
               </div>
             </div>
             <ChevronRight className="h-3.5 w-3.5 text-white/30 group-hover:text-primary transition" />
@@ -172,8 +166,8 @@ export function CulturalCommandHome() {
             <div className="flex items-center gap-2">
               <span className="h-5 w-5 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-[10px]">2</span>
               <div>
-                <p className="font-bold text-white text-[11px]">Start a Mission</p>
-                <p className="text-[10px] text-amber-300 font-semibold">+100 Points & Proof</p>
+                <p className="font-bold text-white text-[11px]">{t("cultDesk.step2")}</p>
+                <p className="text-[10px] text-amber-300 font-semibold">{t("cultDesk.step2Pts")}</p>
               </div>
             </div>
             <ChevronRight className="h-3.5 w-3.5 text-white/30 group-hover:text-amber-400 transition" />
@@ -186,8 +180,8 @@ export function CulturalCommandHome() {
             <div className="flex items-center gap-2">
               <span className="h-5 w-5 rounded-full bg-cyan-400/20 text-cyan-400 flex items-center justify-center font-bold text-[10px]">3</span>
               <div>
-                <p className="font-bold text-white text-[11px]">RSVP to Tonight's Pass</p>
-                <p className="text-[10px] text-cyan-300 font-semibold">+1 PromoKey</p>
+                <p className="font-bold text-white text-[11px]">{t("cultDesk.step3")}</p>
+                <p className="text-[10px] text-cyan-300 font-semibold">{t("cultDesk.step3Pts")}</p>
               </div>
             </div>
             <ChevronRight className="h-3.5 w-3.5 text-white/30 group-hover:text-cyan-400 transition" />
@@ -207,15 +201,15 @@ export function CulturalCommandHome() {
               <Ticket className="h-5 w-5" />
             </div>
             <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold text-[10px]">
-              Live
+              {t("cultDesk.arenaLive")}
             </span>
           </div>
           <div>
             <h3 className="font-bold text-sm text-white group-hover:text-primary transition">
-              Live Moments & Passes
+              {t("cultDesk.arena1")}
             </h3>
             <p className="text-xs text-white/50 mt-0.5">
-              Active stages, food pop-ups & door QR check-ins.
+              {t("cultDesk.arena1Desc")}
             </p>
           </div>
         </Link>
@@ -230,15 +224,15 @@ export function CulturalCommandHome() {
               <HelpCircle className="h-5 w-5" />
             </div>
             <span className="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400 font-bold text-[10px]">
-              Vote
+              {t("cultDesk.arenaVote")}
             </span>
           </div>
           <div>
             <h3 className="font-bold text-sm text-white group-hover:text-amber-400 transition">
-              Polls & City Drops
+              {t("cultDesk.arena2")}
             </h3>
             <p className="text-xs text-white/50 mt-0.5">
-              Vote on city polls & unlock secret drops.
+              {t("cultDesk.arena2Desc")}
             </p>
           </div>
         </Link>
@@ -253,15 +247,15 @@ export function CulturalCommandHome() {
               <Target className="h-5 w-5" />
             </div>
             <span className="px-2 py-0.5 rounded-full bg-cyan-400/20 text-cyan-400 font-bold text-[10px]">
-              Bounties
+              {t("cultDesk.arenaBounties")}
             </span>
           </div>
           <div>
             <h3 className="font-bold text-sm text-white group-hover:text-cyan-400 transition">
-              Missions & Proof
+              {t("cultDesk.arena3")}
             </h3>
             <p className="text-xs text-white/50 mt-0.5">
-              Clip, check-in, and referral challenge tasks.
+              {t("cultDesk.arena3Desc")}
             </p>
           </div>
         </Link>
@@ -276,15 +270,15 @@ export function CulturalCommandHome() {
               <Gem className="h-5 w-5" />
             </div>
             <span className="px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-400 font-bold text-[10px]">
-              Earnings
+              {t("cultDesk.arenaEarn")}
             </span>
           </div>
           <div>
             <h3 className="font-bold text-sm text-white group-hover:text-emerald-400 transition">
-              PromoShare & Vault
+              {t("cultDesk.arena4")}
             </h3>
             <p className="text-xs text-white/50 mt-0.5">
-              Cash payouts, Gem commissions & retained Pieces.
+              {t("cultDesk.arena4Desc")}
             </p>
           </div>
         </Link>
@@ -312,7 +306,7 @@ export function CulturalCommandHome() {
           <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between space-y-6">
             <div className="space-y-2">
               <p className="text-[11px] font-bold uppercase tracking-widest text-primary">
-                Tonight's Stage & Sub-Moments
+                {t("cultDesk.tonight")}
               </p>
               <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">
                 {upcomingMoment.title}
@@ -329,11 +323,11 @@ export function CulturalCommandHome() {
               </div>
               <div className="flex items-center gap-1.5">
                 <Calendar className="h-4 w-4 text-amber-400 shrink-0" />
-                <span>Starts Tonight</span>
+                <span>{t("cultDesk.startsTonight")}</span>
               </div>
               {upcomingMoment.reward && (
                 <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[11px]">
-                  <span>Earn {upcomingMoment.reward}</span>
+                  <span>{t("cultDesk.earnReward", { reward: upcomingMoment.reward })}</span>
                 </div>
               )}
             </div>
@@ -345,14 +339,14 @@ export function CulturalCommandHome() {
                 className="h-12 px-6 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-sm shadow-[0_0_20px_rgba(255,106,0,0.35)]"
               >
                 <Link to={`/moments/${upcomingMoment.id}`}>
-                  <span>Enter Stage & RSVP</span>
+                  <span>{t("cultDesk.enter")}</span>
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
               </Button>
               <ShareButton
                 title={upcomingMoment.title}
                 url={`https://www.promorang.co/moments/${upcomingMoment.id}`}
-                description="Join me at this moment on Promorang"
+                description={t("cultDesk.shareDesc")}
                 className="h-12 px-5 rounded-2xl border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs"
               />
             </div>
@@ -364,10 +358,10 @@ export function CulturalCommandHome() {
       <div className="p-6 rounded-3xl border border-white/10 bg-black/40 backdrop-blur-md space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-[10px] font-black uppercase tracking-widest text-white/50">
-            My Cultural Canon & Value Summary
+            {t("cultDesk.canon")}
           </p>
           <Link to="/wallet" className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
-            <span>Open The Vault</span>
+            <span>{t("cultDesk.openVault")}</span>
             <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -388,7 +382,7 @@ export function CulturalCommandHome() {
                   <ChevronRight className="h-3.5 w-3.5 text-white/20 group-hover:text-white/60 transition" />
                 </div>
                 <div>
-                  <p className="text-2xl font-black text-white">{card.value.toLocaleString()}</p>
+                  <p className="text-2xl font-black text-white">{formatNumber(card.value)}</p>
                   <p className="text-xs font-bold text-white/70">{card.label}</p>
                 </div>
               </Link>
@@ -401,8 +395,8 @@ export function CulturalCommandHome() {
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-black text-white">Recommended Tonight</h2>
-            <p className="text-xs text-white/50">Curated stages and pop-ups in your area</p>
+            <h2 className="text-lg font-black text-white">{t("cultDesk.recTitle")}</h2>
+            <p className="text-xs text-white/50">{t("cultDesk.recSub")}</p>
           </div>
           <Button
             asChild
@@ -411,7 +405,7 @@ export function CulturalCommandHome() {
             className="text-xs font-bold text-primary hover:text-primary/80"
           >
             <Link to="/discover">
-              <span>View All</span>
+              <span>{t("cultDesk.viewAll")}</span>
               <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Link>
           </Button>
@@ -433,7 +427,7 @@ export function CulturalCommandHome() {
 
               <div className="relative z-10 flex items-center justify-between">
                 <span className="px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-bold text-white">
-                  {moment.intentType === "ATTEND" ? "Music & Stage" : "Food & Drink"}
+                  {moment.intentType === "ATTEND" ? t("cultDesk.music") : t("cultDesk.food")}
                 </span>
                 <span className="h-7 w-7 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white group-hover:bg-primary group-hover:text-black transition">
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -450,7 +444,7 @@ export function CulturalCommandHome() {
                 </p>
                 <div className="pt-2">
                   <span className="text-[11px] font-extrabold text-emerald-400">
-                    Earn {moment.pointsReward} Points
+                    {t("cultDesk.earnPts", { count: moment.pointsReward })}
                   </span>
                 </div>
               </div>

@@ -6,7 +6,6 @@ import {
   Clock, 
   CheckCircle2, 
   Hourglass, 
-  ArrowUpRight,
   BarChart3,
   PieChart,
   Calendar,
@@ -26,24 +25,27 @@ import {
   useMonthlyEarnings,
   useRecentEarnings
 } from "@/hooks/useCreatorEconomics";
-import { formatCurrency, formatNumber } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
-const TIER_INFO = {
-  starter: { name: "Starter", color: "bg-slate-500", share: "10%" },
-  rising: { name: "Rising", color: "bg-blue-500", share: "15%" },
-  signature: { name: "Signature", color: "bg-purple-500", share: "25%" },
-  icon: { name: "Icon", color: "bg-amber-500", share: "40%" },
+const TIER_META = {
+  starter: { color: "bg-slate-500", share: "10%", nameKey: "earnTab.tier.starter" as const },
+  rising: { color: "bg-blue-500", share: "15%", nameKey: "earnTab.tier.rising" as const },
+  signature: { color: "bg-purple-500", share: "25%", nameKey: "earnTab.tier.signature" as const },
+  icon: { color: "bg-amber-500", share: "40%", nameKey: "earnTab.tier.icon" as const },
 };
 
-const SOURCE_LABELS: Record<string, string> = {
-  mission_join: "Mission Joins",
-  mission_verification: "Verifications",
-  memory_issuance: "Memory Issuance",
-  sponsored_boost: "Sponsored Boosts",
-  catalyst_conversion: "Catalyst Conversions",
+const SOURCE_KEYS: Record<string, TranslationKey> = {
+  mission_join: "earnTab.src.join",
+  mission_verification: "earnTab.src.verify",
+  memory_issuance: "earnTab.src.memory",
+  sponsored_boost: "earnTab.src.boost",
+  catalyst_conversion: "earnTab.src.catalyst",
 };
 
 export function CreatorEarningsTab() {
+  const { t, formatDate, formatNumber } = useI18n();
   const [activeTab, setActiveTab] = useState("overview");
   
   const { data: profile, isLoading: profileLoading } = useCreatorEconomicProfile();
@@ -67,18 +69,22 @@ export function CreatorEarningsTab() {
     );
   }
 
-  const tierInfo = profile ? TIER_INFO[profile.tier] : TIER_INFO.starter;
+  const tierInfo = profile && profile.tier in TIER_META
+    ? TIER_META[profile.tier as keyof typeof TIER_META]
+    : TIER_META.starter;
+
+  const sourceLabel = (sourceType: string) =>
+    SOURCE_KEYS[sourceType] ? t(SOURCE_KEYS[sourceType]) : sourceType;
 
   return (
     <div className="space-y-6">
-      {/* Header with Tier Badge */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="font-serif text-2xl font-bold text-foreground">
-            Creator Earnings
+            {t("earnTab.title")}
           </h2>
           <p className="text-muted-foreground">
-            Track your revenue from mission attributions and content engagement
+            {t("earnTab.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -87,20 +93,19 @@ export function CreatorEarningsTab() {
             className={`${tierInfo.color} text-white px-3 py-1.5`}
           >
             <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-            {tierInfo.name} Creator ({tierInfo.share} revshare)
+            {t("earnTab.tierShare", { name: t(tierInfo.nameKey), share: tierInfo.share })}
           </Badge>
           <Button variant="outline" size="sm">
             <Settings className="w-4 h-4 mr-2" />
-            Settings
+            {t("earnTab.settings")}
           </Button>
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/20">
           <CardHeader className="pb-2">
-            <CardDescription className="text-emerald-600">Available to Payout</CardDescription>
+            <CardDescription className="text-emerald-600">{t("earnTab.available")}</CardDescription>
             <CardTitle className="text-3xl font-bold text-emerald-700">
               {formatCurrency(summary?.approvedAmount || 0)}
             </CardTitle>
@@ -108,14 +113,14 @@ export function CreatorEarningsTab() {
           <CardContent>
             <div className="flex items-center text-xs text-emerald-600/80">
               <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
-              Approved & Ready
+              {t("earnTab.approvedReady")}
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Pending Approval</CardDescription>
+            <CardDescription>{t("earnTab.pending")}</CardDescription>
             <CardTitle className="text-2xl font-bold">
               {formatCurrency(summary?.pendingAmount || 0)}
             </CardTitle>
@@ -123,14 +128,14 @@ export function CreatorEarningsTab() {
           <CardContent>
             <div className="flex items-center text-xs text-muted-foreground">
               <Hourglass className="w-3.5 h-3.5 mr-1.5" />
-              Processing attribution events
+              {t("earnTab.processing")}
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Lifetime Earnings</CardDescription>
+            <CardDescription>{t("earnTab.lifetime")}</CardDescription>
             <CardTitle className="text-2xl font-bold">
               {formatCurrency(summary?.settledAmount || 0)}
             </CardTitle>
@@ -138,14 +143,14 @@ export function CreatorEarningsTab() {
           <CardContent>
             <div className="flex items-center text-xs text-muted-foreground">
               <Wallet className="w-3.5 h-3.5 mr-1.5" />
-              Total settled payouts
+              {t("earnTab.settled")}
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>This Year (YTD)</CardDescription>
+            <CardDescription>{t("earnTab.ytd")}</CardDescription>
             <CardTitle className="text-2xl font-bold">
               {formatCurrency(summary?.ytdEarnings || 0)}
             </CardTitle>
@@ -153,27 +158,25 @@ export function CreatorEarningsTab() {
           <CardContent>
             <div className="flex items-center text-xs text-muted-foreground">
               <Calendar className="w-3.5 h-3.5 mr-1.5" />
-              {new Date().getFullYear()} earnings
+              {t("earnTab.ytdHint", { year: new Date().getFullYear() })}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="overview">{t("earnTab.overview")}</TabsTrigger>
+          <TabsTrigger value="history">{t("earnTab.history")}</TabsTrigger>
+          <TabsTrigger value="analytics">{t("earnTab.analytics")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 mt-6">
-          {/* Monthly Trend Mini Chart */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-primary" />
-                6-Month Earnings Trend
+                {t("earnTab.trend")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -182,7 +185,7 @@ export function CreatorEarningsTab() {
                   {monthlyData.map((month) => {
                     const maxAmount = Math.max(...monthlyData.map(m => m.creator_share_amount), 1);
                     const percentage = (month.creator_share_amount / maxAmount) * 100;
-                    const monthLabel = new Date(month.month + "-01").toLocaleDateString("en-US", {
+                    const monthLabel = formatDate(`${month.month}-01`, {
                       month: "short",
                       year: "2-digit"
                     });
@@ -206,21 +209,20 @@ export function CreatorEarningsTab() {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No earnings data yet. Create content and link to moments to start earning.</p>
+                  <p>{t("earnTab.noTrend")}</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Recent Activity */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-primary" />
-                Recent Earnings
+                {t("earnTab.recent")}
               </CardTitle>
               <Button variant="ghost" size="sm" onClick={() => setActiveTab("history")}>
-                View All
+                {t("earnTab.viewAll")}
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </CardHeader>
@@ -239,10 +241,10 @@ export function CreatorEarningsTab() {
                         }`} />
                         <div>
                           <p className="font-medium text-sm">
-                            {SOURCE_LABELS[earning.source_type] || earning.source_type}
+                            {sourceLabel(earning.source_type)}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(earning.created_at).toLocaleDateString()}
+                            {formatDate(earning.created_at)}
                           </p>
                         </div>
                       </div>
@@ -251,7 +253,10 @@ export function CreatorEarningsTab() {
                           +{formatCurrency(earning.creator_share_amount)}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {earning.creator_share_percent}% of {formatCurrency(earning.gross_amount)}
+                          {t("earnTab.ofGross", {
+                            pct: earning.creator_share_percent,
+                            gross: formatCurrency(earning.gross_amount),
+                          })}
                         </p>
                       </div>
                     </div>
@@ -260,7 +265,7 @@ export function CreatorEarningsTab() {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <DollarSign className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No recent earnings. Your transactions will appear here.</p>
+                  <p>{t("earnTab.noRecent")}</p>
                 </div>
               )}
             </CardContent>
@@ -270,8 +275,8 @@ export function CreatorEarningsTab() {
         <TabsContent value="history" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>All Earnings Transactions</CardTitle>
-              <CardDescription>Complete history of your creator revenue</CardDescription>
+              <CardTitle>{t("earnTab.allTx")}</CardTitle>
+              <CardDescription>{t("earnTab.allTxDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               {recentEarnings && recentEarnings.length > 0 ? (
@@ -290,10 +295,13 @@ export function CreatorEarningsTab() {
                         </Badge>
                         <div>
                           <p className="font-medium">
-                            {SOURCE_LABELS[earning.source_type] || earning.source_type}
+                            {sourceLabel(earning.source_type)}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {earning.unit_count} unit{earning.unit_count !== 1 ? "s" : ""} × {formatCurrency(earning.unit_amount)}
+                            {t(earning.unit_count !== 1 ? "earnTab.units" : "earnTab.unitOne", {
+                              count: earning.unit_count,
+                              amount: formatCurrency(earning.unit_amount),
+                            })}
                           </p>
                         </div>
                       </div>
@@ -302,7 +310,7 @@ export function CreatorEarningsTab() {
                           +{formatCurrency(earning.creator_share_amount)}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(earning.created_at).toLocaleDateString()}
+                          {formatDate(earning.created_at)}
                         </p>
                       </div>
                     </div>
@@ -311,8 +319,8 @@ export function CreatorEarningsTab() {
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <DollarSign className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                  <p className="text-lg font-medium">No earnings history yet</p>
-                  <p>Create content linked to moments to start earning revenue.</p>
+                  <p className="text-lg font-medium">{t("earnTab.noHistory")}</p>
+                  <p>{t("earnTab.noHistoryHint")}</p>
                 </div>
               )}
             </CardContent>
@@ -320,12 +328,11 @@ export function CreatorEarningsTab() {
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-6 mt-6">
-          {/* Revenue by Source */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <PieChart className="w-5 h-5 text-primary" />
-                Revenue by Source
+                {t("earnTab.bySource")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -340,10 +347,10 @@ export function CreatorEarningsTab() {
                       <div key={source.source_type} className="space-y-1">
                         <div className="flex items-center justify-between text-sm">
                           <span className="font-medium">
-                            {SOURCE_LABELS[source.source_type] || source.source_type}
+                            {sourceLabel(source.source_type)}
                           </span>
                           <span className="text-muted-foreground">
-                            {formatCurrency(source.creator_share_amount)} ({percentage.toFixed(1)}%)
+                            {formatCurrency(source.creator_share_amount)} ({formatNumber(percentage, { maximumFractionDigits: 1 })}%)
                           </span>
                         </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -353,7 +360,7 @@ export function CreatorEarningsTab() {
                           />
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          {source.count} transaction{source.count !== 1 ? "s" : ""}
+                          {t(source.count !== 1 ? "earnTab.txs" : "earnTab.txOne", { count: source.count })}
                         </p>
                       </div>
                     );
@@ -362,17 +369,16 @@ export function CreatorEarningsTab() {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <PieChart className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No data available yet. Complete missions to see revenue breakdown.</p>
+                  <p>{t("earnTab.noSource")}</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Creator Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="pb-3">
-                <CardDescription>Lifetime Verified Unlocks</CardDescription>
+                <CardDescription>{t("earnTab.unlocks")}</CardDescription>
                 <CardTitle className="text-3xl font-bold">
                   {formatNumber(profile?.lifetime_verified_unlocks || 0)}
                 </CardTitle>
@@ -380,7 +386,7 @@ export function CreatorEarningsTab() {
             </Card>
             <Card>
               <CardHeader className="pb-3">
-                <CardDescription>Memories Issued</CardDescription>
+                <CardDescription>{t("earnTab.memories")}</CardDescription>
                 <CardTitle className="text-3xl font-bold">
                   {formatNumber(profile?.lifetime_memories_issued || 0)}
                 </CardTitle>
@@ -388,7 +394,7 @@ export function CreatorEarningsTab() {
             </Card>
             <Card>
               <CardHeader className="pb-3">
-                <CardDescription>Catalyst Conversions</CardDescription>
+                <CardDescription>{t("earnTab.catalyst")}</CardDescription>
                 <CardTitle className="text-3xl font-bold">
                   {formatNumber(profile?.lifetime_catalyst_conversions || 0)}
                 </CardTitle>
