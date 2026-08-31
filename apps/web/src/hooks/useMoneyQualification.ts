@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { translate } from '@/i18n/I18nContext';
 
 // Types
 export interface MoneyQualification {
@@ -135,11 +136,11 @@ export function useMoneyQualification() {
     onSuccess: (data) => {
       const [isQualified, reasons, disqualifications] = data;
       if (isQualified) {
-        toast.success('You qualify to earn money!', {
+        toast.success(translate("earnCard.toastQualified"), {
           description: reasons.join(', '),
         });
       } else {
-        toast.info('Money qualification check complete', {
+        toast.info(translate("earnCard.toastChecked"), {
           description: disqualifications.join(', '),
         });
       }
@@ -166,65 +167,43 @@ export function useMoneyQualification() {
   };
 }
 
-// Get human-readable qualification requirement
+export type QualificationCheckId = "tier" | "identity" | "age" | "standing" | "quality";
+export type QualificationBlockerId =
+  | "notCalculated"
+  | "tier"
+  | "email"
+  | "age"
+  | "violations"
+  | "reviews"
+  | "unknown";
+
 export function getQualificationRequirement(
   qualification: MoneyQualification | null
-): { met: boolean; label: string; requirement: string }[] {
+): { id: QualificationCheckId; met: boolean }[] {
   if (!qualification) return [];
 
   return [
-    {
-      met: qualification.is_tier_qualified,
-      label: 'Tier',
-      requirement: 'Regular, Mover, or Host tier',
-    },
-    {
-      met: qualification.is_identity_verified,
-      label: 'Identity',
-      requirement: 'Email verified',
-    },
-    {
-      met: qualification.is_account_mature,
-      label: 'Account Age',
-      requirement: '7+ days old',
-    },
-    {
-      met: qualification.has_no_violations,
-      label: 'Standing',
-      requirement: 'No recent violations',
-    },
-    {
-      met: qualification.has_quality_engagement,
-      label: 'Quality',
-      requirement: 'Quality reviews or 3+ marks',
-    },
+    { id: "tier", met: qualification.is_tier_qualified },
+    { id: "identity", met: qualification.is_identity_verified },
+    { id: "age", met: qualification.is_account_mature },
+    { id: "standing", met: qualification.has_no_violations },
+    { id: "quality", met: qualification.has_quality_engagement },
   ];
 }
 
-// Get summary of what's blocking qualification
 export function getQualificationBlockers(
   qualification: MoneyQualification | null
-): string[] {
-  if (!qualification) return ['Qualification not calculated yet'];
+): QualificationBlockerId[] {
+  if (!qualification) return ["notCalculated"];
   if (qualification.is_qualified_for_money) return [];
 
-  const blockers: string[] = [];
-  
-  if (!qualification.is_tier_qualified) {
-    blockers.push('Complete 5+ moments at 2+ venues to become Regular');
-  }
-  if (!qualification.is_identity_verified) {
-    blockers.push('Verify your email address');
-  }
-  if (!qualification.is_account_mature) {
-    blockers.push('Wait 7 days from account creation');
-  }
-  if (!qualification.has_no_violations) {
-    blockers.push('Resolve any account violations');
-  }
-  if (!qualification.has_quality_engagement) {
-    blockers.push('Write detailed reviews (50+ characters)');
-  }
-  
-  return blockers.length > 0 ? blockers : ['Unknown qualification issue'];
+  const blockers: QualificationBlockerId[] = [];
+
+  if (!qualification.is_tier_qualified) blockers.push("tier");
+  if (!qualification.is_identity_verified) blockers.push("email");
+  if (!qualification.is_account_mature) blockers.push("age");
+  if (!qualification.has_no_violations) blockers.push("violations");
+  if (!qualification.has_quality_engagement) blockers.push("reviews");
+
+  return blockers.length > 0 ? blockers : ["unknown"];
 }

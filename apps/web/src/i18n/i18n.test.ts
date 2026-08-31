@@ -115,6 +115,9 @@ describe("localization", () => {
       "valueJourney.whatChanged",
       "storyModal.title",
       "recStudio.psTitle",
+      "earnCard.qualified",
+      "valuePool.title",
+      "earnDash.title",
     ] as const;
 
     supportedLocales.forEach((locale) => {
