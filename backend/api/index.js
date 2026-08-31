@@ -386,6 +386,7 @@ app.use('/api/merchant', require('./merchant')); // Merchant Product & Sales Man
 app.use('/api/moment-products', require('./momentProducts')); // Moment-Product Integration
 app.use('/api/analytics', require('./analytics')); // Advanced Analytics & Reporting
 app.use('/api/demo', require('./demo-login')); // Demo state shortcuts
+app.use('/api/experience', require('./experience')); // Simplified people / perks / drops / earn layer
 
 // Start Daily Layer Cron Jobs only for long-running local/dev servers.
 if (!process.env.VERCEL && process.env.ENABLE_CRON_JOBS === 'true') {

@@ -43,6 +43,7 @@ import {
   CheckCircle,
   CircleHelp,
   Gift,
+  CreditCard,
   PanelLeftClose,
   PanelLeftOpen,
   Coins,
@@ -108,7 +109,13 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/saved", label: "Saved", description: "Things worth returning to without having to rediscover them." },
   { match: "/dashboard/analytics", label: "Analytics", description: "Operational reporting for the active hub." },
   { match: "/dashboard/settings", label: "Settings", description: "Personal, role, and hub-level configuration." },
-  { match: "/dashboard", label: "Home", description: "Your live Moments, access, Gems, saved value, and next moves in one place." },
+  { match: "/people", label: "My People", description: "The network you built and the people helping you build it." },
+  { match: "/give", label: "Give Something", description: "Drop a perk onto your people’s PromoCards." },
+  { match: "/earn", label: "Earn", description: "Opportunities you can take and earn from." },
+  { match: "/happened", label: "What Happened", description: "What your people actually did." },
+  { match: "/card", label: "PromoCard", description: "Your perks, access, points and keys." },
+  { match: "/start", label: "Start a Community", description: "Name a community and give people something immediately." },
+  { match: "/dashboard", label: "Home", description: "Your people, perks, opportunities, and what happened." },
   { match: "/admin", label: "Admin", description: "Platform-wide operations, moderation, and system controls." },
 ];
 
@@ -147,73 +154,42 @@ const isNavItemActive = (pathname: string, href: string, search: string) => {
   return pathname === itemPath || pathname.startsWith(itemPath + "/");
 };
 
+const peopleExperienceNav: NavItem[] = [
+  { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
+  { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
+  { icon: Users, label: "My People", href: "/people", group: "primary" },
+  { icon: Plus, label: "Create", href: "/create", group: "primary" },
+  { icon: Sparkles, label: "Earn", href: "/earn", group: "primary" },
+  { icon: CreditCard, label: "PromoCard", href: "/card", group: "primary" },
+  { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
+  { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
+];
+
 const roleNavItems: Record<UserRole, NavItem[]> = {
-  participant: [
-    { icon: Home, label: "Today", href: "/dashboard", group: "primary" },
-    { icon: Compass, label: "Explore & Discover", href: "/discover", group: "primary" },
-    { icon: Gift, label: "Rewards & Deals", href: "/rewards", group: "primary" },
-    { icon: Coins, label: "Save & Win Vaults", href: "/nodes", group: "primary" },
-    { icon: Plus, label: "Host a Moment", href: "/create/moment", group: "primary" },
-    { icon: WalletCards, label: "My Passes & Wallet", href: "/wallet", group: "utility" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
-  ],
+  participant: peopleExperienceNav,
   creator: [
-    { icon: Home, label: "Creator Studio", href: "/dashboard", group: "primary" },
-    { icon: Compass, label: "Explore & Scenes", href: "/discover", group: "primary" },
-    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
-    { icon: Gift, label: "PromoShare & Earnings", href: "/promoshare", group: "primary" },
-    { icon: Coins, label: "Save & Win Vaults", href: "/nodes", group: "primary" },
-    { icon: WalletCards, label: "Wallet & Payouts", href: "/wallet", group: "utility" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
+    ...peopleExperienceNav,
+    { icon: Film, label: "Studio", href: "/dashboard?view=studio", group: "manage" },
   ],
   host: [
-    { icon: Home, label: "Host Overview", href: "/dashboard", group: "primary" },
-    { icon: Plus, label: "Create Moment", href: "/create/moment", group: "primary" },
-    { icon: CheckCircle, label: "Door Check-Ins", href: "/organizer/check-ins", group: "primary" },
-    { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
-    { icon: WalletCards, label: "Revenue & Wallet", href: "/wallet", group: "utility" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
+    ...peopleExperienceNav,
+    { icon: CheckCircle, label: "Door Check-Ins", href: "/organizer/check-ins", group: "manage" },
   ],
   merchant: [
-    { icon: Home, label: "Storefront Overview", href: "/dashboard", group: "primary" },
-    { icon: Package, label: "Products & Deals", href: "/dashboard?tab=products", group: "primary" },
-    { icon: QrCode, label: "QR Redemptions", href: "/dashboard?tab=redemptions", group: "primary" },
-    { icon: Coins, label: "Community Vaults", href: "/nodes", group: "primary" },
-    { icon: Compass, label: "Explore Market", href: "/discover", group: "primary" },
-    { icon: WalletCards, label: "Earnings & Wallet", href: "/wallet", group: "utility" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
+    ...peopleExperienceNav,
+    { icon: Store, label: "Storefront", href: "/dashboard?view=studio&tab=storefront", group: "manage" },
+    { icon: QrCode, label: "Redeem", href: "/dashboard?view=studio&tab=redemptions", group: "manage" },
   ],
   brand: [
-    { icon: Home, label: "Campaign Command", href: "/dashboard", group: "primary" },
-    { icon: Plus, label: "New Campaign", href: "/create/campaign", group: "primary" },
-    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
-    { icon: Compass, label: "Explore & Venues", href: "/discover", group: "primary" },
-    { icon: WalletCards, label: "Budget & Wallet", href: "/wallet", group: "utility" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
+    ...peopleExperienceNav,
+    { icon: RadioTower, label: "Campaigns", href: "/dashboard?view=studio", group: "manage" },
   ],
   agency: [
-    { icon: Home, label: "Agency Overview", href: "/dashboard", group: "primary" },
-    { icon: Briefcase, label: "Client Accounts", href: "/dashboard?tab=clients", group: "primary" },
-    { icon: Plus, label: "New Activation", href: "/create/campaign", group: "primary" },
-    { icon: Compass, label: "Explore & Venues", href: "/discover", group: "primary" },
-    { icon: WalletCards, label: "Treasury & Wallet", href: "/wallet", group: "utility" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
+    ...peopleExperienceNav,
+    { icon: Briefcase, label: "Clients", href: "/dashboard?view=studio&tab=clients", group: "manage" },
   ],
-  promoter: [
-    { icon: Home, label: "Promo Command", href: "/dashboard", group: "primary" },
-    { icon: Gift, label: "PromoShare Links", href: "/promoshare", group: "primary" },
-    { icon: Coins, label: "Save & Win Vaults", href: "/nodes", group: "primary" },
-    { icon: Compass, label: "Discover Moments", href: "/discover", group: "primary" },
-    { icon: WalletCards, label: "Commissions & Wallet", href: "/wallet", group: "utility" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
-  ],
-  marketing: [
-    { icon: Home, label: "Growth Command", href: "/dashboard", group: "primary" },
-    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
-    { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
-    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
-  ],
+  promoter: peopleExperienceNav,
+  marketing: peopleExperienceNav,
   admin: [
     { icon: Home, label: "Command Center", href: "/admin?tab=command", group: "primary" },
     { icon: Users, label: "Users & KYC", href: "/admin?tab=users", group: "primary" },
@@ -276,7 +252,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const manageNavItems = navItems.filter((item) => item.group === "manage");
   const utilityNavItems = navItems.filter((item) => item.group === "utility");
   const roleInfo = safeRoleInfo(safeRole);
-  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet", "/admin", "/organizer"];
+  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet", "/admin", "/organizer", "/people", "/give", "/earn", "/happened", "/card", "/start", "/drop"];
   const isImmersiveProductRoute = immersiveProductRoutes.some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
@@ -293,60 +269,23 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
     navigate("/");
   };
 
+  const peopleMobileNav: (NavItem & { accent?: boolean })[] = [
+    { icon: Home, label: "Home", href: "/dashboard" },
+    { icon: Search, label: "Discover", href: "/discover" },
+    { icon: Plus, label: "Create", href: "/create", accent: true },
+    { icon: Sparkles, label: "Earn", href: "/earn" },
+    { icon: CreditCard, label: "Card", href: "/card" },
+  ];
+
   const mobileNavItems: Record<UserRole, (NavItem & { accent?: boolean })[]> = {
-    participant: [
-      { icon: Home, label: "Today", href: "/dashboard" },
-      { icon: Search, label: "Discover", href: "/discover" },
-      { icon: Gift, label: "Draws", href: "/promoshare" },
-      { icon: Users, label: "Scenes", href: "/scenes" },
-      { icon: Archive, label: "Vault", href: "/vault" },
-    ],
-    creator: [
-      { icon: Home, label: "Studio", href: "/dashboard" },
-      { icon: PlayCircle, label: "Missions", href: "/missions" },
-      { icon: Plus, label: "Publish", href: "/dashboard?tab=publish", accent: true },
-      { icon: Megaphone, label: "PromoPush", href: "/promopush/creator" },
-      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-    ],
-    host: [
-      { icon: Home, label: "Home", href: "/dashboard" },
-      { icon: Activity, label: "Pulse", href: "/pulse" },
-      { icon: Plus, label: "Create", href: "/create/moment", accent: true },
-      { icon: Archive, label: "Vault", href: "/vault" },
-      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-    ],
-    brand: [
-      { icon: Home, label: "Home", href: "/dashboard" },
-      { icon: Plus, label: "Create", href: "/create/campaign", accent: true },
-      { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
-      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-    ],
-    merchant: [
-      { icon: Home, label: "Home", href: "/dashboard" },
-      { icon: Store, label: "Store", href: "/dashboard?tab=storefront" },
-      { icon: Package, label: "Products", href: "/dashboard?tab=products", accent: true },
-      { icon: ShoppingBag, label: "Orders", href: "/dashboard?tab=commerce" },
-      { icon: QrCode, label: "Redeem", href: "/dashboard?tab=redemptions" },
-    ],
-    agency: [
-      { icon: Home, label: "Home", href: "/dashboard" },
-      { icon: Briefcase, label: "Clients", href: "/dashboard", accent: true },
-      { icon: Sparkles, label: "Create", href: "/create/campaign" },
-      { icon: BarChart3, label: "Stats", href: "/dashboard/analytics" },
-      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-    ],
-    promoter: [
-      { icon: Megaphone, label: "PromoPush", href: "/promopush/promoter", accent: true },
-      { icon: Search, label: "Discover", href: "/discover" },
-      { icon: Home, label: "Home", href: "/dashboard" },
-      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-    ],
-    marketing: [
-      { icon: Megaphone, label: "PromoPush", href: "/promopush", accent: true },
-      { icon: Home, label: "Home", href: "/dashboard" },
-      { icon: BarChart3, label: "Stats", href: "/dashboard/analytics" },
-      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-    ],
+    participant: peopleMobileNav,
+    creator: peopleMobileNav,
+    host: peopleMobileNav,
+    brand: peopleMobileNav,
+    merchant: peopleMobileNav,
+    agency: peopleMobileNav,
+    promoter: peopleMobileNav,
+    marketing: peopleMobileNav,
     admin: [
       { icon: Home, label: "Admin", href: "/admin" },
       { icon: Users, label: "Users", href: "/admin?tab=users" },
@@ -356,9 +295,9 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
     ],
   };
 
-  const currentMobileNav = safeRole === "participant"
-    ? filterReleaseNav(mobileNavItems.participant).slice(0, 5)
-    : [...filterReleaseNav(mobileNavItems[safeRole]).slice(0, 4), { icon: ShoppingBag, label: "Shop", href: "/shop" }];
+  const currentMobileNav = safeRole === "admin"
+    ? mobileNavItems.admin
+    : peopleMobileNav;
 
   return (
     <div className="app-shell-mobile relative flex min-h-screen min-h-dvh overflow-x-clip bg-background transition-colors duration-300">

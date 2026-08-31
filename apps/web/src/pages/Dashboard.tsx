@@ -1,10 +1,11 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { ResumeMomentumBanner } from "@/components/intent/ResumeMomentumBanner";
 import { useUserIntentContinuity } from "@/hooks/useUserIntentContinuity";
 import { MobileNotificationBridgeBanner } from "@/components/notifications/MobileNotificationBridgeBanner";
 
+const PeopleHome = lazy(() => import("@/pages/PeopleHome"));
 const ParticipantDashboardV2 = lazy(() => import("@/components/dashboards/CulturalCommandHome"));
 const CreatorDashboardV2 = lazy(() => import("@/components/dashboards/CreatorDashboardV2"));
 const HostDashboardV2 = lazy(() => import("@/components/dashboards/HostDashboardV2"));
@@ -30,6 +31,8 @@ const dashboardByRole = {
 const Dashboard = () => {
   const { user, activeRole, loading } = useAuth();
   const { activeDraft, dismissDraft } = useUserIntentContinuity();
+  const [params] = useSearchParams();
+  const studioView = params.get("view") === "studio";
 
   if (loading) {
     return (
@@ -44,7 +47,9 @@ const Dashboard = () => {
   }
 
   const resolvedRole = activeRole || "participant";
-  const ResolvedDashboard = dashboardByRole[resolvedRole] || ParticipantDashboardV2;
+  const ResolvedDashboard = studioView
+    ? (dashboardByRole[resolvedRole] || ParticipantDashboardV2)
+    : PeopleHome;
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">

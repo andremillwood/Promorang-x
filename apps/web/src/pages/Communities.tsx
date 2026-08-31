@@ -28,7 +28,8 @@ export default function Communities() {
             </div>
             <div className="border-y border-white/15 py-5">
               <Link to="/search" className="flex min-h-12 items-center gap-3 text-sm text-white/55 transition hover:text-white"><Search className="h-4 w-4 text-primary" />{t("scenes.search")}</Link>
-              <p className="border-t border-white/10 pt-4 text-xs leading-5 text-white/38">{t("scenes.searchHelp")}</p>
+              <Link to="/start" className="mt-4 flex min-h-12 items-center gap-3 border-t border-white/10 pt-4 text-sm font-bold text-primary">Start a community</Link>
+              <p className="pt-3 text-xs leading-5 text-white/38">{t("scenes.searchHelp")}</p>
             </div>
           </div>
         </div>

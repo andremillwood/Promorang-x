@@ -53,10 +53,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         (location.pathname === "/" && previewMode === "consumer");
 
     const isOrganizerWorkspace = location.pathname.startsWith("/organizer/");
-    const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname);
+    const isDropLanding = location.pathname.startsWith("/drop/");
+    const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname) || isDropLanding;
     const showFooterCta = !["/live", "/pulse"].includes(location.pathname);
 
-    if (isConsumerPreview || isOrganizerWorkspace) {
+    if (isConsumerPreview || isOrganizerWorkspace || isDropLanding) {
         return <>{children || <Outlet />}</>;
     }
 

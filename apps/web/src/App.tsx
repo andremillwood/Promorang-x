@@ -113,6 +113,15 @@ const CheckIn = lazy(() => import("./pages/CheckIn"));
 const BountyBoard = lazy(() => import("./pages/BountyBoard"));
 const MomentsApp = lazy(() => import("./pages/MomentsApp"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const PeopleHome = lazy(() => import("./pages/PeopleHome"));
+const MyPeople = lazy(() => import("./pages/MyPeople"));
+const GiveSomething = lazy(() => import("./pages/GiveSomething"));
+const CreateSomething = lazy(() => import("./pages/CreateSomething"));
+const EarnOpportunities = lazy(() => import("./pages/EarnOpportunities"));
+const WhatHappened = lazy(() => import("./pages/WhatHappened"));
+const MyPromoCard = lazy(() => import("./pages/MyPromoCard"));
+const DropClaim = lazy(() => import("./pages/DropClaim"));
+const StartCommunity = lazy(() => import("./pages/StartCommunity"));
 const Participants = lazy(() => import("./pages/Participants"));
 const Activity = lazy(() => import("./pages/Activity"));
 const Following = lazy(() => import("./pages/Following"));
@@ -304,8 +313,16 @@ const App = () => (
                     <Route path="/host" element={<Navigate to="/hosting" replace />} />
                     <Route path="/why-join" element={<Navigate to="/" replace />} />
                     <Route path="/propose" element={<ProposeLanding />} />
-                    <Route path="/create" element={<Navigate to="/create/moment" replace />} />
+                    <Route path="/create" element={<ProtectedRoute><CreateSomething /></ProtectedRoute>} />
                     <Route path="/create/moment" element={<ProtectedRoute><CreateMoment /></ProtectedRoute>} />
+                    <Route path="/people" element={<ProtectedRoute><MyPeople /></ProtectedRoute>} />
+                    <Route path="/give" element={<ProtectedRoute><GiveSomething /></ProtectedRoute>} />
+                    <Route path="/earn" element={<ProtectedRoute><EarnOpportunities /></ProtectedRoute>} />
+                    <Route path="/happened" element={<ProtectedRoute><WhatHappened /></ProtectedRoute>} />
+                    <Route path="/card" element={<ProtectedRoute><MyPromoCard /></ProtectedRoute>} />
+                    <Route path="/start" element={<ProtectedRoute><StartCommunity /></ProtectedRoute>} />
+                    <Route path="/home" element={<ProtectedRoute><PeopleHome /></ProtectedRoute>} />
+                    <Route path="/drop/:slug" element={<DropClaim />} />
                     <Route path="/create/campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
                     <Route path="/create/bounty" element={<ProtectedRoute><CreateBounty /></ProtectedRoute>} />
                     <Route path="/create-moment" element={<Navigate to="/create/moment" replace />} />
