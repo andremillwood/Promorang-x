@@ -268,6 +268,8 @@ describe("localization", () => {
       "cultDesk.recTitle",
       "brandStage.launch",
       "brandStage.flight",
+      "agencyDash.connectFirst",
+      "agencyDash.empty",
     ] as const;
 
     supportedLocales.forEach((locale) => {
