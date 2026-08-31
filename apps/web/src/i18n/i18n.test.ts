@@ -128,6 +128,8 @@ describe("localization", () => {
       "consPrev.navHome",
       "consMom.loopTitle",
       "consHome.welcome",
+      "hostOps.doorList",
+      "hostOps.confirmArrival",
     ] as const;
 
     supportedLocales.forEach((locale) => {
