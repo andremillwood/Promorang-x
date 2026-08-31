@@ -20,8 +20,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useI18n } from '@/i18n/I18nContext';
 
 export const ThingsWorthSharingFeed: React.FC = () => {
+  const { t } = useI18n();
   const { perks } = usePerks();
   const [filter, setFilter] = useState<'all' | 'perks' | 'discoveries' | 'moments'>('all');
 
@@ -37,28 +39,28 @@ export const ThingsWorthSharingFeed: React.FC = () => {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-xs font-mono font-bold uppercase tracking-wider text-purple-300">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>Creators → Distribute</span>
+              <span>{t("shareFeed.badge")}</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-              Things Worth Sharing
+              {t("shareFeed.title")}
             </h2>
             <p className="text-sm text-zinc-300 max-w-2xl leading-relaxed">
-              Find exciting discoveries, exclusive merchant perks, and culture moments. Move your audience toward them and build verifiable distribution proof with PromoShare tickets & points.
+              {t("shareFeed.copy")}
             </p>
           </div>
 
           {/* Distribution Proof Highlights */}
           <div className="grid grid-cols-3 gap-3 bg-black/50 p-4 rounded-2xl border border-white/10 shrink-0">
             <div className="text-center">
-              <span className="text-[10px] text-zinc-400 font-bold uppercase block">Attributed Moves</span>
+              <span className="text-[10px] text-zinc-400 font-bold uppercase block">{t("shareFeed.moves")}</span>
               <span className="text-xl font-mono font-black text-purple-300">142</span>
             </div>
             <div className="text-center border-x border-white/10 px-3">
-              <span className="text-[10px] text-zinc-400 font-bold uppercase block">Perk Claims</span>
+              <span className="text-[10px] text-zinc-400 font-bold uppercase block">{t("shareFeed.claims")}</span>
               <span className="text-xl font-mono font-black text-emerald-400">89</span>
             </div>
             <div className="text-center">
-              <span className="text-[10px] text-zinc-400 font-bold uppercase block">Draw Tickets</span>
+              <span className="text-[10px] text-zinc-400 font-bold uppercase block">{t("shareFeed.tickets")}</span>
               <span className="text-xl font-mono font-black text-amber-400">17 🎟️</span>
             </div>
           </div>
@@ -67,10 +69,10 @@ export const ThingsWorthSharingFeed: React.FC = () => {
         {/* Filter Pills */}
         <div className="mt-6 flex flex-wrap items-center gap-2 pt-4 border-t border-white/10">
           {[
-            { id: 'all', label: 'All Distributables', icon: Sparkles },
-            { id: 'perks', label: 'Perks & Drops', icon: Gift },
-            { id: 'discoveries', label: 'Discoveries & Polls', icon: HelpCircle },
-            { id: 'moments', label: 'Moments & Gatherings', icon: Radio },
+            { id: 'all', label: t("shareFeed.all"), icon: Sparkles },
+            { id: 'perks', label: t("shareFeed.perks"), icon: Gift },
+            { id: 'discoveries', label: t("shareFeed.discoveries"), icon: HelpCircle },
+            { id: 'moments', label: t("shareFeed.moments"), icon: Radio },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -106,25 +108,25 @@ export const ThingsWorthSharingFeed: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between text-xs mb-3">
                   <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30 text-[11px] font-bold">
-                    Discovery Signal
+                    {t("shareFeed.discovery")}
                   </Badge>
-                  <span className="text-zinc-500 text-[11px] font-mono">{disc.totalVotes} responses</span>
+                  <span className="text-zinc-500 text-[11px] font-mono">{t("shareFeed.responses", { count: disc.totalVotes })}</span>
                 </div>
                 <h3 className="text-base font-black text-white leading-snug">{disc.question}</h3>
                 <p className="text-xs text-zinc-400 mt-2">
-                  Share this debate to rally your community. Attributed participants earn you draw tickets!
+                  {t("shareFeed.shareDebate")}
                 </p>
               </div>
 
               <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
-                <span className="text-xs font-mono text-purple-300 font-bold">+1 Ticket per vote</span>
+                <span className="text-xs font-mono text-purple-300 font-bold">{t("shareFeed.ticketVote")}</span>
                 <PromoShareAction
                   objectType="discovery"
                   objectId={disc.id}
                   slugOrPath={disc.slug}
                   title={disc.question}
-                  potentialReward={{ promoPoints: 25, tickets: 1, condition: 'when someone votes' }}
-                  buttonLabel="Share Poll"
+                  potentialReward={{ promoPoints: 25, tickets: 1, condition: t("shareFeed.whenVote") }}
+                  buttonLabel={t("shareFeed.sharePoll")}
                   variant="compact"
                 />
               </div>
@@ -141,7 +143,7 @@ export const ThingsWorthSharingFeed: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between text-xs mb-3">
                   <Badge className="bg-purple-500/15 text-purple-300 border-purple-500/30 text-[11px] font-bold">
-                    Live Moment
+                    {t("shareFeed.liveMoment")}
                   </Badge>
                   <span className="text-zinc-500 text-[11px] font-mono">{moment.location}</span>
                 </div>
@@ -150,13 +152,13 @@ export const ThingsWorthSharingFeed: React.FC = () => {
               </div>
 
               <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
-                <span className="text-xs font-mono text-amber-400 font-bold">+2 Tickets on RSVP</span>
+                <span className="text-xs font-mono text-amber-400 font-bold">{t("shareFeed.ticketRsvp")}</span>
                 <PromoShareAction
                   objectType="moment"
                   objectId={moment.id}
                   title={moment.title}
-                  potentialReward={{ promoPoints: 50, tickets: 2, condition: 'when someone RSVPs or checks in' }}
-                  buttonLabel="Promote Gathering"
+                  potentialReward={{ promoPoints: 50, tickets: 2, condition: t("shareFeed.whenRsvp") }}
+                  buttonLabel={t("shareFeed.promote")}
                   variant="compact"
                 />
               </div>

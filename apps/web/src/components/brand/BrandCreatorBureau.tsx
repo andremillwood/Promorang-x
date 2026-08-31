@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface CreatorSubmission {
   id: string;
@@ -34,6 +35,7 @@ interface CreatorSubmission {
 }
 
 export function BrandCreatorBureau() {
+  const { t, formatNumber } = useI18n();
   const { toast } = useToast();
   const [submissions, setSubmissions] = useState<CreatorSubmission[]>([
     {
@@ -82,15 +84,15 @@ export function BrandCreatorBureau() {
       prev.map((sub) => (sub.id === id ? { ...sub, status: "approved" } : sub))
     );
     toast({
-      title: "UGC Proof Approved! 🏆",
-      description: `Disbursed $${bounty} bounty and 200 points to ${name}. Media added to brand highlight reel.`,
+      title: t("creBureau.toastOk"),
+      description: t("creBureau.toastOkBody", { bounty, name }),
     });
   };
 
   const handleCreateBounty = () => {
     toast({
-      title: "Creator Bounty Window Opened! 🎬",
-      description: "Notified 45 verified creators in Kingston with task brief and $150 reward tier.",
+      title: t("creBureau.toastNew"),
+      description: t("creBureau.toastNewBody"),
     });
   };
 
@@ -104,13 +106,13 @@ export function BrandCreatorBureau() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Creator Match & Media Bureau</h2>
+              <h2 className="text-2xl font-black text-white">{t("creBureau.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-primary/20 border border-primary/40 text-primary text-[10px] font-extrabold uppercase">
-                32 Active Creators
+                {t("creBureau.badge", { count: 32 })}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Review submitted UGC content, verify physical check-in proofs, and disburse campaign bounties.
+              {t("creBureau.copy")}
             </p>
           </div>
         </div>
@@ -120,7 +122,7 @@ export function BrandCreatorBureau() {
           className="h-11 px-5 rounded-2xl bg-primary hover:bg-primary/90 text-black font-extrabold text-xs shadow-[0_0_20px_rgba(255,106,0,0.35)]"
         >
           <Plus className="h-4 w-4 mr-1.5" />
-          Dispatch New Creator Bounty
+          {t("creBureau.dispatch")}
         </Button>
       </div>
 
@@ -157,7 +159,7 @@ export function BrandCreatorBureau() {
                     isPending ? "bg-amber-500 text-black" : "bg-emerald-500 text-black"
                   }`}
                 >
-                  {isPending ? "Needs Review" : "Approved Proof"}
+                  {isPending ? t("creBureau.needsReview") : t("creBureau.approved")}
                 </Badge>
               </div>
 
@@ -165,7 +167,7 @@ export function BrandCreatorBureau() {
               <div className="relative rounded-2xl overflow-hidden h-48 bg-black border border-white/5">
                 <img
                   src={sub.thumbnail}
-                  alt="UGC Preview"
+                  alt={t("creBureau.ugcAlt")}
                   className="w-full h-full object-cover opacity-80"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
@@ -174,11 +176,11 @@ export function BrandCreatorBureau() {
                   <div className="flex items-center gap-3">
                     <span className="flex items-center gap-1 font-bold">
                       <Eye className="h-3.5 w-3.5 text-primary" />
-                      {sub.views.toLocaleString()}
+                      {formatNumber(sub.views)}
                     </span>
                     <span className="flex items-center gap-1 font-bold">
                       <Flame className="h-3.5 w-3.5 text-orange-400" />
-                      {sub.likes.toLocaleString()}
+                      {formatNumber(sub.likes)}
                     </span>
                   </div>
                   <span className="px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-mono uppercase">
@@ -195,7 +197,7 @@ export function BrandCreatorBureau() {
               {/* Bounty Reward & Action */}
               <div className="pt-2 border-t border-white/5 flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] uppercase font-bold text-white/40">Bounty Payout</p>
+                  <p className="text-[10px] uppercase font-bold text-white/40">{t("creBureau.payout")}</p>
                   <p className="text-sm font-black text-emerald-400">${sub.bountyEarned}.00</p>
                 </div>
 
@@ -206,12 +208,12 @@ export function BrandCreatorBureau() {
                     className="h-9 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold text-xs shadow-md"
                   >
                     <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-                    Approve & Disburse
+                    {t("creBureau.approve")}
                   </Button>
                 ) : (
                   <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
                     <CheckCircle2 className="h-4 w-4" />
-                    Disbursed & Published
+                    {t("creBureau.paid")}
                   </span>
                 )}
               </div>

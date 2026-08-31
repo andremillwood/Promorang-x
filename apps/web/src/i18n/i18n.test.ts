@@ -270,6 +270,13 @@ describe("localization", () => {
       "brandStage.flight",
       "agencyDash.connectFirst",
       "agencyDash.empty",
+      "flyDeck.title",
+      "flyDeck.manage",
+      "creBureau.approve",
+      "corrMap.title",
+      "brandTreas.fund",
+      "shareFeed.title",
+      "auditDlg.title",
     ] as const;
 
     supportedLocales.forEach((locale) => {

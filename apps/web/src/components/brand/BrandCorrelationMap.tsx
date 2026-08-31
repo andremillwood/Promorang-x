@@ -16,38 +16,40 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { O2OAnalyticsPanel } from "@/components/analytics/O2OAnalyticsPanel";
+import { useI18n } from "@/i18n/I18nContext";
 
 export function BrandCorrelationMap() {
+  const { t } = useI18n();
   const correlationStages = [
     {
       step: "01",
-      label: "Digital Reach",
+      label: t("corrMap.s1"),
       metric: "88,400",
-      helper: "Campaign & Creator Impressions",
+      helper: t("corrMap.s1Help"),
       icon: Eye,
       color: "text-primary bg-primary/10 border-primary/20",
     },
     {
       step: "02",
-      label: "Passes Claimed",
+      label: t("corrMap.s2"),
       metric: "3,210",
-      helper: "PromoKey & Deal Reservations",
+      helper: t("corrMap.s2Help"),
       icon: Gift,
       color: "text-amber-400 bg-amber-400/10 border-amber-400/20",
     },
     {
       step: "03",
-      label: "Verified Arrivals",
+      label: t("corrMap.s3"),
       metric: "1,840",
-      helper: "In-Person QR Door Check-Ins",
+      helper: t("corrMap.s3Help"),
       icon: MapPin,
       color: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
     },
     {
       step: "04",
-      label: "UGC Created",
+      label: t("corrMap.s4"),
       metric: "340",
-      helper: "Secondary Social Amplification",
+      helper: t("corrMap.s4Help"),
       icon: Sparkles,
       color: "text-cyan-400 bg-cyan-400/10 border-cyan-400/20",
     },
@@ -63,20 +65,20 @@ export function BrandCorrelationMap() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Online-to-Offline (O2O) Correlation Matrix</h2>
+              <h2 className="text-2xl font-black text-white">{t("corrMap.title")}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase">
-                Attribution Verified
+                {t("corrMap.badge")}
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Track how digital creator content directly converts into physical venue footfalls and proof-backed sales.
+              {t("corrMap.copy")}
             </p>
           </div>
         </div>
 
         <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-          <p className="text-[10px] uppercase font-bold text-white/50">Overall ROI Multiple</p>
-          <p className="text-base font-black text-primary">4.9x Blended</p>
+          <p className="text-[10px] uppercase font-bold text-white/50">{t("corrMap.roiLabel")}</p>
+          <p className="text-base font-black text-primary">{t("corrMap.roiVal")}</p>
         </div>
       </div>
 
@@ -93,7 +95,7 @@ export function BrandCorrelationMap() {
                 <span className={`p-2 rounded-xl border ${stage.color}`}>
                   <Icon className="h-4 w-4" />
                 </span>
-                <span className="font-mono text-[10px] font-black text-white/40">STEP {stage.step}</span>
+                <span className="font-mono text-[10px] font-black text-white/40">{t("corrMap.step", { n: stage.step })}</span>
               </div>
               <div>
                 <p className="text-3xl font-black text-white">{stage.metric}</p>
