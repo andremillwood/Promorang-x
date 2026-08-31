@@ -17,21 +17,24 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
-const venueCategories = [
-  { value: "general", label: "General" },
-  { value: "restaurant", label: "Restaurant" },
-  { value: "cafe", label: "Café" },
-  { value: "bar", label: "Bar" },
-  { value: "gallery", label: "Gallery" },
-  { value: "studio", label: "Studio" },
-  { value: "outdoor", label: "Outdoor Space" },
-  { value: "coworking", label: "Coworking Space" },
-  { value: "gym", label: "Gym / Fitness" },
-  { value: "theater", label: "Theater / Venue" },
+const venueCategories: { value: string; label: TranslationKey }[] = [
+  { value: "general", label: "addVenue.catGeneral" },
+  { value: "restaurant", label: "addVenue.catRestaurant" },
+  { value: "cafe", label: "addVenue.catCafe" },
+  { value: "bar", label: "addVenue.catBar" },
+  { value: "gallery", label: "addVenue.catGallery" },
+  { value: "studio", label: "addVenue.catStudio" },
+  { value: "outdoor", label: "addVenue.catOutdoor" },
+  { value: "coworking", label: "addVenue.catCoworking" },
+  { value: "gym", label: "addVenue.catGym" },
+  { value: "theater", label: "addVenue.catTheater" },
 ];
 
 const AddVenue = () => {
+  const { t } = useI18n();
   const { user, roles } = useAuth();
   const navigate = useNavigate();
   const createVenue = useCreateVenue();
@@ -80,8 +83,8 @@ const AddVenue = () => {
     });
 
     toast({
-      title: "Venue submitted for the Genesis record",
-      description: "Verification is required before its Pioneer onboarding receipt becomes eligible.",
+      title: t("addVenue.toastTitle"),
+      description: t("addVenue.toastDesc"),
     });
     navigate("/dashboard");
   };
@@ -101,20 +104,20 @@ const AddVenue = () => {
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
+          {t("addVenue.back")}
         </Button>
         <h1 className="font-serif text-3xl font-bold text-foreground">
-          Add New Venue
+          {t("addVenue.title")}
         </h1>
         <p className="text-muted-foreground mt-2">
-          Register your venue to host moments
+          {t("addVenue.lede")}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Venue Image */}
         <div className="bg-card border border-border rounded-2xl p-6">
-          <Label className="mb-3 block">Venue Photo</Label>
+          <Label className="mb-3 block">{t("addVenue.photo")}</Label>
           <ImageUpload
             value={formData.imageUrl}
             onChange={(url) => setFormData({ ...formData, imageUrl: url || "" })}
@@ -130,44 +133,44 @@ const AddVenue = () => {
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
               <MapPin className="w-5 h-5 text-primary" />
             </div>
-            <h2 className="font-serif text-xl font-semibold">Venue Details</h2>
+            <h2 className="font-serif text-xl font-semibold">{t("addVenue.details")}</h2>
           </div>
 
           <div>
-            <Label htmlFor="name">Venue Name *</Label>
+            <Label htmlFor="name">{t("addVenue.name")}</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="e.g., The Brew House"
+              placeholder={t("addVenue.namePlaceholder")}
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="address">Address *</Label>
+            <Label htmlFor="address">{t("addVenue.address")}</Label>
             <Input
               id="address"
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              placeholder="e.g., 123 Main Street, City, State"
+              placeholder={t("addVenue.addressPlaceholder")}
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="category">Category *</Label>
+            <Label htmlFor="category">{t("addVenue.category")}</Label>
             <Select
               value={formData.category}
               onValueChange={(value) => setFormData({ ...formData, category: value })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder={t("addVenue.selectCategory")} />
               </SelectTrigger>
               <SelectContent>
                 {venueCategories.map((cat) => (
                   <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
+                    {t(cat.label)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -175,12 +178,12 @@ const AddVenue = () => {
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t("addVenue.description")}</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Tell people about your venue..."
+              placeholder={t("addVenue.descPlaceholder")}
               rows={3}
             />
           </div>
@@ -188,11 +191,11 @@ const AddVenue = () => {
 
         {/* Contact Information */}
         <div className="bg-card border border-border rounded-2xl p-6 space-y-6">
-          <h2 className="font-serif text-xl font-semibold">Contact Information</h2>
+          <h2 className="font-serif text-xl font-semibold">{t("addVenue.contact")}</h2>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{t("addVenue.phone")}</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -202,7 +205,7 @@ const AddVenue = () => {
               />
             </div>
             <div>
-              <Label htmlFor="website">Website</Label>
+              <Label htmlFor="website">{t("addVenue.website")}</Label>
               <Input
                 id="website"
                 type="url"
@@ -222,7 +225,7 @@ const AddVenue = () => {
             className="flex-1"
             onClick={() => navigate("/dashboard")}
           >
-            Cancel
+            {t("addVenue.cancel")}
           </Button>
           <Button
             type="submit"
@@ -230,7 +233,7 @@ const AddVenue = () => {
             className="flex-1"
             disabled={createVenue.isPending || uploading || !formData.name || !formData.address}
           >
-            {createVenue.isPending || uploading ? "Saving..." : "Add Venue"}
+            {createVenue.isPending || uploading ? t("addVenue.saving") : t("addVenue.submit")}
           </Button>
         </div>
       </form>

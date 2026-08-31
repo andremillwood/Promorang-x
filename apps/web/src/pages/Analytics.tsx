@@ -4,11 +4,13 @@ import { BrandAnalyticsDashboard } from "@/components/analytics/BrandAnalyticsDa
 import { HostAnalyticsDashboard } from "@/components/analytics/HostAnalyticsDashboard";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useI18n } from "@/i18n/I18nContext";
 
 /**
  * Main Analytics page - routes to role-specific dashboards
  */
 const Analytics = () => {
+  const { t } = useI18n();
   const { user, roles } = useAuth();
   const primaryRole = roles[0] || "participant";
 
@@ -17,7 +19,7 @@ const Analytics = () => {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">Please sign in to view analytics</p>
+          <p className="text-muted-foreground">{t("analyticsPage.signIn")}</p>
         </div>
       </div>
     );
@@ -28,9 +30,9 @@ const Analytics = () => {
       {(primaryRole === "host" || primaryRole === "participant") && (
         <Alert className="mb-6 border-primary/20 bg-primary/5">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Analytics readiness</AlertTitle>
+          <AlertTitle>{t("analyticsPage.readiness")}</AlertTitle>
           <AlertDescription>
-            Host and participant analytics are still being aligned to production data contracts. This view currently favors a safe empty state over unreliable metrics when the backing dataset is unavailable.
+            {t("analyticsPage.readinessCopy")}
           </AlertDescription>
         </Alert>
       )}

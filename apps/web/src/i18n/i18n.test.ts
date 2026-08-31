@@ -141,6 +141,13 @@ describe("localization", () => {
       "ugcReview.approve",
       "actStudio.title",
       "actStudio.launch",
+      "devConsole.title",
+      "devConsole.generate",
+      "analyticsPage.signIn",
+      "addVenue.title",
+      "addVenue.submit",
+      "addProduct.title",
+      "addProduct.create",
     ] as const;
 
     supportedLocales.forEach((locale) => {

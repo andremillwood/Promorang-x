@@ -29,6 +29,16 @@ import {
   Code2
 } from "lucide-react";
 import { toast } from "sonner";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
+
+const SCOPE_COPY: Record<string, { label: TranslationKey; desc: TranslationKey }> = {
+  "feed:read": { label: "devConsole.scopeFeed", desc: "devConsole.scopeFeedDesc" },
+  "coupons:claim": { label: "devConsole.scopeClaim", desc: "devConsole.scopeClaimDesc" },
+  "campaigns:read": { label: "devConsole.scopeCampRead", desc: "devConsole.scopeCampReadDesc" },
+  "campaigns:write": { label: "devConsole.scopeCampWrite", desc: "devConsole.scopeCampWriteDesc" },
+  "merchants:read": { label: "devConsole.scopeMerchants", desc: "devConsole.scopeMerchantsDesc" },
+};
 
 interface ApiKeyItem {
   id: string;
@@ -41,6 +51,7 @@ interface ApiKeyItem {
 }
 
 export default function DeveloperConsole() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const [keys, setKeys] = useState<ApiKeyItem[]>([
     {
@@ -68,11 +79,11 @@ export default function DeveloperConsole() {
   const [copiedKey, setCopiedKey] = useState(false);
 
   const availableScopes = [
-    { id: "feed:read", label: "Read Feed & Promotions", desc: "Query active coupon drops, moments, and flash deals." },
-    { id: "coupons:claim", label: "Claim Coupons & Actions", desc: "Execute claims and generate redemption receipts." },
-    { id: "campaigns:read", label: "Read Campaign Analytics", desc: "Inspect campaign performance and participation." },
-    { id: "campaigns:write", label: "Plan & Create Campaigns", desc: "Trigger AI Campaign Operator and publish drops." },
-    { id: "merchants:read", label: "Merchant Live-Ops", desc: "View real-time budget, inventory, and menu items." }
+    { id: "feed:read" },
+    { id: "coupons:claim" },
+    { id: "campaigns:read" },
+    { id: "campaigns:write" },
+    { id: "merchants:read" },
   ];
 
   const handleScopeToggle = (scopeId: string) => {
@@ -83,7 +94,7 @@ export default function DeveloperConsole() {
 
   const handleCreateKey = () => {
     if (!newKeyName.trim()) {
-      toast.error("Please enter a key name");
+      toast.error(t("devConsole.toastName"));
       return;
     }
 
@@ -109,27 +120,27 @@ export default function DeveloperConsole() {
       setCreateModalOpen(false);
       setNewKeyName("");
       setLoading(false);
-      toast.success("API Key generated successfully");
+      toast.success(t("devConsole.toastCreated"));
     }, 400);
   };
 
   const handleRevokeKey = (id: string) => {
     setKeys((prev) => prev.filter((k) => k.id !== id));
-    toast.success("API key revoked");
+    toast.success(t("devConsole.toastRevoked"));
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(true);
-    toast.success("Copied to clipboard");
+    toast.success(t("devConsole.toastCopied"));
     setTimeout(() => setCopiedKey(false), 2000);
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-24 pt-24">
       <SEO
-        title="Developer Console & API Keys | Promorang"
-        description="Manage your Promorang Developer API keys, configure permission scopes, and connect AI Agents."
+        title={t("devConsole.seoTitle")}
+        description={t("devConsole.seoDesc")}
         type="website"
       />
 
@@ -139,19 +150,19 @@ export default function DeveloperConsole() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Link to="/developers" className="text-sm text-muted-foreground hover:text-foreground">
-                Developer Platform
+                {t("devConsole.platform")}
               </Link>
               <span className="text-muted-foreground">/</span>
-              <span className="text-sm font-medium">Console</span>
+              <span className="text-sm font-medium">{t("devConsole.console")}</span>
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight">API Keys & Agent Integrations</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight">{t("devConsole.title")}</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Manage authentication keys and permission scopes for third-party apps and AI agents.
+              {t("devConsole.lede")}
             </p>
           </div>
           <Button onClick={() => setCreateModalOpen(true)} className="rounded-xl gap-1.5 self-start sm:self-auto">
             <Plus className="w-4 h-4" />
-            Create New API Key
+            {t("devConsole.create")}
           </Button>
         </div>
 
@@ -161,9 +172,9 @@ export default function DeveloperConsole() {
             <div className="flex items-start gap-3">
               <ShieldAlert className="w-6 h-6 text-amber-400 shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <h3 className="font-semibold text-amber-200">Save your Secret API Key</h3>
+                <h3 className="font-semibold text-amber-200">{t("devConsole.saveKey")}</h3>
                 <p className="text-xs text-amber-300/80 leading-relaxed">
-                  This key will never be displayed again. Store it securely in your environment variables or password manager.
+                  {t("devConsole.saveKeyCopy")}
                 </p>
               </div>
             </div>
@@ -171,11 +182,11 @@ export default function DeveloperConsole() {
               <span className="truncate flex-1">{revealedKey}</span>
               <Button size="sm" variant="outline" className="h-8 gap-1 border-amber-500/30" onClick={() => copyToClipboard(revealedKey)}>
                 {copiedKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                {copiedKey ? "Copied" : "Copy"}
+                {copiedKey ? t("devConsole.copied") : t("devConsole.copy")}
               </Button>
             </div>
             <Button size="sm" variant="ghost" className="text-xs text-amber-300 hover:text-amber-100" onClick={() => setRevealedKey(null)}>
-              I have safely stored my key
+              {t("devConsole.stored")}
             </Button>
           </Card>
         )}
@@ -185,16 +196,16 @@ export default function DeveloperConsole() {
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Key className="w-4 h-4 text-primary" />
-              Active API Keys
+              {t("devConsole.activeKeys")}
             </CardTitle>
             <CardDescription>
-              Keys configured with granular access permissions.
+              {t("devConsole.activeKeysDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {keys.length === 0 ? (
               <div className="text-center py-10 text-muted-foreground text-sm">
-                No active API keys found. Click "Create New API Key" above to generate one.
+                {t("devConsole.empty")}
               </div>
             ) : (
               <div className="divide-y divide-border/40">
@@ -204,7 +215,7 @@ export default function DeveloperConsole() {
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-sm">{key.name}</span>
                         <Badge variant={key.environment === "production" ? "default" : "secondary"} className="text-[10px] uppercase">
-                          {key.environment}
+                          {key.environment === "production" ? t("devConsole.envProduction") : t("devConsole.envDevelopment")}
                         </Badge>
                       </div>
                       <div className="font-mono text-xs text-muted-foreground flex items-center gap-2">
@@ -227,7 +238,7 @@ export default function DeveloperConsole() {
                         onClick={() => handleRevokeKey(key.id)}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                        Revoke
+                        {t("devConsole.revoke")}
                       </Button>
                     </div>
                   </div>
@@ -243,14 +254,14 @@ export default function DeveloperConsole() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Bot className="w-5 h-5 text-cyan-400" />
-                <CardTitle className="text-lg">Connect to Claude Desktop or Cursor</CardTitle>
+                <CardTitle className="text-lg">{t("devConsole.mcpTitle")}</CardTitle>
               </div>
               <Badge variant="outline" className="text-cyan-400 border-cyan-500/30">
-                Model Context Protocol
+                {t("devConsole.mcpBadge")}
               </Badge>
             </div>
             <CardDescription>
-              Copy this configuration into your Claude Desktop or Cursor MCP settings to enable autonomous Promorang tools.
+              {t("devConsole.mcpDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 font-mono text-xs">
@@ -276,25 +287,25 @@ export default function DeveloperConsole() {
       <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Generate New Developer API Key</DialogTitle>
+            <DialogTitle>{t("devConsole.modalTitle")}</DialogTitle>
             <DialogDescription>
-              Define the key name and choose specific permission scopes.
+              {t("devConsole.modalDesc")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="key-name">Key Name / Description</Label>
+              <Label htmlFor="key-name">{t("devConsole.keyName")}</Label>
               <Input
                 id="key-name"
-                placeholder="e.g. Claude Desktop Agent, Telegram Bot, POS Integration"
+                placeholder={t("devConsole.keyPlaceholder")}
                 value={newKeyName}
                 onChange={(e) => setNewKeyName(e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Permission Scopes</Label>
+              <Label>{t("devConsole.scopes")}</Label>
               <div className="space-y-2.5 border border-border/60 rounded-xl p-3 bg-muted/20">
                 {availableScopes.map((scope) => (
                   <div key={scope.id} className="flex items-start space-x-2.5">
@@ -306,9 +317,9 @@ export default function DeveloperConsole() {
                     />
                     <div className="grid gap-0.5 leading-none">
                       <label htmlFor={scope.id} className="text-xs font-semibold cursor-pointer">
-                        {scope.label} <span className="font-mono text-muted-foreground font-normal">({scope.id})</span>
+                        {t(SCOPE_COPY[scope.id].label)} <span className="font-mono text-muted-foreground font-normal">({scope.id})</span>
                       </label>
-                      <p className="text-[11px] text-muted-foreground">{scope.desc}</p>
+                      <p className="text-[11px] text-muted-foreground">{t(SCOPE_COPY[scope.id].desc)}</p>
                     </div>
                   </div>
                 ))}
@@ -318,10 +329,10 @@ export default function DeveloperConsole() {
 
           <DialogFooter className="sm:justify-between">
             <Button variant="ghost" onClick={() => setCreateModalOpen(false)}>
-              Cancel
+              {t("devConsole.cancel")}
             </Button>
             <Button onClick={handleCreateKey} disabled={loading}>
-              Generate Key
+              {t("devConsole.generate")}
             </Button>
           </DialogFooter>
         </DialogContent>

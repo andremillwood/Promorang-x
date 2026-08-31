@@ -25,13 +25,15 @@ import {
 } from "@/components/ui/select";
 import { useCreateProduct, useUpdateProduct } from "@/hooks/useMerchantProducts";
 import { useNavigate } from "react-router-dom";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 const productSchema = z.object({
-  name: z.string().min(1, "Product name is required").max(200),
+  name: z.string().min(1).max(200),
   description: z.string().max(1000).optional(),
   category: z.string().optional(),
   sku: z.string().max(50).optional(),
-  price: z.coerce.number().min(0, "Price must be positive"),
+  price: z.coerce.number().min(0),
   compare_at_price: z.coerce.number().min(0).optional().nullable(),
   cost_price: z.coerce.number().min(0).optional().nullable(),
   currency: z.string().default("USD"),
@@ -48,25 +50,31 @@ interface ProductFormProps {
   onSuccess?: () => void;
 }
 
-const categories = [
-  "Apparel",
-  "Electronics",
-  "Food & Beverage",
-  "Health & Beauty",
-  "Home & Garden",
-  "Sports & Outdoors",
-  "Toys & Games",
-  "Other",
+const categories: { value: string; label: TranslationKey }[] = [
+  { value: "Apparel", label: "addProduct.catApparel" },
+  { value: "Electronics", label: "addProduct.catElectronics" },
+  { value: "Food & Beverage", label: "addProduct.catFood" },
+  { value: "Health & Beauty", label: "addProduct.catBeauty" },
+  { value: "Home & Garden", label: "addProduct.catHome" },
+  { value: "Sports & Outdoors", label: "addProduct.catSports" },
+  { value: "Toys & Games", label: "addProduct.catToys" },
+  { value: "Other", label: "addProduct.catOther" },
 ];
 
 export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const isEditing = !!initialData?.id;
 
+  const localizedSchema = productSchema.extend({
+    name: z.string().min(1, t("addProduct.nameRequired")).max(200),
+    price: z.coerce.number().min(0, t("addProduct.pricePositive")),
+  });
+
   const form = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(localizedSchema),
     defaultValues: {
       name: initialData?.name || "",
       description: initialData?.description || "",
@@ -127,7 +135,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
         <div className="space-y-6 rounded-xl border border-border bg-card p-4 sm:p-6">
           <h3 className="font-semibold text-foreground flex items-center gap-2">
             <Package className="w-5 h-5" />
-            Basic Information
+            {t("addProduct.basic")}
           </h3>
 
           <FormField
@@ -135,9 +143,9 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Product Name *</FormLabel>
+                <FormLabel>{t("addProduct.name")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter product name" {...field} />
+                  <Input placeholder={t("addProduct.namePlaceholder")} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -149,10 +157,10 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>{t("addProduct.description")}</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Describe your product..."
+                    placeholder={t("addProduct.descPlaceholder")}
                     className="min-h-[100px] resize-none"
                     {...field}
                   />
@@ -168,17 +176,17 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
+                  <FormLabel>{t("addProduct.category")}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
+                        <SelectValue placeholder={t("addProduct.selectCategory")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
+                        <SelectItem key={cat.value} value={cat.value}>
+                          {t(cat.label)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -193,9 +201,9 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
               name="sku"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>SKU</FormLabel>
+                  <FormLabel>{t("addProduct.sku")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Product SKU" {...field} />
+                    <Input placeholder={t("addProduct.skuPlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -208,7 +216,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
         <div className="space-y-6 rounded-xl border border-border bg-card p-4 sm:p-6">
           <h3 className="font-semibold text-foreground flex items-center gap-2">
             <DollarSign className="w-5 h-5" />
-            Pricing
+            {t("addProduct.pricing")}
           </h3>
 
           <div className="grid gap-6 sm:grid-cols-3">
@@ -217,7 +225,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price *</FormLabel>
+                  <FormLabel>{t("addProduct.price")}</FormLabel>
                   <FormControl>
                     <Input type="number" step="0.01" min="0" {...field} />
                   </FormControl>
@@ -231,18 +239,18 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
               name="compare_at_price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Compare at Price</FormLabel>
+                  <FormLabel>{t("addProduct.compare")}</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       step="0.01"
                       min="0"
-                      placeholder="Original price"
+                      placeholder={t("addProduct.comparePlaceholder")}
                       {...field}
                       value={field.value || ""}
                     />
                   </FormControl>
-                  <FormDescription>Strikethrough price</FormDescription>
+                  <FormDescription>{t("addProduct.compareHint")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -253,18 +261,18 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
               name="cost_price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cost Price</FormLabel>
+                  <FormLabel>{t("addProduct.cost")}</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       step="0.01"
                       min="0"
-                      placeholder="Your cost"
+                      placeholder={t("addProduct.costPlaceholder")}
                       {...field}
                       value={field.value || ""}
                     />
                   </FormControl>
-                  <FormDescription>For margin tracking</FormDescription>
+                  <FormDescription>{t("addProduct.costHint")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -274,14 +282,14 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
 
         {/* Inventory */}
         <div className="space-y-6 rounded-xl border border-border bg-card p-4 sm:p-6">
-          <h3 className="font-semibold text-foreground">Inventory</h3>
+          <h3 className="font-semibold text-foreground">{t("addProduct.inventory")}</h3>
 
           <FormField
             control={form.control}
             name="inventory_quantity"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Quantity in Stock</FormLabel>
+                <FormLabel>{t("addProduct.qty")}</FormLabel>
                 <FormControl>
                   <Input type="number" min="0" {...field} />
                 </FormControl>
@@ -296,9 +304,9 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             render={({ field }) => (
               <FormItem className="flex flex-col gap-4 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                  <FormLabel className="text-base">Active</FormLabel>
+                  <FormLabel className="text-base">{t("addProduct.active")}</FormLabel>
                   <FormDescription>
-                    Product is visible and available for purchase
+                    {t("addProduct.activeHint")}
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -313,7 +321,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
         <div className="space-y-6 rounded-xl border border-border bg-card p-4 sm:p-6">
           <h3 className="font-semibold text-foreground flex items-center gap-2">
             <Award className="w-5 h-5" />
-            Earned Value Redemption
+            {t("addProduct.redemption")}
           </h3>
 
           <FormField
@@ -322,9 +330,9 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             render={({ field }) => (
               <FormItem className="flex flex-col gap-4 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                  <FormLabel className="text-base">Enable Earned Value Redemption</FormLabel>
+                  <FormLabel className="text-base">{t("addProduct.enableRedeem")}</FormLabel>
                   <FormDescription>
-                    Allow customers to purchase this product with earned Promorang value
+                    {t("addProduct.enableRedeemHint")}
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -340,7 +348,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
               name="points_cost"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Earned value required</FormLabel>
+                  <FormLabel>{t("addProduct.valueRequired")}</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -351,7 +359,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                     />
                   </FormControl>
                   <FormDescription>
-                    How many PromoPoints are needed to redeem this product
+                    {t("addProduct.pointsHint")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -368,18 +376,18 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             onClick={() => navigate(-1)}
             className="flex-1"
           >
-            Cancel
+            {t("addProduct.cancel")}
           </Button>
           <Button type="submit" disabled={isPending} className="flex-1">
             {isPending ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving...
+                {t("addProduct.saving")}
               </>
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2" />
-                {isEditing ? "Update Product" : "Create Product"}
+                {isEditing ? t("addProduct.update") : t("addProduct.create")}
               </>
             )}
           </Button>
