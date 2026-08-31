@@ -89,6 +89,12 @@ describe("localization", () => {
       "hostUnlock.startHosting",
       "offerDetail.claimWallet",
       "proofVault.title",
+      "promoshare.seoTitle",
+      "promoshare.youQualified",
+      "momentum.hero1",
+      "momentum.oppFeed",
+      "pieceProfile.quickTrade",
+      "pieceProfile.notFound",
     ] as const;
 
     supportedLocales.forEach((locale) => {

@@ -32,6 +32,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { API_BASE_URL } from "@/lib/api";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/I18nContext";
 
 type PulseMoment = {
   id: string;
@@ -102,6 +103,7 @@ function FlowNode({
   active?: boolean;
   isLast?: boolean;
 }) {
+  const { t } = useI18n();
   return (
     <div className="relative flex-1 min-w-[180px]">
       <motion.div
@@ -125,7 +127,7 @@ function FlowNode({
               {active && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-primary-foreground shadow-sm">
                   <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                  Active
+                  {t("momentum.active")}
                 </span>
               )}
             </div>
@@ -218,6 +220,7 @@ function MovePill({
 }
 
 export default function Momentum() {
+  const { t } = useI18n();
   const { user, session, activeRole } = useAuth();
   const [sidebarTab, setSidebarTab] = useState<"receipt" | "actions" | "markets">("receipt");
   const dropsQuery = useContentDrops("active");
@@ -292,49 +295,49 @@ export default function Momentum() {
   const receipts = (promoShare?.recent_entries || []).slice(0, 4).map((entry) => ({
     id: entry.id,
     label: entry.source_action.replaceAll("_", " "),
-    detail: `From ${entry.source_type}`,
-    value: `+${entry.entry_count} entries`,
+    detail: t("momentum.fromSource", { source: entry.source_type }),
+    value: t("momentum.plusEntries", { count: entry.entry_count }),
   }));
 
   const flowNodes = [
     {
       stepNumber: "01",
       icon: RadioTower,
-      kicker: "Signal",
-      title: topSignal?.title || "No active drop",
-      detail: "Creator content asset open for live distribution.",
+      kicker: t("momentum.kickerSignal"),
+      title: topSignal?.title || t("momentum.noDrop"),
+      detail: t("momentum.signalDetail"),
       active: true,
     },
     {
       stepNumber: "02",
       icon: Share2,
-      kicker: "Movers",
-      title: "Attributable shares",
-      detail: "Every click, share, and referral generates receipts.",
+      kicker: t("momentum.kickerMovers"),
+      title: t("momentum.moversTitle"),
+      detail: t("momentum.moversDetail"),
       active: promoShareTotals.entries > 0,
     },
     {
       stepNumber: "03",
       icon: MapPin,
-      kicker: "Landing",
-      title: topMoment?.title || "No landing point",
-      detail: "Attention lands at live venues, check-ins, or proof spots.",
+      kicker: t("momentum.kickerLanding"),
+      title: topMoment?.title || t("momentum.noLanding"),
+      detail: t("momentum.landingDetail"),
       active: !!topMoment,
     },
     {
       stepNumber: "04",
       icon: Ticket,
-      kicker: "Reward",
-      title: `${promoShareTotals.entries} PromoShare entries`,
-      detail: "Attributable actions roll into funded reward cycles.",
+      kicker: t("momentum.kickerReward"),
+      title: t("momentum.rewardTitle", { count: promoShareTotals.entries }),
+      detail: t("momentum.rewardDetail"),
       active: promoShareTotals.entries > 0,
     },
     {
       stepNumber: "05",
       icon: WalletCards,
-      kicker: "Upside",
-      title: `${pieces.length} Piece markets`,
-      detail: "Proven conviction unlocks backing and status.",
+      kicker: t("momentum.kickerUpside"),
+      title: t("momentum.upsideTitle", { count: pieces.length }),
+      detail: t("momentum.upsideDetail"),
       active: pieces.length > 0,
     },
   ];
@@ -366,36 +369,36 @@ export default function Momentum() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                     </span>
-                    Live Exchange
+                    {t("momentum.liveExchange")}
                   </Badge>
                   <Badge variant="outline" className="border-border/80 text-muted-foreground text-xs">
-                    <Activity className="mr-1 h-3 w-3 text-primary" /> Real-time Motion
+                    <Activity className="mr-1 h-3 w-3 text-primary" /> {t("momentum.realTime")}
                   </Badge>
                   <Badge variant="secondary" className="text-xs font-semibold capitalize">
-                    Role: {role}
+                    {t("momentum.role", { role })}
                   </Badge>
                 </div>
 
                 <h1 className="text-3xl font-black leading-[1.0] tracking-tight sm:text-5xl xl:text-6xl text-foreground">
-                  Find what is moving. <br className="hidden sm:inline" />
+                  {t("momentum.hero1")} <br className="hidden sm:inline" />
                   <span className="bg-gradient-primary bg-clip-text text-transparent">
-                    Help it travel.
+                    {t("momentum.hero2")}
                   </span>{" "}
-                  Get paid in proof.
+                  {t("momentum.hero3")}
                 </h1>
 
                 <p className="max-w-2xl text-sm sm:text-base leading-relaxed text-muted-foreground">
-                  Promorang is a social marketplace for content drops, local Moments, reward tickets, and retained reputation. Every share, check-in, referral, and backing leaves a verifiable receipt.
+                  {t("momentum.heroCopy")}
                 </p>
               </div>
 
               {/* Integrated Hero Metric Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full lg:w-[420px] shrink-0 pt-2 lg:pt-0">
                 {[
-                  { label: "Signals", value: drops.length, icon: RadioTower, color: "text-primary" },
-                  { label: "Landings", value: activeMoments.length, icon: MapPin, color: "text-amber-500" },
-                  { label: "Entries", value: promoShareTotals.entries, icon: Ticket, color: "text-accent" },
-                  { label: "Markets", value: pieces.length, icon: WalletCards, color: "text-emerald-500" },
+                  { label: t("momentum.signals"), value: drops.length, icon: RadioTower, color: "text-primary" },
+                  { label: t("momentum.landings"), value: activeMoments.length, icon: MapPin, color: "text-amber-500" },
+                  { label: t("momentum.entries"), value: promoShareTotals.entries, icon: Ticket, color: "text-accent" },
+                  { label: t("momentum.markets"), value: pieces.length, icon: WalletCards, color: "text-emerald-500" },
                 ].map((stat) => (
                   <div
                     key={stat.label}
@@ -419,17 +422,17 @@ export default function Momentum() {
                 <div className="flex items-center gap-2">
                   <Route className="h-4 w-4 text-primary" />
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">
-                    Today’s Route
+                    {t("momentum.todaysRoute")}
                   </p>
                 </div>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  A living path from creator signal to verified upside.
+                  {t("momentum.routeCopy")}
                 </p>
               </div>
 
               <Button asChild size="sm" variant="outline" className="self-start sm:self-auto text-xs font-bold gap-1.5 border-primary/30 hover:bg-primary/10 hover:text-primary">
                 <Link to="/content-drops">
-                  Browse all drops
+                  {t("momentum.browseDrops")}
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </Button>
@@ -466,14 +469,14 @@ export default function Momentum() {
                 <div>
                   <div className="flex items-center gap-2">
                     <Zap className="h-4 w-4 text-primary" />
-                    <p className="font-black text-foreground">Opportunity Feed</p>
+                    <p className="font-black text-foreground">{t("momentum.oppFeed")}</p>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Creator drops asking for useful distribution right now.
+                    {t("momentum.oppFeedCopy")}
                   </p>
                 </div>
                 <Button asChild variant="ghost" size="sm" className="text-xs font-semibold hover:text-primary">
-                  <Link to="/content-drops">All drops ({drops.length})</Link>
+                  <Link to="/content-drops">{t("momentum.allDrops", { count: drops.length })}</Link>
                 </Button>
               </div>
 
@@ -486,8 +489,8 @@ export default function Momentum() {
                 {!dropsQuery.isLoading && drops.length === 0 && (
                   <div className="rounded-xl border border-dashed border-border/80 p-8 text-center">
                     <RadioTower className="mx-auto h-8 w-8 text-muted-foreground/60 mb-2" />
-                    <p className="text-sm font-semibold text-foreground">No active content drops</p>
-                    <p className="text-xs text-muted-foreground mt-1">Check back soon for new creator signals.</p>
+                    <p className="text-sm font-semibold text-foreground">{t("momentum.noDrops")}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t("momentum.noDropsCopy")}</p>
                   </div>
                 )}
 
@@ -504,13 +507,13 @@ export default function Momentum() {
                         </p>
                         <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                           <span className="inline-flex items-center gap-1">
-                            <Users className="h-3.5 w-3.5 text-primary" /> Creator signal
+                            <Users className="h-3.5 w-3.5 text-primary" /> {t("momentum.creatorSignal")}
                           </span>
                           <span className="inline-flex items-center gap-1">
-                            <Clock3 className="h-3.5 w-3.5 text-primary" /> Early window
+                            <Clock3 className="h-3.5 w-3.5 text-primary" /> {t("momentum.earlyWindow")}
                           </span>
                           <span className="inline-flex items-center gap-1">
-                            <Ticket className="h-3.5 w-3.5 text-primary" /> Ticket eligible
+                            <Ticket className="h-3.5 w-3.5 text-primary" /> {t("momentum.ticketEligible")}
                           </span>
                         </div>
                       </div>
@@ -526,24 +529,24 @@ export default function Momentum() {
 
                     <div className="mt-3.5 flex flex-wrap gap-2">
                       <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary">
-                        <Flame className="h-3 w-3" /> early mover
+                        <Flame className="h-3 w-3" /> {t("momentum.earlyMover")}
                       </span>
                       <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground">
-                        attributed share
+                        {t("momentum.attributedShare")}
                       </span>
                       <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-[10px] font-bold text-amber-500">
-                        reward weight
+                        {t("momentum.rewardWeight")}
                       </span>
                     </div>
 
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3">
                       <div className="flex flex-wrap gap-2">
-                        <MovePill icon={MousePointerClick} label="Open" detail="track click" />
-                        <MovePill icon={Share2} label="Share" detail="prove reach" />
-                        <MovePill icon={Ticket} label="Earn" detail="tickets" />
+                        <MovePill icon={MousePointerClick} label={t("momentum.open")} detail={t("momentum.trackClick")} />
+                        <MovePill icon={Share2} label={t("momentum.share")} detail={t("momentum.proveReach")} />
+                        <MovePill icon={Ticket} label={t("momentum.earn")} detail={t("momentum.tickets")} />
                       </div>
                       <span className="inline-flex items-center gap-1 text-xs font-black text-primary group-hover:translate-x-0.5 transition-transform">
-                        Open drop
+                        {t("momentum.openDrop")}
                         <ArrowRight className="h-3.5 w-3.5" />
                       </span>
                     </div>
@@ -563,14 +566,14 @@ export default function Momentum() {
                 <div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-amber-500" />
-                    <p className="font-black text-foreground">Local Landings</p>
+                    <p className="font-black text-foreground">{t("momentum.localLandings")}</p>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Where online attention becomes real-world attendance.
+                    {t("momentum.localCopy")}
                   </p>
                 </div>
                 <Button asChild variant="ghost" size="sm" className="text-xs font-semibold hover:text-amber-500">
-                  <Link to="/pulse">Pulse ({pulseMoments.length})</Link>
+                  <Link to="/pulse">{t("momentum.pulse", { count: pulseMoments.length })}</Link>
                 </Button>
               </div>
 
@@ -583,8 +586,8 @@ export default function Momentum() {
                 {!pulseQuery.isLoading && pulseMoments.length === 0 && (
                   <div className="rounded-xl border border-dashed border-border/80 p-8 text-center">
                     <MapPin className="mx-auto h-8 w-8 text-muted-foreground/60 mb-2" />
-                    <p className="text-sm font-semibold text-foreground">No active landings forming</p>
-                    <p className="text-xs text-muted-foreground mt-1">Explore Pulse to view upcoming local moments.</p>
+                    <p className="text-sm font-semibold text-foreground">{t("momentum.noLandings")}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t("momentum.noLandingsCopy")}</p>
                   </div>
                 )}
 
@@ -606,7 +609,7 @@ export default function Momentum() {
                           </p>
                           <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                             <MapPin className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                            <span className="truncate">{moment.venue_name || moment.city || "Location forming"}</span>
+                            <span className="truncate">{moment.venue_name || moment.city || t("momentum.locationForming")}</span>
                           </p>
                         </div>
                         <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/30 text-[10px] font-bold uppercase tracking-wider shrink-0">
@@ -616,7 +619,7 @@ export default function Momentum() {
 
                       <div className="mt-4 space-y-1.5">
                         <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
-                          <span>Gathering Threshold</span>
+                          <span>{t("momentum.gathering")}</span>
                           <span className="text-foreground font-bold">{joined} / {target}</span>
                         </div>
                         <Progress value={progress} className="h-2 bg-muted rounded-full" />
@@ -645,7 +648,7 @@ export default function Momentum() {
                 )}
               >
                 <BadgeCheck className="h-3.5 w-3.5" />
-                Receipt
+                {t("momentum.receipt")}
               </button>
               <button
                 type="button"
@@ -658,7 +661,7 @@ export default function Momentum() {
                 )}
               >
                 <Zap className="h-3.5 w-3.5" />
-                Actions
+                {t("momentum.actions")}
               </button>
               <button
                 type="button"
@@ -671,7 +674,7 @@ export default function Momentum() {
                 )}
               >
                 <TrendingUp className="h-3.5 w-3.5" />
-                Markets
+                {t("momentum.marketsTab")}
               </button>
             </div>
 
@@ -690,8 +693,8 @@ export default function Momentum() {
                         <BadgeCheck className="h-4 w-4" />
                       </span>
                       <div>
-                        <p className="font-black text-foreground text-sm">Your Motion Receipt</p>
-                        <p className="text-[11px] text-muted-foreground">What your motion is worth.</p>
+                        <p className="font-black text-foreground text-sm">{t("momentum.motionReceipt")}</p>
+                        <p className="text-[11px] text-muted-foreground">{t("momentum.motionWorth")}</p>
                       </div>
                     </div>
                   </div>
@@ -699,20 +702,20 @@ export default function Momentum() {
                   <div className="grid grid-cols-3 gap-2">
                     <div className="rounded-lg border border-border/80 bg-background/80 p-2.5 text-center">
                       <p className="text-xl font-black text-foreground">{promoShareTotals.entries}</p>
-                      <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">entries</p>
+                      <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">{t("momentum.entriesLabel")}</p>
                     </div>
                     <div className="rounded-lg border border-border/80 bg-background/80 p-2.5 text-center">
                       <p className="text-xl font-black text-foreground">{promoShareTotals.weight.toFixed(1)}</p>
-                      <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">weight</p>
+                      <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">{t("momentum.weightLabel")}</p>
                     </div>
                     <div className="rounded-lg border border-border/80 bg-background/80 p-2.5 text-center">
                       <p className="text-xl font-black text-foreground">{promoShareTotals.eligible}</p>
-                      <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">eligible</p>
+                      <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">{t("momentum.eligibleLabel")}</p>
                     </div>
                   </div>
 
                   <div className="mt-4 space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Recent Activity</p>
+                    <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">{t("momentum.recentActivity")}</p>
                     {receipts.map((receipt) => (
                       <div
                         key={receipt.id}
@@ -734,7 +737,7 @@ export default function Momentum() {
                       <div className="rounded-lg border border-dashed border-border/80 p-4 text-center">
                         <Ticket className="mx-auto h-5 w-5 text-muted-foreground/60 mb-1" />
                         <p className="text-xs text-muted-foreground">
-                          No recorded receipts yet. Completed distribution actions will record here automatically.
+                          {t("momentum.noReceipts")}
                         </p>
                       </div>
                     )}
@@ -754,31 +757,31 @@ export default function Momentum() {
                 {[
                   {
                     icon: RadioTower,
-                    label: role === "creator" ? "Launch signal" : "Move early signal",
-                    body: role === "creator" ? "Wrap your content in attribution." : "Find content before everyone else does.",
+                    label: role === "creator" ? t("momentum.launchSignal") : t("momentum.moveSignal"),
+                    body: role === "creator" ? t("momentum.launchBody") : t("momentum.moveBody"),
                     href: "/content-drops",
-                    cta: role === "creator" ? "Create drop" : "Find drop",
+                    cta: role === "creator" ? t("momentum.createDrop") : t("momentum.findDrop"),
                   },
                   {
                     icon: Calendar,
-                    label: "Land attention",
-                    body: "Convert traction into a Moment check-in or proof path.",
+                    label: t("momentum.landAttention"),
+                    body: t("momentum.landBody"),
                     href: "/pulse",
-                    cta: "Open Pulse",
+                    cta: t("momentum.openPulse"),
                   },
                   {
                     icon: Ticket,
-                    label: "Claim weight",
-                    body: "See which actions become PromoShare entries.",
+                    label: t("momentum.claimWeight"),
+                    body: t("momentum.claimBody"),
                     href: "/promoshare",
-                    cta: "View receipt",
+                    cta: t("momentum.viewReceipt"),
                   },
                   {
                     icon: Gem,
-                    label: "Back upside",
-                    body: "Use Pieces when momentum becomes conviction.",
+                    label: t("momentum.backUpside"),
+                    body: t("momentum.backBody"),
                     href: "/marketplace",
-                    cta: "Explore pieces",
+                    cta: t("momentum.explorePieces"),
                   },
                 ].map((action) => (
                   <ActionLane key={action.label} {...action} />
@@ -799,15 +802,15 @@ export default function Momentum() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Trophy className="h-4 w-4 text-primary" />
-                      <p className="font-black text-sm text-foreground">Contributor Lanes</p>
+                      <p className="font-black text-sm text-foreground">{t("momentum.contributorLanes")}</p>
                     </div>
-                    <Badge variant="outline" className="text-[10px] font-bold">Rank</Badge>
+                    <Badge variant="outline" className="text-[10px] font-bold">{t("momentum.rank")}</Badge>
                   </div>
                   <div className="space-y-2">
                     {[
-                      ["Early mover", "Spot content before it trends", "2.4x"],
-                      ["Proof closer", "Turn attention into verified action", "+6"],
-                      ["Conviction holder", "Back the asset after it forms", "VIP"],
+                      [t("momentum.laneEarly"), t("momentum.laneEarlyCopy"), "2.4x"],
+                      [t("momentum.laneProof"), t("momentum.laneProofCopy"), "+6"],
+                      [t("momentum.laneConviction"), t("momentum.laneConvictionCopy"), "VIP"],
                     ].map(([title, body, value]) => (
                       <div
                         key={title}
@@ -828,9 +831,9 @@ export default function Momentum() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Sparkles className="h-4 w-4 text-primary" />
-                      <p className="font-black text-sm text-foreground">Conviction Markets</p>
+                      <p className="font-black text-sm text-foreground">{t("momentum.convictionMarkets")}</p>
                     </div>
-                    <Badge variant="outline" className="text-[10px] font-bold">Upside</Badge>
+                    <Badge variant="outline" className="text-[10px] font-bold">{t("momentum.upside")}</Badge>
                   </div>
                   <div className="space-y-2">
                     {contentPieces.map((piece) => (
@@ -840,15 +843,15 @@ export default function Momentum() {
                         className="group block rounded-lg border border-border/60 bg-background/60 p-2.5 hover:border-primary/50 transition-colors"
                       >
                         <p className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors truncate">
-                          {piece.asset?.title || piece.asset?.name || piece.title || "Content piece"}
+                          {piece.asset?.title || piece.asset?.name || piece.title || t("momentum.contentPiece")}
                         </p>
                         <p className="text-[10px] text-muted-foreground mt-0.5 capitalize">
-                          {piece.piece_type} · {Number(piece.volume_24h || 0).toLocaleString()} volume
+                          {piece.piece_type} · {t("momentum.volume", { count: Number(piece.volume_24h || 0).toLocaleString() })}
                         </p>
                       </Link>
                     ))}
                     {!contentPieces.length && (
-                      <p className="text-xs text-muted-foreground text-center py-3">No active markets</p>
+                      <p className="text-xs text-muted-foreground text-center py-3">{t("momentum.noMarkets")}</p>
                     )}
                   </div>
                 </div>
