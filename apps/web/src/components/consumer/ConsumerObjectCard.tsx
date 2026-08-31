@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Bookmark, CalendarDays, MapPin, Users } from "lucide-react";
 import type { ConsumerObject, MomentObject, SceneObject } from "@/lib/consumer-canonical";
+import { useI18n } from "@/i18n/I18nContext";
 
 interface ConsumerObjectCardProps {
   item: ConsumerObject;
@@ -8,6 +9,7 @@ interface ConsumerObjectCardProps {
 }
 
 const ConsumerObjectCard = ({ item, emphasis = "default" }: ConsumerObjectCardProps) => {
+  const { t, formatNumber } = useI18n();
   const isMoment = item.kind === "moment";
   const isScene = item.kind === "scene";
   const moment = isMoment ? (item as MomentObject) : null;
@@ -48,7 +50,7 @@ const ConsumerObjectCard = ({ item, emphasis = "default" }: ConsumerObjectCardPr
           </div>
           <button
             type="button"
-            aria-label={`Save ${item.title}`}
+            aria-label={t("consPrev.saveAria", { title: item.title })}
             className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-background text-muted-foreground transition hover:border-primary/40 hover:text-primary"
           >
             <Bookmark className="h-4 w-4" />
@@ -59,14 +61,14 @@ const ConsumerObjectCard = ({ item, emphasis = "default" }: ConsumerObjectCardPr
           <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-muted-foreground">
             {moment.startsAt ? <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />{moment.startsAt}</span> : null}
             {moment.venueName || moment.location ? <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{moment.venueName || moment.location}</span> : null}
-            {typeof moment.participantCount === "number" ? <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />{moment.participantCount} interested</span> : null}
+            {typeof moment.participantCount === "number" ? <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />{t("consPrev.interested", { count: formatNumber(moment.participantCount) })}</span> : null}
           </div>
         ) : null}
 
         {scene ? (
           <div className="mt-4 flex gap-5 text-xs text-muted-foreground">
-            {typeof scene.signalCount === "number" ? <span><b className="text-foreground">{scene.signalCount}</b> new signals</span> : null}
-            {typeof scene.trendingCount === "number" ? <span><b className="text-foreground">{scene.trendingCount}</b> trending</span> : null}
+            {typeof scene.signalCount === "number" ? <span>{t("consPrev.newSignals", { count: formatNumber(scene.signalCount) })}</span> : null}
+            {typeof scene.trendingCount === "number" ? <span>{t("consPrev.trending", { count: formatNumber(scene.trendingCount) })}</span> : null}
           </div>
         ) : null}
       </div>

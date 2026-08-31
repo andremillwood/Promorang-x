@@ -124,6 +124,10 @@ describe("localization", () => {
       "venueTease.seoTitle",
       "venueTease.claimCta",
       "campLand.whyTitle",
+      "pageClaim.title",
+      "consPrev.navHome",
+      "consMom.loopTitle",
+      "consHome.welcome",
     ] as const;
 
     supportedLocales.forEach((locale) => {
