@@ -289,6 +289,10 @@ describe("localization", () => {
       "growTab.title",
       "catCtrl.title",
       "payQ.markPaid",
+      "suppQ.title",
+      "suppQ.save",
+      "opsPulse.title",
+      "opsPulse.refresh",
     ] as const;
 
     supportedLocales.forEach((locale) => {
