@@ -154,6 +154,8 @@ describe("localization", () => {
       "pushPortal.title",
       "mechDetail.useStrategy",
       "mechDetail.notFound",
+      "pieceStudio.title",
+      "pieceStudio.distribute",
     ] as const;
 
     supportedLocales.forEach((locale) => {
