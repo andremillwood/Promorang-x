@@ -164,6 +164,9 @@ describe("localization", () => {
       "sponsorDash.create",
       "sponsorAn.title",
       "sponsorAn.emptyCta",
+      "authCb.completing",
+      "campIntel.title",
+      "campIntel.build",
     ] as const;
 
     supportedLocales.forEach((locale) => {

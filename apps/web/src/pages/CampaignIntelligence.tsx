@@ -36,6 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface NetworkInventory {
   creators: Array<{
@@ -121,6 +122,7 @@ interface DiagnosticData {
 }
 
 export default function CampaignIntelligence() {
+  const { t } = useI18n();
   const [operatorMode, setOperatorMode] = useState<'compiler' | 'live_operator'>('compiler');
 
   // Compiler Form State
@@ -166,7 +168,7 @@ export default function CampaignIntelligence() {
   const handleBuildPlan = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!objective.trim() || objective.trim().length < 5) {
-      toast.error('Please describe your campaign objective in at least 5 characters');
+      toast.error(t('campIntel.toastShort'));
       return;
     }
 
@@ -197,15 +199,15 @@ export default function CampaignIntelligence() {
 
       if (!response.ok || !json.success) {
         simulateLocalPlan();
-        toast.info('Generated campaign plan using platform intelligence graph');
+        toast.info(t('campIntel.toastGraph'));
         return;
       }
 
       setPlanReport(json.data.report);
-      toast.success('Campaign Intelligence report compiled successfully!');
+      toast.success(t('campIntel.toastCompiled'));
     } catch (err) {
       simulateLocalPlan();
-      toast.info('Compiled campaign plan using platform engine');
+      toast.info(t('campIntel.toastEngine'));
     } finally {
       setLoading(false);
     }
@@ -303,14 +305,14 @@ export default function CampaignIntelligence() {
         title: planReport.objectiveSummary
       });
 
-      toast.success(`Campaign DRAFT saved! (ID: ${draftId})`);
+      toast.success(t('campIntel.toastDraft', { id: draftId }));
     } catch (err) {
       const fallbackId = `draft_${Date.now()}`;
       setSavedDraftInfo({
         draftId: fallbackId,
         title: planReport.objectiveSummary
       });
-      toast.success(`Saved Campaign DRAFT! (ID: ${fallbackId})`);
+      toast.success(t('campIntel.toastDraft', { id: fallbackId }));
     } finally {
       setSavingDraft(false);
     }
@@ -320,7 +322,7 @@ export default function CampaignIntelligence() {
   const handleApproveAndPublish = async () => {
     const draftId = savedDraftInfo?.draftId || `draft_${Date.now()}`;
     if (!confirmBudgetLock) {
-      toast.error('Please check the human budget lock confirmation checkbox before publishing.');
+      toast.error(t('campIntel.toastLock'));
       return;
     }
 
@@ -345,13 +347,13 @@ export default function CampaignIntelligence() {
         campaignId: draftId,
         status: 'active'
       });
-      toast.success(`Campaign Published & Activated! (Status: ACTIVE)`);
+      toast.success(t('campIntel.toastPublished'));
     } catch (err) {
       setPublishedCampaign({
         campaignId: draftId,
         status: 'active'
       });
-      toast.success(`Campaign Published & Activated! (Budget funding locked)`);
+      toast.success(t('campIntel.toastPublishedLock'));
     } finally {
       setActivating(false);
     }
@@ -377,9 +379,9 @@ export default function CampaignIntelligence() {
         })
       });
 
-      toast.success(`Mobilized ${planReport.networkInventory.creators.length} Creators & Activated matched Moments!`);
+      toast.success(t('campIntel.toastMobilized', { count: planReport.networkInventory.creators.length }));
     } catch (err) {
-      toast.success(`Issued invitations to ${planReport.networkInventory.creators.length} Creators!`);
+      toast.success(t('campIntel.toastInvited', { count: planReport.networkInventory.creators.length }));
     } finally {
       setMobilizing(false);
     }
@@ -408,10 +410,10 @@ export default function CampaignIntelligence() {
       } else {
         simulateLocalDiagnostics();
       }
-      toast.success('Performance Diagnostics compiled!');
+      toast.success(t('campIntel.toastDiag'));
     } catch (err) {
       simulateLocalDiagnostics();
-      toast.info('Compiled performance diagnostics from telemetry engine');
+      toast.info(t('campIntel.toastDiagEngine'));
     } finally {
       setRunningDiagnostics(false);
     }
@@ -442,17 +444,17 @@ export default function CampaignIntelligence() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Badge variant="outline" className="bg-purple-950/50 text-purple-400 border-purple-800 px-3 py-1 text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                <Bot className="w-3.5 h-3.5 text-purple-400" /> Promorang Agentic Operating Layer
+                <Bot className="w-3.5 h-3.5 text-purple-400" /> {t('campIntel.badge')}
               </Badge>
               <Badge variant="outline" className="bg-indigo-950/50 text-indigo-400 border-indigo-800 text-xs">
-                Phase 2: Activation & Telemetry Diagnostics
+                {t('campIntel.phase')}
               </Badge>
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
-              Campaign Intelligence Console
+              {t('campIntel.title')}
             </h1>
             <p className="text-slate-400 text-sm mt-1">
-              Design, publish, mobilize, and diagnose campaign performance across the Promorang network.
+              {t('campIntel.lede')}
             </p>
           </div>
 
@@ -463,7 +465,7 @@ export default function CampaignIntelligence() {
               onClick={() => setOperatorMode('compiler')}
               className={operatorMode === 'compiler' ? 'bg-purple-600 text-white text-xs' : 'text-slate-400 text-xs'}
             >
-              <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Campaign Compiler
+              <Sparkles className="w-3.5 h-3.5 mr-1.5" /> {t('campIntel.compiler')}
             </Button>
             <Button
               size="sm"
@@ -471,7 +473,7 @@ export default function CampaignIntelligence() {
               onClick={() => setOperatorMode('live_operator')}
               className={operatorMode === 'live_operator' ? 'bg-indigo-600 text-white text-xs' : 'text-slate-400 text-xs'}
             >
-              <Radio className="w-3.5 h-3.5 mr-1.5 text-rose-400" /> Live Telemetry
+              <Radio className="w-3.5 h-3.5 mr-1.5 text-rose-400" /> {t('campIntel.telemetry')}
             </Button>
           </div>
         </div>
@@ -485,10 +487,10 @@ export default function CampaignIntelligence() {
               <Card className="bg-slate-900 border-slate-800 text-slate-100 shadow-xl">
                 <CardHeader className="border-b border-slate-800/80 pb-4">
                   <CardTitle className="text-lg font-semibold flex items-center gap-2 text-purple-400">
-                    <Sparkles className="w-5 h-5 text-purple-400" /> Campaign Objective
+                    <Sparkles className="w-5 h-5 text-purple-400" /> {t('campIntel.objective')}
                   </CardTitle>
                   <CardDescription className="text-slate-400 text-xs">
-                    Describe what outcome you want Promorang to achieve.
+                    {t('campIntel.objectiveDesc')}
                   </CardDescription>
                 </CardHeader>
                 
@@ -497,12 +499,12 @@ export default function CampaignIntelligence() {
                     
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-                        <Target className="w-3.5 h-3.5 text-purple-400" /> Primary Objective *
+                        <Target className="w-3.5 h-3.5 text-purple-400" /> {t('campIntel.primary')}
                       </label>
                       <Textarea 
                         value={objective}
                         onChange={(e) => setObjective(e.target.value)}
-                        placeholder="e.g. Bring 200 coffee lovers to Downtown Cafe this weekend with J$100,000 budget."
+                        placeholder={t('campIntel.objPh')}
                         className="bg-slate-950 border-slate-800 focus:border-purple-500 text-slate-100 placeholder:text-slate-600 min-h-[90px] text-sm"
                         required
                       />
@@ -510,23 +512,23 @@ export default function CampaignIntelligence() {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-slate-300">Target Category</label>
+                        <label className="text-xs font-medium text-slate-300">{t('campIntel.category')}</label>
                         <select 
                           value={targetMarket}
                           onChange={(e) => setTargetMarket(e.target.value)}
                           className="w-full bg-slate-950 border border-slate-800 rounded-md p-2 text-xs text-slate-200 focus:border-purple-500"
                         >
-                          <option value="dining">Dining & Food</option>
-                          <option value="retail">Retail & Fashion</option>
-                          <option value="entertainment">Nightlife & Events</option>
-                          <option value="lifestyle">Health & Lifestyle</option>
-                          <option value="tech">Technology & Apps</option>
-                          <option value="community">Community Cause</option>
+                          <option value="dining">{t('campIntel.catDining')}</option>
+                          <option value="retail">{t('campIntel.catRetail')}</option>
+                          <option value="entertainment">{t('campIntel.catEvents')}</option>
+                          <option value="lifestyle">{t('campIntel.catLifestyle')}</option>
+                          <option value="tech">{t('campIntel.catTech')}</option>
+                          <option value="community">{t('campIntel.catCommunity')}</option>
                         </select>
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-slate-300">Budget (USD / J$)</label>
+                        <label className="text-xs font-medium text-slate-300">{t('campIntel.budget')}</label>
                         <div className="relative">
                           <DollarSign className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" />
                           <Input 
@@ -542,12 +544,12 @@ export default function CampaignIntelligence() {
 
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5 text-indigo-400" /> Target Audience
+                        <Users className="w-3.5 h-3.5 text-indigo-400" /> {t('campIntel.audience')}
                       </label>
                       <Input 
                         value={audience}
                         onChange={(e) => setAudience(e.target.value)}
-                        placeholder="e.g. Young professionals & foodies aged 21-35"
+                        placeholder={t('campIntel.audiencePh')}
                         className="bg-slate-950 border-slate-800 text-xs text-slate-100"
                       />
                     </div>
@@ -555,7 +557,7 @@ export default function CampaignIntelligence() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-rose-400" /> Location
+                          <MapPin className="w-3.5 h-3.5 text-rose-400" /> {t('campIntel.location')}
                         </label>
                         <Input 
                           value={location}
@@ -567,7 +569,7 @@ export default function CampaignIntelligence() {
 
                       <div className="space-y-1.5">
                         <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-amber-400" /> Campaign Dates
+                          <Clock className="w-3.5 h-3.5 text-amber-400" /> {t('campIntel.dates')}
                         </label>
                         <Input 
                           value={campaignDates}
@@ -589,12 +591,12 @@ export default function CampaignIntelligence() {
                       {loading ? (
                         <>
                           <Activity className="w-4 h-4 animate-spin" />
-                          <span>Querying Promorang Graph...</span>
+                          <span>{t('campIntel.querying')}</span>
                         </>
                       ) : (
                         <>
                           <Sparkles className="w-4 h-4" />
-                          <span>BUILD CAMPAIGN PLAN</span>
+                          <span>{t('campIntel.build')}</span>
                         </>
                       )}
                     </Button>
@@ -605,9 +607,9 @@ export default function CampaignIntelligence() {
               {/* Boundary Safety Notice */}
               <Alert className="bg-slate-900/90 border-amber-900/60 text-amber-300">
                 <ShieldCheck className="w-4 h-4 text-amber-400" />
-                <AlertTitle className="text-xs font-semibold text-amber-200">Phase 2 Activation Safeguard</AlertTitle>
+                <AlertTitle className="text-xs font-semibold text-amber-200">{t('campIntel.safeguardTitle')}</AlertTitle>
                 <AlertDescription className="text-[11px] text-amber-400/90 mt-0.5">
-                  Draft creation is instant. Campaign publication & budget locking require explicit human confirmation below.
+                  {t('campIntel.safeguardCopy')}
                 </AlertDescription>
               </Alert>
             </div>
@@ -618,9 +620,9 @@ export default function CampaignIntelligence() {
               {publishedCampaign && (
                 <Alert className="bg-emerald-950 border-emerald-800 text-emerald-200 shadow-xl">
                   <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                  <AlertTitle className="text-sm font-bold text-emerald-100">Campaign Live & Activated!</AlertTitle>
+                  <AlertTitle className="text-sm font-bold text-emerald-100">{t('campIntel.liveTitle')}</AlertTitle>
                   <AlertDescription className="text-xs text-emerald-300/90 mt-1">
-                    Campaign ID <code className="bg-emerald-900 px-2 py-0.5 rounded font-mono">{publishedCampaign.campaignId}</code> is now ACTIVE in Promorang. Gem reward pool locked.
+                    {t('campIntel.liveCopy', { id: publishedCampaign.campaignId })}
                   </AlertDescription>
                 </Alert>
               )}
@@ -998,7 +1000,7 @@ export default function CampaignIntelligence() {
                             <span className="text-xs text-slate-400">Est. Cost: ${opt.additionalCostUsd}</span>
                             <Button 
                               size="sm"
-                              onClick={() => toast.success(`Applied optimization: ${opt.title}`)}
+                              onClick={() => toast.success(t('campIntel.toastOpt', { title: opt.title }))}
                               className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-3 py-1"
                             >
                               APPLY DRAFT
