@@ -8,15 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 import { Link2, Sparkles, ArrowRight, ShieldCheck, Gift, PlayCircle, Share2, MessageCircle, MapPin } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const actionOptions = [
-  { id: "watch", label: "Watch", icon: PlayCircle },
-  { id: "share", label: "Share", icon: Share2 },
-  { id: "comment", label: "Comment", icon: MessageCircle },
-  { id: "join", label: "Join", icon: Sparkles },
-  { id: "check_in", label: "Check in", icon: MapPin },
+  { id: "watch", key: "o2oLink.act.watch" as TranslationKey, icon: PlayCircle },
+  { id: "share", key: "o2oLink.act.share" as TranslationKey, icon: Share2 },
+  { id: "comment", key: "o2oLink.act.comment" as TranslationKey, icon: MessageCircle },
+  { id: "join", key: "o2oLink.act.join" as TranslationKey, icon: Sparkles },
+  { id: "check_in", key: "o2oLink.act.check_in" as TranslationKey, icon: MapPin },
 ];
 
 type O2OManageOption = {
@@ -43,6 +45,11 @@ type O2OLinkManagerProps = {
 export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManagerProps) {
   const { session } = useAuth();
   const { toast } = useToast();
+  const { t } = useI18n();
+  const actionLabel = (id: string) => {
+    const match = actionOptions.find((item) => item.id === id);
+    return match ? t(match.key) : id.replaceAll("_", " ");
+  };
   const queryClient = useQueryClient();
   const [contentId, setContentId] = useState("");
   const [momentId, setMomentId] = useState("");
@@ -63,7 +70,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload?.error || "Failed to load O2O options");
+      if (!response.ok) throw new Error(payload?.error || t("o2oLink.loadOptsFail"));
       return payload?.options;
     },
   });
@@ -76,7 +83,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload?.error || "Failed to load O2O links");
+      if (!response.ok) throw new Error(payload?.error || t("o2oLink.loadLinksFail"));
       return payload?.links || [];
     },
   });
@@ -97,18 +104,18 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
         }),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload?.error || "Failed to create O2O link");
+      if (!response.ok) throw new Error(payload?.error || t("o2oLink.createFail"));
       return payload;
     },
     onSuccess: () => {
-      toast({ title: "Mission link created", description: "Your story is now connected to a live moment for verified action." });
+      toast({ title: t("o2oLink.toastOk"), description: t("o2oLink.toastOkBody") });
       setUnlockSummary("");
       queryClient.invalidateQueries({ queryKey: ["o2o-my-links"] });
       queryClient.invalidateQueries({ queryKey: ["creator-o2o-summary"] });
       onLinkCreated?.();
     },
     onError: (error: Error) => {
-      toast({ title: "Link creation failed", description: error.message, variant: "destructive" });
+      toast({ title: t("o2oLink.toastFail"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -128,10 +135,10 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
   return (
     <section className="space-y-8">
       <div className="max-w-3xl">
-        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Choose where the story leads</p>
-        <h3 className="mt-3 font-serif text-4xl font-semibold leading-[0.98] tracking-[-0.04em] text-foreground sm:text-5xl">Turn attention into a meaningful next move.</h3>
+        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("o2oLink.eyebrow")}</p>
+        <h3 className="mt-3 font-serif text-4xl font-semibold leading-[0.98] tracking-[-0.04em] text-foreground sm:text-5xl">{t("o2oLink.title")}</h3>
         <p className="mt-4 text-sm leading-7 text-muted-foreground">
-          Pair a story with an existing moment when the next step should be watch, join, visit, redeem, or prove. Stories can still stand alone or launch new moments.
+          {t("o2oLink.subtitle")}
         </p>
       </div>
 
@@ -146,10 +153,10 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
           ) : (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Which story are people coming from?</Label>
+                <Label>{t("o2oLink.storyLabel")}</Label>
                 <Select value={contentId} onValueChange={setContentId}>
                   <SelectTrigger className="h-12 rounded-xl">
-                    <SelectValue placeholder="Choose a published story" />
+                    <SelectValue placeholder={t("o2oLink.storyPh")} />
                   </SelectTrigger>
                   <SelectContent>
                     {contentOptions.map((item) => (
@@ -162,10 +169,10 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
               </div>
 
               <div className="space-y-2">
-                <Label>Which real Moment should it open into?</Label>
+                <Label>{t("o2oLink.momentLabel")}</Label>
                 <Select value={momentId} onValueChange={setMomentId}>
                   <SelectTrigger className="h-12 rounded-xl">
-                    <SelectValue placeholder="Choose a Moment" />
+                    <SelectValue placeholder={t("o2oLink.momentPh")} />
                   </SelectTrigger>
                   <SelectContent>
                     {momentOptions.map((item) => (
@@ -178,13 +185,13 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
               </div>
 
               <div className="space-y-2">
-                <Label>What should people do?</Label>
+                <Label>{t("o2oLink.doLabel")}</Label>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {actionOptions.map((action) => {
                     const active = selectedActions.includes(action.id);
                     return (
                       <button key={action.id} type="button" aria-pressed={active} onClick={() => toggleAction(action.id)} className={`flex items-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition ${active ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}>
-                        <action.icon className="h-4 w-4" /> {action.label}
+                        <action.icon className="h-4 w-4" /> {t(action.key)}
                       </button>
                     );
                   })}
@@ -192,8 +199,8 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
               </div>
 
               <div className="space-y-2">
-                <Label>What becomes available after proof?</Label>
-                <Input className="h-12 rounded-xl" value={unlockSummary} onChange={(e) => setUnlockSummary(e.target.value)} placeholder="Founder access, a return invitation, status, or a saved memory..." />
+                <Label>{t("o2oLink.unlockLabel")}</Label>
+                <Input className="h-12 rounded-xl" value={unlockSummary} onChange={(e) => setUnlockSummary(e.target.value)} placeholder={t("o2oLink.unlockPh")} />
               </div>
 
               <Button
@@ -202,7 +209,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
                 disabled={!contentId || !momentId || createLink.isPending}
               >
                 <Link2 className="mr-2 h-4 w-4" />
-                Connect story to Moment <ArrowRight className="ml-2 h-4 w-4" />
+                {t("o2oLink.connect")} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           )}
@@ -210,14 +217,14 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
 
         <div className="space-y-5">
           <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-6 text-white shadow-[0_30px_90px_rgba(0,0,0,.24)] sm:p-7">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">The path people will experience</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">{t("o2oLink.path")}</p>
             <div className="mt-5 space-y-3">
               {[
-                { label: "Story", value: selectedContent?.title || "Choose a published story", icon: PlayCircle },
-                { label: "Action", value: selectedActions.length ? selectedActions.map((item) => item.replaceAll("_", " ")).join(" · ") : "Choose what people do", icon: ArrowRight },
-                { label: "Moment", value: selectedMoment?.title || "Choose where the story leads", icon: MapPin },
-                { label: "Proof", value: selectedActions.includes("check_in") ? "Verified check-in" : "Tracked completion", icon: ShieldCheck },
-                { label: "Unlock", value: unlockSummary || "Define what completion opens", icon: Gift },
+                { label: t("o2oLink.pathStory"), value: selectedContent?.title || t("o2oLink.chooseStory"), icon: PlayCircle },
+                { label: t("o2oLink.pathAction"), value: selectedActions.length ? selectedActions.map((item) => actionLabel(item)).join(" · ") : t("o2oLink.chooseDo"), icon: ArrowRight },
+                { label: t("o2oLink.pathMoment"), value: selectedMoment?.title || t("o2oLink.chooseLead"), icon: MapPin },
+                { label: t("o2oLink.pathProof"), value: selectedActions.includes("check_in") ? t("o2oLink.verifiedCheckin") : t("o2oLink.trackedDone"), icon: ShieldCheck },
+                { label: t("o2oLink.pathUnlock"), value: unlockSummary || t("o2oLink.defineUnlock"), icon: Gift },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-4 border-b border-white/10 py-3 last:border-b-0">
                   <item.icon className="h-4 w-4 shrink-0 text-orange-400" />
@@ -229,7 +236,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
         <div className="rounded-[2rem] border border-border/60 bg-card/55 p-5 sm:p-7">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Stories already in motion</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("o2oLink.inMotion")}</p>
           </div>
           <div className="mt-5 space-y-3">
             {linksQuery.isLoading ? (
@@ -240,7 +247,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-semibold text-foreground">{item.content?.title}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">Linked to {item.moment?.title}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{t("o2oLink.linkedTo", { title: item.moment?.title || "" })}</p>
                     </div>
                     <Badge className="bg-primary/10 text-primary border border-primary/20">
                       {Number(item.o2o_conversion_rate || 0).toFixed(1)}%
@@ -250,7 +257,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                No mission links yet. Pair a story with an active moment when you want O2O tracking, or launch a new moment from the story first.
+                {t("o2oLink.empty")}
               </div>
             ))}
           </div>

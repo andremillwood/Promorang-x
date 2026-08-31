@@ -253,6 +253,11 @@ describe("localization", () => {
       "momDetail.unlockPerks",
       "missAct.activate",
       "missAct.done",
+      "creStage.title",
+      "creStage.vault",
+      "creTrack.title",
+      "o2oLink.connect",
+      "creO2O.title",
     ] as const;
 
     supportedLocales.forEach((locale) => {
