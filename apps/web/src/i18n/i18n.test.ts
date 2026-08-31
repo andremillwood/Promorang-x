@@ -315,6 +315,10 @@ describe("localization", () => {
       "userDesk.suspendUser",
       "actBehalf.title",
       "actBehalf.publish",
+      "modTrust.title",
+      "modTrust.approve",
+      "discAcq.title",
+      "discAcq.save",
     ] as const;
 
     supportedLocales.forEach((locale) => {

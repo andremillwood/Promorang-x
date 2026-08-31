@@ -12,6 +12,7 @@ import {
   upsertDiscoveryAdmin,
 } from "@/lib/discovery-acquisition";
 import { getSiteUrl } from "@/lib/discovery";
+import { useI18n } from "@/i18n/I18nContext";
 
 type ChoiceDraft = {
   id?: string;
@@ -48,6 +49,7 @@ const emptyForm = () => ({
 });
 
 export function AdminDiscoveryAcquisitionTab() {
+  const { t } = useI18n();
   const [list, setList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -184,19 +186,19 @@ export function AdminDiscoveryAcquisitionTab() {
             <p className="text-sm text-muted-foreground">/{analytics.discovery?.slug}</p>
           </div>
           <Button variant="outline" onClick={() => setMode("list")}>
-            Back
+            {t("discAcq.back")}
           </Button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            ["Visitors", analytics.reach?.uniqueVisitors],
-            ["Votes", analytics.participation?.totalVotes],
-            ["Captures", analytics.capture?.capturedParticipants],
-            ["Vote→Capture", `${analytics.capture?.voteToCaptureRate || 0}%`],
-            ["Shares", analytics.sharing?.shareButtonClicks],
-            ["Ref visits", analytics.sharing?.referredVisits],
-            ["Ref votes", analytics.sharing?.referredVotes],
-            ["Ref captures", analytics.sharing?.referredCaptures],
+            [t("discAcq.visitors"), analytics.reach?.uniqueVisitors],
+            [t("discAcq.votesLbl"), analytics.participation?.totalVotes],
+            [t("discAcq.capturesLbl"), analytics.capture?.capturedParticipants],
+            [t("discAcq.voteCapture"), `${analytics.capture?.voteToCaptureRate || 0}%`],
+            [t("discAcq.shares"), analytics.sharing?.shareButtonClicks],
+            [t("discAcq.refVisits"), analytics.sharing?.referredVisits],
+            [t("discAcq.refVotes"), analytics.sharing?.referredVotes],
+            [t("discAcq.refCaptures"), analytics.sharing?.referredCaptures],
           ].map(([label, value]) => (
             <div key={String(label)} className="rounded-xl border bg-card p-3">
               <div className="text-xs text-muted-foreground">{label}</div>
@@ -208,7 +210,15 @@ export function AdminDiscoveryAcquisitionTab() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr>
-                {["Source", "Visitors", "Votes", "Captures", "Capture Rate", "Referrals", "Intent"].map((h) => (
+                {[
+                  t("discAcq.colSource"),
+                  t("discAcq.colVisitors"),
+                  t("discAcq.colVotes"),
+                  t("discAcq.colCaptures"),
+                  t("discAcq.colRate"),
+                  t("discAcq.colRefs"),
+                  t("discAcq.colIntent"),
+                ].map((h) => (
                   <th key={h} className="text-left px-3 py-2 font-medium">
                     {h}
                   </th>
@@ -238,24 +248,24 @@ export function AdminDiscoveryAcquisitionTab() {
     return (
       <div className="space-y-5 max-w-2xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{form.id ? "Edit Discovery" : "New Discovery"}</h2>
+          <h2 className="text-lg font-semibold">{form.id ? t("discAcq.editTitle") : t("discAcq.newTitle")}</h2>
           <Button variant="outline" onClick={() => { setMode("list"); setForm(emptyForm()); }}>
-            Cancel
+            {t("discAcq.cancel")}
           </Button>
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
         <div className="grid gap-3">
           <div>
-            <Label>Question / title</Label>
+            <Label>{t("discAcq.qTitle")}</Label>
             <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Slug</Label>
-              <Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="final-song" />
+              <Label>{t("discAcq.slug")}</Label>
+              <Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder={t("discAcq.slugPh")} />
             </div>
             <div>
-              <Label>Status</Label>
+              <Label>{t("discAcq.status")}</Label>
               <select
                 className="w-full h-10 rounded-md border px-3 text-sm"
                 value={form.status}
@@ -268,20 +278,20 @@ export function AdminDiscoveryAcquisitionTab() {
             </div>
           </div>
           <div>
-            <Label>Eyebrow</Label>
+            <Label>{t("discAcq.eyebrow")}</Label>
             <Input value={form.eyebrow} onChange={(e) => setForm({ ...form, eyebrow: e.target.value })} />
           </div>
           <div>
-            <Label>Description</Label>
+            <Label>{t("discAcq.desc")}</Label>
             <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} />
           </div>
           <div>
-            <Label>Cover image URL</Label>
+            <Label>{t("discAcq.cover")}</Label>
             <Input value={form.coverImageUrl} onChange={(e) => setForm({ ...form, coverImageUrl: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Type</Label>
+              <Label>{t("discAcq.type")}</Label>
               <select
                 className="w-full h-10 rounded-md border px-3 text-sm"
                 value={form.discoveryType}
@@ -293,7 +303,7 @@ export function AdminDiscoveryAcquisitionTab() {
               </select>
             </div>
             <div>
-              <Label>Max selections</Label>
+              <Label>{t("discAcq.maxSel")}</Label>
               <Input
                 type="number"
                 min={1}
@@ -305,7 +315,7 @@ export function AdminDiscoveryAcquisitionTab() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Reward PromoPoints</Label>
+              <Label>{t("discAcq.rewardPts")}</Label>
               <Input
                 type="number"
                 value={form.rewardPoints}
@@ -313,7 +323,7 @@ export function AdminDiscoveryAcquisitionTab() {
               />
             </div>
             <div>
-              <Label>Results visibility</Label>
+              <Label>{t("discAcq.resultsVis")}</Label>
               <select
                 className="w-full h-10 rounded-md border px-3 text-sm"
                 value={form.resultsVisibility}
@@ -326,33 +336,33 @@ export function AdminDiscoveryAcquisitionTab() {
             </div>
           </div>
           <div>
-            <Label>Next action prompt</Label>
+            <Label>{t("discAcq.nextPrompt")}</Label>
             <Input value={form.nextActionPrompt} onChange={(e) => setForm({ ...form, nextActionPrompt: e.target.value })} />
           </div>
           <div>
-            <Label>Next action destination</Label>
-            <Input value={form.nextActionDestination} onChange={(e) => setForm({ ...form, nextActionDestination: e.target.value })} placeholder="/moments/…" />
+            <Label>{t("discAcq.nextDest")}</Label>
+            <Input value={form.nextActionDestination} onChange={(e) => setForm({ ...form, nextActionDestination: e.target.value })} placeholder={t("discAcq.destPh")} />
           </div>
           <div>
-            <Label>Partner attribution line</Label>
+            <Label>{t("discAcq.partner")}</Label>
             <Input value={form.partnerLine} onChange={(e) => setForm({ ...form, partnerLine: e.target.value })} />
           </div>
           <div>
-            <Label>WhatsApp share template</Label>
+            <Label>{t("discAcq.shareTpl")}</Label>
             <Input value={form.shareCopyTemplate} onChange={(e) => setForm({ ...form, shareCopyTemplate: e.target.value })} />
           </div>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={form.captureRequired} onChange={(e) => setForm({ ...form, captureRequired: e.target.checked })} />
-            Capture required after vote
+            {t("discAcq.captureReq")}
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={form.indexable} onChange={(e) => setForm({ ...form, indexable: e.target.checked })} />
-            Indexable (SEO)
+            {t("discAcq.indexable")}
           </label>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Choices (2–8)</Label>
+              <Label>{t("discAcq.choices")}</Label>
               <Button
                 type="button"
                 size="sm"
@@ -360,13 +370,13 @@ export function AdminDiscoveryAcquisitionTab() {
                 disabled={form.choices.length >= 8}
                 onClick={() => setForm({ ...form, choices: [...form.choices, { label: "", imageUrl: "" }] })}
               >
-                <Plus className="h-3.5 w-3.5 mr-1" /> Add
+                <Plus className="h-3.5 w-3.5 mr-1" /> {t("discAcq.add")}
               </Button>
             </div>
             {form.choices.map((choice, idx) => (
               <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-2 border rounded-lg p-3">
                 <Input
-                  placeholder="Choice label"
+                  placeholder={t("discAcq.choicePh")}
                   value={choice.label}
                   onChange={(e) => {
                     const choices = [...form.choices];
@@ -375,7 +385,7 @@ export function AdminDiscoveryAcquisitionTab() {
                   }}
                 />
                 <Input
-                  placeholder="Image URL"
+                  placeholder={t("discAcq.imagePh")}
                   value={choice.imageUrl || ""}
                   onChange={(e) => {
                     const choices = [...form.choices];
@@ -384,7 +394,7 @@ export function AdminDiscoveryAcquisitionTab() {
                   }}
                 />
                 <Input
-                  placeholder="Moment ID (optional)"
+                  placeholder={t("discAcq.momentPh")}
                   value={choice.momentId || ""}
                   onChange={(e) => {
                     const choices = [...form.choices];
@@ -399,7 +409,7 @@ export function AdminDiscoveryAcquisitionTab() {
                   disabled={form.choices.length <= 2}
                   onClick={() => setForm({ ...form, choices: form.choices.filter((_, i) => i !== idx) })}
                 >
-                  Remove
+                  {t("discAcq.remove")}
                 </Button>
               </div>
             ))}
@@ -407,7 +417,7 @@ export function AdminDiscoveryAcquisitionTab() {
         </div>
         <Button onClick={save} disabled={saving || !form.title}>
           {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-          Save Discovery
+          {t("discAcq.save")}
         </Button>
       </div>
     );
@@ -417,14 +427,14 @@ export function AdminDiscoveryAcquisitionTab() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Discovery Acquisition</h2>
+          <h2 className="text-lg font-semibold">{t("discAcq.title")}</h2>
           <p className="text-sm text-muted-foreground">
-            Vote → capture → results → next action → WhatsApp share
+            {t("discAcq.copy")}
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={refresh}>
-            <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
+            <RefreshCw className="h-3.5 w-3.5 mr-1" /> {t("discAcq.refresh")}
           </Button>
           <Button
             size="sm"
@@ -433,7 +443,7 @@ export function AdminDiscoveryAcquisitionTab() {
               setMode("edit");
             }}
           >
-            <Plus className="h-3.5 w-3.5 mr-1" /> New
+            <Plus className="h-3.5 w-3.5 mr-1" /> {t("discAcq.new")}
           </Button>
         </div>
       </div>
@@ -446,7 +456,7 @@ export function AdminDiscoveryAcquisitionTab() {
       ) : (
         <div className="rounded-xl border divide-y">
           {list.length === 0 && (
-            <p className="p-6 text-sm text-muted-foreground">No Discoveries yet.</p>
+            <p className="p-6 text-sm text-muted-foreground">{t("discAcq.empty")}</p>
           )}
           {list.map((row) => (
             <div key={row.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
@@ -457,22 +467,22 @@ export function AdminDiscoveryAcquisitionTab() {
                   <span>·</span>
                   <span>/{row.slug}</span>
                   <span>·</span>
-                  <span>{row.total_votes || 0} votes</span>
+                  <span>{t("discAcq.votes", { n: row.total_votes || 0 })}</span>
                   <span>·</span>
-                  <span>{row.total_captures || 0} captures</span>
+                  <span>{t("discAcq.captures", { n: row.total_captures || 0 })}</span>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button asChild size="sm" variant="outline">
                   <Link to={`/d/${row.slug}`} target="_blank">
-                    <ExternalLink className="h-3.5 w-3.5 mr-1" /> Open
+                    <ExternalLink className="h-3.5 w-3.5 mr-1" /> {t("discAcq.open")}
                   </Link>
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => openAnalytics(row.id)}>
-                  <BarChart3 className="h-3.5 w-3.5 mr-1" /> Analytics
+                  <BarChart3 className="h-3.5 w-3.5 mr-1" /> {t("discAcq.analytics")}
                 </Button>
                 <Button size="sm" onClick={() => openEdit(row.id)}>
-                  Edit
+                  {t("discAcq.edit")}
                 </Button>
               </div>
               <p className="text-[11px] text-muted-foreground sm:hidden">
