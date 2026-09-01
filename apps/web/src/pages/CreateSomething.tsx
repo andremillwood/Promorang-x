@@ -23,7 +23,7 @@ export default function CreateSomething() {
         category: "community",
       });
       toast({ title: "Asked", description: "Your people can answer this now." });
-      navigate("/happened");
+      navigate(to("/happened"));
     } catch (error) {
       toast({ title: "Could not ask that yet", description: (error as Error).message, variant: "destructive" });
     }
@@ -40,7 +40,15 @@ export default function CreateSomething() {
         {CREATE_INTENTS.map((item) => (
           <Link
             key={item.intent}
-            to={item.intent === "answer" ? `${to("/create")}?intent=answer` : item.href}
+            to={(() => {
+              if (item.intent === "answer") return `${to("/create")}?intent=answer`;
+              const [path, qs] = item.href.split("?");
+              const stayInPeople = ["/give", "/people", "/create", "/earn", "/happened", "/card", "/start"].some(
+                (prefix) => path === prefix || path.startsWith(`${prefix}/`),
+              );
+              const dest = stayInPeople ? to(path) : path;
+              return qs ? `${dest}?${qs}` : dest;
+            })()}
             className={`rounded-[1.5rem] border px-4 py-4 ${selected.intent === item.intent ? "border-primary bg-primary/15" : "border-white/10 bg-white/[0.04]"}`}
           >
             <p className="font-serif text-2xl font-bold">{item.label}</p>

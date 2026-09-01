@@ -51,6 +51,18 @@ const Dashboard = () => {
     ? (dashboardByRole[resolvedRole] || ParticipantDashboardV2)
     : PeopleHome;
 
+  if (!studioView) {
+    return (
+      <>
+        <MobileNotificationBridgeBanner />
+        {activeDraft && <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />}
+        <Suspense fallback={dashboardFallback}>
+          <PeopleHome />
+        </Suspense>
+      </>
+    );
+  }
+
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
       <MobileNotificationBridgeBanner />

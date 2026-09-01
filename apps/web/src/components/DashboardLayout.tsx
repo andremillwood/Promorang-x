@@ -151,6 +151,9 @@ const isNavItemActive = (pathname: string, href: string, search: string) => {
   if (itemQuery) {
     return pathname === itemPath && search.includes(itemQuery);
   }
+  if (itemPath === "/dashboard") {
+    return (pathname === "/dashboard" || pathname === "/home") && !search.includes("view=studio");
+  }
   return pathname === itemPath || pathname.startsWith(itemPath + "/");
 };
 
@@ -271,7 +274,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
   const peopleMobileNav: (NavItem & { accent?: boolean })[] = [
     { icon: Home, label: "Home", href: "/dashboard" },
-    { icon: Search, label: "Discover", href: "/discover" },
+    { icon: Users, label: "People", href: "/people" },
     { icon: Plus, label: "Create", href: "/create", accent: true },
     { icon: Sparkles, label: "Earn", href: "/earn" },
     { icon: CreditCard, label: "Card", href: "/card" },
@@ -319,7 +322,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
         <div className="flex flex-col h-full relative z-10">
           {/* Sidebar Header: Logo & Branding */}
           <div className={cn("relative flex h-20 items-center border-b border-border/70 px-8", sidebarCollapsed && "lg:justify-center lg:px-3")}>
-            <Link to="/" className="flex items-center gap-3 active:scale-95 transition-transform group">
+            <Link to="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform group">
               <div className="h-10 w-10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <img src={logo} alt="Promorang" className="h-10 w-10 object-contain rounded-xl" />
               </div>

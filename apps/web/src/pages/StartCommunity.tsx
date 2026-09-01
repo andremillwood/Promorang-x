@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { COMMUNITY_THEMES, REACH_CHANNELS } from "@promorang/shared";
 import { useExperienceActions } from "@/hooks/usePeopleExperience";
+import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell } from "@/components/people/ExperienceShell";
 import { useToast } from "@/hooks/use-toast";
 
 export default function StartCommunity() {
   const navigate = useNavigate();
+  const to = useExperiencePath();
   const { start } = useExperienceActions();
   const { toast } = useToast();
   const [theme, setTheme] = useState("food");
@@ -32,16 +34,16 @@ export default function StartCommunity() {
     return (
       <ExperienceShell eyebrow="You’re in" title="Here’s something you can give your people.">
         <p className="text-sm text-white/55">{created.scene.title} is live. Don’t stop at the name.</p>
-        <Link to="/give" className="block rounded-[1.6rem] bg-primary px-5 py-5 text-black">
+        <Link to={to("/give")} className="block rounded-[1.6rem] bg-primary px-5 py-5 text-black">
           <p className="font-serif text-2xl font-bold">Give the first 50 a perk</p>
           <p className="mt-1 text-sm">A 2-for-1, free entry, or whatever you already have.</p>
         </Link>
-        <Link to="/people" className="block rounded-[1.6rem] border border-white/10 px-5 py-5">
+        <Link to={to("/people")} className="block rounded-[1.6rem] border border-white/10 px-5 py-5">
           <p className="font-serif text-2xl font-bold">Invite your people</p>
           <p className="mt-1 text-sm text-white/50">{created.firstValue?.invite?.shareUrl || "Copy your invite from My People."}</p>
         </Link>
         {created.firstValue?.opportunity ? (
-          <Link to="/earn" className="block rounded-[1.6rem] border border-white/10 px-5 py-5">
+          <Link to={to("/earn")} className="block rounded-[1.6rem] border border-white/10 px-5 py-5">
             <p className="font-serif text-2xl font-bold">Take an opportunity</p>
             <p className="mt-1 text-sm text-white/50">{created.firstValue.opportunity.title}</p>
           </Link>
