@@ -122,6 +122,7 @@ const WhatHappened = lazy(() => import("./pages/WhatHappened"));
 const MyPromoCard = lazy(() => import("./pages/MyPromoCard"));
 const DropClaim = lazy(() => import("./pages/DropClaim"));
 const StartCommunity = lazy(() => import("./pages/StartCommunity"));
+const PutInventoryUp = lazy(() => import("./pages/PutInventoryUp"));
 const Participants = lazy(() => import("./pages/Participants"));
 const Activity = lazy(() => import("./pages/Activity"));
 const Following = lazy(() => import("./pages/Following"));
@@ -321,6 +322,7 @@ const App = () => (
                     <Route path="/happened" element={<ProtectedRoute><WhatHappened /></ProtectedRoute>} />
                     <Route path="/card" element={<ProtectedRoute><MyPromoCard /></ProtectedRoute>} />
                     <Route path="/start" element={<ProtectedRoute><StartCommunity /></ProtectedRoute>} />
+                    <Route path="/stock" element={<ProtectedRoute><PutInventoryUp /></ProtectedRoute>} />
                     <Route path="/home" element={<ProtectedRoute><PeopleHome /></ProtectedRoute>} />
                     <Route path="/drop/:slug" element={<DropClaim />} />
                     <Route path="/app-preview" element={<PeopleHome />} />
@@ -331,6 +333,7 @@ const App = () => (
                     <Route path="/app-preview/happened" element={<WhatHappened />} />
                     <Route path="/app-preview/card" element={<MyPromoCard />} />
                     <Route path="/app-preview/start" element={<StartCommunity />} />
+                    <Route path="/app-preview/stock" element={<PutInventoryUp />} />
                     <Route path="/create/campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
                     <Route path="/create/bounty" element={<ProtectedRoute><CreateBounty /></ProtectedRoute>} />
                     <Route path="/create-moment" element={<Navigate to="/create/moment" replace />} />

@@ -1,11 +1,13 @@
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useOpportunities, useExperienceActions } from "@/hooks/usePeopleExperience";
+import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
 import { useToast } from "@/hooks/use-toast";
 
 export default function EarnOpportunities() {
   const [params] = useSearchParams();
   const sceneId = params.get("hub") || undefined;
+  const to = useExperiencePath();
   const opportunities = useOpportunities(sceneId);
   const { takeOpportunity } = useExperienceActions();
   const { toast } = useToast();
@@ -56,6 +58,7 @@ export default function EarnOpportunities() {
         <QuietEmpty
           title="Nothing to earn from right now"
           copy="When a merchant, brand or venue wants your people, the opportunity will land here."
+          action={<Link to={to("/stock")} className="text-sm font-bold text-primary">Put something up yourself</Link>}
         />
       )}
     </ExperienceShell>

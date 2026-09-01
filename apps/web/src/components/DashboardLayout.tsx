@@ -115,6 +115,7 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/happened", label: "What Happened", description: "What your people actually did." },
   { match: "/card", label: "PromoCard", description: "Your perks, access, points and keys." },
   { match: "/start", label: "Start a Community", description: "Name a community and give people something immediately." },
+  { match: "/stock", label: "Put Something Up", description: "Open inventory so other people can move it." },
   { match: "/dashboard", label: "Home", description: "Your people, perks, opportunities, and what happened." },
   { match: "/admin", label: "Admin", description: "Platform-wide operations, moderation, and system controls." },
 ];
@@ -180,11 +181,13 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
   ],
   merchant: [
     ...peopleExperienceNav,
+    { icon: Gift, label: "Put something up", href: "/stock", group: "manage" },
     { icon: Store, label: "Storefront", href: "/dashboard?view=studio&tab=storefront", group: "manage" },
     { icon: QrCode, label: "Redeem", href: "/dashboard?view=studio&tab=redemptions", group: "manage" },
   ],
   brand: [
     ...peopleExperienceNav,
+    { icon: Gift, label: "Put something up", href: "/stock", group: "manage" },
     { icon: RadioTower, label: "Campaigns", href: "/dashboard?view=studio", group: "manage" },
   ],
   agency: [
@@ -255,7 +258,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const manageNavItems = navItems.filter((item) => item.group === "manage");
   const utilityNavItems = navItems.filter((item) => item.group === "utility");
   const roleInfo = safeRoleInfo(safeRole);
-  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet", "/admin", "/organizer", "/people", "/give", "/earn", "/happened", "/card", "/start", "/drop"];
+  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet", "/admin", "/organizer", "/people", "/give", "/earn", "/happened", "/card", "/start", "/stock", "/drop"];
   const isImmersiveProductRoute = immersiveProductRoutes.some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );

@@ -498,10 +498,10 @@ function createPeopleExperienceService(db = defaultDb) {
         title: offer.title,
         description: offer.description,
         imageUrl: offer.image_url,
-        peopleGet: offer.description || offer.title,
-        youEarn: offer.metadata?.contributor_earn || offer.value_amount
-          ? `Earn when people use this`
-          : 'Earn from verified use',
+        peopleGet: offer.metadata?.people_get || offer.description || offer.title,
+        youEarn: offer.metadata?.you_earn || offer.metadata?.contributor_earn || (offer.value_amount
+          ? 'Earn when people use this'
+          : 'Earn from verified use'),
         remaining,
         sceneId: sceneId || null,
       });
@@ -824,6 +824,84 @@ function createPeopleExperienceService(db = defaultDb) {
     return { opportunity: match, drop };
   }
 
+  async function provideInventory(userId, payload) {
+    if (!userId) throw new Error('Sign in to put something up');
+    const title = String(payload?.title || '').trim();
+    if (!title) throw new Error('What do people get?');
+    const rawQuantity = payload.quantity;
+    const quantity = rawQuantity == null || rawQuantity === ''
+      ? null
+      : Math.max(1, Number(rawQuantity) || 0);
+    const kind = payload.kind || 'merchant';
+    const peopleGet = String(payload.peopleGet || title).trim();
+    const youEarn = String(payload.youEarn || 'Earn when people claim or use this').trim();
+    const rewardType = PERK_KIND_TO_REWARD[kind] || 'product';
+    const metadata = {
+      presentation: 'opportunity',
+      people_get: peopleGet,
+      you_earn: youEarn,
+      contributor_earn: youEarn,
+    };
+
+    let offer = null;
+    try {
+      offer = await offerService.createOffer(userId, {
+        title,
+        description: payload.description || peopleGet,
+        reward_type: rewardType,
+        owner_type: 'merchant',
+        quantity_total: quantity,
+        status: 'active',
+        fulfillment_type: 'merchant_validation',
+        metadata,
+        distributions: [{
+          channel: 'direct',
+          trigger_event: 'opportunity_take',
+          source_label: title,
+          allocation_limit: quantity,
+          qualification_rules: {},
+        }],
+      });
+    } catch (error) {
+      console.warn('[people-experience] inventory offer wrap skipped', error.message);
+      const inserted = await db.from('offers').insert({
+        owner_user_id: userId,
+        owner_type: 'merchant',
+        title,
+        description: payload.description || peopleGet,
+        reward_type: rewardType,
+        fulfillment_type: 'merchant_validation',
+        quantity_total: quantity,
+        status: 'active',
+        metadata,
+      }).select().single();
+      if (inserted.error) throw new Error('Could not put that up yet');
+      offer = inserted.data;
+    }
+
+    await recordVerifiedAction({
+      userId,
+      actionType: 'CUSTOM',
+      merchantId: userId,
+      sceneId: payload.sceneId || null,
+      contributorId: userId,
+      metadata: { kind: 'inventory_opened', title, quantity },
+    });
+
+    return {
+      offer,
+      opportunity: {
+        id: `offer:${offer.id}`,
+        sourceKind: 'offer',
+        sourceId: offer.id,
+        title: offer.title,
+        peopleGet,
+        youEarn,
+        remaining: quantity,
+      },
+    };
+  }
+
   async function getHub(slug, userId) {
     const scene = await db.from('scenes').select('*').eq('slug', slug).maybeSingle();
     if (scene.error) throw scene.error;
@@ -984,6 +1062,7 @@ function createPeopleExperienceService(db = defaultDb) {
     getDrop,
     claimDrop,
     takeOpportunity,
+    provideInventory,
     getHub,
     contributeToHub,
     inviteToHub,

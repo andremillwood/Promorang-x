@@ -63,6 +63,10 @@ router.post('/drops/:slug/claim', async (req, res) => {
   try { return ok(res, await experience.claimDrop(req.user.id, req.params.slug), 201); } catch (error) { return fail(res, error); }
 });
 
+router.post('/inventory', async (req, res) => {
+  try { return ok(res, await experience.provideInventory(req.user.id, req.body || {}), 201); } catch (error) { return fail(res, error); }
+});
+
 router.post('/opportunities/:id/take', async (req, res) => {
   try {
     return ok(res, await experience.takeOpportunity(req.user.id, req.params.id, req.body?.sceneId || req.query.sceneId || null), 201);

@@ -132,6 +132,13 @@ export default function PeopleHome() {
         </section>
       ) : (
         <section className="space-y-3">
+          {data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole)) ? (
+            <Link to={to("/stock")} className="block rounded-[1.7rem] bg-primary px-5 py-5 text-black">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em]">Inventory</p>
+              <p className="mt-1 font-serif text-2xl font-bold">Put something up</p>
+              <p className="mt-1 text-sm">Other people move it. You see claimed and used.</p>
+            </Link>
+          ) : null}
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-2xl font-bold">Perks you can give</h2>
             <Link to={to("/give")} className="text-sm text-primary">See all</Link>

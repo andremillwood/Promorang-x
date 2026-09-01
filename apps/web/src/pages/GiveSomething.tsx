@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AUDIENCE_LABELS, PERK_KIND_LABELS, dropShareCopy, type DropAudience, type PerkKind } from "@promorang/shared";
 import { useGiveablePerks, useExperienceActions } from "@/hooks/usePeopleExperience";
+import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +15,7 @@ export default function GiveSomething() {
   const { user, profile } = useAuth();
   const perks = useGiveablePerks();
   const { createDrop } = useExperienceActions();
+  const to = useExperiencePath();
   const { toast } = useToast();
   const giverName = profile?.full_name?.split(" ")[0] || user?.user_metadata?.full_name?.split(" ")[0] || "Someone";
   const [kind, setKind] = useState<PerkKind>((params.get("kind") as PerkKind) || "complimentary");
@@ -133,6 +135,10 @@ export default function GiveSomething() {
           />
         ) : null}
       </section>
+
+      <Link to={to("/stock")} className="block text-center text-sm text-white/45">
+        Putting this up for other networks? Put inventory up.
+      </Link>
 
       <button
         type="button"

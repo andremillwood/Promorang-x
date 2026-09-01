@@ -5,6 +5,7 @@ import {
   classifyHappenedBucket,
   contributorValueScore,
   dropShareCopy,
+  inventoryOpenCopy,
   happenedBuckets,
   resolveCreateIntent,
   slugifyCommunityName,
@@ -56,6 +57,10 @@ describe("people experience mapping", () => {
 
   it("writes drop share copy people can send as-is", () => {
     expect(dropShareCopy("Mikey", "2-for-1 Friday")).toBe("Mikey just dropped 2-for-1 Friday on your PromoCard.");
+  });
+
+  it("writes inventory copy as a people offer, not a storefront", () => {
+    expect(inventoryOpenCopy("Devon House", "free tasting")).toBe("Devon House just put free tasting up for your people.");
   });
 
   it("creates readable community slugs", () => {

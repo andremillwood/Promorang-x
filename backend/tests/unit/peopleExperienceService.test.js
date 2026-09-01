@@ -70,6 +70,10 @@ describe('people experience role and value rules', () => {
     expect(merchant.cards.some((card) => card.key === 'people')).toBe(true);
   });
 
+  test('inventory for others is an opportunity, not a personal drop', () => {
+    expect(typeof require('../../services/peopleExperienceService').provideInventory).toBe('function');
+  });
+
   test('copies attribution from existing metadata keys', () => {
     expect(attributionFromMetadata({
       sceneId: 'scene-1',

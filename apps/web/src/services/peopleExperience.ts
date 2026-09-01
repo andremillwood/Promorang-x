@@ -37,6 +37,8 @@ export const peopleExperienceApi = {
   claimDrop: (slug: string) => request<Record<string, any>>(`/drops/${slug}/claim`, { method: "POST", body: "{}" }),
   takeOpportunity: (id: string, sceneId?: string) =>
     request<Record<string, any>>(`/opportunities/${encodeURIComponent(id)}/take`, { method: "POST", body: JSON.stringify({ sceneId }) }),
+  provideInventory: (body: Record<string, unknown>) =>
+    request<Record<string, any>>("/inventory", { method: "POST", body: JSON.stringify(body) }),
   hub: (slug: string) => request<Record<string, any>>(`/hubs/${slug}`),
   contribute: (slug: string, kind = "contributor") =>
     request<Record<string, any>>(`/hubs/${slug}/contribute`, { method: "POST", body: JSON.stringify({ kind }) }),

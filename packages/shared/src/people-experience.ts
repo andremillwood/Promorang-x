@@ -178,6 +178,12 @@ export function dropShareCopy(creatorName: string, perkTitle: string) {
   return `${who} just dropped ${what} on your PromoCard.`;
 }
 
+export function inventoryOpenCopy(merchantName: string, perkTitle: string) {
+  const who = merchantName || "A place";
+  const what = perkTitle || "something";
+  return `${who} just put ${what} up for your people.`;
+}
+
 export type StakeholderKey = ExperienceRole | "merchant" | "network";
 
 export type OutcomeCard = {
