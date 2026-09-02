@@ -109,7 +109,7 @@ export function JobSlip({
   return (
     <article className={cn("overflow-hidden rounded-[1.6rem]", className)}>
       <div className={cn("pr-ticket min-h-[168px] rounded-[1.6rem]", waiting && "opacity-95")}>
-        <div className="p-4 sm:p-5">
+        <div className="p-4 pr-6 sm:p-5 sm:pr-7">
           <div className="flex items-start justify-between gap-3">
             <p className="text-[10px] font-bold tracking-[0.18em] text-orange-700">{kicker}</p>
             {remaining ? <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#7a6554]">{remaining}</p> : null}
@@ -134,7 +134,7 @@ export function JobSlip({
           ) : null}
         </div>
         <div className="pr-ticket-stub">
-          <p className="rotate-180 text-[9px] font-bold tracking-[0.18em] text-[#7a6554]" style={{ writingMode: "vertical-rl" }}>
+          <p className="rotate-180 whitespace-nowrap text-[9px] font-bold tracking-[0.18em] text-[#7a6554]" style={{ writingMode: "vertical-rl" }}>
             {stubLabel}
           </p>
           <p className="mt-2 font-mono text-xs font-bold text-[#1a120c]">{stub}</p>

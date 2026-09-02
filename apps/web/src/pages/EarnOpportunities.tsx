@@ -164,8 +164,8 @@ function WaitingRoom({
         peopleGet="A perk they can actually use"
         youEarn="When the action is verified"
         remaining="Open"
-        stub="HOLD"
-        stubLabel="Hold"
+        stub="OPEN"
+        stubLabel="Slip"
         waiting
         action={
           <TactileButton fullWidth size="lg" asChild>
