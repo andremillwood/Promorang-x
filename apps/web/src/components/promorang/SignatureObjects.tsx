@@ -79,6 +79,72 @@ export function TicketPass({ kicker, title, detail, stub, stubLabel = "Keep", cl
   );
 }
 
+type JobSlipProps = {
+  kicker: string;
+  title: string;
+  detail?: string;
+  peopleGet?: string;
+  youEarn?: string;
+  remaining?: string;
+  stub: string;
+  stubLabel?: string;
+  waiting?: boolean;
+  action?: ReactNode;
+  className?: string;
+};
+
+export function JobSlip({
+  kicker,
+  title,
+  detail,
+  peopleGet,
+  youEarn,
+  remaining,
+  stub,
+  stubLabel = "Take",
+  waiting = false,
+  action,
+  className,
+}: JobSlipProps) {
+  return (
+    <article className={cn("overflow-hidden rounded-[1.6rem]", className)}>
+      <div className={cn("pr-ticket min-h-[168px] rounded-[1.6rem]", waiting && "opacity-95")}>
+        <div className="p-4 sm:p-5">
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-[10px] font-bold tracking-[0.18em] text-orange-700">{kicker}</p>
+            {remaining ? <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#7a6554]">{remaining}</p> : null}
+          </div>
+          <h3 className="mt-1 font-serif text-2xl font-bold leading-tight text-[#1a120c]">{title}</h3>
+          {detail ? <p className="mt-2 text-sm leading-6 text-[#4a3b2f]">{detail}</p> : null}
+          {peopleGet || youEarn ? (
+            <dl className="mt-4 space-y-1.5 border-t border-dashed border-[#1a120c]/15 pt-3 text-[12px]">
+              {peopleGet ? (
+                <div className="flex items-start justify-between gap-3">
+                  <dt className="text-[#7a6554]">Your people get</dt>
+                  <dd className="text-right font-semibold text-[#1a120c]">{peopleGet}</dd>
+                </div>
+              ) : null}
+              {youEarn ? (
+                <div className="flex items-start justify-between gap-3">
+                  <dt className="text-[#7a6554]">You earn</dt>
+                  <dd className="text-right font-semibold text-[#1a120c]">{youEarn}</dd>
+                </div>
+              ) : null}
+            </dl>
+          ) : null}
+        </div>
+        <div className="pr-ticket-stub">
+          <p className="rotate-180 text-[9px] font-bold tracking-[0.18em] text-[#7a6554]" style={{ writingMode: "vertical-rl" }}>
+            {stubLabel}
+          </p>
+          <p className="mt-2 font-mono text-xs font-bold text-[#1a120c]">{stub}</p>
+        </div>
+      </div>
+      {action ? <div className="mt-3">{action}</div> : null}
+    </article>
+  );
+}
+
 type PaperReceiptProps = {
   heading: string;
   lines: Array<{ label: string; value: string; strong?: boolean }>;
@@ -144,7 +210,7 @@ export function NightTrail({
       <h2 id="night-trail-heading" className="mt-2 font-serif text-3xl font-bold text-white md:text-4xl">
         {title}
       </h2>
-      <ol className="mt-8 grid gap-0 md:grid-cols-4">
+      <ol className={cn("mt-8 grid gap-0", steps.length <= 2 ? "md:grid-cols-2" : steps.length === 3 ? "md:grid-cols-3" : "md:grid-cols-4")}>
         {steps.map((step, index) => (
           <li key={step.label} className="relative border-l border-white/10 px-5 py-4 md:border-l-0 md:border-t md:px-4 md:pt-8">
             <span className="absolute -left-2 top-4 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-black text-black md:-top-2 md:left-4">

@@ -6,6 +6,9 @@ import {
   contributorValueScore,
   dropShareCopy,
   inventoryOpenCopy,
+  opportunityRemainingCopy,
+  opportunitySourceLabel,
+  opportunityStubCode,
   happenedBuckets,
   resolveCreateIntent,
   slugifyCommunityName,
@@ -65,5 +68,20 @@ describe("people experience mapping", () => {
 
   it("creates readable community slugs", () => {
     expect(slugifyCommunityName("Kingston After Dark")).toBe("kingston-after-dark");
+  });
+
+  it("labels opportunity sources in everyday words", () => {
+    expect(opportunitySourceLabel("offer")).toBe("Merchant");
+    expect(opportunitySourceLabel("campaign")).toBe("Brand");
+    expect(opportunitySourceLabel("mission")).toBe("Ask");
+    expect(opportunitySourceLabel("unknown")).toBe("Opportunity");
+  });
+
+  it("prints a short stub code and remaining copy for a job slip", () => {
+    expect(opportunityStubCode("offer:ab12cd34")).toBe("CD34");
+    expect(opportunityRemainingCopy(null)).toBe("Open");
+    expect(opportunityRemainingCopy(1)).toBe("1 left");
+    expect(opportunityRemainingCopy(12)).toBe("12 left");
+    expect(opportunityRemainingCopy(0)).toBe("Gone");
   });
 });

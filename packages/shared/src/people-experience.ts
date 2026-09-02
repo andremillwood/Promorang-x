@@ -184,6 +184,26 @@ export function inventoryOpenCopy(merchantName: string, perkTitle: string) {
   return `${who} just put ${what} up for your people.`;
 }
 
+export function opportunitySourceLabel(kind?: string | null): string {
+  const map: Record<string, string> = {
+    offer: "Merchant",
+    campaign: "Brand",
+    mission: "Ask",
+  };
+  return map[String(kind || "")] || "Opportunity";
+}
+
+export function opportunityStubCode(id?: string | null): string {
+  const raw = String(id || "open").replace(/[^a-zA-Z0-9]/g, "").slice(-4).toUpperCase();
+  return raw.padStart(4, "0") || "OPEN";
+}
+
+export function opportunityRemainingCopy(remaining?: number | null): string {
+  if (remaining == null) return "Open";
+  if (remaining <= 0) return "Gone";
+  return remaining === 1 ? "1 left" : `${remaining} left`;
+}
+
 export type StakeholderKey = ExperienceRole | "merchant" | "network";
 
 export type OutcomeCard = {
