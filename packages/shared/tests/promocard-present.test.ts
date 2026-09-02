@@ -85,7 +85,7 @@ describe("PromoCard present-or-offer", () => {
     })).toMatchObject({
       title: "Check in at Devon House",
       href: "/discover",
-      stub: "Go",
+      stub: "NOW",
     });
     expect(offerFromOpportunity(null).title).toBe(FALLBACK_PROMOCARD_OFFER.title);
   });

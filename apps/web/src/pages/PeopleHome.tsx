@@ -147,7 +147,7 @@ export default function PeopleHome() {
                 title={cardSurface.offer.title}
                 detail={cardSurface.offer.detail}
                 stub={cardSurface.offer.stub}
-                stubLabel="Go"
+                stubLabel="Keep"
               />
             )}
           </Link>

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { PROMOCARD_COPY, offerFromOpportunity, resolvePromoCardSurface } from "@promorang/shared";
 import { useMyPromoCard, useOpportunities } from "@/hooks/usePeopleExperience";
 import { useMarket } from "@/contexts/MarketContext";
@@ -9,15 +9,20 @@ export default function MyPromoCard() {
   const card = useMyPromoCard();
   const opportunities = useOpportunities();
   const { country } = useMarket();
+  const location = useLocation();
   const data = card.data;
+  const previewPresent = location.pathname.startsWith("/app-preview")
+    && new URLSearchParams(location.search).get("demo") === "present";
 
   const surface = resolvePromoCardSurface({
-    holder: data?.name || "Member",
-    spendable: Number(data?.spendable ?? data?.card?.available_balance ?? 0),
-    limit: Number(data?.limit ?? data?.card?.monthly_limit ?? 0),
-    cardNumber: data?.cardNumber || data?.card?.card_number,
+    holder: previewPresent ? "Andre Millwood" : data?.name || "Member",
+    spendable: previewPresent ? 16 : Number(data?.spendable ?? data?.card?.available_balance ?? 0),
+    limit: previewPresent ? 40 : Number(data?.limit ?? data?.card?.monthly_limit ?? 0),
+    cardNumber: previewPresent ? "8842" : data?.cardNumber || data?.card?.card_number,
     currency: country.currency,
-    perks: data?.perks || [],
+    perks: previewPresent
+      ? [{ id: "preview-perk", title: "2-for-1 Friday", detail: "Show this with your PromoCard." }]
+      : data?.perks || [],
     nextOffer: data?.nextOffer?.title
       ? data.nextOffer
       : offerFromOpportunity(opportunities.data?.[0]),

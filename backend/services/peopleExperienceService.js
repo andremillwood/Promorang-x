@@ -540,7 +540,7 @@ function createPeopleExperienceService(db = defaultDb) {
         title: 'Find a night nearby',
         detail: 'Check in, and eligible savings land on your PromoCard.',
         href: '/discover',
-        stub: 'Go',
+        stub: 'NOW',
         place: 'Tonight',
       };
     }
@@ -548,7 +548,7 @@ function createPeopleExperienceService(db = defaultDb) {
       title: item.title,
       detail: item.peopleGet || item.description || 'Show up, and it can land on your PromoCard.',
       href: item.sourceKind === 'offer' ? '/discover' : '/earn',
-      stub: 'Go',
+      stub: 'NOW',
       place: 'Tonight',
     };
   }

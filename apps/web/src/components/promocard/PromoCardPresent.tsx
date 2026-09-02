@@ -25,7 +25,7 @@ export function PromoCardPresent({ surface, compact = false, className }: PromoC
             title={surface.offer.title}
             detail={surface.offer.detail}
             stub={surface.offer.stub}
-            stubLabel="Go"
+            stubLabel="Keep"
           />
         </Link>
         <TactileButton variant="primary" size="lg" fullWidth asChild>
