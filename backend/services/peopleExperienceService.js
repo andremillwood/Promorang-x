@@ -1048,6 +1048,44 @@ function createPeopleExperienceService(db = defaultDb) {
     return inserted.data;
   }
 
+  async function createGathering(userId, payload) {
+    if (!userId) throw new Error('Sign in to ask your people to show up');
+    if (!payload?.title) throw new Error('What should people do?');
+    const place = payload.place || payload.location || payload.venueName;
+    if (!place) throw new Error('Where is it?');
+    const startsAt = payload.startsAt || payload.when || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    const categoryByIntent = {
+      go: 'Community Gathering',
+      attend: 'Community Gathering',
+      try: 'Food & Beverage',
+      post: 'Arts & Culture',
+      other: 'Community Gathering',
+    };
+    const inserted = await maybe(db.from('moments').insert({
+      title: payload.title,
+      category: payload.category || categoryByIntent[payload.intent] || 'Community Gathering',
+      description: payload.description || payload.title,
+      starts_at: startsAt,
+      venue_name: payload.place || payload.venueName || place,
+      location: payload.location || place,
+      host_id: userId,
+      status: 'published',
+      max_participants: payload.limit ? Number(payload.limit) : null,
+    }).select().maybeSingle());
+    if (inserted.error || !inserted.data) {
+      throw inserted.error || new Error('Could not put that on the calendar yet');
+    }
+    await recordVerifiedAction({
+      userId,
+      actionType: 'CUSTOM',
+      sceneId: payload.sceneId || null,
+      contributorId: userId,
+      momentId: inserted.data.id,
+      metadata: { kind: 'gathering_created', intent: payload.intent || 'other', title: payload.title },
+    });
+    return inserted.data;
+  }
+
   return {
     classifyExperienceRole,
     contributorValueScore,
@@ -1068,6 +1106,7 @@ function createPeopleExperienceService(db = defaultDb) {
     inviteToHub,
     startCommunity,
     createAsk,
+    createGathering,
     joinScene,
     recordVerifiedAction,
     ensureHubAttribution,

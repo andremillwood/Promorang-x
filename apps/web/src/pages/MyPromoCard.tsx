@@ -40,7 +40,12 @@ export default function MyPromoCard() {
           </div>
         ) : (
           <div className="mt-3">
-            <QuietEmpty title="No perks yet" copy="When someone drops something for you, it lands here." />
+            <QuietEmpty
+              kicker="Perks"
+              stub="0"
+              title="No perks yet"
+              copy="When someone drops something for you, it lands on this card."
+            />
           </div>
         )}
       </section>

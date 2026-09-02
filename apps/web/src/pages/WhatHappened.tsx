@@ -1,10 +1,13 @@
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { humanActionLabel } from "@promorang/shared";
 import { useWhatHappened } from "@/hooks/usePeopleExperience";
-import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
+import { useExperiencePath } from "@/hooks/useExperiencePath";
+import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
+import { PaperReceipt } from "@/components/promorang/SignatureObjects";
 
 export default function WhatHappened() {
   const [params] = useSearchParams();
+  const to = useExperiencePath();
   const happened = useWhatHappened(params.get("hub") || undefined);
   const data = happened.data;
   const buckets = data?.buckets || {};
@@ -16,28 +19,23 @@ export default function WhatHappened() {
       description="Not charts. What your people actually did."
       backTo="/dashboard"
     >
-      <StatPile
-        label="People participated"
-        value={data?.participated || 0}
-        hint={data?.earned ? `J$${Math.round(data.earned).toLocaleString()} generated` : "Verified movement only"}
+      <PaperReceipt
+        heading="This week"
+        lines={[
+          { label: "People participated", value: String(data?.participated || 0), strong: true },
+          { label: "Went somewhere", value: String(buckets.went || 0) },
+          { label: "Bought something", value: String(buckets.bought || 0) },
+          { label: "Answered", value: String(buckets.answered || 0) },
+          { label: "Shared", value: String(buckets.shared || 0) },
+          { label: "Brought friends", value: String(buckets.brought || 0) },
+          { label: "Claimed a perk", value: String(buckets.claimed || 0) },
+          { label: "Used a perk", value: String(buckets.used || 0) },
+          ...(data?.earned
+            ? [{ label: "Generated", value: `J$${Math.round(data.earned).toLocaleString()}`, strong: true }]
+            : []),
+        ]}
+        footer="Verified movement only. Nothing invented."
       />
-
-      <section className="grid grid-cols-2 gap-3">
-        {[
-          ["went somewhere", buckets.went],
-          ["bought something", buckets.bought],
-          ["answered Discoveries", buckets.answered],
-          ["shared something", buckets.shared],
-          ["brought friends", buckets.brought],
-          ["claimed a perk", buckets.claimed],
-          ["used a perk", buckets.used],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="rounded-[1.4rem] border border-white/10 bg-white/[0.04] px-4 py-4">
-            <p className="font-serif text-3xl font-bold">{value || 0}</p>
-            <p className="mt-1 text-xs text-white/50">{label}</p>
-          </div>
-        ))}
-      </section>
 
       <section>
         <h2 className="font-serif text-2xl font-bold">Your people are most interested in</h2>
@@ -66,7 +64,13 @@ export default function WhatHappened() {
           </div>
         ) : (
           <div className="mt-3">
-            <QuietEmpty title="Quiet week" copy="When people claim, show up or answer, it will read like a story here." />
+            <QuietEmpty
+              kicker="Recent"
+              stub="0"
+              title="Quiet week"
+              copy="When people claim, show up or answer, it prints here like a receipt."
+              action={<Link to={to("/create")} className="block min-h-12 rounded-full bg-primary text-center text-sm font-black leading-[3rem] text-black">Ask them to do something</Link>}
+            />
           </div>
         )}
       </section>

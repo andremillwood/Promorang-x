@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
-import { Gift, Plus, Sparkles, Users } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -92,26 +91,41 @@ export default function PeopleHome() {
       </section>
 
       <section className="grid gap-3">
-        {[
-          { href: "/give", label: "Give something", copy: "Put a perk on your people’s PromoCards.", icon: Gift },
-          { href: "/create", label: "Create something", copy: "Ask them to go, try, answer or show up.", icon: Plus },
-          { href: "/people", label: "Grow my network", copy: "See who you brought and who is helping.", icon: Users },
-          { href: "/happened", label: "See what’s happening", copy: "What your people actually did.", icon: Sparkles },
-        ].map((action) => (
-          <Link
-            key={action.href}
-            to={to(action.href)}
-            className="flex min-h-[88px] items-center gap-4 rounded-[1.7rem] border border-white/10 bg-gradient-to-r from-white/[0.07] to-transparent px-5 py-4"
-          >
-            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-black">
-              <action.icon className="h-5 w-5" />
-            </span>
-            <span>
-              <span className="block font-serif text-2xl font-bold leading-none">{action.label}</span>
-              <span className="mt-1 block text-sm text-white/55">{action.copy}</span>
-            </span>
-          </Link>
-        ))}
+        <Link to={to("/give")} className="block">
+          <TicketPass
+            kicker="Give"
+            title="Drop a perk"
+            detail="Put something on their PromoCards. They claim it — no download first."
+            stub="DROP"
+          />
+        </Link>
+        <Link to={to("/create")} className="block">
+          <TicketPass
+            kicker="Create"
+            title="Ask them to do something"
+            detail="Go, try, answer or show up. You stay in this language."
+            stub="DO"
+          />
+        </Link>
+        <Link to={to("/people")} className="block">
+          <TicketPass
+            kicker="People"
+            title="Invite someone"
+            detail="Credit follows the people you actually moved."
+            stub="IN"
+          />
+        </Link>
+        <Link to={to("/happened")} className="block">
+          <PaperReceipt
+            heading="What happened"
+            lines={[
+              { label: "Showed up", value: String(data?.happening || 0) },
+              { label: "Claimed", value: String(data?.happened?.buckets?.claimed || 0) },
+              { label: "Earned", value: money(Number(data?.earned || 0)), strong: true },
+            ]}
+            footer="Verified movement only. Nothing invented."
+          />
+        </Link>
       </section>
 
       {role === "member" ? (
@@ -154,7 +168,13 @@ export default function PeopleHome() {
               ))}
             </div>
           ) : (
-            <QuietEmpty title="Nothing to give yet" copy="When a merchant or brand opens inventory, it will show up here." action={<Link to={to("/give")} className="text-sm font-bold text-primary">Make a perk</Link>} />
+            <QuietEmpty
+              kicker="Perks"
+              stub="0"
+              title="Nothing to give yet"
+              copy="Make a simple perk, or wait until a place puts inventory up."
+              action={<Link to={to("/give")} className="block min-h-12 rounded-full bg-primary text-center text-sm font-black leading-[3rem] text-black">Make a perk</Link>}
+            />
           )}
         </section>
       )}
@@ -172,7 +192,13 @@ export default function PeopleHome() {
             </Link>
           ))
         ) : (
-          <QuietEmpty title="No live opportunities" copy="When a brand or merchant wants your people, it will appear here." />
+          <QuietEmpty
+            kicker="Earn"
+            stub="0"
+            title="No live opportunities"
+            copy="When a place wants your people, the job lands here. You can put something up yourself."
+            action={<Link to={to("/stock")} className="block min-h-12 rounded-full bg-primary text-center text-sm font-black leading-[3rem] text-black">Put something up</Link>}
+          />
         )}
       </section>
 

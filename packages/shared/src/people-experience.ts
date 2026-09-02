@@ -33,16 +33,79 @@ export type CreateIntentTarget = {
 };
 
 export const CREATE_INTENTS: CreateIntentTarget[] = [
-  { intent: "go", label: "Go somewhere", prompt: "Get your people to a place.", mapsTo: "Moment", href: "/create/moment?intent=go" },
-  { intent: "attend", label: "Attend something", prompt: "Put a night, show or gathering on the calendar.", mapsTo: "Moment", href: "/create/moment?intent=attend" },
+  { intent: "go", label: "Go somewhere", prompt: "Get your people to a place.", mapsTo: "Moment", href: "/create?intent=go" },
+  { intent: "attend", label: "Attend something", prompt: "Put a night, show or gathering on the calendar.", mapsTo: "Moment", href: "/create?intent=attend" },
   { intent: "buy", label: "Buy something", prompt: "Move people toward a purchase.", mapsTo: "Merchant perk", href: "/give?kind=merchant" },
-  { intent: "try", label: "Try something", prompt: "Let people sample a place, drink or brand.", mapsTo: "Moment + perk", href: "/create/moment?intent=try" },
+  { intent: "try", label: "Try something", prompt: "Let people sample a place, drink or brand.", mapsTo: "Moment + perk", href: "/create?intent=try" },
   { intent: "answer", label: "Answer something", prompt: "Ask your people what they want.", mapsTo: "Discovery", href: "/create?intent=answer" },
-  { intent: "post", label: "Post something", prompt: "Get people to share a story or clip.", mapsTo: "Mission", href: "/missions" },
+  { intent: "post", label: "Post something", prompt: "Get people to share a story or clip.", mapsTo: "Mission", href: "/create?intent=post" },
   { intent: "bring", label: "Bring friends", prompt: "Grow the network through people they already trust.", mapsTo: "Invite", href: "/people?action=invite" },
   { intent: "claim", label: "Claim something", prompt: "Put a perk on their PromoCard.", mapsTo: "Drop", href: "/give" },
-  { intent: "other", label: "Something else", prompt: "Make something happen your own way.", mapsTo: "Moment", href: "/create/moment?intent=other" },
+  { intent: "other", label: "Something else", prompt: "Make something happen your own way.", mapsTo: "Moment", href: "/create?intent=other" },
 ];
+
+export const GATHERING_INTENTS: CreateIntent[] = ["go", "attend", "try", "other"];
+
+export function selectedCreateIntent(intent?: string | null): CreateIntentTarget | null {
+  return CREATE_INTENTS.find((item) => item.intent === intent) || null;
+}
+
+export function isGatheringIntent(intent?: string | null): boolean {
+  return GATHERING_INTENTS.includes(String(intent) as CreateIntent);
+}
+
+export function createIntentStaysInPeople(href: string): boolean {
+  return ["/give", "/people", "/create", "/earn", "/happened", "/card", "/start", "/stock"].some(
+    (prefix) => href === prefix || href.startsWith(`${prefix}?`) || href.startsWith(`${prefix}/`),
+  );
+}
+
+export function gatheringFormCopy(intent?: string | null): {
+  heading: string;
+  titlePlaceholder: string;
+  placePlaceholder: string;
+  action: string;
+  ticketKicker: string;
+} {
+  const copy: Record<string, ReturnType<typeof gatheringFormCopy>> = {
+    go: {
+      heading: "Where should they go?",
+      titlePlaceholder: "Sunday roast at Devon House",
+      placePlaceholder: "Devon House, Kingston",
+      action: "Put it on the calendar",
+      ticketKicker: "Go",
+    },
+    attend: {
+      heading: "What should they come to?",
+      titlePlaceholder: "Kingston Food Club tasting",
+      placePlaceholder: "Red Bones, Kingston",
+      action: "Invite them",
+      ticketKicker: "Attend",
+    },
+    try: {
+      heading: "What should they try?",
+      titlePlaceholder: "First 50 get a tasting",
+      placePlaceholder: "The place, Kingston",
+      action: "Ask them to try it",
+      ticketKicker: "Try",
+    },
+    post: {
+      heading: "What should they share?",
+      titlePlaceholder: "Film the first bite and send it back",
+      placePlaceholder: "Wherever it happens",
+      action: "Ask them to post",
+      ticketKicker: "Share",
+    },
+    other: {
+      heading: "What should happen?",
+      titlePlaceholder: "Something your people can do this week",
+      placePlaceholder: "Where it happens",
+      action: "Make it happen",
+      ticketKicker: "Do this",
+    },
+  };
+  return copy[String(intent || "")] || copy.other;
+}
 
 export const PERK_KIND_LABELS: Record<PerkKind, string> = {
   free_entry: "Free Entry",

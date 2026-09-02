@@ -4,11 +4,16 @@ import {
   classifyExperienceRole,
   classifyHappenedBucket,
   contributorValueScore,
+  createIntentStaysInPeople,
   dropShareCopy,
+  gatheringFormCopy,
   inventoryOpenCopy,
+  isGatheringIntent,
   happenedBuckets,
   resolveCreateIntent,
+  selectedCreateIntent,
   slugifyCommunityName,
+  CREATE_INTENTS,
   STAKEHOLDER_OUTCOMES,
 } from "./people-experience";
 
@@ -18,6 +23,17 @@ describe("people experience mapping", () => {
     expect(resolveCreateIntent("attend").mapsTo).toBe("Moment");
     expect(resolveCreateIntent("bring").href).toContain("/people");
     expect(resolveCreateIntent("claim").mapsTo).toBe("Drop");
+  });
+
+  it("keeps create next pages in people language", () => {
+    expect(CREATE_INTENTS.every((item) => createIntentStaysInPeople(item.href))).toBe(true);
+    expect(CREATE_INTENTS.every((item) => !item.href.includes("/create/moment"))).toBe(true);
+    expect(CREATE_INTENTS.every((item) => item.href !== "/missions")).toBe(true);
+    expect(isGatheringIntent("attend")).toBe(true);
+    expect(isGatheringIntent("answer")).toBe(false);
+    expect(selectedCreateIntent(null)).toBeNull();
+    expect(gatheringFormCopy("go").action).toBe("Put it on the calendar");
+    expect(gatheringFormCopy("post").heading).toMatch(/share/i);
   });
 
   it("keeps hub ownership earned, not assumed", () => {

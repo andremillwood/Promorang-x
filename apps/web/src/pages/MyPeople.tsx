@@ -70,9 +70,11 @@ export default function MyPeople() {
         ) : (
           <div className="mt-4">
             <QuietEmpty
+              kicker="Contributors"
+              stub="0"
               title="No contributors yet"
-              copy="When someone in your network starts bringing people who actually do things, they will show up here."
-              action={<Link to="/give" className="text-sm font-bold text-primary">Give them a reason to join</Link>}
+              copy="When someone in your network starts bringing people who actually do things, they show up here."
+              action={<Link to="/give" className="block min-h-12 rounded-full bg-primary text-center text-sm font-black leading-[3rem] text-black">Give them a reason to join</Link>}
             />
           </div>
         )}

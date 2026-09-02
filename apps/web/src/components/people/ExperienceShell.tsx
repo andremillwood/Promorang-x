@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SEO from "@/components/SEO";
+import { TicketPass } from "@/components/promorang/SignatureObjects";
 
 type ExperienceShellProps = {
   title: string;
@@ -72,12 +73,23 @@ export function StatPile({
   );
 }
 
-export function QuietEmpty({ title, copy, action }: { title: string; copy: string; action?: ReactNode }) {
+export function QuietEmpty({
+  title,
+  copy,
+  action,
+  stub = "—",
+  kicker = "Waiting",
+}: {
+  title: string;
+  copy: string;
+  action?: ReactNode;
+  stub?: string;
+  kicker?: string;
+}) {
   return (
-    <div className="rounded-[1.8rem] border border-dashed border-white/15 bg-white/[0.03] px-5 py-8 text-center">
-      <h3 className="font-serif text-2xl font-bold">{title}</h3>
-      <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-white/50">{copy}</p>
-      {action ? <div className="mt-5">{action}</div> : null}
+    <div className="space-y-4">
+      <TicketPass kicker={kicker} title={title} detail={copy} stub={stub} stubLabel="Soon" />
+      {action ? <div>{action}</div> : null}
     </div>
   );
 }

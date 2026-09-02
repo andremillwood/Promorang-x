@@ -125,6 +125,10 @@ export function useExperienceActions() {
     mutationFn: peopleExperienceApi.provideInventory,
     onSuccess: invalidate,
   });
+  const gather = useMutation({
+    mutationFn: peopleExperienceApi.gather,
+    onSuccess: invalidate,
+  });
 
-  return { createDrop, claimDrop, takeOpportunity, contribute, invite, start, ask, provideInventory };
+  return { createDrop, claimDrop, takeOpportunity, contribute, invite, start, ask, provideInventory, gather };
 }
