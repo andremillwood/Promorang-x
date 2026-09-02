@@ -38,6 +38,7 @@ const SolutionsHub = lazy(() => import("./pages/SolutionsHub"));
 const ForCreators = lazy(() => import("./pages/ForCreators"));
 const ForMerchants = lazy(() => import("./pages/ForMerchants"));
 const ForAgencies = lazy(() => import("./pages/ForAgencies"));
+const FlashCreateCreativeCookShop = lazy(() => import("./pages/FlashCreateCreativeCookShop"));
 const ForEnterprise = lazy(() => import("./pages/ForEnterprise"));
 const ForCauses = lazy(() => import("./pages/ForCauses"));
 const ForDevelopers = lazy(() => import("./pages/ForDevelopers"));
@@ -264,6 +265,8 @@ const App = () => (
                     <Route path="/for-creators" element={<ForCreators />} />
                     <Route path="/for-merchants" element={<ForMerchants />} />
                     <Route path="/for-agencies" element={<ForAgencies />} />
+                    <Route path="/flashcreate/creative-cook-shop" element={<FlashCreateCreativeCookShop />} />
+                    <Route path="/creative-cook-shop" element={<Navigate to="/flashcreate/creative-cook-shop" replace />} />
                     <Route path="/for-enterprise" element={<ForEnterprise />} />
                     <Route path="/for-causes" element={<ForCauses />} />
                     <Route path="/developers" element={<ForDevelopers />} />

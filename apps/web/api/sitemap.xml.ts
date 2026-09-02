@@ -112,6 +112,7 @@ export default async function handler(_: unknown, res: any) {
     { loc: `${SITE_URL}/discover`, changefreq: "daily", priority: "0.9" },
     { loc: `${SITE_URL}/brands`, changefreq: "weekly", priority: "0.8" },
     { loc: `${SITE_URL}/watch-unlock`, changefreq: "weekly", priority: "0.8" },
+    { loc: `${SITE_URL}/flashcreate/creative-cook-shop`, changefreq: "weekly", priority: "0.7" },
   ];
 
   staticUrls.forEach((entry) => addUniqueUrl(urls, entry));

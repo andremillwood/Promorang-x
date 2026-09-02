@@ -65,6 +65,22 @@ export default function FlashCreateBridge({ context = 'dashboard', className = '
           <span>{content.cta}</span>
           <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
         </a>
+        <div className="mt-3 grid gap-2">
+          <a
+            href="/flashcreate/creative-cook-shop"
+            className="flex items-center justify-between rounded-xl border border-yellow-500/30 bg-slate-800/70 px-4 py-2 text-xs font-bold uppercase tracking-widest text-yellow-300 hover:bg-slate-800"
+          >
+            <span>Creative Cook Shop season · $30 or free with retainer</span>
+          </a>
+          <a
+            href="https://flashcreate.co/webinar"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between rounded-xl border border-slate-700 px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-slate-400 hover:text-white"
+          >
+            <span>Free weekly teardown · Why Funnels Fail</span>
+          </a>
+        </div>
 
         <div className="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-500 font-medium uppercase tracking-tighter">
           <div className="flex items-center space-x-1">

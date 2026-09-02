@@ -17,6 +17,7 @@ export * from "./action-engine";
 export * from "./gem-ledger";
 export * from "./promocard-moment";
 export * from "./people-experience";
+export * from "./flashcreate-cook-shop";
 
 export type PromorangJourneyStepId =
   | "discover"

@@ -89,6 +89,22 @@ const ForAgencies = () => {
                 </div>
             </section>
 
+            <section className="border-y border-border bg-[#06122b] py-12 text-[#f6efd8]">
+                <div className="container flex flex-col items-start justify-between gap-6 px-6 md:flex-row md:items-center">
+                    <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#e3b23c]">FlashCreate · Creative Cook Shop</p>
+                        <h2 className="mt-2 font-serif text-3xl font-black">15-week season is now a product, not the free teardown.</h2>
+                        <p className="mt-2 max-w-xl text-sm text-[#f6efd8]/70">USD $30 tripwire, or included with the Customer Cook Shop retainer. Why Funnels Fail stays the free weekly acquisition room.</p>
+                    </div>
+                    <Button asChild className="bg-[#e3b23c] text-[#06122b] hover:bg-[#f0c45a]">
+                        <Link to="/flashcreate/creative-cook-shop">
+                            Open the season ticket
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
+            </section>
+
             <PromoCardEconomyExplainer audience="agency" />
 
             <LeadMagnetGateway audience="brand" />
