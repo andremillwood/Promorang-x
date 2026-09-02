@@ -40,8 +40,9 @@ import { cultureEvents } from "@/data/culture-demo";
 import { CommerceReceiptRail } from "@/components/commerce/CommerceReceiptRail";
 import { CouponWalletRail } from "@/components/commerce/CouponWalletRail";
 import { PersonalValueNav } from "@/components/value/PersonalValueNav";
-import { DigitalWalletPass3D } from "@/components/wallet/DigitalWalletPass3D";
-import { PARTICIPANT_ECONOMY } from "@promorang/shared";
+import { PromoCardPresent } from "@/components/promocard/PromoCardPresent";
+import { PARTICIPANT_ECONOMY, offerFromOpportunity, resolvePromoCardSurface } from "@promorang/shared";
+import { useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { ValueInstrumentCard } from "@/components/value/ValueInstrumentCard";
@@ -90,6 +91,7 @@ const Wallet = () => {
   const { user, session } = useAuth();
   const { toast } = useToast();
   const { country, isFeatureEnabled } = useMarket();
+  const promoCard = useMyPromoCard();
   const canBuyGems = isFeatureEnabled("gemPurchases");
   const canWithdrawGems = isFeatureEnabled("gemWithdrawals");
   const { data: walletBalance, isLoading: walletLoading, refetch: refetchWalletBalance } = useUserBalance();
@@ -250,6 +252,17 @@ const Wallet = () => {
 
   const points = Number(walletBalance?.points || 0);
   const gems = Number(walletBalance?.gems || 0);
+  const cardSurface = resolvePromoCardSurface({
+    holder: promoCard.data?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || "Member",
+    spendable: Number(promoCard.data?.spendable ?? promoCard.data?.card?.available_balance ?? 0),
+    limit: Number(promoCard.data?.limit ?? promoCard.data?.card?.monthly_limit ?? 0),
+    cardNumber: promoCard.data?.cardNumber || promoCard.data?.card?.card_number,
+    currency: country.currency,
+    perks: promoCard.data?.perks || [],
+    nextOffer: promoCard.data?.nextOffer?.title
+      ? promoCard.data.nextOffer
+      : offerFromOpportunity(null),
+  });
   const pendingWithdrawalGems = gemWithdrawals
     .filter((request) => ["requested", "reviewing", "approved"].includes(request.status))
     .reduce((sum, request) => sum + Number(request.gems_amount || 0), 0);
@@ -304,18 +317,11 @@ const Wallet = () => {
             </p>
           </div>
 
-          <div className="flex flex-col items-center gap-4">
-            <DigitalWalletPass3D
-              displayName={user.user_metadata?.full_name || user.user_metadata?.name}
-              userEmail={user.email}
-              userId={user.id}
-              points={walletBalance?.points || 0}
-              promoKeys={walletBalance?.promokeys || 0}
-              gems={gems}
-            />
-            <div className="flex w-full max-w-[420px] gap-2">
+          <div className="flex w-full max-w-[420px] flex-col items-stretch gap-4 justify-self-end">
+            <PromoCardPresent surface={cardSurface} compact />
+            <div className="flex w-full gap-2">
               <Button className="flex-1 rounded-xl shadow-lg" asChild>
-                <Link to="/discover"><Sparkles className="mr-2 h-4 w-4" />{t("wallet.earn")}</Link>
+                <Link to="/card"><Sparkles className="mr-2 h-4 w-4" />{t("wallet.earn")}</Link>
               </Button>
               <Button variant="outline" size="icon" className="rounded-xl border-white/20 bg-black/40 text-white hover:bg-white/10 hover:text-white" onClick={refreshWallet} title={t("wallet.refresh")}>
                 <RefreshCw className="h-4 w-4" />

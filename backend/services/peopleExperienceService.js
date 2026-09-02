@@ -533,12 +533,33 @@ function createPeopleExperienceService(db = defaultDb) {
     return items;
   }
 
+  function nextOfferFromOpportunities(items) {
+    const item = (items || []).find((row) => row?.title);
+    if (!item) {
+      return {
+        title: 'Find a night nearby',
+        detail: 'Check in, and eligible savings land on your PromoCard.',
+        href: '/discover',
+        stub: 'Go',
+        place: 'Tonight',
+      };
+    }
+    return {
+      title: item.title,
+      detail: item.peopleGet || item.description || 'Show up, and it can land on your PromoCard.',
+      href: item.sourceKind === 'offer' ? '/discover' : '/earn',
+      stub: 'Go',
+      place: 'Tonight',
+    };
+  }
+
   async function getCard(userId) {
-    const [wallet, card, issuances, memberships] = await Promise.all([
+    const [wallet, card, issuances, memberships, opportunities] = await Promise.all([
       getWallet(userId),
       maybe(db.from('user_promo_cards').select('*').eq('user_id', userId).maybeSingle()),
       maybe(db.from('offer_issuances').select('*, offers(*)').eq('user_id', userId).in('status', ['issued', 'claimed', 'fulfillment_pending']).order('issued_at', { ascending: false }).limit(12)),
       membershipsFor(userId),
+      getOpportunities(userId),
     ]);
     const dropClaims = await maybe(
       db.from('community_drop_claims').select('*, community_drops(*)').eq('user_id', userId).eq('status', 'claimed').order('claimed_at', { ascending: false }).limit(12),
@@ -558,13 +579,18 @@ function createPeopleExperienceService(db = defaultDb) {
         kind: row.community_drops?.perk_kind || 'custom',
       })),
     ];
+    const row = card.data || null;
     return {
       name: displayName(person),
       points: Number(wallet.points || 0),
       keys: Number(wallet.promokeys || 0),
       gems: Number(wallet.gems || 0),
-      card: card.data || null,
+      spendable: Number(row?.available_balance || 0),
+      limit: Number(row?.monthly_limit || 0),
+      cardNumber: row?.card_number || null,
+      card: row,
       perks,
+      nextOffer: nextOfferFromOpportunities(opportunities),
       memberships: (memberships || []).map((row) => ({
         id: row.scene_id || row.scenes?.id,
         title: row.scenes?.title || 'Community',

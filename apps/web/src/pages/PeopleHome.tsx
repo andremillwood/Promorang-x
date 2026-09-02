@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { Gift, Plus, Sparkles, Users } from "lucide-react";
+import { offerFromOpportunity, resolvePromoCardSurface } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
+import { useMarket } from "@/contexts/MarketContext";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -15,10 +17,22 @@ export default function PeopleHome() {
   const { user, profile, activeRole } = useAuth();
   const home = useExperienceHome();
   const to = useExperiencePath();
+  const { country } = useMarket();
   const data = home.data;
   const name = data?.name || profile?.full_name?.split(" ")[0] || user?.user_metadata?.full_name?.split(" ")[0] || "You";
   const role = data?.role || (["creator", "host", "promoter", "merchant", "brand"].includes(String(activeRole)) ? "contributor" : "member");
   const communityName = data?.communities?.[0]?.title || name;
+  const cardSurface = resolvePromoCardSurface({
+    holder: name,
+    spendable: Number(data?.card?.spendable ?? data?.card?.card?.available_balance ?? 0),
+    limit: Number(data?.card?.limit ?? data?.card?.card?.monthly_limit ?? 0),
+    cardNumber: data?.card?.cardNumber || data?.card?.card?.card_number,
+    currency: country.currency,
+    perks: data?.card?.perks || [],
+    nextOffer: data?.card?.nextOffer?.title
+      ? data.card.nextOffer
+      : offerFromOpportunity(data?.opportunityItems?.[0]),
+  });
 
   if (home.isLoading) {
     return (
@@ -117,13 +131,25 @@ export default function PeopleHome() {
       {role === "member" ? (
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-bold">For you</h2>
-          <Link to={to("/card")} className="block">
-            <PromoCardFace
-              holder={name}
-              available={`${Number(data?.wallet?.points || 0).toLocaleString()} pts`}
-              limit={`${Number(data?.wallet?.promokeys || 0)} keys`}
-              places="Your perks live here"
-            />
+          <Link to={to("/card")} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            {cardSurface.mode === "present" ? (
+              <PromoCardFace
+                holder={cardSurface.holder}
+                available={cardSurface.available}
+                limit={cardSurface.limit}
+                caption={cardSurface.caption}
+                places={cardSurface.places}
+                serial={cardSurface.serial}
+              />
+            ) : (
+              <TicketPass
+                kicker={cardSurface.offer.place || "Tonight"}
+                title={cardSurface.offer.title}
+                detail={cardSurface.offer.detail}
+                stub={cardSurface.offer.stub}
+                stubLabel="Go"
+              />
+            )}
           </Link>
           <Link to="/discover" className="block rounded-[1.6rem] border border-white/10 bg-white/[0.04] px-5 py-5">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">What’s happening</p>
