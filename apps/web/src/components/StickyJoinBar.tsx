@@ -109,7 +109,8 @@ export function StickyJoinBar({
     return (
         <div
             className={cn(
-                "fixed bottom-0 left-0 right-0 z-40 transform transition-transform duration-300 px-safe",
+                "fixed inset-x-0 z-40 transform px-safe transition-transform duration-300",
+                "bottom-[var(--mobile-tabbar-offset,0px)]",
                 isVisible ? "translate-y-0" : "translate-y-full",
                 className
             )}
@@ -144,11 +145,11 @@ export function StickyJoinBar({
             )}
 
             {/* Main bar */}
-            <div className="bg-card/95 backdrop-blur-lg border-t border-border shadow-elevated pb-safe">
-                <div className="max-w-4xl mx-auto px-4 py-3">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <div className="border-t border-border bg-card/95 shadow-elevated backdrop-blur-lg lg:pb-safe">
+                <div className="mx-auto max-w-4xl px-4 py-3">
+                    <div className="flex items-center justify-between gap-3">
                         {/* Left side - info */}
-                        <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
                             <button
                                 onClick={() => setIsExpanded(!isExpanded)}
                                 className="flex min-h-[44px] items-center gap-2 rounded-full px-2 text-muted-foreground transition-colors hover:text-foreground"
@@ -187,7 +188,7 @@ export function StickyJoinBar({
                         </div>
 
                         {/* Right side - CTA */}
-                        <div className="flex w-full items-center gap-2 overflow-x-auto touch-pan-x scrollbar-none sm:w-auto">
+                        <div className="flex w-auto shrink-0 items-center gap-2">
                         <SaveButton momentId={momentId} size="md" className="hidden shrink-0 sm:flex" />
                             {missionCount > 0 && onExploreMissions ? (
                                 <Button
@@ -195,7 +196,7 @@ export function StickyJoinBar({
                                     variant="outline"
                                     size="lg"
                                     onClick={onExploreMissions}
-                                    className="shrink-0 whitespace-nowrap border-amber-400/40 text-amber-600 dark:text-amber-300"
+                                    className="hidden shrink-0 whitespace-nowrap border-amber-400/40 text-amber-600 dark:text-amber-300 sm:inline-flex"
                                 >
                                     <Sparkles className="mr-2 h-4 w-4" />
                                     {missionCount} Missions · +{missionPointTotal}
@@ -206,7 +207,7 @@ export function StickyJoinBar({
                                     variant="outline"
                                     size="lg"
                                     onClick={handlePingSquad}
-                                    className="shrink-0 whitespace-nowrap border-accent text-accent hover:bg-accent/10"
+                                    className="hidden shrink-0 whitespace-nowrap border-accent text-accent hover:bg-accent/10 sm:inline-flex"
                                 >
                                     <Share2 className="w-4 h-4 mr-2" />
                                     Ping Squad
@@ -217,18 +218,12 @@ export function StickyJoinBar({
                                 size="lg"
                                 onClick={onJoin}
                                 disabled={isPast || isFull || isJoining || accessState?.canAttempt === false}
-                                className="flex-1 whitespace-nowrap sm:flex-none"
+                                className="whitespace-nowrap"
                             >
                                 {getButtonContent()}
                             </Button>
                         </div>
                     </div>
-                    {!isExpanded && (
-                        <div className="mt-2 flex items-center gap-2 text-xs font-medium text-muted-foreground sm:hidden">
-                            <Sparkles className="h-3.5 w-3.5 text-primary" />
-                            Tap the chevron for quick details and squad actions.
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

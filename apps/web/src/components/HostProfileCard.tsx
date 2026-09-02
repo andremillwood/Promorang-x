@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
-import { Star, Shield, MessageCircle, Calendar } from "lucide-react";
+import { Star, Shield, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
+import { useToast } from "@/hooks/use-toast";
+import { hasHostResponseRate } from "@/lib/host-profile-stats";
 
 interface HostProfileCardProps {
     hostId: string;
@@ -36,6 +38,8 @@ export function HostProfileCard({
     className,
 }: HostProfileCardProps) {
     const { t, formatNumber } = useI18n();
+    const { toast } = useToast();
+    const showResponse = hasHostResponseRate(responseRate);
     const joinYear = memberSince
         ? new Date(memberSince).getFullYear()
         : new Date().getFullYear();
@@ -91,12 +95,12 @@ export function HostProfileCard({
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 py-4 border-t border-b border-border">
-                <div className="text-center">
+            <div className={cn("grid gap-4 py-4 border-t border-b border-border", showResponse ? "grid-cols-3" : "grid-cols-2")}>
+                <div className={cn("text-center", !showResponse && "border-r border-border")}>
                     <p className="font-semibold text-lg text-foreground">{formatNumber(momentsHosted)}</p>
                     <p className="text-xs text-muted-foreground">{t("hostCard.moments")}</p>
                 </div>
-                <div className="text-center border-x border-border">
+                <div className={cn("text-center", showResponse && "border-x border-border")}>
                     {rating ? (
                         <>
                             <p className="font-semibold text-lg text-foreground flex items-center justify-center gap-1">
@@ -116,19 +120,12 @@ export function HostProfileCard({
                         </>
                     )}
                 </div>
-                <div className="text-center">
-                    {responseRate ? (
-                        <>
-                            <p className="font-semibold text-lg text-foreground">{responseRate}%</p>
-                            <p className="text-xs text-muted-foreground">{t("hostCard.response")}</p>
-                        </>
-                    ) : (
-                        <>
-                            <p className="font-semibold text-lg text-foreground">—</p>
-                            <p className="text-xs text-muted-foreground">{t("hostCard.response")}</p>
-                        </>
-                    )}
-                </div>
+                {showResponse && (
+                    <div className="text-center">
+                        <p className="font-semibold text-lg text-foreground">{responseRate}%</p>
+                        <p className="text-xs text-muted-foreground">{t("hostCard.response")}</p>
+                    </div>
+                )}
             </div>
 
             {/* About section */}
@@ -146,7 +143,18 @@ export function HostProfileCard({
                 <Button variant="outline" className="flex-1" asChild>
                     <Link to={`/profile/${hostId}`}>{t("hostCard.viewProfile")}</Link>
                 </Button>
-                <Button variant="secondary" size="icon">
+                <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    aria-label={t("profile.messageSoon")}
+                    onClick={() =>
+                        toast({
+                            title: t("profile.messageSoon"),
+                            description: t("profile.messageSoonCopy"),
+                        })
+                    }
+                >
                     <MessageCircle className="h-4 w-4" />
                 </Button>
             </div>
