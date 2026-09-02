@@ -7,7 +7,7 @@ import { DemoEventBanner } from "@/components/DemoEventBanner";
 import { demoMoments as moments } from "@/data/demo-moments";
 import { supabase } from "@/integrations/supabase/client";
 import { getTaxonomyLabel } from "@/lib/moment-taxonomy";
-import { distributeMoments } from "@promorang/shared";
+import { rankLiveMoments } from "@promorang/shared";
 import { useTasteProfile } from "@/hooks/useTasteProfile";
 
 const filters = [
@@ -40,7 +40,7 @@ const MomentsSection = () => {
   });
 
   const sourceMoments = Array.isArray(liveMoments) && liveMoments.length > 0
-    ? distributeMoments(liveMoments, tasteProfile, { take: 6 })
+    ? rankLiveMoments(liveMoments, tasteProfile, { take: 6 })
     : moments;
   const showingExamples = sourceMoments === moments;
 

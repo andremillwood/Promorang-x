@@ -4,6 +4,7 @@ import {
   effectiveMomentStart,
   interestSlugsForText,
   orderFeedMoments,
+  rankLiveMoments,
   tasteProfileFromPreferences,
 } from "../src/moment-distribution";
 
@@ -250,5 +251,49 @@ describe("moment distribution", () => {
       { now },
     );
     expect(ordered.map((item) => item.id)).toEqual(["dj", "workshop", "offer"]);
+  });
+
+  it("gives Today and For You the same first Moment from the same inventory", () => {
+    const inventory = [
+      moment({ id: "workshop", object_type: "moment", type: "event", category: "Workshops & Learning", title: "Clinic", host_id: "a" }),
+      moment({ id: "dj", object_type: "moment", type: "event", category: "Music & Parties", title: "Sound clash", host_id: "b" }),
+    ];
+    const taste = { preferredCategories: ["music"], city: "Kingston" };
+    const today = rankLiveMoments(inventory, taste, { now });
+    const forYou = orderFeedMoments(
+      [...inventory, { id: "offer", object_type: "offer", title: "Coupon" }],
+      taste,
+      { now },
+    );
+    expect(today[0].id).toBe("dj");
+    expect(forYou[0].id).toBe("dj");
+  });
+
+  it("keeps a weekly night that already started once and drops a concluded one-off", () => {
+    const ranked = rankLiveMoments(
+      [
+        moment({
+          id: "dead",
+          category: "Music & Parties",
+          title: "Last month's one-off",
+          starts_at: "2026-08-01T20:00:00.000Z",
+          host_id: "a",
+        }),
+        moment({
+          id: "weekly",
+          category: "Music & Parties",
+          title: "Monday happy hour",
+          starts_at: "2026-08-24T20:00:00.000Z",
+          recurrence_enabled: true,
+          recurrence_frequency: "weekly",
+          recurrence_interval: 1,
+          recurrence_timezone: "UTC",
+          host_id: "b",
+        }),
+      ],
+      { preferredCategories: ["music"] },
+      { now },
+    );
+    expect(ranked.map((item) => item.id)).toEqual(["weekly"]);
   });
 });

@@ -1,4 +1,4 @@
-import { resolveMomentOccurrence, type RecurringMomentLike } from "./moment-occurrence";
+import { getMomentStatus, resolveMomentOccurrence, type RecurringMomentLike } from "./moment-occurrence";
 
 export type TasteRole = "participant" | "creator" | "host" | "merchant" | "brand" | "agency" | string;
 
@@ -513,6 +513,26 @@ export function isMomentFeedItem(item: object): boolean {
   return type === "moment" || type === "event";
 }
 
+export function isShowableMoment(item: object, now = new Date()): boolean {
+  const moment = rankableFromMomentRow(item as Record<string, unknown>);
+  const recurrence = toRecurrenceInput(moment);
+  if (!recurrence) return true;
+  return !getMomentStatus(recurrence, now).isPast;
+}
+
+export function rankLiveMoments<T extends object>(
+  moments: T[],
+  profile: TasteProfile = {},
+  options?: { now?: Date; take?: number },
+): Array<RankedMoment<T>> {
+  const now = options?.now ?? new Date();
+  return distributeMoments(
+    moments.filter((item) => isShowableMoment(item, now)),
+    profile,
+    options,
+  );
+}
+
 export function orderFeedMoments<T extends object>(
   items: T[],
   profile: TasteProfile = {},
@@ -520,5 +540,5 @@ export function orderFeedMoments<T extends object>(
 ): Array<T | RankedMoment<T>> {
   const moments = items.filter((item) => isMomentFeedItem(item));
   const rest = items.filter((item) => !isMomentFeedItem(item));
-  return [...distributeMoments(moments, profile, options), ...rest];
+  return [...rankLiveMoments(moments, profile, options), ...rest];
 }

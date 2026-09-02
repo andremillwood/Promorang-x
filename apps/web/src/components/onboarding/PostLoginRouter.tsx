@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
 import { flushMarketingIntent } from "@/lib/marketing-attribution";
-import { hasCompletedOnboarding } from "@promorang/shared";
+import { hasCompletedOnboarding, postLoginPath } from "@promorang/shared";
 
 /**
  * Post-Login Router
@@ -79,80 +79,20 @@ export function PostLoginRouter() {
         .select('id', { count: 'exact', head: true })
         .eq('creator_id', user.id);
 
-      const hasCreatedContent = (momentCount || 0) > 0;
-      const hasJoinedContent = (joinedCount || 0) > 0;
-      const hasCreatedCampaign = (campaignCount || 0) > 0;
-      const hasRegisteredVenue = (venueCount || 0) > 0;
-      const hasCreatedFundedActivation = (offerCount || 0) > 0;
-      const hasPublishedCreatorContent = (creatorContentCount || 0) > 0;
-
-      // Role-specific routing
-      switch (activeRole) {
-        case "admin":
-          navigate("/admin?tab=command", { replace: true });
-          break;
-
-        case "brand":
-          if (!finishedOnboarding) {
-            navigate("/onboarding/brand", { replace: true });
-          } else if (!hasCreatedFundedActivation) {
-            navigate("/offers?template=promoshare-funded-cycle", { replace: true });
-          } else if (!hasCreatedCampaign) {
-            navigate("/create/campaign", { replace: true });
-          } else {
-            navigate("/dashboard", { replace: true });
-          }
-          break;
-
-        case "merchant":
-          if (!finishedOnboarding) {
-            navigate("/onboarding", { replace: true });
-          } else if (!hasCreatedContent) {
-            navigate("/?firstNight=true", { replace: true });
-          } else if (!hasRegisteredVenue) {
-            navigate("/dashboard/venues/add?firstTime=true", { replace: true });
-          } else {
-            navigate("/dashboard", { replace: true });
-          }
-          break;
-
-        case "host":
-          if (!finishedOnboarding) {
-            navigate("/onboarding", { replace: true });
-          } else if (!hasCreatedContent) {
-            navigate("/?firstNight=true", { replace: true });
-          } else {
-            navigate("/dashboard", { replace: true });
-          }
-          break;
-
-        case "creator":
-          if (!finishedOnboarding) {
-            navigate("/onboarding", { replace: true });
-          } else if (!hasCreatedFundedActivation) {
-            navigate("/offers?template=content-mission", { replace: true });
-          } else if (!hasPublishedCreatorContent) {
-            navigate("/dashboard?tab=publish", { replace: true });
-          } else {
-            navigate("/dashboard?tab=missions", { replace: true });
-          }
-          break;
-
-        case "participant":
-        default:
-          if (!finishedOnboarding) {
-            navigate("/onboarding", { replace: true });
-          } else if (!hasJoinedContent && !hasCreatedContent) {
-            navigate("/?firstNight=true", { replace: true });
-          } else if (!hasJoinedContent) {
-            navigate("/discover?firstTime=true", { replace: true });
-          } else if (!profileComplete) {
-            navigate("/dashboard/settings?firstTime=true", { replace: true });
-          } else {
-            navigate("/dashboard", { replace: true });
-          }
-          break;
-      }
+      navigate(
+        postLoginPath({
+          role: activeRole,
+          finishedOnboarding,
+          hostedMomentCount: momentCount || 0,
+          joinedMomentCount: joinedCount || 0,
+          campaignCount: campaignCount || 0,
+          venueCount: venueCount || 0,
+          offerCount: offerCount || 0,
+          creatorContentCount: creatorContentCount || 0,
+          profileComplete,
+        }),
+        { replace: true },
+      );
     };
 
     determineLandingPage();

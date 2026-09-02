@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { distributeMoments, tasteProfileFromPreferences } from "@promorang/shared";
+import { rankLiveMoments, tasteProfileFromPreferences } from "@promorang/shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -115,7 +115,7 @@ export function useExploreMoments(filters?: ExploreMomentFilters) {
           .maybeSingle()
         : { data: null };
 
-      return distributeMoments(
+      return rankLiveMoments(
         eligible as ExploreMoment[],
         tasteProfileFromPreferences({ role: activeRole, ...preferences }),
       );

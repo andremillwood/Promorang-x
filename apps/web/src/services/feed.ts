@@ -250,7 +250,7 @@ export const getForYouFeed = async ({
   // Fallback to querying Supabase DB directly for Moments, Discoveries & Missions
   if (usedFallback) {
     const [{ data: dbMoments }, { data: dbDiscoveries }, { data: dbMissions }] = await Promise.all([
-      supabase.from("moments").select("*").eq("is_active", true).order("starts_at", { ascending: true }).limit(Math.max(limit * 3, 24)),
+      supabase.from("moments").select("*").eq("is_active", true).eq("content_origin", "stakeholder_created").order("starts_at", { ascending: true }).limit(Math.max(limit * 3, 24)),
       supabase.from("discoveries" as any).select("*").eq("verification_status", "approved").limit(limit),
       supabase.from("moment_bounties" as any).select("*").order("created_at", { ascending: false }).limit(limit),
     ]);

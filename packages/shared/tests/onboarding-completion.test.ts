@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hasCompletedOnboarding } from "../src/onboarding-completion";
+import { hasCompletedOnboarding, postLoginPath } from "../src/onboarding-completion";
 
 describe("onboarding completion", () => {
   it("is incomplete when there is no preferences row", () => {
@@ -14,5 +14,19 @@ describe("onboarding completion", () => {
 
   it("counts the venue stakeholder seed as done", () => {
     expect(hasCompletedOnboarding({ preferred_categories: ["stakeholder"] })).toBe(true);
+  });
+
+  it("does not bounce a finished host back into onboarding", () => {
+    expect(
+      postLoginPath({
+        role: "host",
+        finishedOnboarding: hasCompletedOnboarding({ preferred_categories: ["stakeholder"] }),
+        hostedMomentCount: 0,
+      }),
+    ).toBe("/?firstNight=true");
+  });
+
+  it("still sends a host with no preferences through onboarding", () => {
+    expect(postLoginPath({ role: "host", finishedOnboarding: false, hostedMomentCount: 0 })).toBe("/onboarding");
   });
 });

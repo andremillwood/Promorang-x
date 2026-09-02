@@ -75,7 +75,7 @@ import { useOpeningMove } from "@/hooks/useOpeningMove";
 import { BrandCaseStudies } from "@/components/brands/BrandCaseStudies";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTasteProfile } from "@/hooks/useTasteProfile";
-import { distributeMoments } from "@promorang/shared";
+import { rankLiveMoments } from "@promorang/shared";
 
 type PublicMoment = Tables<"moments"> & { participant_count?: number | null };
 type PublicCommerceListing = Tables<"view_public_commerce_directory">;
@@ -376,7 +376,7 @@ export default function CinematicCultureHome() {
   const liveCommerceListings = (discoveryQuery.data?.commerce || []).filter((listing) => !isSampleCommerceListing(listing));
   const sampleCommerceListings = (discoveryQuery.data?.commerce || []).filter(isSampleCommerceListing);
   const rankedLiveMoments = useMemo(
-    () => distributeMoments(discoveryQuery.data?.moments || [], tasteProfile, { take: 4 }),
+    () => rankLiveMoments(discoveryQuery.data?.moments || [], tasteProfile, { take: 4 }),
     [discoveryQuery.data?.moments, tasteProfile],
   );
   const hasLiveMoments = rankedLiveMoments.length > 0;
