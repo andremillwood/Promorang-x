@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { resolvePlaceGeo } from "@/lib/jamaica-geo";
+import { hasCompletedOnboarding } from "@promorang/shared";
 
 export interface UserPreferences {
   id: string;
@@ -70,8 +71,7 @@ export function useUserPreferences() {
 export function useHasCompletedOnboarding() {
   const { data: preferences, isLoading } = useUserPreferences();
 
-  // User has completed onboarding if they have preferences with at least one category selected
-  const hasCompleted = !isLoading && preferences && preferences.preferred_categories?.length > 0;
+  const hasCompleted = !isLoading && hasCompletedOnboarding(preferences);
 
   return { hasCompleted, isLoading };
 }

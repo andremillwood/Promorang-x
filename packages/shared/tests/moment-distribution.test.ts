@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   distributeMoments,
+  effectiveMomentStart,
   interestSlugsForText,
+  orderFeedMoments,
   tasteProfileFromPreferences,
 } from "../src/moment-distribution";
 
@@ -195,5 +197,58 @@ describe("moment distribution", () => {
       { now },
     );
     expect(ranked[0].id).toBe("near-now");
+  });
+
+  it("ranks a weekly night by the next occurrence, not the original start", () => {
+    const ranked = distributeMoments(
+      [
+        moment({
+          id: "one-off",
+          category: "Music & Parties",
+          title: "Festival next week",
+          starts_at: "2026-09-06T22:00:00.000Z",
+          host_id: "a",
+        }),
+        moment({
+          id: "weekly",
+          category: "Music & Parties",
+          title: "Monday happy hour",
+          starts_at: "2026-08-24T20:00:00.000Z",
+          recurrence_enabled: true,
+          recurrence_frequency: "weekly",
+          recurrence_interval: 1,
+          recurrence_timezone: "UTC",
+          host_id: "b",
+        }),
+      ],
+      { preferredCategories: ["music"] },
+      { now },
+    );
+    expect(ranked[0].id).toBe("weekly");
+    expect(ranked[0].distributionReasons.join(" ")).toMatch(/tonight|soon|now/i);
+    const nextStart = effectiveMomentStart(
+      {
+        starts_at: "2026-08-06T22:00:00.000Z",
+        recurrence_enabled: true,
+        recurrence_frequency: "weekly",
+        recurrence_interval: 1,
+        recurrence_timezone: "UTC",
+      },
+      now,
+    );
+    expect(new Date(nextStart || 0).getTime()).toBeGreaterThan(now.getTime() - 36e5);
+  });
+
+  it("puts For You moments through the same ranker as Today", () => {
+    const ordered = orderFeedMoments(
+      [
+        { id: "offer", object_type: "offer", title: "Coupon" },
+        { id: "workshop", object_type: "moment", type: "event", category: "Workshops & Learning", title: "Clinic", host_id: "a", starts_at: "2026-08-31T22:00:00.000Z" },
+        { id: "dj", object_type: "moment", type: "event", category: "Music & Parties", title: "Sound clash", host_id: "b", starts_at: "2026-08-31T22:00:00.000Z" },
+      ],
+      { preferredCategories: ["music"] },
+      { now },
+    );
+    expect(ordered.map((item) => item.id)).toEqual(["dj", "workshop", "offer"]);
   });
 });

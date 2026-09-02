@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
 import { flushMarketingIntent } from "@/lib/marketing-attribution";
+import { hasCompletedOnboarding } from "@promorang/shared";
 
 /**
  * Post-Login Router
@@ -30,14 +31,13 @@ export function PostLoginRouter() {
         return;
       }
 
-      // Check if first-time user (no completed onboarding)
       const { data: onboardingCheck } = await supabase
         .from('user_preferences')
-        .select('onboarding_completed')
+        .select('preferred_categories')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      const hasCompletedOnboarding = onboardingCheck?.onboarding_completed || false;
+      const finishedOnboarding = hasCompletedOnboarding(onboardingCheck);
 
       // Check for profile completeness
       const profileComplete = !!(
@@ -93,7 +93,7 @@ export function PostLoginRouter() {
           break;
 
         case "brand":
-          if (!hasCompletedOnboarding) {
+          if (!finishedOnboarding) {
             navigate("/onboarding/brand", { replace: true });
           } else if (!hasCreatedFundedActivation) {
             navigate("/offers?template=promoshare-funded-cycle", { replace: true });
@@ -105,7 +105,7 @@ export function PostLoginRouter() {
           break;
 
         case "merchant":
-          if (!hasCompletedOnboarding) {
+          if (!finishedOnboarding) {
             navigate("/onboarding", { replace: true });
           } else if (!hasCreatedContent) {
             navigate("/?firstNight=true", { replace: true });
@@ -117,7 +117,7 @@ export function PostLoginRouter() {
           break;
 
         case "host":
-          if (!hasCompletedOnboarding) {
+          if (!finishedOnboarding) {
             navigate("/onboarding", { replace: true });
           } else if (!hasCreatedContent) {
             navigate("/?firstNight=true", { replace: true });
@@ -127,7 +127,7 @@ export function PostLoginRouter() {
           break;
 
         case "creator":
-          if (!hasCompletedOnboarding) {
+          if (!finishedOnboarding) {
             navigate("/onboarding", { replace: true });
           } else if (!hasCreatedFundedActivation) {
             navigate("/offers?template=content-mission", { replace: true });
@@ -140,7 +140,7 @@ export function PostLoginRouter() {
 
         case "participant":
         default:
-          if (!hasCompletedOnboarding) {
+          if (!finishedOnboarding) {
             navigate("/onboarding", { replace: true });
           } else if (!hasJoinedContent && !hasCreatedContent) {
             navigate("/?firstNight=true", { replace: true });

@@ -1,3 +1,5 @@
+import { resolveMomentOccurrence, type RecurringMomentLike } from "./moment-occurrence";
+
 export type TasteRole = "participant" | "creator" | "host" | "merchant" | "brand" | "agency" | string;
 
 export type TasteProfile = {
@@ -24,10 +26,19 @@ export type RankableMoment = {
   hostId?: string | null;
   venueId?: string | null;
   startsAt?: string | null;
+  endsAt?: string | null;
   createdAt?: string | null;
   participantCount?: number | null;
   latitude?: number | null;
   longitude?: number | null;
+  recurrenceEnabled?: boolean | null;
+  recurrenceFrequency?: "daily" | "weekly" | "monthly" | null;
+  recurrenceInterval?: number | null;
+  recurrenceByWeekday?: number[] | null;
+  recurrenceDayOfMonth?: number | null;
+  recurrenceTimezone?: string | null;
+  recurrenceUntil?: string | null;
+  recurrenceCount?: number | null;
 };
 
 export type DistributionFactor =
@@ -190,12 +201,52 @@ export function rankableFromMomentRow(row: Record<string, unknown>): RankableMom
     venueName: ((row.venue_name ?? row.venueName) as string | null) ?? null,
     hostId: ((row.host_id ?? row.hostId) as string | null) ?? null,
     venueId: ((row.venue_id ?? row.venueId) as string | null) ?? null,
-    startsAt: ((row.starts_at ?? row.startsAt) as string | null) ?? null,
+    startsAt: ((row.starts_at ??
+      row.startsAt ??
+      (row.context && typeof row.context === "object"
+        ? (row.context as Record<string, unknown>).starts_at
+        : null)) as string | null) ?? null,
+    endsAt: ((row.ends_at ?? row.endsAt) as string | null) ?? null,
     createdAt: ((row.created_at ?? row.createdAt) as string | null) ?? null,
     participantCount: ((row.participant_count ?? row.participantCount) as number | null) ?? null,
     latitude: ((row.latitude as number | null) ?? null) as number | null,
     longitude: ((row.longitude as number | null) ?? null) as number | null,
+    recurrenceEnabled: ((row.recurrence_enabled ?? row.recurrenceEnabled) as boolean | null) ?? null,
+    recurrenceFrequency: ((row.recurrence_frequency ?? row.recurrenceFrequency) as RankableMoment["recurrenceFrequency"]) ?? null,
+    recurrenceInterval: ((row.recurrence_interval ?? row.recurrenceInterval) as number | null) ?? null,
+    recurrenceByWeekday: ((row.recurrence_by_weekday ?? row.recurrenceByWeekday) as number[] | null) ?? null,
+    recurrenceDayOfMonth: ((row.recurrence_day_of_month ?? row.recurrenceDayOfMonth) as number | null) ?? null,
+    recurrenceTimezone: ((row.recurrence_timezone ?? row.recurrenceTimezone) as string | null) ?? null,
+    recurrenceUntil: ((row.recurrence_until ?? row.recurrenceUntil) as string | null) ?? null,
+    recurrenceCount: ((row.recurrence_count ?? row.recurrenceCount) as number | null) ?? null,
   };
+}
+
+export function toRecurrenceInput(moment: RankableMoment): RecurringMomentLike | null {
+  if (!moment.startsAt) return null;
+  return {
+    starts_at: moment.startsAt,
+    ends_at: moment.endsAt,
+    recurrence_enabled: moment.recurrenceEnabled,
+    recurrence_frequency: moment.recurrenceFrequency,
+    recurrence_interval: moment.recurrenceInterval,
+    recurrence_by_weekday: moment.recurrenceByWeekday,
+    recurrence_day_of_month: moment.recurrenceDayOfMonth,
+    recurrence_timezone: moment.recurrenceTimezone,
+    recurrence_until: moment.recurrenceUntil,
+    recurrence_count: moment.recurrenceCount,
+  };
+}
+
+export function effectiveMomentStart(item: object, now = new Date()): string | null {
+  const moment = rankableFromMomentRow(item as Record<string, unknown>);
+  const recurrence = toRecurrenceInput(moment);
+  if (!recurrence) {
+    const row = item as Record<string, unknown>;
+    return ((row.start_date ?? row.date ?? row.expires_at) as string | null) ?? null;
+  }
+  const occurrence = resolveMomentOccurrence(recurrence, now);
+  return occurrence.hasFutureOccurrence || occurrence.startsAt ? occurrence.startsAt : moment.startsAt;
 }
 
 export function tasteProfileFromPreferences(input?: {
@@ -229,28 +280,13 @@ export function tasteProfileFromPreferences(input?: {
   };
 }
 
-function toRankable(item: object): RankableMoment {
-  const row = item as Record<string, unknown>;
-  if (row.startsAt || row.hostId || row.venueName) {
-    return {
-      id: String(row.id ?? ""),
-      title: (row.title as string | null) ?? null,
-      description: (row.description as string | null) ?? null,
-      category: (row.category as string | null) ?? null,
-      city: (row.city as string | null) ?? null,
-      country: (row.country as string | null) ?? null,
-      location: (row.location as string | null) ?? null,
-      venueName: (row.venueName as string | null) ?? null,
-      hostId: (row.hostId as string | null) ?? null,
-      venueId: (row.venueId as string | null) ?? null,
-      startsAt: (row.startsAt as string | null) ?? null,
-      createdAt: (row.createdAt as string | null) ?? null,
-      participantCount: (row.participantCount as number | null) ?? null,
-      latitude: (row.latitude as number | null) ?? null,
-      longitude: (row.longitude as number | null) ?? null,
-    };
-  }
-  return rankableFromMomentRow(row);
+function toRankable(item: object, now: Date): RankableMoment {
+  const moment = rankableFromMomentRow(item as Record<string, unknown>);
+  const recurrence = toRecurrenceInput(moment);
+  if (!recurrence) return moment;
+  const occurrence = resolveMomentOccurrence(recurrence, now);
+  if (!occurrence.hasFutureOccurrence) return moment;
+  return { ...moment, startsAt: occurrence.startsAt, endsAt: occurrence.endsAt ?? moment.endsAt };
 }
 
 function kmDistance(aLat: number, aLng: number, bLat: number, bLng: number): number {
@@ -447,7 +483,7 @@ export function distributeMoments<T extends object>(
 ): Array<RankedMoment<T>> {
   const now = options?.now ?? new Date();
   const scored = moments.map((item) => {
-    const moment = toRankable(item);
+    const moment = toRankable(item, now);
     const result = scoreMoment(moment, profile, now);
     return {
       item,
@@ -469,4 +505,20 @@ export function distributeMoments<T extends object>(
   }));
 
   return typeof options?.take === "number" ? ranked.slice(0, options.take) : ranked;
+}
+
+export function isMomentFeedItem(item: object): boolean {
+  const row = item as Record<string, unknown>;
+  const type = String(row.object_type || row.type || "").toLowerCase();
+  return type === "moment" || type === "event";
+}
+
+export function orderFeedMoments<T extends object>(
+  items: T[],
+  profile: TasteProfile = {},
+  options?: { now?: Date },
+): Array<T | RankedMoment<T>> {
+  const moments = items.filter((item) => isMomentFeedItem(item));
+  const rest = items.filter((item) => !isMomentFeedItem(item));
+  return [...distributeMoments(moments, profile, options), ...rest];
 }

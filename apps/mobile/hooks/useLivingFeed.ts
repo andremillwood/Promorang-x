@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { feedApi } from '@/lib/api';
-import { feedObjectHref, type FeedItem, type FeedObjectType } from '@promorang/shared';
+import { feedObjectHref, orderFeedMoments, tasteProfileFromPreferences, type FeedItem, type FeedObjectType } from '@promorang/shared';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 export type LivingFeedItem = {
   id: string;
@@ -146,6 +148,7 @@ const DEMO_FEED_ITEMS: LivingFeedItem[] = [
 ];
 
 export function useLivingFeed(intent: 'nearby' | 'tonight' | 'earn' | null = null) {
+  const { user, activeRole } = useAuth();
   const [items, setItems] = useState<LivingFeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -154,8 +157,21 @@ export function useLivingFeed(intent: 'nearby' | 'tonight' | 'earn' | null = nul
     setLoading(true);
     setError(null);
     try {
-      const response = await feedApi.getForYou(intent, 24);
-      const feedItems = (response.data?.feed || []).map(normalize);
+      const [response, prefsResult] = await Promise.all([
+        feedApi.getForYou(intent, 24),
+        user
+          ? supabase
+            .from('user_preferences')
+            .select('preferred_categories, lifestyle_tags, age_range, preferred_times, city, country, latitude, longitude')
+            .eq('user_id', user.id)
+            .maybeSingle()
+          : Promise.resolve({ data: null }),
+      ]);
+      const ranked = orderFeedMoments(
+        response.data?.feed || [],
+        tasteProfileFromPreferences({ role: activeRole, ...prefsResult.data }),
+      );
+      const feedItems = ranked.map(normalize);
       if (feedItems.length > 0) {
         setItems(feedItems);
       } else {
@@ -168,7 +184,7 @@ export function useLivingFeed(intent: 'nearby' | 'tonight' | 'earn' | null = nul
     } finally {
       setLoading(false);
     }
-  }, [intent]);
+  }, [intent, user?.id, activeRole]);
 
   useEffect(() => { void refresh(); }, [refresh]);
 

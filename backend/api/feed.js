@@ -221,6 +221,51 @@ const INTENT_MULTIPLIERS = {
 
 const isValidDate = (value) => value instanceof Date && !Number.isNaN(value.getTime());
 
+const nextOccurrenceStart = (item, now = new Date()) => {
+    if (!item?.recurrence_enabled || !item?.recurrence_frequency || !item?.starts_at) return item?.starts_at || null;
+    const original = new Date(item.starts_at);
+    if (!isValidDate(original) || original.getTime() >= now.getTime()) return item.starts_at;
+    const interval = Math.max(1, Number(item.recurrence_interval || 1));
+    const countLimit = item.recurrence_count ? Math.max(1, Number(item.recurrence_count)) : Number.POSITIVE_INFINITY;
+    const until = item.recurrence_until ? new Date(item.recurrence_until) : null;
+    const untilTime = until && isValidDate(until) ? until.getTime() : Number.POSITIVE_INFINITY;
+    const weekday = Array.isArray(item.recurrence_by_weekday) && item.recurrence_by_weekday.length
+        ? item.recurrence_by_weekday.map(Number)
+        : [original.getUTCDay()];
+    let occurrence = 1;
+    let candidate = new Date(original);
+    for (let step = 1; step <= 3660; step += 1) {
+        if (item.recurrence_frequency === 'daily') {
+            if (step % interval !== 0) continue;
+            candidate = new Date(original.getTime() + step * 86400000);
+        } else if (item.recurrence_frequency === 'monthly') {
+            candidate = new Date(Date.UTC(
+                original.getUTCFullYear(),
+                original.getUTCMonth() + step * interval,
+                original.getUTCDate(),
+                original.getUTCHours(),
+                original.getUTCMinutes(),
+                original.getUTCSeconds(),
+            ));
+        } else {
+            const next = new Date(original.getTime() + step * 86400000);
+            if (Math.floor(step / 7) % interval !== 0 || !weekday.includes(next.getUTCDay())) continue;
+            candidate = next;
+        }
+        occurrence += 1;
+        if (candidate.getTime() >= now.getTime()) break;
+    }
+    if (occurrence > countLimit || candidate.getTime() > untilTime || candidate.getTime() < now.getTime()) {
+        return item.starts_at;
+    }
+    return candidate.toISOString();
+};
+
+const withEffectiveStart = (item) => {
+    const next = nextOccurrenceStart(item);
+    return next ? { ...item, starts_at: next } : item;
+};
+
 const getItemDate = (item) => {
     const dateValue = item.posted_at || item.created_at || item.start_date || item.starts_at || item.assigned_at || item.date || item.expires_at;
     const date = dateValue ? new Date(dateValue) : null;
@@ -949,7 +994,7 @@ router.get('/for-you', requireAuth, async (req, res) => {
         let feedItems = [];
 
         if (candidates.moments?.data) {
-            feedItems.push(...candidates.moments.data.map((item) => scoreFeedItem({ ...item, type: 'event' }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
+            feedItems.push(...candidates.moments.data.map((item) => scoreFeedItem({ ...withEffectiveStart(item), type: 'event' }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
         }
         if (candidates.eventsTable?.data) {
             feedItems.push(...candidates.eventsTable.data.map((item) => scoreFeedItem({

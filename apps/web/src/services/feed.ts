@@ -1,6 +1,10 @@
 import { API_BASE_URL } from "@/lib/api";
 import { supabase } from "@/integrations/supabase/client";
-import { distributeMoments, tasteProfileFromPreferences } from "@promorang/shared";
+import {
+  effectiveMomentStart,
+  orderFeedMoments,
+  tasteProfileFromPreferences,
+} from "@promorang/shared";
 import type {
   FeedAction,
   FeedContext,
@@ -26,7 +30,7 @@ interface RawFeedItem extends Record<string, any> {
 }
 
 export function isItemTonight(item: RawFeedItem): boolean {
-  const dateStr = item.starts_at || item.start_date || item.date;
+  const dateStr = effectiveMomentStart(item) || item.starts_at || item.start_date || item.date;
   if (!dateStr) return false;
   const start = new Date(dateStr);
   if (isNaN(start.getTime())) return false;
@@ -167,7 +171,9 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
       undefined,
     description,
     image_url: imageUrl,
-    reason_labels: inferReasonLabels(item, intent),
+    reason_labels: Array.isArray(item.distributionReasons) && item.distributionReasons.length
+      ? item.distributionReasons
+      : inferReasonLabels(item, intent),
     score: item.score,
     score_breakdown: item.score_breakdown,
     primary_cta: {
@@ -237,7 +243,8 @@ export const getForYouFeed = async ({
       .eq("user_id", userId)
       .maybeSingle()
     : { data: null };
-  const taste = tasteProfileFromPreferences(preferences);
+  const activeRole = typeof localStorage !== "undefined" ? localStorage.getItem("promorang_active_role") : null;
+  const taste = tasteProfileFromPreferences({ role: activeRole, ...preferences });
   const usedFallback = rawFeed.length === 0;
 
   // Fallback to querying Supabase DB directly for Moments, Discoveries & Missions
@@ -248,13 +255,14 @@ export const getForYouFeed = async ({
       supabase.from("moment_bounties" as any).select("*").order("created_at", { ascending: false }).limit(limit),
     ]);
 
-    const rankedMoments = distributeMoments(dbMoments || [], taste, { take: limit });
     rawFeed = [
-      ...rankedMoments.map((m) => ({ ...m, object_type: "moment", type: "event" })),
+      ...(dbMoments || []).map((m) => ({ ...m, object_type: "moment", type: "event" })),
       ...(dbDiscoveries || []).map((d) => ({ ...d, object_type: "discovery", type: "discovery" })),
       ...(dbMissions || []).map((b) => ({ ...b, object_type: "drop", type: "bounty" })),
     ];
   }
+
+  rawFeed = orderFeedMoments(rawFeed, taste) as RawFeedItem[];
 
   // Filter rawFeed according to intent criteria strictly
   if (intent === "tonight") {
