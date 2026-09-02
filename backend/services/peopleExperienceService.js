@@ -143,6 +143,57 @@ function firstMeta(metadata, keys, fallback = null) {
   return fallback;
 }
 
+const PEOPLE_NOTICE_TYPES = {
+  drop: 'people_drop',
+  claim: 'people_claim',
+  showedUp: 'people_showed_up',
+};
+
+function claimPingCopy(claimerName, perkTitle) {
+  return `${claimerName || 'Someone'} claimed ${perkTitle || 'your perk'}.`;
+}
+
+function showedUpPingCopy(personName, place) {
+  const who = personName || 'Someone';
+  return place ? `${who} showed up at ${place}.` : `${who} showed up.`;
+}
+
+function dropShareCopy(creatorName, perkTitle) {
+  return `${creatorName || 'Someone'} just dropped ${perkTitle || 'something'} on your PromoCard.`;
+}
+
+function dropClaimDenial({
+  audience,
+  remaining,
+  claimerId,
+  specificUserIds,
+  isMostActive,
+  hasCompletedSomething,
+} = {}) {
+  if (remaining != null && Number(remaining) <= 0) return 'It is already gone';
+  if (audience === 'specific' && Array.isArray(specificUserIds) && specificUserIds.length && !specificUserIds.includes(claimerId)) {
+    return 'This one is for specific people';
+  }
+  if (audience === 'most_active' && isMostActive === false) {
+    return 'This one is for the people who show up most';
+  }
+  if (audience === 'complete_something' && hasCompletedSomething === false) {
+    return 'Show up or finish something first';
+  }
+  return null;
+}
+
+function isUuid(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ''));
+}
+
+function peopleNoticeTitle(type) {
+  if (type === PEOPLE_NOTICE_TYPES.drop) return 'A perk is waiting';
+  if (type === PEOPLE_NOTICE_TYPES.claim) return 'Someone claimed it';
+  if (type === PEOPLE_NOTICE_TYPES.showedUp) return 'Someone showed up';
+  return 'Something happened';
+}
+
 function attributionFromMetadata(metadata = {}, extras = {}) {
   const amountRaw = firstMeta(metadata, ['amount', 'reward_value', 'rewardValue'], extras.amount);
   return {
@@ -243,6 +294,14 @@ function createPeopleExperienceService(db = defaultDb) {
         contributorId: attribution.contributor_id,
         amount: attribution.amount,
       });
+      await notifyShowedUp({
+        actorId: userId,
+        actionType,
+        sceneId: attribution.scene_id,
+        contributorId: attribution.contributor_id,
+        relatedId: saved.id,
+        metadata,
+      });
     }
     return saved;
   }
@@ -300,6 +359,134 @@ function createPeopleExperienceService(db = defaultDb) {
         source: 'invite',
       });
     }
+  }
+
+  async function writeNotices(rows) {
+    const payload = (rows || [])
+      .filter((row) => row?.userId && row.type && row.title)
+      .map((row) => ({
+        user_id: row.userId,
+        type: row.type,
+        title: row.title,
+        message: row.message || null,
+        related_id: isUuid(row.relatedId) ? row.relatedId : null,
+        is_read: false,
+      }));
+    if (!payload.length) return [];
+    const inserted = await maybe(db.from('notifications').insert(payload).select());
+    return inserted.data || [];
+  }
+
+  async function getNotices(userId) {
+    if (!userId) return [];
+    const rows = await maybe(
+      db.from('notifications')
+        .select('id, type, title, message, related_id, is_read, created_at')
+        .eq('user_id', userId)
+        .in('type', [PEOPLE_NOTICE_TYPES.drop, PEOPLE_NOTICE_TYPES.claim, PEOPLE_NOTICE_TYPES.showedUp])
+        .order('created_at', { ascending: false })
+        .limit(8),
+    );
+    return (rows.data || []).map((row) => ({
+      id: row.id,
+      type: row.type,
+      title: row.title,
+      message: row.message,
+      relatedId: row.related_id,
+      read: Boolean(row.is_read),
+      createdAt: row.created_at,
+      href: row.type === PEOPLE_NOTICE_TYPES.drop ? '/card' : '/happened',
+    }));
+  }
+
+  async function peopleToPing({ sceneId, creatorId, audience, audienceLimit, specificUserIds }) {
+    const cap = Math.min(50, Math.max(1, Number(audienceLimit) || 50));
+    if (audience === 'specific' && Array.isArray(specificUserIds) && specificUserIds.length) {
+      return specificUserIds.filter((id) => id && id !== creatorId).slice(0, cap);
+    }
+    if (audience === 'complete_something') return [];
+
+    if (sceneId) {
+      const members = await maybe(
+        db.from('scene_members')
+          .select('user_id, verified_actions_count')
+          .eq('scene_id', sceneId)
+          .eq('status', 'active'),
+      );
+      let rows = (members.data || []).filter((row) => row.user_id && row.user_id !== creatorId);
+      if (audience === 'most_active') {
+        rows = rows.sort((a, b) => Number(b.verified_actions_count || 0) - Number(a.verified_actions_count || 0));
+      }
+      if (rows.length) return rows.map((row) => row.user_id).slice(0, cap);
+    }
+
+    const network = await getNetwork(creatorId, sceneId);
+    return (network.memberIds || []).filter((id) => id && id !== creatorId).slice(0, cap);
+  }
+
+  async function isMostActiveMember(sceneId, userId, limit) {
+    if (!sceneId || !userId) return null;
+    const members = await maybe(
+      db.from('scene_members')
+        .select('user_id, verified_actions_count')
+        .eq('scene_id', sceneId)
+        .eq('status', 'active'),
+    );
+    const rows = (members.data || []).filter((row) => row.user_id);
+    if (!rows.length) return null;
+    const ranked = rows.sort((a, b) => Number(b.verified_actions_count || 0) - Number(a.verified_actions_count || 0));
+    const top = ranked.slice(0, Math.min(50, Math.max(1, Number(limit) || 20)));
+    return top.some((row) => row.user_id === userId);
+  }
+
+  async function hasCompletedSomething(sceneId, userId) {
+    if (!userId) return null;
+    let query = db.from('verified_actions').select('id, action_type').eq('user_id', userId).limit(40);
+    if (sceneId) query = query.eq('scene_id', sceneId);
+    const actions = await maybe(query);
+    const rows = actions.data || [];
+    if (!rows.length) return false;
+    return rows.some((row) => {
+      const bucket = classifyHappenedBucket(row.action_type);
+      return bucket === 'went' || bucket === 'answered' || bucket === 'shared' || bucket === 'bought' || bucket === 'used';
+    });
+  }
+
+  async function assertCanClaim(userId, drop) {
+    const specificUserIds = drop.attribution?.specific_user_ids || drop.attribution?.specificUserIds || [];
+    const isMostActive = drop.audience === 'most_active'
+      ? await isMostActiveMember(drop.scene_id, userId, drop.audience_limit)
+      : null;
+    const completed = drop.audience === 'complete_something'
+      ? await hasCompletedSomething(drop.scene_id, userId)
+      : null;
+    const denial = dropClaimDenial({
+      audience: drop.audience,
+      remaining: drop.remaining,
+      claimerId: userId,
+      specificUserIds,
+      isMostActive,
+      hasCompletedSomething: completed,
+    });
+    if (denial) throw new Error(denial);
+  }
+
+  async function notifyShowedUp({ actorId, actionType, sceneId, contributorId, relatedId, metadata }) {
+    if (!actorId || !contributorId || actorId === contributorId) return [];
+    if (classifyHappenedBucket(actionType) !== 'went') return [];
+    const actor = await profileFor(actorId);
+    let place = metadata?.place || metadata?.title || metadata?.sceneTitle || null;
+    if (!place && sceneId) {
+      const scene = await maybe(db.from('scenes').select('title').eq('id', sceneId).maybeSingle());
+      place = scene.data?.title || null;
+    }
+    return writeNotices([{
+      userId: contributorId,
+      type: PEOPLE_NOTICE_TYPES.showedUp,
+      title: peopleNoticeTitle(PEOPLE_NOTICE_TYPES.showedUp),
+      message: showedUpPingCopy(displayName(actor), place),
+      relatedId,
+    }]);
   }
 
   async function getWallet(userId) {
@@ -622,10 +809,12 @@ function createPeopleExperienceService(db = defaultDb) {
       memberships: communities.length,
       cardPerks: (card.perks || []).length,
     });
+    const notices = await getNotices(userId);
 
     return {
       role: experienceRole,
       name: displayName(person),
+      notices,
       communities,
       people: network.people,
       peopleThisMonth: network.thisMonth,
@@ -697,6 +886,7 @@ function createPeopleExperienceService(db = defaultDb) {
         source_opportunity_id: payload.sourceOpportunityId || null,
         source_kind: payload.sourceKind || null,
         source_id: payload.sourceId || null,
+        specific_user_ids: payload.specificUserIds || [],
       },
     }).select().single();
     if (inserted.error) throw inserted.error;
@@ -709,6 +899,22 @@ function createPeopleExperienceService(db = defaultDb) {
       dropId: inserted.data.id,
       metadata: { kind: 'drop_created', title: inserted.data.title },
     });
+
+    const creator = await profileFor(userId);
+    const recipients = await peopleToPing({
+      sceneId: payload.sceneId || null,
+      creatorId: userId,
+      audience: payload.audience || 'everyone',
+      audienceLimit: remaining,
+      specificUserIds: payload.specificUserIds || [],
+    });
+    await writeNotices(recipients.map((recipientId) => ({
+      userId: recipientId,
+      type: PEOPLE_NOTICE_TYPES.drop,
+      title: peopleNoticeTitle(PEOPLE_NOTICE_TYPES.drop),
+      message: dropShareCopy(displayName(creator), inserted.data.title),
+      relatedId: inserted.data.id,
+    })));
 
     return inserted.data;
   }
@@ -732,7 +938,7 @@ function createPeopleExperienceService(db = defaultDb) {
     const drop = await getDrop(slug);
     if (!drop) throw new Error('This drop is no longer available');
     if (drop.status !== 'active') throw new Error('This drop has closed');
-    if (drop.remaining !== null && Number(drop.remaining) <= 0) throw new Error('It is already gone');
+    await assertCanClaim(userId, drop);
 
     const existing = await maybe(db.from('community_drop_claims').select('id').eq('drop_id', drop.id).eq('user_id', userId).maybeSingle());
     if (existing.data) return { alreadyClaimed: true, drop };
@@ -798,6 +1004,17 @@ function createPeopleExperienceService(db = defaultDb) {
       verificationMethod: 'claim',
       metadata: { slug: drop.slug, title: drop.title },
     });
+
+    if (drop.creator_id && drop.creator_id !== userId) {
+      const claimer = await profileFor(userId);
+      await writeNotices([{
+        userId: drop.creator_id,
+        type: PEOPLE_NOTICE_TYPES.claim,
+        title: peopleNoticeTitle(PEOPLE_NOTICE_TYPES.claim),
+        message: claimPingCopy(displayName(claimer), drop.title),
+        relatedId: drop.id,
+      }]);
+    }
 
     return { drop, claim: claim.data, issuance };
   }
@@ -1073,6 +1290,10 @@ function createPeopleExperienceService(db = defaultDb) {
     ensureHubAttribution,
     bumpContributorStats,
     accountStakeholderOutcomes,
+    getNotices,
+    writeNotices,
+    peopleToPing,
+    assertCanClaim,
   };
 }
 
@@ -1084,3 +1305,8 @@ module.exports.happenedBuckets = happenedBuckets;
 module.exports.classifyHappenedBucket = classifyHappenedBucket;
 module.exports.attributionFromMetadata = attributionFromMetadata;
 module.exports.accountStakeholderOutcomes = accountStakeholderOutcomes;
+module.exports.dropClaimDenial = dropClaimDenial;
+module.exports.claimPingCopy = claimPingCopy;
+module.exports.showedUpPingCopy = showedUpPingCopy;
+module.exports.dropShareCopy = dropShareCopy;
+module.exports.PEOPLE_NOTICE_TYPES = PEOPLE_NOTICE_TYPES;

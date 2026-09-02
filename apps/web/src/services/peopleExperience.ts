@@ -32,6 +32,7 @@ export const peopleExperienceApi = {
   opportunities: (sceneId?: string) => request<any[]>(`/opportunities${sceneId ? `?sceneId=${sceneId}` : ""}`),
   happened: (sceneId?: string) => request<Record<string, any>>(`/happened${sceneId ? `?sceneId=${sceneId}` : ""}`),
   card: () => request<Record<string, any>>("/card"),
+  notices: () => request<any[]>("/notices"),
   drop: (slug: string) => request<Record<string, any>>(`/drops/${slug}`),
   createDrop: (body: Record<string, unknown>) => request<Record<string, any>>("/drops", { method: "POST", body: JSON.stringify(body) }),
   claimDrop: (slug: string) => request<Record<string, any>>(`/drops/${slug}/claim`, { method: "POST", body: "{}" }),

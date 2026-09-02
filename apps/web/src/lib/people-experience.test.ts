@@ -6,7 +6,10 @@ import {
   classifyHappenedBucket,
   contributorValueScore,
   dropShareCopy,
+  dropClaimDenial,
   inventoryOpenCopy,
+  peopleNoticeHref,
+  PEOPLE_NOTICE_TYPES,
   resolveCreateIntent,
 } from "@promorang/shared";
 
@@ -33,6 +36,12 @@ describe("simplified PROMORANG experience", () => {
     expect(classifyHappenedBucket("PERK_REDEMPTION")).toBe("used");
     expect(dropShareCopy("Ada", "Free entry")).toBe("Ada just dropped Free entry on your PromoCard.");
     expect(inventoryOpenCopy("Ada", "Free entry")).toBe("Ada just put Free entry up for your people.");
+  });
+
+  it("routes people pings to the card or what happened", () => {
+    expect(peopleNoticeHref(PEOPLE_NOTICE_TYPES.drop)).toBe("/card");
+    expect(peopleNoticeHref(PEOPLE_NOTICE_TYPES.claim)).toBe("/happened");
+    expect(dropClaimDenial({ audience: "everyone", remaining: 2, claimerId: "u1" })).toBeNull();
   });
 
   it("does not show merchant inventory outcomes as a member's people count", () => {

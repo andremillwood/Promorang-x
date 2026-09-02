@@ -24,6 +24,15 @@ const safeDirectRoute = (route?: string | null) => route?.startsWith("/") && !ro
 export function resolveNotificationJourney(input: NotificationJourneyInput): NotificationJourneyPresentation {
   const type = input.type || "";
   const direct = safeDirectRoute(input.route);
+  if (/people_drop|drop_available/i.test(type)) {
+    return { kind: "value", eyebrow: "ON YOUR CARD", destination: direct || "/card", actionLabel: "Open your card" };
+  }
+  if (/people_claim|perk_claimed/i.test(type)) {
+    return { kind: "recognition", eyebrow: "SOMEONE CLAIMED", destination: direct || "/happened", actionLabel: "See what happened" };
+  }
+  if (/people_showed_up|someone_showed_up/i.test(type)) {
+    return { kind: "return", eyebrow: "THEY SHOWED UP", destination: direct || "/happened", actionLabel: "See who" };
+  }
   if (direct) return { kind: "general", eyebrow: "FOR YOU", destination: direct, actionLabel: "Open update" };
   if (input.memoryId || (/memory|memorized|kept|access_expiring/i.test(type) && input.relatedId)) return { kind: "memory", eyebrow: /access_expiring/i.test(type) ? "USEFUL WHILE IT LASTS" : "KEPT FOR YOU", destination: `/memory/${input.memoryId || input.relatedId}`, actionLabel: "Open memory" };
   if (input.sceneSlug) return { kind: "scene", eyebrow: "YOUR SCENE", destination: `/scene/${input.sceneSlug}`, actionLabel: "Step into the Scene" };

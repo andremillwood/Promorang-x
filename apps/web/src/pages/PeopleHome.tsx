@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -44,6 +44,23 @@ export default function PeopleHome() {
         <p className="rounded-[1.3rem] border border-white/10 px-4 py-3 text-sm text-white/45">
           Your numbers will appear here once this community starts moving. Nothing is invented.
         </p>
+      ) : null}
+
+      {data?.notices?.length ? (
+        <section className="space-y-3">
+          <h2 className="font-serif text-2xl font-bold">Waiting for you</h2>
+          {data.notices.slice(0, 3).map((notice: any) => (
+            <Link key={notice.id} to={to(notice.href || (notice.type === "people_drop" ? "/card" : "/happened"))} className="block">
+              <TicketPass
+                kicker={notice.read ? "Seen" : "New"}
+                title={notice.title || "Something happened"}
+                detail={notice.message || "Open this to see what changed."}
+                stub="Slip"
+                stubLabel="Notice"
+              />
+            </Link>
+          ))}
+        </section>
       ) : null}
 
       <section className="grid grid-cols-2 gap-3">

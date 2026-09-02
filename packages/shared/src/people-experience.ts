@@ -184,6 +184,62 @@ export function inventoryOpenCopy(merchantName: string, perkTitle: string) {
   return `${who} just put ${what} up for your people.`;
 }
 
+export const PEOPLE_NOTICE_TYPES = {
+  drop: "people_drop",
+  claim: "people_claim",
+  showedUp: "people_showed_up",
+} as const;
+
+export type PeopleNoticeType = (typeof PEOPLE_NOTICE_TYPES)[keyof typeof PEOPLE_NOTICE_TYPES];
+
+export function claimPingCopy(claimerName: string, perkTitle: string) {
+  const who = claimerName || "Someone";
+  const what = perkTitle || "your perk";
+  return `${who} claimed ${what}.`;
+}
+
+export function showedUpPingCopy(personName: string, place?: string | null) {
+  const who = personName || "Someone";
+  if (place) return `${who} showed up at ${place}.`;
+  return `${who} showed up.`;
+}
+
+export function peopleNoticeHref(type?: string | null, extra?: { slug?: string | null }) {
+  if (type === PEOPLE_NOTICE_TYPES.drop) return extra?.slug ? `/drop/${extra.slug}` : "/card";
+  if (type === PEOPLE_NOTICE_TYPES.claim || type === PEOPLE_NOTICE_TYPES.showedUp) return "/happened";
+  return "/happened";
+}
+
+export type DropClaimGate = {
+  audience?: DropAudience | null;
+  remaining?: number | null;
+  claimerId: string;
+  specificUserIds?: string[] | null;
+  isMostActive?: boolean | null;
+  hasCompletedSomething?: boolean | null;
+};
+
+export function dropClaimDenial(gate: DropClaimGate): string | null {
+  if (gate.remaining != null && Number(gate.remaining) <= 0) return "It is already gone";
+  if (gate.audience === "specific" && gate.specificUserIds?.length && !gate.specificUserIds.includes(gate.claimerId)) {
+    return "This one is for specific people";
+  }
+  if (gate.audience === "most_active" && gate.isMostActive === false) {
+    return "This one is for the people who show up most";
+  }
+  if (gate.audience === "complete_something" && gate.hasCompletedSomething === false) {
+    return "Show up or finish something first";
+  }
+  return null;
+}
+
+export function peopleNoticeTitle(type?: string | null) {
+  if (type === PEOPLE_NOTICE_TYPES.drop) return "A perk is waiting";
+  if (type === PEOPLE_NOTICE_TYPES.claim) return "Someone claimed it";
+  if (type === PEOPLE_NOTICE_TYPES.showedUp) return "Someone showed up";
+  return "Something happened";
+}
+
 export type StakeholderKey = ExperienceRole | "merchant" | "network";
 
 export type OutcomeCard = {

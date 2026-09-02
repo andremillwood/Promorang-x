@@ -134,6 +134,13 @@ export default function GiveSomething() {
             placeholder="First 50 people"
           />
         ) : null}
+        <p className="mt-3 text-sm text-white/45">
+          {audience === "everyone" ? "We'll ping the people already in this room." : null}
+          {audience === "most_active" ? "We'll ping the people who show up most. Others can't claim it." : null}
+          {audience === "first_x" ? "The first people who claim get it. We'll ping your people." : null}
+          {audience === "specific" ? "We'll ping the people you already brought. The link still works for them." : null}
+          {audience === "complete_something" ? "Nobody gets pinged yet. They can claim after they show up or finish something." : null}
+        </p>
       </section>
 
       <Link to={to("/stock")} className="block text-center text-sm text-white/45">

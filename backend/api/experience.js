@@ -55,6 +55,10 @@ router.get('/card', async (req, res) => {
   try { return ok(res, await experience.getCard(req.user.id)); } catch (error) { return fail(res, error, 500); }
 });
 
+router.get('/notices', async (req, res) => {
+  try { return ok(res, await experience.getNotices(req.user.id)); } catch (error) { return fail(res, error, 500); }
+});
+
 router.post('/drops', async (req, res) => {
   try { return ok(res, await experience.createDrop(req.user.id, req.body || {}), 201); } catch (error) { return fail(res, error); }
 });

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Bell, X, Check, Trophy, Star, Coins, AlertCircle, Info, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { resolveNotificationJourney } from '@promorang/shared';
 
 interface Notification {
   id: string;
@@ -51,7 +52,7 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
           message: n.message || '',
           timestamp: new Date(n.created_at),
           read: Boolean(n.is_read),
-          actionUrl: n.related_id ? `/content/${n.related_id}` : undefined,
+          actionUrl: resolveNotificationJourney({ type: n.type, relatedId: n.related_id }).destination,
         }))
       );
     } catch (error) {

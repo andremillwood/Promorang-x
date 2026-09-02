@@ -8,4 +8,7 @@ describe("resolveNotificationJourney", () => {
   it("opens the memory carrying expiring access", () => expect(resolveNotificationJourney({ type: "access_expiring", relatedId: "memory-2" }).destination).toBe("/memory/memory-2"));
   it("rejects protocol-relative direct routes", () => expect(resolveNotificationJourney({ route: "//unsafe.example" }).destination).toBe("/inbox"));
   it("opens the receipt carrying a commerce resolution", () => expect(resolveNotificationJourney({ type: "commerce_case_resolved", relatedId: "receipt-1" }).destination).toBe("/receipts/receipt-1"));
+  it("opens a dropped perk on the PromoCard", () => expect(resolveNotificationJourney({ type: "people_drop" })).toMatchObject({ destination: "/card", actionLabel: "Open your card" }));
+  it("opens a claim on What Happened", () => expect(resolveNotificationJourney({ type: "people_claim" }).destination).toBe("/happened"));
+  it("opens a show-up on What Happened", () => expect(resolveNotificationJourney({ type: "people_showed_up" }).destination).toBe("/happened"));
 });
