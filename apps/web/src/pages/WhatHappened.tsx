@@ -1,73 +1,82 @@
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { humanActionLabel } from "@promorang/shared";
 import { useWhatHappened } from "@/hooks/usePeopleExperience";
-import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
+import { useExperiencePath } from "@/hooks/useExperiencePath";
+import { ExperienceShell } from "@/components/people/ExperienceShell";
+import { PaperReceipt, TicketPass } from "@/components/promorang/SignatureObjects";
 
 export default function WhatHappened() {
   const [params] = useSearchParams();
   const happened = useWhatHappened(params.get("hub") || undefined);
+  const to = useExperiencePath();
   const data = happened.data;
   const buckets = data?.buckets || {};
+  const recent = data?.recent || [];
 
   return (
     <ExperienceShell
       eyebrow="What happened"
-      title="This week"
-      description="Not charts. What your people actually did."
+      title="The receipt"
+      description="Not a chart. What your people actually did this week."
       backTo="/dashboard"
     >
-      <StatPile
-        label="People participated"
-        value={data?.participated || 0}
-        hint={data?.earned ? `J$${Math.round(data.earned).toLocaleString()} generated` : "Verified movement only"}
+      <PaperReceipt
+        heading="This week"
+        lines={[
+          { label: "Showed up", value: String(data?.participated || 0), strong: true },
+          { label: "Went somewhere", value: String(buckets.went || 0) },
+          { label: "Bought something", value: String(buckets.bought || 0) },
+          { label: "Answered", value: String(buckets.answered || 0) },
+          { label: "Shared", value: String(buckets.shared || 0) },
+          { label: "Brought friends", value: String(buckets.brought || 0) },
+          { label: "Claimed a perk", value: String(buckets.claimed || 0) },
+          { label: "Used a perk", value: String(buckets.used || 0) },
+          ...(data?.earned
+            ? [{ label: "Earned", value: `J$${Math.round(data.earned).toLocaleString()}`, strong: true }]
+            : []),
+        ]}
+        footer={
+          data?.participated
+            ? "Verified movement only. Nothing invented."
+            : "Quiet week. Zeros stay zeros until someone shows up."
+        }
       />
 
-      <section className="grid grid-cols-2 gap-3">
-        {[
-          ["went somewhere", buckets.went],
-          ["bought something", buckets.bought],
-          ["answered Discoveries", buckets.answered],
-          ["shared something", buckets.shared],
-          ["brought friends", buckets.brought],
-          ["claimed a perk", buckets.claimed],
-          ["used a perk", buckets.used],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="rounded-[1.4rem] border border-white/10 bg-white/[0.04] px-4 py-4">
-            <p className="font-serif text-3xl font-bold">{value || 0}</p>
-            <p className="mt-1 text-xs text-white/50">{label}</p>
-          </div>
-        ))}
-      </section>
+      {data?.topInterests?.length ? (
+        <PaperReceipt
+          heading="They keep choosing"
+          lines={data.topInterests.map((interest: string, index: number) => ({
+            label: `${index + 1}.`,
+            value: interest,
+            strong: index === 0,
+          }))}
+          footer="From what they answered and where they went."
+        />
+      ) : null}
 
-      <section>
-        <h2 className="font-serif text-2xl font-bold">Your people are most interested in</h2>
-        {data?.topInterests?.length ? (
-          <ol className="mt-3 space-y-2">
-            {data.topInterests.map((interest: string, index: number) => (
-              <li key={interest} className="rounded-[1.3rem] border border-white/10 px-4 py-3 text-sm">
-                {index + 1}. {interest}
-              </li>
-            ))}
-          </ol>
+      <section className="space-y-3">
+        <h2 className="font-serif text-2xl font-bold">Recent slips</h2>
+        {recent.length ? (
+          recent.map((row: any) => (
+            <TicketPass
+              key={row.id}
+              kicker="Counted"
+              title={`${row.actorName || "Someone"} ${humanActionLabel(row.action_type)}`}
+              detail="It landed on this week's receipt."
+              stub="Kept"
+              stubLabel="Slip"
+            />
+          ))
         ) : (
-          <p className="mt-2 text-sm text-white/45">Interest shows up after people start answering and showing up.</p>
-        )}
-      </section>
-
-      <section>
-        <h2 className="font-serif text-2xl font-bold">Recent</h2>
-        {data?.recent?.length ? (
-          <div className="mt-3 space-y-2">
-            {data.recent.map((row: any) => (
-              <p key={row.id} className="rounded-[1.2rem] border border-white/10 px-4 py-3 text-sm text-white/70">
-                {row.actorName || "Someone"} {humanActionLabel(row.action_type)}
-              </p>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-3">
-            <QuietEmpty title="Quiet week" copy="When people claim, show up or answer, it will read like a story here." />
-          </div>
+          <Link to={to("/give")} className="block">
+            <TicketPass
+              kicker="Quiet"
+              title="Nobody moved yet"
+              detail="Give a perk or ask them to show up. The next slip prints here."
+              stub="Give"
+              stubLabel="Next"
+            />
+          </Link>
         )}
       </section>
     </ExperienceShell>

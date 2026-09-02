@@ -4,10 +4,15 @@ import {
   classifyExperienceRole,
   classifyHappenedBucket,
   contributorValueScore,
+  claimPingCopy,
+  dropClaimDenial,
   dropShareCopy,
   inventoryOpenCopy,
   happenedBuckets,
+  peopleNoticeHref,
+  PEOPLE_NOTICE_TYPES,
   resolveCreateIntent,
+  showedUpPingCopy,
   slugifyCommunityName,
   STAKEHOLDER_OUTCOMES,
 } from "./people-experience";
@@ -65,5 +70,29 @@ describe("people experience mapping", () => {
 
   it("creates readable community slugs", () => {
     expect(slugifyCommunityName("Kingston After Dark")).toBe("kingston-after-dark");
+  });
+
+  it("pings people in everyday language when a drop, claim, or show-up happens", () => {
+    expect(claimPingCopy("Ada", "2-for-1 Friday")).toBe("Ada claimed 2-for-1 Friday.");
+    expect(showedUpPingCopy("Devon")).toBe("Devon showed up.");
+    expect(showedUpPingCopy("Devon", "Kingston After Dark")).toBe("Devon showed up at Kingston After Dark.");
+    expect(peopleNoticeHref(PEOPLE_NOTICE_TYPES.drop, { slug: "jack-samples" })).toBe("/drop/jack-samples");
+    expect(peopleNoticeHref(PEOPLE_NOTICE_TYPES.claim)).toBe("/happened");
+    expect(peopleNoticeHref(PEOPLE_NOTICE_TYPES.showedUp)).toBe("/happened");
+  });
+
+  it("enforces drop audiences without inventing new rules for everyone", () => {
+    expect(dropClaimDenial({ audience: "everyone", remaining: 3, claimerId: "u1" })).toBeNull();
+    expect(dropClaimDenial({ audience: "first_x", remaining: 0, claimerId: "u1" })).toBe("It is already gone");
+    expect(dropClaimDenial({
+      audience: "specific",
+      claimerId: "u2",
+      specificUserIds: ["u1"],
+    })).toBe("This one is for specific people");
+    expect(dropClaimDenial({ audience: "most_active", claimerId: "u1", isMostActive: false }))
+      .toBe("This one is for the people who show up most");
+    expect(dropClaimDenial({ audience: "complete_something", claimerId: "u1", hasCompletedSomething: false }))
+      .toBe("Show up or finish something first");
+    expect(dropClaimDenial({ audience: "most_active", claimerId: "u1" })).toBeNull();
   });
 });

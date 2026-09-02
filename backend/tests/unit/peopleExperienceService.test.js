@@ -5,6 +5,11 @@ const {
   classifyHappenedBucket,
   attributionFromMetadata,
   accountStakeholderOutcomes,
+  dropClaimDenial,
+  claimPingCopy,
+  showedUpPingCopy,
+  dropShareCopy,
+  PEOPLE_NOTICE_TYPES,
 } = require('../../services/peopleExperienceService');
 
 describe('people experience role and value rules', () => {
@@ -72,6 +77,32 @@ describe('people experience role and value rules', () => {
 
   test('inventory for others is an opportunity, not a personal drop', () => {
     expect(typeof require('../../services/peopleExperienceService').provideInventory).toBe('function');
+  });
+
+  test('writes people-language pings for drop, claim, and show-up', () => {
+    expect(dropShareCopy('Mikey', '2-for-1 Friday')).toBe('Mikey just dropped 2-for-1 Friday on your PromoCard.');
+    expect(claimPingCopy('Ada', '2-for-1 Friday')).toBe('Ada claimed 2-for-1 Friday.');
+    expect(showedUpPingCopy('Devon', 'Kingston After Dark')).toBe('Devon showed up at Kingston After Dark.');
+    expect(PEOPLE_NOTICE_TYPES).toMatchObject({
+      drop: 'people_drop',
+      claim: 'people_claim',
+      showedUp: 'people_showed_up',
+    });
+  });
+
+  test('keeps drop audiences as real gates, not labels', () => {
+    expect(dropClaimDenial({ audience: 'everyone', remaining: 4, claimerId: 'u1' })).toBeNull();
+    expect(dropClaimDenial({ audience: 'first_x', remaining: 0, claimerId: 'u1' })).toBe('It is already gone');
+    expect(dropClaimDenial({
+      audience: 'specific',
+      claimerId: 'outsider',
+      specificUserIds: ['friend-1'],
+    })).toBe('This one is for specific people');
+    expect(dropClaimDenial({ audience: 'most_active', claimerId: 'u1', isMostActive: false }))
+      .toBe('This one is for the people who show up most');
+    expect(dropClaimDenial({ audience: 'complete_something', claimerId: 'u1', hasCompletedSomething: false }))
+      .toBe('Show up or finish something first');
+    expect(dropClaimDenial({ audience: 'complete_something', claimerId: 'u1' })).toBeNull();
   });
 
   test('copies attribution from existing metadata keys', () => {

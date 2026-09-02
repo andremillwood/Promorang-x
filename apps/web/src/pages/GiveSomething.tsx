@@ -3,12 +3,29 @@ import { Link, useSearchParams } from "react-router-dom";
 import { AUDIENCE_LABELS, PERK_KIND_LABELS, dropShareCopy, type DropAudience, type PerkKind } from "@promorang/shared";
 import { useGiveablePerks, useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
-import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
+import { ExperienceShell } from "@/components/people/ExperienceShell";
+import { PaperReceipt, TicketPass } from "@/components/promorang/SignatureObjects";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
 const KINDS = Object.entries(PERK_KIND_LABELS) as Array<[PerkKind, string]>;
 const AUDIENCES = Object.entries(AUDIENCE_LABELS) as Array<[DropAudience, string]>;
+
+const AUDIENCE_STUB: Record<DropAudience, string> = {
+  everyone: "All",
+  most_active: "Active",
+  first_x: "First",
+  specific: "Yours",
+  complete_something: "After",
+};
+
+const AUDIENCE_HINT: Record<DropAudience, string> = {
+  everyone: "We'll ping the people already in this room.",
+  most_active: "We'll ping the people who show up most. Others can't claim it.",
+  first_x: "The first people who claim get it. We'll ping your people.",
+  specific: "We'll ping the people you already brought. The link still works for them.",
+  complete_something: "Nobody gets pinged yet. They can claim after they show up or finish something.",
+};
 
 export default function GiveSomething() {
   const [params] = useSearchParams();
@@ -26,6 +43,7 @@ export default function GiveSomething() {
   const [shareUrl, setShareUrl] = useState("");
 
   const selectedPerk = useMemo(() => (perks.data || []).find((item) => item.id === offerId), [perks.data, offerId]);
+  const dropTitle = title || selectedPerk?.title || "2-for-1 at the restaurant";
 
   const dropIt = async () => {
     try {
@@ -51,18 +69,27 @@ export default function GiveSomething() {
   return (
     <ExperienceShell
       eyebrow="Give something"
-      title="What do you want to give your people?"
-      description="Drop it onto their PromoCards. They should never need to understand the machinery underneath."
+      title="Write the pass"
+      description="They should be able to hold this. You should never have to explain it."
       backTo="/dashboard"
     >
+      <TicketPass
+        kicker={PERK_KIND_LABELS[kind]}
+        title={dropTitle}
+        detail={AUDIENCE_HINT[audience]}
+        stub={audience === "first_x" ? limit : AUDIENCE_STUB[audience]}
+        stubLabel="Who"
+      />
+
       <section>
-        <div className="grid grid-cols-2 gap-2">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">What kind of pass?</p>
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 pr-scroll-rail">
           {KINDS.map(([id, label]) => (
             <button
               key={id}
               type="button"
               onClick={() => setKind(id)}
-              className={`min-h-14 rounded-[1.3rem] border px-3 text-sm font-bold ${kind === id ? "border-primary bg-primary text-black" : "border-white/10 bg-white/[0.04]"}`}
+              className={`min-h-11 shrink-0 rounded-full border px-4 text-sm font-bold ${kind === id ? "border-primary bg-primary text-black" : "border-white/15 bg-black/30 text-white/80"}`}
             >
               {label}
             </button>
@@ -70,10 +97,10 @@ export default function GiveSomething() {
         </div>
       </section>
 
-      <section>
-        <h2 className="font-serif text-2xl font-bold">Available for your people</h2>
-        {perks.data?.length ? (
-          <div className="mt-3 space-y-2">
+      {perks.data?.length ? (
+        <section>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Already in the room</p>
+          <div className="mt-3 flex gap-3 overflow-x-auto pb-1 pr-scroll-rail">
             {perks.data.map((perk) => (
               <button
                 key={perk.id}
@@ -82,27 +109,32 @@ export default function GiveSomething() {
                   setOfferId(perk.id);
                   setTitle(perk.title);
                 }}
-                className={`w-full rounded-[1.4rem] border px-4 py-4 text-left ${offerId === perk.id ? "border-primary bg-primary/15" : "border-white/10 bg-white/[0.04]"}`}
+                className="min-w-[220px] shrink-0 text-left"
               >
-                <p className="font-serif text-xl font-bold">{perk.title}</p>
-                <p className="mt-1 text-xs text-white/50">
-                  {perk.remaining != null ? `${perk.remaining} remaining` : "Open inventory"}
-                  {perk.claimedByYourPeople ? ` · ${perk.claimedByYourPeople} claimed` : ""}
-                  {" · "}
-                  {perk.source === "yours" ? "Yours" : "From a partner"}
-                </p>
+                <TicketPass
+                  kicker={perk.source === "yours" ? "Yours" : "Partner"}
+                  title={perk.title}
+                  detail={perk.remaining != null ? `${perk.remaining} remaining` : "Open inventory"}
+                  stub={offerId === perk.id ? "On" : "Use"}
+                  stubLabel="Pick"
+                  className={offerId === perk.id ? "ring-2 ring-primary" : "opacity-80"}
+                />
               </button>
             ))}
           </div>
-        ) : (
-          <div className="mt-3">
-            <QuietEmpty title="No partner inventory yet" copy="You can still make a simple perk and drop it yourself." />
-          </div>
-        )}
-      </section>
+        </section>
+      ) : (
+        <TicketPass
+          kicker="No partner stock"
+          title="Write your own"
+          detail="A 2-for-1, a tasting, first 50 in. It still lands on their card."
+          stub="New"
+          stubLabel="Make"
+        />
+      )}
 
       <label className="block">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">What should we drop?</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Print this on the pass</span>
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}
@@ -112,14 +144,14 @@ export default function GiveSomething() {
       </label>
 
       <section>
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Who gets it?</p>
-        <div className="mt-2 grid gap-2">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Who can tear it?</p>
+        <div className="mt-3 flex flex-wrap gap-2">
           {AUDIENCES.map(([id, label]) => (
             <button
               key={id}
               type="button"
               onClick={() => setAudience(id)}
-              className={`min-h-12 rounded-full border px-4 text-sm font-bold ${audience === id ? "border-primary bg-primary text-black" : "border-white/10"}`}
+              className={`min-h-11 rounded-full border px-4 text-sm font-bold ${audience === id ? "border-primary bg-primary text-black" : "border-white/15 text-white/80"}`}
             >
               {label}
             </button>
@@ -136,8 +168,14 @@ export default function GiveSomething() {
         ) : null}
       </section>
 
-      <Link to={to("/stock")} className="block text-center text-sm text-white/45">
-        Putting this up for other networks? Put inventory up.
+      <Link to={to("/stock")} className="block">
+        <TicketPass
+          kicker="For other networks"
+          title="Putting this up for others to move?"
+          detail="Stock it. They earn when people claim."
+          stub="Stock"
+          stubLabel="Open"
+        />
       </Link>
 
       <button
@@ -146,17 +184,29 @@ export default function GiveSomething() {
         onClick={dropIt}
         className="min-h-14 w-full rounded-full bg-primary text-sm font-black text-black disabled:opacity-60"
       >
-        {createDrop.isPending ? "Dropping…" : "Drop it"}
+        {createDrop.isPending ? "Dropping…" : "Drop it on their cards"}
       </button>
 
       {shareUrl ? (
-        <div className="rounded-[1.5rem] border border-primary/40 bg-primary/10 px-4 py-4">
-          <p className="font-serif text-xl font-bold">
-            {dropShareCopy(giverName, title || selectedPerk?.title || PERK_KIND_LABELS[kind])}
-          </p>
-          <p className="mt-2 text-sm text-white/70">Send that. They claim it on their PromoCard — no download first.</p>
-          <p className="mt-3 break-all font-mono text-xs text-primary">{shareUrl}</p>
-          <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="space-y-3">
+          <TicketPass
+            kicker="Ready to send"
+            title={dropShareCopy(giverName, title || selectedPerk?.title || PERK_KIND_LABELS[kind])}
+            detail="They claim it on their PromoCard. No download first."
+            stub="Send"
+            stubLabel="Link"
+          />
+          <PaperReceipt
+            heading="Dropped"
+            lines={[
+              { label: "Pass", value: title || selectedPerk?.title || PERK_KIND_LABELS[kind], strong: true },
+              { label: "Kind", value: PERK_KIND_LABELS[kind] },
+              { label: "Who", value: AUDIENCE_LABELS[audience] },
+              { label: "Link", value: shareUrl },
+            ]}
+            footer="Keep this. Send the line above."
+          />
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={async () => {
