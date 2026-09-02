@@ -15,6 +15,8 @@ import { CheckInCelebration } from '@/components/CheckInCelebration';
 import { AnimatePresence } from 'framer-motion';
 import { demoMoments } from "@/data/demo-moments";
 import { useI18n } from "@/i18n/I18nContext";
+import { ActionUnlockReceipt } from "@/components/journey/ActionUnlockReceipt";
+import { buildActionUnlockReceipt } from "@/lib/action-unlock-receipt";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -298,6 +300,19 @@ const CheckIn = () => {
             <p className="text-white/70 text-base">
               {t("checkIn.successCopy", { title: moment.title })}
             </p>
+
+            <ActionUnlockReceipt
+              receipt={buildActionUnlockReceipt(
+                { action: "check_in", momentName: moment.title, perk: moment.reward || undefined },
+                {
+                  checkInHeading: t("checkIn.successTitle"),
+                  checkInProved: t("receipt.checkInProved"),
+                  checkInUnlocked: t("checkIn.complimentaryPerk"),
+                  checkInNext: t("receipt.checkInNext"),
+                  checkInCta: t("checkIn.viewVault"),
+                },
+              )}
+            />
 
             <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 space-y-4 text-left">
               <div className="flex items-center gap-3">

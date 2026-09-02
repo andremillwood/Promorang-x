@@ -2,20 +2,25 @@ import { useSearchParams } from "react-router-dom";
 import { humanActionLabel } from "@promorang/shared";
 import { useWhatHappened } from "@/hooks/usePeopleExperience";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
+import { NextMoveStrip } from "@/components/journey/NextMoveStrip";
+import { getMemberNextMove } from "@/lib/member-next-move";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function WhatHappened() {
   const [params] = useSearchParams();
   const happened = useWhatHappened(params.get("hub") || undefined);
+  const { user } = useAuth();
   const data = happened.data;
   const buckets = data?.buckets || {};
 
   return (
     <ExperienceShell
-      eyebrow="What happened"
+      eyebrow="Progress"
       title="This week"
-      description="Not charts. What your people actually did."
-      backTo="/dashboard"
+      description="What happened because of you — and how close you are to the result you want."
+      backTo="/home"
     >
+      <NextMoveStrip move={getMemberNextMove({ signedIn: Boolean(user), canCreate: Boolean(user) })} />
       <StatPile
         label="People participated"
         value={data?.participated || 0}

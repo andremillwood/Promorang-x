@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { PrimaryDestinationNav } from "@/components/nav/PrimaryDestinationNav";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -125,7 +126,7 @@ const Header = () => {
               </span>
             </Link>
 
-            {/* Desktop Navigation Links */}
+            {user ? <PrimaryDestinationNav dark={hasDarkHeader} /> : (
             <div className="hidden lg:flex items-center gap-1 bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-full px-1.5 py-1 shadow-inner">
               {/* 1. Explore Dropdown */}
               <DropdownMenu>
@@ -380,6 +381,7 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+            )}
           </div>
 
           {/* 2. Center/Right Zone: Search & Location */}
@@ -681,14 +683,15 @@ const Header = () => {
                     </div>
                   </div>
                   <Link
-                    to="/dashboard"
+                    to="/home"
                     onClick={closeMobileMenu}
                     className="px-3 py-1.5 rounded-full bg-primary/20 text-primary text-xs font-bold border border-primary/30 shrink-0"
                   >
-                    {t("nav.dashboard")}
+                    {t("dest.today")}
                   </Link>
                 </div>
               )}
+              {user ? <PrimaryDestinationNav variant="drawer" dark onNavigate={closeMobileMenu} /> : null}
 
               {/* Mobile City Quick Switcher */}
               <div className="px-1">

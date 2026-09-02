@@ -320,6 +320,7 @@ const App = () => (
                     <Route path="/give" element={<ProtectedRoute><GiveSomething /></ProtectedRoute>} />
                     <Route path="/earn" element={<ProtectedRoute><EarnOpportunities /></ProtectedRoute>} />
                     <Route path="/happened" element={<ProtectedRoute><WhatHappened /></ProtectedRoute>} />
+                    <Route path="/progress" element={<ProtectedRoute><WhatHappened /></ProtectedRoute>} />
                     <Route path="/card" element={<ProtectedRoute><MyPromoCard /></ProtectedRoute>} />
                     <Route path="/start" element={<ProtectedRoute><StartCommunity /></ProtectedRoute>} />
                     <Route path="/stock" element={<ProtectedRoute><PutInventoryUp /></ProtectedRoute>} />
@@ -331,6 +332,7 @@ const App = () => (
                     <Route path="/app-preview/create" element={<CreateSomething />} />
                     <Route path="/app-preview/earn" element={<EarnOpportunities />} />
                     <Route path="/app-preview/happened" element={<WhatHappened />} />
+                    <Route path="/app-preview/progress" element={<WhatHappened />} />
                     <Route path="/app-preview/card" element={<MyPromoCard />} />
                     <Route path="/app-preview/start" element={<StartCommunity />} />
                     <Route path="/app-preview/stock" element={<PutInventoryUp />} />

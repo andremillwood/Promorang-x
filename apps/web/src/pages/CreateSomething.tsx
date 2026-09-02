@@ -5,6 +5,9 @@ import { useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell } from "@/components/people/ExperienceShell";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { NextMoveStrip } from "@/components/journey/NextMoveStrip";
+import { getMemberNextMove } from "@/lib/member-next-move";
 
 export default function CreateSomething() {
   const [params] = useSearchParams();
@@ -12,7 +15,9 @@ export default function CreateSomething() {
   const { ask } = useExperienceActions();
   const to = useExperiencePath();
   const { toast } = useToast();
+  const { user } = useAuth();
   const selected = resolveCreateIntent(params.get("intent"));
+  const nextMove = getMemberNextMove({ signedIn: Boolean(user), canCreate: Boolean(user) });
   const [question, setQuestion] = useState("");
 
   const submitAsk = async () => {
@@ -34,8 +39,9 @@ export default function CreateSomething() {
       eyebrow="Create something"
       title="What do you want your people to do?"
       description="You choose the behaviour. PROMORANG picks the right tool underneath."
-      backTo="/dashboard"
+      backTo="/home"
     >
+      <NextMoveStrip move={{ ...nextMove, href: "/create/moment" }} />
       <div className="grid gap-2">
         {CREATE_INTENTS.map((item) => (
           <Link

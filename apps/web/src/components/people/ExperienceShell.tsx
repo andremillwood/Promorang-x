@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SEO from "@/components/SEO";
+import { PrimaryDestinationNav } from "@/components/nav/PrimaryDestinationNav";
 
 type ExperienceShellProps = {
   title: string;
@@ -26,11 +27,12 @@ export function ExperienceShell({
   className,
 }: ExperienceShellProps) {
   const location = useLocation();
-  const resolvedBack = location.pathname.startsWith("/app-preview") && location.pathname !== "/app-preview"
+  const inPreview = location.pathname === "/app-preview" || location.pathname.startsWith("/app-preview/");
+  const resolvedBack = inPreview && location.pathname !== "/app-preview"
     ? "/app-preview"
     : backTo;
   return (
-    <main className={cn("min-h-screen bg-[#0D0D0E] pb-28 text-white", className)}>
+    <main className={cn("min-h-screen bg-[#0D0D0E] text-white", inPreview ? "pb-28" : "pb-24", className)}>
       <SEO title={`${title} — PROMORANG`} description={description || title} />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_20%_0%,rgba(255,85,0,.28),transparent_42%)]" />
       <header className="relative mx-auto w-full max-w-3xl px-4 pt-6 sm:px-6">
@@ -50,6 +52,11 @@ export function ExperienceShell({
         </div>
       </header>
       <div className="relative mx-auto mt-8 w-full max-w-3xl space-y-5 px-4 sm:px-6">{children}</div>
+      {inPreview ? (
+        <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
+          <PrimaryDestinationNav variant="bar" preview />
+        </div>
+      ) : null}
     </main>
   );
 }

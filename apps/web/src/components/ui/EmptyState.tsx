@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ export interface EmptyStateProps {
   onAction?: () => void;
   actionHref?: string;
   actionVariant?: "default" | "outline" | "secondary" | "ghost" | "link";
+  unlock?: string;
   className?: string;
   children?: React.ReactNode;
 }
@@ -23,6 +25,7 @@ export function EmptyState({
   onAction,
   actionHref,
   actionVariant = "default",
+  unlock,
   className,
   children,
 }: EmptyStateProps) {
@@ -46,11 +49,16 @@ export function EmptyState({
           {description}
         </p>
       )}
+      {unlock ? (
+        <p className="mt-3 max-w-md text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+          {unlock}
+        </p>
+      ) : null}
       {actionLabel && (actionHref || onAction) && (
         <div className="mt-6">
           {actionHref ? (
             <Button asChild variant={actionVariant} className="rounded-xl font-bold">
-              <a href={actionHref}>{actionLabel}</a>
+              <Link to={actionHref}>{actionLabel}</Link>
             </Button>
           ) : (
             <Button

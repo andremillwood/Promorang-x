@@ -5,6 +5,8 @@ import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { NextMoveStrip } from "@/components/journey/NextMoveStrip";
+import { getMemberNextMove } from "@/lib/member-next-move";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -40,6 +42,7 @@ export default function PeopleHome() {
           : "Build your people. Give them value. Move them to action."
       }
     >
+      <NextMoveStrip move={getMemberNextMove({ signedIn: Boolean(user), canCreate: true })} />
       {emptyHome ? (
         <p className="rounded-[1.3rem] border border-white/10 px-4 py-3 text-sm text-white/45">
           Your numbers will appear here once this community starts moving. Nothing is invented.

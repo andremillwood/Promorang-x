@@ -9,8 +9,19 @@ import {
   inventoryOpenCopy,
   resolveCreateIntent,
 } from "@promorang/shared";
+import { PRIMARY_DESTINATIONS } from "./primary-destinations";
 
 describe("simplified PROMORANG experience", () => {
+  it("keeps Create and Progress on the people map", () => {
+    expect(PRIMARY_DESTINATIONS.map((item) => item.id)).toEqual([
+      "today",
+      "discover",
+      "create",
+      "progress",
+      "vault",
+    ]);
+  });
+
   it("never asks a creator to pick Moment vs Mission vs Discovery first", () => {
     expect(CREATE_INTENTS.every((item) => !/moment|mission|discovery|campaign/i.test(item.label))).toBe(true);
     expect(resolveCreateIntent("answer").mapsTo).toBe("Discovery");

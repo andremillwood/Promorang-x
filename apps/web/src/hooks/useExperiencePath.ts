@@ -6,6 +6,7 @@ export function useExperiencePath() {
   return (path: string) => {
     if (!preview) return path;
     if (path === "/dashboard" || path === "/home") return "/app-preview";
+    if (path === "/progress") return "/app-preview/happened";
     return `/app-preview${path}`;
   };
 }

@@ -76,6 +76,8 @@ import { buildVenuePath, getSiteUrl, slugifySegment } from "@/lib/discovery";
 import { getAccessState, type AccessQuote } from "@/lib/access";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
 import type { Scene } from "@promorang/shared";
+import { NextMoveStrip } from "@/components/journey/NextMoveStrip";
+import { getMemberNextMove } from "@/lib/member-next-move";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "https://api.promorang.co")
   .replace(/\/api\/?$/, "")
@@ -801,6 +803,19 @@ const MomentDetail = () => {
             </div>
           </div>
         </div>
+
+        {user && !isHost && isJoined && !isPast ? (
+          <div className="relative z-10 mx-auto mt-6 max-w-7xl px-4 sm:px-6">
+            <NextMoveStrip
+              move={getMemberNextMove({
+                signedIn: true,
+                needsCheckIn: true,
+                checkInHref: `/moments/${moment.id}/checkin`,
+                upcomingMomentName: moment.title,
+              })}
+            />
+          </div>
+        ) : null}
 
         {/* Main Hero Content & Action Box */}
         <div className="relative z-10 mx-auto max-w-7xl px-4 pt-8 sm:px-6">

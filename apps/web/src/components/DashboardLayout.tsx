@@ -37,6 +37,7 @@ import {
   Film,
   Layers,
   Megaphone,
+  Radio,
   RadioTower,
   Route,
   Ticket,
@@ -105,6 +106,8 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/liquidity", label: "Liquidity", description: "Pools, LP positions, and the layer that keeps value moving." },
   { match: "/promoshare", label: "PromoShare", description: "Qualified actions, creator movement, Gems-funded value, and sponsor-backed return." },
   { match: "/missions", label: "Missions", description: "Contribution prompts linked to creator, host, or sponsor value." },
+  { match: "/progress", label: "Progress", description: "What happened because of you, and how close you are to the result you want." },
+  { match: "/happened", label: "Progress", description: "What your people actually did." },
   { match: "/activity", label: "Activity", description: "Notifications, updates, and the recent pulse around your account." },
   { match: "/saved", label: "Saved", description: "Things worth returning to without having to rediscover them." },
   { match: "/dashboard/analytics", label: "Analytics", description: "Operational reporting for the active hub." },
@@ -116,7 +119,8 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/card", label: "PromoCard", description: "Your perks, access, points and keys." },
   { match: "/start", label: "Start a Community", description: "Name a community and give people something immediately." },
   { match: "/stock", label: "Put Something Up", description: "Open inventory so other people can move it." },
-  { match: "/dashboard", label: "Home", description: "Your people, perks, opportunities, and what happened." },
+  { match: "/home", label: "Today", description: "What needs your attention and the best move you can make now." },
+  { match: "/dashboard", label: "Today", description: "What needs your attention and the best move you can make now." },
   { match: "/admin", label: "Admin", description: "Platform-wide operations, moderation, and system controls." },
 ];
 
@@ -152,19 +156,30 @@ const isNavItemActive = (pathname: string, href: string, search: string) => {
   if (itemQuery) {
     return pathname === itemPath && search.includes(itemQuery);
   }
-  if (itemPath === "/dashboard") {
-    return (pathname === "/dashboard" || pathname === "/home") && !search.includes("view=studio");
+  if (itemPath === "/" || itemPath === "/home" || itemPath === "/dashboard") {
+    return (pathname === "/" || pathname === "/home" || pathname === "/dashboard") && !search.includes("view=studio");
+  }
+  if (itemPath === "/progress") {
+    return (
+      pathname === "/progress" ||
+      pathname === "/happened" ||
+      pathname === "/activity" ||
+      pathname === "/notifications" ||
+      pathname === "/dashboard/activity"
+    );
   }
   return pathname === itemPath || pathname.startsWith(itemPath + "/");
 };
 
 const peopleExperienceNav: NavItem[] = [
-  { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
+  { icon: Home, label: "Today", href: "/home", group: "primary" },
   { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
-  { icon: Users, label: "My People", href: "/people", group: "primary" },
   { icon: Plus, label: "Create", href: "/create", group: "primary" },
-  { icon: Sparkles, label: "Earn", href: "/earn", group: "primary" },
-  { icon: CreditCard, label: "PromoCard", href: "/card", group: "primary" },
+  { icon: Radio, label: "Progress", href: "/progress", group: "primary" },
+  { icon: Archive, label: "Vault", href: "/vault", group: "primary" },
+  { icon: Users, label: "My People", href: "/people", group: "manage" },
+  { icon: Sparkles, label: "Earn", href: "/earn", group: "manage" },
+  { icon: CreditCard, label: "PromoCard", href: "/card", group: "manage" },
   { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
   { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
 ];
@@ -258,14 +273,14 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const manageNavItems = navItems.filter((item) => item.group === "manage");
   const utilityNavItems = navItems.filter((item) => item.group === "utility");
   const roleInfo = safeRoleInfo(safeRole);
-  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet", "/admin", "/organizer", "/people", "/give", "/earn", "/happened", "/card", "/start", "/stock", "/drop"];
+  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet", "/admin", "/organizer", "/people", "/give", "/earn", "/happened", "/progress", "/home", "/card", "/start", "/stock", "/drop"];
   const isImmersiveProductRoute = immersiveProductRoutes.some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
   const isCinematicCultureRoute = ["/scenes", "/creators", "/for-you", "/saved", "/profile", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet"].some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
-  const isDashboardHome = location.pathname === "/dashboard";
+  const isDashboardHome = location.pathname === "/dashboard" || location.pathname === "/home";
   const hidePageHeader = isImmersiveProductRoute || location.pathname === "/dashboard";
   const showCompactDemoBanner = location.pathname !== "/dashboard" && !isImmersiveProductRoute;
   const pageMeta = getPageMeta(location.pathname, location.search, safeRole);
@@ -276,11 +291,11 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   };
 
   const peopleMobileNav: (NavItem & { accent?: boolean })[] = [
-    { icon: Home, label: "Home", href: "/dashboard" },
-    { icon: Users, label: "People", href: "/people" },
+    { icon: Home, label: "Today", href: "/home" },
+    { icon: Compass, label: "Discover", href: "/discover" },
     { icon: Plus, label: "Create", href: "/create", accent: true },
-    { icon: Sparkles, label: "Earn", href: "/earn" },
-    { icon: CreditCard, label: "Card", href: "/card" },
+    { icon: Radio, label: "Progress", href: "/progress" },
+    { icon: Archive, label: "Vault", href: "/vault" },
   ];
 
   const mobileNavItems: Record<UserRole, (NavItem & { accent?: boolean })[]> = {
@@ -325,7 +340,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
         <div className="flex flex-col h-full relative z-10">
           {/* Sidebar Header: Logo & Branding */}
           <div className={cn("relative flex h-20 items-center border-b border-border/70 px-8", sidebarCollapsed && "lg:justify-center lg:px-3")}>
-            <Link to="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform group">
+            <Link to="/home" className="flex items-center gap-3 active:scale-95 transition-transform group">
               <div className="h-10 w-10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <img src={logo} alt="Promorang" className="h-10 w-10 object-contain rounded-xl" />
               </div>

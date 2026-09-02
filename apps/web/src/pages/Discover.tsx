@@ -38,6 +38,10 @@ import { useMarket } from "@/contexts/MarketContext";
 import { getCityHubCenter, getDefaultCityHub, matchesCityHub } from "@/lib/city-hubs";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getMomentStatus } from "@/lib/moment-recurrence";
+import { NextMoveStrip } from "@/components/journey/NextMoveStrip";
+import { getMemberNextMove } from "@/lib/member-next-move";
+import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/i18n/I18nContext";
 import { DiscoveryWidget, DiscoveryProps } from "@/components/radar/DiscoveryWidget";
 import { AskQuestionModal } from "@/components/discovery/AskQuestionModal";
 import { DISCOVERY_POLLS, CURATED_DISCOVERIES } from "@/data/discoveriesData";
@@ -109,21 +113,27 @@ const HubEmptyState = ({
   noun: string;
   onShowLiveHub: () => void;
 }) => {
+  const { t } = useI18n();
+  const { user } = useAuth();
   const isLiveHub = cityName.toLowerCase().includes("kingston");
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-8 text-center">
-      <MapPin className="mx-auto h-8 w-8 text-primary" />
-      <h3 className="mt-4 text-lg font-black text-white">No live {noun} in {cityName} yet</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm text-white/60">
-        {isLiveHub
-          ? "Nothing is posted in this hub right now. Check back shortly or explore another tab."
-          : "This hub is warming up. Kingston is the live pulse right now — switch there to see Moments, places, and signals already on the ground."}
-      </p>
-      {!isLiveHub && (
-        <Button onClick={onShowLiveHub} className="mt-5 rounded-2xl bg-primary text-white font-bold">
-          Browse Kingston
-        </Button>
-      )}
+    <div className="space-y-4">
+      <NextMoveStrip move={getMemberNextMove({ signedIn: Boolean(user), emptyDiscover: true, canCreate: Boolean(user) })} />
+      <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-8 text-center">
+        <MapPin className="mx-auto h-8 w-8 text-primary" />
+        <h3 className="mt-4 text-lg font-black text-white">{t("empty.discoverTitle", { noun, city: cityName })}</h3>
+        <p className="mx-auto mt-2 max-w-md text-sm text-white/60">
+          {isLiveHub ? t("empty.discoverQuietCopy") : t("empty.discoverCopy")}
+        </p>
+        <p className="mx-auto mt-3 max-w-md text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+          {isLiveHub ? t("empty.discoverQuietUnlock") : t("empty.discoverUnlock")}
+        </p>
+        {!isLiveHub && (
+          <Button onClick={onShowLiveHub} className="mt-5 rounded-2xl bg-primary text-white font-bold">
+            {t("empty.discoverCta")}
+          </Button>
+        )}
+      </div>
     </div>
   );
 };
