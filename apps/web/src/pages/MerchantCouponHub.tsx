@@ -1,49 +1,54 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, Calculator, CheckCircle2, ShieldCheck, Tag, ArrowRight, Zap, TrendingUp, QrCode, Plus } from "lucide-react";
+import { Calculator, ShieldCheck, QrCode, Plus } from "lucide-react";
 import { PostPerkModal } from "@/components/merchant/PostPerkModal";
+import { useAuth } from "@/contexts/AuthContext";
+import { useMerchantSalesAnalytics } from "@/hooks/useMerchantSalesAnalytics";
+import { formatPayoutDate } from "@/lib/payout-calendar";
+import { useState } from "react";
 
 export default function MerchantCouponHub() {
   const [productPrice, setProductPrice] = useState(50);
   const [targetOrders, setTargetOrders] = useState(100);
   const [postPerkOpen, setPostPerkOpen] = useState(false);
+  const { user } = useAuth();
+  const analytics = useMerchantSalesAnalytics();
+  const funnel = analytics.data;
 
   const grossRevenue = productPrice * targetOrders;
-  const platformFee = grossRevenue * 0.10; // 10% performance fee
+  const platformFee = grossRevenue * 0.10;
   const netRevenue = grossRevenue - platformFee;
+  const payoutLabel = formatPayoutDate(funnel?.nextPayoutAt);
 
   return (
     <main className="min-h-screen bg-[#080808] text-white">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        
-        {/* HERO HEADER */}
         <header className="relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/20 via-black to-teal-950/20 px-6 py-10 sm:px-10">
           <div className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-emerald-500/20 blur-3xl" />
 
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-400">
               <ShieldCheck className="h-4 w-4 text-emerald-400" />
-              Pay-After-Profit Merchant Engine
+              Pay when they redeem
             </div>
 
             <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-tight sm:text-6xl text-white">
-              Stop Wasting Dollars on Ads. <br />
+              Grow with customers, <br />
               <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
-                Acquire Real Buyers First. Pay After.
+                not leads.
               </span>
             </h1>
 
             <p className="mt-4 max-w-2xl text-base text-white/70">
-              Issue performance-based loyalty perks and coupons. Zero upfront ad spend, zero subscription fees, and 100% pay-for-performance. You only pay when customers buy.
+              List a member perk for free. People claim it, show up, and you confirm the visit. You pay only when a real guest redeems in your place.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
-              <button 
+              <button
                 onClick={() => setPostPerkOpen(true)}
                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-3.5 text-sm font-black text-black shadow-lg shadow-emerald-500/25 transition hover:brightness-110 active:scale-95 cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
-                <span>Launch Zero-Risk Perk Drop</span>
+                <span>Post a member perk</span>
               </button>
 
               <Link
@@ -57,15 +62,13 @@ export default function MerchantCouponHub() {
           </div>
         </header>
 
-        {/* INTERACTIVE ROI CALCULATOR GRID */}
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
-          
-          {/* CALCULATOR INPUTS */}
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
             <div className="flex items-center gap-2 text-emerald-400 mb-6">
               <Calculator className="h-5 w-5" />
-              <h2 className="text-xl font-black text-white">Interactive Profit Calculator</h2>
+              <h2 className="text-xl font-black text-white">What a drop could return</h2>
             </div>
+            <p className="mb-6 text-xs text-white/45">Estimator only. Your live funnel is below, from sales — not these numbers.</p>
 
             <div className="space-y-6">
               <div>
@@ -79,7 +82,7 @@ export default function MerchantCouponHub() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-white/70">Target Acquired Customers</label>
+                <label className="block text-xs font-bold uppercase text-white/70">Target guests who redeem</label>
                 <input
                   type="number"
                   value={targetOrders}
@@ -90,69 +93,78 @@ export default function MerchantCouponHub() {
             </div>
 
             <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-emerald-300">
-              <span className="font-bold">Zero-Risk Guarantee:</span> If 0 customers purchase, your upfront ad spend is exactly <span className="font-mono font-bold text-white">$0.00</span>.
+              <span className="font-bold">If nobody redeems:</span> your upfront spend stays <span className="font-mono font-bold text-white">$0.00</span>.
             </div>
           </div>
 
-          {/* CALCULATOR BREAKDOWN */}
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 flex flex-col justify-between">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-white/50">Estimated Financial Outcomes</span>
-              <h3 className="mt-2 text-3xl font-black text-[#10B981]">${netRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })} Net Revenue</h3>
-              <p className="mt-1 text-xs text-white/60">Estimated cash collected directly into your store after performance fees.</p>
+              <span className="text-xs font-bold uppercase tracking-widest text-white/50">Estimator</span>
+              <h3 className="mt-2 text-3xl font-black text-[#10B981]">${netRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })} if they all redeem</h3>
+              <p className="mt-1 text-xs text-white/60">Cash after a 10% performance fee. Not a forecast of your live drop.</p>
 
               <div className="mt-8 space-y-4 border-t border-white/10 pt-6">
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/70">Upfront Ad Spend</span>
+                  <span className="text-white/70">Upfront spend</span>
                   <span className="font-mono font-bold text-[#10B981]">$0.00 USD</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/70">Gross Order Sales</span>
+                  <span className="text-white/70">If every guest buys</span>
                   <span className="font-mono font-bold text-white">${grossRevenue.toLocaleString()} USD</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/70">Promorang Performance Fee (10%)</span>
+                  <span className="text-white/70">Promorang fee (10%)</span>
                   <span className="font-mono font-bold text-white/60">-${platformFee.toLocaleString()} USD</span>
                 </div>
               </div>
             </div>
-
-            <button className="mt-8 w-full rounded-xl bg-emerald-500 py-3.5 text-sm font-black text-black transition hover:bg-emerald-400">
-              Claim $1,000 Free Featured Placement Bonus
-            </button>
           </div>
         </div>
 
-        {/* ACTIVE MERCHANT PERFORMANCE METRICS */}
         <section className="mt-12 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-6">
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-emerald-400">Store Performance</p>
-              <h2 className="text-2xl font-black text-white">Live Coupon Redemption Metrics</h2>
+              <p className="text-xs font-bold uppercase tracking-widest text-emerald-400">Your live funnel</p>
+              <h2 className="text-2xl font-black text-white">Issued, claimed, redeemed</h2>
             </div>
-            <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-400">54.9% Conversion Rate</span>
+            {user ? (
+              <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-200">
+                Next payout · {payoutLabel}
+              </span>
+            ) : (
+              <Link to="/auth?redirect=/merchant/coupons" className="text-xs font-bold text-emerald-300 hover:text-emerald-200">
+                Sign in to see your numbers
+              </Link>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
               <span className="text-xs text-white/60">Issued</span>
-              <p className="mt-1 text-2xl font-black text-white">500</p>
+              <p className="mt-1 text-2xl font-black text-white">{user ? funnel?.issued ?? "—" : "—"}</p>
+              <p className="mt-1 text-[11px] text-white/40">Passes you put out</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
               <span className="text-xs text-white/60">Claimed</span>
-              <p className="mt-1 text-2xl font-black text-white">342</p>
+              <p className="mt-1 text-2xl font-black text-white">{user ? funnel?.claimed ?? "—" : "—"}</p>
+              <p className="mt-1 text-[11px] text-white/40">People holding them</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <span className="text-xs text-white/60">Redeemed Orders</span>
-              <p className="mt-1 text-2xl font-black text-emerald-400">188</p>
+              <span className="text-xs text-white/60">Redeemed</span>
+              <p className="mt-1 text-2xl font-black text-emerald-400">{user ? funnel?.redeemed ?? "—" : "—"}</p>
+              <p className="mt-1 text-[11px] text-white/40">Verified in your place</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <span className="text-xs text-white/60">Net Store Sales</span>
-              <p className="mt-1 text-2xl font-black text-[#10B981]">$8,460.00</p>
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+              <span className="text-xs text-emerald-200/80">Next payout</span>
+              <p className="mt-1 text-2xl font-black text-[#10B981]">{payoutLabel}</p>
+              <p className="mt-1 text-[11px] text-white/40">
+                {funnel?.cameBack
+                  ? `$${Number(funnel.cameBack).toLocaleString()} already back from redemptions`
+                  : "The date money lands. Not a projected yield."}
+              </p>
             </div>
           </div>
         </section>
-
       </div>
 
       <PostPerkModal

@@ -6,6 +6,7 @@ import type { DiscoveryObject, MomentObject, SceneObject } from "@/lib/consumer-
 import { supabase } from "@/integrations/supabase/client";
 import { useConsumerHomeLiveData } from "@/hooks/useConsumerHomeLiveData";
 import { useConsumerInteractions } from "@/hooks/useConsumerInteractions";
+import { LatestPersonReceipt } from "@/components/promorang/PersonReceiptCallout";
 
 const fallbackMoment: MomentObject = {
   id: "preview-ilhh",
@@ -140,7 +141,7 @@ const ConsumerHomePreview = () => {
       actions={<div className="grid h-9 w-9 place-items-center rounded-full bg-foreground text-xs font-black text-background">{initial}</div>}
     >
       <section className="pb-7 pt-2 md:pb-10 md:pt-6">
-        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">Kingston · Live consumer preview</p>
+        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">Kingston · Today</p>
         <h1 className="mt-2 max-w-4xl font-serif text-4xl font-semibold leading-[0.98] tracking-[-0.045em] sm:text-5xl lg:text-7xl">
           {user ? `Welcome back, ${displayName}.` : "Find what is worth moving for."}
         </h1>
@@ -148,6 +149,18 @@ const ConsumerHomePreview = () => {
           Moments, discoveries, Scenes, access, social distribution and cultural proof—surfaced when useful instead of exposed as a wall of mechanics.
         </p>
       </section>
+
+      <LatestPersonReceipt
+        fallback={{
+          actor: featuredMoment.venueName || "Tonight",
+          momentTitle: featuredMoment.title,
+          counted: featuredMoment.participantCount
+            ? `${featuredMoment.participantCount} already in`
+            : featuredMoment.accessLabel || "A pass you can hold",
+          keep: featuredMoment.accessLabel || "A place in the room",
+          href: featuredMoment.href,
+        }}
+      />
 
       <section className="grid gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,.7fr)] lg:gap-10">
         <div>

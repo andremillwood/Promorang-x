@@ -19,6 +19,7 @@ import {
 import { useI18n } from "@/i18n/I18nContext";
 import { useMarket } from "@/contexts/MarketContext";
 import { getDefaultCityHub, matchesCityHub } from "@/lib/city-hubs";
+import { LatestPersonReceipt } from "@/components/promorang/PersonReceiptCallout";
 
 type PulseMoment = {
   id: string;
@@ -316,6 +317,28 @@ const Pulse = () => {
           </div>
         </div>
       </section>
+
+      <LatestPersonReceipt
+        fallback={
+          liveMoments[0]
+            ? {
+                actor: liveMoments[0].venue_name || "Tonight’s room",
+                momentTitle: liveMoments[0].title,
+                counted: `${Math.max(liveMoments[0].threshold_progress || 0, joinedCount)} already in`,
+                keep: liveMoments[0].reward || "A place in the room",
+                href: liveMoments[0].public_path || `/moments/${liveMoments[0].id}`,
+              }
+            : formingMoments[0]
+              ? {
+                  actor: formingMoments[0].venue_name || "A room forming",
+                  momentTitle: formingMoments[0].title,
+                  counted: `${formingMoments[0].threshold_progress || 0} gathering`,
+                  keep: formingMoments[0].reward || "Hold a pass",
+                  href: formingMoments[0].public_path || `/moments/${formingMoments[0].id}`,
+                }
+              : null
+        }
+      />
 
       {!user ? (
         <div className="flex flex-col gap-4 border-y border-white/10 py-5 sm:flex-row sm:items-center sm:justify-between">

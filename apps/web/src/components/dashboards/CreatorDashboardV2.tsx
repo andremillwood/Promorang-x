@@ -19,6 +19,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { StoryGamificationRail } from "@/components/StoryGamificationRail";
+import { WeekStoryStrip } from "@/components/journey/WeekStoryStrip";
 import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { TeamSlashModal } from "@/components/TeamSlashModal";
@@ -59,6 +60,7 @@ export function CreatorDashboardV2() {
 
   return (
     <div className="space-y-6 text-white pb-16 animate-in fade-in-50 duration-300">
+      <WeekStoryStrip roleLabel="Your week as creator" />
       {/* 0. Top Story & Action Rail */}
       <StoryGamificationRail
         onOpenWheel={() => setWheelOpen(true)}
@@ -74,7 +76,7 @@ export function CreatorDashboardV2() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">
-                Creator Command Studio
+                Creator studio
               </h1>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-purple-500/40 bg-purple-500/10 text-purple-300 text-[10px] font-black uppercase tracking-wider">
                 <span className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />

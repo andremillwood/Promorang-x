@@ -25,6 +25,7 @@ import { IntentGoalModal } from "./components/intent/IntentGoalModal";
 
 // Route-level code splitting — each page loads on demand
 const Index = lazy(() => import("./pages/Index"));
+const Welcome = lazy(() => import("./pages/Welcome"));
 const AMI_Index = lazy(() => import("./pages/AMI_Index"));
 const MechanicDetail = lazy(() => import("./pages/MechanicDetail"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
@@ -223,6 +224,7 @@ const App = () => (
                   <Routes>
                   <Route element={<AppLayout />}>
                     <Route path="/" element={<Index />} />
+                    <Route path="/welcome" element={<Welcome />} />
                     <Route path="/strategies" element={<AMI_Index />} />
                     <Route path="/strategies/:id" element={<MechanicDetail />} />
                     <Route path="/free/:funnel" element={<LeadMagnetFunnels />} />
@@ -342,7 +344,7 @@ const App = () => (
                     <Route path="/create/campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
                     <Route path="/create/bounty" element={<ProtectedRoute><CreateBounty /></ProtectedRoute>} />
                     <Route path="/create-moment" element={<Navigate to="/create/moment" replace />} />
-                    <Route path="/for-you" element={<ProtectedRoute><ForYou /></ProtectedRoute>} />
+                    <Route path="/for-you" element={<ForYou />} />
                     <Route path="/live" element={<Pulse />} />
                     <Route path="/explore" element={<Navigate to="/discover" replace />} />
                     <Route path="/discover" element={<Discover />} />
@@ -456,6 +458,7 @@ const App = () => (
                     <Route path="/content-drops" element={<ContentDrops />} />
                     <Route path="/content-drops/:id" element={<ContentDropDetail />} />
                     <Route path="/offers" element={<ProtectedRoute><OfferStudio /></ProtectedRoute>} />
+                    <Route path="/offer/:id" element={<OfferDetail />} />
                     <Route path="/dashboard/offers" element={<ProtectedRoute><OfferStudio /></ProtectedRoute>} />
                     <Route path="/promopush" element={<ProtectedRoute><PromoPush /></ProtectedRoute>} />
                     <Route path="/promopush/creator" element={<ProtectedRoute><PromoPushCreator /></ProtectedRoute>} />

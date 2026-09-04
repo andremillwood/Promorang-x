@@ -22,6 +22,7 @@ import { useBrandCampaigns, useBrandStats } from "@/hooks/useCampaigns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { StoryGamificationRail } from "@/components/StoryGamificationRail";
+import { WeekStoryStrip } from "@/components/journey/WeekStoryStrip";
 import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { TeamSlashModal } from "@/components/TeamSlashModal";
@@ -65,11 +66,12 @@ export function BrandDashboardV2() {
   };
 
   const activeCampaigns = campaigns?.filter((c) => c.is_active) || [];
-  const totalImpressions = campaigns?.reduce((sum, c) => sum + (c.impressions || 0), 0) || 77600;
-  const totalRedemptions = campaigns?.reduce((sum, c) => sum + (c.redemptions || 0), 0) || 2310;
+  const totalImpressions = campaigns?.reduce((sum, c) => sum + Number(c.impressions || 0), 0) ?? 0;
+  const totalRedemptions = campaigns?.reduce((sum, c) => sum + Number(c.redemptions || 0), 0) ?? 0;
 
   return (
     <div className="space-y-6 text-white pb-16 animate-in fade-in-50 duration-300">
+      <WeekStoryStrip roleLabel="Your week as brand" />
       {/* 0. Top Story & Action Rail */}
       <StoryGamificationRail
         onOpenWheel={() => setWheelOpen(true)}
@@ -85,11 +87,11 @@ export function BrandDashboardV2() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">
-                {activeBrandName} Flight Command
+                {activeBrandName}
               </h1>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-primary/40 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                <span>Omni-Channel Flight Live</span>
+                <span>{totalImpressions.toLocaleString()} seen · {totalRedemptions.toLocaleString()} redeemed</span>
               </span>
             </div>
             <p className="text-xs text-white/60 mt-0.5">
@@ -113,7 +115,7 @@ export function BrandDashboardV2() {
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-white/10 bg-white/5 hover:border-primary/40 hover:bg-white/10 transition"
           >
             <Coins className="h-4 w-4 text-primary" />
-            <span className="text-xs font-black text-white">Brand Escrow</span>
+            <span className="text-xs font-black text-white">Brand budget</span>
           </Link>
         </div>
       </div>
@@ -182,11 +184,11 @@ export function BrandDashboardV2() {
       {/* 3. The 5 Operational Brand Navigation Arenas */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
-          { id: "campaigns", label: "Active Promotions", icon: Megaphone, hint: "Live campaigns & budget", count: `${activeCampaigns.length || 2} Live` },
+          { id: "campaigns", label: "Active Promotions", icon: Megaphone, hint: "Live campaigns & budget", count: `${activeCampaigns.length} Live` },
           { id: "opportunities", label: "Find Events to Sponsor", icon: Target, hint: "Top local events & venues", count: "3 Ready" },
           { id: "creators", label: "Creator Posts", icon: Users, hint: "Review photo & video posts", count: "1 Ready" },
           { id: "correlation", label: "Customer Foot-Traffic", icon: Link2, hint: "See who visited in person", count: "4.9x ROI" },
-          { id: "insights", label: "Budget & Payouts", icon: Coins, hint: "Safe escrow & balances", count: "$6.4k Safe" },
+          { id: "insights", label: "Budget & Payouts", icon: Coins, hint: "Held budget & balances", count: `${totalRedemptions} redeemed` },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

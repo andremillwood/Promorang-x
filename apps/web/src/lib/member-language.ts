@@ -1,7 +1,9 @@
 /** Forbidden jargon in member-facing product copy. See DESIGN.md and object-surfaces. */
 export const FORBIDDEN_MEMBER_WORDS = [
   "amm",
+  "apy",
   "capital allocator",
+  "coupon",
   "dau",
   "deflationary",
   "escrow",
@@ -33,7 +35,11 @@ export const MEMBER_COPY_SELECTORS = [
   "growthHub.benefitCard4Title",
   "growthHub.benefitCard4Text",
   "growthHub.tileKickstartText",
-  "vaultPage.verifiedOnChain",
+  "vaultPage.title",
+  "vaultPage.subtitle",
+  "momentDetail.giftAPass",
+  "rsvp.giftIntro",
+  "guestPassPage.giftCopy",
 ] as const;
 
 export function isMemberCopyKey(key: string): boolean {

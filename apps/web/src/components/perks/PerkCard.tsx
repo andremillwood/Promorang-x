@@ -20,6 +20,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { useAuth } from '@/contexts/AuthContext';
+import { writePromoCardMark } from '@/lib/promocard/life';
 
 interface PerkCardProps {
   perk: Perk;
@@ -33,6 +35,7 @@ export const PerkCard: React.FC<PerkCardProps> = ({
   showMerchantHeader = true,
 }) => {
   const { claimPerk, toggleSave, isClaiming, redeemPerk, isRedeeming } = usePerks();
+  const { user } = useAuth();
   const [qrModalOpen, setQrModalOpen] = useState(false);
 
   const isClaimed = perk.userState?.isClaimed;
@@ -46,6 +49,13 @@ export const PerkCard: React.FC<PerkCardProps> = ({
       return;
     }
     claimPerk(perk);
+    if (user?.id) {
+      writePromoCardMark(user.id, {
+        kind: "landed",
+        place: perk.merchantName || perk.title,
+        id: `landed-${perk.id}`,
+      });
+    }
   };
 
   const handleSave = (e: React.MouseEvent) => {
@@ -61,6 +71,13 @@ export const PerkCard: React.FC<PerkCardProps> = ({
 
   const handleRedeemConfirm = () => {
     redeemPerk({ perkId: perk.id, code: perk.redemptionCode });
+    if (user?.id) {
+      writePromoCardMark(user.id, {
+        kind: "spent",
+        place: perk.merchantName || perk.title,
+        id: `spent-${perk.id}`,
+      });
+    }
     setQrModalOpen(false);
   };
 

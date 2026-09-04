@@ -44,7 +44,7 @@ export function HostSponsorshipConsole() {
     );
     toast({
       title: "Sponsorship Agreement Confirmed! 🤝",
-      description: `Accepted $${amt} sponsorship from ${brand}. Escrow funds locked for settlement.`,
+      description: `Accepted $${amt} sponsorship from ${brand}. Budget is held until the Moment is verified.`,
     });
   };
 
@@ -58,9 +58,9 @@ export function HostSponsorshipConsole() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Brand Sponsorships & Stage Escrow</h2>
+              <h2 className="text-2xl font-black text-white">Brand sponsorships</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase">
-                $1,450 Escrow Locked
+                Held until verified
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
@@ -95,7 +95,7 @@ export function HostSponsorshipConsole() {
                     {offer.brandName}
                   </span>
                   <span className="text-xs font-mono font-bold text-emerald-400">
-                    ${offer.amount}.00 Escrow
+                    ${offer.amount}.00 held
                   </span>
                 </div>
                 <h3 className="font-bold text-base text-white">{offer.momentTarget}</h3>
@@ -115,7 +115,7 @@ export function HostSponsorshipConsole() {
                   <div className="text-center py-1">
                     <span className="text-xs font-bold text-emerald-400 flex items-center justify-center gap-1">
                       <Lock className="h-4 w-4" />
-                      Sponsorship Active • Escrow Secured
+                      Budget held until the night is verified
                     </span>
                   </div>
                 )}

@@ -34,13 +34,29 @@ async function getSalesSummary(merchantId, dateRange = {}) {
 
         if (error) throw error;
 
-        // Calculate summary metrics
+        const issued = sales.length;
+        const redeemed = sales.filter((s) => s.status === 'validated').length;
+        const pending = sales.filter((s) => s.status === 'pending' || s.status === 'issued').length;
+        const claimed = pending + redeemed;
+        const cameBack = sales
+            .filter((s) => s.status === 'validated')
+            .reduce((sum, sale) => sum + (parseFloat(sale.amount_paid) || 0), 0);
+        const next = new Date();
+        const daysUntilFriday = (5 - next.getDay() + 7) % 7 || 7;
+        next.setDate(next.getDate() + daysUntilFriday);
+        next.setHours(9, 0, 0, 0);
+
         const summary = {
-            totalSales: sales.length,
+            totalSales: issued,
+            issued,
+            claimed,
+            redeemed,
+            cameBack,
+            nextPayoutAt: next.toISOString(),
             totalRevenue: sales.reduce((sum, sale) => sum + (parseFloat(sale.amount_paid) || 0), 0),
             totalPointsRedeemed: sales.reduce((sum, sale) => sum + (sale.points_paid || 0), 0),
-            validatedRedemptions: sales.filter(s => s.status === 'validated').length,
-            pendingRedemptions: sales.filter(s => s.status === 'pending').length,
+            validatedRedemptions: redeemed,
+            pendingRedemptions: pending,
             expiredRedemptions: sales.filter(s => s.status === 'expired').length,
             salesByType: {
                 cash: sales.filter(s => s.sale_type === 'cash').length,

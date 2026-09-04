@@ -5,6 +5,7 @@ import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/Exper
 import { NextMoveStrip } from "@/components/journey/NextMoveStrip";
 import { getMemberNextMove } from "@/lib/member-next-move";
 import { useAuth } from "@/contexts/AuthContext";
+import { LatestPersonReceipt } from "@/components/promorang/PersonReceiptCallout";
 
 export default function WhatHappened() {
   const [params] = useSearchParams();
@@ -21,6 +22,7 @@ export default function WhatHappened() {
       backTo="/home"
     >
       <NextMoveStrip move={getMemberNextMove({ signedIn: Boolean(user), canCreate: Boolean(user) })} />
+      <LatestPersonReceipt />
       <StatPile
         label="People participated"
         value={data?.participated || 0}

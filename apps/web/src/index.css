@@ -574,6 +574,114 @@
     pointer-events: none;
   }
 
+  .pr-plastic-card--writing {
+    animation: pr-card-press 420ms ease-out;
+  }
+
+  .pr-card-stripe {
+    margin: 0.35rem 0 0.7rem;
+    overflow: hidden;
+    border-radius: 2px;
+    background: #0a0706;
+    padding: 0.45rem 0.7rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .pr-card-stripe__line {
+    overflow: hidden;
+    white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: #f3d7a0;
+  }
+
+  .pr-card-stripe__line--writing {
+    animation: pr-card-type 1.6s steps(28, end);
+  }
+
+  .pr-card-passport {
+    display: flex;
+    max-width: 7.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.3rem;
+  }
+
+  .pr-card-stamp {
+    display: grid;
+    min-width: 2.1rem;
+    place-items: center;
+    border: 1.5px solid rgba(196, 84, 52, 0.85);
+    border-radius: 2px;
+    padding: 0.18rem 0.28rem;
+    color: rgba(232, 130, 92, 0.92);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    transform: rotate(-8deg);
+  }
+
+  .pr-card-stamp--ghost {
+    border-style: dashed;
+    border-color: rgba(243, 215, 160, 0.45);
+    color: rgba(243, 215, 160, 0.55);
+    transform: rotate(6deg);
+  }
+
+  .pr-card-stamp--writing {
+    animation: pr-card-ink 700ms ease-out;
+  }
+
+  .pr-card-pocket {
+    display: inline-flex;
+    min-height: 2.5rem;
+    max-width: 13.5rem;
+    align-items: center;
+    gap: 0.55rem;
+    overflow: hidden;
+    border-radius: 0.85rem;
+    border: 1px solid rgba(243, 215, 160, 0.22);
+    background: linear-gradient(135deg, #1a120c 0%, #0b0b0c 100%);
+    padding: 0.35rem 0.65rem 0.35rem 0.4rem;
+  }
+
+  .pr-card-pocket__chip {
+    height: 1.15rem;
+    width: 1.45rem;
+    flex-shrink: 0;
+    border-radius: 0.25rem;
+    background: linear-gradient(135deg, #f3d7a0, #d97706);
+  }
+
+  .pr-card-pocket--writing {
+    animation: pr-card-press 420ms ease-out;
+  }
+
+  @keyframes pr-card-press {
+    0% { transform: scale(0.985); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes pr-card-type {
+    from { max-width: 0; }
+    to { max-width: 100%; }
+  }
+
+  @keyframes pr-card-ink {
+    0% { opacity: 0; transform: rotate(-8deg) scale(1.35); }
+    100% { opacity: 1; transform: rotate(-8deg) scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pr-plastic-card--writing,
+    .pr-card-pocket--writing,
+    .pr-card-stripe__line--writing,
+    .pr-card-stamp--writing {
+      animation: none;
+    }
+  }
+
   .pr-ticket {
     position: relative;
     display: grid;

@@ -524,31 +524,33 @@ export default function CinematicCultureHome() {
             </p>
             <div className="mt-5 grid w-full grid-cols-2 gap-2.5 sm:mt-7 sm:flex sm:max-w-2xl sm:flex-wrap sm:gap-3">
               <Link
-                to="/discover"
-                onClick={() => rememberMarketingIntent("hero_explore_discover", "/discover", "participant")}
+                to="/"
+                onClick={() => rememberMarketingIntent("hero_explore_today", "/", "participant")}
                 className="col-span-2 inline-flex min-h-12 min-w-0 items-center justify-center gap-2.5 rounded-xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-wider text-white shadow-[0_16px_40px_rgba(255,85,0,0.3)] transition-all hover:bg-orange-600 active:scale-[0.98] sm:col-auto sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm"
               >
                 <Compass className="h-4 w-4" />
                 <span>{t("home.exploreMoments")}</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
+            </div>
+            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45 sm:text-xs">
+              {t("home.runAPlace")}{" "}
               <Link
                 to="/hosting"
                 onClick={() => rememberMarketingIntent("hero_host_moment", "/hosting", "host")}
-                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
+                className="text-white/80 underline-offset-4 hover:text-white hover:underline"
               >
-                <Store className="h-4 w-4 text-amber-400" />
-                <span>Host / Venue Pass</span>
+                {t("home.forHosts")}
               </Link>
+              {" · "}
               <Link
                 to="/for-brands"
                 onClick={() => rememberMarketingIntent("hero_brands", "/for-brands", "brand")}
-                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
+                className="text-white/80 underline-offset-4 hover:text-white hover:underline"
               >
-                <Building2 className="h-4 w-4 text-cyan-400" />
-                <span>Brands &amp; Retail</span>
+                {t("home.forBrands")}
               </Link>
-            </div>
+            </p>
 
             {/* Live Social Proof & Outcomes Ticker */}
             <div className="hidden pt-2 flex-wrap items-center gap-3 text-xs sm:flex">
@@ -743,7 +745,7 @@ export default function CinematicCultureHome() {
                 </div>
               </Link>
 
-              {/* Pillar 4: Pieces & AMM Dividends */}
+              {/* Pillar 4: Pieces you can hold */}
               <Link
                 to="/wallet"
                 className="group p-5 rounded-3xl border border-cyan-500/30 bg-gradient-to-b from-cyan-500/10 via-zinc-950 to-zinc-950 hover:border-cyan-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
@@ -751,19 +753,19 @@ export default function CinematicCultureHome() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      4. Pieces &amp; Equity
+                      4. Pieces
                     </span>
                     <Coins className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-cyan-300 transition-colors leading-snug">
-                    Own a Slice &amp; Collect Dividends
+                    Hold a slice of a night
                   </h4>
                   <p className="text-xs text-zinc-400 leading-relaxed">
-                    Hold fractional Pieces of recurring events, media drops, and cultural IP. Earn automated quarterly cash dividends.
+                    Pieces are a share of a recurring Moment. Trades only count when they settle.
                   </p>
                 </div>
                 <div className="pt-2 text-xs font-black text-cyan-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>View Pieces Portfolio</span>
+                  <span>Open Pieces</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>

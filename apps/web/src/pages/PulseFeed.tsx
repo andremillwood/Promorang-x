@@ -1,166 +1,107 @@
-import React, { useState } from 'react';
-import { Heart, Share2, Zap, Flame, Trophy, Sparkles, MessageCircle, ArrowUp } from 'lucide-react';
-import { useI18n } from '@/i18n/I18nContext';
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Flame, ArrowRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import SEO from "@/components/SEO";
+import { LatestPersonReceipt } from "@/components/promorang/PersonReceiptCallout";
 
-const MOCK_PULSE_ITEMS = [
-  {
-    id: '1',
-    title: 'Nike Air Max Excee - 40% OFF Coupon',
-    brand: 'Nike Official',
-    discount: '40% OFF',
-    yieldBoost: '3.5x Dividend',
-    claimedPercent: 88,
-    timeLeft: '04:12',
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80',
-    piecesRemaining: 14,
-  },
-  {
-    id: '2',
-    title: 'Starbucks Seasonal Brew - Free Upgrade Piece',
-    brand: 'Starbucks Reserve',
-    discount: 'FREE PIECE',
-    yieldBoost: '2.0x Dividend',
-    claimedPercent: 95,
-    timeLeft: '01:45',
-    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
-    piecesRemaining: 5,
-  },
-  {
-    id: '3',
-    title: 'Apple AirPods Pro - Flash Promoshare Pool',
-    brand: 'Apple Store',
-    discount: '$50 REBATE',
-    yieldBoost: '5.0x Dividend',
-    claimedPercent: 72,
-    timeLeft: '12:30',
-    image: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=800&q=80',
-    piecesRemaining: 28,
-  },
-];
+type PulseMoment = {
+  id: string;
+  title: string;
+  venue_name?: string | null;
+  pulse_state?: string | null;
+  gathering_threshold?: number | null;
+  threshold_progress?: number | null;
+  starts_at?: string | null;
+  reward?: string | null;
+  image_url?: string | null;
+};
 
 export const PulseFeed: React.FC = () => {
-  const { t, formatNumber } = useI18n();
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [liked, setLiked] = useState<Record<string, boolean>>({});
+  const query = useQuery({
+    queryKey: ["pulse-feed-live"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("moments")
+        .select("id,title,venue_name,pulse_state,gathering_threshold,threshold_progress,starts_at,reward,image_url")
+        .in("pulse_state", ["forming", "live", "cooling"])
+        .eq("is_active", true)
+        .order("starts_at", { ascending: true })
+        .limit(12);
+      if (error) throw error;
+      return (data || []) as PulseMoment[];
+    },
+  });
 
-  const currentItem = MOCK_PULSE_ITEMS[activeIndex];
-
-  const handleNext = () => {
-    setActiveIndex((prev) => (prev + 1) % MOCK_PULSE_ITEMS.length);
-  };
-
-  const handleLike = (id: string) => {
-    setLiked((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
+  const moments = query.data || [];
+  const featured = moments[0];
 
   return (
-    <div className="relative w-full h-[calc(100vh-80px)] bg-black overflow-hidden flex items-center justify-center">
-      {/* Dynamic Background Image Blur */}
-      <div
-        className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-30 scale-110 transition-all duration-700"
-        style={{ backgroundImage: `url(${currentItem.image})` }}
-      />
+    <main className="min-h-[calc(100vh-80px)] bg-black px-4 py-8 text-white">
+      <SEO title="Pulse — Promorang" description="Who is gathering tonight, and what already counted." />
+      <div className="mx-auto max-w-lg space-y-6">
+        <header>
+          <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] text-orange-400">
+            <Flame className="h-3.5 w-3.5" /> Live rooms
+          </p>
+          <h1 className="mt-2 font-serif text-4xl font-bold">What’s moving now</h1>
+          <p className="mt-2 text-sm text-white/55">Real Moments only. No coupon theatre, no invented yield.</p>
+        </header>
 
-      {/* Main Full-Screen TikTok Card */}
-      <div className="relative w-full max-w-sm h-full max-h-[750px] bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-between">
-        {/* Card Background Image */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src={currentItem.image}
-            alt={currentItem.title}
-            className="w-full h-full object-cover opacity-80"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-        </div>
+        <LatestPersonReceipt
+          fallback={
+            featured
+              ? {
+                  actor: featured.venue_name || "Tonight’s room",
+                  momentTitle: featured.title,
+                  counted: `${Number(featured.threshold_progress || 0)} already in`,
+                  keep: featured.reward || "A place in the room",
+                  href: `/moments/${featured.id}`,
+                }
+              : null
+          }
+        />
 
-        {/* Top Floating Badge Bar */}
-        <div className="relative z-10 p-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 px-3 py-1 bg-black/60 border border-orange-500/40 rounded-full backdrop-blur-md">
-            <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400 animate-pulse" />
-            <span className="text-xs font-bold text-orange-400">{currentItem.yieldBoost}</span>
-          </div>
+        {query.isLoading ? (
+          <p className="text-sm text-white/45">Finding rooms that are actually live…</p>
+        ) : null}
 
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-red-500/20 border border-red-500/40 rounded-full backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-            <span className="text-xs font-mono font-bold text-red-400">
-              {t("pulseFeedPage.expiringIn", { time: currentItem.timeLeft })}
-            </span>
-          </div>
-        </div>
+        {!query.isLoading && moments.length === 0 ? (
+          <p className="rounded-2xl border border-white/10 px-4 py-6 text-sm text-white/50">
+            Nothing is gathering right now. Pulse stays quiet until a Moment is forming or live.
+          </p>
+        ) : null}
 
-        {/* Right Interaction Sidebar */}
-        <div className="absolute right-4 bottom-28 z-20 flex flex-col items-center gap-4">
-          <button
-            onClick={() => handleLike(currentItem.id)}
-            className={`p-3 rounded-full border backdrop-blur-md transition-all ${
-              liked[currentItem.id]
-                ? 'bg-red-500/20 border-red-500 text-red-500 scale-110'
-                : 'bg-black/60 border-zinc-700 text-white'
-            }`}
-          >
-            <Heart
-              className={`w-6 h-6 ${liked[currentItem.id] ? 'fill-red-500' : ''}`}
-            />
-          </button>
-
-          <button className="p-3 rounded-full bg-black/60 border border-zinc-700 text-white backdrop-blur-md">
-            <Share2 className="w-6 h-6 text-orange-400" />
-          </button>
-
-          <button className="p-3 rounded-full bg-black/60 border border-zinc-700 text-white backdrop-blur-md">
-            <MessageCircle className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Bottom Content & Action Trigger */}
-        <div className="relative z-10 p-6 flex flex-col justify-end">
-          {/* Brand Tag */}
-          <div className="flex items-center gap-2 mb-2">
-            <span className="px-2.5 py-0.5 bg-amber-500 text-black text-[10px] font-black uppercase rounded-md tracking-wider">
-              {currentItem.discount}
-            </span>
-            <span className="text-xs text-zinc-300 font-semibold">{currentItem.brand}</span>
-          </div>
-
-          {/* Title */}
-          <h2 className="text-xl font-bold text-white mb-3 line-clamp-2 leading-tight">
-            {currentItem.title}
-          </h2>
-
-          {/* Claim Bar Progress */}
-          <div className="mb-4 bg-black/60 border border-zinc-800 rounded-xl p-2.5 backdrop-blur-md">
-            <div className="flex justify-between text-xs mb-1 font-medium">
-              <span className="text-zinc-400">{t("pulseFeedPage.claimedVolume")}</span>
-              <span className="text-orange-400 font-bold">{currentItem.claimedPercent}%</span>
-            </div>
-            <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full"
-                style={{ width: `${currentItem.claimedPercent}%` }}
-              />
-            </div>
-            <p className="text-[10px] text-zinc-400 mt-1 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" /> {t("pulseFeedPage.piecesRemaining", { count: formatNumber(currentItem.piecesRemaining) })}
-            </p>
-          </div>
-
-          {/* Big CTA Button */}
-          <button className="w-full py-3.5 px-6 rounded-2xl font-black text-sm bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-black shadow-xl shadow-orange-500/30 flex items-center justify-center gap-2 transition-all active:scale-95 mb-3">
-            <Zap className="w-4 h-4" />
-            <span>{t("pulseFeedPage.claimPieceNow")}</span>
-          </button>
-
-          {/* Swipe Next Gesture Hint */}
-          <button
-            onClick={handleNext}
-            className="w-full py-2 text-center text-xs text-zinc-400 hover:text-white flex items-center justify-center gap-1 transition-colors"
-          >
-            <span>{t("pulseFeedPage.swipeForNextDeal")}</span>
-            <ArrowUp className="w-3.5 h-3.5" />
-          </button>
+        <div className="space-y-4">
+          {moments.map((moment) => (
+            <Link
+              key={moment.id}
+              to={`/moments/${moment.id}`}
+              className="block overflow-hidden rounded-3xl border border-white/10 bg-zinc-950"
+            >
+              {moment.image_url ? (
+                <img src={moment.image_url} alt="" className="h-44 w-full object-cover" />
+              ) : null}
+              <div className="space-y-2 p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-400">
+                  {moment.pulse_state || "forming"} · {moment.venue_name || "Place TBA"}
+                </p>
+                <h2 className="font-serif text-2xl font-bold leading-tight">{moment.title}</h2>
+                <p className="text-xs text-white/50">
+                  {Number(moment.threshold_progress || 0)} in
+                  {moment.gathering_threshold ? ` of ${moment.gathering_threshold}` : ""}
+                  {moment.reward ? ` · they keep ${moment.reward}` : ""}
+                </p>
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-200">
+                  Open Moment <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 
+export default PulseFeed;

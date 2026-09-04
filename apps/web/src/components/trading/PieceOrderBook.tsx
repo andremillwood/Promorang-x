@@ -93,7 +93,9 @@ export function PieceOrderBook({ pieceType, assetId }: { pieceType: string; asse
         body: JSON.stringify({ listing_id: listing.id, quantity: q, max_price: listing.price_per_piece }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Trade failed');
+      if (!response.ok || data.success === false) throw new Error(data.error || 'Trade failed');
+      const trade = Array.isArray(data.trade) ? data.trade[0] : data.trade;
+      if (!trade) throw new Error('Trade did not settle. Nothing moved.');
       toast({ title: 'Pieces added to your portfolio', description: `Bought ${q} at ${money(listing.price_per_piece)}` });
       await refresh();
     } catch (error: any) {
@@ -138,7 +140,7 @@ export function PieceOrderBook({ pieceType, assetId }: { pieceType: string; asse
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Could not cancel listing');
-      toast({ title: 'Listing cancelled', description: 'Escrowed Pieces returned to your position.' });
+      toast({ title: 'Listing cancelled', description: 'Those Pieces are back in your position.' });
       await refresh();
     } catch (error: any) {
       toast({ title: 'Cancel failed', description: error.message, variant: 'destructive' });

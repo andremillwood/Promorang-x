@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { LiquidityVaultDashboard } from "@/components/LiquidityVaultDashboard";
+import { LivingPromoCard } from "@/components/promorang/LivingPromoCard";
+import { usePromoCardLife } from "@/hooks/usePromoCardLife";
 import { useI18n } from "@/i18n/I18nContext";
 import { usePerks } from "@/hooks/usePerks";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
@@ -37,6 +39,7 @@ const Vault = () => {
   const { t, formatNumber } = useI18n();
   const { user, session } = useAuth();
   const [activeTab, setActiveTab] = useState<VaultTab>("perks");
+  const cardLife = usePromoCardLife();
 
   const { perks, isLoading: perksLoading } = usePerks();
   const { balances } = usePromoShareRail();
@@ -97,12 +100,22 @@ const Vault = () => {
                 {t("vaultPage.title")}
               </h1>
               <p className="text-white/60 text-sm max-w-xl">
-                The proof, perks, draw tickets, and platform economic value that stays with you.
+                {t("vaultPage.subtitle")}
               </p>
             </div>
 
             <GlobalTicketBalancePill />
           </div>
+
+          <LivingPromoCard
+            holder={cardLife.holder}
+            last4={cardLife.last4}
+            available={cardLife.available}
+            limit={cardLife.limit}
+            marks={cardLife.marks}
+            writingMark={cardLife.writingMark}
+            caption="Vault is the pocket. PromoCard is what you take out."
+          />
 
           {/* 4 Economic Dimensions Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

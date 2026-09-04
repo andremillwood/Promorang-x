@@ -8,6 +8,6 @@ export const useForYouFeed = (intent: FeedIntent | null) => {
   return useQuery({
     queryKey: ["for-you-feed", user?.id, intent],
     queryFn: () => getForYouFeed({ intent }),
-    enabled: !!user,
+    enabled: true,
   });
 };

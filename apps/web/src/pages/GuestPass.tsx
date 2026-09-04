@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { QRCodeSVG } from "qrcode.react";
 import { useI18n } from "@/i18n/I18nContext";
+import { writePromoCardMark } from "@/lib/promocard/life";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -32,11 +33,28 @@ export default function GuestPass() {
     queryKey: ["guest-pass", token, manage],
     queryFn: () => request(`/api/guest-rsvp/${encodeURIComponent(token)}${manage ? `?manage_token=${encodeURIComponent(manage)}` : ""}`),
   });
+  const momentId = query.data?.rsvp?.moment?.id;
+  const tiersQuery = useQuery({
+    queryKey: ["guest-pass-tiers", momentId],
+    enabled: Boolean(momentId),
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("offers")
+        .select("id,title,description,reward_type,value_amount,value_currency")
+        .eq("source_id", momentId)
+        .eq("status", "active")
+        .limit(6);
+      return data || [];
+    },
+  });
   if (query.isLoading) return <main className="grid min-h-screen place-items-center bg-black text-white">{t("guestPassPage.loading")}</main>;
   if (!query.data?.rsvp) return <main className="grid min-h-screen place-items-center bg-black text-white">{t("guestPassPage.unavailable")}</main>;
 
   const r = query.data.rsvp;
   const canManage = Boolean(query.data.can_manage);
+  const extraPlaces = Math.max(0, Number(r.guest_count || 1) - 1);
+  const shareUrl = `${location.origin}/guest-pass/${token}`;
+  const tiers = tiersQuery.data || [];
   const journey = resolveGuestRsvpJourney(r.status);
   const act = async (action: "join" | "cancel" | "claim") => {
     setBusy(true); setError("");
@@ -51,6 +69,11 @@ export default function GuestPass() {
         const { data: auth } = await supabase.auth.getSession();
         if (!auth.session) { navigate(`/auth?redirect=${encodeURIComponent(location.pathname + location.search)}`); return; }
         const data = await request(`/api/guest-rsvp/${token}/claim`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth.session.access_token}` }, body: JSON.stringify({ manage_token: manage }) });
+        writePromoCardMark(auth.session.user.id, {
+          kind: r.status === "checked_in" ? "arrived" : "held",
+          place: r.moment.location || r.moment.title,
+          id: `guest-${r.id || token}`,
+        });
         navigate(data.destination);
       }
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Please try again"); }
@@ -69,8 +92,32 @@ export default function GuestPass() {
       <h1 className="mt-3 font-serif text-5xl font-black uppercase">{r.moment.title}</h1>
       {canManage ? <div className="mt-5 flex items-center gap-5"><div className="rounded-xl bg-white p-2"><QRCodeSVG value={`https://promorang.co/guest-pass/${token}?code=${r.pass_code}`} className="h-24 w-24"/></div><div><p className="font-mono text-2xl font-black">{r.pass_code}</p><p className="mt-1 max-w-[14rem] text-xs text-black/50">{t("guestPassPage.scanInstruction")}</p></div></div> : <p className="mt-5 text-sm font-bold">{t("guestPassPage.joinGroupNotice")}</p>}
       <p className="mt-2 text-sm text-black/55">{r.guest_count} {r.guest_count === 1 ? t("guestPassPage.guestsSingle") : t("guestPassPage.guestsPlural")} · {r.group_name || r.full_name}</p>
+      {canManage && extraPlaces > 0 ? (
+        <div className="mt-4 rounded-xl border border-dashed border-black/20 bg-white/60 p-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">{t("guestPassPage.giftKicker")}</p>
+          <p className="mt-1 text-sm font-bold">{t("guestPassPage.giftCopy", { count: String(extraPlaces) })}</p>
+          <a href={`https://wa.me/?text=${encodeURIComponent(`${r.moment.title}: ${shareUrl}`)}`} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-xs font-black uppercase tracking-wider text-[#128C7E]">
+            {t("guestPassPage.sendAPlace")}
+          </a>
+        </div>
+      ) : null}
       <div className="mt-6 space-y-3 border-t border-dashed border-black/20 pt-5 text-sm"><p className="flex gap-2"><Calendar className="h-4 w-4 text-primary"/>{r.moment.starts_at ? new Date(r.moment.starts_at).toLocaleString() : t("guestPassPage.scheduleTba")}</p><p className="flex gap-2"><MapPin className="h-4 w-4 text-primary"/>{r.moment.location || t("guestPassPage.locationTba")}</p></div>
     </div>
+    {tiers.length ? (
+      <section className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-5">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("guestPassPage.tonightIncludes")}</p>
+        <div className="mt-3 grid gap-2">
+          {tiers.map((tier: any) => (
+            <div key={tier.id} className="rounded-xl border border-white/10 px-4 py-3">
+              <p className="text-sm font-bold">{tier.title}</p>
+              <p className="mt-1 text-xs text-white/50">
+                {[tier.value_amount, tier.value_currency, tier.description].filter(Boolean).join(" · ")}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+    ) : null}
     {query.data.schedule_changes?.length ? <p className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100">{t("guestPassPage.scheduleChangedAlert")}</p> : null}
     {canManage && query.data.attendance_receipt ? <section className="mt-5 border-y border-dashed border-black/20 bg-[#f4ead8] p-6 text-[#17130f]"><p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">{t("guestPassPage.actionReceipt")}</p><h2 className="mt-2 font-serif text-4xl font-black uppercase">{t("guestPassPage.itCounted")}</h2><div className="mt-5 grid gap-2 border-t border-dashed border-black/15 pt-4 text-xs"><p className="flex justify-between"><span className="text-black/50">{t("guestPassPage.receiptAttendance")}</span><strong>{t("guestPassPage.receiptVerified")}</strong></p><p className="flex justify-between"><span className="text-black/50">{t("guestPassPage.receiptMethod")}</span><strong className="capitalize">{query.data.attendance_receipt.verification_method}</strong></p><p className="flex justify-between"><span className="text-black/50">{t("guestPassPage.receiptRecorded")}</span><strong>{new Date(query.data.attendance_receipt.verified_at).toLocaleString()}</strong></p><p className="flex justify-between"><span className="text-black/50">{t("guestPassPage.receiptAccount")}</span><strong>{query.data.attendance_receipt.status==="claimed"?t("guestPassPage.savedToPromorang"):t("guestPassPage.heldForYou")}</strong></p></div>{query.data.attendance_receipt.status!=="claimed"?<p className="mt-4 text-xs leading-5 text-black/55">{t("guestPassPage.claimPassPrompt")}</p>:<div className="mt-4 flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-wider"><span>{query.data.attendance_receipt.outcomes?.moment_piece?.awarded?t("guestPassPage.momentPiecesAwarded", { count: formatNumber(query.data.attendance_receipt.outcomes.moment_piece.quantity) }):t("guestPassPage.attendanceSaved")}</span><span>·</span><span>{query.data.attendance_receipt.outcomes?.promoshare_ticket?.awarded?t("guestPassPage.promoShareEarned"):t("guestPassPage.drawEligibilityChecked")}</span></div>}</section> : null}
     <div className="relative mt-6 grid grid-cols-3 before:absolute before:left-[15%] before:right-[15%] before:top-3 before:h-px before:bg-white/15">{journey.steps.map((step: any) => <div key={step.id} className="relative text-center"><span className={`mx-auto block h-6 w-6 rounded-full border-4 border-[#0b0b0a] ${step.state === "complete" ? "bg-primary" : step.state === "current" ? "bg-white" : "bg-white/15"}`}/><p className="mt-2 text-[10px] uppercase tracking-wider text-white/50">{step.label}</p></div>)}</div>

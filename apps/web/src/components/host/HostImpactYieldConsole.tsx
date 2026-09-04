@@ -25,20 +25,20 @@ export function HostImpactYieldConsole() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Stage Community Impact & Node Yield</h2>
+              <h2 className="text-2xl font-black text-white">What this stage moved</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-extrabold uppercase">
                 Host Level 3 (Luminary)
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Community multiplier stats, retained Gem yields, and repeat attendee loyalty telemetry.
+              Who showed up, who came back, and what they kept. Friday is when payouts land.
             </p>
           </div>
         </div>
 
         <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-          <p className="text-[10px] uppercase font-bold text-white/50">Host Node APY</p>
-          <p className="text-base font-black text-emerald-400">14.8% Active</p>
+          <p className="text-[10px] uppercase font-bold text-white/50">Next payout</p>
+          <p className="text-base font-black text-emerald-400">Friday</p>
         </div>
       </div>
 
@@ -52,8 +52,8 @@ export function HostImpactYieldConsole() {
             </span>
           </div>
           <div>
-            <p className="text-3xl font-black text-white">1,840</p>
-            <p className="text-xs text-amber-300 font-semibold mt-1">Across 14 staged moments</p>
+            <p className="text-3xl font-black text-white">—</p>
+            <p className="text-xs text-amber-300 font-semibold mt-1">Fills after verified arrivals</p>
           </div>
         </div>
 

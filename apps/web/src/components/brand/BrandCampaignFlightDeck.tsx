@@ -32,50 +32,7 @@ export function BrandCampaignFlightDeck({
   const { data: rawCampaigns = [], isLoading } = useBrandCampaigns();
   const [filterState, setFilterState] = useState<"all" | "live" | "scheduled" | "completed">("all");
 
-  const campaigns = rawCampaigns.length > 0 ? rawCampaigns : [
-    {
-      id: "camp-midas-1",
-      title: "Midas Summer Kingston Soundclash Takeover",
-      description: "Omni-channel sponsorship across 4 live Kingston stages with door perks & creator bounties.",
-      budget: 5000,
-      spent: 3200,
-      impressions: 48200,
-      redemptions: 1420,
-      is_active: true,
-      status: "live",
-      flightDates: "Aug 15 - Sep 10, 2026",
-      creatorsCount: 12,
-      roi: "4.8x",
-    },
-    {
-      id: "camp-midas-2",
-      title: "Blue Mountain Coffee Rituals & Artisan Drops",
-      description: "Rewarding attendees who check-in at partnered Kingston coffee lounges with PromoKeys.",
-      budget: 2500,
-      spent: 1850,
-      impressions: 29400,
-      redemptions: 890,
-      is_active: true,
-      status: "live",
-      flightDates: "Aug 20 - Sep 05, 2026",
-      creatorsCount: 8,
-      roi: "5.2x",
-    },
-    {
-      id: "camp-midas-3",
-      title: "Kingston Culture Week Sunset Stage",
-      description: "Exclusive VIP lounge sponsorship & branded content drop window.",
-      budget: 4000,
-      spent: 0,
-      impressions: 0,
-      redemptions: 0,
-      is_active: false,
-      status: "scheduled",
-      flightDates: "Sep 15 - Sep 22, 2026",
-      creatorsCount: 15,
-      roi: "Pending Launch",
-    },
-  ];
+  const campaigns = rawCampaigns;
 
   const handleBoostBudget = (campaignTitle: string) => {
     toast({
@@ -153,9 +110,15 @@ export function BrandCampaignFlightDeck({
 
       {/* 3. Campaign Flight Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {filteredCampaigns.length === 0 ? (
+          <div className="lg:col-span-2 rounded-3xl border border-dashed border-white/15 bg-white/[0.02] p-8 text-center">
+            <p className="font-serif text-2xl font-bold text-white">No campaigns yet</p>
+            <p className="mt-2 text-sm text-white/50">Seen and redeemed stay at zero until a real flight is live. Nothing is invented here.</p>
+          </div>
+        ) : null}
         {filteredCampaigns.map((campaign: any) => {
           const budget = Number(campaign.budget || 0);
-          const spent = Number(campaign.spent || (budget * 0.64));
+          const spent = Number(campaign.spent || 0);
           const pacePercent = budget > 0 ? Math.min(100, Math.round((spent / budget) * 100)) : 0;
 
           return (
@@ -174,7 +137,7 @@ export function BrandCampaignFlightDeck({
                     {campaign.is_active ? "Live Flight" : "Scheduled"}
                   </span>
                   <span className="text-xs text-primary font-bold font-mono">
-                    ROI: {campaign.roi || "4.5x"}
+                    {campaign.redemptions ? `${campaign.redemptions} redeemed` : "No redemptions yet"}
                   </span>
                 </div>
 
@@ -214,7 +177,7 @@ export function BrandCampaignFlightDeck({
                 </div>
                 <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
                   <p className="text-[10px] font-bold uppercase text-white/50">Creators Posting</p>
-                  <p className="text-base font-black text-amber-400">{campaign.creatorsCount || 6}</p>
+                  <p className="text-base font-black text-amber-400">{campaign.creatorsCount ?? 0}</p>
                 </div>
               </div>
 

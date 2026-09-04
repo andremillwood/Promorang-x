@@ -38,7 +38,7 @@ const getOpsTheatreStage = () => {
     { day: "Tuesday", phase: "Verification & Leaderboards", tag: "Proof Credited", icon: Trophy, color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30" },
     { day: "Wednesday", phase: "Mid-Week Freeze", tag: "Odds & Polls Locked", icon: Flame, color: "text-blue-400 bg-blue-500/10 border-blue-500/30" },
     { day: "Thursday", phase: "Campaign Window Launch", tag: "Sub-Moments Open", icon: Sparkles, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" },
-    { day: "Friday", phase: "Gem Payouts & Proof Showcase", tag: "Escrows Disbursed", icon: Gem, color: "text-primary bg-primary/10 border-primary/30" },
+    { day: "Friday", phase: "Gem payouts and proof", tag: "Payouts land", icon: Gem, color: "text-primary bg-primary/10 border-primary/30" },
     { day: "Saturday", phase: "Live Moments & Piece Drops", tag: "Real-World Execution", icon: Ticket, color: "text-amber-400 bg-amber-500/10 border-amber-500/30" },
   ];
   return schedule[day];

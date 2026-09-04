@@ -179,7 +179,7 @@ export function useBrandStats() {
         totalImpressions,
         totalRedemptions,
         totalBudget,
-        attributedSales: totalRedemptions * 42, // Mock ROI multiplier for demo/V1
+        attributedSales: totalRedemptions,
       };
     },
     enabled: !!user,

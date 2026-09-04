@@ -44,7 +44,7 @@ import { Collaborator } from "@/components/moments/MomentLineupBuilder";
 import { PromoShareAction } from "@/components/promoshare/PromoShareAction";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
 import { PromoCardMomentLoop } from "@/components/moments/PromoCardMomentLoop";
-import { usePromoCard } from "@/hooks/usePromoCard";
+import { writePromoCardMark } from "@/lib/promocard/life";
 import {
   ArrowLeft,
   ArrowRight,
@@ -155,7 +155,6 @@ const MomentDetail = () => {
   const { user, roles } = useAuth();
   const { toast } = useToast();
   const { recordAttributedAction } = usePromoShareRail();
-  const promoCardQuery = usePromoCard(user?.id);
 
   const [moment, setMoment] = useState<Moment | null>(null);
   const [isJoined, setIsJoined] = useState(false);
@@ -553,10 +552,13 @@ const MomentDetail = () => {
       if (response.status === 404 || payload?.error?.includes("not found")) {
         setIsJoined(true);
         setParticipantCount((prev) => prev + 1);
-        toast({
-          title: "RSVP Confirmed! 🎉",
-          description: moment.reward ? `Your spot is reserved. Claim your ${moment.reward} on arrival!` : "Your spot is reserved.",
-        });
+        if (user?.id) {
+          writePromoCardMark(user.id, {
+            kind: "held",
+            place: moment.venue_name || moment.location || moment.title,
+            id: `held-${moment.id}`,
+          });
+        }
         return;
       }
       throw new Error(payload?.error || "Failed to join event");
@@ -566,10 +568,13 @@ const MomentDetail = () => {
     setAccessQuote(payload?.access?.quote || payload?.access_quote || accessQuote);
     setParticipantCount((prev) => prev + 1);
     recordAttributedAction('moment.rsvp', moment.title);
-    toast({
-      title: t("momentDetail.toastSpotReserved"),
-      description: moment.reward ? t("momentDetail.toastSpotReservedDesc") : t("momentDetail.toastSpotReservedDesc"),
-    });
+    if (user?.id) {
+      writePromoCardMark(user.id, {
+        kind: "held",
+        place: moment.venue_name || moment.location || moment.title,
+        id: `held-${moment.id}`,
+      });
+    }
   };
 
   const handleJoin = async () => {
@@ -921,9 +926,21 @@ const MomentDetail = () => {
                   </Button>
                 )}
                 {!isPast && !user && (
-                  <Button asChild className="w-full rounded-2xl bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold text-base py-5 shadow-lg shadow-[#ff5500]/25 transition-all hover:scale-[1.01]">
-                    <Link to="/auth"><LogIn className="mr-2 h-5 w-5" />{t("momentDetail.signInToReserve")}</Link>
-                  </Button>
+                  <>
+                    <Button asChild className="w-full rounded-2xl bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold text-base py-5 shadow-lg shadow-[#ff5500]/25 transition-all hover:scale-[1.01]">
+                      <Link to={`/rsvp/${moment.id}?title=${encodeURIComponent(moment.title || "")}`}>
+                        <Ticket className="mr-2 h-5 w-5" />
+                        {t("momentDetail.reserveMySpot")}
+                      </Link>
+                    </Button>
+                    <p className="text-center text-[11px] font-medium text-white/50">{t("momentDetail.noAccountNeeded")}</p>
+                    <Button asChild variant="ghost" className="w-full rounded-2xl text-white/80 hover:bg-white/10 hover:text-white font-medium py-4 text-xs">
+                      <Link to="/auth">
+                        <LogIn className="mr-2 h-3.5 w-3.5" />
+                        {t("momentDetail.alreadyMember")}
+                      </Link>
+                    </Button>
+                  </>
                 )}
                 {!isPast && !!user && isHost && (
                   <Button asChild className="w-full rounded-2xl bg-white text-black hover:bg-white/90 font-bold py-5">
@@ -958,6 +975,15 @@ const MomentDetail = () => {
                 >
                   <Share2 className="mr-2 h-3.5 w-3.5 text-[#ff5500]" /> {t("momentDetail.inviteFriends")}
                 </Button>
+
+                {!isPast ? (
+                  <Button asChild variant="outline" className="w-full rounded-2xl border-amber-400/30 bg-amber-400/[0.08] text-amber-100 hover:bg-amber-400/15 font-medium py-4 text-xs">
+                    <Link to={`/rsvp/${moment.id}?title=${encodeURIComponent(moment.title || "")}&gift=1`}>
+                      <Gift className="mr-2 h-3.5 w-3.5" />
+                      {t("momentDetail.giftAPass")}
+                    </Link>
+                  </Button>
+                ) : null}
 
                 <button
                   type="button"
@@ -1186,8 +1212,9 @@ const MomentDetail = () => {
 
                 <PromoCardMomentLoop
                   isJoined={isJoined}
+                  isCheckedIn={isCheckedIn}
                   isHost={Boolean(isHost)}
-                  cardBalance={promoCardQuery.data?.availableBalance}
+                  place={moment.venue_name || moment.location || moment.title}
                 />
 
                 {/* Venue & Map Card */}

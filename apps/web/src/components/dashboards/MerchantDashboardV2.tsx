@@ -28,6 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StoryGamificationRail } from "@/components/StoryGamificationRail";
+import { WeekStoryStrip } from "@/components/journey/WeekStoryStrip";
 import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { TeamSlashModal } from "@/components/TeamSlashModal";
@@ -73,6 +74,7 @@ export function MerchantDashboardV2() {
 
   return (
     <div className="space-y-6 text-white pb-16 animate-in fade-in-50 duration-300">
+      <WeekStoryStrip roleLabel="Your week at the counter" />
       {/* 0. Top Story & Gamification Action Rail */}
       <StoryGamificationRail
         onOpenWheel={() => setWheelOpen(true)}
@@ -88,7 +90,7 @@ export function MerchantDashboardV2() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">
-                Merchant Command Station
+                Merchant desk
               </h1>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-[10px] font-black uppercase tracking-wider">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -173,7 +175,7 @@ export function MerchantDashboardV2() {
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">3</span>
               <div>
-                <p className="font-bold text-white text-xs">Review Node Yield & Settlement</p>
+                <p className="font-bold text-white text-xs">Review settlement</p>
                 <p className="text-[10px] text-teal-300 font-semibold">Disburse Lynk / Bank payout</p>
               </div>
             </div>
@@ -189,7 +191,7 @@ export function MerchantDashboardV2() {
           { id: "redemptions", label: "POS Scanner", icon: QrCode, hint: "Door verification", count: "Active" },
           { id: "commerce", label: "Orders & Fulfillment", icon: ShoppingBag, hint: "Pickups & tickets", count: "4 Open" },
           { id: "venues", label: "Venue Studio", icon: MapPin, hint: "Spaces & moments", count: `${venueCount} Places` },
-          { id: "analytics", label: "Yield & Analytics", icon: BarChart3, hint: "GMV & Node APY", count: "12.5%" },
+          { id: "analytics", label: "What came back", icon: BarChart3, hint: "Sales & payouts", count: "Friday" },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

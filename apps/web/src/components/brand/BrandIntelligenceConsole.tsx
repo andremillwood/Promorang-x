@@ -24,8 +24,8 @@ export function BrandIntelligenceConsole() {
 
   const handleDepositTreasury = () => {
     toast({
-      title: "Growth Escrow Funded! 🔒",
-      description: "Added $2,500 to smart campaign escrow vault for milestone disbarment.",
+      title: "Campaign budget added",
+      description: "Held until a host or creator verifies the visit. Releases on Friday.",
     });
   };
 
@@ -39,13 +39,13 @@ export function BrandIntelligenceConsole() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Brand Treasury & Strategic Intelligence</h2>
+              <h2 className="text-2xl font-black text-white">Budget and payouts</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase">
-                Escrow Protected
+                Held until verified
               </span>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Milestone disbursement vaults, yield multipliers, and AI budget allocation forecasting.
+              Money sits until someone actually shows up. Friday is when it lands.
             </p>
           </div>
         </div>
@@ -55,7 +55,7 @@ export function BrandIntelligenceConsole() {
           className="h-11 px-5 rounded-2xl bg-primary hover:bg-primary/90 text-black font-extrabold text-xs shadow-[0_0_20px_rgba(255,106,0,0.35)]"
         >
           <DollarSign className="h-4 w-4 mr-1.5" />
-          Fund Campaign Escrow
+          Fund campaign budget
         </Button>
       </div>
 
@@ -63,30 +63,30 @@ export function BrandIntelligenceConsole() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-white/50">Locked Escrow Vault</span>
+            <span className="text-[10px] uppercase font-bold text-white/50">Held for verified visits</span>
             <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
               <Lock className="h-4 w-4" />
             </span>
           </div>
           <div>
-            <p className="text-3xl font-black text-white">$6,400.00</p>
+            <p className="text-3xl font-black text-white">—</p>
             <p className="text-xs text-emerald-400 font-semibold mt-1">
-              Released upon verified host & creator proof
+              Held until a visit is verified
             </p>
           </div>
         </div>
 
         <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-white/50">Gem Liquidity Yield</span>
+            <span className="text-[10px] uppercase font-bold text-white/50">Gems ready</span>
             <span className="p-2 rounded-xl bg-primary/10 text-primary">
               <Gem className="h-4 w-4" />
             </span>
           </div>
           <div>
-            <p className="text-3xl font-black text-white">4,200 Gems</p>
+            <p className="text-3xl font-black text-white">—</p>
             <p className="text-xs text-primary font-semibold mt-1">
-              14.2% APY in Promorang Liquidity Pool
+              1 Gem = $1. Pays out Friday.
             </p>
           </div>
         </div>

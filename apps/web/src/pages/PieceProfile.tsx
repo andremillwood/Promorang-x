@@ -131,11 +131,11 @@ export function PieceProfile() {
           volume_24h: 3450,
         },
         journey: {
-          summary: 'Verified ticket revenue share from event syndication settlements deposited directly to co-producers.',
+          summary: 'When this Moment sells access, co-producers can receive a share of what comes back in Gems.',
           steps: [
-            { step: 'Minting & Allocation', description: 'Fractional shares created to fund experiential production.' },
-            { step: 'Event Execution', description: 'Recurring ticket sales and VIP packages generate gross revenues.' },
-            { step: 'Automatic Dividend Settlement', description: 'Box office shares settle as instant Gem distributions.' },
+            { step: 'Claim your share', description: 'Back this Moment or scene with Gems and hold the Piece.' },
+            { step: 'The night happens', description: 'Tickets, access, and hospitality actually sell in the real world.' },
+            { step: 'What comes back', description: 'Agreed returns settle as Gems you can spend or keep.' },
           ]
         },
       });
@@ -243,12 +243,9 @@ export function PieceProfile() {
                 </Badge>
                 {profile.pool && (
                   <Badge variant="outline" className="text-emerald-400 border-emerald-500/30 bg-emerald-500/10 flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" /> Live AMM Pool
+                    <TrendingUp className="w-3 h-3" /> Open to back
                   </Badge>
                 )}
-                <Badge variant="outline" className="text-cyan-400 border-cyan-500/30 bg-cyan-500/10">
-                  18.4% Est. APR
-                </Badge>
               </div>
 
               <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">{title}</h1>
@@ -262,26 +259,26 @@ export function PieceProfile() {
               <Card className="overflow-hidden border-cyan-500/30 bg-gradient-to-br from-neutral-900/90 via-black to-neutral-950/90 shadow-2xl backdrop-blur-xl">
                 <CardHeader className="border-b border-white/10 pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-bold text-white uppercase tracking-wider">Market Snapshot</CardTitle>
+                    <CardTitle className="text-sm font-bold text-white uppercase tracking-wider">What people are backing</CardTitle>
                     <Sparkles className="h-4 w-4 text-cyan-400 animate-pulse" />
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-4 text-white">
                   <div className="flex justify-between items-baseline">
-                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Piece Price</span>
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Floor</span>
                     <span className="text-2xl font-black text-cyan-400">{currentPrice.toFixed(2)} Gems</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
-                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">24h Volume</span>
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Moved in 24h</span>
                     <span className="font-semibold text-white/90">{Number(profile.pool?.volume_24h || profile.stats?.volume_24h || 0).toFixed(0)} Gems</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
-                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Co-Producers</span>
-                    <span className="font-semibold text-emerald-400">{Number(profile.stats?.holder_count || 24)} Backers</span>
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Co-producers</span>
+                    <span className="font-semibold text-emerald-400">{Number(profile.stats?.holder_count || 0) || "—"}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
-                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Market Cap</span>
-                    <span className="font-semibold text-white/90">{Number(profile.stats?.market_cap || 12500).toFixed(2)} Gems</span>
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Backing so far</span>
+                    <span className="font-semibold text-white/90">{profile.stats?.market_cap != null ? `${Number(profile.stats.market_cap).toFixed(0)} Gems` : "—"}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -356,7 +353,7 @@ export function PieceProfile() {
                 <div className="rounded-xl border bg-muted/20 p-4">
                   <Users className="h-5 w-5 text-primary" />
                   <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{t("pieceProfile.liquidityNow")}</p>
-                  <p className="mt-2 text-sm font-semibold">{profile.pool ? `${Number(profile.stats?.holder_count || 24)} holders · active pool` : "No active pool"}</p>
+                  <p className="mt-2 text-sm font-semibold">{profile.pool ? `${Number(profile.stats?.holder_count || 0) || "—"} co-producers · open to trade` : "Not open to trade yet"}</p>
                   <p className="mt-2 text-xs leading-5 text-muted-foreground">A pool enables exchange; it does not guarantee a buyer, stable price or easy exit.</p>
                 </div>
               </div>
@@ -381,15 +378,15 @@ export function PieceProfile() {
             </Card>
           </div>
 
-          {/* Right Sidebar: Quick AMM Trade & Order Book */}
+          {/* Right Sidebar: trade and order book */}
           <aside className="space-y-6">
             {/* Quick Swap Console */}
             <Card className="border-cyan-500/30 bg-gradient-to-br from-cyan-950/20 via-neutral-900/90 to-black/95 shadow-xl">
               <CardHeader className="border-b border-cyan-500/20 pb-3">
                 <CardTitle className="text-base font-bold flex items-center justify-between">
-                  <span>Quick Trade Pieces</span>
+                  <span>Trade Pieces</span>
                   <Badge variant="outline" className="text-[10px] border-cyan-500/30 text-cyan-400">
-                    AMM Swap
+                    With Gems
                   </Badge>
                 </CardTitle>
               </CardHeader>

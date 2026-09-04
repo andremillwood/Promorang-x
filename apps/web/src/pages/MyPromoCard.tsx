@@ -1,24 +1,29 @@
 import { Link } from "react-router-dom";
 import { useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { LivingPromoCard } from "@/components/promorang/LivingPromoCard";
+import { usePromoCardLife } from "@/hooks/usePromoCardLife";
 
 export default function MyPromoCard() {
   const card = useMyPromoCard();
+  const life = usePromoCardLife();
   const data = card.data;
 
   return (
     <ExperienceShell
       eyebrow="PromoCard"
-      title="Your perks live here"
-      description="Identity, access, keys, points and claimed drops — one card."
-      backTo="/dashboard"
+      title="The card that keeps the night"
+      description="Stamps, spendable value, and what landed on you — one piece of plastic."
+      backTo="/home"
     >
-      <PromoCardFace
-        holder={data?.name || "Member"}
-        available={`${Number(data?.points || 0).toLocaleString()} pts`}
-        limit={`${Number(data?.keys || 0)} keys`}
-        places="Active"
+      <LivingPromoCard
+        holder={life.holder || data?.name || "Member"}
+        last4={life.last4}
+        available={life.available}
+        limit={life.limit}
+        marks={life.marks}
+        writingMark={life.writingMark}
+        caption="Tap to present. Every verified night, counter, or gift should leave a mark here."
       />
 
       <section className="rounded-[1.6rem] border border-white/10 bg-white/[0.04] px-4 py-4">

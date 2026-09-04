@@ -4,14 +4,35 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { LivingPromoCard } from "@/components/promorang/LivingPromoCard";
+import { usePromoCardLife } from "@/hooks/usePromoCardLife";
 import { NextMoveStrip } from "@/components/journey/NextMoveStrip";
 import { getMemberNextMove } from "@/lib/member-next-move";
+import { LatestPersonReceipt } from "@/components/promorang/PersonReceiptCallout";
 
 const money = (value: number) => {
   if (!value) return "J$0";
   return `J$${Math.round(value).toLocaleString()}`;
 };
+
+function PromoCardOnToday({ name }: { name: string }) {
+  const life = usePromoCardLife();
+  return (
+    <LivingPromoCard
+      holder={life.holder || name}
+      last4={life.last4}
+      available={life.available}
+      limit={life.limit}
+      marks={life.marks}
+      writingMark={life.writingMark}
+      caption={
+        life.marks[0]
+          ? `Last mark: ${life.marks[0].place}. Carry this tonight.`
+          : "This is the object you take out. Nights, counters and gifts write on it."
+      }
+    />
+  );
+}
 
 export default function PeopleHome() {
   const { user, profile, activeRole } = useAuth();
@@ -43,6 +64,8 @@ export default function PeopleHome() {
       }
     >
       <NextMoveStrip move={getMemberNextMove({ signedIn: Boolean(user), canCreate: true })} />
+      <LatestPersonReceipt />
+      <PromoCardOnToday name={name} />
       {emptyHome ? (
         <p className="rounded-[1.3rem] border border-white/10 px-4 py-3 text-sm text-white/45">
           Your numbers will appear here once this community starts moving. Nothing is invented.
@@ -120,14 +143,6 @@ export default function PeopleHome() {
       {role === "member" ? (
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-bold">For you</h2>
-          <Link to={to("/card")} className="block">
-            <PromoCardFace
-              holder={name}
-              available={`${Number(data?.wallet?.points || 0).toLocaleString()} pts`}
-              limit={`${Number(data?.wallet?.promokeys || 0)} keys`}
-              places="Your perks live here"
-            />
-          </Link>
           <Link to="/discover" className="block rounded-[1.6rem] border border-white/10 bg-white/[0.04] px-5 py-5">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">What’s happening</p>
             <p className="mt-2 font-serif text-2xl font-bold">Find a night, a meal, a room.</p>

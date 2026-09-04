@@ -12,11 +12,12 @@ export default function GuestRsvp() {
   const [params] = useSearchParams();
   const { t } = useI18n();
   const title = params.get("title") || t("rsvp.thisMoment");
+  const isGift = params.get("gift") === "1";
   const [form, setForm] = useState({
     full_name: "",
     mobile: "",
     email: "",
-    guest_count: 1,
+    guest_count: isGift ? 2 : 1,
     group_name: "",
     meeting_point: "",
     consent_whatsapp: true,
@@ -74,7 +75,7 @@ export default function GuestRsvp() {
             <Button asChild className="h-12 bg-[#25D366] font-black text-black hover:bg-[#20bd5a]">
               <a href={whatsapp} target="_blank" rel="noreferrer">
                 <Share2 className="mr-2 h-4 w-4" />
-                {t("rsvp.inviteWhatsApp")}
+                {result.rsvp.guest_count > 1 ? t("rsvp.sendAPass") : t("rsvp.inviteWhatsApp")}
               </a>
             </Button>
             <Button asChild variant="outline" className="h-12 border-white/15 bg-transparent text-white">
@@ -96,9 +97,9 @@ export default function GuestRsvp() {
     <main className="min-h-screen bg-[#0b0b0a] px-5 py-14 text-white">
       <div className="mx-auto grid max-w-5xl overflow-hidden rounded-[2rem] border border-white/10 lg:grid-cols-[.8fr_1.2fr]">
         <section className="bg-[radial-gradient(circle_at_top,rgba(255,106,26,.24),transparent_40%),#111] p-8">
-          <p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">{t("rsvp.reserve")}</p>
+          <p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">{isGift ? t("rsvp.giftKicker") : t("rsvp.reserve")}</p>
           <h1 className="mt-4 font-serif text-5xl font-bold leading-none">{title}</h1>
-          <p className="mt-5 text-sm leading-6 text-white/55">{t("rsvp.intro")}</p>
+          <p className="mt-5 text-sm leading-6 text-white/55">{isGift ? t("rsvp.giftIntro") : t("rsvp.intro")}</p>
           <div className="mt-10 space-y-5">
             {benefits.map(([Icon, text]) => (
               <div key={text} className="flex items-center gap-3 text-sm">
@@ -110,7 +111,7 @@ export default function GuestRsvp() {
         </section>
 
         <form onSubmit={submit} className="bg-[#f6efe3] p-7 text-[#17130f] sm:p-10">
-          <h2 className="font-serif text-4xl font-black">{t("rsvp.holdFor")}</h2>
+          <h2 className="font-serif text-4xl font-black">{isGift ? t("rsvp.giftHoldFor") : t("rsvp.holdFor")}</h2>
           <div className="mt-7 grid gap-4">
             <Input required placeholder={t("rsvp.fullName")} value={form.full_name} onChange={(event) => setForm({ ...form, full_name: event.target.value })} />
             <Input required placeholder={t("rsvp.mobile")} value={form.mobile} onChange={(event) => setForm({ ...form, mobile: event.target.value })} />

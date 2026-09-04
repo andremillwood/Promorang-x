@@ -6,6 +6,8 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 import logo from "@/assets/promorang-logo.png";
 import { HeaderSearchPreview } from "@/components/HeaderSearchPreview";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { LivingPromoCard } from "@/components/promorang/LivingPromoCard";
+import { usePromoCardLife } from "@/hooks/usePromoCardLife";
 import {
   Home,
   Compass,
@@ -246,6 +248,7 @@ const safeRoleInfo = (role: string | undefined | null) => {
 const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const { t } = useI18n();
   const { user, roles, organizations, activeOrgId, setActiveOrgId, agencyClients, setActiveRole, signOut, profile } = useAuth();
+  const cardLife = usePromoCardLife();
   const { city } = useMarket();
   const navigate = useNavigate();
   const location = useLocation();
@@ -728,6 +731,15 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             <div className="flex min-w-0 flex-1 items-center justify-center px-2">
               <CityQuickSwitcher tone="app" className="max-w-[180px]" />
             </div>
+            <LivingPromoCard
+              variant="pocket"
+              holder={cardLife.holder}
+              last4={cardLife.last4}
+              available={cardLife.available}
+              marks={cardLife.marks}
+              writingMark={cardLife.writingMark}
+              className="mr-2 max-w-[9.5rem]"
+            />
             <Link to="/profile" className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center text-white font-bold text-xs shadow-soft active:scale-95 transition-transform overflow-hidden">
               {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
                 <img src={profile?.avatar_url || user?.user_metadata?.avatar_url} alt="" className="h-full w-full object-cover" />
@@ -816,6 +828,16 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <LivingPromoCard
+              variant="pocket"
+              holder={cardLife.holder}
+              last4={cardLife.last4}
+              available={cardLife.available}
+              marks={cardLife.marks}
+              writingMark={cardLife.writingMark}
+              className="hidden xl:inline-flex"
+            />
 
             {/* Global Ticket & Points Balance Pill */}
             <GlobalTicketBalancePill className="hidden sm:inline-flex" />

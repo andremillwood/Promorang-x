@@ -39,7 +39,6 @@ import { PromoShareHero } from '@/components/promoshare/PromoShareHero';
 import { CardDropCreator } from '@/components/promoshare/CardDropCreator';
 import { StoryGamificationRail } from '@/components/StoryGamificationRail';
 import { RightUtilityRail } from '@/components/RightUtilityRail';
-import { SocialGraphFacepile } from '@/components/SocialGraphFacepile';
 import { SpinWheelModal } from '@/components/SpinWheelModal';
 import { TeamSlashModal } from '@/components/TeamSlashModal';
 import { DailyRewardsModal } from '@/components/DailyRewardsModal';

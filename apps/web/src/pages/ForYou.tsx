@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Compass, Coins, MapPin, MoonStar, SlidersHorizontal, Sparkles, Gift, Share2, Store, QrCode } from "lucide-react";
+import { Compass, Coins, MapPin, MoonStar, SlidersHorizontal, Sparkles, Gift, Share2, QrCode } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useForYouFeed } from "@/hooks/useFeed";
 import type { FeedIntent } from "@/services/feed";
@@ -26,7 +26,7 @@ const lenses: Array<{
 
 const ForYou = () => {
   const { t } = useI18n();
-  const { user } = useAuth();
+  const { user, activeRole } = useAuth();
   const [activeIntent, setActiveIntent] = useState<FeedIntent | null>(null);
   const feedQuery = useForYouFeed(activeIntent);
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || t("forYou.explorer");
@@ -80,6 +80,7 @@ const ForYou = () => {
                 <span>Things Worth Sharing (Earn Draw Tickets)</span>
               </Link>
 
+              {["merchant", "host", "brand", "admin"].includes(String(activeRole || "")) ? (
               <Link
                 to="/staff/scanner"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-700 bg-zinc-800/80 text-zinc-300 hover:text-white text-xs font-bold transition"
@@ -87,6 +88,7 @@ const ForYou = () => {
                 <QrCode className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Staff QR Scanner</span>
               </Link>
+              ) : null}
             </div>
           </div>
 

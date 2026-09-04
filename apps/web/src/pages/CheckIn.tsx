@@ -11,12 +11,13 @@ import { Label } from "@/components/ui/label";
 import { QrCode, MapPin, Loader2, Camera, Check, Sparkles, Gift, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { ImageUpload } from "@/components/ImageUpload";
-import { CheckInCelebration } from '@/components/CheckInCelebration';
-import { AnimatePresence } from 'framer-motion';
 import { demoMoments } from "@/data/demo-moments";
 import { useI18n } from "@/i18n/I18nContext";
 import { ActionUnlockReceipt } from "@/components/journey/ActionUnlockReceipt";
 import { buildActionUnlockReceipt } from "@/lib/action-unlock-receipt";
+import { LivingPromoCard } from "@/components/promorang/LivingPromoCard";
+import { usePromoCardLife } from "@/hooks/usePromoCardLife";
+import { writePromoCardMark } from "@/lib/promocard/life";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -33,6 +34,7 @@ const CheckIn = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const { user, session } = useAuth();
+  const cardLife = usePromoCardLife();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -226,15 +228,19 @@ const CheckIn = () => {
       setSuccess(true);
       queryClient.invalidateQueries({ queryKey: ["joined-moments"] });
       queryClient.invalidateQueries({ queryKey: ["vault"] });
+      queryClient.invalidateQueries({ queryKey: ["promocard"] });
+
+      if (user?.id && moment?.title) {
+        writePromoCardMark(user.id, {
+          kind: "arrived",
+          place: moment.venue_name || moment.location || moment.title,
+          id: `arrived-${moment.id || id}`,
+        });
+      }
 
       if ('vibrate' in navigator) {
         navigator.vibrate([10, 30, 10, 30]);
       }
-
-      toast({
-        title: t("checkIn.toastComplete"),
-        description: t("checkIn.toastCompleteDesc"),
-      });
 
     } catch (error: any) {
       toast({ title: t("checkIn.toastFailed"), description: error.message, variant: "destructive" });
@@ -286,20 +292,25 @@ const CheckIn = () => {
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-[#ff5500] selection:text-white">
       <SEO title={t("checkIn.seoTitle", { title: moment.title })} description={t("checkIn.seoDescription", { title: moment.title })} />
 
-      <AnimatePresence>
-        {success && <CheckInCelebration onComplete={() => {}} />}
-      </AnimatePresence>
-
       <main className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
         {success ? (
-          <div className="mx-auto max-w-xl text-center space-y-6 pt-8 animate-in fade-in duration-300">
-            <div className="w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-12 h-12" />
+          <div className="mx-auto max-w-xl space-y-6 pt-8 animate-in fade-in duration-300">
+            <div className="text-center space-y-3">
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-white">{t("checkIn.successTitle")}</h1>
+              <p className="text-white/70 text-base">
+                {t("checkIn.successCopy", { title: moment.title })}
+              </p>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white">{t("checkIn.successTitle")}</h1>
-            <p className="text-white/70 text-base">
-              {t("checkIn.successCopy", { title: moment.title })}
-            </p>
+
+            <LivingPromoCard
+              holder={cardLife.holder}
+              last4={cardLife.last4}
+              available={cardLife.available}
+              limit={cardLife.limit}
+              marks={cardLife.marks}
+              writingMark={cardLife.writingMark}
+              caption={`${moment.venue_name || moment.title} just stamped the plastic. That is the proof.`}
+            />
 
             <ActionUnlockReceipt
               receipt={buildActionUnlockReceipt(

@@ -422,6 +422,9 @@ function createPeopleExperienceService(db = defaultDb) {
       recent.push({
         ...row,
         actorName: actor ? displayName(actor) : 'Someone',
+        momentTitle: row.action_metadata?.moment_title || row.action_metadata?.title || null,
+        counted: row.action_type,
+        keep: row.action_metadata?.reward || row.action_metadata?.perk || (row.amount ? `J$${Math.round(Number(row.amount))}` : 'The proof of showing up'),
       });
     }
 

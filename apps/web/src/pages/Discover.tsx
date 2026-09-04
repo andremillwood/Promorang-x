@@ -33,7 +33,6 @@ import { StoryGamificationRail } from "@/components/StoryGamificationRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { DiscoverRightRail } from "@/components/discovery/DiscoverRightRail";
-import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
 import { useMarket } from "@/contexts/MarketContext";
 import { getCityHubCenter, getDefaultCityHub, matchesCityHub } from "@/lib/city-hubs";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
@@ -142,6 +141,8 @@ type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places"
 
 const Discover = () => {
   const { city, setCity } = useMarket();
+  const { roles } = useAuth();
+  const canPostPerk = roles.some((role) => ["merchant", "host", "brand", "admin"].includes(role));
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as DiscoverTab) || "discoveries";
 
@@ -375,30 +376,29 @@ const Discover = () => {
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <Badge className="rounded-full bg-primary text-white font-black text-[10px] uppercase tracking-wider border-none">
-                People → Discover
+                Discover
               </Badge>
               <span className="text-xs text-white/50 font-semibold">{city.name}</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-              Discover What's Worth Doing & Choosing
+              What's worth showing up for
             </h1>
             <p className="text-white/60 text-xs sm:text-sm max-w-xl">
-              Answer signals, unlock partner Perks, RSVP to live moments, or promote them to earn PromoShare draw tickets.
+              Moments, places, member access, and people already moving in {city.name}.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-            {/* Global Ticket & Points Balance Ticker */}
             <GlobalTicketBalancePill />
-
-            {/* Merchant Post a Perk Quick Button */}
-            <Button
-              onClick={() => setPostPerkOpen(true)}
-              className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 h-10 px-4"
-            >
-              <Store className="w-4 h-4" />
-              <span>Post a Perk</span>
-            </Button>
+            {canPostPerk && (
+              <Button
+                onClick={() => setPostPerkOpen(true)}
+                className="rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center gap-1.5 h-10 px-4"
+              >
+                <Store className="w-4 h-4" />
+                <span>Post a member perk</span>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -548,20 +548,22 @@ const Discover = () => {
                       <span>Businesses → Offer</span>
                     </div>
                     <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">
-                      Verified Perks, Discounts & Complimentary Drops
+                      Member access and partner perks
                     </h3>
                     <p className="text-xs text-white/60">
-                      Claim passes, discounts, and VIP upgrades. Show your QR code at the merchant to redeem in real life.
+                      Claim a pass, then show it at the door or counter. It should feel like you belong, not like you clipped a coupon.
                     </p>
                   </div>
 
-                  <Button
-                    onClick={() => setPostPerkOpen(true)}
-                    className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 h-10 px-4 shrink-0"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Post a Perk</span>
-                  </Button>
+                  {canPostPerk && (
+                    <Button
+                      onClick={() => setPostPerkOpen(true)}
+                      className="rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center gap-1.5 h-10 px-4 shrink-0"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Post a member perk</span>
+                    </Button>
+                  )}
                 </div>
 
                 {/* Category Pills Bar */}

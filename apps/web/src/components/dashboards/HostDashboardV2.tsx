@@ -22,6 +22,7 @@ import { useHostEconomy } from "@/hooks/useStakeholderEconomy";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { StoryGamificationRail } from "@/components/StoryGamificationRail";
+import { WeekStoryStrip } from "@/components/journey/WeekStoryStrip";
 import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { TeamSlashModal } from "@/components/TeamSlashModal";
@@ -61,11 +62,12 @@ export function HostDashboardV2() {
     });
   };
 
-  const totalParticipants = stats?.totalParticipants || 85;
+  const totalParticipants = stats?.totalParticipants || 0;
   const hostName = user?.user_metadata?.full_name || "Host";
 
   return (
     <div className="space-y-6 text-white pb-16 animate-in fade-in-50 duration-300">
+      <WeekStoryStrip roleLabel="Your week as host" />
       {/* 0. Top Story & Action Rail */}
       <StoryGamificationRail
         onOpenWheel={() => setWheelOpen(true)}
@@ -81,7 +83,7 @@ export function HostDashboardV2() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">
-                Host Stage Command & Pulse
+                Host desk
               </h1>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-300 text-[10px] font-black uppercase tracking-wider">
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
@@ -181,8 +183,8 @@ export function HostDashboardV2() {
           { id: "moments", label: "Stage Lineup", icon: Calendar, hint: "Moments & RSVP", count: `${hostedMoments?.length || 2} Staged` },
           { id: "pulse", label: "Live Room Pulse", icon: Radio, hint: "In-venue beacon", count: "Live Beacon" },
           { id: "review", label: "Proof Review", icon: ShieldCheck, hint: "Check-in audits", count: "2 Pending" },
-          { id: "sponsorships", label: "Brand Sponsors", icon: Handshake, hint: "Funded stages", count: "$1.4k Escrow" },
-          { id: "impact", label: "Impact & Yield", icon: BarChart3, hint: "Node APY & Stats", count: "14.8% APY" },
+          { id: "sponsorships", label: "Brand Sponsors", icon: Handshake, hint: "Funded stages", count: "Held budget" },
+          { id: "impact", label: "What came back", icon: BarChart3, hint: "People and payouts", count: "This week" },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
