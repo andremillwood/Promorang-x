@@ -28,7 +28,26 @@ export default function PeopleHome() {
     );
   }
 
-  const emptyHome = !data && home.isError;
+  if (!data && home.isError) {
+    return (
+      <ExperienceShell title="Your home" eyebrow="PROMORANG">
+        <QuietEmpty
+          title="Couldn’t load your home"
+          copy="Try again to see your perks, community and activity."
+          action={
+            <button
+              type="button"
+              disabled={home.isFetching}
+              onClick={() => void home.refetch()}
+              className="min-h-11 text-sm font-bold text-primary disabled:opacity-50"
+            >
+              {home.isFetching ? "Trying again…" : "Try again"}
+            </button>
+          }
+        />
+      </ExperienceShell>
+    );
+  }
 
   return (
     <ExperienceShell
@@ -40,25 +59,21 @@ export default function PeopleHome() {
           : "Build your people. Give them value. Move them to action."
       }
     >
-      {emptyHome ? (
-        <p className="rounded-[1.3rem] border border-white/10 px-4 py-3 text-sm text-white/45">
-          Your numbers will appear here once this community starts moving. Nothing is invented.
-        </p>
+      {role !== "member" ? (
+        <section className="grid grid-cols-2 gap-3">
+          {(data?.outcomes?.cards || [
+            { key: "people", label: "People", value: data?.people || 0, hint: data?.peopleThisMonth ? `+${data.peopleThisMonth} this month` : "Invite the first ones" },
+            { key: "earned", label: "Earned", value: Number(data?.earned || 0), hint: "From verified activity" },
+          ]).slice(0, 4).map((card: any) => (
+            <StatPile
+              key={card.key}
+              label={card.label}
+              value={card.key === "earned" ? money(Number(card.value || 0)) : card.value}
+              hint={card.hint}
+            />
+          ))}
+        </section>
       ) : null}
-
-      <section className="grid grid-cols-2 gap-3">
-        {(data?.outcomes?.cards || [
-          { key: "people", label: "People", value: data?.people || 0, hint: data?.peopleThisMonth ? `+${data.peopleThisMonth} this month` : "Invite the first ones" },
-          { key: "earned", label: "Earned", value: Number(data?.earned || 0), hint: "From verified activity" },
-        ]).slice(0, 4).map((card: any) => (
-          <StatPile
-            key={card.key}
-            label={card.label}
-            value={card.key === "earned" ? money(Number(card.value || 0)) : card.value}
-            hint={card.hint}
-          />
-        ))}
-      </section>
 
       {role === "operator" ? (
         <section className="rounded-[1.5rem] border border-primary/30 bg-primary/10 px-4 py-4">
@@ -76,43 +91,30 @@ export default function PeopleHome() {
         </section>
       ) : null}
 
-      <section className="grid grid-cols-3 gap-3 text-center">
-        <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] px-3 py-4">
-          <p className="font-serif text-2xl font-bold">{data?.happening || 0}</p>
-          <p className="mt-1 text-[11px] uppercase tracking-widest text-white/45">happening</p>
-        </div>
-        <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] px-3 py-4">
-          <p className="font-serif text-2xl font-bold">{data?.perksAvailable || 0}</p>
-          <p className="mt-1 text-[11px] uppercase tracking-widest text-white/45">perks</p>
-        </div>
-        <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] px-3 py-4">
-          <p className="font-serif text-2xl font-bold">{data?.opportunities || 0}</p>
-          <p className="mt-1 text-[11px] uppercase tracking-widest text-white/45">to earn</p>
-        </div>
-      </section>
-
-      <section className="grid gap-3">
-        {[
-          { href: "/give", label: "Give something", copy: "Put a perk on your people’s PromoCards.", icon: Gift },
-          { href: "/create", label: "Create something", copy: "Ask them to go, try, answer or show up.", icon: Plus },
-          { href: "/people", label: "Grow my network", copy: "See who you brought and who is helping.", icon: Users },
-          { href: "/happened", label: "See what’s happening", copy: "What your people actually did.", icon: Sparkles },
-        ].map((action) => (
-          <Link
-            key={action.href}
-            to={to(action.href)}
-            className="flex min-h-[88px] items-center gap-4 rounded-[1.7rem] border border-white/10 bg-gradient-to-r from-white/[0.07] to-transparent px-5 py-4"
-          >
-            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-black">
-              <action.icon className="h-5 w-5" />
-            </span>
-            <span>
-              <span className="block font-serif text-2xl font-bold leading-none">{action.label}</span>
-              <span className="mt-1 block text-sm text-white/55">{action.copy}</span>
-            </span>
-          </Link>
-        ))}
-      </section>
+      {role !== "member" ? (
+        <section className="grid gap-3">
+          {[
+            { href: "/give", label: "Give something", copy: "Put a perk on your people’s PromoCards.", icon: Gift },
+            { href: "/create", label: "Create something", copy: "Ask them to go, try, answer or show up.", icon: Plus },
+            { href: "/people", label: "Grow my network", copy: "See who you brought and who is helping.", icon: Users },
+            { href: "/happened", label: "See results", copy: "What your people actually did.", icon: Sparkles },
+          ].map((action) => (
+            <Link
+              key={action.href}
+              to={to(action.href)}
+              className="flex min-h-[88px] items-center gap-4 rounded-[1.7rem] border border-white/10 bg-gradient-to-r from-white/[0.07] to-transparent px-5 py-4"
+            >
+              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-black">
+                <action.icon className="h-5 w-5" />
+              </span>
+              <span>
+                <span className="block font-serif text-2xl font-bold leading-none">{action.label}</span>
+                <span className="mt-1 block text-sm text-white/55">{action.copy}</span>
+              </span>
+            </Link>
+          ))}
+        </section>
+      ) : null}
 
       {role === "member" ? (
         <section className="space-y-3">
@@ -159,22 +161,20 @@ export default function PeopleHome() {
         </section>
       )}
 
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="font-serif text-2xl font-bold">Opportunities</h2>
-          <Link to={to("/earn")} className="text-sm text-primary">Earn</Link>
-        </div>
-        {data?.opportunityItems?.length ? (
-          data.opportunityItems.slice(0, 2).map((item: any) => (
-            <Link key={item.id} to={to("/earn")} className="block rounded-[1.5rem] border border-white/10 bg-white/[0.04] px-4 py-4">
-              <p className="font-serif text-xl font-bold">{item.title}</p>
-              <p className="mt-1 text-sm text-white/50">{item.youEarn}</p>
-            </Link>
-          ))
-        ) : (
-          <QuietEmpty title="No live opportunities" copy="When a brand or merchant wants your people, it will appear here." />
-        )}
-      </section>
+      {data?.opportunityItems?.length ? (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-serif text-2xl font-bold">Opportunities</h2>
+            <Link to={to("/earn")} className="text-sm text-primary">Earn</Link>
+          </div>
+          {data.opportunityItems.slice(0, 2).map((item: any) => (
+              <Link key={item.id} to={to("/earn")} className="block rounded-[1.5rem] border border-white/10 bg-white/[0.04] px-4 py-4">
+                <p className="font-serif text-xl font-bold">{item.title}</p>
+                <p className="mt-1 text-sm text-white/50">{item.youEarn}</p>
+              </Link>
+            ))}
+        </section>
+      ) : null}
 
       {!data?.communities?.length ? (
         <Link to={to("/start")} className="block rounded-[1.7rem] bg-primary px-5 py-5 text-black">
