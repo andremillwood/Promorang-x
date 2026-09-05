@@ -74,7 +74,7 @@ export function StatPile({
 
 export function QuietEmpty({ title, copy, action }: { title: string; copy: string; action?: ReactNode }) {
   return (
-    <div className="rounded-[1.8rem] border border-dashed border-white/15 bg-white/[0.03] px-5 py-8 text-center">
+    <div className="rounded-[1.8rem] border border-white/10 bg-white/[0.03] px-5 py-8 text-center">
       <h3 className="font-serif text-2xl font-bold">{title}</h3>
       <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-white/50">{copy}</p>
       {action ? <div className="mt-5">{action}</div> : null}

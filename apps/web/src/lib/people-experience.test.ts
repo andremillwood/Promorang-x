@@ -7,6 +7,9 @@ import {
   contributorValueScore,
   dropShareCopy,
   inventoryOpenCopy,
+  opportunityRemainingCopy,
+  opportunitySourceLabel,
+  opportunityStubCode,
   resolveCreateIntent,
 } from "@promorang/shared";
 
@@ -33,6 +36,9 @@ describe("simplified PROMORANG experience", () => {
     expect(classifyHappenedBucket("PERK_REDEMPTION")).toBe("used");
     expect(dropShareCopy("Ada", "Free entry")).toBe("Ada just dropped Free entry on your PromoCard.");
     expect(inventoryOpenCopy("Ada", "Free entry")).toBe("Ada just put Free entry up for your people.");
+    expect(opportunitySourceLabel("offer")).toBe("Merchant");
+    expect(opportunityStubCode("offer:9f2a")).toBe("9F2A");
+    expect(opportunityRemainingCopy(null)).toBe("Open");
   });
 
   it("does not show merchant inventory outcomes as a member's people count", () => {
