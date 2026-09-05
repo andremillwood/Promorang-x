@@ -98,14 +98,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="vault"
+        name="card"
         options={{
-          title: PROMORANG_DESTINATIONS.vault.label,
-          headerTitle: PROMORANG_DESTINATIONS.vault.label,
-          tabBarAccessibilityLabel: `${PROMORANG_DESTINATIONS.vault.label}: ${PROMORANG_DESTINATIONS.vault.humanQuestion}`,
-          tabBarIcon: ({ color }) => <TabBarIcon name="archive" color={color} />,
+          title: 'Card',
+          headerTitle: 'PromoCard',
+          headerShown: false,
+          tabBarAccessibilityLabel: 'PromoCard: Spend less. Do more.',
+          tabBarIcon: ({ color }) => <TabBarIcon name="card" color={color} />,
         }}
       />
+      <Tabs.Screen name="vault" options={{ href: null }} />
     </Tabs>
   );
 }

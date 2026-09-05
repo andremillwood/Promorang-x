@@ -1,14 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { getCurrentMove } from '@promorang/shared';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppHeader } from '@/components/AppHeader';
 import { PromoCardFace } from '@/components/people/PromoCardFace';
+import { PromoCardUseSheet } from '@/components/people/PromoCardUseSheet';
 import { QuietEmpty, StatPile } from '@/components/people/ExperienceShell';
 import { BorderRadius, Colors, Spacing } from '@/constants/DesignTokens';
 import { useAuth } from '@/context/AuthContext';
 import { useExperienceHome } from '@/hooks/usePeopleExperience';
+import { presentPromoCard } from '@/lib/promoCard';
 
 const money = (value: number) => {
   if (!value) return 'J$0';
@@ -18,8 +21,10 @@ const money = (value: number) => {
 export default function TodayScreen() {
   const { user, activeRole } = useAuth();
   const home = useExperienceHome();
+  const [usingCard, setUsingCard] = useState(false);
   const data = home.data;
   const name = data?.name || user?.user_metadata?.full_name?.split(' ')[0] || 'You';
+  const cardView = presentPromoCard(data?.card, name);
   const role = data?.role || (['creator', 'host', 'promoter', 'merchant', 'brand'].includes(String(activeRole)) ? 'contributor' : 'member');
   const communityName = data?.communities?.[0]?.title || name;
   const currentMove = getCurrentMove({
@@ -68,9 +73,21 @@ export default function TodayScreen() {
         <Text style={styles.title}>{communityName}</Text>
         <Text style={styles.description}>
           {role === 'member'
-            ? 'See what’s happening, keep your perks, and join the rooms that feel like yours.'
-            : 'Build your people. Give them value. Move them to action.'}
+            ? 'Your PromoCard is the thing you hold. Discover what’s next, then use it when you get there.'
+            : 'Give value that lands on people’s PromoCards. Your card is how you spend and recharge too.'}
         </Text>
+
+        <PromoCardFace
+          holder={cardView.holder}
+          available={cardView.available}
+          limit={cardView.limit}
+          places={cardView.places}
+          tier={cardView.tier}
+          cardNumber={cardView.cardNumber}
+          compact={role !== 'member'}
+          onPress={() => router.push('/card')}
+          onUsePress={() => setUsingCard(true)}
+        />
 
         <Pressable style={styles.move} onPress={() => router.push(destinationFor(currentMove.destination))}>
           <View style={styles.moveTop}>
@@ -137,21 +154,10 @@ export default function TodayScreen() {
             ))}
           </View>
         ) : (
-          <View style={{ gap: 12 }}>
-            <Text style={styles.sectionTitle}>For you</Text>
-            <Pressable onPress={() => router.push('/card')}>
-              <PromoCardFace
-                holder={name}
-                available={`${Number(data?.wallet?.points || 0).toLocaleString()} pts`}
-                limit={`${Number(data?.wallet?.promokeys || 0)} keys`}
-                places="Your perks live here"
-              />
-            </Pressable>
-            <Pressable style={styles.pathCard} onPress={() => router.push('/discover')}>
-              <Text style={styles.moveEyebrow}>WHAT’S HAPPENING</Text>
-              <Text style={styles.pathTitle}>Name what you want. Then we show the matching next step.</Text>
-            </Pressable>
-          </View>
+          <Pressable style={styles.pathCard} onPress={() => router.push('/discover')}>
+            <Text style={styles.moveEyebrow}>WHAT’S HAPPENING</Text>
+            <Text style={styles.pathTitle}>Name what you want. Then we show the matching next step.</Text>
+          </Pressable>
         )}
 
         {role !== 'member' && (data?.outcomes?.suppliesInventory || ['merchant', 'brand'].includes(String(activeRole))) ? (
@@ -196,6 +202,13 @@ export default function TodayScreen() {
         ) : null}
         <View style={{ height: 120 }} />
       </ScrollView>
+      <PromoCardUseSheet
+        visible={usingCard}
+        onClose={() => setUsingCard(false)}
+        holder={cardView.holder}
+        available={cardView.available}
+        useCode={cardView.useCode}
+      />
     </View>
   );
 }
@@ -204,7 +217,7 @@ function destinationFor(destination: string) {
   if (destination === 'discover') return '/discover';
   if (destination === 'create') return '/post';
   if (destination === 'progress') return '/promoshare';
-  if (destination === 'vault') return '/vault';
+  if (destination === 'vault') return '/card';
   return '/';
 }
 
