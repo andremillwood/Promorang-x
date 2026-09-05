@@ -1,5 +1,6 @@
 import { FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/I18nContext";
 
 type ContentProvenanceBadgeProps = {
   className?: string;
@@ -7,6 +8,7 @@ type ContentProvenanceBadgeProps = {
 };
 
 export function ContentProvenanceBadge({ className, compact = false }: ContentProvenanceBadgeProps) {
+  const { t } = useI18n();
   return (
     <span
       className={cn(
@@ -14,10 +16,10 @@ export function ContentProvenanceBadge({ className, compact = false }: ContentPr
         compact ? "px-2 py-1 text-[9px] tracking-[0.14em]" : "px-2.5 py-1.5 text-[10px] tracking-[0.18em]",
         className,
       )}
-      title="Illustrative content provided by Promorang"
+      title={t("sample.title")}
     >
       <FlaskConical className="h-3 w-3 text-primary" aria-hidden="true" />
-      Sample
+      {t("sample.badge")}
     </span>
   );
 }
@@ -27,19 +29,21 @@ type SampleContentNoticeProps = {
   noun?: string;
 };
 
-export function SampleContentNotice({ className, noun = "content" }: SampleContentNoticeProps) {
+export function SampleContentNotice({ className, noun }: SampleContentNoticeProps) {
+  const { t } = useI18n();
+  const resolvedNoun = noun ?? t("sample.defaultNoun");
   return (
     <aside
       className={cn(
         "flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-white/55",
         className,
       )}
-      aria-label="Sample content disclosure"
+      aria-label={t("sample.aria")}
     >
       <FlaskConical className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
       <p>
-        <strong className="font-bold text-white/85">Sample {noun}.</strong>{" "}
-        These examples show how Promorang works. They are illustrative, not live listings or verified activity.
+        <strong className="font-bold text-white/85">{t("sample.disclosureLead", { noun: resolvedNoun })}</strong>{" "}
+        {t("sample.disclosureBody")}
       </p>
     </aside>
   );

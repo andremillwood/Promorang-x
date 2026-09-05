@@ -26,7 +26,6 @@ import {
   KeyRound,
   Gift,
   Building2,
-  Gem,
   PlayCircle,
   ShieldCheck,
   Store,
@@ -68,6 +67,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 import { OpsTheatreStatusPill } from "@/components/theater/OpsTheatreStatusPill";
 import { OpsTheatreOrientationModal } from "@/components/onboarding/OpsTheatreOrientationModal";
 import { BrandCaseStudies } from "@/components/brands/BrandCaseStudies";
@@ -79,14 +79,14 @@ type PublicContent = Tables<"view_public_content_directory">;
 type PublicMission = Pick<Tables<"moment_bounties">, "id" | "title" | "description" | "payout_amount" | "target_category" | "expires_at">;
 
 const vibeCards = [
-  { label: "Music Lover", icon: Music2, image: momentConcert, href: "/discover/moments?category=music" },
-  { label: "Nightlife", icon: Martini, image: jazzNight, href: "/discover/moments?category=social" },
-  { label: "Sports Fan", icon: Trophy, image: openMic, href: "/discover/moments?category=outdoor" },
-  { label: "Foodie", icon: Utensils, image: cookingClass, href: "/discover/moments?category=food" },
-  { label: "Creative", icon: Camera, image: streetArt, href: "/discover/moments?category=arts" },
-  { label: "Networking", icon: Users, image: momentCoffee, href: "/discover/moments?category=networking" },
-  { label: "Fitness", icon: Heart, image: momentYoga, href: "/discover/moments?category=fitness" },
-  { label: "Outdoor", icon: Mountain, image: hiking, href: "/discover/moments?category=outdoor" },
+  { labelKey: "home.vibeMusic" as const, icon: Music2, image: momentConcert, href: "/discover/moments?category=music" },
+  { labelKey: "home.vibeNightlife" as const, icon: Martini, image: jazzNight, href: "/discover/moments?category=social" },
+  { labelKey: "home.vibeSports" as const, icon: Trophy, image: openMic, href: "/discover/moments?category=outdoor" },
+  { labelKey: "home.vibeFoodie" as const, icon: Utensils, image: cookingClass, href: "/discover/moments?category=food" },
+  { labelKey: "home.vibeCreative" as const, icon: Camera, image: streetArt, href: "/discover/moments?category=arts" },
+  { labelKey: "home.vibeNetworking" as const, icon: Users, image: momentCoffee, href: "/discover/moments?category=networking" },
+  { labelKey: "home.vibeFitness" as const, icon: Heart, image: momentYoga, href: "/discover/moments?category=fitness" },
+  { labelKey: "home.vibeOutdoor" as const, icon: Mountain, image: hiking, href: "/discover/moments?category=outdoor" },
 ];
 
 const trendingCards = cultureEvents;
@@ -140,27 +140,33 @@ const commerceFallback = [
   },
 ];
 
-const formatCommercePrice = (listing: PublicCommerceListing) => {
+type Translate = (key: TranslationKey, variables?: Record<string, string | number>) => string;
+
+const formatCommercePrice = (
+  listing: PublicCommerceListing,
+  t: Translate,
+  formatNumber: (value: number, options?: Intl.NumberFormatOptions) => string,
+) => {
   if (listing.discount_value && listing.discount_type?.includes("percentage")) {
-    return `${listing.discount_value}% off`;
+    return t("home.percentOff", { value: listing.discount_value });
   }
 
   if (typeof listing.price === "number") {
-    return new Intl.NumberFormat(undefined, {
+    return formatNumber(listing.price, {
       style: "currency",
       currency: listing.currency || "USD",
       maximumFractionDigits: 2,
-    }).format(listing.price);
+    });
   }
 
-  if (listing.points_cost) return `${listing.points_cost.toLocaleString()} points`;
-  return listing.listing_kind === "service" ? "View service" : "View offer";
+  if (listing.points_cost) return t("home.pointsCost", { count: formatNumber(listing.points_cost) });
+  return listing.listing_kind === "service" ? t("home.viewService") : t("home.viewOffer");
 };
 
-const commerceKind = (listing: PublicCommerceListing) => {
-  if (listing.discount_type || listing.discount_value) return "Deal";
-  if (listing.listing_kind === "service") return "Service";
-  return "Product";
+const commerceKind = (listing: PublicCommerceListing, t: Translate) => {
+  if (listing.discount_type || listing.discount_value) return t("home.kindDeal");
+  if (listing.listing_kind === "service") return t("home.kindService");
+  return t("home.kindProduct");
 };
 
 const feedItems = [
@@ -179,63 +185,6 @@ const creators = [
   { name: "ZJ Chromatic", handle: "zjchromatic", role: "Host", followers: "10.2K", image: jazzNight },
   { name: "NateDawg", handle: "djmac876", role: "Promoter", followers: "5.3K", image: momentCoffee },
   { name: "StyledByTric", handle: "visualsbyray", role: "Designer", followers: "4.3K", image: momentArt },
-];
-
-const organizerTools = [
-  { icon: CalendarDays, title: "Sell Tickets", text: "Seamless ticketing and payouts." },
-  { icon: Heart, title: "Build Scenes", text: "Grow belonging around repeatable moments." },
-  { icon: Users, title: "Manage Teams", text: "Organize staff and ambassadors." },
-  { icon: Zap, title: "Track Performance", text: "Real-time insight that helps you grow." },
-];
-
-const participationTrail = [
-  { number: "01", label: "Notice", title: "You see a reason to care.", text: "A creator, place, product, or moment catches your attention." },
-  { number: "02", label: "Move", title: "Promorang gives you one clear next step.", text: "Share it, make something, visit, refer, buy, host, or help it happen." },
-  { number: "03", label: "Prove", title: "Promorang records what you contributed.", text: "Check-ins, links, submissions, referrals, and verified actions create a receipt." },
-  { number: "04", label: "Keep", title: "Your contribution can unlock value.", text: "Build status, earn funded rewards, get better invitations, and qualify for future work." },
-];
-
-const roleOffers = [
-  {
-    icon: Users,
-    eyebrow: "I want in",
-    title: "Find something worth doing",
-    promise: "Start with an open action. See what to do, what counts as proof, and what you may unlock before you join.",
-    value: ["Free to begin", "Build a visible record", "Unlock better opportunities"],
-    cta: "Find my first action",
-    href: "/missions",
-    footnote: "No subscription required",
-  },
-  {
-    icon: PlayCircle,
-    eyebrow: "I make things",
-    title: "Turn attention into movement",
-    promise: "Give your audience a next step and collect proof that your work creates action.",
-    value: ["Publish creator prompts", "Reward useful supporters", "Show brands what moved"],
-    cta: "Build as a creator",
-    href: "/auth?mode=signup&role=creator&next=%2Fdashboard%3Ftab%3Dpublish",
-    footnote: "Start with one piece of content",
-  },
-  {
-    icon: Store,
-    eyebrow: "I host people",
-    title: "Make the room easier to fill",
-    promise: "Turn a slow hour, launch, event, or repeat ritual into a trackable Moment.",
-    value: ["Verify visits", "Prompt customer content", "Give people a reason to return"],
-    cta: "Create a Moment",
-    href: "/auth?mode=signup&role=merchant&next=/create/moment",
-    footnote: "A first Moment can start free",
-  },
-  {
-    icon: Building2,
-    eyebrow: "I need an outcome",
-    title: "Fund action you can verify",
-    promise: "Set the result, fund the pool, and see who created the visits, content, referrals, or sales.",
-    value: ["Choose one outcome", "Set a clear budget", "Pay around verified activity"],
-    cta: "Plan a brand activation",
-    href: "/auth?mode=signup&role=brand&next=%2Foffers%3Ftemplate%3Dpromoshare-funded-cycle",
-    footnote: "Scale after the first result",
-  },
 ];
 
 function SectionHeader({
@@ -288,15 +237,14 @@ function ImageCard({
 }
 
 function SampleOptIn({ onShow, noun, loading = false }: { onShow: () => void; noun: string; loading?: boolean }) {
+  const { t } = useI18n();
   return (
     <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.025] px-6 py-10 text-center">
       <p className="text-lg font-black text-white">
-        {loading ? `Looking for live ${noun.toLowerCase()}…` : `No live ${noun.toLowerCase()} are available yet.`}
+        {loading ? t("home.sampleLooking", { noun: noun.toLowerCase() }) : t("home.sampleEmpty", { noun: noun.toLowerCase() })}
       </p>
       <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-white/50">
-        {loading
-          ? "This section will update as soon as the live directory responds."
-          : "We keep examples separate so it is always clear what is live. You can view labeled samples if you would like to see how this section works."}
+        {loading ? t("home.sampleLoadingHelp") : t("home.sampleEmptyHelp")}
       </p>
       {!loading ? (
         <button
@@ -305,7 +253,7 @@ function SampleOptIn({ onShow, noun, loading = false }: { onShow: () => void; no
           className="mt-5 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] px-5 py-3 text-xs font-black uppercase tracking-wide text-white transition hover:border-primary hover:text-primary"
         >
           <PlayCircle className="h-4 w-4" />
-          Show sample previews
+          {t("home.sampleShowPreviews")}
         </button>
       ) : null}
     </div>
@@ -314,7 +262,7 @@ function SampleOptIn({ onShow, noun, loading = false }: { onShow: () => void; no
 
 export default function CinematicCultureHome() {
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, formatDate, formatNumber } = useI18n();
   const [showSamples, setShowSamples] = useState(false);
   const [heroItemIndex, setHeroItemIndex] = useState(0);
   const [heroRotationPaused, setHeroRotationPaused] = useState(false);
@@ -375,13 +323,13 @@ export default function CinematicCultureHome() {
   const homepageMoments = hasLiveMoments
     ? discoveryQuery.data.moments.map((moment, index) => ({
         id: moment.id || `moment-${index}`,
-        title: moment.title || "Promorang Moment",
+        title: moment.title || t("home.kindMoment"),
         image: moment.image_url || trendingCards[index % trendingCards.length].image,
-        location: moment.venue_name || moment.city || moment.location || "Nearby",
+        location: moment.venue_name || moment.city || moment.location || t("home.nearby"),
         date: moment.starts_at
-          ? new Intl.DateTimeFormat("en", { month: "short", day: "numeric", timeZone: "America/Jamaica" }).format(new Date(resolveMomentOccurrence(moment).startsAt))
-          : "Coming up",
-        reward: moment.reward || `${moment.participant_count || 0} joined`,
+          ? formatDate(resolveMomentOccurrence(moment).startsAt, { month: "short", day: "numeric", timeZone: "America/Jamaica" })
+          : t("home.comingUp"),
+        reward: moment.reward || t("home.joined", { count: moment.participant_count || 0 }),
         href: `/moments/${moment.id}`,
         isSample: false,
       }))
@@ -399,10 +347,10 @@ export default function CinematicCultureHome() {
   const homepageCommerce = hasLiveCommerce
     ? liveCommerceListings.slice(0, 4).map((listing, index) => ({
         id: listing.listing_id || listing.source_id || `listing-${index}`,
-        kind: commerceKind(listing),
-        title: listing.name || "Local offer",
-        merchant: listing.merchant_name || listing.venue_name || "Promorang merchant",
-        price: formatCommercePrice(listing),
+        kind: commerceKind(listing, t),
+        title: listing.name || t("home.localOffer"),
+        merchant: listing.merchant_name || listing.venue_name || t("home.promorangMerchant"),
+        price: formatCommercePrice(listing, t, formatNumber),
         image: listing.image_url || "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=800",
         href: listing.listing_id ? `/shop/${listing.listing_id}` : (listing.source_id ? `/shop/${listing.source_id}` : "/shop"),
         isSample: false,
@@ -411,25 +359,25 @@ export default function CinematicCultureHome() {
 
   const heroItems = [
     ...(discoveryQuery.data?.moments || []).map((moment) => ({
-      id: `moment-${moment.id}`, kind: "Moment", title: moment.title || "Live Moment", image: moment.image_url,
-      detail: moment.venue_name || moment.city || moment.location || "Location coming soon",
-      value: moment.starts_at ? new Intl.DateTimeFormat("en", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/Jamaica" }).format(new Date(resolveMomentOccurrence(moment).startsAt)) : "Coming up",
-      href: `/moments/${moment.id}`, action: "View Moment",
+      id: `moment-${moment.id}`, kind: t("home.kindMoment"), title: moment.title || t("home.liveMoment"), image: moment.image_url,
+      detail: moment.venue_name || moment.city || moment.location || t("home.locationSoon"),
+      value: moment.starts_at ? formatDate(resolveMomentOccurrence(moment).startsAt, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/Jamaica" }) : t("home.comingUp"),
+      href: `/moments/${moment.id}`, action: t("home.viewMoment"),
     })),
     ...liveCommerceListings.map((listing) => ({
-      id: `commerce-${listing.listing_id || listing.source_id}`, kind: commerceKind(listing), title: listing.name || "Local offer", image: listing.image_url,
-      detail: listing.merchant_name || listing.venue_name || "Promorang merchant", value: formatCommercePrice(listing),
-      href: listing.listing_id ? `/shop/${listing.listing_id}` : "/shop", action: listing.listing_kind === "service" ? "View service" : "View offer",
+      id: `commerce-${listing.listing_id || listing.source_id}`, kind: commerceKind(listing, t), title: listing.name || t("home.localOffer"), image: listing.image_url,
+      detail: listing.merchant_name || listing.venue_name || t("home.promorangMerchant"), value: formatCommercePrice(listing, t, formatNumber),
+      href: listing.listing_id ? `/shop/${listing.listing_id}` : "/shop", action: listing.listing_kind === "service" ? t("home.viewService") : t("home.viewOffer"),
     })),
     ...(discoveryQuery.data?.content || []).map((content) => ({
-      id: `content-${content.id}`, kind: "Content", title: content.title || "Creator signal", image: getSafeMediaUrl(content.media_url),
-      detail: content.venue_name || content.platform || "Promorang creator", value: "Worth sharing",
-      href: content.slug ? `/content/${content.slug}` : "/content-drops", action: "View content",
+      id: `content-${content.id}`, kind: t("home.kindContent"), title: content.title || t("home.creatorSignal"), image: getSafeMediaUrl(content.media_url),
+      detail: content.venue_name || content.platform || t("home.promorangCreator"), value: t("home.worthSharing"),
+      href: content.slug ? `/content/${content.slug}` : "/content-drops", action: t("home.viewContent"),
     })),
     ...(discoveryQuery.data?.missions || []).map((mission) => ({
-      id: `mission-${mission.id}`, kind: "Mission", title: mission.title, image: null,
-      detail: mission.target_category || "Open mission", value: mission.payout_amount ? `$${mission.payout_amount} funded` : "Open action",
-      href: "/missions", action: "View mission",
+      id: `mission-${mission.id}`, kind: t("home.kindMission"), title: mission.title, image: null,
+      detail: mission.target_category || t("home.openMission"), value: mission.payout_amount ? t("home.funded", { amount: mission.payout_amount }) : t("home.openAction"),
+      href: "/missions", action: t("home.viewMission"),
     })),
   ].slice(0, 10);
   const activeHeroItem = heroItems[heroItemIndex % Math.max(heroItems.length, 1)];
@@ -480,7 +428,7 @@ export default function CinematicCultureHome() {
           style={{ y: shouldReduceMotion ? 0 : bgY, scale: shouldReduceMotion ? 1 : bgScale }}
           className="absolute inset-0 h-full w-full will-change-transform"
         >
-          <img src={heroImage} alt="People gathered around a live culture moment" className="h-full w-full object-cover object-[62%_center]" />
+          <img src={heroImage} alt={t("home.heroImageAlt")} className="h-full w-full object-cover object-[62%_center]" />
         </motion.div>
 
         {/* Ambient Gradient Glows with Parallax Motion */}
@@ -538,7 +486,7 @@ export default function CinematicCultureHome() {
                 className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
               >
                 <Store className="h-4 w-4 text-amber-400" />
-                <span>Host / Venue Pass</span>
+                <span>{t("home.hostVenuePass")}</span>
               </Link>
               <Link
                 to="/for-brands"
@@ -546,7 +494,7 @@ export default function CinematicCultureHome() {
                 className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
               >
                 <Building2 className="h-4 w-4 text-cyan-400" />
-                <span>Brands &amp; Retail</span>
+                <span>{t("home.brandsRetail")}</span>
               </Link>
             </div>
 
@@ -555,16 +503,16 @@ export default function CinematicCultureHome() {
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-zinc-300">
                 <Flame className="w-3.5 h-3.5 text-orange-400" />
                 <span className="font-bold text-white">0 ➔ 230+</span>
-                <span className="text-zinc-400">Nightlife Footfall</span>
+                <span className="text-zinc-400">{t("home.proofNightlife")}</span>
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-zinc-300">
                 <Camera className="w-3.5 h-3.5 text-pink-400" />
                 <span className="font-bold text-white">800+</span>
-                <span className="text-zinc-400">Expo UGC Signups</span>
+                <span className="text-zinc-400">{t("home.proofExpo")}</span>
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-zinc-300">
                 <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="text-zinc-400">Proven by</span>
+                <span className="text-zinc-400">{t("home.proofProvenBy")}</span>
                 <span className="font-bold text-white">Lifespan &amp; Sunshine Snacks</span>
               </div>
             </div>
@@ -637,7 +585,7 @@ export default function CinematicCultureHome() {
                 {t("home.gatewayCopy")}
               </p>
             </div>
-            <nav aria-label="Homepage discovery shortcuts" className="flex flex-wrap gap-2">
+            <nav aria-label={t("home.shortcutsAria")} className="flex flex-wrap gap-2">
               {[
                 [CalendarDays, t("home.shortcutMoments"), "/discover/moments"],
                 [Flame, t("home.shortcutPolls"), "/discover?tab=discoveries"],
@@ -663,10 +611,10 @@ export default function CinematicCultureHome() {
           <div className="my-8">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">The Ecosystem Architecture</p>
-                <h3 className="text-2xl font-black uppercase tracking-tight text-white sm:text-3xl">4 Pillars of Promorang</h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.pillarsEyebrow")}</p>
+                <h3 className="text-2xl font-black uppercase tracking-tight text-white sm:text-3xl">{t("home.pillarsTitle")}</h3>
               </div>
-              <span className="hidden sm:inline-block text-xs font-medium text-white/50">From Culture to Shared Wealth</span>
+              <span className="hidden sm:inline-block text-xs font-medium text-white/50">{t("home.pillarsTagline")}</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -678,19 +626,19 @@ export default function CinematicCultureHome() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      1. Moments &amp; Passes
+                      {t("home.pillar1Label")}
                     </span>
                     <Flame className="w-4 h-4 text-orange-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-orange-300 transition-colors leading-snug">
-                    Access Dope Nights &amp; Fill Venues
+                    {t("home.pillar1Title")}
                   </h4>
                   <p className="text-xs text-zinc-400 leading-relaxed">
-                    Exclusive guestlist passes, Kingston DJ nights, beach fetes, and dead-night venue revival from 0 to 230+ guests.
+                    {t("home.pillar1Copy")}
                   </p>
                 </div>
                 <div className="pt-2 text-xs font-black text-orange-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>Explore Moments</span>
+                  <span>{t("home.pillar1Cta")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
@@ -703,19 +651,19 @@ export default function CinematicCultureHome() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      2. PromoCard &amp; Margin
+                      {t("home.pillar2Label")}
                     </span>
                     <Store className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-emerald-300 transition-colors leading-snug">
-                    Split-Tender Perks at Partner Spots
+                    {t("home.pillar2Title")}
                   </h4>
                   <p className="text-xs text-zinc-400 leading-relaxed">
-                    Restore promotional spending balance through verified actions and apply eligible value to food, drinks, and retail purchases.
+                    {t("home.pillar2Copy")}
                   </p>
                 </div>
                 <div className="pt-2 text-xs font-black text-emerald-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>View Member Perks</span>
+                  <span>{t("home.pillar2Cta")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
@@ -728,19 +676,19 @@ export default function CinematicCultureHome() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[10px] font-black uppercase tracking-wider">
-                      3. PromoShare &amp; Draws
+                      {t("home.pillar3Label")}
                     </span>
                     <Share2 className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-purple-300 transition-colors leading-snug">
-                    WhatsApp Loops &amp; Cash Commissions
+                    {t("home.pillar3Title")}
                   </h4>
                   <p className="text-xs text-zinc-400 leading-relaxed">
-                    Share drops with 1 tap. Earn instant cash per RSVP and enter sponsor-funded jackpot cycle draws.
+                    {t("home.pillar3Copy")}
                   </p>
                 </div>
                 <div className="pt-2 text-xs font-black text-purple-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>Open PromoShare</span>
+                  <span>{t("home.pillar3Cta")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
@@ -753,19 +701,19 @@ export default function CinematicCultureHome() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      4. Pieces &amp; Equity
+                      {t("home.pillar4Label")}
                     </span>
                     <Coins className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-cyan-300 transition-colors leading-snug">
-                    Own a Slice &amp; Collect Dividends
+                    {t("home.pillar4Title")}
                   </h4>
                   <p className="text-xs text-zinc-400 leading-relaxed">
-                    Hold fractional Pieces of recurring events, media drops, and cultural IP. Earn automated quarterly cash dividends.
+                    {t("home.pillar4Copy")}
                   </p>
                 </div>
                 <div className="pt-2 text-xs font-black text-cyan-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>View Pieces Portfolio</span>
+                  <span>{t("home.pillar4Cta")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
@@ -780,7 +728,7 @@ export default function CinematicCultureHome() {
                   <ImageCard image={moment.image} className="h-72">
                     <div className="mb-auto flex items-start justify-between gap-3">
                       <span className="rounded-md bg-primary px-2 py-1 text-[10px] font-black uppercase tracking-wider text-white">{moment.date}</span>
-                      {moment.isSample ? <span className="rounded-md border border-white/15 bg-black/55 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-white/55">Preview</span> : null}
+                      {moment.isSample ? <span className="rounded-md border border-white/15 bg-black/55 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-white/55">{t("home.preview")}</span> : null}
                     </div>
                     <h3 className="text-2xl font-black uppercase leading-[0.9] tracking-[-0.055em] transition group-hover:text-primary">{moment.title}</h3>
                     <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/15 pt-3 text-xs text-white/65">
@@ -790,7 +738,7 @@ export default function CinematicCultureHome() {
                   </ImageCard>
                 </Link>
               ))}
-            </div> : <SampleOptIn onShow={() => setShowSamples(true)} noun="Moments" loading={discoveryQuery.isLoading} />}
+            </div> : <SampleOptIn onShow={() => setShowSamples(true)} noun={t("home.momentsNoun")} loading={discoveryQuery.isLoading} />}
           </div>
 
           <div className="pt-12">
@@ -803,7 +751,7 @@ export default function CinematicCultureHome() {
                       <img src={listing.image} alt="" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
                       <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">{listing.kind}</span>
-                      {listing.isSample ? <span className="absolute right-3 top-3 rounded-full border border-white/15 bg-black/60 px-2 py-1 text-[9px] font-bold uppercase text-white/55">Preview</span> : null}
+                      {listing.isSample ? <span className="absolute right-3 top-3 rounded-full border border-white/15 bg-black/60 px-2 py-1 text-[9px] font-bold uppercase text-white/55">{t("home.preview")}</span> : null}
                     </div>
                     <div className="p-4">
                       <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{listing.merchant}</p>
@@ -821,22 +769,22 @@ export default function CinematicCultureHome() {
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary mb-4">
                   <Store className="h-7 w-7" />
                 </div>
-                <h3 className="text-2xl font-black text-white">Live merchant drops coming soon</h3>
+                <h3 className="text-2xl font-black text-white">{t("home.comingSoonDealsTitle")}</h3>
                 <p className="mx-auto mt-2 max-w-lg text-sm text-white/60">
-                  Verified local merchants, restaurants, and venues are onboarding exclusive passes and special perks.
+                  {t("home.comingSoonDealsCopy")}
                 </p>
                 <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                   <Link
                     to="/for-merchants"
                     className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-black text-black transition hover:bg-primary/90"
                   >
-                    Claim a Merchant Profile <ArrowRight className="h-4 w-4" />
+                    {t("home.claimMerchantProfile")} <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link
                     to="/merchants"
                     className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10"
                   >
-                    Explore Directory
+                    {t("home.exploreDirectory")}
                   </Link>
                 </div>
               </div>
@@ -966,7 +914,7 @@ export default function CinematicCultureHome() {
                 eyebrow: t("home.roleMemberEyebrow"),
                 title: t("home.roleMemberTitle"),
                 promise: t("home.roleMemberPromise"),
-                value: ["Free to begin", "Build a visible record", "Unlock better opportunities"],
+                value: [t("home.roleMemberValue1"), t("home.roleMemberValue2"), t("home.roleMemberValue3")],
                 cta: t("home.roleMemberCta"),
                 href: "/missions",
                 footnote: t("home.roleMemberFootnote"),
@@ -976,7 +924,7 @@ export default function CinematicCultureHome() {
                 eyebrow: t("home.roleCreatorEyebrow"),
                 title: t("home.roleCreatorTitle"),
                 promise: t("home.roleCreatorPromise"),
-                value: ["Publish creator prompts", "Reward useful supporters", "Show brands what moved"],
+                value: [t("home.roleCreatorValue1"), t("home.roleCreatorValue2"), t("home.roleCreatorValue3")],
                 cta: t("home.roleCreatorCta"),
                 href: "/auth?mode=signup&role=creator&next=%2Fdashboard%3Ftab%3Dpublish",
                 footnote: t("home.roleCreatorFootnote"),
@@ -986,7 +934,7 @@ export default function CinematicCultureHome() {
                 eyebrow: t("home.roleHostEyebrow"),
                 title: t("home.roleHostTitle"),
                 promise: t("home.roleHostPromise"),
-                value: ["Verify visits", "Prompt customer content", "Give people a reason to return"],
+                value: [t("home.roleHostValue1"), t("home.roleHostValue2"), t("home.roleHostValue3")],
                 cta: t("home.roleHostCta"),
                 href: "/auth?mode=signup&role=merchant&next=/create/moment",
                 footnote: t("home.roleHostFootnote"),
@@ -996,7 +944,7 @@ export default function CinematicCultureHome() {
                 eyebrow: t("home.roleBrandEyebrow"),
                 title: t("home.roleBrandTitle"),
                 promise: t("home.roleBrandPromise"),
-                value: ["Choose one outcome", "Set a clear budget", "Pay around verified activity"],
+                value: [t("home.roleBrandValue1"), t("home.roleBrandValue2"), t("home.roleBrandValue3")],
                 cta: t("home.roleBrandCta"),
                 href: "/auth?mode=signup&role=brand&next=%2Foffers%3Ftemplate%3Dpromoshare-funded-cycle",
                 footnote: t("home.roleBrandFootnote"),
@@ -1128,17 +1076,17 @@ export default function CinematicCultureHome() {
                   <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 lg:col-span-6">
                     <div className="space-y-3.5 text-xs">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">Real-World Action Example</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">{t("home.archetypeActionExample")}</p>
                         <p className="mt-1 text-sm font-semibold text-white/95">{activeRole.exampleAction}</p>
                       </div>
 
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-1 border-t border-white/10">
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">Proof Method</p>
+                          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">{t("home.archetypeProofMethod")}</p>
                           <p className="mt-0.5 font-medium text-white/80">{activeRole.proofMethod}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">Privacy Policy</p>
+                          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/40">{t("home.archetypePrivacy")}</p>
                           <p className="mt-0.5 inline-flex items-center gap-1 font-medium text-white/80">
                             <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                             <span>{activeRole.cameraPrivacy}</span>
@@ -1149,14 +1097,14 @@ export default function CinematicCultureHome() {
                       <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-2 text-[11px] text-white/50">
                           <KeyRound className="h-3.5 w-3.5 text-amber-400" />
-                          <span>Earn Points to unlock exclusive Key opportunities</span>
+                          <span>{t("home.archetypeEarnKeys")}</span>
                         </div>
                         <Link
                           to={`/missions?role=${selectedRoleArchetype}`}
                           onClick={() => rememberMarketingIntent(`archetype_spotlight_${selectedRoleArchetype}`, `/missions?role=${selectedRoleArchetype}`, "participant")}
                           className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-lg transition hover:bg-primary/90 hover:scale-[1.02]"
                         >
-                          Explore {activeRole.label} Missions
+                          {t("home.archetypeExploreMissions", { role: activeRole.label })}
                           <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
                       </div>
@@ -1204,14 +1152,14 @@ export default function CinematicCultureHome() {
 
       {showSamples ? <>
       <div className="container px-6 py-12 md:py-16">
-        <SampleContentNotice noun="moments, scenes, and activity" className="mb-8" />
-        <SectionHeader eyebrow="Find your vibe" title="What are you" accent="into?" />
+        <SampleContentNotice noun={t("home.sampleNoun")} className="mb-8" />
+        <SectionHeader eyebrow={t("home.vibeEyebrow")} title={t("home.vibeTitle")} accent={t("home.vibeAccent")} />
         <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-none">
           {vibeCards.map((vibe) => (
-            <Link key={vibe.label} to={vibe.href} className="group min-w-[132px] md:min-w-[168px]">
+            <Link key={vibe.labelKey} to={vibe.href} className="group min-w-[132px] md:min-w-[168px]">
               <ImageCard image={vibe.image} className="h-36 md:h-44">
                 <vibe.icon className="mb-5 h-8 w-8 text-white drop-shadow" />
-                <p className="text-sm font-black text-white">{vibe.label}</p>
+                <p className="text-sm font-black text-white">{t(vibe.labelKey)}</p>
               </ImageCard>
             </Link>
           ))}
@@ -1219,7 +1167,7 @@ export default function CinematicCultureHome() {
       </div>
 
       <div className="container px-6 py-6 md:py-10">
-        <SectionHeader eyebrow="The cultural pulse" title="Trending" accent="this week" action="View all" />
+        <SectionHeader eyebrow={t("home.trendingEyebrow")} title={t("home.trendingTitle")} accent={t("home.trendingAccent")} action={t("home.viewAll")} />
         <div className="grid grid-flow-col auto-cols-[72%] gap-4 overflow-x-auto pb-3 scrollbar-none sm:auto-cols-[42%] lg:grid-flow-row lg:grid-cols-5 lg:overflow-visible">
           {trendingCards.map((card) => (
             <Link key={card.slug} to={`/events/${card.slug}`}>
@@ -1237,7 +1185,7 @@ export default function CinematicCultureHome() {
       </div>
 
       <div className="container px-6 py-6 md:py-10">
-        <SectionHeader eyebrow="Real people. Real stories." title="This is why we show up." />
+        <SectionHeader eyebrow={t("home.storiesEyebrow")} title={t("home.storiesTitle")} />
         <div className="grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[38%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
           {storyCards.map((story) => (
             <ImageCard key={story.name} image={story.image} className="h-44">
@@ -1255,29 +1203,29 @@ export default function CinematicCultureHome() {
       </div>
 
       <div className="container px-6 py-6 md:py-10">
-        <SectionHeader eyebrow="Scenes" title="More than moments. Find your" accent="scene." action="Explore all scenes" />
+        <SectionHeader eyebrow={t("home.scenesEyebrow")} title={t("home.scenesTitle")} accent={t("home.scenesAccent")} action={t("home.exploreAllScenes")} />
         <div className="grid grid-flow-col auto-cols-[48%] gap-3 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[24%] lg:grid-flow-row lg:grid-cols-7 lg:overflow-visible">
           {scenes.map((scene) => (
             <Link key={scene.slug} to={`/scenes/${scene.slug}`} className="rounded-2xl border border-white/10 bg-white/[0.04] p-2 transition hover:border-primary/50">
               <ImageCard image={scene.image} className="h-28 rounded-xl">
                 <h3 className="text-xl font-black uppercase leading-none tracking-[-0.05em]">{scene.title}</h3>
               </ImageCard>
-              <p className="mt-2 text-center text-xs font-bold text-white/70">{scene.momentsHosted} moments</p>
+              <p className="mt-2 text-center text-xs font-bold text-white/70">{t("home.scenesMoments", { count: scene.momentsHosted })}</p>
             </Link>
           ))}
         </div>
       </div>
 
       <div className="container px-6 py-6 md:py-10">
-        <SectionHeader eyebrow="Live right now" title="Happening in" accent="Kingston" action="View all live moments" />
+        <SectionHeader eyebrow={t("home.liveNowEyebrow")} title={t("home.liveNowTitle")} accent={t("home.liveNowAccent")} action={t("home.viewAllLive")} />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {liveNow.map((item) => (
             <Link key={item.slug} to={`/events/${item.slug}`}>
               <ImageCard image={item.image} className="h-52">
-                <span className="mb-auto w-fit rounded-md bg-red-600 px-2 py-1 text-[10px] font-black uppercase">Live</span>
+                <span className="mb-auto w-fit rounded-md bg-red-600 px-2 py-1 text-[10px] font-black uppercase">{t("home.liveBadge")}</span>
                 <h3 className="text-3xl font-black uppercase leading-none tracking-[-0.06em]">{item.shortTitle}</h3>
                 <p className="mt-2 text-sm text-white/75">
-                  <span className="text-2xl font-black text-white">{item.attending}</span> people in motion
+                  <span className="text-2xl font-black text-white">{item.attending}</span> {t("home.peopleInMotion")}
                 </p>
                 <p className="mt-1 flex items-center gap-1 text-xs text-white/60"><MapPin className="h-3 w-3 text-primary" /> {item.city}</p>
               </ImageCard>
@@ -1287,7 +1235,7 @@ export default function CinematicCultureHome() {
       </div>
 
       <div className="container px-6 py-6 md:py-10">
-        <SectionHeader eyebrow="The feed" title="Every" accent="moment. All in one place." action="Explore the feed" />
+        <SectionHeader eyebrow={t("home.feedEyebrow")} title={t("home.feedTitle")} accent={t("home.feedAccent")} action={t("home.exploreFeed")} />
         <div className="grid grid-flow-col auto-cols-[42%] gap-4 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[22%] lg:grid-flow-row lg:grid-cols-6 lg:overflow-visible">
           {feedItems.map((item) => (
             <Link key={item.user} to="/pulse">
@@ -1304,7 +1252,7 @@ export default function CinematicCultureHome() {
       </div>
 
       <div className="container px-6 py-6 md:py-10">
-        <SectionHeader eyebrow="Creators" title="The culture" accent="makers." action="Discover more creators" />
+        <SectionHeader eyebrow={t("home.creatorsEyebrow")} title={t("home.creatorsTitle")} accent={t("home.creatorsAccent")} action={t("home.discoverCreators")} />
         <div className="grid grid-flow-col auto-cols-[72%] gap-3 overflow-x-auto pb-3 scrollbar-none md:auto-cols-[28%] lg:grid-flow-row lg:grid-cols-6 lg:overflow-visible">
           {creators.map((creator) => (
             <Link key={creator.name} to={`/creators/${creator.handle}`} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.07] p-3 transition hover:border-primary/50">
@@ -1312,7 +1260,7 @@ export default function CinematicCultureHome() {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-black">{creator.name}</p>
                 <p className="truncate text-xs text-white/60">{creator.role}</p>
-                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary">{creator.followers} followers</p>
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary">{t("home.followers", { count: creator.followers })}</p>
               </div>
               <ArrowRight className="h-4 w-4 text-primary" />
             </Link>
