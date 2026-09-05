@@ -96,6 +96,18 @@ export function toDemandQuestion(poll: DemandPoll, asks: DemandAsk[] = []): Dema
   };
 }
 
+export const OPENING_NAMED_INTENTS: NamedIntent[] = [
+  { query: "jerk on friday", count: 6 },
+  { query: "cocktails after work", count: 4 },
+  { query: "live music", count: 3 },
+  { query: "hiking with kids", count: 3 },
+  { query: "sunday church", count: 2 },
+];
+
+export function seededNamedIntents(_city?: string): NamedIntent[] {
+  return OPENING_NAMED_INTENTS;
+}
+
 export function mergeNamedIntents(...groups: NamedIntent[][]): NamedIntent[] {
   const byKey = new Map<string, NamedIntent>();
   for (const group of groups) {
