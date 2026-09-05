@@ -27,13 +27,8 @@ export function PromoCardFace({
   onPress,
   onUsePress,
 }: PromoCardFaceProps) {
-  const body = (
-    <LinearGradient
-      colors={['#1A120C', '#0B0B0C', '#17110D']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[styles.card, compact && styles.cardCompact]}
-    >
+  const face = (
+    <>
       <View style={styles.glow} />
       <View style={styles.sheen} />
       <View style={styles.top}>
@@ -53,40 +48,50 @@ export function PromoCardFace({
           of {limit} this cycle · {places}
         </Text>
       </View>
+    </>
+  );
+
+  const useControl = onUsePress ? (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Use PromoCard in store"
+      onPress={onUsePress}
+      style={styles.use}
+    >
+      <Ionicons name="qr-code" size={14} color={Colors.black} />
+      <Text style={styles.useText}>Use</Text>
+    </Pressable>
+  ) : (
+    <View style={styles.accepted}>
+      <Ionicons name="shield-checkmark" size={13} color="#67C587" />
+      <Text style={styles.acceptedText}>Not a loan</Text>
+    </View>
+  );
+
+  return (
+    <LinearGradient
+      colors={['#1A120C', '#0B0B0C', '#17110D']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={[styles.card, compact && styles.cardCompact]}
+      accessibilityLabel="PromoCard"
+    >
+      {onPress ? (
+        <Pressable accessibilityRole="button" accessibilityLabel="Open PromoCard" onPress={onPress}>
+          {face}
+        </Pressable>
+      ) : (
+        face
+      )}
       <View style={styles.foot}>
         <View>
           <Text style={styles.holder}>{holder}</Text>
           <Text style={styles.serial}>{cardNumber}</Text>
         </View>
-        {onUsePress ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Use PromoCard in store"
-            onPress={onUsePress}
-            style={styles.use}
-          >
-            <Ionicons name="qr-code" size={14} color={Colors.black} />
-            <Text style={styles.useText}>Use</Text>
-          </Pressable>
-        ) : (
-          <View style={styles.accepted}>
-            <Ionicons name="shield-checkmark" size={13} color="#67C587" />
-            <Text style={styles.acceptedText}>Not a loan</Text>
-          </View>
-        )}
+        {useControl}
       </View>
     </LinearGradient>
   );
-
-  if (onPress) {
-    return (
-      <Pressable accessibilityRole="button" accessibilityLabel="Open PromoCard" onPress={onPress}>
-        {body}
-      </Pressable>
-    );
-  }
-
-  return <View accessibilityLabel="PromoCard">{body}</View>;
 }
 
 const styles = StyleSheet.create({
