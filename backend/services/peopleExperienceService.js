@@ -731,21 +731,26 @@ function createPeopleExperienceService(db = defaultDb) {
         .not('offer_id', 'is', null)
         .limit(24),
     );
-    const offerIds = [...new Set((linked.data || []).map((row) => row.offer_id).filter(Boolean))];
-    if (!offerIds.length) return [];
-    const offers = await maybe(
-      db.from('offers')
-        .select('*')
-        .in('id', offerIds)
-        .eq('status', 'active')
-        .in('fulfillment_type', ['merchant_validation', 'code', 'qr'])
-        .limit(12),
-    );
     const dropByOffer = new Map();
     for (const drop of linked.data || []) {
       if (drop.offer_id && !dropByOffer.has(drop.offer_id)) dropByOffer.set(drop.offer_id, drop);
     }
-    return (offers.data || []).map((offer) => ({ offer, drop: dropByOffer.get(offer.id) || null }));
+    const inventory = await maybe(
+      db.from('offers')
+        .select('*')
+        .eq('status', 'active')
+        .in('fulfillment_type', ['merchant_validation', 'code', 'qr'])
+        .order('created_at', { ascending: false })
+        .limit(24),
+    );
+    const seen = new Set();
+    const rows = [];
+    for (const offer of inventory.data || []) {
+      if (seen.has(offer.id)) continue;
+      seen.add(offer.id);
+      rows.push({ offer, drop: dropByOffer.get(offer.id) || null });
+    }
+    return rows;
   }
 
   async function getNearbyBenefits() {

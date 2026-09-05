@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getUnifiedBalances, updateUnifiedBalances, UnifiedBalances, calculateEventRewards, RewardEventType } from '@/lib/rewardEvents';
 import { buildPromoShareUrl, getUserReferralCode, captureReferralFromUrl, ShareableObjectType } from '@/lib/promoShareRail';
-import { getLocalClaimedPerkIds } from '@/lib/perks';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMyPromoCard } from '@/hooks/usePeopleExperience';
 import { toast } from 'sonner';
 
 export function usePromoShareRail() {
   const { user, profile } = useAuth();
+  const card = useMyPromoCard();
   const [storedBalances, setStoredBalances] = useState<UnifiedBalances>(getUnifiedBalances());
   const referralCode = getUserReferralCode(user?.id);
 
@@ -22,7 +23,7 @@ export function usePromoShareRail() {
     };
   }, [refreshBalances]);
 
-  const claimedPerksList = getLocalClaimedPerkIds();
+  const liveClaimedCount = (card.data?.benefits || []).filter((benefit: { redemption?: { recorded?: boolean } }) => !benefit.redemption?.recorded).length;
 
   const balances = useMemo<UnifiedBalances>(() => {
     if (!user) {
@@ -37,19 +38,18 @@ export function usePromoShareRail() {
 
     const points = typeof profile?.points === 'number'
       ? profile.points
-      : (typeof profile?.promo_points === 'number' ? profile.promo_points : (storedBalances.promoPoints || 0));
+      : (typeof profile?.promo_points === 'number' ? profile.promo_points : 0);
 
-    const gems = typeof profile?.gems === 'number' ? profile.gems : (storedBalances.gems || 0);
-    const claimedCount = claimedPerksList.length || storedBalances.claimedPerksCount || 0;
+    const gems = typeof profile?.gems === 'number' ? profile.gems : Number(card.data?.gems || 0);
 
     return {
-      promoPoints: points || 0,
+      promoPoints: points || Number(card.data?.points || 0),
       gems: gems || 0,
       promoShareTickets: storedBalances.promoShareTickets || 0,
-      claimedPerksCount: claimedCount,
+      claimedPerksCount: liveClaimedCount,
       nextDrawDate: storedBalances.nextDrawDate,
     };
-  }, [user, profile?.points, profile?.promo_points, profile?.gems, storedBalances, claimedPerksList.length]);
+  }, [user, profile?.points, profile?.promo_points, profile?.gems, storedBalances, liveClaimedCount, card.data?.gems, card.data?.points]);
 
   const generateShareLink = useCallback(
     (objectType: ShareableObjectType, objectId: string, slugOrPath?: string) => {

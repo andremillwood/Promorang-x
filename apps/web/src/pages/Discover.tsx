@@ -45,6 +45,7 @@ import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useAuth } from "@/contexts/AuthContext";
 import { VERIFIED_VENUES } from "@/data/venuesData";
 import { useNearbyBenefits } from "@/hooks/usePeopleExperience";
+import { LivePerkCard } from "@/components/perks/LivePerkCard";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 import { useI18n } from "@/i18n/I18nContext";
@@ -604,33 +605,21 @@ const Discover = () => {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {hubPerks.map((perk) => (
-                      <Link
-                        key={perk.id}
-                        to={perk.href || (perk.dropSlug ? `/drop/${perk.dropSlug}` : "/earn")}
-                        className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 hover:border-emerald-400/40"
-                      >
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">
-                          {perk.issuer?.name || "Participating business"}
-                        </p>
-                        <h4 className="mt-2 font-serif text-2xl font-bold text-white">{perk.title}</h4>
-                        {perk.detail ? <p className="mt-2 text-sm text-white/55">{perk.detail}</p> : null}
-                        <p className="mt-4 text-xs text-white/45">
-                          {perk.availableQuantity != null ? `${perk.availableQuantity} remaining` : "Open inventory"}
-                          {perk.sharedBy?.name ? ` · Shared by ${perk.sharedBy.name}` : ""}
-                        </p>
-                        <p className="mt-4 text-sm font-black text-emerald-400">
-                          {perk.dropSlug ? "Claim this drop" : "Take this opportunity"}
-                        </p>
-                      </Link>
+                      <LivePerkCard key={perk.id} perk={perk} />
                     ))}
                   </div>
                 )}
                 {!perksLoading && hubPerks.length === 0 && (
-                  <HubEmptyState
-                    cityName={city.name}
-                    noun="perks"
-                    onShowLiveHub={() => setCity(getDefaultCityHub())}
-                  />
+                  <div className="space-y-4">
+                    <HubEmptyState
+                      cityName={city.name}
+                      noun="perks"
+                      onShowLiveHub={() => setCity(getDefaultCityHub())}
+                    />
+                    <Link to={putPerkUpHref} className="block text-center text-sm font-black text-emerald-400">
+                      Put a live perk up →
+                    </Link>
+                  </div>
                 )}
               </div>
             )}

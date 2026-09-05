@@ -19,7 +19,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePromoShareRail } from '@/hooks/usePromoShareRail';
-import { usePerks } from '@/hooks/usePerks';
+import { useNearbyBenefits } from '@/hooks/usePeopleExperience';
+import { livePerkHref } from '@/components/perks/LivePerkCard';
 import { PromoShareAction } from '@/components/promoshare/PromoShareAction';
 
 export interface DiscoveryOption {
@@ -59,7 +60,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
 }) => {
   const navigate = useNavigate();
   const { recordAttributedAction } = usePromoShareRail();
-  const { perks, claimPerk } = usePerks();
+  const nearby = useNearbyBenefits();
   const [options, setOptions] = useState<DiscoveryOption[]>(initialOptions);
   const [totalVotes, setTotalVotes] = useState<number>(initialTotalVotes);
   const [votedOptionId, setVotedOptionId] = useState<string | undefined>(initialUserVotedOptionId);
@@ -69,11 +70,10 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
   const detailUrl = `/discoveries/${slug || id}`;
 
   // Find related perk for this discovery
-  const relatedPerk = perks.find(p => 
-    p.category?.toLowerCase() === category.toLowerCase() || 
-    p.title.toLowerCase().includes('wings') ||
-    p.title.toLowerCase().includes('taco')
-  ) || perks[0];
+  const relatedPerk = (nearby.data || []).find((p: { title?: string; issuer?: { name?: string } }) => {
+    const hay = `${p.title || ""} ${p.issuer?.name || ""}`.toLowerCase();
+    return hay.includes(category.toLowerCase());
+  }) || (nearby.data || [])[0];
 
   const navigateToDetail = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -256,31 +256,43 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
                     </span>
                   </div>
                   <p className="text-[11px] text-zinc-300 mt-1">
-                    Your contribution charged the City Unlock Meter. Here is an instant unlocked Perk from our verified partner:
+                    {relatedPerk
+                      ? "A live merchant perk is available. Claim the drop, then use it at the counter."
+                      : "No live perk is up yet. Take one from Earn when a merchant supplies it."}
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Related Perk Micro-Card */}
-            {relatedPerk && (
+            {relatedPerk ? (
               <div className="p-3 rounded-xl bg-black/60 border border-orange-500/30 flex items-center justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <span className="text-[9px] font-mono uppercase tracking-wider text-orange-400 font-bold block">
-                    {relatedPerk.merchantName} · Unlocked Drop
+                    {relatedPerk.issuer?.name || "Participating business"} · Live perk
                   </span>
                   <p className="text-xs font-bold text-white truncate">{relatedPerk.title}</p>
                 </div>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    claimPerk(relatedPerk);
+                    navigate(livePerkHref(relatedPerk));
                   }}
                   className="shrink-0 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black text-xs font-black transition-all shadow-md"
                 >
-                  Claim Perk →
+                  {relatedPerk.dropSlug ? "Claim drop →" : "Take perk →"}
                 </button>
               </div>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate("/earn");
+                }}
+                className="w-full px-3 py-2 rounded-xl border border-white/15 text-xs font-black text-white"
+              >
+                See live opportunities
+              </button>
             )}
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-2 border-t border-white/10">

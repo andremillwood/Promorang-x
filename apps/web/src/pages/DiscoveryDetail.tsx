@@ -56,8 +56,6 @@ import {
 } from "@/data/discoveriesData";
 import { useI18n } from "@/i18n/I18nContext";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
-import { usePerks } from "@/hooks/usePerks";
-import { PerkCard } from "@/components/perks/PerkCard";
 import { PromoShareAction } from "@/components/promoshare/PromoShareAction";
 
 export default function DiscoveryDetail() {
@@ -67,7 +65,6 @@ export default function DiscoveryDetail() {
   const { user } = useAuth();
   const { toast: uiToast } = useToast();
   const { recordAttributedAction } = usePromoShareRail();
-  const { perks } = usePerks();
 
   // Check if this slug matches a Discovery Poll / Demand Signal
   const pollConfig = getDiscoveryPollByIdOrSlug(slug || "");
