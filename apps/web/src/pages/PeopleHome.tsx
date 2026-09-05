@@ -99,7 +99,7 @@ export default function PeopleHome() {
         <section className="grid gap-3">
           {[
             { href: "/give", label: "Give something", copy: "Put a perk on your people’s PromoCards.", icon: Gift },
-            { href: "/demand", label: "Open what they asked", copy: "Named asks from Discover. Put a night or question on the misses.", icon: Compass },
+            { href: "/demand", label: "Open what they asked", copy: "Named asks and finds from Discover. Claim the one that is yours.", icon: Compass },
             { href: "/create", label: "Create something", copy: "Ask them to go, try, answer or show up.", icon: Plus },
             { href: "/people", label: "Grow my network", copy: "See who you brought and who is helping.", icon: Users },
             { href: "/happened", label: "See results", copy: "What your people actually did.", icon: Sparkles },

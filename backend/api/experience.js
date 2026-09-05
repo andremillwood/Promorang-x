@@ -29,6 +29,10 @@ router.get('/hubs/:slug', optionalAuth, async (req, res) => {
   }
 });
 
+router.get('/found', optionalAuth, async (req, res) => {
+  try { return ok(res, await experience.listFound(req.user?.id || null, req.query.city || null)); } catch (error) { return fail(res, error, 500); }
+});
+
 router.use(requireAuth);
 
 router.get('/home', async (req, res) => {
@@ -93,6 +97,14 @@ router.post('/ask', async (req, res) => {
 
 router.post('/discover/unlock', async (req, res) => {
   try { return ok(res, await experience.unlockDiscover(req.user.id, req.body || {}), 201); } catch (error) { return fail(res, error); }
+});
+
+router.post('/found', async (req, res) => {
+  try { return ok(res, await experience.putUpFound(req.user.id, req.body || {}), 201); } catch (error) { return fail(res, error); }
+});
+
+router.post('/found/:id/claim', async (req, res) => {
+  try { return ok(res, await experience.claimFound(req.user.id, req.params.id), 201); } catch (error) { return fail(res, error); }
 });
 
 module.exports = router;

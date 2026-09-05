@@ -22,6 +22,7 @@ export default function MyPromoCard() {
       redemptionCode: unlock.redemptionCode,
       expiresAt: null,
       fromDiscover: true,
+      source: unlock.source,
     }));
   const perks = [...discoverPerks, ...remotePerks];
 
@@ -51,7 +52,9 @@ export default function MyPromoCard() {
           <div className="mt-3 space-y-2">
             {perks.map((perk: any) => (
               <article key={perk.id} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
-                {perk.fromDiscover ? (
+                {perk.source === "finder" || String(perk.id || "").startsWith("unlock:found:") ? (
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-300">Finder&apos;s slip</p>
+                ) : perk.fromDiscover ? (
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-300">From Discover</p>
                 ) : null}
                 <p className="font-serif text-xl font-bold">{perk.title}</p>

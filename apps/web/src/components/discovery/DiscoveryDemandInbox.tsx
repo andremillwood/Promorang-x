@@ -7,6 +7,10 @@ import { useI18n } from "@/i18n/I18nContext";
 import type { TranslationKey } from "@/i18n/translations";
 import { discoveryHref } from "@/lib/discovery-path";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
+import { useDiscoveryFound } from "@/hooks/useDiscoveryFound";
+import { FoundListingCard } from "@/components/discovery/FoundListingCard";
+import { PutUpFoundModal } from "@/components/discovery/PutUpFoundModal";
+import { recordDiscoveryNamedIntent } from "@/hooks/useDiscoveryDemand";
 import { useMarket } from "@/contexts/MarketContext";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import type { DemandAsk, DemandQuestion, DemandRole } from "@/lib/discovery-demand";
@@ -144,9 +148,11 @@ export function DiscoveryDemandInbox({
     country.slug || "jamaica",
     city.id === "all-jamaica" ? undefined : city.id,
   );
+  const found = useDiscoveryFound(city.name);
   const tone = TONE[role];
   const topMiss = inbox.misses[0];
   const topSpend = inbox.questions.find((question) => question.onCards > 0);
+  const topFind = found.waiting[0];
 
   if (variant === "peek") {
     return (
@@ -158,18 +164,22 @@ export function DiscoveryDemandInbox({
           {t("demand.eyebrow", { city: inbox.city })}
         </p>
         <p className="mt-2 font-serif text-2xl font-bold">
-          {topMiss
-            ? t("demand.peekMiss", { query: topMiss.query })
-            : topSpend
-              ? t("demand.peekSpend", { perk: topSpend.poll.targetUnlockPerk || topSpend.poll.question })
-              : t("demand.peekLive")}
+          {topFind
+            ? t("found.peekFound", { title: topFind.title })
+            : topMiss
+              ? t("demand.peekMiss", { query: topMiss.query })
+              : topSpend
+                ? t("demand.peekSpend", { perk: topSpend.poll.targetUnlockPerk || topSpend.poll.question })
+                : t("demand.peekLive")}
         </p>
         <p className="mt-1 text-sm text-white/55">
-          {topMiss
-            ? t("demand.peekMissCopy", { count: topMiss.count })
-            : topSpend
-              ? t("demand.peekSpendCopy", { count: topSpend.onCards })
-              : t("demand.peekLiveCopy", { count: inbox.questions.length })}
+          {topFind
+            ? t("found.peekFoundCopy")
+            : topMiss
+              ? t("demand.peekMissCopy", { count: topMiss.count })
+              : topSpend
+                ? t("demand.peekSpendCopy", { count: topSpend.onCards })
+                : t("demand.peekLiveCopy", { count: inbox.questions.length })}
         </p>
       </Link>
     );
@@ -191,6 +201,7 @@ export function DiscoveryDemandInbox({
             { label: t("demand.receiptNamed"), value: String(inbox.namedAskCount), strong: true },
             { label: t("demand.receiptOpen"), value: String(inbox.misses.length) },
             { label: t("demand.receiptCards"), value: String(inbox.onCards), strong: true },
+            { label: t("found.receiptWaiting"), value: String(found.waiting.length), strong: true },
             { label: t("demand.receiptAnswers"), value: String(inbox.liveVoteCount) },
           ]}
           footer={t("demand.privacy")}
@@ -198,6 +209,25 @@ export function DiscoveryDemandInbox({
       </header>
 
       {isLoading ? <p className="text-sm text-white/45">{t("demand.loading")}</p> : null}
+
+      {found.waiting.length ? (
+        <section className="space-y-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">{t("found.demandEyebrow")}</p>
+          <h3 className="font-serif text-xl font-bold text-white">{t("found.demandTitle")}</h3>
+          <p className="text-sm leading-6 text-white/50">{t("found.privacy")}</p>
+          <div className="grid gap-3">
+            {found.waiting.map((listing) => (
+              <FoundListingCard
+                key={listing.id}
+                listing={listing}
+                role={role}
+                claiming={found.claiming}
+                onClaim={found.claim}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {inbox.misses.length ? (
         <section className="space-y-3">
@@ -210,15 +240,30 @@ export function DiscoveryDemandInbox({
                   <span className="block font-serif text-lg font-bold text-white">“{ask.query}”</span>
                   <span className="text-[11px] text-white/45">{t("demand.askCount", { count: ask.count })}</span>
                 </span>
-                <AskQuestionModal
-                  defaultCity={inbox.city}
-                  trigger={
-                    <TactileButton variant="obsidian">
-                      {t("demand.askIt")}
-                      <Plus className="h-4 w-4" />
-                    </TactileButton>
-                  }
-                />
+                <div className="flex flex-wrap gap-2">
+                  <PutUpFoundModal
+                    cityName={inbox.city}
+                    defaultTitle={ask.query}
+                    onPutUp={async (input) => {
+                      await recordDiscoveryNamedIntent(inbox.city, input.title);
+                      await found.putUp(input);
+                    }}
+                    trigger={
+                      <TactileButton variant="primary">
+                        {t("found.putUp")}
+                      </TactileButton>
+                    }
+                  />
+                  <AskQuestionModal
+                    defaultCity={inbox.city}
+                    trigger={
+                      <TactileButton variant="obsidian">
+                        {t("demand.askIt")}
+                        <Plus className="h-4 w-4" />
+                      </TactileButton>
+                    }
+                  />
+                </div>
               </li>
             ))}
           </ul>

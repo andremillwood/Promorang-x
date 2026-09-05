@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { resolveCreateIntent } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
@@ -35,6 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { PromoCardService } from "@/lib/promocard";
+import { readLocalFoundListings } from "@/lib/discovery-found";
 
 const categories = [
   "Music & Parties",
@@ -153,7 +154,27 @@ export function CreateMoment() {
     },
   });
 
-  if (!user) {
+  const foundId = params.get("found");
+  const foundListing = foundId
+    ? readLocalFoundListings().find((row) => row.id === foundId) || {
+        id: foundId,
+        title: params.get("title") || "",
+        whereHint: params.get("where") || "",
+        words: params.get("title") || "",
+        perkToFinder: "",
+      }
+    : null;
+
+  useEffect(() => {
+    if (!foundListing) return;
+    if (foundListing.title) setTitle((current) => current || foundListing.title);
+    if (foundListing.whereHint) setLocation((current) => current || foundListing.whereHint || "");
+    if (foundListing.words) {
+      setDescription((current) => current || `Claimed from Discover. People already named “${foundListing.words}”.`);
+    }
+  }, [foundId]);
+
+  if (!user && !foundId) {
     return (
       <div className="min-h-screen bg-[#0a0a0b] text-white flex flex-col items-center justify-center p-6 text-center">
         <div className="max-w-md space-y-4">
@@ -230,6 +251,10 @@ export function CreateMoment() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
     if (!title || !startsAt || !location) {
       toast({
         title: "Missing Required Fields",
@@ -339,8 +364,14 @@ export function CreateMoment() {
               </Badge>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">
-              {fromPeopleFlow ? createIntent.prompt : "Host a Moment & Experience"}
+              {foundListing?.title || (fromPeopleFlow ? createIntent.prompt : "Host a Moment & Experience")}
             </h1>
+            {foundListing ? (
+              <p className="mt-2 max-w-xl text-sm text-white/55">
+                You claimed this from Discover. The asks come with it.
+                {foundListing.perkToFinder ? ` Finder keeps “${foundListing.perkToFinder}”.` : ""}
+              </p>
+            ) : null}
           </div>
 
           {/* Stepper Pills */}

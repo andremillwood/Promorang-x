@@ -330,6 +330,7 @@ const App = () => (
                     <Route path="/app-preview/give" element={<GiveSomething />} />
                     <Route path="/app-preview/create" element={<CreateSomething />} />
                     <Route path="/app-preview/demand" element={<DemandInbox />} />
+                    <Route path="/app-preview/create/moment" element={<CreateMoment />} />
                     <Route path="/app-preview/earn" element={<EarnOpportunities />} />
                     <Route path="/app-preview/happened" element={<WhatHappened />} />
                     <Route path="/app-preview/card" element={<MyPromoCard />} />

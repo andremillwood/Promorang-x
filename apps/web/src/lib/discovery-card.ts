@@ -4,6 +4,8 @@ export const DISCOVER_CARD_UNLOCKS_KEY = "promorang.discover.card-unlocks";
 
 export type CardUnlockStatus = "claimed" | "used";
 
+export type CardUnlockSource = "discover" | "finder";
+
 export type DiscoveryCardUnlock = {
   id: string;
   pollId: string;
@@ -14,6 +16,8 @@ export type DiscoveryCardUnlock = {
   redemptionCode: string;
   status: CardUnlockStatus;
   createdAt: string;
+  source?: CardUnlockSource;
+  listingId?: string;
 };
 
 export type UnlockTally = {
@@ -56,6 +60,7 @@ export function unlockFromPoll(input: {
     redemptionCode: makeRedemptionCode(input.poll.id),
     status: "claimed",
     createdAt: new Date().toISOString(),
+    source: "discover",
   };
 }
 

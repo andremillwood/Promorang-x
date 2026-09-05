@@ -1039,6 +1039,134 @@ function createPeopleExperienceService(db = defaultDb) {
     };
   }
 
+  function foundWordsKey(value) {
+    return String(value || '')
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter((word) => word.length > 2 && !['and', 'for', 'the', 'with'].includes(word))
+      .sort()
+      .join(' ');
+  }
+
+  function mapFoundListing(row, userId) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      city: row.city,
+      kind: row.kind,
+      title: row.title,
+      words: row.words,
+      whereHint: row.where_hint,
+      perkToFinder: row.perk_to_finder,
+      namedCount: row.named_count,
+      status: row.status,
+      claimedAt: row.claimed_at,
+      createdAt: row.created_at,
+      youFound: Boolean(userId && row.finder_user_id === userId),
+    };
+  }
+
+  async function putUpFound(userId, payload) {
+    const title = String(payload?.title || '').trim();
+    if (title.length < 3) throw new Error('What did you find?');
+    const kind = payload?.kind === 'place' ? 'place' : 'moment';
+    const words = String(payload?.words || title).trim();
+    const city = String(payload?.city || 'Kingston & St. Andrew').trim() || 'Kingston & St. Andrew';
+    const perkTitle = String(payload?.perkToFinder || '').trim()
+      || (kind === 'place' ? 'First table when the house claims this' : 'A door pass when a host claims this');
+    const key = foundWordsKey(words);
+    if (!key) throw new Error('Name the place or the night.');
+
+    const existing = await maybe(
+      db.from('found_listings').select('*').eq('city', city).eq('words_key', key).eq('status', 'unclaimed').maybeSingle(),
+    );
+    if (existing.data) {
+      const updated = await maybe(
+        db.from('found_listings').update({ named_count: Number(existing.data.named_count || 1) + 1 }).eq('id', existing.data.id).select().maybeSingle(),
+      );
+      return mapFoundListing(updated.data || existing.data, userId);
+    }
+
+    const inserted = await maybe(db.from('found_listings').insert({
+      city,
+      kind,
+      title,
+      words,
+      words_key: key,
+      where_hint: payload?.whereHint || null,
+      perk_to_finder: perkTitle,
+      finder_user_id: userId,
+      named_count: 1,
+      status: 'unclaimed',
+    }).select().maybeSingle());
+    if (inserted.error && !String(inserted.error.message || '').includes('duplicate')) throw inserted.error;
+    const saved = inserted.data || (await maybe(
+      db.from('found_listings').select('*').eq('city', city).eq('words_key', key).eq('status', 'unclaimed').maybeSingle(),
+    )).data;
+    if (!saved) throw new Error('Could not put that up yet.');
+    await recordVerifiedAction({
+      userId,
+      actionType: 'CUSTOM',
+      metadata: { kind: 'found_listing', title, words },
+    });
+    return mapFoundListing(saved, userId);
+  }
+
+  async function listFound(userId, city) {
+    const hub = String(city || 'Kingston & St. Andrew').trim() || 'Kingston & St. Andrew';
+    const rows = await maybe(
+      db.from('found_listings').select('*').eq('city', hub).order('named_count', { ascending: false }).limit(40),
+    );
+    return (rows.data || []).map((row) => mapFoundListing(row, userId)).filter(Boolean);
+  }
+
+  async function claimFound(userId, listingId) {
+    if (!listingId) throw new Error('Which place or night is yours?');
+    const existing = await maybe(db.from('found_listings').select('*').eq('id', listingId).maybeSingle());
+    if (!existing.data) throw new Error('That find is not on the table.');
+    if (existing.data.status === 'claimed') {
+      return { ...mapFoundListing(existing.data, userId), keep: 'workspace', alreadyClaimed: true };
+    }
+
+    const updated = await maybe(db.from('found_listings').update({
+      status: 'claimed',
+      claimant_user_id: userId,
+      claimed_at: new Date().toISOString(),
+    }).eq('id', listingId).eq('status', 'unclaimed').select().maybeSingle());
+    const saved = updated.data || existing.data;
+    const finderId = saved.finder_user_id;
+    const prospect = finderId && finderId === userId;
+    if (!prospect && (finderId || saved.finder_anon_id)) {
+      const code = `PR-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+      await maybe(db.from('discovery_card_unlocks').insert({
+        city: saved.city,
+        poll_id: String(saved.id).startsWith('found:') ? saved.id : `found:${saved.id}`,
+        poll_question: saved.title,
+        perk_title: saved.perk_to_finder,
+        query_raw: saved.words,
+        user_id: finderId || null,
+        anonymous_id: finderId ? null : saved.finder_anon_id,
+        redemption_code: code,
+        status: 'claimed',
+      }));
+      await recordVerifiedAction({
+        userId,
+        actionType: 'PERK_CLAIM',
+        metadata: { kind: 'finder_slip', listing_id: saved.id, perk_title: saved.perk_to_finder },
+      });
+    }
+    await recordVerifiedAction({
+      userId,
+      actionType: 'CUSTOM',
+      metadata: { kind: 'found_claimed', listing_id: saved.id, title: saved.title },
+    });
+    return {
+      ...mapFoundListing(saved, userId),
+      keep: prospect ? 'workspace' : 'slip',
+      alreadyClaimed: false,
+    };
+  }
+
   async function createAsk(userId, payload) {
     if (!payload?.question) throw new Error('What do you want to ask?');
     const inserted = await maybe(db.from('discovery_questions').insert({
@@ -1080,6 +1208,9 @@ function createPeopleExperienceService(db = defaultDb) {
     startCommunity,
     createAsk,
     unlockDiscover,
+    putUpFound,
+    listFound,
+    claimFound,
     joinScene,
     recordVerifiedAction,
     ensureHubAttribution,
