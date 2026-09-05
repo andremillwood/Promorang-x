@@ -14,7 +14,9 @@ import {
   Gem,
   Video,
   ChevronRight,
+  Vote,
 } from "lucide-react";
+import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -169,8 +171,9 @@ export function CreatorDashboardV2() {
       </div>
 
       {/* 3. The 5 Operational Creator Arenas */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
         {[
+          { id: "demand", label: "Audience Ask", icon: Vote, hint: "What people named", count: "Live asks" },
           { id: "studio", label: "Media Studio", icon: Film, hint: "Published stories", count: "3 Live" },
           { id: "missions", label: "Bounties Board", icon: Target, hint: "Brand briefs", count: "$1.2k Pool" },
           { id: "attribution", label: "O2O Smart Links", icon: Link2, hint: "Door check-ins", count: "158 Visits" },
@@ -213,12 +216,17 @@ export function CreatorDashboardV2() {
         <div className="min-w-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <TabsList className="sr-only">
+              <TabsTrigger value="demand">Demand</TabsTrigger>
               <TabsTrigger value="studio">Studio</TabsTrigger>
               <TabsTrigger value="missions">Bounties</TabsTrigger>
               <TabsTrigger value="attribution">Attribution</TabsTrigger>
               <TabsTrigger value="earnings">Earnings</TabsTrigger>
               <TabsTrigger value="reputation">Reputation</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="demand" className="mt-0">
+              <DiscoveryDemandInbox role="creator" />
+            </TabsContent>
 
             <TabsContent value="studio" className="mt-0">
               <CreatorStudioConsole />

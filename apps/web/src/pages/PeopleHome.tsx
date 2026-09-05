@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
-import { Gift, Plus, Sparkles, Users } from "lucide-react";
+import { Compass, Gift, Plus, Sparkles, Users } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
+import { resolveDemandRole } from "@/lib/discovery-demand";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -95,6 +97,7 @@ export default function PeopleHome() {
         <section className="grid gap-3">
           {[
             { href: "/give", label: "Give something", copy: "Put a perk on your people’s PromoCards.", icon: Gift },
+            { href: "/demand", label: "Open what they asked", copy: "Named asks from Discover. Put a night or question on the misses.", icon: Compass },
             { href: "/create", label: "Create something", copy: "Ask them to go, try, answer or show up.", icon: Plus },
             { href: "/people", label: "Grow my network", copy: "See who you brought and who is helping.", icon: Users },
             { href: "/happened", label: "See results", copy: "What your people actually did.", icon: Sparkles },
@@ -134,6 +137,8 @@ export default function PeopleHome() {
         </section>
       ) : (
         <section className="space-y-3">
+          <h2 className="font-serif text-2xl font-bold">What they asked</h2>
+          <DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" />
           {data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole)) ? (
             <Link to={to("/stock")} className="block rounded-[1.7rem] bg-primary px-5 py-5 text-black">
               <p className="text-[10px] font-black uppercase tracking-[0.22em]">Inventory</p>
