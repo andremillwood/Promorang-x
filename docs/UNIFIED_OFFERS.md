@@ -33,6 +33,7 @@ Every channel creates an `offer_issuances` record. The participant then claims t
 
 Surfaces:
 
+- PromoCard: `/card` and the card “Show pass” modal. Issuances land on `user_promo_cards` perks via `/api/experience/card`.
 - Participant wallet: `/offers` → My offers
 - Merchant scan + pending queue: `/offers` → Validate redemption, `/staff/scanner`
 - Mobile merchant camera: `apps/mobile/app/merchant/scan.tsx`

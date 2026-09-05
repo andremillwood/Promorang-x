@@ -66,6 +66,24 @@ test('issued and shipping journeys do not present a use-this credential', () => 
   expect(canUseBenefit(issued)).toBe(false);
   expect(shipping.redemption.code).toBe(null);
   expect(canUseBenefit(shipping)).toBe(false);
+  expect(issued.issuance.redemption_code).toBe('PR-HIDDEN');
+  expect(shipping.issuance).toMatchObject({
+    id: 'iss-ship',
+    redemption_code: 'PR-SHIP01',
+    offers: { fulfillment_type: 'shipping' },
+  });
+});
+
+test('QR stays off the copy-code path but keeps a presentable issuance on the card', () => {
+  const qr = toPromoCardBenefit({
+    id: 'iss-qr',
+    offer: { id: 'offer-qr', title: 'Slow-hour coffee', owner_user_id: 'm1', fulfillment_type: 'qr' },
+    issuance: { id: 'iss-qr', status: 'claimed', redemption_code: 'PR-QR01' },
+  });
+  expect(qr.redemption.code).toBe(null);
+  expect(canUseBenefit(qr)).toBe(false);
+  expect(qr.issuance.redemption_code).toBe('PR-QR01');
+  expect(qr.issuance.offers.fulfillment_type).toBe('qr');
 });
 
 test('a claimed perk is not complete until the merchant records redemption', () => {

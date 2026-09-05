@@ -1,10 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Info } from "lucide-react";
+import { firstGivenName, issuanceFromPromoCardPerk, isPresentablePass, type PromoCardPerk } from "@promorang/shared";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { PromoCardActions } from "@/components/promocard/PromoCardActions";
+import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
 import { useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { useAuth } from "@/contexts/AuthContext";
+import type { OfferIssuance } from "@/hooks/useOffers";
 
 interface DigitalPromoCardProps {
   onCardUpdate?: (card: Record<string, unknown>) => void;
@@ -12,13 +15,30 @@ interface DigitalPromoCardProps {
 }
 
 export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ isPreviewData }) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const cardQuery = useMyPromoCard();
   const data = cardQuery.data;
   const isPreview = isPreviewData ?? !data;
   const useThis = data?.useThis || null;
   const nearby = data?.nearby || [];
   const nextBenefit = data?.nextBenefit || nearby[0] || null;
+  const holder = firstGivenName({
+    displayName: data?.givenName || data?.name,
+    fullName: profile?.full_name || profile?.display_name || user?.user_metadata?.full_name,
+    username: profile?.username,
+    email: user?.email,
+    fallback: "there",
+  });
+  const livePasses = ((data?.perks || []) as PromoCardPerk[])
+    .map((perk) => issuanceFromPromoCardPerk(perk))
+    .filter((issuance): issuance is NonNullable<typeof issuance> =>
+      Boolean(issuance && isPresentablePass(issuance.offers.fulfillment_type, issuance.status)),
+    );
+  const otherJourneys = ((data?.perks || []) as PromoCardPerk[])
+    .map((perk) => issuanceFromPromoCardPerk(perk))
+    .filter((issuance): issuance is NonNullable<typeof issuance> =>
+      Boolean(issuance && !isPresentablePass(issuance.offers.fulfillment_type, issuance.status)),
+    );
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-4 sm:space-y-6">
@@ -32,7 +52,7 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ isPreviewDat
       ) : null}
 
       <PromoCardFace
-        holder={data?.name || "Member"}
+        holder={holder === "there" ? "Your card" : holder}
         available={useThis ? "Use this" : nearby.length ? "Available nearby" : "Get your next benefit"}
         limit={useThis?.title || nextBenefit?.title || "No live perk yet"}
         places={useThis?.issuer?.name || "Participating businesses"}
@@ -53,6 +73,17 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ isPreviewDat
           Available nearby — claim a benefit from a participating business, then bring it back here to use.
         </Link>
       )}
+
+      {livePasses.length || otherJourneys.length ? (
+        <section className="space-y-4">
+          {livePasses.map((issuance) => (
+            <OfferIssuancePass key={issuance.id} issuance={issuance as OfferIssuance} />
+          ))}
+          {otherJourneys.map((issuance) => (
+            <OfferIssuancePass key={issuance.id} issuance={issuance as OfferIssuance} />
+          ))}
+        </section>
+      ) : null}
 
       <p className="text-xs text-white/40">
         Points and tiers stay below the actions. {Number(data?.points || 0).toLocaleString()} PromoPoints after verified use.

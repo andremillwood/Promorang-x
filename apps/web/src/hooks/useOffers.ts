@@ -104,12 +104,18 @@ export function useOfferWallet() {
   });
 }
 
+function invalidateOfferSurfaces(client: ReturnType<typeof useQueryClient>) {
+  client.invalidateQueries({ queryKey: ["offers"] });
+  client.invalidateQueries({ queryKey: ["experience-card"] });
+  client.invalidateQueries({ queryKey: ["promocard"] });
+}
+
 export function useCreateOffer() {
   const { session } = useAuth();
   const client = useQueryClient();
   return useMutation({
     mutationFn: (body: Record<string, unknown>) => request<Offer>("", session?.access_token, { method: "POST", body: JSON.stringify(body) }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+    onSuccess: () => invalidateOfferSurfaces(client),
   });
 }
 
@@ -118,7 +124,7 @@ export function useUpdateOffer() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ id, ...body }: { id: string } & Record<string, unknown>) => request<Offer>(`/${id}`, session?.access_token, { method: "PATCH", body: JSON.stringify(body) }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+    onSuccess: () => invalidateOfferSurfaces(client),
   });
 }
 
@@ -131,7 +137,7 @@ export function useClaimIssuance() {
       const body = typeof input === "string" ? {} : { shipping_address: input.shipping_address, notes: input.notes };
       return request<OfferIssuance>(`/issuances/${id}/claim`, session?.access_token, { method: "POST", body: JSON.stringify(body) });
     },
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+    onSuccess: () => invalidateOfferSurfaces(client),
   });
 }
 
@@ -150,7 +156,7 @@ export function useSaveOfferAddress() {
   return useMutation({
     mutationFn: ({ id, shipping_address }: { id: string; shipping_address: OfferShippingAddress }) =>
       request<OfferIssuance>(`/issuances/${id}/address`, session?.access_token, { method: "POST", body: JSON.stringify({ shipping_address }) }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+    onSuccess: () => invalidateOfferSurfaces(client),
   });
 }
 
@@ -163,7 +169,7 @@ export function useFulfillOffer() {
         method: "POST",
         body: JSON.stringify({ action: body.action, tracking_number: body.tracking_number, carrier: body.carrier, notes: body.notes }),
       }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+    onSuccess: () => invalidateOfferSurfaces(client),
   });
 }
 
@@ -172,7 +178,7 @@ export function useDirectOfferClaim() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => request<OfferIssuance>(`/${id}/claim`, session?.access_token, { method: "POST" }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+    onSuccess: () => invalidateOfferSurfaces(client),
   });
 }
 
@@ -181,6 +187,6 @@ export function useRedeemOffer() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (body: { code: string; venue_id?: string; notes?: string }) => request<OfferIssuance>("/redeem", session?.access_token, { method: "POST", body: JSON.stringify(body) }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+    onSuccess: () => invalidateOfferSurfaces(client),
   });
 }
