@@ -194,12 +194,11 @@ function createPeopleExperienceService(db = defaultDb) {
   }
 
   async function membershipsFor(userId) {
-    const members = await maybe(db.from('scene_members').select('*, scenes(*)').eq('user_id', userId).eq('status', 'active'));
-    if (members.data?.length) return members.data;
-    const alt = await maybe(db.from('scene_memberships').select('*, scenes(*)').eq('user_id', userId));
-    return (alt.data || []).map((row) => ({
+    const result = await maybe(db.from('scene_memberships').select('*, scenes(*)').eq('user_id', userId).eq('membership_state', 'active'));
+    return (result.data || []).map((row) => ({
       ...row,
-      role: row.relationship === 'host' || row.relationship === 'creator' ? 'contributor' : 'member',
+      role: row.relationship === 'host' || row.relationship === 'creator' ? 'operator'
+        : ['venue', 'merchant', 'brand', 'agency', 'supporter'].includes(row.relationship) ? 'contributor' : 'member',
     }));
   }
 
@@ -250,10 +249,10 @@ function createPeopleExperienceService(db = defaultDb) {
   async function bumpContributorStats({ sceneId, contributorId, amount }) {
     if (!sceneId || !contributorId) return null;
     const row = await maybe(
-      db.from('scene_members').select('id, verified_actions_count, attributed_value').eq('scene_id', sceneId).eq('user_id', contributorId).maybeSingle(),
+      db.from('scene_memberships').select('id, verified_actions_count, attributed_value').eq('scene_id', sceneId).eq('user_id', contributorId).eq('membership_state', 'active').maybeSingle(),
     );
     if (!row.data) return null;
-    return maybe(db.from('scene_members').update({
+    return maybe(db.from('scene_memberships').update({
       verified_actions_count: Number(row.data.verified_actions_count || 0) + 1,
       attributed_value: Number(row.data.attributed_value || 0) + Number(amount || 0),
     }).eq('id', row.data.id));
@@ -278,20 +277,15 @@ function createPeopleExperienceService(db = defaultDb) {
 
   async function joinScene({ userId, sceneId, role = 'member', invitedBy = null }) {
     if (!userId || !sceneId) throw new Error('Scene and person are required');
-    await maybe(db.from('scene_members').upsert({
-      scene_id: sceneId,
-      user_id: userId,
-      role,
-      status: 'active',
-      invited_by: invitedBy,
-      can_distribute: CONTRIBUTOR_ROLES.has(role),
-    }, { onConflict: 'scene_id,user_id' }));
+    const relationship = role === 'operator' ? 'host' : role === 'contributor' ? 'supporter' : 'participant';
     await maybe(db.from('scene_memberships').upsert({
       scene_id: sceneId,
       user_id: userId,
-      relationship: role === 'member' ? 'participant' : 'creator',
+      relationship,
       membership_state: 'active',
-    }, { onConflict: 'scene_id,user_id' }));
+      invited_by: invitedBy,
+      can_distribute: CONTRIBUTOR_ROLES.has(role),
+    }, { onConflict: 'scene_id,user_id,relationship' }));
     if (invitedBy) {
       await ensureHubAttribution({
         sceneId,
@@ -866,10 +860,8 @@ function createPeopleExperienceService(db = defaultDb) {
     if (scene.error) throw scene.error;
     if (!scene.data) return null;
 
-    const members = await maybe(db.from('scene_members').select('*').eq('scene_id', scene.data.id).eq('status', 'active'));
-    const memberships = members.data?.length
-      ? members.data
-      : (await maybe(db.from('scene_memberships').select('*').eq('scene_id', scene.data.id))).data || [];
+    const members = await maybe(db.from('scene_memberships').select('*').eq('scene_id', scene.data.id).eq('membership_state', 'active'));
+    const memberships = members.data || [];
 
     const week = weekStart();
     const weekActions = await maybe(
