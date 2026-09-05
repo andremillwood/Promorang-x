@@ -156,12 +156,6 @@ export function DiscoveryPath({
     currentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [intentTick]);
 
-  useEffect(() => {
-    if (!current) return;
-    const existing = readLocalCardUnlocks().find((row) => row.pollId === current.poll.id);
-    if (existing) setLastUnlock(existing);
-  }, [current?.poll.id]);
-
   const namedIntent = Boolean(lens || intentWords(query).length);
   const otherActive = !lens && intentWords(query).length > 0;
 
@@ -188,6 +182,12 @@ export function DiscoveryPath({
   const rest = polls.filter(
     (poll) => !path.some((item) => item.poll.id === poll.id) && !votedIds.includes(poll.id),
   );
+
+  useEffect(() => {
+    if (!current) return;
+    const existing = readLocalCardUnlocks().find((row) => row.pollId === current.poll.id);
+    if (existing) setLastUnlock(existing);
+  }, [current?.poll.id]);
 
   const chooseLens = (next: DiscoverLensId) => {
     setLens(next);
