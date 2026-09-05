@@ -196,6 +196,13 @@ describe("discoverPathHref", () => {
     );
     expect(discoverPathHref("")).toBe("/discover?tab=discoveries");
   });
+
+  it("carries a starter lens onto Discover, not a homepage poll pile", () => {
+    expect(discoverPathHref(null, "eat")).toBe("/discover?tab=discoveries&lens=eat");
+    expect(discoverPathHref("hiking with kids", "try")).toBe(
+      "/discover?tab=discoveries&lens=try&q=hiking%20with%20kids",
+    );
+  });
 });
 
 describe("whyForPoll", () => {

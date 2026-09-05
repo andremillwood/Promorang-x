@@ -95,7 +95,7 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/content-drops", label: "Content Drops", description: "Creator content wrapped in attribution, distribution incentives, and contributor rank." },
   { match: "/scenes", label: "Scenes", description: "The rooms, rituals, creators, and places that turn moments into belonging." },
   { match: "/creators", label: "Creators", description: "Discover the people shaping culture and carrying its stories forward." },
-  { match: "/discover", label: "Discover", description: "Browse moments, venues, rewards, and content worth acting on." },
+  { match: "/discover", label: "Discover", description: "Name what you want, then answer one live question." },
   { match: "/shop", label: "Shop", description: "Browse verified merchant products, services, offers, and clearly separated sample previews." },
   { match: "/create", label: "Create", description: "Launch a Moment, contribution prompt, or activation with clear human and commercial return." },
   { match: "/vault", label: "Vault", description: "Memories, active perks, and the value that stays with the participant." },

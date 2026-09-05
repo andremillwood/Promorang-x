@@ -250,7 +250,7 @@ const Discover = () => {
     [city],
   );
   const catalog = useMemo(
-    () => mergeDiscoveryPolls(livePolls, listingPolls),
+    () => mergeDiscoveryPolls(livePolls, listingPolls, DISCOVERY_POLLS),
     [livePolls, listingPolls],
   );
   const hubDiscoveries = useMemo(
@@ -355,21 +355,80 @@ const Discover = () => {
 
   const isPathExperience = activeTab === "discoveries";
 
-  return (
-    <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white pb-16">
-      <SEO
-        title={isPathExperience ? `${t("discover.pathPageTitle")} — Promorang` : "Discover Culture, Perks & Opportunities — Promorang"}
-        description={isPathExperience ? t("discover.pathPageCopy") : "Discover what is worth doing, choosing, and sharing. Vote on community demand signals, unlock verified perks, and promote culture drops."}
-        url={getSiteUrl("/discover")}
-      />
+  const path = (
+    <DiscoveryPath
+      surface="page"
+      polls={hubDiscoveries}
+      cityName={city.name}
+      preferredCategories={preferences?.preferred_categories || []}
+      initialLens={isDiscoverLensId(lensParam) ? lensParam : null}
+      initialQuery={searchParams.get("q")}
+      onQuestionCreated={(newQ) => {
+        setLivePolls((prev) => [newQ as DiscoveryPoll, ...prev]);
+      }}
+      onCastVote={async (poll, optionId) => {
+        if (!poll.detailUrl) return;
+        if (!user) {
+          toast.info("Sign in to verify local place information.");
+          return;
+        }
+        try {
+          await castListingDiscoveryVote(poll.id, optionId);
+        } catch (error: any) {
+          toast.error(error?.message?.includes("duplicate") ? "You already voted on this place." : "We couldn't record that vote.");
+        }
+      }}
+    />
+  );
 
-      <div className="w-full px-4 py-6 sm:px-6 lg:px-8 space-y-6">
-        {isPathExperience ? (
+  if (isPathExperience) {
+    return (
+      <div className="relative min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
+        <SEO
+          title={`${t("discover.pathPageTitle")} — Promorang`}
+          description={t("discover.pathPageCopy")}
+          url={getSiteUrl("/discover")}
+        />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[46rem] bg-[radial-gradient(circle_at_12%_0%,rgba(255,106,0,.16),transparent_42%),radial-gradient(circle_at_90%_10%,rgba(80,160,140,.08),transparent_34%)]" />
+        <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-5 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs font-semibold text-white/50">{city.name}</p>
             <GlobalTicketBalancePill />
           </div>
-        ) : (
+
+          <div className="mt-6 sm:mt-10">{path}</div>
+
+          <nav aria-label={t("discover.pathPageTitle")} className="mt-12 flex flex-wrap gap-2 border-t border-white/10 pt-8">
+            <p className="w-full text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
+              {t("discover.pathBrowseEyebrow")} · {city.name}
+            </p>
+            <button type="button" onClick={() => handleTabChange("perks")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-emerald-400/50 hover:text-white">
+              Perks & Drops
+            </button>
+            <button type="button" onClick={() => handleTabChange("moments")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-primary/50 hover:text-white">
+              Moments & Events
+            </button>
+            <button type="button" onClick={() => handleTabChange("distribute")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-purple-400/50 hover:text-white">
+              Things to Share
+            </button>
+            <button type="button" onClick={() => handleTabChange("places")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-primary/50 hover:text-white">
+              Places & Venues
+            </button>
+          </nav>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white pb-16">
+      <SEO
+        title="Discover Culture, Perks & Opportunities — Promorang"
+        description="Discover what is worth doing, choosing, and sharing. Vote on community demand signals, unlock verified perks, and promote culture drops."
+        url={getSiteUrl("/discover")}
+      />
+
+      <div className="w-full px-4 py-6 sm:px-6 lg:px-8 space-y-6">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-6">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
@@ -397,9 +456,7 @@ const Discover = () => {
             </Button>
           </div>
         </div>
-        )}
 
-        {isPathExperience ? null : (
         <div className="flex items-center gap-2 border-b border-white/10 pb-4 overflow-x-auto scrollbar-none">
           <button
             onClick={() => handleTabChange("discoveries")}
@@ -473,69 +530,14 @@ const Discover = () => {
             <span>Places & Venues</span>
           </button>
         </div>
-        )}
 
-        {isPathExperience ? null : (
         <StoryGamificationRail
           onOpenWheel={() => setWheelOpen(true)}
           onOpenStreak={() => setStreakOpen(true)}
         />
-        )}
 
         <div className="flex gap-8 items-start">
           <div className="flex-1 space-y-8 min-w-0">
-
-            {activeTab === "discoveries" && (
-              <div className="space-y-8">
-                {hubDiscoveries.length > 0 ? (
-                  <DiscoveryPath
-                    polls={hubDiscoveries}
-                    cityName={city.name}
-                    preferredCategories={preferences?.preferred_categories || []}
-                    initialLens={isDiscoverLensId(lensParam) ? lensParam : null}
-                    initialQuery={searchParams.get("q")}
-                    onQuestionCreated={(newQ) => {
-                      setLivePolls((prev) => [newQ as DiscoveryPoll, ...prev]);
-                    }}
-                    onCastVote={async (poll, optionId) => {
-                      if (!poll.detailUrl) return;
-                      if (!user) {
-                        toast.info("Sign in to verify local place information.");
-                        return;
-                      }
-                      try {
-                        await castListingDiscoveryVote(poll.id, optionId);
-                      } catch (error: any) {
-                        toast.error(error?.message?.includes("duplicate") ? "You already voted on this place." : "We couldn't record that vote.");
-                      }
-                    }}
-                  />
-                ) : (
-                  <HubEmptyState
-                    cityName={city.name}
-                    noun="choices for you"
-                    onShowLiveHub={() => setCity(getDefaultCityHub())}
-                  />
-                )}
-                <nav aria-label={t("discover.pathPageTitle")} className="flex flex-wrap gap-2 border-t border-white/10 pt-6">
-                  <p className="w-full text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
-                    {t("discover.pathBrowseEyebrow")} · {city.name}
-                  </p>
-                  <button type="button" onClick={() => handleTabChange("perks")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-emerald-400/50 hover:text-white">
-                    Perks & Drops
-                  </button>
-                  <button type="button" onClick={() => handleTabChange("moments")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-primary/50 hover:text-white">
-                    Moments & Events
-                  </button>
-                  <button type="button" onClick={() => handleTabChange("distribute")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-purple-400/50 hover:text-white">
-                    Things to Share
-                  </button>
-                  <button type="button" onClick={() => handleTabChange("places")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-primary/50 hover:text-white">
-                    Places & Venues
-                  </button>
-                </nav>
-              </div>
-            )}
 
             {/* TAB 2: PERKS & DROPS (BUSINESS OFFER WEDGE) */}
             {activeTab === "perks" && (
@@ -784,14 +786,12 @@ const Discover = () => {
 
           </div>
 
-          {isPathExperience ? null : (
           <DiscoverRightRail
             onToggleMap={() => setViewMode((v) => (v === "map" ? "grid" : "map"))}
             isMapMode={viewMode === "map"}
             moments={filteredMoments}
             cityName={city.name}
           />
-          )}
         </div>
 
         {/* Modals */}

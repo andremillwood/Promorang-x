@@ -1,5 +1,7 @@
-import { PenLine, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, PenLine, X } from "lucide-react";
 import { TactileButton } from "@/components/ui/TactileButton";
+import { discoverPathHref } from "@/lib/discovery-path";
 import { useI18n } from "@/i18n/I18nContext";
 import type { TranslationKey } from "@/i18n/translations";
 import { intentWords, type DiscoverLensId } from "@/lib/discovery-path";
@@ -32,7 +34,7 @@ export const INTENT_LENSES: Array<{
 
 type DiscoveryIntentStageProps = {
   cityName: string;
-  surface: "page" | "home";
+  surface: "page" | "home" | "invite";
   lens: DiscoverLensId | null;
   namedIntent: boolean;
   otherActive: boolean;
@@ -63,6 +65,7 @@ export function DiscoveryIntentStage({
 }: DiscoveryIntentStageProps) {
   const { t } = useI18n();
   const showTasteHint = inferred.length > 0 && inferred.length < INTENT_LENSES.length;
+  const doorway = surface === "home" || surface === "invite";
 
   return (
     <header className="relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#12100d] shadow-[0_30px_80px_-32px_rgba(0,0,0,.85)]">
@@ -74,13 +77,17 @@ export function DiscoveryIntentStage({
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-orange-300/25 bg-black/40 px-2.5 py-1 font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-200">
               <span className="h-1.5 w-1.5 rounded-full bg-orange-400 shadow-[0_0_10px_rgba(255,85,0,.9)]" />
-              {t(surface === "home" ? "discover.pathHomeEyebrow" : "discover.pathEyebrow", { city: cityName })}
+              {t(doorway ? "discover.pathHomeEyebrow" : "discover.pathEyebrow", { city: cityName })}
             </p>
             <h2 className="mt-3 max-w-xl font-serif text-[clamp(2.1rem,5vw,3.6rem)] font-bold leading-[0.92] tracking-tight text-white">
-              {t(surface === "home" ? "discover.pathHomeTitle" : "discover.pathTitle")}
+              {t(doorway ? "discover.pathHomeTitle" : "discover.pathTitle")}
             </h2>
           </div>
-          {surface === "home" ? (
+          {surface === "invite" ? (
+            <p className="max-w-sm text-sm leading-6 text-white/55">
+              {t("discover.pathInviteCopy")}
+            </p>
+          ) : surface === "home" ? (
             <p className="hidden max-w-[16rem] text-right text-xs leading-5 text-white/45 sm:block">
               {t("discover.pathHomeCopy")}
             </p>
@@ -202,6 +209,15 @@ export function DiscoveryIntentStage({
             </p>
           ) : null}
         </form>
+        {surface === "invite" ? (
+          <Link
+            to={discoverPathHref()}
+            className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-orange-300 hover:text-white"
+          >
+            {t("discover.pathInviteOpen")}
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        ) : null}
       </div>
     </header>
   );

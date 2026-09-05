@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Compass, SkipForward } from "lucide-react";
 import { NightTrail, PaperReceipt } from "@/components/promorang/SignatureObjects";
 import { TactileButton } from "@/components/ui/TactileButton";
@@ -15,6 +15,7 @@ import {
   DISCOVER_QUERY_STORAGE_KEY,
   DISCOVER_SKIPPED_STORAGE_KEY,
   DISCOVER_VOTED_STORAGE_KEY,
+  discoverPathHref,
   discoveryHref,
   inferLensesFromPreferences,
   intentMatchCount,
@@ -64,7 +65,7 @@ type DiscoveryPathProps = {
   onVoted?: (pollId: string) => void;
   onCastVote?: (poll: DiscoveryPoll, optionId: string) => void | Promise<void>;
   syncUrl?: boolean;
-  surface?: "page" | "home";
+  surface?: "page" | "home" | "invite";
 };
 
 export function DiscoveryPath({
@@ -80,10 +81,12 @@ export function DiscoveryPath({
   surface = "page",
 }: DiscoveryPathProps) {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const handoffToDiscover = surface === "invite";
   const currentRef = useRef<HTMLElement | null>(null);
   const inferred = inferLensesFromPreferences(preferredCategories);
-  const intentFieldId = surface === "home" ? "home-discover-intent" : "discover-intent";
+  const intentFieldId = surface === "page" ? "discover-intent" : "home-discover-intent";
   const [lens, setLens] = useState<DiscoverLensId | null>(() => {
     if (intentWords(initialQuery).length) return null;
     if (isDiscoverLensId(initialLens)) return initialLens;
@@ -183,6 +186,10 @@ export function DiscoveryPath({
     setSkippedIds([]);
     writeStoredIdList(DISCOVER_SKIPPED_STORAGE_KEY, []);
     writeStoredDiscoverQuery("");
+    if (handoffToDiscover) {
+      navigate(discoverPathHref(null, next));
+      return;
+    }
     syncQueryParam("", next);
     setIntentTick((tick) => tick + 1);
   };
@@ -198,9 +205,13 @@ export function DiscoveryPath({
     writeStoredIdList(DISCOVER_SKIPPED_STORAGE_KEY, []);
     window.localStorage.removeItem(DISCOVER_LENS_STORAGE_KEY);
     writeStoredDiscoverQuery(next);
+    void recordDiscoveryNamedIntent(cityName, next);
+    if (handoffToDiscover) {
+      navigate(discoverPathHref(next));
+      return;
+    }
     syncQueryParam(next, null);
     setIntentTick((tick) => tick + 1);
-    void recordDiscoveryNamedIntent(cityName, next);
   };
 
   const clearQuery = () => {
@@ -253,7 +264,7 @@ export function DiscoveryPath({
         onClearQuery={clearQuery}
       />
 
-      {!namedIntent && surface === "page" ? (
+      {handoffToDiscover ? null : !namedIntent && surface === "page" ? (
         <NightTrail
           eyebrow={t("discover.pathHowEyebrow")}
           title={t("discover.pathHowTitle")}
@@ -426,6 +437,7 @@ export function DiscoveryPath({
         </section>
       ) : null}
 
+      {handoffToDiscover ? null : (
       <section className={surface === "home" && !namedIntent ? "pt-1" : "border-t border-white/10 pt-6"}>
         {surface === "page" || namedIntent ? (
           <>
@@ -486,6 +498,7 @@ export function DiscoveryPath({
           />
         </div>
       </section>
+      )}
     </div>
   );
 }

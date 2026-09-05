@@ -192,8 +192,17 @@ export function DiscoveriesFeedSection() {
       </>
       )}
 
-      <div className={cn("flex items-center justify-between gap-3", isPath ? "mb-4" : "mt-5 border-b border-white/5 pb-3 sm:mt-6")}>
+      <div className={cn("flex items-center justify-between gap-3", isPath ? "mb-3" : "mt-5 border-b border-white/5 pb-3 sm:mt-6")}>
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none max-w-full">
+          {isPath ? (
+            <Link
+              to="/discover?tab=discoveries"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-300 hover:text-white"
+            >
+              {t("discover.pathInviteOpen")}
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          ) : (
           <button
             onClick={() => setActiveTab("polls")}
             className={`flex items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold transition shrink-0 ${
@@ -205,6 +214,7 @@ export function DiscoveriesFeedSection() {
             <Sparkles className="h-3.5 w-3.5" />
             <span>{t("discover.pathTab")}</span>
           </button>
+          )}
 
           <button
             onClick={() => setActiveTab("discoveries")}
@@ -239,10 +249,10 @@ export function DiscoveriesFeedSection() {
         </div>
 
         <Link
-          to="/discover"
+          to="/discover?tab=discoveries"
           className="hidden md:inline-flex text-xs font-bold text-white/50 hover:text-primary transition items-center gap-1 shrink-0"
         >
-          {t("scout.viewFullRadar")} <ChevronRight className="h-3.5 w-3.5" />
+          {t("discover.pathInviteOpen")} <ChevronRight className="h-3.5 w-3.5" />
         </Link>
       </div>
 
@@ -256,7 +266,7 @@ export function DiscoveriesFeedSection() {
               cityName={city.name}
               preferredCategories={preferences?.preferred_categories || []}
               syncUrl={false}
-              surface="home"
+              surface="invite"
               onQuestionCreated={(newQ) => {
                 setLivePolls((prev) => [newQ, ...prev]);
               }}

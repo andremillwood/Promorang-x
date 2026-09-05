@@ -155,10 +155,12 @@ export function discoveryHref(poll: { id: string; slug?: string }): string {
   return `/discoveries/${poll.slug || poll.id}`;
 }
 
-export function discoverPathHref(query?: string | null): string {
+export function discoverPathHref(query?: string | null, lens?: string | null): string {
+  const parts = ["tab=discoveries"];
+  if (isDiscoverLensId(lens)) parts.push(`lens=${encodeURIComponent(lens)}`);
   const next = (query || "").trim();
-  if (!intentWords(next).length) return "/discover?tab=discoveries";
-  return `/discover?tab=discoveries&q=${encodeURIComponent(next)}`;
+  if (intentWords(next).length) parts.push(`q=${encodeURIComponent(next)}`);
+  return `/discover?${parts.join("&")}`;
 }
 
 export function discoveryPollLocationHint(poll: PathablePoll): {
