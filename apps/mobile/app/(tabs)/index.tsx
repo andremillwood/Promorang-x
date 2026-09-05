@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { getCurrentMove } from '@promorang/shared';
+import { DISCOVER_LENSES, getCurrentMove, humanActionLabel } from '@promorang/shared';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppHeader } from '@/components/AppHeader';
@@ -10,6 +10,7 @@ import { PromoCardUseSheet } from '@/components/people/PromoCardUseSheet';
 import { QuietEmpty, StatPile } from '@/components/people/ExperienceShell';
 import { BorderRadius, Colors, Spacing } from '@/constants/DesignTokens';
 import { useAuth } from '@/context/AuthContext';
+import { useMoments } from '@/hooks/useMoments';
 import { useExperienceHome } from '@/hooks/usePeopleExperience';
 import { presentPromoCard } from '@/lib/promoCard';
 
@@ -21,7 +22,9 @@ const money = (value: number) => {
 export default function TodayScreen() {
   const { user, activeRole } = useAuth();
   const home = useExperienceHome();
+  const { moments } = useMoments();
   const [usingCard, setUsingCard] = useState(false);
+  const [lens, setLens] = useState<(typeof DISCOVER_LENSES)[number]['id'] | null>(null);
   const data = home.data;
   const name = data?.name || user?.user_metadata?.full_name?.split(' ')[0] || 'You';
   const cardView = presentPromoCard(data?.card, name);
@@ -35,6 +38,16 @@ export default function TodayScreen() {
     hasUnlockedValue: Number(data?.wallet?.points || 0) > 0 || Number(data?.wallet?.promokeys || 0) > 0,
     hasSavedMemory: Number(data?.cardPerks || data?.wallet?.points || 0) > 0,
   });
+  const nearby = useMemo(() => {
+    const selected = DISCOVER_LENSES.find((item) => item.id === lens);
+    return moments.filter((moment) => {
+      if (!selected) return true;
+      const haystack = `${moment.title} ${moment.location} ${moment.description} ${moment.type}`.toLowerCase();
+      return selected.keywords.some((word) => haystack.includes(word));
+    }).slice(0, 3);
+  }, [moments, lens]);
+  const happened = data?.happened;
+  const buckets = happened?.buckets || {};
 
   if (home.isLoading) {
     return (
@@ -139,8 +152,6 @@ export default function TodayScreen() {
             {[
               { href: '/give', label: 'Give something', copy: 'Put a perk on your people’s PromoCards.', icon: 'gift' as const },
               { href: '/post', label: 'Create something', copy: 'Ask them to go, try, answer or show up.', icon: 'add' as const },
-              { href: '/people', label: 'Grow my network', copy: 'See who you brought and who is helping.', icon: 'people' as const },
-              { href: '/promoshare', label: 'See results', copy: 'What your people actually did.', icon: 'sparkles' as const },
             ].map((action) => (
               <Pressable key={action.href} style={styles.action} onPress={() => router.push(action.href as any)}>
                 <View style={styles.actionIcon}>
@@ -153,12 +164,66 @@ export default function TodayScreen() {
               </Pressable>
             ))}
           </View>
-        ) : (
-          <Pressable style={styles.pathCard} onPress={() => router.push('/discover')}>
-            <Text style={styles.moveEyebrow}>WHAT’S HAPPENING</Text>
-            <Text style={styles.pathTitle}>Name what you want. Then we show the matching next step.</Text>
-          </Pressable>
-        )}
+        ) : null}
+
+        <View>
+          <View style={styles.sectionRow}>
+            <Text style={styles.sectionTitle}>What’s happening</Text>
+            <Pressable onPress={() => router.push('/discover')}><Text style={styles.link}>See all</Text></Pressable>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.lenses}>
+            {DISCOVER_LENSES.map((item) => (
+              <Pressable
+                key={item.id}
+                onPress={() => setLens(item.id === lens ? null : item.id)}
+                style={[styles.lens, lens === item.id && styles.lensActive]}
+              >
+                <Text style={[styles.lensLabel, lens === item.id && styles.lensLabelActive]}>{item.label}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+          {nearby.length ? (
+            nearby.map((moment) => (
+              <Pressable key={moment.id} style={styles.listCard} onPress={() => router.push(`/moment/${moment.id}` as any)}>
+                <Text style={styles.moveEyebrow}>{moment.location || 'Nearby'}</Text>
+                <Text style={styles.listTitle}>{moment.title}</Text>
+              </Pressable>
+            ))
+          ) : (
+            <Pressable style={styles.pathCard} onPress={() => router.push('/discover')}>
+              <Text style={styles.pathTitle}>Name what you want. Then we show the matching next step.</Text>
+            </Pressable>
+          )}
+        </View>
+
+        <View>
+          <View style={styles.sectionRow}>
+            <Text style={styles.sectionTitle}>What happened</Text>
+            <Pressable onPress={() => router.push('/promoshare')}><Text style={styles.link}>All results</Text></Pressable>
+          </View>
+          <View style={styles.statGrid}>
+            {[
+              ['Went', buckets.went],
+              ['Claimed', buckets.claimed],
+              ['Used', buckets.used],
+              ['Brought', buckets.brought],
+            ].map(([label, value]) => (
+              <View key={String(label)} style={styles.happened}>
+                <Text style={styles.happenedValue}>{Number(value || 0)}</Text>
+                <Text style={styles.happenedLabel}>{label}</Text>
+              </View>
+            ))}
+          </View>
+          {happened?.recent?.length ? (
+            happened.recent.slice(0, 3).map((row: any) => (
+              <View key={row.id} style={styles.listCard}>
+                <Text style={styles.listTitle}>{row.actorName || 'Someone'} {humanActionLabel(row.action_type)}</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.description}>When people claim, show up or answer, it will read like a story here.</Text>
+          )}
+        </View>
 
         {role !== 'member' && (data?.outcomes?.suppliesInventory || ['merchant', 'brand'].includes(String(activeRole))) ? (
           <Pressable style={styles.inventory} onPress={() => router.push('/stock')}>
@@ -254,7 +319,15 @@ const styles = StyleSheet.create({
   inventoryKicker: { color: 'rgba(0,0,0,0.55)', fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 2, fontWeight: '800' },
   inventoryTitle: { color: Colors.black, fontSize: 24, fontWeight: '800', marginTop: 4 },
   inventoryCopy: { color: 'rgba(0,0,0,0.7)', fontSize: 14, marginTop: 4 },
-  listCard: { borderRadius: 22, borderWidth: 1, borderColor: Colors.border, backgroundColor: 'rgba(255,255,255,0.04)', padding: 16 },
+  listCard: { borderRadius: 22, borderWidth: 1, borderColor: Colors.border, backgroundColor: 'rgba(255,255,255,0.04)', padding: 16, marginTop: 8 },
   listTitle: { color: Colors.white, fontSize: 20, fontWeight: '800' },
   studioLink: { color: Colors.gray[600], fontSize: 12, textAlign: 'center', marginTop: 8 },
+  lenses: { gap: 8, paddingVertical: 10 },
+  lens: { minHeight: 40, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: Colors.border, justifyContent: 'center', backgroundColor: Colors.gray[900] },
+  lensActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  lensLabel: { color: Colors.gray[200], fontSize: 13, fontWeight: '800' },
+  lensLabelActive: { color: Colors.black },
+  happened: { flex: 1, minWidth: 70, borderRadius: 16, borderWidth: 1, borderColor: Colors.border, padding: 12, backgroundColor: 'rgba(255,255,255,0.04)' },
+  happenedValue: { color: Colors.white, fontSize: 22, fontWeight: '800' },
+  happenedLabel: { color: Colors.gray[400], fontSize: 11, marginTop: 2 },
 });

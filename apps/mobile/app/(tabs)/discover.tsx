@@ -4,15 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants/DesignTokens';
+import { DISCOVER_LENSES } from '@promorang/shared';
 import { useMoments, type Moment } from '@/hooks/useMoments';
 import { useSavedObjects } from '@/hooks/useSavedObjects';
 
-const LENSES = [
-  { id: 'eat', label: 'Eat well', detail: 'Food, tastings, spots worth the trip', keywords: ['food', 'eat', 'taste', 'restaurant', 'cook', 'drink'] },
-  { id: 'go_out', label: 'Go out', detail: 'Music, shows, what’s heating up', keywords: ['music', 'night', 'club', 'live', 'party', 'bar'] },
-  { id: 'hang', label: 'Hang', detail: 'People, workshops, midweek lymes', keywords: ['community', 'workshop', 'gather', 'people', 'hang'] },
-  { id: 'try', label: 'Try something new', detail: 'Hidden finds the city hasn’t unlocked yet', keywords: ['new', 'try', 'hidden', 'first', 'drop'] },
-] as const;
+const LENSES = DISCOVER_LENSES;
 
 const fallbackImage = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=85';
 

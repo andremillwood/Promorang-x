@@ -95,7 +95,11 @@ export default function CardTabScreen() {
         {PROMOCARD_LOOP.map((item) => (
           <View key={item.step} style={styles.loopRow}>
             <View style={styles.loopIcon}>
-              <Ionicons name={item.icon} size={18} color={Colors.primary} />
+              <Ionicons
+                name={item.step === '01' ? 'qr-code-outline' : item.step === '02' ? 'location-outline' : 'flash-outline'}
+                size={18}
+                color={Colors.primary}
+              />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.loopStep}>STEP {item.step}</Text>
@@ -134,7 +138,7 @@ export default function CardTabScreen() {
 
         <Text style={styles.section}>Ways to recharge</Text>
         {PROMOCARD_RECHARGE_ACTIONS.map((action) => (
-          <Pressable key={action.id} style={styles.action} onPress={() => router.push(action.href as any)}>
+          <Pressable key={action.id} style={styles.action} onPress={() => router.push(action.mobileHref as any)}>
             <View style={{ flex: 1 }}>
               <Text style={styles.actionTitle}>{action.title}</Text>
               <Text style={styles.actionCopy}>{action.copy}</Text>

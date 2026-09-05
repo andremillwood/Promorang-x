@@ -163,9 +163,7 @@ function RootLayoutNav() {
         <Stack.Screen name="auth/login" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
-        <Stack.Screen name="people" options={{ headerShown: false }} />
         <Stack.Screen name="give" options={{ headerShown: false }} />
-        <Stack.Screen name="earn" options={{ headerShown: false }} />
         <Stack.Screen name="stock" options={{ headerShown: false }} />
         <Stack.Screen name="start" options={{ headerShown: false }} />
         <Stack.Screen name="drop/[slug]" options={{ headerShown: false }} />
