@@ -9,6 +9,8 @@ import { CommerceReceipt, useCommerceReceipts } from '@/hooks/useCommerceReceipt
 import { resolveCommerceReceiptPresentation } from '@promorang/shared';
 import { useQuery } from '@tanstack/react-query';
 import { guestRsvpApi } from '@/lib/api';
+import { PromoCardFace } from '@/components/people/PromoCardFace';
+import { useMyPromoCard } from '@/hooks/usePeopleExperience';
 
 const assetMeta = {
   token: { label: 'Value', icon: 'sparkles', color: Colors.primary },
@@ -38,7 +40,8 @@ function receiptPresentation(receipt: CommerceReceipt) {
 }
 
 export default function VaultScreen() {
-  const [activeTab, setActiveTab] = useState<'kept' | 'activity'>('kept');
+  const [activeTab, setActiveTab] = useState<'perks' | 'kept' | 'activity'>('perks');
+  const card = useMyPromoCard();
   const { assets, loading: assetsLoading } = useVaultAssets();
   const { memories, loading: memoriesLoading } = useVaultMemories();
   const { summary, loading: summaryLoading } = useVaultSummary();
@@ -76,11 +79,40 @@ export default function VaultScreen() {
         </View>
 
         <View style={styles.tabs}>
-          <Pressable onPress={() => setActiveTab('kept')} style={[styles.tab, activeTab === 'kept' && styles.tabActive]}><Text style={[styles.tabText, activeTab === 'kept' && styles.tabTextActive]}>What you keep</Text></Pressable>
+          <Pressable onPress={() => setActiveTab('perks')} style={[styles.tab, activeTab === 'perks' && styles.tabActive]}><Text style={[styles.tabText, activeTab === 'perks' && styles.tabTextActive]}>Perks</Text></Pressable>
+          <Pressable onPress={() => setActiveTab('kept')} style={[styles.tab, activeTab === 'kept' && styles.tabActive]}><Text style={[styles.tabText, activeTab === 'kept' && styles.tabTextActive]}>Memories</Text></Pressable>
           <Pressable onPress={() => setActiveTab('activity')} style={[styles.tab, activeTab === 'activity' && styles.tabActive]}><Text style={[styles.tabText, activeTab === 'activity' && styles.tabTextActive]}>Activity</Text></Pressable>
         </View>
 
-        {loading ? (
+        {activeTab === 'perks' ? (
+          <>
+            <Pressable onPress={() => router.push('/card')}>
+              <PromoCardFace
+                holder={card.data?.name || 'Member'}
+                available={`${Number(card.data?.points || 0).toLocaleString()} pts`}
+                limit={`${Number(card.data?.keys || 0)} keys`}
+                places="Active perks"
+              />
+            </Pressable>
+            <View style={styles.sectionRow}><Text style={styles.sectionTitle}>Active perks</Text></View>
+            {card.isLoading ? (
+              <View style={styles.state}><ActivityIndicator color={Colors.primary} /></View>
+            ) : card.data?.perks?.length ? (
+              card.data.perks.map((perk: any) => (
+                <Pressable key={perk.id} style={styles.asset} onPress={() => router.push('/card')}>
+                  <View style={[styles.assetIcon, { backgroundColor: `${Colors.warning}18` }]}><Ionicons name="gift" size={20} color={Colors.warning} /></View>
+                  <View style={styles.assetCopy}><Text style={styles.assetType}>PERK</Text><Text style={styles.assetName}>{perk.title}</Text><Text style={styles.assetDetail}>{perk.detail || 'On your PromoCard'}</Text></View>
+                </Pressable>
+              ))
+            ) : (
+              <View style={styles.empty}>
+                <Text style={styles.emptyTitle}>No perks yet</Text>
+                <Text style={styles.emptyDetail}>When someone drops something for you, it lands here.</Text>
+                <Pressable style={styles.emptyAction} onPress={() => router.push('/discover')}><Text style={styles.emptyActionText}>See what’s happening</Text></Pressable>
+              </View>
+            )}
+          </>
+        ) : loading ? (
           <View style={styles.state}><ActivityIndicator color={Colors.primary} /><Text style={styles.stateText}>Opening your Vault…</Text></View>
         ) : activeTab === 'kept' ? (
           <>

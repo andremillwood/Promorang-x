@@ -29,9 +29,10 @@ export type StakeholderExperience = {
   primaryHref: string;
   steps: StakeholderStep[];
   tabs: {
+    today: string;
     discover: string;
     create: string;
-    grow: string;
+    progress: string;
     vault: string;
   };
 };
@@ -52,7 +53,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Let the host know you made it', detail: 'Check in when you arrive.', href: '/check-in', icon: 'location' },
       { title: 'Keep what you earned', detail: 'See memories, access, and rewards.', href: '/vault', icon: 'archive' },
     ],
-    tabs: { discover: 'Discover', create: 'Capture', grow: 'Grow', vault: 'Vault' },
+    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
   },
   creator: {
     label: 'Creator',
@@ -69,7 +70,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Publish your take', detail: 'Create context people can act on.', href: '/post', icon: 'camera' },
       { title: 'Track real action', detail: 'See qualified actions and earnings.', href: '/promoshare', icon: 'trending-up' },
     ],
-    tabs: { discover: 'Prompts', create: 'Create', grow: 'Impact', vault: 'Earnings' },
+    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
   },
   host: {
     label: 'Host',
@@ -86,7 +87,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Coordinate turnout', detail: 'Give participants a clear action.', href: '/discover', icon: 'people' },
       { title: 'See what happened', detail: 'Understand turnout, connections, payouts, and who came back.', href: '/dashboard', icon: 'analytics' },
     ],
-    tabs: { discover: 'Community', create: 'Launch', grow: 'Turnout', vault: 'Payouts' },
+    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
   },
   brand: {
     label: 'Brand',
@@ -103,7 +104,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Match the ecosystem', detail: 'Find hosts, creators, and venues.', href: '/discover', icon: 'git-network' },
       { title: 'Read the evidence', detail: 'Review participation and impact.', href: '/dashboard', icon: 'stats-chart' },
     ],
-    tabs: { discover: 'Network', create: 'Campaign', grow: 'Results', vault: 'Assets' },
+    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
   },
   merchant: {
     label: 'Merchant',
@@ -120,7 +121,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Verify each visit', detail: 'Scan access and capture conversion.', href: '/merchant/scan', icon: 'qr-code' },
       { title: 'Build repeat behavior', detail: 'Review yield and returning guests.', href: '/dashboard', icon: 'repeat' },
     ],
-    tabs: { discover: 'Nearby', create: 'Offer', grow: 'Traffic', vault: 'Receipts' },
+    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
   },
   agency: {
     label: 'Agency',
@@ -137,7 +138,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Coordinate execution', detail: 'Connect partners around one brief.', href: '/create-proposal', icon: 'git-branch' },
       { title: 'Tell the outcome story', detail: 'Show what happened, who cared, and what the client should do next.', href: '/dashboard', icon: 'document-text' },
     ],
-    tabs: { discover: 'Partners', create: 'Campaign', grow: 'Portfolio', vault: 'Reports' },
+    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
   },
   admin: {
     label: 'Admin',
@@ -154,7 +155,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Activate Moments', detail: 'Manage and approve live community moments.', href: '/studio', icon: 'flash' },
       { title: 'System Catalog', detail: 'Review network assets and user accounts.', href: '/catalog', icon: 'grid' },
     ],
-    tabs: { discover: 'Overview', create: 'Studio', grow: 'Metrics', vault: 'System' },
+    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
   },
 };
 

@@ -1,19 +1,14 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import { BlurView } from 'expo-blur';
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform, View } from 'react-native';
+import { PROMORANG_DESTINATIONS } from '@promorang/shared';
 
 import { Colors as DesignColors } from '@/constants/DesignTokens';
 import { useColorScheme } from '@/components/useColorScheme';
 import { AppHeader } from '@/components/AppHeader';
-import { STAKEHOLDER_EXPERIENCES, isStakeholderRole } from '@/constants/StakeholderExperience';
-import { useAuth } from '@/context/AuthContext';
 import { useReduceTransparency } from '@/hooks/useReduceTransparency';
 
-/**
- * Premium Tab Bar Icon using Ionicons
- */
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof Ionicons>['name'];
   color: string;
@@ -24,10 +19,7 @@ function TabBarIcon(props: {
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const { activeRole } = useAuth();
   const reduceTransparency = useReduceTransparency();
-  const role = isStakeholderRole(activeRole) ? activeRole : 'participant';
-  const experience = STAKEHOLDER_EXPERIENCES[role];
 
   return (
     <Tabs
@@ -59,86 +51,58 @@ export default function TabLayout() {
           borderTopColor: DesignColors.border,
         },
         tabBarBackground: () => reduceTransparency ? null : (
-          <BlurView
-            intensity={90}
-            tint="dark"
-            style={StyleSheet.absoluteFill}
-          />
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: DesignColors.darkGlass }]} />
         ),
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Today',
-          headerTitle: 'Today',
+          title: PROMORANG_DESTINATIONS.today.label,
+          headerTitle: PROMORANG_DESTINATIONS.today.label,
           headerShown: false,
+          tabBarAccessibilityLabel: `${PROMORANG_DESTINATIONS.today.label}: ${PROMORANG_DESTINATIONS.today.humanQuestion}`,
           tabBarIcon: ({ color }) => <TabBarIcon name="today" color={color} />,
         }}
       />
       <Tabs.Screen
         name="discover"
         options={{
-          title: experience.tabs.discover,
-          headerTitle: experience.tabs.discover,
-          tabBarAccessibilityLabel: `${experience.tabs.discover}: discover what is worth joining, watching, supporting, or creating`,
+          title: PROMORANG_DESTINATIONS.discover.label,
+          headerTitle: PROMORANG_DESTINATIONS.discover.label,
+          tabBarAccessibilityLabel: `${PROMORANG_DESTINATIONS.discover.label}: ${PROMORANG_DESTINATIONS.discover.humanQuestion}`,
           tabBarIcon: ({ color }) => <TabBarIcon name="compass" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="shop"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="propose"
-        options={{
-          href: null,
-        }}
-      />
+      <Tabs.Screen name="shop" options={{ href: null }} />
+      <Tabs.Screen name="propose" options={{ href: null }} />
       <Tabs.Screen
         name="post"
         options={{
-          title: experience.tabs.create,
-          headerTitle: experience.tabs.create,
-          tabBarAccessibilityLabel: `${experience.tabs.create}: create or capture the next useful move`,
+          title: PROMORANG_DESTINATIONS.create.label,
+          headerTitle: PROMORANG_DESTINATIONS.create.label,
+          tabBarAccessibilityLabel: `${PROMORANG_DESTINATIONS.create.label}: ${PROMORANG_DESTINATIONS.create.humanQuestion}`,
           tabBarIcon: () => (
-            <Ionicons name="add-circle" size={34} color={experience.color || DesignColors.primary} />
+            <Ionicons name="add-circle" size={34} color={DesignColors.primary} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="rewards"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="dashboard"
-        options={{
-          title: experience.tabs.grow,
-          headerTitle: experience.tabs.grow,
-          href: role === 'participant' || role === 'creator' ? null : undefined,
-          tabBarAccessibilityLabel: `${experience.tabs.grow}: operational console and metrics`,
-          tabBarIcon: ({ color }) => <TabBarIcon name="analytics" color={color} />,
-        }}
-      />
+      <Tabs.Screen name="rewards" options={{ href: null }} />
+      <Tabs.Screen name="dashboard" options={{ href: null }} />
       <Tabs.Screen
         name="promoshare"
         options={{
-          title: experience.tabs.grow,
-          headerTitle: experience.tabs.grow,
-          href: role === 'participant' || role === 'creator' ? undefined : null,
-          tabBarAccessibilityLabel: `${experience.tabs.grow}: see what happened because of you`,
+          title: PROMORANG_DESTINATIONS.progress.label,
+          headerTitle: PROMORANG_DESTINATIONS.progress.label,
+          tabBarAccessibilityLabel: `${PROMORANG_DESTINATIONS.progress.label}: ${PROMORANG_DESTINATIONS.progress.humanQuestion}`,
           tabBarIcon: ({ color }) => <TabBarIcon name="analytics" color={color} />,
         }}
       />
       <Tabs.Screen
         name="vault"
         options={{
-          title: experience.tabs.vault,
-          headerTitle: experience.tabs.vault,
-          tabBarAccessibilityLabel: `${experience.tabs.vault}: proof, rewards, earnings, access, memories, and assets kept`,
+          title: PROMORANG_DESTINATIONS.vault.label,
+          headerTitle: PROMORANG_DESTINATIONS.vault.label,
+          tabBarAccessibilityLabel: `${PROMORANG_DESTINATIONS.vault.label}: ${PROMORANG_DESTINATIONS.vault.humanQuestion}`,
           tabBarIcon: ({ color }) => <TabBarIcon name="archive" color={color} />,
         }}
       />
