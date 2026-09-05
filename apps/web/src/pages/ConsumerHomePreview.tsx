@@ -358,7 +358,7 @@ const ConsumerHomePreview = () => {
 
       <p className="mt-12 text-center text-xs text-white/45">
         New here?{" "}
-        <Link to="/welcome" className="font-bold text-white underline-offset-4 hover:underline">
+        <Link to="/how-it-works" className="font-bold text-white underline-offset-4 hover:underline">
           How Promorang works
         </Link>
       </p>

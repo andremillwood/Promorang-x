@@ -25,7 +25,6 @@ import { IntentGoalModal } from "./components/intent/IntentGoalModal";
 
 // Route-level code splitting — each page loads on demand
 const Index = lazy(() => import("./pages/Index"));
-const Welcome = lazy(() => import("./pages/Welcome"));
 const AMI_Index = lazy(() => import("./pages/AMI_Index"));
 const MechanicDetail = lazy(() => import("./pages/MechanicDetail"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
@@ -221,7 +220,7 @@ const App = () => (
                   <Routes>
                   <Route element={<AppLayout />}>
                     <Route path="/" element={<Index />} />
-                    <Route path="/welcome" element={<Welcome />} />
+                    <Route path="/welcome" element={<Navigate to="/" replace />} />
                     <Route path="/strategies" element={<AMI_Index />} />
                     <Route path="/strategies/:id" element={<MechanicDetail />} />
                     <Route path="/free/:funnel" element={<LeadMagnetFunnels />} />
