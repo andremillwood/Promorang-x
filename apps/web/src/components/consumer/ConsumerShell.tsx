@@ -89,7 +89,7 @@ const ConsumerShell = ({ children, locationLabel = "Kingston", actions }: Consum
         </div>
       </header>
 
-      <main className="w-full px-4 pb-[calc(8.5rem+env(safe-area-inset-bottom,0px))] pt-5 sm:px-6 md:pb-16 lg:px-8">
+      <main className="w-full px-4 pb-[calc(10rem+env(safe-area-inset-bottom,0px))] pt-5 sm:px-6 md:pb-16 lg:px-8">
         {children}
       </main>
 

@@ -212,7 +212,7 @@ const ConsumerHomePreview = () => {
       <section className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,.7fr)] lg:gap-10">
         <div>
           <ConsumerObjectCard item={featuredMoment} emphasis="feature" />
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 mb-16 flex flex-wrap gap-2">
             <a href={featuredMoment.href || "/discover"} className="rounded-full bg-primary px-4 py-2 text-sm font-black text-primary-foreground">Open Moment</a>
             <button
               type="button"
