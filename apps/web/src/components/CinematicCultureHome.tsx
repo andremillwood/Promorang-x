@@ -640,7 +640,7 @@ export default function CinematicCultureHome() {
             <nav aria-label="Homepage discovery shortcuts" className="flex flex-wrap gap-2">
               {[
                 [CalendarDays, t("home.shortcutMoments"), "/discover/moments"],
-                [Flame, t("home.shortcutPolls"), "/#home-discover-path"],
+                [Flame, t("home.shortcutPolls"), "/discover?tab=discoveries"],
                 [Compass, t("home.shortcutSpots"), "/discover"],
                 [Tag, t("home.shortcutRewards"), "/rewards"],
                 [Store, t("home.shortcutMerchants"), "/merchants"],

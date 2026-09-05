@@ -59,7 +59,7 @@ const ForYou = () => {
             {/* 3-Sided Market Quick Navigation Strip */}
             <div className="flex flex-wrap gap-2 pt-2">
               <Link
-                to="#home-discover-path"
+                to="/discover?tab=discoveries"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 text-xs font-bold transition"
               >
                 <Compass className="w-3.5 h-3.5" />

@@ -11,7 +11,6 @@ import {
   Calendar,
   Compass,
   Gift,
-  HelpCircle,
   LayoutGrid,
   Map,
   MapPin,
@@ -50,6 +49,7 @@ import { PerkCard } from "@/components/perks/PerkCard";
 import { PostPerkModal } from "@/components/merchant/PostPerkModal";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { useI18n } from "@/i18n/I18nContext";
 
 const categoryFilters = [
   { id: "all", label: "All Drops", icon: Sparkles },
@@ -132,6 +132,7 @@ const HubEmptyState = ({
 type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
 
 const Discover = () => {
+  const { t } = useI18n();
   const { user } = useAuth();
   const { city, setCity } = useMarket();
   const { data: preferences } = useUserPreferences();
@@ -352,17 +353,23 @@ const Discover = () => {
     return getCityHubCenter(city);
   }, [mapMarkers, city]);
 
+  const isPathExperience = activeTab === "discoveries";
+
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white pb-16">
       <SEO
-        title="Discover Culture, Perks & Opportunities — Promorang"
-        description="Discover what is worth doing, choosing, and sharing. Vote on community demand signals, unlock verified perks, and promote culture drops."
+        title={isPathExperience ? `${t("discover.pathPageTitle")} — Promorang` : "Discover Culture, Perks & Opportunities — Promorang"}
+        description={isPathExperience ? t("discover.pathPageCopy") : "Discover what is worth doing, choosing, and sharing. Vote on community demand signals, unlock verified perks, and promote culture drops."}
         url={getSiteUrl("/discover")}
       />
 
       <div className="w-full px-4 py-6 sm:px-6 lg:px-8 space-y-6">
-        
-        {/* Market Architecture Header Row */}
+        {isPathExperience ? (
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold text-white/50">{city.name}</p>
+            <GlobalTicketBalancePill />
+          </div>
+        ) : (
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-6">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
@@ -375,15 +382,12 @@ const Discover = () => {
               Discover What's Worth Doing & Choosing
             </h1>
             <p className="text-white/60 text-xs sm:text-sm max-w-xl">
-              Answer signals, unlock partner Perks, RSVP to live moments, or promote them to earn PromoShare draw tickets.
+              Answer one relevant choice, unlock partner Perks, RSVP to live moments, or share them to earn draw tickets.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-            {/* Global Ticket & Points Balance Ticker */}
             <GlobalTicketBalancePill />
-
-            {/* Merchant Post a Perk Quick Button */}
             <Button
               onClick={() => setPostPerkOpen(true)}
               className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 h-10 px-4"
@@ -393,8 +397,9 @@ const Discover = () => {
             </Button>
           </div>
         </div>
+        )}
 
-        {/* 3-Sided Market Navigation Tabs */}
+        {isPathExperience ? null : (
         <div className="flex items-center gap-2 border-b border-white/10 pb-4 overflow-x-auto scrollbar-none">
           <button
             onClick={() => handleTabChange("discoveries")}
@@ -404,10 +409,10 @@ const Discover = () => {
                 : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <HelpCircle className="h-4 w-4 text-amber-400" />
-            <span>1. Discoveries & Polls</span>
+            <Compass className="h-4 w-4 text-amber-400" />
+            <span>{t("discover.pathTab")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-bold">
-              Acquire Signal
+              {t("discover.pathTabBadge")}
             </span>
           </button>
 
@@ -468,20 +473,20 @@ const Discover = () => {
             <span>Places & Venues</span>
           </button>
         </div>
+        )}
 
-        {/* Gamification Highlights */}
+        {isPathExperience ? null : (
         <StoryGamificationRail
           onOpenWheel={() => setWheelOpen(true)}
           onOpenStreak={() => setStreakOpen(true)}
         />
+        )}
 
-        {/* Main Content Layout with Right Rail */}
         <div className="flex gap-8 items-start">
           <div className="flex-1 space-y-8 min-w-0">
 
-            {/* TAB 1: DISCOVERIES & COMMUNITY DEMAND SIGNALS (PARTICIPANT WEDGE) */}
             {activeTab === "discoveries" && (
-              <div className="space-y-6">
+              <div className="space-y-8">
                 {hubDiscoveries.length > 0 ? (
                   <DiscoveryPath
                     polls={hubDiscoveries}
@@ -512,6 +517,23 @@ const Discover = () => {
                     onShowLiveHub={() => setCity(getDefaultCityHub())}
                   />
                 )}
+                <nav aria-label={t("discover.pathPageTitle")} className="flex flex-wrap gap-2 border-t border-white/10 pt-6">
+                  <p className="w-full text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
+                    {t("discover.pathBrowseEyebrow")} · {city.name}
+                  </p>
+                  <button type="button" onClick={() => handleTabChange("perks")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-emerald-400/50 hover:text-white">
+                    Perks & Drops
+                  </button>
+                  <button type="button" onClick={() => handleTabChange("moments")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-primary/50 hover:text-white">
+                    Moments & Events
+                  </button>
+                  <button type="button" onClick={() => handleTabChange("distribute")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-purple-400/50 hover:text-white">
+                    Things to Share
+                  </button>
+                  <button type="button" onClick={() => handleTabChange("places")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-primary/50 hover:text-white">
+                    Places & Venues
+                  </button>
+                </nav>
               </div>
             )}
 
@@ -762,13 +784,14 @@ const Discover = () => {
 
           </div>
 
-          {/* Right Discovery Rail */}
+          {isPathExperience ? null : (
           <DiscoverRightRail
             onToggleMap={() => setViewMode((v) => (v === "map" ? "grid" : "map"))}
             isMapMode={viewMode === "map"}
             moments={filteredMoments}
             cityName={city.name}
           />
+          )}
         </div>
 
         {/* Modals */}
