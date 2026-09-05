@@ -35,7 +35,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     }, [profile?.maturity_state]);
 
     const marketingRoutes = [
-        "/", "/for-communities", "/for-brands", "/for-creators", "/for-merchants", "/for-agencies", "/for-enterprise", "/for-causes",
+        "/welcome", "/for-communities", "/for-brands", "/for-creators", "/for-merchants", "/for-agencies", "/for-enterprise", "/for-causes",
         "/auth", "/onboarding", "/propose", "/strategies", "/bounties",
         "/help", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
         "/economy", "/promopush/info", "/careers", "/go", "/free", "/campaigns"
@@ -47,17 +47,18 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     // Consumer preview routes provide their own canonical participant shell and
     // must not inherit DashboardLayout or the marketing header/footer.
     const previewMode = new URLSearchParams(location.search).get("preview");
+    const isConsumerHome = location.pathname === "/";
     const isConsumerPreview =
         location.pathname === "/app-preview" ||
         location.pathname.startsWith("/app-preview/") ||
-        (location.pathname === "/" && previewMode === "consumer");
+        (isConsumerHome && previewMode === "consumer");
 
     const isOrganizerWorkspace = location.pathname.startsWith("/organizer/");
     const isDropLanding = location.pathname.startsWith("/drop/");
     const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname) || isDropLanding;
     const showFooterCta = !["/live", "/pulse"].includes(location.pathname);
 
-    if (isConsumerPreview || isOrganizerWorkspace || isDropLanding) {
+    if (isConsumerHome || isConsumerPreview || isOrganizerWorkspace || isDropLanding) {
         return <>{children || <Outlet />}</>;
     }
 

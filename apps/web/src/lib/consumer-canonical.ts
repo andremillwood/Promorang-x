@@ -112,9 +112,9 @@ export interface ConsumerAction {
  * explicitly needs a dedicated management surface.
  */
 export const CONSUMER_PRIMARY_NAV = [
-  { label: "Home", href: "/app", intent: "personalized" },
+  { label: "Home", href: "/", intent: "personalized" },
   { label: "Discover", href: "/discover", intent: "explore" },
-  { label: "Saved", href: "/saved", intent: "remember" },
+  { label: "PromoCard", href: "/card", intent: "spend" },
   { label: "Rewards", href: "/rewards", intent: "value" },
   { label: "You", href: "/profile", intent: "identity" },
 ] as const;

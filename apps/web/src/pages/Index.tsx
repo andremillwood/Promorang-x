@@ -1,12 +1,9 @@
 import SEO from "@/components/SEO";
-import CinematicCultureHome from "@/components/CinematicCultureHome";
 import ConsumerHomePreview from "@/pages/ConsumerHomePreview";
 import ConsumerMomentPreview from "@/pages/ConsumerMomentPreview";
 import { useLayoutEffect } from "react";
-import { useI18n } from "@/i18n/I18nContext";
 
 const Index = () => {
-  const { t } = useI18n();
   const searchParams = new URLSearchParams(window.location.search);
   const isConsumerPreview = searchParams.get("preview") === "consumer";
   const consumerMomentId = searchParams.get("moment");
@@ -21,17 +18,13 @@ const Index = () => {
     return <ConsumerMomentPreview />;
   }
 
-  if (isConsumerPreview) {
-    return <ConsumerHomePreview />;
-  }
-
   return (
     <div className="min-h-screen">
       <SEO
-        title={t("home.seoTitle")}
-        description={t("home.seoDescription")}
+        title="Today — Promorang"
+        description="Find what is worth moving for tonight. PromoCard, Moments, passes, and proof — not a directory of deals."
       />
-      <CinematicCultureHome />
+      <ConsumerHomePreview />
     </div>
   );
 };
