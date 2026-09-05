@@ -11,6 +11,8 @@ import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/people/ExperienceShell";
 import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
+import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
+import { resolveDemandRole } from "@/lib/discovery-demand";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -169,6 +171,7 @@ export default function PeopleHome() {
         <section className="grid gap-3">
           {[
             { href: "/give", label: "Give something", detail: "Put a perk on your people’s PromoCards.", stub: "GIVE", stubLabel: "Perk" },
+            { href: "/demand", label: "Open what they asked", detail: "Named asks from Discover. Put a night or question on the misses.", stub: "ASK", stubLabel: "Inbox" },
             { href: "/create", label: "Create something", detail: "Ask them to go, try, answer or show up.", stub: "MAKE", stubLabel: "Move" },
           ].map((action) => (
             <Link key={action.href} to={to(action.href)} className="block">
@@ -205,6 +208,8 @@ export default function PeopleHome() {
 
       {role !== "member" ? (
         <section className="space-y-3">
+          <h2 className="font-serif text-2xl font-bold">What they asked</h2>
+          <DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" />
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-2xl font-bold">Perks you can give</h2>
             <Link to={to("/give")} className="text-sm text-primary">See all</Link>

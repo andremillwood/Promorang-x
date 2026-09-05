@@ -4,6 +4,9 @@ import { CREATE_INTENTS, resolveCreateIntent } from "@promorang/shared";
 import { useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell } from "@/components/people/ExperienceShell";
+import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
+import { resolveDemandRole } from "@/lib/discovery-demand";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 export default function CreateSomething() {
@@ -12,6 +15,7 @@ export default function CreateSomething() {
   const { ask } = useExperienceActions();
   const to = useExperiencePath();
   const { toast } = useToast();
+  const { activeRole } = useAuth();
   const selected = resolveCreateIntent(params.get("intent"));
   const [question, setQuestion] = useState("");
 
@@ -36,6 +40,8 @@ export default function CreateSomething() {
       description="You choose the behaviour. PROMORANG picks the right tool underneath."
       backTo="/dashboard"
     >
+      <DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" />
+
       <div className="grid gap-2">
         {CREATE_INTENTS.map((item) => (
           <Link
