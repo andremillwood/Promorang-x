@@ -72,40 +72,14 @@ export class SplitTenderService {
   }
 
   public static executeTransaction(
-    merchantId: string,
-    merchantName: string,
-    grossAmount: number,
-    usePromoCredit: boolean = true
+    _merchantId: string,
+    _merchantName: string,
+    _grossAmount: number,
+    _usePromoCredit: boolean = true
   ): { success: boolean; receipt?: SplitTenderReceipt; error?: string } {
-    const calculation = this.calculateSplit(grossAmount, merchantId, usePromoCredit);
-
-    if (calculation.promoDiscountApplied > 0) {
-      const deduction = PromoCardService.deductBalance(calculation.promoDiscountApplied);
-      if (!deduction.success) {
-        return { success: false, error: deduction.error };
-      }
-    }
-
-    // Record redemption at merchant
-    MarginPoolService.recordRedemption(
-      merchantId,
-      calculation.fiatCashPayable,
-      calculation.promoDiscountApplied
-    );
-
-    const receipt: SplitTenderReceipt = {
-      id: `rcpt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-      timestamp: new Date().toISOString(),
-      merchantId,
-      merchantName,
-      grossAmount,
-      promoDiscountApplied: calculation.promoDiscountApplied,
-      fiatCashCharged: calculation.fiatCashPayable,
-      platformFee: calculation.platformFee,
-      netMerchantReceived: calculation.netMerchantPayout,
-      savingsSummary: `Saved $${calculation.promoDiscountApplied.toFixed(2)} with your Promorang Card!`,
+    return {
+      success: false,
+      error: "PromoCard does not complete simulated payments. Claim a live perk and have the merchant validate it.",
     };
-
-    return { success: true, receipt };
   }
 }

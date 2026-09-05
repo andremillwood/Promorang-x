@@ -7,6 +7,8 @@ const {
   accountStakeholderOutcomes,
   displayName,
   givenName,
+  toPromoCardBenefit,
+  canUseBenefit,
 } = require('../../services/peopleExperienceService');
 
 describe('people experience role and value rules', () => {
@@ -80,6 +82,18 @@ describe('people experience role and value rules', () => {
     expect(displayName({ display_name: 'Member', full_name: 'Adam Flash' })).toBe('Adam Flash');
     expect(givenName({ display_name: 'Member', email: 'dev@flashcreate.co' })).toBe('Dev');
     expect(displayName({ display_name: '', username: '' }, 'there')).toBe('there');
+  });
+
+  test('card perks stay incomplete until merchant validation is recorded', () => {
+    const perk = toPromoCardBenefit({
+      id: 'iss-9',
+      offer: { id: 'offer-9', owner_user_id: 'merchant-9', fulfillment_type: 'merchant_validation' },
+      issuance: { status: 'claimed', redemption_code: 'PR-LIVE01' },
+      issuerName: 'Participating kitchen',
+    });
+    expect(perk.issuer.id).toBe('merchant-9');
+    expect(perk.redemption.recorded).toBe(false);
+    expect(canUseBenefit(perk)).toBe(true);
   });
 
   test('copies attribution from existing metadata keys', () => {

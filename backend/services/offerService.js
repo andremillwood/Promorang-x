@@ -249,6 +249,10 @@ async function redeemByCode(actorUserId, redemptionCode, venueId, notes) {
         venue_id: venueId || null,
       },
     });
+    const reward = await peopleExperience.awardContributorOnRedemption({ issuance, offer });
+    data.contributorReward = reward;
+    const card = await peopleExperience.getCard(issuance.user_id);
+    data.nextBenefit = card?.nextBenefit || null;
   } catch (experienceError) {
     console.warn('[offerService] people experience redemption skipped:', experienceError.message);
   }

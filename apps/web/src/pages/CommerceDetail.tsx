@@ -11,7 +11,7 @@ import { useCommerceActions } from '@/hooks/useCommerceActions';
 import { commerceCategorySlug, isSampleCommerceListing } from '@/lib/commerce-provenance';
 import { KINGSTON_EXPERIENCE_LISTINGS } from '@/pages/Marketplace';
 import { useI18n } from '@/i18n/I18nContext';
-import { SplitTenderCheckoutModal, PromoAcceptanceBadge } from '@/components/promocard';
+import { PromoAcceptanceBadge } from '@/components/promocard';
 
 export default function CommerceDetail() {
   const { t, locale, formatNumber } = useI18n();
@@ -24,7 +24,6 @@ export default function CommerceDetail() {
   const [selectedMerchantMethod, setSelectedMerchantMethod] = useState('');
   const [reservationMessage, setReservationMessage] = useState('');
   const [gemCheckoutBusy, setGemCheckoutBusy] = useState(false);
-  const [splitTenderOpen, setSplitTenderOpen] = useState(false);
 
   const q = useQuery({
     queryKey: ['commerce-detail', listingId],
@@ -225,11 +224,13 @@ export default function CommerceDetail() {
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
               <Button
                 size="lg"
-                onClick={() => setSplitTenderOpen(true)}
+                asChild
                 className="sm:col-span-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold h-12 rounded-xl text-sm shadow-lg shadow-amber-500/20 gap-2"
               >
-                <CreditCard className="h-5 w-5 fill-black" />
-                <span>Pay with Promorang Card (Split-Tender)</span>
+                <Link to="/card">
+                  <CreditCard className="h-5 w-5 fill-black" />
+                  <span>Use this on PromoCard</span>
+                </Link>
               </Button>
               <Button size="lg" disabled={isSample || !!actions.busy} onClick={() => actions.purchase(sourceId, amount, 'reservation')}>
                 {isSample ? t("commerce.sampleOnly") : actions.busy ? t("commerce.working") : x.discount_value ? t("commerce.reserveOffer") : t("commerce.reserve")}
@@ -282,18 +283,6 @@ export default function CommerceDetail() {
           </div>
         </DialogContent>
       </Dialog>
-
-      <SplitTenderCheckoutModal
-        isOpen={splitTenderOpen}
-        onClose={() => setSplitTenderOpen(false)}
-        merchantId={x.merchant_user_id || `merchant_${sourceId}`}
-        merchantName={x.merchant_name || 'Promorang Partner Merchant'}
-        itemTitle={x.name || 'Experience Order'}
-        grossAmount={Number(amount) || 45.0}
-        onSuccess={() => {
-          queryClient.invalidateQueries({ queryKey: ['commerce-detail'] });
-        }}
-      />
     </main>
   );
 }

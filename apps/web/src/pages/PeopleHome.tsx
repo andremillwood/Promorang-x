@@ -106,9 +106,10 @@ export default function PeopleHome() {
               <PromoCardFace
                 className="max-w-none"
                 holder={givenName === "there" ? "Your card" : givenName}
-                available={gems ? `${gems.toLocaleString()} Gems` : `${points.toLocaleString()} pts`}
-                limit={`${keys} keys`}
-                places={data?.communities?.[0]?.title || "Your perks live here"}
+                available={data?.card?.useThis ? "Ready to use" : data?.card?.nearby?.length ? "Available nearby" : gems ? `${gems.toLocaleString()} Gems` : `${points.toLocaleString()} pts`}
+                limit={data?.card?.useThis?.title || data?.card?.nextBenefit?.title || `${keys} keys`}
+                places={data?.card?.useThis?.issuer?.name || data?.communities?.[0]?.title || "Your perks live here"}
+                action={data?.card?.useThis ? "Use this" : data?.card?.nearby?.length ? "Available nearby" : undefined}
               />
             </div>
             <Link
