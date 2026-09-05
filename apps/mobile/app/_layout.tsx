@@ -166,7 +166,6 @@ function RootLayoutNav() {
         <Stack.Screen name="people" options={{ headerShown: false }} />
         <Stack.Screen name="give" options={{ headerShown: false }} />
         <Stack.Screen name="earn" options={{ headerShown: false }} />
-        <Stack.Screen name="card" options={{ headerShown: false }} />
         <Stack.Screen name="stock" options={{ headerShown: false }} />
         <Stack.Screen name="start" options={{ headerShown: false }} />
         <Stack.Screen name="drop/[slug]" options={{ headerShown: false }} />

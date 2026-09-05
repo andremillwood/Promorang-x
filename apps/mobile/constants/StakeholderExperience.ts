@@ -51,7 +51,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
     steps: [
       { title: 'Discover a moment', detail: 'Choose a live experience nearby.', href: '/discover', icon: 'compass' },
       { title: 'Let the host know you made it', detail: 'Check in when you arrive.', href: '/check-in', icon: 'location' },
-      { title: 'Keep what you earned', detail: 'See memories, access, and rewards.', href: '/vault', icon: 'archive' },
+      { title: 'Use your PromoCard', detail: 'Hold the card, spend the perk, keep the memory.', href: '/card', icon: 'card' },
     ],
     tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
   },
