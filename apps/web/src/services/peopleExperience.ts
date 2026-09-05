@@ -45,4 +45,11 @@ export const peopleExperienceApi = {
   invite: (slug: string) => request<Record<string, any>>(`/hubs/${slug}/invite`, { method: "POST", body: "{}" }),
   start: (body: Record<string, unknown>) => request<Record<string, any>>("/start", { method: "POST", body: JSON.stringify(body) }),
   ask: (body: Record<string, unknown>) => request<Record<string, any>>("/ask", { method: "POST", body: JSON.stringify(body) }),
+  unlockDiscover: (body: Record<string, unknown>) =>
+    request<Record<string, any>>("/discover/unlock", { method: "POST", body: JSON.stringify(body) }),
+  putUpFound: (body: Record<string, unknown>) =>
+    request<Record<string, any>>("/found", { method: "POST", body: JSON.stringify(body) }),
+  listFound: (city?: string) => request<any[]>(`/found${city ? `?city=${encodeURIComponent(city)}` : ""}`),
+  claimFound: (id: string) =>
+    request<Record<string, any>>(`/found/${encodeURIComponent(id)}/claim`, { method: "POST", body: "{}" }),
 };

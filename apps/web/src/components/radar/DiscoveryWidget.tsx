@@ -41,6 +41,7 @@ export interface DiscoveryProps {
   targetUnlockPerk?: string;
   onVote?: (discoveryId: string, optionId: string) => void;
   onAddOption?: (discoveryId: string, text: string) => void;
+  landOnCard?: boolean;
 }
 
 export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
@@ -55,7 +56,8 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
   userVotedOptionId: initialUserVotedOptionId,
   targetUnlockPerk,
   onVote,
-  onAddOption
+  onAddOption,
+  landOnCard = false,
 }) => {
   const navigate = useNavigate();
   const { recordAttributedAction } = usePromoShareRail();
@@ -237,8 +239,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
           })}
         </div>
 
-        {/* Post-Vote Micro-Conversion & Related Perk Unlocked */}
-        {votedOptionId && (
+        {votedOptionId && !landOnCard && (
           <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-purple-950/80 via-zinc-900 to-orange-950/80 border border-purple-500/40 shadow-xl space-y-3 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-start space-x-2.5 min-w-0">

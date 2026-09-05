@@ -74,6 +74,13 @@ describe('people experience role and value rules', () => {
     expect(typeof require('../../services/peopleExperienceService').provideInventory).toBe('function');
   });
 
+  test('found listings can be put up and claimed into a workspace', () => {
+    const service = require('../../services/peopleExperienceService');
+    expect(typeof service.putUpFound).toBe('function');
+    expect(typeof service.claimFound).toBe('function');
+    expect(typeof service.listFound).toBe('function');
+  });
+
   test('copies attribution from existing metadata keys', () => {
     expect(attributionFromMetadata({
       sceneId: 'scene-1',

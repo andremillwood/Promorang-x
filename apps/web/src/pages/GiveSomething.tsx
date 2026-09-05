@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AUDIENCE_LABELS, PERK_KIND_LABELS, dropShareCopy, type DropAudience, type PerkKind } from "@promorang/shared";
 import { useGiveablePerks, useExperienceActions } from "@/hooks/usePeopleExperience";
@@ -6,6 +6,7 @@ import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { readLocalFoundListings } from "@/lib/discovery-found";
 
 const KINDS = Object.entries(PERK_KIND_LABELS) as Array<[PerkKind, string]>;
 const AUDIENCES = Object.entries(AUDIENCE_LABELS) as Array<[DropAudience, string]>;
@@ -20,7 +21,20 @@ export default function GiveSomething() {
   const giverName = profile?.full_name?.split(" ")[0] || user?.user_metadata?.full_name?.split(" ")[0] || "Someone";
   const [kind, setKind] = useState<PerkKind>((params.get("kind") as PerkKind) || "complimentary");
   const [audience, setAudience] = useState<DropAudience>("everyone");
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(params.get("title") || "");
+  const foundId = params.get("found");
+  const foundListing = foundId
+    ? readLocalFoundListings().find((row) => row.id === foundId) || {
+        title: params.get("title") || "",
+        perkToFinder: "",
+        words: params.get("title") || "",
+      }
+    : null;
+
+  useEffect(() => {
+    const nextTitle = foundListing?.title || params.get("title") || "";
+    if (nextTitle) setTitle((current) => current || nextTitle);
+  }, [foundId]);
   const [limit, setLimit] = useState("50");
   const [offerId, setOfferId] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState("");
@@ -55,6 +69,16 @@ export default function GiveSomething() {
       description="Drop it onto their PromoCards. They should never need to understand the machinery underneath."
       backTo="/dashboard"
     >
+      {foundListing ? (
+        <section className="rounded-[1.4rem] border border-emerald-400/30 bg-emerald-400/10 px-4 py-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">Claimed from Discover</p>
+          <p className="mt-2 font-serif text-2xl font-bold">{foundListing.title}</p>
+          <p className="mt-1 text-sm text-white/60">
+            The asks come with this place.
+            {foundListing.perkToFinder ? ` Finder keeps “${foundListing.perkToFinder}”.` : ""}
+          </p>
+        </section>
+      ) : null}
       <section>
         <div className="grid grid-cols-2 gap-2">
           {KINDS.map(([id, label]) => (

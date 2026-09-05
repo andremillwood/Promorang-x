@@ -115,6 +115,7 @@ const PeopleHome = lazy(() => import("./pages/PeopleHome"));
 const MyPeople = lazy(() => import("./pages/MyPeople"));
 const GiveSomething = lazy(() => import("./pages/GiveSomething"));
 const CreateSomething = lazy(() => import("./pages/CreateSomething"));
+const DemandInbox = lazy(() => import("./pages/DemandInbox"));
 const EarnOpportunities = lazy(() => import("./pages/EarnOpportunities"));
 const WhatHappened = lazy(() => import("./pages/WhatHappened"));
 const MyPromoCard = lazy(() => import("./pages/MyPromoCard"));
@@ -313,6 +314,7 @@ const App = () => (
                     <Route path="/why-join" element={<Navigate to="/" replace />} />
                     <Route path="/propose" element={<ProposeLanding />} />
                     <Route path="/create" element={<ProtectedRoute><CreateSomething /></ProtectedRoute>} />
+                    <Route path="/demand" element={<ProtectedRoute><DemandInbox /></ProtectedRoute>} />
                     <Route path="/create/moment" element={<ProtectedRoute><CreateMoment /></ProtectedRoute>} />
                     <Route path="/people" element={<ProtectedRoute><MyPeople /></ProtectedRoute>} />
                     <Route path="/give" element={<ProtectedRoute><GiveSomething /></ProtectedRoute>} />
@@ -327,6 +329,8 @@ const App = () => (
                     <Route path="/app-preview/people" element={<MyPeople />} />
                     <Route path="/app-preview/give" element={<GiveSomething />} />
                     <Route path="/app-preview/create" element={<CreateSomething />} />
+                    <Route path="/app-preview/demand" element={<DemandInbox />} />
+                    <Route path="/app-preview/create/moment" element={<CreateMoment />} />
                     <Route path="/app-preview/earn" element={<EarnOpportunities />} />
                     <Route path="/app-preview/happened" element={<WhatHappened />} />
                     <Route path="/app-preview/card" element={<MyPromoCard />} />

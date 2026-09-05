@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
-import { Gift, Plus, Sparkles, Users } from "lucide-react";
+import { Compass, Gift, Plus, Sparkles, Users } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
+import { resolveDemandRole } from "@/lib/discovery-demand";
+import { readLocalCardUnlocks } from "@/lib/discovery-card";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -19,6 +22,7 @@ export default function PeopleHome() {
   const name = data?.name || profile?.full_name?.split(" ")[0] || user?.user_metadata?.full_name?.split(" ")[0] || "You";
   const role = data?.role || (["creator", "host", "promoter", "merchant", "brand"].includes(String(activeRole)) ? "contributor" : "member");
   const communityName = data?.communities?.[0]?.title || name;
+  const latestUnlock = readLocalCardUnlocks()[0];
 
   if (home.isLoading) {
     return (
@@ -95,6 +99,7 @@ export default function PeopleHome() {
         <section className="grid gap-3">
           {[
             { href: "/give", label: "Give something", copy: "Put a perk on your people’s PromoCards.", icon: Gift },
+            { href: "/demand", label: "Open what they asked", copy: "Named asks and finds from Discover. Claim the one that is yours.", icon: Compass },
             { href: "/create", label: "Create something", copy: "Ask them to go, try, answer or show up.", icon: Plus },
             { href: "/people", label: "Grow my network", copy: "See who you brought and who is helping.", icon: Users },
             { href: "/happened", label: "See results", copy: "What your people actually did.", icon: Sparkles },
@@ -124,16 +129,20 @@ export default function PeopleHome() {
               holder={name}
               available={`${Number(data?.wallet?.points || 0).toLocaleString()} pts`}
               limit={`${Number(data?.wallet?.promokeys || 0)} keys`}
-              places="Your perks live here"
+              places={latestUnlock?.perkTitle || "Answer Discover to put something here"}
             />
           </Link>
           <Link to="/discover?tab=discoveries" className="block rounded-[1.6rem] border border-white/10 bg-white/[0.04] px-5 py-5">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">What’s happening</p>
-            <p className="mt-2 font-serif text-2xl font-bold">Name what you want. Then we show the matching poll.</p>
+            <p className="mt-2 font-serif text-2xl font-bold">
+              {latestUnlock ? "Keep answering. What opens lands on your PromoCard." : "Name what you want. Answer one. It lands on your PromoCard."}
+            </p>
           </Link>
         </section>
       ) : (
         <section className="space-y-3">
+          <h2 className="font-serif text-2xl font-bold">What they asked</h2>
+          <DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" />
           {data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole)) ? (
             <Link to={to("/stock")} className="block rounded-[1.7rem] bg-primary px-5 py-5 text-black">
               <p className="text-[10px] font-black uppercase tracking-[0.22em]">Inventory</p>

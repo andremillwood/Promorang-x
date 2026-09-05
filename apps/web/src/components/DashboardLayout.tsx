@@ -163,6 +163,7 @@ const peopleExperienceNav: NavItem[] = [
   { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
   { icon: Users, label: "My People", href: "/people", group: "primary" },
   { icon: Plus, label: "Create", href: "/create", group: "primary" },
+  { icon: Megaphone, label: "Demand", href: "/demand", group: "primary" },
   { icon: Sparkles, label: "Earn", href: "/earn", group: "primary" },
   { icon: CreditCard, label: "PromoCard", href: "/card", group: "primary" },
   { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
@@ -258,7 +259,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const manageNavItems = navItems.filter((item) => item.group === "manage");
   const utilityNavItems = navItems.filter((item) => item.group === "utility");
   const roleInfo = safeRoleInfo(safeRole);
-  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet", "/admin", "/organizer", "/people", "/give", "/earn", "/happened", "/card", "/start", "/stock", "/drop"];
+  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/demand", "/shop", "/wallet", "/admin", "/organizer", "/people", "/give", "/earn", "/happened", "/card", "/start", "/stock", "/drop"];
   const isImmersiveProductRoute = immersiveProductRoutes.some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
