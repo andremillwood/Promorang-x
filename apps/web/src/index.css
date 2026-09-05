@@ -431,6 +431,14 @@
 
   .app-shell-mobile {
     min-height: 100dvh;
+    /* Logged-in mobile tab bar: 58px items + 16px padding, plus device safe area. */
+    --mobile-tabbar-offset: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  @media (min-width: 1024px) {
+    .app-shell-mobile {
+      --mobile-tabbar-offset: 0px;
+    }
   }
 
   .touch-pan-x {
