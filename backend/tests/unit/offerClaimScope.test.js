@@ -3,7 +3,7 @@ jest.mock('../../lib/supabase', () => ({ supabase: { from: mockFrom } }));
 const offers = require('../../services/offerService');
 
 test('a direct claim issues only the selected offer, even when other offers share its event', async () => {
-  const inserted = [];
+  let rpcPayload;
   const offer = (id) => ({
     id, status: 'active', starts_at: '2020-01-01', ends_at: null,
     per_user_limit: 1, quantity_total: 10, quantity_reserved: 0, quantity_redeemed: 0,
@@ -33,7 +33,12 @@ test('a direct claim issues only the selected offer, even when other offers shar
     };
     return chain;
   });
+  const db = require('../../lib/supabase').supabase;
+  db.rpc = jest.fn((name, payload) => {
+    rpcPayload = { name, payload };
+    return Promise.resolve({ data: { id: 'issued-1', offer_id: payload.p_offer_id }, error: null });
+  });
   const result = await offers.directClaim('member-1', 'selected');
   expect(result.offer_id).toBe('selected');
-  expect(inserted.map((item) => item.offer_id)).toEqual(['selected']);
+  expect(rpcPayload).toMatchObject({ name: 'claim_offer_atomic', payload: { p_user_id: 'member-1', p_offer_id: 'selected' } });
 });

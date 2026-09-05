@@ -36,9 +36,9 @@ The canonical wallet, payment fulfillment, merchant settlement, participation/pr
 - Full web TypeScript checking remains failing. Removing the initial syntax blocker exposed 558 diagnostics in the intermediate check; this is not a final post-change count.
 - Lint remains failing with 8 errors and 81 warnings. These are tracked as existing issues, not suppressed.
 - Live browser inspection covered the public homepage and its merchant discovery link, not an authenticated purchase/redemption.
-- No production schema changes, payments, messages, or deployments were performed.
+- Production migration `contain_public_financial_access` was applied after the audit: RLS is now enabled on `payments`, `payment_events`, and `subscriptions`; anonymous user-table access and authenticated financial writes were removed. No customer data, payments, messages, or application deployments were changed.
 
-Build success is not production certification. The owner report identifies schema availability, access-control, inventory-concurrency, redemption, and operational evidence prerequisites before launch.
+Build success is not production certification. Atomic claim/redemption functions and the missing offer/drop schema remain staged pending a migration rehearsal. The owner report identifies the remaining schema, transaction, redemption, and operational evidence prerequisites before launch.
 
 ## Release review
 

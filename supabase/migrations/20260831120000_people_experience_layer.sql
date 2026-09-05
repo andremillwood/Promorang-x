@@ -143,8 +143,7 @@ CREATE POLICY community_drop_claims_own ON public.community_drop_claims
   );
 
 DROP POLICY IF EXISTS community_drop_claims_insert ON public.community_drop_claims;
-CREATE POLICY community_drop_claims_insert ON public.community_drop_claims
-  FOR INSERT WITH CHECK (user_id = auth.uid());
+-- Claims are inserted by the authenticated API through claim_community_drop_atomic.
 
 DROP POLICY IF EXISTS hub_attr_read ON public.hub_member_attributions;
 CREATE POLICY hub_attr_read ON public.hub_member_attributions
@@ -164,6 +163,7 @@ CREATE POLICY hub_attr_insert ON public.hub_member_attributions
   FOR INSERT WITH CHECK (attributed_by_user_id = auth.uid() OR member_user_id = auth.uid());
 
 GRANT SELECT, INSERT, UPDATE ON public.community_drops TO authenticated, service_role;
-GRANT SELECT, INSERT, UPDATE ON public.community_drop_claims TO authenticated, service_role;
+GRANT SELECT ON public.community_drop_claims TO authenticated;
+GRANT SELECT, INSERT, UPDATE ON public.community_drop_claims TO service_role;
 GRANT SELECT, INSERT ON public.hub_member_attributions TO authenticated, service_role;
 GRANT SELECT ON public.community_drops TO anon;

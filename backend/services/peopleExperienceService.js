@@ -544,18 +544,27 @@ function createPeopleExperienceService(db = defaultDb) {
       db.from('community_drop_claims').select('*, community_drops(*)').eq('user_id', userId).eq('status', 'claimed').order('claimed_at', { ascending: false }).limit(12),
     );
     const person = await profileFor(userId);
+    const issuanceIds = new Set((issuances.data || []).map((row) => row.id));
     const perks = [
       ...(issuances.data || []).map((row) => ({
         id: row.id,
         title: row.offers?.title || 'Perk',
         detail: row.offers?.description || '',
         kind: row.offers?.reward_type || 'custom',
+        status: row.status,
+        redemptionCode: row.redemption_code || null,
+        expiresAt: row.expires_at || null,
+        fulfillmentType: row.offers?.fulfillment_type || null,
       })),
-      ...(dropClaims.data || []).map((row) => ({
+      ...(dropClaims.data || []).filter((row) => !row.offer_issuance_id || !issuanceIds.has(row.offer_issuance_id)).map((row) => ({
         id: row.id,
         title: row.community_drops?.title || 'Drop',
         detail: row.community_drops?.description || '',
         kind: row.community_drops?.perk_kind || 'custom',
+        status: row.status,
+        redemptionCode: null,
+        expiresAt: null,
+        fulfillmentType: null,
       })),
     ];
     return {
@@ -725,37 +734,13 @@ function createPeopleExperienceService(db = defaultDb) {
 
   async function claimDrop(userId, slug) {
     if (!userId) throw new Error('Join to claim this');
-    const drop = await getDrop(slug);
-    if (!drop) throw new Error('This drop is no longer available');
-    if (drop.status !== 'active') throw new Error('This drop has closed');
-    if (drop.remaining !== null && Number(drop.remaining) <= 0) throw new Error('It is already gone');
-
-    const existing = await maybe(db.from('community_drop_claims').select('id').eq('drop_id', drop.id).eq('user_id', userId).maybeSingle());
-    if (existing.data) return { alreadyClaimed: true, drop };
-
-    let issuance = null;
-    if (drop.offer_id) {
-      issuance = await offerService.directClaim(userId, drop.offer_id);
-    }
-
-    const claim = await db.from('community_drop_claims').insert({
-      drop_id: drop.id,
-      user_id: userId,
-      referrer_id: drop.creator_id,
-      scene_id: drop.scene_id,
-      offer_issuance_id: issuance?.id || null,
-      status: 'claimed',
-      metadata: { offer_id: drop.offer_id },
-    }).select().single();
-    if (claim.error) throw claim.error;
-
-    if (drop.remaining !== null) {
-      await maybe(db.from('community_drops').update({
-        remaining: Math.max(0, Number(drop.remaining) - 1),
-        status: Number(drop.remaining) - 1 <= 0 ? 'exhausted' : 'active',
-        updated_at: new Date().toISOString(),
-      }).eq('id', drop.id));
-    }
+    const claimed = await db.rpc('claim_community_drop_atomic', { p_user_id: userId, p_slug: slug });
+    if (claimed.error) throw claimed.error;
+    const result = claimed.data;
+    const drop = result.drop;
+    const claim = result.claim;
+    const issuance = result.issuance || null;
+    if (result.already_claimed) return { alreadyClaimed: true, drop, claim, issuance };
 
     if (drop.scene_id) {
       await joinScene({ userId, sceneId: drop.scene_id, invitedBy: drop.creator_id });
@@ -791,7 +776,7 @@ function createPeopleExperienceService(db = defaultDb) {
       metadata: { slug: drop.slug, title: drop.title },
     });
 
-    return { drop, claim: claim.data, issuance };
+    return { drop, claim, issuance };
   }
 
   async function takeOpportunity(userId, opportunityId, sceneId) {

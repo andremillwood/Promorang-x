@@ -167,12 +167,16 @@ async function issueForEvent({ userId, channel, event, sourceId, sourceEventId, 
 }
 
 async function directClaim(userId, offerId) {
-  const offer = await getOffer(offerId, userId);
-  const distribution = (offer.offer_distributions || []).find((item) => item.channel === 'direct' && item.is_active);
-  if (!distribution) throw new Error('This offer is not available for direct claim');
-  const rows = await issueForEvent({ userId, offerId, channel: 'direct', event: distribution.trigger_event, sourceId: distribution.source_id, sourceEventId: `direct:${offerId}:${userId}` });
-  if (!rows.length) throw new Error('Offer unavailable, already claimed, or out of stock');
-  return rows[0];
+  const { data: issuance, error } = await supabase.rpc('claim_offer_atomic', {
+    p_user_id: userId,
+    p_offer_id: offerId,
+    p_source_event_id: `direct:${offerId}:${userId}`,
+    p_metadata: {},
+  });
+  if (error) throw error;
+  const { data: offer, error: offerError } = await supabase.from('offers').select('*').eq('id', offerId).single();
+  if (offerError) throw offerError;
+  return { ...issuance, offer };
 }
 
 async function claimIssuance(userId, issuanceId) {
@@ -207,20 +211,16 @@ async function listUserIssuances(userId) {
 }
 
 async function redeemByCode(actorUserId, redemptionCode, venueId, notes) {
-  const { data: issuance, error } = await supabase.from('offer_issuances').select('*, offers(*)').eq('redemption_code', redemptionCode.toUpperCase()).single();
-  if (error || !issuance) throw new Error('Redemption code not found');
-  if (!['claimed', 'issued', 'fulfillment_pending'].includes(issuance.status)) throw new Error('Offer is not redeemable');
-  if (issuance.expires_at && new Date(issuance.expires_at) <= new Date()) throw new Error('Offer has expired');
-  const offer = issuance.offers;
-  if (offer.owner_user_id !== actorUserId && offer.fulfillment_type === 'merchant_validation') {
-    throw new Error('Only the issuing business can validate this offer');
-  }
-  const { data, error: updateError } = await supabase.from('offer_issuances').update({ status: 'redeemed', redeemed_at: new Date().toISOString(), redeemed_by: actorUserId }).eq('id', issuance.id).select('*, offers(*)').single();
-  if (updateError) throw updateError;
-  await Promise.all([
-    supabase.from('offers').update({ quantity_reserved: Math.max(0, offer.quantity_reserved - 1), quantity_redeemed: offer.quantity_redeemed + 1 }).eq('id', offer.id),
-    supabase.from('offer_redemption_events').insert({ issuance_id: issuance.id, event_type: 'redeemed', actor_user_id: actorUserId, venue_id: venueId || null, notes: notes || null }),
-  ]);
+  const { data: issuance, error } = await supabase.rpc('redeem_offer_atomic', {
+    p_actor_user_id: actorUserId,
+    p_redemption_code: redemptionCode,
+    p_venue_id: venueId || null,
+    p_notes: notes || null,
+  });
+  if (error) throw error;
+  const { data: offer, error: offerError } = await supabase.from('offers').select('*').eq('id', issuance.offer_id).single();
+  if (offerError) throw offerError;
+  const data = { ...issuance, offers: offer };
   const revenueFunnels = require('./revenueFunnelService');
   await revenueFunnels.record({
     userId: issuance.user_id,
@@ -249,12 +249,6 @@ async function redeemByCode(actorUserId, redemptionCode, venueId, notes) {
         venue_id: venueId || null,
       },
     });
-    if (issuance.metadata?.drop_id) {
-      const { supabase: db } = require('../lib/supabase');
-      if (db) {
-        await db.from('community_drop_claims').update({ status: 'redeemed' }).eq('offer_issuance_id', issuance.id);
-      }
-    }
   } catch (experienceError) {
     console.warn('[offerService] people experience redemption skipped:', experienceError.message);
   }
