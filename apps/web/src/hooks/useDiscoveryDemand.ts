@@ -12,6 +12,7 @@ import {
   type DemandPoll,
   type NamedIntent,
 } from "@/lib/discovery-demand";
+import { mergeUnlockTallies, readLocalCardUnlocks, tallyCardUnlocks, type UnlockTally } from "@/lib/discovery-card";
 import { intentWords, mergeDiscoveryPolls } from "@/lib/discovery-path";
 import { useCityDiscoveryPolls } from "@/hooks/useCityDiscoveryPolls";
 import { useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
@@ -129,14 +130,37 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
     [listingPolls.data, cityPolls.data],
   );
 
+  const unlocksQuery = useQuery({
+    queryKey: ["discovery-card-unlocks", cityName],
+    initialData: () => tallyCardUnlocks(readLocalCardUnlocks().filter((row) => row.city === cityName)),
+    queryFn: async (): Promise<UnlockTally[]> => {
+      const local = tallyCardUnlocks(readLocalCardUnlocks().filter((row) => !row.city || row.city === cityName));
+      try {
+        const { data, error } = await (supabase as any).rpc("list_discovery_card_unlock_counts", {
+          p_city: cityName,
+        });
+        if (error) return local;
+        const remote = ((data || []) as Array<{ poll_id: string; on_cards: number; used: number }>).map((row) => ({
+          pollId: row.poll_id,
+          onCards: row.on_cards || 0,
+          used: row.used || 0,
+        }));
+        return mergeUnlockTallies(remote, local);
+      } catch {
+        return local;
+      }
+    },
+  });
+
   const inbox: DemandInbox = useMemo(
     () =>
       buildDiscoveryDemandInbox({
         polls,
         intents: intentsQuery.data || [],
+        unlocks: unlocksQuery.data || [],
         city: cityName,
       }),
-    [polls, intentsQuery.data, cityName],
+    [polls, intentsQuery.data, unlocksQuery.data, cityName],
   );
 
   const record = useMutation({
@@ -148,7 +172,7 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
 
   return {
     inbox,
-    isLoading: cityPolls.isLoading || listingPolls.isLoading || intentsQuery.isLoading,
+    isLoading: cityPolls.isLoading || listingPolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
     recordAsk: record.mutateAsync,
   };
 }

@@ -7,6 +7,7 @@ import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/Exper
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { resolveDemandRole } from "@/lib/discovery-demand";
+import { readLocalCardUnlocks } from "@/lib/discovery-card";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -21,6 +22,7 @@ export default function PeopleHome() {
   const name = data?.name || profile?.full_name?.split(" ")[0] || user?.user_metadata?.full_name?.split(" ")[0] || "You";
   const role = data?.role || (["creator", "host", "promoter", "merchant", "brand"].includes(String(activeRole)) ? "contributor" : "member");
   const communityName = data?.communities?.[0]?.title || name;
+  const latestUnlock = readLocalCardUnlocks()[0];
 
   if (home.isLoading) {
     return (
@@ -127,12 +129,14 @@ export default function PeopleHome() {
               holder={name}
               available={`${Number(data?.wallet?.points || 0).toLocaleString()} pts`}
               limit={`${Number(data?.wallet?.promokeys || 0)} keys`}
-              places="Your perks live here"
+              places={latestUnlock?.perkTitle || "Answer Discover to put something here"}
             />
           </Link>
           <Link to="/discover?tab=discoveries" className="block rounded-[1.6rem] border border-white/10 bg-white/[0.04] px-5 py-5">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">What’s happening</p>
-            <p className="mt-2 font-serif text-2xl font-bold">Name what you want. Then we show the matching poll.</p>
+            <p className="mt-2 font-serif text-2xl font-bold">
+              {latestUnlock ? "Keep answering. What opens lands on your PromoCard." : "Name what you want. Answer one. It lands on your PromoCard."}
+            </p>
           </Link>
         </section>
       ) : (

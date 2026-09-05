@@ -528,11 +528,12 @@ function createPeopleExperienceService(db = defaultDb) {
   }
 
   async function getCard(userId) {
-    const [wallet, card, issuances, memberships] = await Promise.all([
+    const [wallet, card, issuances, memberships, discoverUnlocks] = await Promise.all([
       getWallet(userId),
       maybe(db.from('user_promo_cards').select('*').eq('user_id', userId).maybeSingle()),
       maybe(db.from('offer_issuances').select('*, offers(*)').eq('user_id', userId).in('status', ['issued', 'claimed', 'fulfillment_pending']).order('issued_at', { ascending: false }).limit(12)),
       membershipsFor(userId),
+      maybe(db.from('discovery_card_unlocks').select('*').eq('user_id', userId).eq('status', 'claimed').order('created_at', { ascending: false }).limit(12)),
     ]);
     const dropClaims = await maybe(
       db.from('community_drop_claims').select('*, community_drops(*)').eq('user_id', userId).eq('status', 'claimed').order('claimed_at', { ascending: false }).limit(12),
@@ -559,6 +560,17 @@ function createPeopleExperienceService(db = defaultDb) {
         redemptionCode: null,
         expiresAt: null,
         fulfillmentType: null,
+      })),
+      ...(discoverUnlocks.data || []).map((row) => ({
+        id: row.id,
+        title: row.perk_title || 'City perk',
+        detail: row.poll_question || '',
+        kind: 'discover',
+        status: row.status,
+        redemptionCode: row.redemption_code || null,
+        expiresAt: null,
+        fulfillmentType: 'show_code',
+        fromDiscover: true,
       })),
     ];
     return {
@@ -979,6 +991,54 @@ function createPeopleExperienceService(db = defaultDb) {
     };
   }
 
+  async function unlockDiscover(userId, payload) {
+    if (!payload?.pollId || !payload?.question) throw new Error('Answer a live question first.');
+    const perkTitle = String(payload.perkTitle || payload.targetUnlockPerk || 'City perk').replace(/^[^\w]+/, '').trim() || 'City perk';
+    const existing = await maybe(
+      db.from('discovery_card_unlocks').select('*').eq('user_id', userId).eq('poll_id', payload.pollId).maybeSingle(),
+    );
+    if (existing.data) {
+      return {
+        id: existing.data.id,
+        redemptionCode: existing.data.redemption_code,
+        perkTitle: existing.data.perk_title,
+        alreadyOnCard: true,
+      };
+    }
+    const code = `PR-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+    const inserted = await maybe(db.from('discovery_card_unlocks').insert({
+      city: payload.city || 'Kingston & St. Andrew',
+      poll_id: payload.pollId,
+      poll_question: payload.question,
+      perk_title: perkTitle,
+      query_raw: payload.query || null,
+      user_id: userId,
+      redemption_code: code,
+      status: 'claimed',
+    }).select().maybeSingle());
+    if (inserted.error && !String(inserted.error.message || '').includes('duplicate')) throw inserted.error;
+    const saved = inserted.data || (await maybe(
+      db.from('discovery_card_unlocks').select('*').eq('user_id', userId).eq('poll_id', payload.pollId).maybeSingle(),
+    )).data;
+    if (!saved) throw new Error('Could not put that on the card yet.');
+    await recordVerifiedAction({
+      userId,
+      actionType: 'DISCOVERY_RESPONSE',
+      metadata: { kind: 'discover_answer', poll_id: payload.pollId, question: payload.question },
+    });
+    await recordVerifiedAction({
+      userId,
+      actionType: 'PERK_CLAIM',
+      metadata: { kind: 'discover_card_unlock', poll_id: payload.pollId, perk_title: perkTitle },
+    });
+    return {
+      id: saved.id,
+      redemptionCode: saved.redemption_code,
+      perkTitle: saved.perk_title,
+      alreadyOnCard: Boolean(existing.data),
+    };
+  }
+
   async function createAsk(userId, payload) {
     if (!payload?.question) throw new Error('What do you want to ask?');
     const inserted = await maybe(db.from('discovery_questions').insert({
@@ -1019,6 +1079,7 @@ function createPeopleExperienceService(db = defaultDb) {
     inviteToHub,
     startCommunity,
     createAsk,
+    unlockDiscover,
     joinScene,
     recordVerifiedAction,
     ensureHubAttribution,

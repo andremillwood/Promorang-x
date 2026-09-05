@@ -91,4 +91,8 @@ router.post('/ask', async (req, res) => {
   try { return ok(res, await experience.createAsk(req.user.id, req.body || {}), 201); } catch (error) { return fail(res, error); }
 });
 
+router.post('/discover/unlock', async (req, res) => {
+  try { return ok(res, await experience.unlockDiscover(req.user.id, req.body || {}), 201); } catch (error) { return fail(res, error); }
+});
+
 module.exports = router;
