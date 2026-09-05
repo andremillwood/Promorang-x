@@ -27,9 +27,7 @@ import {
 import { getSiteUrl } from "@/lib/discovery";
 import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModal";
 import { PromorangMap, MapMarkerItem } from "@/components/PromorangMap";
-import { StoryGamificationRail } from "@/components/StoryGamificationRail";
-import { SpinWheelModal } from "@/components/SpinWheelModal";
-import { DailyRewardsModal } from "@/components/DailyRewardsModal";
+import { worldObjectState } from "@promorang/shared";
 import { DiscoverRightRail } from "@/components/discovery/DiscoverRightRail";
 import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
 import { useMarket } from "@/contexts/MarketContext";
@@ -525,11 +523,6 @@ const Discover = () => {
           </button>
         </div>
 
-        <StoryGamificationRail
-          onOpenWheel={() => setWheelOpen(true)}
-          onOpenStreak={() => setStreakOpen(true)}
-        />
-
         <div className="flex gap-8 items-start">
           <div className="flex-1 space-y-8 min-w-0">
 
@@ -667,6 +660,13 @@ const Discover = () => {
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   {filteredMoments.map((item) => {
                     const status = getMomentStatus(item);
+                    const chips = item.host_id === "editorial"
+                      ? []
+                      : worldObjectState({
+                          pulseState: item.pulse_state,
+                          startsAt: item.starts_at,
+                          sceneTitle: item.scene_title,
+                        });
                     return (
                       <div
                         key={item.id}
@@ -699,6 +699,15 @@ const Discover = () => {
                               <MapPin className="h-3.5 w-3.5 text-white/40 shrink-0" />
                               <span>{item.venue_name || item.location}</span>
                             </p>
+                            {chips.length ? (
+                              <div className="flex flex-wrap gap-1.5 pt-1">
+                                {chips.map((chip) => (
+                                  <span key={chip} className="rounded-full border border-white/12 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white/55">
+                                    {chip}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : null}
                           </div>
                         </div>
 

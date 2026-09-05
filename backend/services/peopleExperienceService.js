@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const { supabase: defaultDb } = require('../lib/supabase');
 const offerService = require('./offerService');
+const worldLayer = require('./worldLayer');
+const worldCrewService = require('./worldCrewService');
 
 const OPERATOR_ROLES = new Set(['operator', 'steward']);
 const CONTRIBUTOR_ROLES = new Set(['contributor', 'operator', 'steward']);
@@ -1120,6 +1122,8 @@ function createPeopleExperienceService(db = defaultDb) {
       cardPerks: (card.perks || []).length,
     });
 
+    const world = await getWorldHome(userId, { communities, card, happened, wallet });
+
     return {
       role: experienceRole,
       name: displayName(person, 'there'),
@@ -1138,6 +1142,139 @@ function createPeopleExperienceService(db = defaultDb) {
       happened,
       network,
       outcomes,
+      world,
+    };
+  }
+
+  async function getWorldHome(userId, { communities, card, happened, wallet }) {
+    const slice = worldLayer.KINGSTON_AFTER_DARK_SLICE;
+    const primaryCommunity = (communities || []).find((row) => row.slug === slice.sceneSlug) || (communities || [])[0] || null;
+    const sceneSlug = primaryCommunity?.slug || slice.sceneSlug;
+
+    const scene = await maybe(db.from('scenes').select('id, slug, title, city, metadata, image_url').eq('slug', sceneSlug).maybeSingle());
+    const sceneRow = scene.data;
+    const sceneId = sceneRow?.id || null;
+
+    let nextMoment = null;
+    let joined = false;
+    let arrived = false;
+    if (sceneId) {
+      const links = await maybe(
+        db.from('moment_scene_links').select('moments(id, title, venue_name, location, starts_at, pulse_state, status)').eq('scene_id', sceneId).limit(12),
+      );
+      const moments = (links.data || []).map((row) => row.moments).filter(Boolean);
+      const now = Date.now();
+      nextMoment = moments
+        .filter((moment) => !moment.status || !['cancelled', 'archived', 'closed'].includes(String(moment.status)))
+        .sort((a, b) => new Date(a.starts_at || 0).getTime() - new Date(b.starts_at || 0).getTime())
+        .find((moment) => !moment.starts_at || new Date(moment.starts_at).getTime() >= now - 6 * 60 * 60 * 1000)
+        || moments[0]
+        || null;
+    }
+
+    if (nextMoment?.id && userId) {
+      const participation = await maybe(
+        db.from('moment_participants').select('status, joined_at, checked_in_at').eq('moment_id', nextMoment.id).eq('user_id', userId).maybeSingle(),
+      );
+      joined = Boolean(participation.data?.joined_at || participation.data?.status);
+      arrived = Boolean(participation.data?.checked_in_at);
+    }
+
+    const memories = await maybe(db.from('memories').select('id, title, issued_at, rarity, moment_id').eq('user_id', userId).order('issued_at', { ascending: false }).limit(4));
+    const latestMemory = (memories.data || [])[0] || null;
+    const latestAction = (happened?.recent || []).find((row) => row.user_id === userId) || (happened?.recent || [])[0] || null;
+    const path = worldLayer.resolvePathEvidence((happened?.recent || []).map((row) => ({ actionType: row.action_type })));
+    let crew = null;
+    try {
+      crew = await worldCrewService.getMyCrew(userId, db);
+    } catch (error) {
+      console.warn('[People Experience] crew context skipped:', error.message);
+    }
+
+    const currentMove = worldLayer.resolveWorldCurrentMove({
+      hasLiveMoment: Boolean(nextMoment?.id),
+      momentId: nextMoment?.id || null,
+      momentTitle: nextMoment?.title || null,
+      placeName: nextMoment?.venue_name || nextMoment?.location || null,
+      sceneSlug: sceneRow?.slug || slice.sceneSlug,
+      sceneTitle: sceneRow?.title || slice.sceneTitle,
+      seasonTitle: sceneRow?.metadata?.season_title || slice.seasonTitle,
+      joined,
+      arrived,
+      hasMemory: Boolean(latestMemory),
+      hasPerk: Boolean((card?.perks || []).length),
+      promoCardAccepted: Boolean(card?.card || Number(card?.points || wallet?.points || 0) > 0),
+      signalReason: nextMoment
+        ? `${slice.currentLine} ${nextMoment.venue_name || nextMoment.location || slice.area} is the clearest next room.`
+        : null,
+      area: slice.area,
+    });
+    currentMove.header = worldLayer.timeAwareWorldHeader();
+
+    const latestReturn = latestAction && worldLayer.SHOW_UP_ACTION_TYPES.includes(latestAction.action_type)
+      ? worldLayer.resolveWorldConsequence({
+          verified: true,
+          momentTitle: latestAction.action_metadata?.moment_title || latestAction.momentTitle || null,
+          placeName: latestAction.action_metadata?.venue_name || latestAction.action_metadata?.place || null,
+          sceneTitle: sceneRow?.title || slice.sceneTitle,
+          seasonTitle: sceneRow?.metadata?.season_title || slice.seasonTitle,
+          promoCardEligible: Boolean(latestAction.action_type),
+          memoryKept: Boolean(latestMemory),
+          memoryTitle: latestMemory?.title || null,
+        })
+      : null;
+
+    const livePlaces = nextMoment ? 1 : 0;
+    const context = [
+      sceneRow ? `Scene: ${sceneRow.title}` : null,
+      livePlaces ? `${livePlaces} participating ${livePlaces === 1 ? 'Place' : 'Places'} active` : null,
+      crew?.members?.length ? `${crew.members.length} Crew ${crew.members.length === 1 ? 'member' : 'members'}` : null,
+      latestMemory ? '1 Memory kept' : 'A Memory can be kept after you show up',
+    ].filter(Boolean);
+
+    return {
+      slice: {
+        sceneSlug: sceneRow?.slug || slice.sceneSlug,
+        sceneTitle: sceneRow?.title || slice.sceneTitle,
+        seasonTitle: sceneRow?.metadata?.season_title || slice.seasonTitle,
+        area: slice.area,
+        currentLine: sceneRow?.metadata?.season_line || slice.currentLine,
+        runTitle: crew?.run?.title || slice.runTitle,
+      },
+      currentMove,
+      context,
+      latestReturn,
+      latestMemory: latestMemory
+        ? { id: latestMemory.id, title: latestMemory.title, issuedAt: latestMemory.issued_at, rarity: latestMemory.rarity }
+        : null,
+      path: {
+        forming: path.forming,
+        title: path.title,
+        cue: path.cue,
+      },
+      crew: crew
+        ? {
+            id: crew.id,
+            name: crew.name,
+            size: crew.size,
+            runTitle: crew.run?.title || null,
+            runCompleted: crew.run?.completed ?? 0,
+            runTotal: crew.run?.total ?? 0,
+          }
+        : null,
+      promoCard: {
+        available: Number(card?.card?.available_balance ?? card?.points ?? wallet?.points ?? 0),
+        keys: Number(card?.keys ?? wallet?.promokeys ?? 0),
+        places: nextMoment?.venue_name || 'Participating Places',
+        sceneMark: sceneRow?.title || slice.sceneTitle,
+        crewMark: crew?.name || null,
+        pathCue: path.cue,
+        nearestUnlock: crew
+          ? `${crew.run?.title || slice.runTitle} · ${crew.run?.completed || 0}/${crew.run?.total || 4}`
+          : latestMemory
+            ? 'Keep showing up to open the next Signal'
+            : 'Show up once to keep a Memory',
+      },
     };
   }
 
@@ -1383,7 +1520,7 @@ function createPeopleExperienceService(db = defaultDb) {
 
     return {
       scene: scene.data,
-      people: memberships.length || scene.data.activated_members_count || 0,
+      people: memberships.length,
       activeThisWeek: new Set((weekActions.data || []).map((row) => row.user_id)).size,
       operator: operator ? { id: operator.id, name: displayName(operator) } : null,
       membership,

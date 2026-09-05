@@ -8,11 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { QrCode, MapPin, Loader2, Camera, Check, Sparkles, Gift, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { QrCode, MapPin, Loader2, Sparkles, Gift, ShieldCheck } from "lucide-react";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { ImageUpload } from "@/components/ImageUpload";
-import { CheckInCelebration } from '@/components/CheckInCelebration';
-import { AnimatePresence } from 'framer-motion';
+import { resolveWorldConsequence } from "@promorang/shared";
+import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { demoMoments } from "@/data/demo-moments";
 import { useI18n } from "@/i18n/I18nContext";
 
@@ -53,6 +53,8 @@ const CheckIn = () => {
   const [hasJoined, setHasJoined] = useState<boolean | null>(null);
   const [proofRequirements, setProofRequirements] = useState<ProofRequirement[]>([]);
   const [proofSubmissionId, setProofSubmissionId] = useState<string | null>(null);
+  const [consequence, setConsequence] = useState<ReturnType<typeof resolveWorldConsequence> | null>(null);
+  const [keptMemory, setKeptMemory] = useState<{ title: string; origin: string; perk: string; scene?: string; place?: string; date?: string } | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -184,6 +186,12 @@ const CheckIn = () => {
 
     if (id?.startsWith('m')) {
       toast({ title: t("checkIn.toastDemoComplete"), description: t("checkIn.toastDemoCompleteDesc") });
+      setConsequence(resolveWorldConsequence({
+        verified: false,
+        pending: true,
+        momentTitle: moment.title,
+        placeName: moment.venue_name || moment.location,
+      }));
       setSuccess(true);
       setLoading(false);
       return;
@@ -218,12 +226,40 @@ const CheckIn = () => {
           throw new Error(payload?.error || "Check-in failed");
         }
 
-        setProofSubmissionId(payload?.submission?.id || null);
+        setProofSubmissionId(payload?.submission?.id || payload?.checkin?.participation?.id || null);
+        const serverReceipt = payload?.checkin?.consequence || payload?.consequence;
+        if (serverReceipt) {
+          setConsequence(serverReceipt);
+        } else {
+          setConsequence(resolveWorldConsequence({
+            verified: payload?.checkin?.verification_status === "verified",
+            pending: payload?.checkin?.verification_status === "pending" || Boolean(payload?.submission?.id),
+            momentTitle: moment.title,
+            placeName: moment.venue_name || moment.location,
+            memoryKept: Boolean(payload?.checkin?.memory?.id),
+            memoryTitle: payload?.checkin?.memory?.title,
+            rewardTitle: payload?.checkin?.reward?.reward_value || moment.reward,
+            promoCardEligible: Boolean(payload?.checkin?.promo_card_return?.eligible),
+            promoCardReturnLabel: payload?.checkin?.promo_card_return?.label,
+          }));
+        }
+        if (payload?.checkin?.memory?.id) {
+          setKeptMemory({
+            title: payload.checkin.memory.title || "First Current Memory",
+            origin: moment.title,
+            perk: payload.checkin.memory.perk?.title || "Kept from showing up",
+            place: moment.venue_name || moment.location,
+            date: new Date().toLocaleDateString(),
+          });
+        }
       }
 
       setSuccess(true);
       queryClient.invalidateQueries({ queryKey: ["joined-moments"] });
-      queryClient.invalidateQueries({ queryKey: ["vault"] });
+      queryClient.invalidateQueries({ queryKey: ["vault-data"] });
+      queryClient.invalidateQueries({ queryKey: ["experience-home"] });
+      queryClient.invalidateQueries({ queryKey: ["experience-card"] });
+      queryClient.invalidateQueries({ queryKey: ["experience-crew"] });
 
       if ('vibrate' in navigator) {
         navigator.vibrate([10, 30, 10, 30]);
@@ -284,41 +320,40 @@ const CheckIn = () => {
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-[#ff5500] selection:text-white">
       <SEO title={t("checkIn.seoTitle", { title: moment.title })} description={t("checkIn.seoDescription", { title: moment.title })} />
 
-      <AnimatePresence>
-        {success && <CheckInCelebration onComplete={() => {}} />}
-      </AnimatePresence>
-
       <main className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
         {success ? (
-          <div className="mx-auto max-w-xl text-center space-y-6 pt-8 animate-in fade-in duration-300">
-            <div className="w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-12 h-12" />
+          <div className="mx-auto max-w-xl space-y-6 pt-8 animate-in fade-in duration-300">
+            <div className="text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">
+                {consequence?.eyebrow || "It counted"}
+              </p>
+              <h1 className="mt-2 font-serif text-4xl font-bold text-white">{consequence?.heading || t("checkIn.successTitle")}</h1>
+              <p className="mt-2 text-white/70">
+                {moment.title}{moment.venue_name || moment.location ? ` · ${moment.venue_name || moment.location}` : ""}
+              </p>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white">{t("checkIn.successTitle")}</h1>
-            <p className="text-white/70 text-base">
-              {t("checkIn.successCopy", { title: moment.title })}
-            </p>
 
-            <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 space-y-4 text-left">
-              <div className="flex items-center gap-3">
-                <Gift className="h-6 w-6 text-amber-400" />
-                <div>
-                  <h4 className="font-bold text-white text-base">{t("checkIn.rewardUnlocked")}</h4>
-                  <p className="text-xs text-white/60">{moment.reward || t("checkIn.complimentaryPerk")}</p>
+            {consequence ? (
+              <ConsequenceReceipt receipt={consequence} reveal={keptMemory} />
+            ) : (
+              <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <Gift className="h-6 w-6 text-amber-400" />
+                  <div>
+                    <h4 className="font-bold text-white text-base">{t("checkIn.rewardUnlocked")}</h4>
+                    <p className="text-xs text-white/60">{moment.reward || t("checkIn.complimentaryPerk")}</p>
+                  </div>
                 </div>
               </div>
+            )}
 
-              {proofSubmissionId && (
-                <div className="pt-3 border-t border-white/10 text-xs text-white/50">
-                  {t("checkIn.refCode")} <span className="font-mono text-white/80">{proofSubmissionId}</span>
-                </div>
-              )}
-            </div>
+            {proofSubmissionId && (
+              <p className="text-center text-xs text-white/40">
+                {t("checkIn.refCode")} <span className="font-mono text-white/70">{proofSubmissionId}</span>
+              </p>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <Button asChild className="flex-1 rounded-full bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold py-6">
-                <Link to="/vault">{t("checkIn.viewVault")} <ArrowRight className="ml-2 h-4 w-4" /></Link>
-              </Button>
               <Button asChild variant="outline" className="flex-1 rounded-full border-white/20 text-white hover:bg-white/10 py-6">
                 <Link to={`/moments/${id}`}>{t("checkIn.backToEvent")}</Link>
               </Button>
