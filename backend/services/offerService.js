@@ -246,6 +246,7 @@ async function redeemByCode(actorUserId, redemptionCode, venueId, notes) {
       metadata: {
         issuance_id: issuance.id,
         offer_id: offer.id,
+        value_unit: offer.value_currency || null,
         venue_id: venueId || null,
       },
     });

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 
-const API_URL = import.meta.env.VITE_API_URL || "";
+import { API_BASE_URL } from "@/lib/api";
 
 export type OfferDistribution = {
   channel: "direct" | "moment" | "content" | "promoshare" | "campaign" | "referral" | "manual";
@@ -42,7 +42,7 @@ export type OfferIssuance = {
 };
 
 async function request<T>(path: string, token?: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_URL}/api/offers${path}`, {
+  const response = await fetch(`${API_BASE_URL}/offers${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -58,7 +58,7 @@ async function request<T>(path: string, token?: string, options: RequestInit = {
 export function useOwnerOffers() {
   const { session } = useAuth();
   return useQuery({
-    queryKey: ["offers", "mine"],
+    queryKey: ["offers", "mine", session?.user.id],
     queryFn: () => request<Offer[]>("/mine", session?.access_token),
     enabled: !!session?.access_token,
   });
@@ -74,7 +74,7 @@ export function usePublicOffers() {
 export function useOfferWallet() {
   const { session } = useAuth();
   return useQuery({
-    queryKey: ["offers", "wallet"],
+    queryKey: ["offers", "wallet", session?.user.id],
     queryFn: () => request<OfferIssuance[]>("/wallet", session?.access_token),
     enabled: !!session?.access_token,
   });
@@ -85,7 +85,7 @@ export function useCreateOffer() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (body: Record<string, unknown>) => request<Offer>("", session?.access_token, { method: "POST", body: JSON.stringify(body) }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+    onSuccess: () => refreshBenefits(client),
   });
 }
 
@@ -94,7 +94,7 @@ export function useUpdateOffer() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ id, ...body }: { id: string } & Record<string, unknown>) => request<Offer>(`/${id}`, session?.access_token, { method: "PATCH", body: JSON.stringify(body) }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+    onSuccess: () => refreshBenefits(client),
   });
 }
 
@@ -103,7 +103,7 @@ export function useClaimIssuance() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => request<OfferIssuance>(`/issuances/${id}/claim`, session?.access_token, { method: "POST" }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers", "wallet"] }),
+    onSuccess: () => refreshBenefits(client),
   });
 }
 
@@ -112,7 +112,7 @@ export function useDirectOfferClaim() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => request<OfferIssuance>(`/${id}/claim`, session?.access_token, { method: "POST" }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+    onSuccess: () => refreshBenefits(client),
   });
 }
 
@@ -121,6 +121,15 @@ export function useRedeemOffer() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (body: { code: string; venue_id?: string; notes?: string }) => request<OfferIssuance>("/redeem", session?.access_token, { method: "POST", body: JSON.stringify(body) }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+    onSuccess: () => refreshBenefits(client),
   });
+}
+
+function refreshBenefits(client: ReturnType<typeof useQueryClient>) {
+  return Promise.all([
+    client.invalidateQueries({ queryKey: ["offers"] }),
+    client.invalidateQueries({ queryKey: ["experience-card"] }),
+    client.invalidateQueries({ queryKey: ["experience-home"] }),
+    client.invalidateQueries({ queryKey: ["experience-happened"] }),
+  ]);
 }

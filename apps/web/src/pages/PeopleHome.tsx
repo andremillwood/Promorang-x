@@ -4,12 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
-
-const money = (value: number) => {
-  if (!value) return "J$0";
-  return `J$${Math.round(value).toLocaleString()}`;
-};
+import { PromoCardSummary } from "@/components/promocard/PromoCardSummary";
 
 export default function PeopleHome() {
   const { user, profile, activeRole } = useAuth();
@@ -63,12 +58,12 @@ export default function PeopleHome() {
         <section className="grid grid-cols-2 gap-3">
           {(data?.outcomes?.cards || [
             { key: "people", label: "People", value: data?.people || 0, hint: data?.peopleThisMonth ? `+${data.peopleThisMonth} this month` : "Invite the first ones" },
-            { key: "earned", label: "Earned", value: Number(data?.earned || 0), hint: "From verified activity" },
+            { key: "used", label: "Perks used", value: Number(data?.happened?.buckets?.used || 0), hint: "Verified redemptions" },
           ]).slice(0, 4).map((card: any) => (
             <StatPile
               key={card.key}
               label={card.label}
-              value={card.key === "earned" ? money(Number(card.value || 0)) : card.value}
+              value={card.value}
               hint={card.hint}
             />
           ))}
@@ -120,12 +115,7 @@ export default function PeopleHome() {
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-bold">For you</h2>
           <Link to={to("/card")} className="block">
-            <PromoCardFace
-              holder={name}
-              available={`${Number(data?.wallet?.points || 0).toLocaleString()} pts`}
-              limit={`${Number(data?.wallet?.promokeys || 0)} keys`}
-              places="Your perks live here"
-            />
+            <PromoCardSummary holder={name} perks={data?.card?.perks || []} />
           </Link>
           <Link to="/discover?tab=discoveries" className="block rounded-[1.6rem] border border-white/10 bg-white/[0.04] px-5 py-5">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">What’s happening</p>

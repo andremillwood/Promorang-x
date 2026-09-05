@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { projectCardPerk, summarizeAttributedValue } = require('./promoCardProjection');
 const { supabase: defaultDb } = require('../lib/supabase');
 const offerService = require('./offerService');
 
@@ -89,7 +90,6 @@ function accountStakeholderOutcomes(input = {}) {
     peopleThisMonth: Number(input.peopleThisMonth || 0),
     active: Number(input.activePeople || 0),
     happening: Number(input.happening || 0),
-    earned: Number(input.earned || 0),
     went: Number(input.buckets?.went || 0),
     bought: Number(input.buckets?.bought || 0),
     answered: Number(input.buckets?.answered || 0),
@@ -119,7 +119,7 @@ function accountStakeholderOutcomes(input = {}) {
         value: ledger.people,
         hint: ledger.peopleThisMonth ? `+${ledger.peopleThisMonth} this month` : 'Invite the first ones',
       },
-      { key: 'earned', label: 'Earned', value: ledger.earned, hint: 'From verified activity' },
+      { key: 'used', label: 'Perks used', value: ledger.used, hint: 'Verified redemptions by your people' },
     );
   }
   if (role === 'operator') {
@@ -398,7 +398,7 @@ function createPeopleExperienceService(db = defaultDb) {
     const week = weekStart();
     const thisWeek = rows.filter((row) => (row.verified_at || row.created_at || '') >= week);
     const buckets = happenedBuckets(thisWeek);
-    const earned = thisWeek.reduce((sum, row) => sum + Number(row.amount || 0), 0);
+    const attributedValueByUnit = summarizeAttributedValue(thisWeek);
 
     const interests = {};
     for (const row of rows) {
@@ -422,7 +422,7 @@ function createPeopleExperienceService(db = defaultDb) {
     return {
       participated: thisWeek.length,
       buckets,
-      earned,
+      attributedValueByUnit,
       topInterests,
       recent,
     };
@@ -528,34 +528,34 @@ function createPeopleExperienceService(db = defaultDb) {
   }
 
   async function getCard(userId) {
-    const [wallet, card, issuances, memberships] = await Promise.all([
+    const [wallet, card, issuances, history, memberships, dropClaims, person] = await Promise.all([
       getWallet(userId),
-      maybe(db.from('user_promo_cards').select('*').eq('user_id', userId).maybeSingle()),
-      maybe(db.from('offer_issuances').select('*, offers(*)').eq('user_id', userId).in('status', ['issued', 'claimed', 'fulfillment_pending']).order('issued_at', { ascending: false }).limit(12)),
+      db.from('user_promo_cards').select('*').eq('user_id', userId).maybeSingle(),
+      db.from('offer_issuances').select('*, offers(*)').eq('user_id', userId).in('status', ['issued', 'claimed', 'fulfillment_pending']).order('issued_at', { ascending: false }),
+      db.from('offer_issuances').select('*, offers(*)').eq('user_id', userId).in('status', ['redeemed', 'expired', 'revoked', 'cancelled']).order('issued_at', { ascending: false }).limit(20),
       membershipsFor(userId),
+      db.from('community_drop_claims').select('*, community_drops(*)').eq('user_id', userId).eq('status', 'claimed').is('offer_issuance_id', null),
+      profileFor(userId),
     ]);
-    const dropClaims = await maybe(
-      db.from('community_drop_claims').select('*, community_drops(*)').eq('user_id', userId).eq('status', 'claimed').order('claimed_at', { ascending: false }).limit(12),
-    );
-    const person = await profileFor(userId);
-    const issuanceIds = new Set((issuances.data || []).map((row) => row.id));
+    // A failed ledger read must not turn into an empty or demonstration card.
+    for (const result of [card, issuances, history, dropClaims]) {
+      if (result.error) throw result.error;
+    }
+    const allIssuances = [...(issuances.data || []), ...(history.data || [])];
+    const issuerIds = [...new Set(allIssuances.map((row) => row.offers?.owner_user_id).filter(Boolean))];
+    const issuers = issuerIds.length
+      ? await maybe(db.from('users').select('id, display_name, full_name, username').in('id', issuerIds))
+      : { data: [] };
+    const issuerNames = new Map((issuers.data || []).map((row) => [row.id, displayName(row)]));
     const perks = [
-      ...(issuances.data || []).map((row) => ({
-        id: row.id,
-        title: row.offers?.title || 'Perk',
-        detail: row.offers?.description || '',
-        kind: row.offers?.reward_type || 'custom',
-        status: row.status,
-        redemptionCode: row.redemption_code || null,
-        expiresAt: row.expires_at || null,
-        fulfillmentType: row.offers?.fulfillment_type || null,
-      })),
-      ...(dropClaims.data || []).filter((row) => !row.offer_issuance_id || !issuanceIds.has(row.offer_issuance_id)).map((row) => ({
+      ...allIssuances.map((row) => projectCardPerk({ ...row, issuer_name: issuerNames.get(row.offers?.owner_user_id) })),
+      ...(dropClaims.data || []).map((row) => ({
         id: row.id,
         title: row.community_drops?.title || 'Drop',
         detail: row.community_drops?.description || '',
-        kind: row.community_drops?.perk_kind || 'custom',
-        status: row.status,
+        status: 'fulfillment_pending',
+        ready: false,
+        section: 'pending',
         redemptionCode: null,
         expiresAt: null,
         fulfillmentType: null,
@@ -606,8 +606,7 @@ function createPeopleExperienceService(db = defaultDb) {
     const givenClaims = await maybe(db.from('community_drop_claims').select('id, status').eq('referrer_id', userId));
     const perksGiven = (givenDrops.data || []).length;
     const perksClaimed = (givenClaims.data || []).length;
-    const perksUsed = (givenClaims.data || []).filter((row) => row.status === 'redeemed').length
-      + Number(happened.buckets?.used || 0);
+    const perksUsed = (givenClaims.data || []).filter((row) => row.status === 'redeemed').length;
     const outcomes = accountStakeholderOutcomes({
       role: experienceRole,
       platformRoles: roles,
@@ -615,7 +614,6 @@ function createPeopleExperienceService(db = defaultDb) {
       peopleThisMonth: network.thisMonth,
       activePeople: network.topContributors.reduce((sum, row) => sum + Number(row.active || 0), 0),
       happening: happened.participated,
-      earned: happened.earned,
       buckets: happened.buckets,
       perksGiven,
       perksClaimed,
@@ -623,7 +621,7 @@ function createPeopleExperienceService(db = defaultDb) {
       perksAvailable: perks.length,
       opportunities: opportunities.length,
       memberships: communities.length,
-      cardPerks: (card.perks || []).length,
+      cardPerks: (card.perks || []).filter((perk) => perk.ready).length,
     });
 
     return {
@@ -632,7 +630,6 @@ function createPeopleExperienceService(db = defaultDb) {
       communities,
       people: network.people,
       peopleThisMonth: network.thisMonth,
-      earned: happened.earned,
       happening: happened.participated,
       perksAvailable: perks.length,
       opportunities: opportunities.length,

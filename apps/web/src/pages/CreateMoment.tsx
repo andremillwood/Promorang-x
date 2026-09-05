@@ -34,7 +34,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
-import { PromoCardService } from "@/lib/promocard";
 
 const categories = [
   "Music & Parties",
@@ -291,12 +290,9 @@ export function CreateMoment() {
         await (supabase as any).from("moment_collaborators").insert(collabRows);
       }
 
-      // Trigger PromoCard Attention Recharge
-      PromoCardService.rechargeCard(user.id, "moment_post", 15.0);
-
       toast({
-        title: "⚡ Moment Published & Card Recharged!",
-        description: "Your experience is live, and +$15.00 has been recharged to your Promorang Card!",
+        title: "Moment published",
+        description: "Your experience is live and ready to share.",
       });
 
       navigate(`/moments/${newMoment.id}`);

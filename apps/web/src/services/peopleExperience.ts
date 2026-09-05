@@ -1,3 +1,4 @@
+import type { CardPerk } from "@/lib/promocard/benefits";
 import { supabase } from "@/integrations/supabase/client";
 import { API_BASE_URL } from "@/lib/api";
 
@@ -31,7 +32,14 @@ export const peopleExperienceApi = {
   perks: () => request<any[]>("/perks"),
   opportunities: (sceneId?: string) => request<any[]>(`/opportunities${sceneId ? `?sceneId=${sceneId}` : ""}`),
   happened: (sceneId?: string) => request<Record<string, any>>(`/happened${sceneId ? `?sceneId=${sceneId}` : ""}`),
-  card: () => request<Record<string, any>>("/card"),
+  card: () => request<{
+    name: string;
+    points: number;
+    keys: number;
+    gems: number;
+    perks: CardPerk[];
+    memberships: Array<{ id: string; title: string; slug?: string; role: string }>;
+  }>("/card"),
   drop: (slug: string) => request<Record<string, any>>(`/drops/${slug}`),
   createDrop: (body: Record<string, unknown>) => request<Record<string, any>>("/drops", { method: "POST", body: JSON.stringify(body) }),
   claimDrop: (slug: string) => request<Record<string, any>>(`/drops/${slug}/claim`, { method: "POST", body: "{}" }),

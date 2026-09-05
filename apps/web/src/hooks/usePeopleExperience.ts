@@ -59,6 +59,7 @@ export function useMyPromoCard() {
     queryKey: ["experience-card", user?.id],
     queryFn: () => peopleExperienceApi.card(),
     enabled: Boolean(user),
+    refetchInterval: 15_000,
     retry: 1,
   });
 }

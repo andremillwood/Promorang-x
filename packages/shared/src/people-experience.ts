@@ -198,7 +198,6 @@ export type StakeholderLedger = {
   peopleThisMonth: number;
   active: number;
   happening: number;
-  earned: number;
   went: number;
   bought: number;
   answered: number;
@@ -217,7 +216,7 @@ export type StakeholderLedger = {
 
 export const STAKEHOLDER_OUTCOMES: Record<StakeholderKey, Array<keyof StakeholderLedger>> = {
   member: ["cardPerks", "memberships", "claimed", "used", "went"],
-  contributor: ["people", "active", "happening", "earned", "perksGiven", "opportunities"],
+  contributor: ["people", "active", "happening", "used", "perksGiven", "opportunities"],
   operator: ["people", "active", "happening", "perksGiven", "opportunities", "memberships"],
   merchant: ["perksGiven", "perksClaimed", "perksUsed", "perksAvailable"],
   network: ["people", "active", "brought", "happening"],
@@ -230,7 +229,6 @@ export function accountStakeholderOutcomes(input: {
   peopleThisMonth?: number;
   activePeople?: number;
   happening?: number;
-  earned?: number;
   buckets?: Partial<ReturnType<typeof emptyHappenedBuckets>>;
   perksGiven?: number;
   perksClaimed?: number;
@@ -249,7 +247,6 @@ export function accountStakeholderOutcomes(input: {
     peopleThisMonth: Number(input.peopleThisMonth || 0),
     active: Number(input.activePeople || 0),
     happening: Number(input.happening || 0),
-    earned: Number(input.earned || 0),
     went: Number(input.buckets?.went || 0),
     bought: Number(input.buckets?.bought || 0),
     answered: Number(input.buckets?.answered || 0),
@@ -280,7 +277,7 @@ export function accountStakeholderOutcomes(input: {
         value: ledger.people,
         hint: ledger.peopleThisMonth ? `+${ledger.peopleThisMonth} this month` : "Invite the first ones",
       },
-      { key: "earned", label: "Earned", value: ledger.earned, hint: "From verified activity" },
+      { key: "used", label: "Perks used", value: ledger.used, hint: "Verified redemptions by your people" },
     );
   }
   if (role === "operator") {

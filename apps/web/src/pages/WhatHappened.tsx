@@ -13,13 +13,13 @@ export default function WhatHappened() {
     <ExperienceShell
       eyebrow="What happened"
       title="This week"
-      description="Not charts. What your people actually did."
+      description="What your people actually did."
       backTo="/dashboard"
     >
       <StatPile
         label="People participated"
         value={data?.participated || 0}
-        hint={data?.earned ? `J$${Math.round(data.earned).toLocaleString()} generated` : "Verified movement only"}
+        hint="Verified activity only"
       />
 
       <section className="grid grid-cols-2 gap-3">
