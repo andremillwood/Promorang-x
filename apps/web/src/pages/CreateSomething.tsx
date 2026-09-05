@@ -34,7 +34,6 @@ export default function CreateSomething() {
       eyebrow="Create something"
       title="What do you want your people to do?"
       description="You choose the behaviour. PROMORANG picks the right tool underneath."
-      backTo="/dashboard"
     >
       <div className="grid gap-2">
         {CREATE_INTENTS.map((item) => (

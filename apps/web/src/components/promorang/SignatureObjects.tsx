@@ -19,6 +19,9 @@ type PromoCardFaceProps = {
   holder?: string;
   places?: string;
   className?: string;
+  tier?: string;
+  cardNumber?: string;
+  onUse?: () => void;
 };
 
 export function PromoCardFace({
@@ -27,6 +30,9 @@ export function PromoCardFace({
   holder = "Member card",
   places = "Partner shops nearby",
   className,
+  tier,
+  cardNumber = "PR · 0842",
+  onUse,
 }: PromoCardFaceProps) {
   return (
     <article className={cn("pr-plastic-card w-full max-w-md p-5 text-white sm:p-6", className)} aria-label="PromoCard">
@@ -35,6 +41,7 @@ export function PromoCardFace({
           <div>
             <p className="text-[10px] font-bold tracking-[0.22em] text-amber-200/80">PROMORANG</p>
             <h3 className="mt-1 font-serif text-2xl font-bold tracking-tight">PromoCard</h3>
+            {tier ? <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-100/70">{tier} tier</p> : null}
           </div>
           <span className="h-8 w-11 rounded-md bg-gradient-to-br from-amber-200 to-amber-500 shadow-inner" aria-hidden />
         </div>
@@ -45,8 +52,21 @@ export function PromoCardFace({
         </div>
         <div className="flex items-end justify-between gap-3 text-[11px] text-white/60">
           <span>{holder}</span>
-          <span className="font-mono tracking-widest">PR · 0842</span>
+          <span className="font-mono tracking-widest">{cardNumber}</span>
         </div>
+        {onUse ? (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onUse();
+            }}
+            className="mt-4 w-full rounded-full bg-white py-2.5 text-sm font-semibold text-black"
+          >
+            Use
+          </button>
+        ) : null}
       </div>
     </article>
   );

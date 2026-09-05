@@ -30,10 +30,10 @@ export type StakeholderExperience = {
   steps: StakeholderStep[];
   tabs: {
     today: string;
-    discover: string;
+    people: string;
     create: string;
-    progress: string;
-    vault: string;
+    earn: string;
+    card: string;
   };
 };
 
@@ -53,7 +53,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Let the host know you made it', detail: 'Check in when you arrive.', href: '/check-in', icon: 'location' },
       { title: 'Use your PromoCard', detail: 'Hold the card, spend the perk, keep the memory.', href: '/card', icon: 'card' },
     ],
-    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
+    tabs: { today: 'Today', people: 'People', create: 'Create', earn: 'Earn', card: 'Card' },
   },
   creator: {
     label: 'Creator',
@@ -70,7 +70,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Publish your take', detail: 'Create context people can act on.', href: '/post', icon: 'camera' },
       { title: 'Track real action', detail: 'See qualified actions and earnings.', href: '/promoshare', icon: 'trending-up' },
     ],
-    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
+    tabs: { today: 'Today', people: 'People', create: 'Create', earn: 'Earn', card: 'Card' },
   },
   host: {
     label: 'Host',
@@ -87,7 +87,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Coordinate turnout', detail: 'Give participants a clear action.', href: '/discover', icon: 'people' },
       { title: 'See what happened', detail: 'Understand turnout, connections, payouts, and who came back.', href: '/dashboard', icon: 'analytics' },
     ],
-    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
+    tabs: { today: 'Today', people: 'People', create: 'Create', earn: 'Earn', card: 'Card' },
   },
   brand: {
     label: 'Brand',
@@ -104,7 +104,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Match the ecosystem', detail: 'Find hosts, creators, and venues.', href: '/discover', icon: 'git-network' },
       { title: 'Read the evidence', detail: 'Review participation and impact.', href: '/dashboard', icon: 'stats-chart' },
     ],
-    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
+    tabs: { today: 'Today', people: 'People', create: 'Create', earn: 'Earn', card: 'Card' },
   },
   merchant: {
     label: 'Merchant',
@@ -121,7 +121,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Verify each visit', detail: 'Scan access and capture conversion.', href: '/merchant/scan', icon: 'qr-code' },
       { title: 'Build repeat behavior', detail: 'Review yield and returning guests.', href: '/dashboard', icon: 'repeat' },
     ],
-    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
+    tabs: { today: 'Today', people: 'People', create: 'Create', earn: 'Earn', card: 'Card' },
   },
   agency: {
     label: 'Agency',
@@ -138,7 +138,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Coordinate execution', detail: 'Connect partners around one brief.', href: '/create-proposal', icon: 'git-branch' },
       { title: 'Tell the outcome story', detail: 'Show what happened, who cared, and what the client should do next.', href: '/dashboard', icon: 'document-text' },
     ],
-    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
+    tabs: { today: 'Today', people: 'People', create: 'Create', earn: 'Earn', card: 'Card' },
   },
   admin: {
     label: 'Admin',
@@ -155,7 +155,7 @@ export const STAKEHOLDER_EXPERIENCES: Record<StakeholderRole, StakeholderExperie
       { title: 'Activate Moments', detail: 'Manage and approve live community moments.', href: '/studio', icon: 'flash' },
       { title: 'System Catalog', detail: 'Review network assets and user accounts.', href: '/catalog', icon: 'grid' },
     ],
-    tabs: { today: 'Today', discover: 'Discover', create: 'Create', progress: 'Progress', vault: 'Vault' },
+    tabs: { today: 'Today', people: 'People', create: 'Create', earn: 'Earn', card: 'Card' },
   },
 };
 

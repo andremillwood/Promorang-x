@@ -1,6 +1,5 @@
-import { Alert } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { Text, View } from 'react-native';
 
 import { ExperienceShell, PrimaryButton, QuietEmpty } from '@/components/people/ExperienceShell';
 import { Colors } from '@/constants/DesignTokens';
@@ -25,7 +24,6 @@ export default function EarnScreen() {
       eyebrow="Earn"
       title="Opportunities"
       description="Get people to try, visit, buy or show up. You earn when the action is verified."
-      backTo="/"
     >
       {opportunities.isLoading ? (
         <QuietEmpty title="Looking for work" copy="Opportunities appear when a merchant, brand or venue wants your people." />

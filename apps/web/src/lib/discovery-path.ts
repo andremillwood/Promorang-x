@@ -1,6 +1,7 @@
+import { DISCOVER_LENSES } from "@promorang/shared";
 import { matchesCityHub, type CityOption } from "@/lib/city-hubs";
 
-export type DiscoverLensId = "eat" | "go_out" | "hang" | "try";
+export type DiscoverLensId = (typeof DISCOVER_LENSES)[number]["id"];
 
 export type PathablePoll = {
   id: string;
@@ -31,7 +32,7 @@ export type DiscoveryPathItem<T extends PathablePoll = PathablePoll> = {
   why: PathWhy;
 };
 
-export const DISCOVER_LENS_IDS: DiscoverLensId[] = ["eat", "go_out", "hang", "try"];
+export const DISCOVER_LENS_IDS: DiscoverLensId[] = DISCOVER_LENSES.map((item) => item.id);
 
 const LENS_KEYWORDS: Record<DiscoverLensId, string[]> = {
   eat: [

@@ -2,7 +2,7 @@ import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { StyleSheet, Platform, View } from 'react-native';
-import { PROMORANG_DESTINATIONS } from '@promorang/shared';
+import { PEOPLE_EXPERIENCE_CHROME } from '@promorang/shared';
 
 import { Colors as DesignColors } from '@/constants/DesignTokens';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -57,30 +57,32 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: PROMORANG_DESTINATIONS.today.label,
-          headerTitle: PROMORANG_DESTINATIONS.today.label,
+          title: PEOPLE_EXPERIENCE_CHROME.today.label,
+          headerTitle: PEOPLE_EXPERIENCE_CHROME.today.label,
           headerShown: false,
-          tabBarAccessibilityLabel: `${PROMORANG_DESTINATIONS.today.label}: ${PROMORANG_DESTINATIONS.today.humanQuestion}`,
+          tabBarAccessibilityLabel: `${PEOPLE_EXPERIENCE_CHROME.today.label}: ${PEOPLE_EXPERIENCE_CHROME.today.humanQuestion}`,
           tabBarIcon: ({ color }) => <TabBarIcon name="today" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="discover"
+        name="people"
         options={{
-          title: PROMORANG_DESTINATIONS.discover.label,
-          headerTitle: PROMORANG_DESTINATIONS.discover.label,
-          tabBarAccessibilityLabel: `${PROMORANG_DESTINATIONS.discover.label}: ${PROMORANG_DESTINATIONS.discover.humanQuestion}`,
-          tabBarIcon: ({ color }) => <TabBarIcon name="compass" color={color} />,
+          title: PEOPLE_EXPERIENCE_CHROME.people.label,
+          headerTitle: PEOPLE_EXPERIENCE_CHROME.people.label,
+          headerShown: false,
+          tabBarAccessibilityLabel: `${PEOPLE_EXPERIENCE_CHROME.people.label}: ${PEOPLE_EXPERIENCE_CHROME.people.humanQuestion}`,
+          tabBarIcon: ({ color }) => <TabBarIcon name="people" color={color} />,
         }}
       />
+      <Tabs.Screen name="discover" options={{ href: null }} />
       <Tabs.Screen name="shop" options={{ href: null }} />
       <Tabs.Screen name="propose" options={{ href: null }} />
       <Tabs.Screen
         name="post"
         options={{
-          title: PROMORANG_DESTINATIONS.create.label,
-          headerTitle: PROMORANG_DESTINATIONS.create.label,
-          tabBarAccessibilityLabel: `${PROMORANG_DESTINATIONS.create.label}: ${PROMORANG_DESTINATIONS.create.humanQuestion}`,
+          title: PEOPLE_EXPERIENCE_CHROME.create.label,
+          headerTitle: PEOPLE_EXPERIENCE_CHROME.create.label,
+          tabBarAccessibilityLabel: `${PEOPLE_EXPERIENCE_CHROME.create.label}: ${PEOPLE_EXPERIENCE_CHROME.create.humanQuestion}`,
           tabBarIcon: () => (
             <Ionicons name="add-circle" size={34} color={DesignColors.primary} />
           ),
@@ -89,21 +91,23 @@ export default function TabLayout() {
       <Tabs.Screen name="rewards" options={{ href: null }} />
       <Tabs.Screen name="dashboard" options={{ href: null }} />
       <Tabs.Screen
-        name="promoshare"
+        name="earn"
         options={{
-          title: PROMORANG_DESTINATIONS.progress.label,
-          headerTitle: PROMORANG_DESTINATIONS.progress.label,
-          tabBarAccessibilityLabel: `${PROMORANG_DESTINATIONS.progress.label}: ${PROMORANG_DESTINATIONS.progress.humanQuestion}`,
-          tabBarIcon: ({ color }) => <TabBarIcon name="analytics" color={color} />,
+          title: PEOPLE_EXPERIENCE_CHROME.earn.label,
+          headerTitle: PEOPLE_EXPERIENCE_CHROME.earn.label,
+          headerShown: false,
+          tabBarAccessibilityLabel: `${PEOPLE_EXPERIENCE_CHROME.earn.label}: ${PEOPLE_EXPERIENCE_CHROME.earn.humanQuestion}`,
+          tabBarIcon: ({ color }) => <TabBarIcon name="sparkles" color={color} />,
         }}
       />
+      <Tabs.Screen name="promoshare" options={{ href: null }} />
       <Tabs.Screen
         name="card"
         options={{
-          title: 'Card',
+          title: PEOPLE_EXPERIENCE_CHROME.card.label,
           headerTitle: 'PromoCard',
           headerShown: false,
-          tabBarAccessibilityLabel: 'PromoCard: Spend less. Do more.',
+          tabBarAccessibilityLabel: `${PEOPLE_EXPERIENCE_CHROME.card.label}: ${PEOPLE_EXPERIENCE_CHROME.card.humanQuestion}`,
           tabBarIcon: ({ color }) => <TabBarIcon name="card" color={color} />,
         }}
       />

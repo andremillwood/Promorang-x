@@ -109,14 +109,14 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/saved", label: "Saved", description: "Things worth returning to without having to rediscover them." },
   { match: "/dashboard/analytics", label: "Analytics", description: "Operational reporting for the active hub." },
   { match: "/dashboard/settings", label: "Settings", description: "Personal, role, and hub-level configuration." },
-  { match: "/people", label: "My People", description: "The network you built and the people helping you build it." },
+  { match: "/people", label: "People", description: "The network you built and the people helping you build it." },
   { match: "/give", label: "Give Something", description: "Drop a perk onto your people’s PromoCards." },
   { match: "/earn", label: "Earn", description: "Opportunities you can take and earn from." },
   { match: "/happened", label: "What Happened", description: "What your people actually did." },
-  { match: "/card", label: "PromoCard", description: "Your perks, access, points and keys." },
+  { match: "/card", label: "Card", description: "Hold, use, and recharge PromoCard." },
   { match: "/start", label: "Start a Community", description: "Name a community and give people something immediately." },
   { match: "/stock", label: "Put Something Up", description: "Open inventory so other people can move it." },
-  { match: "/dashboard", label: "Home", description: "Your people, perks, opportunities, and what happened." },
+  { match: "/dashboard", label: "Today", description: "Your PromoCard, what’s happening, and what happened." },
   { match: "/admin", label: "Admin", description: "Platform-wide operations, moderation, and system controls." },
 ];
 
@@ -159,12 +159,12 @@ const isNavItemActive = (pathname: string, href: string, search: string) => {
 };
 
 const peopleExperienceNav: NavItem[] = [
-  { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
-  { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
-  { icon: Users, label: "My People", href: "/people", group: "primary" },
+  { icon: Home, label: "Today", href: "/dashboard", group: "primary" },
+  { icon: Users, label: "People", href: "/people", group: "primary" },
   { icon: Plus, label: "Create", href: "/create", group: "primary" },
   { icon: Sparkles, label: "Earn", href: "/earn", group: "primary" },
-  { icon: CreditCard, label: "PromoCard", href: "/card", group: "primary" },
+  { icon: CreditCard, label: "Card", href: "/card", group: "primary" },
+  { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
   { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
   { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
 ];
@@ -276,7 +276,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   };
 
   const peopleMobileNav: (NavItem & { accent?: boolean })[] = [
-    { icon: Home, label: "Home", href: "/dashboard" },
+    { icon: Home, label: "Today", href: "/dashboard" },
     { icon: Users, label: "People", href: "/people" },
     { icon: Plus, label: "Create", href: "/create", accent: true },
     { icon: Sparkles, label: "Earn", href: "/earn" },

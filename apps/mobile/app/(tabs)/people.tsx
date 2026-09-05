@@ -30,7 +30,6 @@ export default function PeopleScreen() {
       eyebrow="Your people"
       title="Your network"
       description="Credit follows the people you actually moved — not empty accounts."
-      backTo="/"
     >
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <StatPile label="People" value={data?.people || 0} hint={data?.thisMonth ? `+${data.thisMonth} this month` : 'Start with one invite'} />

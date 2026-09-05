@@ -28,7 +28,6 @@ export default function EarnOpportunities() {
       eyebrow="Earn"
       title="Opportunities"
       description="Get people to try, visit, buy or show up. You earn when the action is verified."
-      backTo="/dashboard"
     >
       {opportunities.isLoading ? (
         <div className="h-40 animate-pulse rounded-[1.6rem] bg-white/5" />
