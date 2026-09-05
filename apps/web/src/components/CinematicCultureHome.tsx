@@ -640,7 +640,7 @@ export default function CinematicCultureHome() {
             <nav aria-label="Homepage discovery shortcuts" className="flex flex-wrap gap-2">
               {[
                 [CalendarDays, t("home.shortcutMoments"), "/discover/moments"],
-                [Flame, t("home.shortcutPolls"), "/discover"],
+                [Flame, t("home.shortcutPolls"), "/#home-discover-path"],
                 [Compass, t("home.shortcutSpots"), "/discover"],
                 [Tag, t("home.shortcutRewards"), "/rewards"],
                 [Store, t("home.shortcutMerchants"), "/merchants"],
@@ -656,6 +656,8 @@ export default function CinematicCultureHome() {
               })}
             </nav>
           </div>
+
+          <DiscoveriesFeedSection />
 
           {/* 4 CORE ECOSYSTEM PILLARS */}
           <div className="my-8">
@@ -769,8 +771,6 @@ export default function CinematicCultureHome() {
               </Link>
             </div>
           </div>
-
-          <DiscoveriesFeedSection />
 
           <div className="pt-9">
             <SectionHeader eyebrow={t("home.secMomentsEyebrow")} title={t("home.secMomentsTitle")} accent={t("home.secMomentsAccent")} action={t("home.secMomentsAction")} actionHref="/discover/moments" />

@@ -125,9 +125,9 @@ export default function PeopleHome() {
               places="Your perks live here"
             />
           </Link>
-          <Link to="/discover" className="block rounded-[1.6rem] border border-white/10 bg-white/[0.04] px-5 py-5">
+          <Link to="/discover?tab=discoveries" className="block rounded-[1.6rem] border border-white/10 bg-white/[0.04] px-5 py-5">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">What’s happening</p>
-            <p className="mt-2 font-serif text-2xl font-bold">Find a night, a meal, a room.</p>
+            <p className="mt-2 font-serif text-2xl font-bold">Name what you want. Then we show the matching poll.</p>
           </Link>
         </section>
       ) : (

@@ -22,7 +22,6 @@ import {
   Store,
   Ticket,
   Users,
-  Zap,
   Tag,
   Share2,
 } from "lucide-react";
@@ -38,9 +37,13 @@ import { useMarket } from "@/contexts/MarketContext";
 import { getCityHubCenter, getDefaultCityHub, matchesCityHub } from "@/lib/city-hubs";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getMomentStatus } from "@/lib/moment-recurrence";
-import { DiscoveryWidget, DiscoveryProps } from "@/components/radar/DiscoveryWidget";
-import { AskQuestionModal } from "@/components/discovery/AskQuestionModal";
-import { DISCOVERY_POLLS, CURATED_DISCOVERIES } from "@/data/discoveriesData";
+import { DISCOVERY_POLLS, type DiscoveryPoll } from "@/data/discoveriesData";
+import { DiscoveryPath } from "@/components/discovery/DiscoveryPath";
+import { filterDiscoveryPollsForHub, isDiscoverLensId, mergeDiscoveryPolls } from "@/lib/discovery-path";
+import { toast } from "sonner";
+import { castListingDiscoveryVote, useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { useAuth } from "@/contexts/AuthContext";
 import { VERIFIED_VENUES } from "@/data/venuesData";
 import { usePerks } from "@/hooks/usePerks";
 import { PerkCard } from "@/components/perks/PerkCard";
@@ -82,8 +85,6 @@ const CURATED_COORDINATES: Record<string, { lat: number; lng: number }> = {
 };
 
 const DEFAULT_DISCOVER_CENTER = { lat: 18.0179, lng: -76.8099 };
-
-const DISCOVERY_QUESTIONS_FEED: DiscoveryProps[] = [...DISCOVERY_POLLS];
 
 const formatMomentDate = (value?: string | null) => {
   if (!value) return "TBA";
@@ -131,14 +132,19 @@ const HubEmptyState = ({
 type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
 
 const Discover = () => {
+  const { user } = useAuth();
   const { city, setCity } = useMarket();
+  const { data: preferences } = useUserPreferences();
+  const { data: listingPolls = [] } = useListingDiscoveryPolls(12);
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as DiscoverTab) || "discoveries";
+  const lensParam = searchParams.get("lens");
 
   const [activeTab, setActiveTab] = useState<DiscoverTab>(initialTab);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
+  const [livePolls, setLivePolls] = useState<DiscoveryPoll[]>(DISCOVERY_POLLS);
 
   const [wheelOpen, setWheelOpen] = useState(false);
   const [streakOpen, setStreakOpen] = useState(false);
@@ -155,7 +161,9 @@ const Discover = () => {
 
   const handleTabChange = (tab: DiscoverTab) => {
     setActiveTab(tab);
-    setSearchParams({ tab });
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", tab);
+    setSearchParams(next);
   };
 
   const discoveryQuery = useQuery({
@@ -240,19 +248,13 @@ const Discover = () => {
     () => VERIFIED_VENUES.filter((venue) => matchesCityHub(venue, city)),
     [city],
   );
+  const catalog = useMemo(
+    () => mergeDiscoveryPolls(livePolls, listingPolls),
+    [livePolls, listingPolls],
+  );
   const hubDiscoveries = useMemo(
-    () =>
-      DISCOVERY_QUESTIONS_FEED.filter((q) => {
-        const poll = q as { question?: string; description?: string; targetUnlockPerk?: string; tags?: string[] };
-        return matchesCityHub(
-          {
-            title: poll.question,
-            description: [poll.description, poll.targetUnlockPerk, ...(poll.tags || [])].filter(Boolean).join(" "),
-          },
-          city,
-        );
-      }),
-    [city],
+    () => filterDiscoveryPollsForHub(catalog, city),
+    [catalog, city],
   );
   const hubPerks = useMemo(
     () =>
@@ -480,48 +482,33 @@ const Discover = () => {
             {/* TAB 1: DISCOVERIES & COMMUNITY DEMAND SIGNALS (PARTICIPANT WEDGE) */}
             {activeTab === "discoveries" && (
               <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-                  <div>
-                    <span className="px-3 py-1 bg-gradient-to-r from-primary/20 to-amber-500/20 text-primary border border-primary/40 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm inline-flex">
-                      <Zap className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                      ⚡ Demand Signals & City Unlock Quests
-                    </span>
-                    <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">
-                      Vote, Charge the City Meter & Unlock Secret Perks
-                    </h3>
-                    <p className="text-xs text-white/60">
-                      Participate in live choices. Your vote instantly awards +25 PromoPoints, +1 PromoShare Draw Ticket, and surfaces exclusive partner loot.
-                    </p>
-                  </div>
-
-                  <AskQuestionModal
-                    trigger={
-                      <Button className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs shadow-lg shadow-primary/20 flex items-center gap-1.5 px-4 h-10 shrink-0">
-                        <Plus className="w-4 h-4" />
-                        <span>Launch a Signal</span>
-                      </Button>
-                    }
+                {hubDiscoveries.length > 0 ? (
+                  <DiscoveryPath
+                    polls={hubDiscoveries}
+                    cityName={city.name}
+                    preferredCategories={preferences?.preferred_categories || []}
+                    initialLens={isDiscoverLensId(lensParam) ? lensParam : null}
+                    initialQuery={searchParams.get("q")}
                     onQuestionCreated={(newQ) => {
-                      DISCOVERY_QUESTIONS_FEED.unshift(newQ);
+                      setLivePolls((prev) => [newQ as DiscoveryPoll, ...prev]);
+                    }}
+                    onCastVote={async (poll, optionId) => {
+                      if (!poll.detailUrl) return;
+                      if (!user) {
+                        toast.info("Sign in to verify local place information.");
+                        return;
+                      }
+                      try {
+                        await castListingDiscoveryVote(poll.id, optionId);
+                      } catch (error: any) {
+                        toast.error(error?.message?.includes("duplicate") ? "You already voted on this place." : "We couldn't record that vote.");
+                      }
                     }}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {hubDiscoveries.map((q) => (
-                    <DiscoveryWidget
-                      key={q.id}
-                      {...q}
-                      onVote={(qId, optId) => {
-                        console.log("Voted on discovery:", qId, optId);
-                      }}
-                    />
-                  ))}
-                </div>
-                {hubDiscoveries.length === 0 && (
+                ) : (
                   <HubEmptyState
                     cityName={city.name}
-                    noun="discovery signals"
+                    noun="choices for you"
                     onShowLiveHub={() => setCity(getDefaultCityHub())}
                   />
                 )}

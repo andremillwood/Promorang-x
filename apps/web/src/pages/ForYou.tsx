@@ -7,6 +7,7 @@ import type { FeedIntent } from "@/services/feed";
 import { FeedStream } from "@/components/feed/FeedStream";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
+import { readStoredDiscoverQuery } from "@/lib/discovery-path";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
@@ -30,6 +31,7 @@ const ForYou = () => {
   const [activeIntent, setActiveIntent] = useState<FeedIntent | null>(null);
   const feedQuery = useForYouFeed(activeIntent);
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || t("forYou.explorer");
+  const savedAsk = readStoredDiscoverQuery();
   const rankedItems = useMemo(
     () => feedQuery.data?.feed || [],
     [feedQuery.data],
@@ -57,11 +59,11 @@ const ForYou = () => {
             {/* 3-Sided Market Quick Navigation Strip */}
             <div className="flex flex-wrap gap-2 pt-2">
               <Link
-                to="/discover?tab=discoveries"
+                to="#home-discover-path"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 text-xs font-bold transition"
               >
                 <Compass className="w-3.5 h-3.5" />
-                <span>Vote &amp; Unlock Perks (+25 Pts)</span>
+                <span>{savedAsk ? t("discover.pathContinueAsk", { query: savedAsk }) : t("discover.pathPageTitle")}</span>
               </Link>
 
               <Link
