@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import ConsumerShell from "@/components/consumer/ConsumerShell";
 import ConsumerObjectCard from "@/components/consumer/ConsumerObjectCard";
@@ -6,6 +7,9 @@ import type { DiscoveryObject, MomentObject, SceneObject } from "@/lib/consumer-
 import { supabase } from "@/integrations/supabase/client";
 import { useConsumerHomeLiveData } from "@/hooks/useConsumerHomeLiveData";
 import { useConsumerInteractions } from "@/hooks/useConsumerInteractions";
+import { usePromoCard } from "@/hooks/usePromoCard";
+import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { LatestPersonReceipt } from "@/components/promorang/PersonReceiptCallout";
 
 const fallbackMoment: MomentObject = {
   id: "preview-ilhh",
@@ -34,10 +38,16 @@ const formatMomentTime = (value?: string | null) => {
   }
 };
 
+const money = (value?: number | null) => {
+  if (value == null) return "$24.00";
+  return `$${value.toFixed(2)}`;
+};
+
 const ConsumerHomePreview = () => {
   const live = useConsumerHomeLiveData();
   const interactions = useConsumerInteractions();
   const { user, profile } = live;
+  const promoCard = usePromoCard(user?.id);
 
   const liveMoments = useQuery({
     queryKey: ["consumer-home-preview-moments"],
@@ -134,43 +144,93 @@ const ConsumerHomePreview = () => {
   const piecePositions = live.pieces.data?.positions || [];
   const activeKeys = live.activePromoKeys.data || [];
 
+  const cardHref = user ? "/card" : "/auth?mode=signup&next=/card";
+  const available = promoCard.data?.availableBalance;
+  const limit = promoCard.data?.monthlyLimit;
+
   return (
     <ConsumerShell
       locationLabel="Kingston"
-      actions={<div className="grid h-9 w-9 place-items-center rounded-full bg-foreground text-xs font-black text-background">{initial}</div>}
+      actions={
+        user ? (
+          <Link
+            to="/profile"
+            className="grid h-9 w-9 place-items-center rounded-full bg-white text-xs font-black text-black"
+            aria-label={`${displayName} profile`}
+          >
+            {initial}
+          </Link>
+        ) : undefined
+      }
     >
       <section className="pb-7 pt-2 md:pb-10 md:pt-6">
-        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">Kingston · Live consumer preview</p>
+        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">Kingston · Today</p>
         <h1 className="mt-2 max-w-4xl font-serif text-4xl font-semibold leading-[0.98] tracking-[-0.045em] sm:text-5xl lg:text-7xl">
           {user ? `Welcome back, ${displayName}.` : "Find what is worth moving for."}
         </h1>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
+        <p className="mt-4 max-w-2xl text-base leading-7 text-white/65 md:text-lg">
           Moments, discoveries, Scenes, access, social distribution and cultural proof—surfaced when useful instead of exposed as a wall of mechanics.
         </p>
       </section>
 
-      <section className="grid gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,.7fr)] lg:gap-10">
+      <section className="space-y-3">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Your PromoCard</p>
+        <PromoCardFace
+          holder={user ? displayName : "Member card"}
+          available={money(available)}
+          limit={money(limit ?? 40)}
+          places={promoCard.data ? "Partner shops nearby" : "Example benefit · shown before checkout"}
+        />
+        <div className="flex flex-wrap gap-2">
+          <Link
+            to={cardHref}
+            className="rounded-full bg-primary px-4 py-2.5 text-sm font-black text-primary-foreground"
+          >
+            {user ? "Open my PromoCard" : "Get my PromoCard"}
+          </Link>
+          <Link
+            to="/shop"
+            className="rounded-full border border-white/15 bg-white/[0.04] px-4 py-2.5 text-sm font-black text-white hover:border-primary hover:text-primary"
+          >
+            See where to use it
+          </Link>
+        </div>
+      </section>
+
+      <div className="mt-8">
+        <LatestPersonReceipt
+          fallback={{
+            actor: featuredMoment.venueName || featuredMoment.location || "Tonight",
+            momentTitle: featuredMoment.title,
+            counted: featuredMoment.accessLabel || "Open Moment",
+            keep: featuredMoment.accessLabel || "Open Moment",
+            href: featuredMoment.href,
+          }}
+        />
+      </div>
+
+      <section className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,.7fr)] lg:gap-10">
         <div>
           <ConsumerObjectCard item={featuredMoment} emphasis="feature" />
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 mb-16 flex flex-wrap gap-2">
             <a href={featuredMoment.href || "/discover"} className="rounded-full bg-primary px-4 py-2 text-sm font-black text-primary-foreground">Open Moment</a>
             <button
               type="button"
               onClick={() => interactions.shareInvite(referralCode)}
-              className="rounded-full border border-border bg-card px-4 py-2 text-sm font-black hover:border-primary hover:text-primary"
+              className="rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-sm font-black hover:border-primary hover:text-primary"
             >
               Invite someone
             </button>
           </div>
 
           {live.plans.length > 0 && (
-            <section className="mt-8 border-y border-border py-5">
+            <section className="mt-8 border-y border-white/10 py-5">
               <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Your plans</p>
               <div className="mt-3 grid gap-3 sm:grid-cols-3">
                 {live.plans.map((moment: any) => (
                   <a key={moment.id} href={`/moments/${moment.id}`} className="group block border-l-2 border-primary/40 pl-3">
                     <strong className="block text-sm group-hover:text-primary">{moment.title}</strong>
-                    <span className="mt-1 block text-xs text-muted-foreground">{formatMomentTime(moment.starts_at)} · {moment.venue_name || moment.location || "Location TBA"}</span>
+                    <span className="mt-1 block text-xs text-white/50">{formatMomentTime(moment.starts_at)} · {moment.venue_name || moment.location || "Location TBA"}</span>
                   </a>
                 ))}
               </div>
@@ -183,7 +243,7 @@ const ConsumerHomePreview = () => {
                 <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Your Scenes</p>
                 <h2 className="mt-1 font-serif text-3xl font-semibold tracking-[-0.035em] md:text-4xl">Where culture is moving</h2>
               </div>
-              <a href="/scenes" className="hidden text-sm font-semibold text-muted-foreground hover:text-primary sm:block">Explore all</a>
+              <a href="/scenes" className="hidden text-sm font-semibold text-white/50 hover:text-primary sm:block">Explore all</a>
             </div>
             <div className="grid gap-5 md:grid-cols-3">
               {sceneObjects.map((scene, index) => {
@@ -196,7 +256,7 @@ const ConsumerHomePreview = () => {
                         type="button"
                         disabled={interactions.joinScene.isPending}
                         onClick={() => interactions.joinScene.mutate(rawScene)}
-                        className="mt-2 w-full rounded-full border border-border bg-card px-3 py-2 text-xs font-black hover:border-primary hover:text-primary disabled:opacity-50"
+                        className="mt-2 w-full rounded-full border border-white/15 bg-white/[0.04] px-3 py-2 text-xs font-black hover:border-primary hover:text-primary disabled:opacity-50"
                       >
                         Join Scene
                       </button>
@@ -214,7 +274,7 @@ const ConsumerHomePreview = () => {
                   <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Fresh discoveries</p>
                   <h2 className="mt-1 font-serif text-3xl font-semibold tracking-[-0.035em] md:text-4xl">Worth noticing</h2>
                 </div>
-                <a href="/discover" className="text-sm font-semibold text-muted-foreground hover:text-primary">Open Discover</a>
+                <a href="/discover" className="text-sm font-semibold text-white/50 hover:text-primary">Open Discover</a>
               </div>
               <div className="grid gap-5 md:grid-cols-3">
                 {discoveryObjects.map((item) => <ConsumerObjectCard key={item.id} item={item} />)}
@@ -224,12 +284,12 @@ const ConsumerHomePreview = () => {
         </div>
 
         <aside className="space-y-7">
-          <section className="border-t border-border pt-5 lg:sticky lg:top-24">
+          <section className="border-t border-white/10 pt-5 lg:sticky lg:top-24">
             <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Quick signal</p>
             <h2 className="mt-2 font-serif text-3xl font-semibold leading-tight tracking-[-0.035em]">
               {poll?.question || "Would you go to a live dancehall set at Devon House this Friday?"}
             </h2>
-            <p className="mt-3 text-sm text-muted-foreground">{Number(poll?.total_votes || 342).toLocaleString()} people have signaled so far.</p>
+            <p className="mt-3 text-sm text-white/55">{Number(poll?.total_votes || 342).toLocaleString()} people have signaled so far.</p>
             <div className="mt-5 flex flex-wrap gap-2">
               {(pollOptions.length ? pollOptions : [
                 { id: "yes", label: "Yes" },
@@ -242,12 +302,12 @@ const ConsumerHomePreview = () => {
                     type="button"
                     disabled={interactions.votePoll.isPending}
                     onClick={() => interactions.votePoll.mutate({ pollId: poll.id, optionId: option.id })}
-                    className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-bold transition hover:border-primary hover:text-primary disabled:opacity-50"
+                    className="rounded-full border border-white/15 bg-white/[0.04] px-4 py-2.5 text-sm font-bold transition hover:border-primary hover:text-primary disabled:opacity-50"
                   >
                     {option.label}{option.votes ? ` · ${option.votes}` : ""}
                   </button>
                 ) : (
-                  <a key={option.id} href="/discover?tab=polls" className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-bold transition hover:border-primary hover:text-primary">
+                  <a key={option.id} href="/discover?tab=polls" className="rounded-full border border-white/15 bg-white/[0.04] px-4 py-2.5 text-sm font-bold transition hover:border-primary hover:text-primary">
                     {option.label}
                   </a>
                 )
@@ -255,25 +315,25 @@ const ConsumerHomePreview = () => {
             </div>
           </section>
 
-          <section className="border-t border-border pt-5">
+          <section className="border-t border-white/10 pt-5">
             <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Your value</p>
             <div className="mt-3 flex items-end justify-between gap-4">
-              <div><strong className="text-4xl tracking-[-0.05em]">{live.pointsBalance.toLocaleString()}</strong><p className="mt-1 text-sm text-muted-foreground">PromoPoints</p></div>
+              <div><strong className="text-4xl tracking-[-0.05em]">{live.pointsBalance.toLocaleString()}</strong><p className="mt-1 text-sm text-white/55">PromoPoints</p></div>
               <a href="/rewards" className="rounded-full bg-primary px-4 py-2.5 text-sm font-black text-primary-foreground">Rewards</a>
             </div>
-            <p className="mt-4 text-sm leading-6 text-muted-foreground">{activeKeys.length} active access {activeKeys.length === 1 ? "perk" : "perks"}{activeKeys[0] ? ` · ${activeKeys[0].venue_name}` : ""}.</p>
+            <p className="mt-4 text-sm leading-6 text-white/55">{activeKeys.length} active access {activeKeys.length === 1 ? "perk" : "perks"}{activeKeys[0] ? ` · ${activeKeys[0].venue_name}` : ""}.</p>
             {activeKeys[0] && (
               <a href="/access" className="mt-3 inline-flex rounded-full border border-primary/30 px-3 py-2 text-xs font-black text-primary">Open access pass →</a>
             )}
           </section>
 
-          <section className="border-t border-border pt-5">
+          <section className="border-t border-white/10 pt-5">
             <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Bring your people</p>
             <h3 className="mt-2 text-xl font-black tracking-[-0.03em]">Your network should compound.</h3>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-              <div className="bg-card p-3"><strong className="block text-xl">{referralStats?.referrals.totalClicks || 0}</strong><span className="text-[10px] text-muted-foreground">Clicks</span></div>
-              <div className="bg-card p-3"><strong className="block text-xl">{referralStats?.referrals.totalSignups || 0}</strong><span className="text-[10px] text-muted-foreground">Joined</span></div>
-              <div className="bg-card p-3"><strong className="block text-xl">{referralStats?.referrals.totalConversions || 0}</strong><span className="text-[10px] text-muted-foreground">Active</span></div>
+              <div className="bg-white/[0.04] p-3"><strong className="block text-xl">{referralStats?.referrals.totalClicks || 0}</strong><span className="text-[10px] text-white/45">Clicks</span></div>
+              <div className="bg-white/[0.04] p-3"><strong className="block text-xl">{referralStats?.referrals.totalSignups || 0}</strong><span className="text-[10px] text-white/45">Joined</span></div>
+              <div className="bg-white/[0.04] p-3"><strong className="block text-xl">{referralStats?.referrals.totalConversions || 0}</strong><span className="text-[10px] text-white/45">Active</span></div>
             </div>
             <button
               type="button"
@@ -284,17 +344,24 @@ const ConsumerHomePreview = () => {
             </button>
           </section>
 
-          <section className="border-t border-border pt-5">
+          <section className="border-t border-white/10 pt-5">
             <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Your cultural proof</p>
             <div className="mt-3 flex items-end justify-between gap-3">
-              <div><strong className="text-3xl tracking-[-0.04em]">{piecePositions.length}</strong><p className="text-sm text-muted-foreground">Piece positions</p></div>
-              <div className="text-right"><strong className="text-lg">{Number(live.pieces.data?.total_value || 0).toFixed(0)}</strong><p className="text-xs text-muted-foreground">Gems value</p></div>
+              <div><strong className="text-3xl tracking-[-0.04em]">{piecePositions.length}</strong><p className="text-sm text-white/55">Piece positions</p></div>
+              <div className="text-right"><strong className="text-lg">{Number(live.pieces.data?.total_value || 0).toFixed(0)}</strong><p className="text-xs text-white/45">Gems value</p></div>
             </div>
-            <p className="mt-3 text-xs leading-5 text-muted-foreground">Verified participation can surface here as durable cultural proof instead of as another onboarding concept.</p>
+            <p className="mt-3 text-xs leading-5 text-white/45">Verified participation can surface here as durable cultural proof instead of as another onboarding concept.</p>
             <a href="/portfolio" className="mt-4 inline-flex text-sm font-black text-primary">Open your Pieces →</a>
           </section>
         </aside>
       </section>
+
+      <p className="mt-12 text-center text-xs text-white/45">
+        New here?{" "}
+        <Link to="/how-it-works" className="font-bold text-white underline-offset-4 hover:underline">
+          How Promorang works
+        </Link>
+      </p>
     </ConsumerShell>
   );
 };

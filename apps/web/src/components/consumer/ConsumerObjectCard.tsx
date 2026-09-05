@@ -16,9 +16,9 @@ const ConsumerObjectCard = ({ item, emphasis = "default" }: ConsumerObjectCardPr
   const href = isConsumerPreview && isMoment ? `/?preview=consumer&moment=${encodeURIComponent(item.id)}` : (item.href || "#");
 
   return (
-    <article className={`group overflow-hidden border-border bg-card ${emphasis === "feature" ? "border-y md:border" : "border-t"}`}>
+    <article className={`group overflow-hidden border-white/10 bg-white/[0.03] ${emphasis === "feature" ? "border-y md:border" : "border-t"}`}>
       {item.imageUrl ? (
-        <Link to={href} className="block overflow-hidden bg-muted">
+        <Link to={href} className="block overflow-hidden bg-white/5">
           <img
             src={item.imageUrl}
             alt=""
@@ -44,19 +44,19 @@ const ConsumerObjectCard = ({ item, emphasis = "default" }: ConsumerObjectCardPr
                 {item.title}
               </h3>
             </Link>
-            {item.subtitle ? <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{item.subtitle}</p> : null}
+            {item.subtitle ? <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">{item.subtitle}</p> : null}
           </div>
           <button
             type="button"
             aria-label={`Save ${item.title}`}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-background text-muted-foreground transition hover:border-primary/40 hover:text-primary"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/15 bg-black/40 text-white/55 transition hover:border-primary/40 hover:text-primary"
           >
             <Bookmark className="h-4 w-4" />
           </button>
         </div>
 
         {moment ? (
-          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-muted-foreground">
+          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-white/50">
             {moment.startsAt ? <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />{moment.startsAt}</span> : null}
             {moment.venueName || moment.location ? <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{moment.venueName || moment.location}</span> : null}
             {typeof moment.participantCount === "number" ? <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />{moment.participantCount} interested</span> : null}
@@ -64,9 +64,9 @@ const ConsumerObjectCard = ({ item, emphasis = "default" }: ConsumerObjectCardPr
         ) : null}
 
         {scene ? (
-          <div className="mt-4 flex gap-5 text-xs text-muted-foreground">
-            {typeof scene.signalCount === "number" ? <span><b className="text-foreground">{scene.signalCount}</b> new signals</span> : null}
-            {typeof scene.trendingCount === "number" ? <span><b className="text-foreground">{scene.trendingCount}</b> trending</span> : null}
+          <div className="mt-4 flex gap-5 text-xs text-white/50">
+            {typeof scene.signalCount === "number" ? <span><b className="text-white">{scene.signalCount}</b> new signals</span> : null}
+            {typeof scene.trendingCount === "number" ? <span><b className="text-white">{scene.trendingCount}</b> trending</span> : null}
           </div>
         ) : null}
       </div>
