@@ -7,6 +7,7 @@ import {
   demandPollFromDiscovery,
   mergeNamedIntents,
   normalizeIntentKey,
+  seededNamedIntents,
   type DemandInbox,
   type DemandPoll,
   type NamedIntent,
@@ -88,22 +89,23 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
 
   const intentsQuery = useQuery({
     queryKey: ["discovery-named-intents", cityName],
-    initialData: () => readLocalIntents(cityName),
+    initialData: () => mergeNamedIntents(seededNamedIntents(cityName), readLocalIntents(cityName)),
     queryFn: async (): Promise<NamedIntent[]> => {
+      const seeded = seededNamedIntents(cityName);
       const local = readLocalIntents(cityName);
       try {
         const { data, error } = await (supabase as any).rpc("list_discovery_named_intent_counts", {
           p_city: cityName,
         });
-        if (error) return local;
+        if (error) return mergeNamedIntents(seeded, local);
         const remote = ((data || []) as Array<{ query_raw: string; ask_count: number; last_asked_at?: string }>).map((row) => ({
           query: row.query_raw,
           count: row.ask_count,
           lastAskedAt: row.last_asked_at,
         }));
-        return mergeNamedIntents(remote, local);
+        return mergeNamedIntents(seeded, remote, local);
       } catch {
-        return local;
+        return mergeNamedIntents(seeded, local);
       }
     },
   });

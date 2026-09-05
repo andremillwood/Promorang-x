@@ -6,6 +6,7 @@ import {
   normalizeIntentKey,
   optionShares,
   resolveDemandRole,
+  seededNamedIntents,
   type DemandPoll,
 } from "./discovery-demand";
 
@@ -100,5 +101,28 @@ describe("buildDiscoveryDemandInbox", () => {
     expect(inbox.asks).toEqual([]);
     expect(inbox.questions).toHaveLength(1);
     expect(inbox.questions[0].poll.id).toBe("night");
+  });
+
+  it("opens with the city's seeded asks, not an empty named list", () => {
+    const music: DemandPoll = {
+      id: "music",
+      question: "What gets you out for a live experience?",
+      tags: ["Live Music", "Reggae"],
+      totalVotes: 20,
+      thresholdForMoment: 100,
+    };
+    const inbox = buildDiscoveryDemandInbox({
+      polls: [jerk, night, music],
+      intents: seededNamedIntents("Kingston & St. Andrew"),
+      city: "Kingston",
+    });
+
+    expect(inbox.asks.map((ask) => ask.query)).toEqual([
+      "jerk on friday",
+      "cocktails after work",
+      "live music",
+    ]);
+    expect(inbox.misses.map((ask) => ask.query)).toEqual(["hiking with kids", "sunday church"]);
+    expect(inbox.namedAskCount).toBe(18);
   });
 });
