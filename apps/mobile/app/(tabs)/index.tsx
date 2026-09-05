@@ -7,7 +7,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { AppHeader } from '@/components/AppHeader';
 import { PromoCardFace } from '@/components/people/PromoCardFace';
 import { PromoCardUseSheet } from '@/components/people/PromoCardUseSheet';
-import { QuietEmpty, StatPile } from '@/components/people/ExperienceShell';
+import { StatPile } from '@/components/people/ExperienceShell';
 import { BorderRadius, Colors, Spacing } from '@/constants/DesignTokens';
 import { useAuth } from '@/context/AuthContext';
 import { useMoments } from '@/hooks/useMoments';
@@ -60,22 +60,6 @@ export default function TodayScreen() {
     );
   }
 
-  if (!data && home.isError) {
-    return (
-      <View style={styles.screen}>
-        <AppHeader title="Today" />
-        <View style={styles.pad}>
-          <QuietEmpty
-            title="Couldn’t load your home"
-            copy="Try again to see your perks, community and activity."
-            actionLabel={home.isFetching ? 'Trying again…' : 'Try again'}
-            onAction={() => void home.refetch()}
-          />
-        </View>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.screen}>
       <AppHeader title="Today" />
@@ -89,6 +73,14 @@ export default function TodayScreen() {
             ? 'Your PromoCard is the thing you hold. Discover what’s next, then use it when you get there.'
             : 'Give value that lands on people’s PromoCards. Your card is how you spend and recharge too.'}
         </Text>
+
+        {home.isError ? (
+          <Pressable style={styles.retry} onPress={() => void home.refetch()}>
+            <Text style={styles.retryText}>
+              {home.isFetching ? 'Trying to refresh your live home…' : 'Live home is offline. PromoCard and nearby stays available.'}
+            </Text>
+          </Pressable>
+        ) : null}
 
         <PromoCardFace
           holder={cardView.holder}
@@ -322,6 +314,15 @@ const styles = StyleSheet.create({
   listCard: { borderRadius: 22, borderWidth: 1, borderColor: Colors.border, backgroundColor: 'rgba(255,255,255,0.04)', padding: 16, marginTop: 8 },
   listTitle: { color: Colors.white, fontSize: 20, fontWeight: '800' },
   studioLink: { color: Colors.gray[600], fontSize: 12, textAlign: 'center', marginTop: 8 },
+  retry: {
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(246,212,138,0.25)',
+    backgroundColor: 'rgba(246,212,138,0.08)',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  retryText: { color: '#F6E7C4', fontSize: 12, lineHeight: 18 },
   lenses: { gap: 8, paddingVertical: 10 },
   lens: { minHeight: 40, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: Colors.border, justifyContent: 'center', backgroundColor: Colors.gray[900] },
   lensActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
