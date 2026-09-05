@@ -29,6 +29,10 @@ import {
 } from "@/lib/discovery-path";
 import { recordDiscoveryNamedIntent } from "@/hooks/useDiscoveryDemand";
 import { unlockDiscoveryOntoCard } from "@/hooks/useDiscoveryCard";
+import { useDiscoveryFound } from "@/hooks/useDiscoveryFound";
+import { PutUpFoundModal } from "@/components/discovery/PutUpFoundModal";
+import { FoundListingCard } from "@/components/discovery/FoundListingCard";
+import { foundListingHits } from "@/lib/discovery-found";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { readLocalCardUnlocks, type DiscoveryCardUnlock } from "@/lib/discovery-card";
 import { cn } from "@/lib/utils";
@@ -112,6 +116,7 @@ export function DiscoveryPath({
   const [browseOpen, setBrowseOpen] = useState(false);
   const [intentTick, setIntentTick] = useState(0);
   const [lastUnlock, setLastUnlock] = useState<DiscoveryCardUnlock | null>(null);
+  const found = useDiscoveryFound(cityName);
 
   const syncQueryParam = (nextQuery: string, nextLens: DiscoverLensId | null) => {
     if (!syncUrl) return;
@@ -176,6 +181,13 @@ export function DiscoveryPath({
   const hasLiveMatch = polls.some(
     (poll) => intentMatchCount(poll, lens ? [lens] : [], query) > 0,
   );
+  const matchingFinds = useMemo(
+    () => (query ? found.waiting.filter((listing) => foundListingHits(listing, query) > 0) : found.waiting),
+    [found.waiting, query],
+  );
+  const namedWant =
+    query ||
+    (lens ? t(INTENT_LENSES.find((item) => item.id === lens)?.titleKey || "discover.pathLensTry") : t("discover.pathOtherTitle"));
 
   const current = path[0] || null;
   const upcoming = path.slice(1);
@@ -403,7 +415,47 @@ export function DiscoveryPath({
         </section>
       ) : namedIntent ? (
         <section className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-6 sm:p-8">
-          {hasLiveMatch ? (
+          {matchingFinds.length ? (
+            <>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">
+                {t("found.waitingEyebrow")}
+              </p>
+              <h3 className="mt-2 font-serif text-2xl font-bold text-white">{t("found.waitingTitle")}</h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/55">
+                {t("found.waitingLead", { city: cityName, want: namedWant })}
+              </p>
+              <div className="mt-5 grid gap-3">
+                {matchingFinds.map((listing) => (
+                  <FoundListingCard
+                    key={listing.id}
+                    listing={listing}
+                    role="host"
+                    claiming={found.claiming}
+                    onClaim={found.claim}
+                  />
+                ))}
+              </div>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <PutUpFoundModal
+                  cityName={cityName}
+                  defaultTitle={query}
+                  onPutUp={async (input) => {
+                    await recordDiscoveryNamedIntent(cityName, input.title);
+                    await found.putUp(input);
+                  }}
+                  trigger={
+                    <TactileButton variant="obsidian">
+                      {t("found.putUp")}
+                      <ArrowRight className="h-4 w-4" />
+                    </TactileButton>
+                  }
+                />
+                <TactileButton variant="obsidian" onClick={() => setBrowseOpen(true)}>
+                  {t("discover.pathMissBrowse")}
+                </TactileButton>
+              </div>
+            </>
+          ) : hasLiveMatch ? (
             <>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">
                 {t("discover.pathDoneEyebrow")}
@@ -431,17 +483,27 @@ export function DiscoveryPath({
               </p>
               <h3 className="mt-2 font-serif text-2xl font-bold text-white">{t("discover.pathMissTitle")}</h3>
               <p className="mt-2 max-w-xl text-sm leading-6 text-white/55">
-                {t("discover.pathMissCopy", {
-                  city: cityName,
-                  want: query || (lens ? t(INTENT_LENSES.find((item) => item.id === lens)?.titleKey || "discover.pathLensTry") : t("discover.pathOtherTitle")),
-                })}
+                {t("found.missPutUpCopy", { city: cityName, want: namedWant })}
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
-                <AskQuestionModal
+                <PutUpFoundModal
+                  cityName={cityName}
+                  defaultTitle={query}
+                  onPutUp={async (input) => {
+                    await recordDiscoveryNamedIntent(cityName, input.title);
+                    await found.putUp(input);
+                  }}
                   trigger={
                     <TactileButton variant="primary">
-                      {t("discover.pathMissAsk")}
+                      {t("found.putUp")}
                       <ArrowRight className="h-4 w-4" />
+                    </TactileButton>
+                  }
+                />
+                <AskQuestionModal
+                  trigger={
+                    <TactileButton variant="obsidian">
+                      {t("discover.pathMissAsk")}
                     </TactileButton>
                   }
                   onQuestionCreated={onQuestionCreated}

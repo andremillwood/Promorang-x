@@ -171,7 +171,7 @@ export default function PeopleHome() {
         <section className="grid gap-3">
           {[
             { href: "/give", label: "Give something", detail: "Put a perk on your people’s PromoCards.", stub: "GIVE", stubLabel: "Perk" },
-            { href: "/demand", label: "Open what they asked", detail: "Named asks from Discover. Put a night or question on the misses.", stub: "ASK", stubLabel: "Inbox" },
+            { href: "/demand", label: "Open what they asked", detail: "Named asks and finds from Discover. Claim the one that is yours.", stub: "ASK", stubLabel: "Inbox" },
             { href: "/create", label: "Create something", detail: "Ask them to go, try, answer or show up.", stub: "MAKE", stubLabel: "Move" },
           ].map((action) => (
             <Link key={action.href} to={to(action.href)} className="block">
