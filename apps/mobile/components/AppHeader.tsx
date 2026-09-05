@@ -32,8 +32,8 @@ export function AppHeader({ title, showNotifications = true }: AppHeaderProps) {
             <Ionicons name={experience.icon} size={16} color={experience.color} />
           </View>
           <View>
-            <Text style={styles.contextLabel}>{title || experience.label}</Text>
-            <Text style={styles.contextAction}>Change role</Text>
+            <Text style={styles.contextLabel}>{title || 'Today'}</Text>
+            <Text style={styles.contextAction}>{experience.label} · change role</Text>
           </View>
           <Ionicons name="chevron-down" size={14} color={Colors.gray[500]} />
         </Pressable>
