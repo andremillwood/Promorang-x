@@ -494,3 +494,56 @@ export const userApi = {
   getStats: () => 
     apiRequest<{ success: boolean; data: any }>('/api/users/me/stats'),
 };
+
+async function experienceRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const payload = await apiRequest<{ success?: boolean; data?: T; error?: string; message?: string }>(
+    `/api/experience${path}`,
+    init,
+  );
+  if (payload.success === false) {
+    throw new Error(payload.error || payload.message || 'Could not load this yet');
+  }
+  return payload.data as T;
+}
+
+export const peopleExperienceApi = {
+  home: () => experienceRequest<Record<string, any>>('/home'),
+  network: (sceneId?: string) =>
+    experienceRequest<Record<string, any>>(`/network${sceneId ? `?sceneId=${sceneId}` : ''}`),
+  perks: () => experienceRequest<any[]>('/perks'),
+  opportunities: (sceneId?: string) =>
+    experienceRequest<any[]>(`/opportunities${sceneId ? `?sceneId=${sceneId}` : ''}`),
+  happened: (sceneId?: string) =>
+    experienceRequest<Record<string, any>>(`/happened${sceneId ? `?sceneId=${sceneId}` : ''}`),
+  card: () => experienceRequest<Record<string, any>>('/card'),
+  drop: (slug: string) => experienceRequest<Record<string, any>>(`/drops/${encodeURIComponent(slug)}`),
+  createDrop: (body: Record<string, unknown>) =>
+    experienceRequest<Record<string, any>>('/drops', { method: 'POST', body: JSON.stringify(body) }),
+  claimDrop: (slug: string) =>
+    experienceRequest<Record<string, any>>(`/drops/${encodeURIComponent(slug)}/claim`, {
+      method: 'POST',
+      body: '{}',
+    }),
+  takeOpportunity: (id: string, sceneId?: string) =>
+    experienceRequest<Record<string, any>>(`/opportunities/${encodeURIComponent(id)}/take`, {
+      method: 'POST',
+      body: JSON.stringify({ sceneId }),
+    }),
+  provideInventory: (body: Record<string, unknown>) =>
+    experienceRequest<Record<string, any>>('/inventory', { method: 'POST', body: JSON.stringify(body) }),
+  hub: (slug: string) => experienceRequest<Record<string, any>>(`/hubs/${encodeURIComponent(slug)}`),
+  contribute: (slug: string, kind = 'contributor') =>
+    experienceRequest<Record<string, any>>(`/hubs/${encodeURIComponent(slug)}/contribute`, {
+      method: 'POST',
+      body: JSON.stringify({ kind }),
+    }),
+  invite: (slug: string) =>
+    experienceRequest<Record<string, any>>(`/hubs/${encodeURIComponent(slug)}/invite`, {
+      method: 'POST',
+      body: '{}',
+    }),
+  start: (body: Record<string, unknown>) =>
+    experienceRequest<Record<string, any>>('/start', { method: 'POST', body: JSON.stringify(body) }),
+  ask: (body: Record<string, unknown>) =>
+    experienceRequest<Record<string, any>>('/ask', { method: 'POST', body: JSON.stringify(body) }),
+};

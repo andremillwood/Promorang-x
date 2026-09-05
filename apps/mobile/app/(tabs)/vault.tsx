@@ -9,6 +9,9 @@ import { CommerceReceipt, useCommerceReceipts } from '@/hooks/useCommerceReceipt
 import { resolveCommerceReceiptPresentation } from '@promorang/shared';
 import { useQuery } from '@tanstack/react-query';
 import { guestRsvpApi } from '@/lib/api';
+import { PromoCardFace } from '@/components/people/PromoCardFace';
+import { useMyPromoCard } from '@/hooks/usePeopleExperience';
+import { presentPromoCard } from '@/lib/promoCard';
 
 const assetMeta = {
   token: { label: 'Value', icon: 'sparkles', color: Colors.primary },
@@ -39,6 +42,8 @@ function receiptPresentation(receipt: CommerceReceipt) {
 
 export default function VaultScreen() {
   const [activeTab, setActiveTab] = useState<'kept' | 'activity'>('kept');
+  const card = useMyPromoCard();
+  const cardView = presentPromoCard(card.data);
   const { assets, loading: assetsLoading } = useVaultAssets();
   const { memories, loading: memoriesLoading } = useVaultMemories();
   const { summary, loading: summaryLoading } = useVaultSummary();
@@ -75,8 +80,20 @@ export default function VaultScreen() {
           </View>
         </View>
 
+        <Pressable onPress={() => router.push('/card')} style={styles.cardLink}>
+          <PromoCardFace
+            holder={cardView.holder}
+            available={cardView.available}
+            limit={cardView.limit}
+            places={cardView.places}
+            tier={cardView.tier}
+            cardNumber={cardView.cardNumber}
+            compact
+          />
+        </Pressable>
+
         <View style={styles.tabs}>
-          <Pressable onPress={() => setActiveTab('kept')} style={[styles.tab, activeTab === 'kept' && styles.tabActive]}><Text style={[styles.tabText, activeTab === 'kept' && styles.tabTextActive]}>What you keep</Text></Pressable>
+          <Pressable onPress={() => setActiveTab('kept')} style={[styles.tab, activeTab === 'kept' && styles.tabActive]}><Text style={[styles.tabText, activeTab === 'kept' && styles.tabTextActive]}>Memories</Text></Pressable>
           <Pressable onPress={() => setActiveTab('activity')} style={[styles.tab, activeTab === 'activity' && styles.tabActive]}><Text style={[styles.tabText, activeTab === 'activity' && styles.tabTextActive]}>Activity</Text></Pressable>
         </View>
 
@@ -198,6 +215,7 @@ const styles = StyleSheet.create({
   footLabel: { color: Colors.gray[500], fontSize: 12, marginTop: 2 },
   scanButton: { flexDirection: 'row', gap: 7, alignItems: 'center', paddingHorizontal: 13, paddingVertical: 10, borderRadius: 18, backgroundColor: Colors.primary },
   scanText: { color: Colors.black, fontSize: 13, fontWeight: '800' },
+  cardLink: { marginBottom: 8 },
   tabs: { flexDirection: 'row', marginVertical: 18, padding: 4, borderRadius: 16, backgroundColor: Colors.gray[900] },
   tab: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 13, backgroundColor: 'transparent' },
   tabActive: { backgroundColor: Colors.gray[700] },

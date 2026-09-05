@@ -3,7 +3,7 @@
  * Mirrors DESIGN.md: cinematic black, charcoal glass, restrained orange movement.
  */
 export const Colors = {
-  primary: '#FF6A1A',
+  primary: '#FF5500',
   primaryDark: '#D94B00',
   secondary: '#151515',
   accent: '#FFB067',

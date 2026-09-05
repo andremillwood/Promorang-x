@@ -10,7 +10,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
-import { StripeProvider } from '@stripe/stripe-react-native';
+import { StripeProvider } from '@/lib/stripe';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -163,6 +163,10 @@ function RootLayoutNav() {
         <Stack.Screen name="auth/login" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
+        <Stack.Screen name="give" options={{ headerShown: false }} />
+        <Stack.Screen name="stock" options={{ headerShown: false }} />
+        <Stack.Screen name="start" options={{ headerShown: false }} />
+        <Stack.Screen name="drop/[slug]" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
         <Stack.Screen name="report" options={{ headerShown: false }} />
         <Stack.Screen name="commerce-issue" options={{ headerShown: false }} />

@@ -51,13 +51,19 @@ The three layers must feel connected:
 
 Navigation is organized around the user's intent and success, not around Promorang's internal product inventory.
 
-The canonical primary destinations across web and mobile are:
+The people-experience chrome — the five tabs on native and web mobile — is the same on both apps:
 
-- **Today:** what needs my attention and what is the best move I can make now?
-- **Discover:** what moments, actions, places, people, rewards, and opportunities are available?
-- **Create:** what do I want to make happen?
-- **Progress:** what happened because of me and how close am I to the result I want?
-- **Vault:** what proof, rewards, earnings, access, memories, and assets have I kept?
+- **Today:** what should I do now? PromoCard sits here. Discover and What Happened fold into this home.
+- **People:** who did I bring, and who is helping?
+- **Create:** what can I make happen?
+- **Earn:** what can I take and get paid for when the action is verified?
+- **Card:** what can I spend and recharge? This is the PromoCard product, not a perk locker.
+
+Journey language still uses Discover, Progress, and Vault. Those stay in the product and remain stable destinations, but they are not chrome:
+
+- **Discover:** what is worth my time? Reachable from Today and Card.
+- **Progress / What Happened:** what changed because I took part? Reachable from Today.
+- **Vault:** what did I keep, earn, or unlock? Memories live here, reachable from Card.
 
 These destinations remain stable across stakeholder roles. The content, recommendations, language, metrics, and available actions inside them adapt to the user's current intent, active role, permissions, and journey state.
 
