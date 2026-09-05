@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { peopleExperienceApi } from "@/services/peopleExperience";
 import { writeLocalCardUnlock } from "@/lib/discovery-card";
 import {
+  canonicalFoundId,
   claimFoundListing,
   draftFoundListing,
   mergeFoundListings,
@@ -112,7 +113,8 @@ export async function claimFoundListingNow(
   listing: FoundListing,
   claimantUserId?: string | null,
 ): Promise<FoundClaimResult> {
-  const local = claimFoundListing(listing, {
+  const target = { ...listing, id: canonicalFoundId(listing.id) };
+  const local = claimFoundListing(target, {
     userId: claimantUserId,
     anonId: readDiscoverAnonId(),
   });
@@ -126,7 +128,7 @@ export async function claimFoundListingNow(
     const userId = sessionData.session?.user?.id || claimantUserId;
     if (sessionData.session?.access_token) {
       try {
-        const remote = await peopleExperienceApi.claimFound(listing.id);
+        const remote = await peopleExperienceApi.claimFound(target.id);
         if (remote?.id) {
           const next = replaceLocalFoundListing({
             ...local.listing,
@@ -141,7 +143,7 @@ export async function claimFoundListingNow(
       }
 
       const { data, error } = await (supabase as any).rpc("claim_found_listing", {
-        p_listing_id: listing.id,
+        p_listing_id: target.id,
       });
       if (!error && Array.isArray(data) && data[0]?.listing_id) {
         const next = replaceLocalFoundListing({

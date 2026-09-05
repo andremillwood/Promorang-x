@@ -4,6 +4,20 @@ import type { DemandRole } from "@/lib/discovery-demand";
 
 export const FOUND_LISTINGS_KEY = "promorang.discover.found-listings";
 
+export const FOUND_SEED_IDS = {
+  hike: "11111111-1111-4111-8111-111111111111",
+  church: "22222222-2222-4222-8222-222222222222",
+} as const;
+
+export const FOUND_ID_ALIASES: Record<string, string> = {
+  "found:hiking-kids": FOUND_SEED_IDS.hike,
+  "found:sunday-church": FOUND_SEED_IDS.church,
+};
+
+export function canonicalFoundId(id: string): string {
+  return FOUND_ID_ALIASES[id] || id;
+}
+
 export type FoundKind = "place" | "moment";
 export type FoundStatus = "unclaimed" | "claimed";
 export type FoundKeep = "workspace" | "slip";
@@ -154,18 +168,20 @@ export function mergeFoundListings(...groups: FoundListing[][]): FoundListing[] 
   const byKey = new Map<string, FoundListing>();
   for (const group of groups) {
     for (const listing of group) {
-      const key = `${listing.city}::${listing.id}` ;
-      const wordsKey = `${listing.city}::${normalizeFoundKey(listing.words || listing.title)}`;
-      const existing = byKey.get(listing.id) || byKey.get(key) || byKey.get(wordsKey);
+      const id = canonicalFoundId(listing.id);
+      const row = { ...listing, id };
+      const key = `${row.city}::${id}`;
+      const wordsKey = `${row.city}::${normalizeFoundKey(row.words || row.title)}`;
+      const existing = byKey.get(id) || byKey.get(key) || byKey.get(wordsKey);
       if (!existing) {
-        byKey.set(listing.id, { ...listing });
-        byKey.set(wordsKey, listing);
+        byKey.set(id, row);
+        byKey.set(wordsKey, row);
         continue;
       }
       const next: FoundListing = {
         ...existing,
-        ...listing,
-        id: existing.status === "claimed" ? existing.id : listing.id || existing.id,
+        ...row,
+        id: existing.status === "claimed" ? canonicalFoundId(existing.id) : id,
         status: existing.status === "claimed" || listing.status === "claimed" ? "claimed" : "unclaimed",
         namedCount: Math.max(existing.namedCount || 0, listing.namedCount || 0),
         perkToFinder: existing.perkToFinder || listing.perkToFinder,
@@ -186,7 +202,7 @@ export function mergeFoundListings(...groups: FoundListing[][]): FoundListing[] 
 
 export const OPENING_FOUND_LISTINGS: FoundListing[] = [
   {
-    id: "found:hiking-kids",
+    id: FOUND_SEED_IDS.hike,
     city: "Kingston & St. Andrew",
     kind: "moment",
     title: "Hiking with kids",
@@ -199,7 +215,7 @@ export const OPENING_FOUND_LISTINGS: FoundListing[] = [
     createdAt: "2026-09-05T12:00:00.000Z",
   },
   {
-    id: "found:sunday-church",
+    id: FOUND_SEED_IDS.church,
     city: "Kingston & St. Andrew",
     kind: "place",
     title: "Sunday church",
@@ -233,7 +249,9 @@ export function readLocalFoundListings(city?: string): FoundListing[] {
   if (typeof window === "undefined") return [];
   try {
     const parsed = JSON.parse(window.localStorage.getItem(FOUND_LISTINGS_KEY) || "[]") as FoundListing[];
-    const rows = (Array.isArray(parsed) ? parsed : []).filter((row) => row?.id && row?.title);
+    const rows = (Array.isArray(parsed) ? parsed : [])
+      .filter((row) => row?.id && row?.title)
+      .map((row) => ({ ...row, id: canonicalFoundId(row.id) }));
     return city ? rows.filter((row) => !row.city || row.city === city) : rows;
   } catch {
     return [];

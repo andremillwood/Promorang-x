@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  canonicalFoundId,
   claimFoundListing,
   defaultFinderPerk,
   draftFoundListing,
+  FOUND_SEED_IDS,
   foundListingHits,
   foundWorkspacePath,
   isProspectClaim,
@@ -14,7 +16,7 @@ import {
 } from "./discovery-found";
 
 const hike: FoundListing = {
-  id: "found:hiking-kids",
+  id: FOUND_SEED_IDS.hike,
   city: "Kingston & St. Andrew",
   kind: "moment",
   title: "Hiking with kids",
@@ -68,7 +70,7 @@ describe("claimFoundListing", () => {
     expect(claimed.listing.status).toBe("claimed");
     expect(claimed.slip?.source).toBe("finder");
     expect(claimed.slip?.perkTitle).toBe(hike.perkToFinder);
-    expect(claimed.slip?.pollId).toBe("found:hiking-kids");
+    expect(claimed.slip?.pollId).toBe(`found:${FOUND_SEED_IDS.hike}`);
   });
 
   it("lets a prospect keep the listing instead of a second slip", () => {
@@ -98,7 +100,7 @@ describe("unlockFromFoundListing", () => {
 
 describe("foundWorkspacePath", () => {
   it("sends a night to the host stage and a place to the perk table", () => {
-    expect(foundWorkspacePath(hike, "host")).toContain("/create/moment?found=found%3Ahiking-kids");
+    expect(foundWorkspacePath(hike, "host")).toContain(`/create/moment?found=${encodeURIComponent(FOUND_SEED_IDS.hike)}`);
     expect(foundWorkspacePath({ ...hike, kind: "place" }, "creator")).toContain("/give?found=");
     expect(foundWorkspacePath(hike, "merchant")).toContain("/give?found=");
   });
@@ -113,5 +115,15 @@ describe("mergeFoundListings", () => {
     const row = merged.find((item) => item.id === hike.id);
     expect(row?.status).toBe("claimed");
     expect(row?.namedCount).toBe(8);
+  });
+
+  it("folds the old local alias into the live listing id", () => {
+    const merged = mergeFoundListings(
+      [{ ...hike, id: "found:hiking-kids" }],
+      [{ ...hike, namedCount: 3 }],
+    );
+    expect(merged).toHaveLength(1);
+    expect(merged[0].id).toBe(FOUND_SEED_IDS.hike);
+    expect(canonicalFoundId("found:hiking-kids")).toBe(FOUND_SEED_IDS.hike);
   });
 });
