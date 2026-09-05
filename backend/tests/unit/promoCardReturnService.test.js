@@ -1,3 +1,4 @@
+jest.mock('../../lib/supabase', () => ({ supabase: null }));
 const { recordEligibleReturn } = require('../../services/promoCardReturnService');
 
 function database({ card = { id: 'card-1', available_balance: 15, monthly_limit: 40 }, existing = null, insertError = null } = {}) {
