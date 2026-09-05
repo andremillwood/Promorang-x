@@ -49,6 +49,7 @@ import { GuidanceDensity, useGuidancePreferences } from "@/hooks/useGuidancePref
 import { cultureImages } from "@/data/culture-demo";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/i18n/I18nContext";
+import { AppearancePreferences } from "@/components/AppearancePreferences";
 
 const discoveryCategories = ["Music", "Food", "Nightlife", "Fitness", "Arts", "Fashion", "Wellness", "Community"];
 const preferredTimes = ["Weekday mornings", "Weekday evenings", "Friday nights", "Weekends"];
@@ -391,7 +392,7 @@ const Settings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#090909] pb-20 text-white">
+    <div className="min-h-screen bg-background pb-20 text-foreground">
       <section className="relative overflow-hidden border-b border-white/10">
         <img src={cultureImages.streetArt} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/40" />
@@ -421,7 +422,7 @@ const Settings = () => {
       ) : (
         <Tabs defaultValue="profile" className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8">
           <div className="overflow-x-auto pb-2">
-          <TabsList className="mb-8 h-auto min-w-max justify-start gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-1">
+          <TabsList className="mb-8 h-auto min-w-max justify-start gap-1 rounded-lg border border-border bg-muted/40 p-1">
             <TabsTrigger value="profile">{t("settings.identity")}</TabsTrigger>
             <TabsTrigger value="preferences">{t("settings.discovery")}</TabsTrigger>
             <TabsTrigger value="access-rank">{t("settings.status")}</TabsTrigger>
@@ -540,24 +541,24 @@ const Settings = () => {
 
           <TabsContent value="preferences">
             <div className="grid max-w-4xl gap-5 lg:grid-cols-[1fr_300px]">
-              <div className="rounded-lg border border-white/10 bg-[#111] p-6 sm:p-8">
+              <div className="rounded-lg border border-border bg-card p-6 sm:p-8">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">{t("settings.tune")}</p>
                 <h2 className="mt-3 text-2xl font-black">{t("settings.feedTitle")}</h2>
-                <p className="mt-2 text-sm leading-6 text-white/45">{t("settings.feedCopy")}</p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("settings.feedCopy")}</p>
                 <div className="mt-7 flex flex-wrap gap-2">
                   {discoveryCategories.map((category) => {
                     const active = selectedCategories.includes(category);
-                    return <button type="button" key={category} onClick={() => toggleChoice(category, selectedCategories, setSelectedCategories)} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? "border-orange-500 bg-orange-500 text-black" : "border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/10"}`}>{active && <Check className="mr-1.5 inline h-3.5 w-3.5" />}{categoryLabels[category]}</button>;
+                    return <button type="button" key={category} onClick={() => toggleChoice(category, selectedCategories, setSelectedCategories)} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? "border-orange-500 bg-orange-500 text-black" : "border-border bg-muted/40 text-muted-foreground hover:bg-muted"}`}>{active && <Check className="mr-1.5 inline h-3.5 w-3.5" />}{categoryLabels[category]}</button>;
                   })}
                 </div>
                 <div className="mt-9 border-t border-white/10 pt-7">
                   <h3 className="font-bold">{t("settings.when")}</h3>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {preferredTimes.map((time) => <button type="button" key={time} onClick={() => toggleChoice(time, selectedTimes, setSelectedTimes)} className={`rounded-md border px-3 py-2 text-sm transition ${selectedTimes.includes(time) ? "border-orange-500/60 bg-orange-500/15 text-orange-300" : "border-white/10 text-white/55 hover:bg-white/[0.05]"}`}>{timeLabels[time]}</button>)}
+                    {preferredTimes.map((time) => <button type="button" key={time} onClick={() => toggleChoice(time, selectedTimes, setSelectedTimes)} className={`rounded-md border px-3 py-2 text-sm transition ${selectedTimes.includes(time) ? "border-orange-500/60 bg-orange-500/15 text-orange-300" : "border-border text-muted-foreground hover:bg-muted/50"}`}>{timeLabels[time]}</button>)}
                   </div>
                 </div>
-                <div className="mt-8 flex items-center justify-between gap-5 rounded-lg border border-white/10 bg-black/40 p-4">
-                  <div><p className="font-semibold">{t("settings.nearby")}</p><p className="mt-1 text-xs leading-5 text-white/40">{t("settings.nearbyCopy")}</p></div>
+                <div className="mt-8 flex items-center justify-between gap-5 rounded-lg border border-border bg-muted/30 p-4">
+                  <div><p className="font-semibold">{t("settings.nearby")}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{t("settings.nearbyCopy")}</p></div>
                   <Switch checked={locationSharing} onCheckedChange={setLocationSharing} />
                 </div>
                 <Button onClick={handlePreferenceSubmit} disabled={updatePreferences.isPending || selectedCategories.length === 0} className="mt-7 bg-orange-500 font-bold text-black hover:bg-orange-400">
@@ -577,13 +578,13 @@ const Settings = () => {
 
           <TabsContent value="access-rank">
             <div className="grid max-w-4xl gap-5 md:grid-cols-[1fr_320px]">
-              <div className="rounded-lg border border-white/10 bg-[#111] p-7">
+              <div className="rounded-lg border border-border bg-card p-7">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">{t("settings.standing")}</p>
                 <h2 className="mt-3 text-3xl font-black">{t("settings.statusTitle")}</h2>
-                <p className="mt-4 max-w-xl text-sm leading-6 text-white/50">{t("settings.statusCopy")}</p>
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">{[["Explorer", "Current level"], ["Contributor", "Next unlock"], ["Host", "Mastery path"]].map(([title, copy], index) => <div key={title} className={`rounded-lg border p-4 ${index === 0 ? "border-orange-500/50 bg-orange-500/10" : "border-white/10 bg-black/30"}`}><p className="text-xs text-white/35">0{index + 1}</p><p className="mt-5 font-bold">{title}</p><p className="mt-1 text-xs text-white/40">{copy}</p></div>)}</div>
+                <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">{t("settings.statusCopy")}</p>
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">{[["Explorer", "Current level"], ["Contributor", "Next unlock"], ["Host", "Mastery path"]].map(([title, copy], index) => <div key={title} className={`rounded-lg border p-4 ${index === 0 ? "border-orange-500/50 bg-orange-500/10" : "border-border bg-muted/30"}`}><p className="text-xs text-muted-foreground">0{index + 1}</p><p className="mt-5 font-bold">{title}</p><p className="mt-1 text-xs text-muted-foreground">{copy}</p></div>)}</div>
               </div>
-              <div className="rounded-lg border border-white/10 bg-[#111] p-6"><LockKeyhole className="h-6 w-6 text-orange-400" /><h3 className="mt-6 text-xl font-black">{t("settings.proofVisibility")}</h3><p className="mt-3 text-sm leading-6 text-white/45">{t("settings.proofVisibilityCopy")}</p><Button asChild variant="outline" className="mt-7 w-full border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white"><Link to="/profile">{t("settings.viewProfile")}</Link></Button></div>
+              <div className="rounded-lg border border-border bg-card p-6"><LockKeyhole className="h-6 w-6 text-orange-400" /><h3 className="mt-6 text-xl font-black">{t("settings.proofVisibility")}</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">{t("settings.proofVisibilityCopy")}</p><Button asChild variant="outline" className="mt-7 w-full"><Link to="/profile">{t("settings.viewProfile")}</Link></Button></div>
             </div>
           </TabsContent>
 
@@ -750,6 +751,17 @@ const Settings = () => {
           {/* --- ACCOUNT TAB --- */}
           <TabsContent value="account">
             <div className="max-w-2xl space-y-6">
+              <div className="bg-card border border-border rounded-2xl p-6">
+                <h2 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  {t("settings.appearance")}
+                </h2>
+                <p className="mb-5 text-sm text-muted-foreground">
+                  {t("settings.appearanceCopy")}
+                </p>
+                <AppearancePreferences />
+              </div>
+
               <div className="bg-card border border-border rounded-2xl p-6">
                 <h2 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-primary" />

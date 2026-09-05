@@ -628,6 +628,13 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
           {/* Clean Sidebar Footer */}
           <div className={cn("mt-auto p-4 border-t border-border/50", sidebarCollapsed && "lg:hidden")}>
+            <div className="mb-3 flex items-center justify-between gap-2 rounded-xl border border-border/70 bg-muted/40 px-3 py-2 lg:hidden">
+              <span className="text-xs font-semibold text-muted-foreground">{t("settings.appearance")}</span>
+              <div className="flex items-center gap-1.5">
+                <LanguageSelector tone="app" />
+                <ThemeToggle tone="app" />
+              </div>
+            </div>
             <button
               type="button"
               onClick={() => {
@@ -842,10 +849,10 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             </DropdownMenu>
 
             {/* Language Selector */}
-            <LanguageSelector />
+            <LanguageSelector tone="app" />
 
             {/* Theme Toggle */}
-            <ThemeToggle />
+            <ThemeToggle tone="app" />
 
             {/* User Profile Avatar Menu */}
             <DropdownMenu>
