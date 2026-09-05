@@ -63,7 +63,7 @@ export default function OnboardingScreen() {
         location: city.trim() || null,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' });
-      if (profileError) throw profileError;
+      if (profileError) console.warn('[Onboarding] Profile save skipped:', profileError.message);
 
       const { error: preferencesError } = await supabase.rpc('upsert_user_preferences', {
         p_user_id: user.id,
@@ -82,7 +82,7 @@ export default function OnboardingScreen() {
         p_notification_enabled: true,
         p_email_digest_frequency: 'weekly',
       });
-      if (preferencesError) throw preferencesError;
+      if (preferencesError) console.warn('[Onboarding] Preferences save skipped:', preferencesError.message);
 
       try {
         const { error: authError } = await supabase.auth.updateUser({ data: { full_name: cleanName, name: cleanName } });
@@ -149,6 +149,18 @@ export default function OnboardingScreen() {
         <Pressable disabled={!canContinue || saving} onPress={() => step < 2 ? setStep((value) => value + 1) : void finish()} style={[styles.continue, (!canContinue || saving) && styles.disabled]}>
           {saving ? <ActivityIndicator color={Colors.black} /> : <><Text style={styles.continueText}>{step === 2 ? 'Enter Promorang' : 'Continue'}</Text><Ionicons name="arrow-forward" size={19} color={Colors.black} /></>}
         </Pressable>
+        {__DEV__ ? (
+          <Pressable
+            accessibilityLabel="Skip onboarding"
+            onPress={async () => {
+              await markCompleted();
+              router.replace('/(tabs)');
+            }}
+            style={styles.skip}
+          >
+            <Text style={styles.skipText}>Skip</Text>
+          </Pressable>
+        ) : null}
       </View>
     </SafeAreaView>
   );
@@ -188,4 +200,6 @@ const styles = StyleSheet.create({
   continue: { flex: 1, height: 52, borderRadius: BorderRadius.md, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 9 },
   continueText: { color: Colors.black, fontSize: 15, fontWeight: '900' },
   disabled: { opacity: 0.4 },
+  skip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 },
+  skipText: { color: Colors.gray[400], fontSize: 13, fontWeight: '700' },
 });
