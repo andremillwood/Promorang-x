@@ -75,6 +75,7 @@ describe("people experience mapping", () => {
       email: "dev@flashcreate.co",
     })).toBe("Dev");
     expect(homeGreeting("Adam", new Date(2026, 8, 5, 22))).toBe("Good evening, Adam.");
+    expect(homeGreeting("there", new Date(2026, 8, 5, 22))).toBe("Good evening.");
   });
 
   it("points an empty home at one useful first move", () => {

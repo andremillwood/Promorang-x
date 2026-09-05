@@ -90,6 +90,7 @@ export default function PeopleHome() {
   return (
     <ExperienceShell
       title={greeting}
+      seoTitle="Home"
       description={description}
       hero={(
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black/50 px-5 pb-5 pt-6 shadow-[0_0_40px_rgba(255,85,0,0.16)] backdrop-blur-xl">
@@ -104,7 +105,7 @@ export default function PeopleHome() {
             <div className="mt-6">
               <PromoCardFace
                 className="max-w-none"
-                holder={givenName}
+                holder={givenName === "there" ? "Your card" : givenName}
                 available={gems ? `${gems.toLocaleString()} Gems` : `${points.toLocaleString()} pts`}
                 limit={`${keys} keys`}
                 places={data?.communities?.[0]?.title || "Your perks live here"}

@@ -235,6 +235,7 @@ export function firstGivenName(input: {
 export function homeGreeting(name: string, now = new Date()): string {
   const hour = now.getHours();
   const hello = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  if (isPlaceholderDisplayName(name)) return `${hello}.`;
   return `${hello}, ${name}.`;
 }
 

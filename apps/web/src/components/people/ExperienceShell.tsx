@@ -6,6 +6,7 @@ import SEO from "@/components/SEO";
 
 type ExperienceShellProps = {
   title: string;
+  seoTitle?: string;
   eyebrow?: string;
   description?: string;
   backTo?: string;
@@ -18,6 +19,7 @@ type ExperienceShellProps = {
 
 export function ExperienceShell({
   title,
+  seoTitle,
   eyebrow,
   description,
   backTo,
@@ -33,7 +35,7 @@ export function ExperienceShell({
     : backTo;
   return (
     <main className={cn("min-h-screen bg-[#0D0D0E] pb-28 text-white", className)}>
-      <SEO title={`${title} — PROMORANG`} description={description || title} />
+      <SEO title={`${seoTitle || title} — PROMORANG`} description={description || title} />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_20%_0%,rgba(255,85,0,.28),transparent_42%)]" />
       {hero ? (
         <div className="relative mx-auto w-full max-w-3xl px-4 pt-6 sm:px-6">

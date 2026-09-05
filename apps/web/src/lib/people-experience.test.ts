@@ -44,6 +44,7 @@ describe("simplified PROMORANG experience", () => {
       email: "dev@flashcreate.co",
     })).toBe("Adam");
     expect(homeGreeting("Adam", new Date(2026, 8, 5, 22))).toBe("Good evening, Adam.");
+    expect(homeGreeting("there", new Date(2026, 8, 5, 22))).toBe("Good evening.");
   });
 
   it("does not show merchant inventory outcomes as a member's people count", () => {
