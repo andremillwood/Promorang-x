@@ -96,7 +96,12 @@ export default function GiveSomething() {
           </div>
         ) : (
           <div className="mt-3">
-            <QuietEmpty title="No partner inventory yet" copy="You can still make a simple perk and drop it yourself." />
+            <QuietEmpty
+              kicker="Inventory"
+              stub="0"
+              title="No partner inventory yet"
+              copy="You can still write a simple perk and drop it yourself."
+            />
           </div>
         )}
       </section>

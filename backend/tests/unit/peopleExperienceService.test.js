@@ -74,6 +74,10 @@ describe('people experience role and value rules', () => {
     expect(typeof require('../../services/peopleExperienceService').provideInventory).toBe('function');
   });
 
+  test('create gathering stays a people action, not a studio wizard', () => {
+    expect(typeof require('../../services/peopleExperienceService').createGathering).toBe('function');
+  });
+
   test('copies attribution from existing metadata keys', () => {
     expect(attributionFromMetadata({
       sceneId: 'scene-1',

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { resolveCreateIntent } from "@promorang/shared";
+import { useNavigate, Link, Navigate, useSearchParams } from "react-router-dom";
+import { CREATE_INTENTS, resolveCreateIntent } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -108,7 +108,9 @@ export function CreateMoment() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const createIntent = resolveCreateIntent(params.get("intent"));
-  const fromPeopleFlow = Boolean(params.get("intent"));
+  const peopleIntent = params.get("intent");
+  const fromPeopleCreate = CREATE_INTENTS.some((item) => item.intent === peopleIntent);
+  const fromPeopleFlow = fromPeopleCreate;
   const { user } = useAuth();
   const { toast } = useToast();
   const { uploadImage, uploading } = useImageUpload();
@@ -152,6 +154,10 @@ export function CreateMoment() {
       return (data || []) as any[];
     },
   });
+
+  if (fromPeopleCreate) {
+    return <Navigate to={`/create?intent=${encodeURIComponent(peopleIntent || "other")}`} replace />;
+  }
 
   if (!user) {
     return (

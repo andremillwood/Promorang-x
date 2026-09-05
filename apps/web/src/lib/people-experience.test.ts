@@ -5,7 +5,9 @@ import {
   classifyExperienceRole,
   classifyHappenedBucket,
   contributorValueScore,
+  createIntentStaysInPeople,
   dropShareCopy,
+  gatheringFormCopy,
   inventoryOpenCopy,
   resolveCreateIntent,
 } from "@promorang/shared";
@@ -14,7 +16,10 @@ describe("simplified PROMORANG experience", () => {
   it("never asks a creator to pick Moment vs Mission vs Discovery first", () => {
     expect(CREATE_INTENTS.every((item) => !/moment|mission|discovery|campaign/i.test(item.label))).toBe(true);
     expect(resolveCreateIntent("answer").mapsTo).toBe("Discovery");
-    expect(resolveCreateIntent("attend").href).toContain("/create/moment");
+    expect(resolveCreateIntent("attend").href).toBe("/create?intent=attend");
+    expect(CREATE_INTENTS.every((item) => !item.href.includes("/create/moment") && item.href !== "/missions")).toBe(true);
+    expect(CREATE_INTENTS.every((item) => createIntentStaysInPeople(item.href))).toBe(true);
+    expect(gatheringFormCopy("attend").heading).toMatch(/come/i);
   });
 
   it("lets people contribute without owning a hub", () => {

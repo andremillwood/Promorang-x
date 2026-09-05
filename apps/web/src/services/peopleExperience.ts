@@ -45,4 +45,41 @@ export const peopleExperienceApi = {
   invite: (slug: string) => request<Record<string, any>>(`/hubs/${slug}/invite`, { method: "POST", body: "{}" }),
   start: (body: Record<string, unknown>) => request<Record<string, any>>("/start", { method: "POST", body: JSON.stringify(body) }),
   ask: (body: Record<string, unknown>) => request<Record<string, any>>("/ask", { method: "POST", body: JSON.stringify(body) }),
+  gather: async (body: Record<string, unknown>) => {
+    try {
+      return await request<Record<string, any>>("/gather", { method: "POST", body: JSON.stringify(body) });
+    } catch (error) {
+      const fallback = await gatherViaSupabase(body);
+      if (fallback) return fallback;
+      throw error;
+    }
+  },
 };
+
+async function gatherViaSupabase(body: Record<string, unknown>) {
+  const { data: session } = await supabase.auth.getSession();
+  const userId = session.session?.user?.id;
+  if (!userId) return null;
+  const title = String(body.title || "").trim();
+  const place = String(body.place || body.location || body.venueName || "").trim();
+  if (!title || !place) return null;
+  const startsAt = String(body.startsAt || body.when || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString());
+  const { data, error } = await supabase
+    .from("moments")
+    .insert([
+      {
+        title,
+        category: body.intent === "try" ? "Food & Beverage" : "Community Gathering",
+        description: String(body.description || title),
+        starts_at: startsAt,
+        venue_name: place,
+        location: String(body.location || place),
+        host_id: userId,
+        status: "published",
+      },
+    ])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
