@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, Image, Platform, ScrollView, StyleSheet, Text
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker } from '@/lib/maps';
 import { Text, View } from '@/components/Themed';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/DesignTokens';
 import { useAuth } from '@/context/AuthContext';
