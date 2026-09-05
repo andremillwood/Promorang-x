@@ -105,14 +105,15 @@ CREATE INDEX IF NOT EXISTS idx_verified_actions_scene
 CREATE INDEX IF NOT EXISTS idx_verified_actions_contributor
   ON public.verified_actions(contributor_id, verified_at DESC);
 
--- 5. Scene contributor role without ownership (reuse scene_members when present)
-ALTER TABLE public.scene_members
+-- 5. Scene contributor role without ownership. scene_memberships is the
+-- canonical membership record; do not introduce a parallel scene_members table.
+ALTER TABLE public.scene_memberships
   ADD COLUMN IF NOT EXISTS invited_by uuid;
-ALTER TABLE public.scene_members
+ALTER TABLE public.scene_memberships
   ADD COLUMN IF NOT EXISTS can_distribute boolean NOT NULL DEFAULT false;
-ALTER TABLE public.scene_members
+ALTER TABLE public.scene_memberships
   ADD COLUMN IF NOT EXISTS verified_actions_count integer NOT NULL DEFAULT 0;
-ALTER TABLE public.scene_members
+ALTER TABLE public.scene_memberships
   ADD COLUMN IF NOT EXISTS attributed_value numeric(14,2) NOT NULL DEFAULT 0;
 
 COMMENT ON TABLE public.community_drops IS
@@ -143,8 +144,7 @@ CREATE POLICY community_drop_claims_own ON public.community_drop_claims
   );
 
 DROP POLICY IF EXISTS community_drop_claims_insert ON public.community_drop_claims;
-CREATE POLICY community_drop_claims_insert ON public.community_drop_claims
-  FOR INSERT WITH CHECK (user_id = auth.uid());
+-- Claims are inserted by the authenticated API through claim_community_drop_atomic.
 
 DROP POLICY IF EXISTS hub_attr_read ON public.hub_member_attributions;
 CREATE POLICY hub_attr_read ON public.hub_member_attributions
@@ -152,10 +152,11 @@ CREATE POLICY hub_attr_read ON public.hub_member_attributions
     member_user_id = auth.uid()
     OR attributed_by_user_id = auth.uid()
     OR EXISTS (
-      SELECT 1 FROM public.scene_members sm
+      SELECT 1 FROM public.scene_memberships sm
       WHERE sm.scene_id = hub_member_attributions.scene_id
         AND sm.user_id = auth.uid()
-        AND sm.role IN ('operator', 'steward', 'contributor')
+        AND sm.membership_state = 'active'
+        AND sm.relationship IN ('creator', 'host', 'venue', 'merchant', 'brand', 'agency', 'supporter')
     )
   );
 
@@ -164,6 +165,7 @@ CREATE POLICY hub_attr_insert ON public.hub_member_attributions
   FOR INSERT WITH CHECK (attributed_by_user_id = auth.uid() OR member_user_id = auth.uid());
 
 GRANT SELECT, INSERT, UPDATE ON public.community_drops TO authenticated, service_role;
-GRANT SELECT, INSERT, UPDATE ON public.community_drop_claims TO authenticated, service_role;
+GRANT SELECT ON public.community_drop_claims TO authenticated;
+GRANT SELECT, INSERT, UPDATE ON public.community_drop_claims TO service_role;
 GRANT SELECT, INSERT ON public.hub_member_attributions TO authenticated, service_role;
 GRANT SELECT ON public.community_drops TO anon;

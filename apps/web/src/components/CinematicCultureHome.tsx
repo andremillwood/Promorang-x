@@ -44,8 +44,6 @@ import { MobilePromoHome, PromoCardGateway } from "@/components/promocard";
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
 import { SampleContentNotice } from "@/components/content/ContentProvenance";
 import { possessiveLocation, useVisitorLocation } from "@/hooks/useVisitorLocation";
-import { InteractiveReceiptStudio } from "@/components/value/InteractiveReceiptStudio";
-import { StakeholderValueHub } from "@/components/value/StakeholderValueHub";
 import heroImage from "@/assets/hero-moments.jpg";
 import momentConcert from "@/assets/moment-concert.jpg";
 import momentFoodFestival from "@/assets/moment-food-festival.jpg";
@@ -501,13 +499,6 @@ export default function CinematicCultureHome() {
             className="w-full max-w-full space-y-3 will-change-transform md:max-w-4xl md:space-y-4"
           >
             <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex max-w-full items-center space-x-2 rounded-full border border-orange-500/40 bg-orange-500/20 px-3 py-1.5 text-[11px] font-black leading-4 text-orange-300 md:px-3.5 md:text-xs">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-                </span>
-                <span className="line-clamp-2">{t("home.pulse")}</span>
-              </div>
               <OpsTheatreStatusPill onOpenOrientation={() => setOrientationOpen(true)} showDetails />
             </div>
 
@@ -851,38 +842,6 @@ export default function CinematicCultureHome() {
                 <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
               </Link>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative overflow-hidden border-b border-white/10 bg-[#080808]">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(255,106,0,0.14),transparent_28%),radial-gradient(circle_at_88%_65%,rgba(255,106,0,0.08),transparent_24%)]" />
-        <div className="container relative px-6 py-16 md:py-24">
-          <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-end">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.economyEyebrow")}</p>
-              <h2 className="mt-4 max-w-xl text-4xl font-black uppercase leading-[0.88] tracking-[-0.06em] md:text-6xl">
-                {t("home.economyTitle")} <span className="text-primary">{t("home.economyAccent")}</span>
-              </h2>
-            </div>
-            <div className="max-w-2xl lg:justify-self-end">
-              <p className="text-lg leading-8 text-white/72">
-                {t("home.economyCopy")}
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2">
-                {[t("home.chipSocial"), t("home.chipCreator"), t("home.chipCommerce"), t("home.chipProof"), t("home.chipRewards")].map((item) => (
-                  <span key={item} className="rounded-full border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/55">{item}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-12">
-            <InteractiveReceiptStudio />
-          </div>
-
-          <div className="mt-16 pt-16 border-t border-white/10">
-            <StakeholderValueHub initialRole="guest" showHeroBanner={true} />
           </div>
         </div>
       </section>

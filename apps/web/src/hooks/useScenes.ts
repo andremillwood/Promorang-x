@@ -59,13 +59,6 @@ export function useJoinScene(scene?: Scene | null) {
       }
       const { error } = await db.from("scene_memberships").upsert({ scene_id: scene.id, user_id: user.id, relationship: "participant", membership_state: "active" }, { onConflict: "scene_id,user_id,relationship" });
       if (error) throw error;
-      await db.from("scene_members").upsert({
-        scene_id: scene.id,
-        user_id: user.id,
-        role: "member",
-        status: "active",
-        invited_by: invitedBy,
-      }, { onConflict: "scene_id,user_id" });
       if (invitedBy) {
         await db.from("hub_member_attributions").upsert({
           scene_id: scene.id,

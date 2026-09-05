@@ -194,12 +194,11 @@ function createPeopleExperienceService(db = defaultDb) {
   }
 
   async function membershipsFor(userId) {
-    const members = await maybe(db.from('scene_members').select('*, scenes(*)').eq('user_id', userId).eq('status', 'active'));
-    if (members.data?.length) return members.data;
-    const alt = await maybe(db.from('scene_memberships').select('*, scenes(*)').eq('user_id', userId));
-    return (alt.data || []).map((row) => ({
+    const result = await maybe(db.from('scene_memberships').select('*, scenes(*)').eq('user_id', userId).eq('membership_state', 'active'));
+    return (result.data || []).map((row) => ({
       ...row,
-      role: row.relationship === 'host' || row.relationship === 'creator' ? 'contributor' : 'member',
+      role: row.relationship === 'host' || row.relationship === 'creator' ? 'operator'
+        : ['venue', 'merchant', 'brand', 'agency', 'supporter'].includes(row.relationship) ? 'contributor' : 'member',
     }));
   }
 
@@ -250,10 +249,10 @@ function createPeopleExperienceService(db = defaultDb) {
   async function bumpContributorStats({ sceneId, contributorId, amount }) {
     if (!sceneId || !contributorId) return null;
     const row = await maybe(
-      db.from('scene_members').select('id, verified_actions_count, attributed_value').eq('scene_id', sceneId).eq('user_id', contributorId).maybeSingle(),
+      db.from('scene_memberships').select('id, verified_actions_count, attributed_value').eq('scene_id', sceneId).eq('user_id', contributorId).eq('membership_state', 'active').maybeSingle(),
     );
     if (!row.data) return null;
-    return maybe(db.from('scene_members').update({
+    return maybe(db.from('scene_memberships').update({
       verified_actions_count: Number(row.data.verified_actions_count || 0) + 1,
       attributed_value: Number(row.data.attributed_value || 0) + Number(amount || 0),
     }).eq('id', row.data.id));
@@ -278,20 +277,15 @@ function createPeopleExperienceService(db = defaultDb) {
 
   async function joinScene({ userId, sceneId, role = 'member', invitedBy = null }) {
     if (!userId || !sceneId) throw new Error('Scene and person are required');
-    await maybe(db.from('scene_members').upsert({
-      scene_id: sceneId,
-      user_id: userId,
-      role,
-      status: 'active',
-      invited_by: invitedBy,
-      can_distribute: CONTRIBUTOR_ROLES.has(role),
-    }, { onConflict: 'scene_id,user_id' }));
+    const relationship = role === 'operator' ? 'host' : role === 'contributor' ? 'supporter' : 'participant';
     await maybe(db.from('scene_memberships').upsert({
       scene_id: sceneId,
       user_id: userId,
-      relationship: role === 'member' ? 'participant' : 'creator',
+      relationship,
       membership_state: 'active',
-    }, { onConflict: 'scene_id,user_id' }));
+      invited_by: invitedBy,
+      can_distribute: CONTRIBUTOR_ROLES.has(role),
+    }, { onConflict: 'scene_id,user_id,relationship' }));
     if (invitedBy) {
       await ensureHubAttribution({
         sceneId,
@@ -544,18 +538,27 @@ function createPeopleExperienceService(db = defaultDb) {
       db.from('community_drop_claims').select('*, community_drops(*)').eq('user_id', userId).eq('status', 'claimed').order('claimed_at', { ascending: false }).limit(12),
     );
     const person = await profileFor(userId);
+    const issuanceIds = new Set((issuances.data || []).map((row) => row.id));
     const perks = [
       ...(issuances.data || []).map((row) => ({
         id: row.id,
         title: row.offers?.title || 'Perk',
         detail: row.offers?.description || '',
         kind: row.offers?.reward_type || 'custom',
+        status: row.status,
+        redemptionCode: row.redemption_code || null,
+        expiresAt: row.expires_at || null,
+        fulfillmentType: row.offers?.fulfillment_type || null,
       })),
-      ...(dropClaims.data || []).map((row) => ({
+      ...(dropClaims.data || []).filter((row) => !row.offer_issuance_id || !issuanceIds.has(row.offer_issuance_id)).map((row) => ({
         id: row.id,
         title: row.community_drops?.title || 'Drop',
         detail: row.community_drops?.description || '',
         kind: row.community_drops?.perk_kind || 'custom',
+        status: row.status,
+        redemptionCode: null,
+        expiresAt: null,
+        fulfillmentType: null,
       })),
     ];
     return {
@@ -649,30 +652,26 @@ function createPeopleExperienceService(db = defaultDb) {
 
     let offerId = payload.offerId || null;
     if (!offerId && payload.kind && payload.title) {
-      try {
-        const rewardType = PERK_KIND_TO_REWARD[payload.kind] || 'other';
-        const offer = await offerService.createOffer(userId, {
-          title: payload.title,
-          description: payload.description,
-          image_url: payload.imageUrl,
-          reward_type: rewardType,
-          owner_type: payload.kind === 'merchant' ? 'merchant' : 'creator',
-          quantity_total: payload.audienceLimit || payload.quantity || null,
-          status: 'active',
-          metadata: { presentation: 'drop', audience: payload.audience || 'everyone' },
-          distributions: [{
-            channel: 'direct',
-            trigger_event: 'drop_claim',
-            source_label: payload.title,
-            allocation_limit: payload.audienceLimit || payload.quantity || null,
-            qualification_rules: {},
-          }],
-        });
-        offerId = offer.id;
-        await maybe(db.from('offer_distributions').update({ presentation_mode: 'drop' }).eq('offer_id', offerId));
-      } catch (error) {
-        console.warn('[people-experience] offer wrap skipped', error.message);
-      }
+      const rewardType = PERK_KIND_TO_REWARD[payload.kind] || 'other';
+      const offer = await offerService.createOffer(userId, {
+        title: payload.title,
+        description: payload.description,
+        image_url: payload.imageUrl,
+        reward_type: rewardType,
+        owner_type: payload.kind === 'merchant' ? 'merchant' : 'creator',
+        quantity_total: payload.audienceLimit || payload.quantity || null,
+        status: 'active',
+        metadata: { presentation: 'drop', audience: payload.audience || 'everyone' },
+        distributions: [{
+          channel: 'direct',
+          trigger_event: 'drop_claim',
+          source_label: payload.title,
+          allocation_limit: payload.audienceLimit || payload.quantity || null,
+          qualification_rules: {},
+        }],
+      });
+      offerId = offer.id;
+      await maybe(db.from('offer_distributions').update({ presentation_mode: 'drop' }).eq('offer_id', offerId));
     }
 
     const remaining = payload.audienceLimit || payload.quantity || null;
@@ -729,41 +728,13 @@ function createPeopleExperienceService(db = defaultDb) {
 
   async function claimDrop(userId, slug) {
     if (!userId) throw new Error('Join to claim this');
-    const drop = await getDrop(slug);
-    if (!drop) throw new Error('This drop is no longer available');
-    if (drop.status !== 'active') throw new Error('This drop has closed');
-    if (drop.remaining !== null && Number(drop.remaining) <= 0) throw new Error('It is already gone');
-
-    const existing = await maybe(db.from('community_drop_claims').select('id').eq('drop_id', drop.id).eq('user_id', userId).maybeSingle());
-    if (existing.data) return { alreadyClaimed: true, drop };
-
-    let issuance = null;
-    if (drop.offer_id) {
-      try {
-        issuance = await offerService.directClaim(userId, drop.offer_id);
-      } catch (error) {
-        console.warn('[people-experience] offer claim fallback', error.message);
-      }
-    }
-
-    const claim = await db.from('community_drop_claims').insert({
-      drop_id: drop.id,
-      user_id: userId,
-      referrer_id: drop.creator_id,
-      scene_id: drop.scene_id,
-      offer_issuance_id: issuance?.id || null,
-      status: 'claimed',
-      metadata: { offer_id: drop.offer_id },
-    }).select().single();
-    if (claim.error) throw claim.error;
-
-    if (drop.remaining !== null) {
-      await maybe(db.from('community_drops').update({
-        remaining: Math.max(0, Number(drop.remaining) - 1),
-        status: Number(drop.remaining) - 1 <= 0 ? 'exhausted' : 'active',
-        updated_at: new Date().toISOString(),
-      }).eq('id', drop.id));
-    }
+    const claimed = await db.rpc('claim_community_drop_atomic', { p_user_id: userId, p_slug: slug });
+    if (claimed.error) throw claimed.error;
+    const result = claimed.data;
+    const drop = result.drop;
+    const claim = result.claim;
+    const issuance = result.issuance || null;
+    if (result.already_claimed) return { alreadyClaimed: true, drop, claim, issuance };
 
     if (drop.scene_id) {
       await joinScene({ userId, sceneId: drop.scene_id, invitedBy: drop.creator_id });
@@ -799,7 +770,7 @@ function createPeopleExperienceService(db = defaultDb) {
       metadata: { slug: drop.slug, title: drop.title },
     });
 
-    return { drop, claim: claim.data, issuance };
+    return { drop, claim, issuance };
   }
 
   async function takeOpportunity(userId, opportunityId, sceneId) {
@@ -843,41 +814,23 @@ function createPeopleExperienceService(db = defaultDb) {
       contributor_earn: youEarn,
     };
 
-    let offer = null;
-    try {
-      offer = await offerService.createOffer(userId, {
-        title,
-        description: payload.description || peopleGet,
-        reward_type: rewardType,
-        owner_type: 'merchant',
-        quantity_total: quantity,
-        status: 'active',
-        fulfillment_type: 'merchant_validation',
-        metadata,
-        distributions: [{
-          channel: 'direct',
-          trigger_event: 'opportunity_take',
-          source_label: title,
-          allocation_limit: quantity,
-          qualification_rules: {},
-        }],
-      });
-    } catch (error) {
-      console.warn('[people-experience] inventory offer wrap skipped', error.message);
-      const inserted = await db.from('offers').insert({
-        owner_user_id: userId,
-        owner_type: 'merchant',
-        title,
-        description: payload.description || peopleGet,
-        reward_type: rewardType,
-        fulfillment_type: 'merchant_validation',
-        quantity_total: quantity,
-        status: 'active',
-        metadata,
-      }).select().single();
-      if (inserted.error) throw new Error('Could not put that up yet');
-      offer = inserted.data;
-    }
+    const offer = await offerService.createOffer(userId, {
+      title,
+      description: payload.description || peopleGet,
+      reward_type: rewardType,
+      owner_type: 'merchant',
+      quantity_total: quantity,
+      status: 'active',
+      fulfillment_type: 'merchant_validation',
+      metadata,
+      distributions: [{
+        channel: 'direct',
+        trigger_event: 'opportunity_take',
+        source_label: title,
+        allocation_limit: quantity,
+        qualification_rules: {},
+      }],
+    });
 
     await recordVerifiedAction({
       userId,
@@ -907,10 +860,8 @@ function createPeopleExperienceService(db = defaultDb) {
     if (scene.error) throw scene.error;
     if (!scene.data) return null;
 
-    const members = await maybe(db.from('scene_members').select('*').eq('scene_id', scene.data.id).eq('status', 'active'));
-    const memberships = members.data?.length
-      ? members.data
-      : (await maybe(db.from('scene_memberships').select('*').eq('scene_id', scene.data.id))).data || [];
+    const members = await maybe(db.from('scene_memberships').select('*').eq('scene_id', scene.data.id).eq('membership_state', 'active'));
+    const memberships = members.data || [];
 
     const week = weekStart();
     const weekActions = await maybe(

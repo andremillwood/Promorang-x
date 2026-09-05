@@ -70,17 +70,6 @@ app.use(express.urlencoded({
   parameterLimit: 1000000
 }));
 
-// Log request body for debugging
-app.use((req, res, next) => {
-  const safeBody = req.body && typeof req.body === 'object' ? { ...req.body } : req.body;
-  for (const key of ['manage_token', 'password', 'token', 'secret', 'email', 'phone', 'answers']) if (safeBody?.[key]) safeBody[key] = '[REDACTED]';
-  const safeHeaders = { ...req.headers };
-  for (const key of ['authorization', 'cookie', 'x-cron-secret', 'x-messaging-webhook-secret']) if (safeHeaders[key]) safeHeaders[key] = '[REDACTED]';
-  console.log('Request body:', safeBody);
-  console.log('Request headers:', safeHeaders);
-  next();
-});
-
 // CORS already handled above
 
 // Simple in-memory rate limiter (no external dependencies)
@@ -385,7 +374,6 @@ app.use('/api/stripe', require('./stripe')); // Stripe Payment & Connect
 app.use('/api/merchant', require('./merchant')); // Merchant Product & Sales Management
 app.use('/api/moment-products', require('./momentProducts')); // Moment-Product Integration
 app.use('/api/analytics', require('./analytics')); // Advanced Analytics & Reporting
-app.use('/api/demo', require('./demo-login')); // Demo state shortcuts
 app.use('/api/experience', require('./experience')); // Simplified people / perks / drops / earn layer
 
 // Start Daily Layer Cron Jobs only for long-running local/dev servers.

@@ -236,23 +236,22 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         return res.status(400).json({ error: 'Missing Stripe signature' });
     }
 
+    let event;
     try {
-        // Verify webhook signature
-        const event = stripeService.verifyWebhookSignature(req.body, signature);
+        // The app-level JSON parser preserves the original bytes in rawBody.
+        event = stripeService.verifyWebhookSignature(req.rawBody ?? req.body, signature);
+    } catch (error) {
+        return res.status(400).json({ error: error.message });
+    }
 
-        // Log event
+    try {
         await stripeService.logWebhookEvent(event);
-
-        // Process event asynchronously
-        stripeService.processWebhookEvent(event).catch(error => {
-            console.error('Error processing webhook event:', error);
-        });
-
-        // Respond immediately to Stripe
+        await stripeService.processWebhookEvent(event);
         res.json({ received: true });
     } catch (error) {
-        console.error('Webhook error:', error);
-        res.status(400).json({ error: error.message });
+        console.error('Webhook processing failed:', error);
+        // Keep delivery retryable until processing completes.
+        res.status(500).json({ error: 'Webhook processing failed' });
     }
 });
 

@@ -60,7 +60,6 @@ const EconomyConcept = lazy(() => import("./pages/EconomyConcept"));
 const VenueReportTeaser = lazy(() => import("./pages/VenueReportTeaser"));
 const Hosting = lazy(() => import("./pages/Hosting"));
 const Pricing = lazy(() => import("./pages/Pricing"));
-const NodesPage = lazy(() => import("./pages/NodesPage"));
 const MembershipCheckout = lazy(() => import("./pages/MembershipCheckout"));
 const BillingResult = lazy(() => import("./pages/BillingResult"));
 const Help = lazy(() => import("./pages/Help"));
@@ -85,7 +84,6 @@ const ExploreRewards = lazy(() => import("./pages/ExploreRewards"));
 const ExploreContent = lazy(() => import("./pages/ExploreContent"));
 const Momentum = lazy(() => import("./pages/Momentum"));
 const Pulse = lazy(() => import("./pages/Pulse"));
-const PulseFeed = lazy(() => import("./pages/PulseFeed"));
 const ForYou = lazy(() => import("./pages/ForYou"));
 const WatchUnlock = lazy(() => import("./pages/WatchUnlock"));
 const ContentMissionDetail = lazy(() => import("./pages/ContentMissionDetail"));
@@ -293,7 +291,7 @@ const App = () => (
                     <Route path="/economy/:concept" element={<EconomyConcept />} />
                     <Route path="/venue-report/:id" element={<VenueReportTeaser />} />
                     <Route path="/pricing" element={<Pricing />} />
-                    <Route path="/nodes" element={<NodesPage />} />
+                    <Route path="/nodes" element={<Navigate to="/value-studio" replace />} />
                     <Route path="/membership/checkout" element={<ProtectedRoute><MembershipCheckout /></ProtectedRoute>} />
                     <Route path="/claim-pages" element={<ProtectedRoute><ClaimPages /></ProtectedRoute>} />
                     <Route path="/billing/result" element={<ProtectedRoute><BillingResult /></ProtectedRoute>} />
@@ -359,7 +357,7 @@ const App = () => (
                     <Route path="/events/:slug" element={<EventExperienceDetail />} />
                     <Route path="/momentum" element={<Momentum />} />
                     <Route path="/pulse" element={<Pulse />} />
-                    <Route path="/pulse-feed" element={<PulseFeed />} />
+                    <Route path="/pulse-feed" element={<Navigate to="/live" replace />} />
                     <Route path="/missions" element={<WatchUnlock />} />
                     <Route path="/missions/:id" element={<ContentMissionDetail />} />
                     <Route path="/watch-unlock" element={<Navigate to="/missions" replace />} />
