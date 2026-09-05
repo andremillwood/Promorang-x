@@ -16,6 +16,7 @@ export * from "./demand-plan";
 export * from "./action-engine";
 export * from "./gem-ledger";
 export * from "./promocard-moment";
+export * from "./offer-fulfillment";
 export * from "./people-experience";
 
 export type PromorangJourneyStepId =

@@ -36,11 +36,27 @@ test('redemption delegates the state transition and counters to one database tra
 
   expect(mockRpc).toHaveBeenCalledWith('redeem_offer_atomic', {
     p_actor_user_id: 'merchant-1',
-    p_redemption_code: 'pr-abc123',
+    p_redemption_code: 'PR-ABC123',
     p_venue_id: null,
     p_notes: null,
   });
   expect(result).toMatchObject({ id: 'issuance-1', offers: { id: 'offer-1' } });
+});
+
+test('QR payloads are normalized before the atomic redeem transaction', async () => {
+  mockRpc.mockResolvedValue({
+    data: { id: 'issuance-2', offer_id: 'offer-1', user_id: 'member-1', metadata: {} },
+    error: null,
+  });
+
+  await offers.redeemByCode('merchant-1', 'promorang://offer/redeem/PR-QR99AA11', null, 'scanned');
+
+  expect(mockRpc).toHaveBeenCalledWith('redeem_offer_atomic', {
+    p_actor_user_id: 'merchant-1',
+    p_redemption_code: 'PR-QR99AA11',
+    p_venue_id: null,
+    p_notes: 'scanned',
+  });
 });
 
 test('a failed atomic redemption produces no application-side counter writes', async () => {

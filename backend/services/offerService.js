@@ -1,5 +1,11 @@
 const crypto = require('crypto');
 const { supabase } = require('../lib/supabase');
+const {
+  decodeOfferRedeemPayload,
+  isShippingAddressComplete,
+  resolveClaimPlan,
+  resolveFulfillPlan,
+} = require('./offerFulfillment');
 
 const ACTIVE_ISSUANCE_STATUSES = ['issued', 'claimed', 'fulfillment_pending', 'redeemed'];
 
@@ -161,7 +167,10 @@ async function issueForEvent({ userId, channel, event, sourceId, sourceEventId, 
       supabase.from('offer_distributions').update({ allocation_count: distribution.allocation_count + 1 }).eq('id', distribution.id),
       supabase.from('offer_redemption_events').insert({ issuance_id: issuance.id, event_type: 'issued', actor_user_id: userId, metadata: { channel, event, source_id: sourceId } }),
     ]);
-    issued.push({ ...issuance, offer });
+    const completed = offer.fulfillment_type === 'automatic'
+      ? await completeIssuanceJourney(userId, { ...issuance, offers: offer })
+      : { ...issuance, offer };
+    issued.push(completed);
   }
   return issued;
 }
@@ -176,32 +185,93 @@ async function directClaim(userId, offerId) {
   if (error) throw error;
   const { data: offer, error: offerError } = await supabase.from('offers').select('*').eq('id', offerId).single();
   if (offerError) throw offerError;
-  return { ...issuance, offer };
+  const row = { ...issuance, offers: offer, offer };
+  if (offer.fulfillment_type === 'automatic') {
+    return completeIssuanceJourney(userId, row);
+  }
+  return row;
 }
 
-async function claimIssuance(userId, issuanceId) {
-  const { data: issuance, error } = await supabase.from('offer_issuances').select('*, offers(*)').eq('id', issuanceId).eq('user_id', userId).single();
-  if (error || !issuance) throw new Error('Issued offer not found');
-  if (issuance.status !== 'issued') throw new Error('Offer has already been claimed or closed');
-  if (issuance.expires_at && new Date(issuance.expires_at) <= new Date()) throw new Error('Offer has expired');
-  const fulfillmentData = { ...issuance.fulfillment_data };
+function mergeClaimFulfillment(issuance, extras = {}) {
+  const fulfillmentData = { ...(issuance.fulfillment_data || {}) };
   if (issuance.offers.coupon_id) fulfillmentData.coupon_id = issuance.offers.coupon_id;
   if (issuance.offers.merchant_product_id) fulfillmentData.merchant_product_id = issuance.offers.merchant_product_id;
-  const nextStatus = ['shipping', 'manual'].includes(issuance.offers.fulfillment_type) ? 'fulfillment_pending' : 'claimed';
-  const { data, error: updateError } = await supabase.from('offer_issuances').update({ status: nextStatus, claimed_at: new Date().toISOString(), fulfillment_data: fulfillmentData }).eq('id', issuanceId).select('*, offers(*)').single();
-  if (updateError) throw updateError;
-  await supabase.from('offer_redemption_events').insert({ issuance_id: issuanceId, event_type: 'claimed', actor_user_id: userId });
+  if (extras.shipping_address) fulfillmentData.shipping_address = extras.shipping_address;
+  if (extras.notes) fulfillmentData.notes = extras.notes;
+  const plan = resolveClaimPlan(issuance.offers.fulfillment_type, fulfillmentData);
+  if (plan.shippingStage) fulfillmentData.shipping_stage = plan.shippingStage;
+  return { fulfillmentData, plan };
+}
+
+async function recordClaimFunnel(userId, issuance, nextStatus) {
   const revenueFunnels = require('./revenueFunnelService');
   await revenueFunnels.record({
     userId,
     funnel: 'marketplace',
     stage: nextStatus === 'fulfillment_pending' ? 'qualified' : 'fulfilled',
     entityType: 'offer_issuance',
-    entityId: issuanceId,
-    idempotencyKey: `offer:${issuanceId}:${nextStatus}`,
+    entityId: issuance.id,
+    idempotencyKey: `offer:${issuance.id}:${nextStatus}`,
     metadata: { offer_id: issuance.offer_id, fulfillment_type: issuance.offers.fulfillment_type },
   });
+}
+
+async function deliverAutomaticValue(issuance, offer) {
+  const amount = Number(offer.value_amount || 0);
+  const automatic = {
+    delivered_at: new Date().toISOString(),
+    reward_type: offer.reward_type,
+    amount: Number.isFinite(amount) && amount > 0 ? amount : null,
+    wallet: null,
+  };
+  if (automatic.amount && offer.reward_type === 'gems') {
+    try {
+      const gems = require('./gemsService');
+      await gems.creditGems(issuance.user_id, automatic.amount, 'bonus', {
+        offer_id: offer.id,
+        issuance_id: issuance.id,
+        source: 'offer_automatic',
+      });
+      automatic.wallet = 'gems';
+    } catch (error) {
+      automatic.wallet_error = error.message;
+    }
+  }
+  return automatic;
+}
+
+async function completeIssuanceJourney(userId, issuance, extras = {}) {
+  const { fulfillmentData, plan } = mergeClaimFulfillment(issuance, extras);
+  if (issuance.status === 'issued') {
+    const { data, error: updateError } = await supabase.from('offer_issuances').update({
+      status: plan.nextStatus,
+      claimed_at: new Date().toISOString(),
+      fulfillment_data: fulfillmentData,
+    }).eq('id', issuance.id).select('*, offers(*)').single();
+    if (updateError) throw updateError;
+    await supabase.from('offer_redemption_events').insert({ issuance_id: issuance.id, event_type: 'claimed', actor_user_id: userId });
+    await recordClaimFunnel(userId, issuance, plan.nextStatus);
+    issuance = data;
+  }
+  if (!plan.autoRedeem) return issuance;
+  const redeemed = await redeemByCode(userId, issuance.redemption_code, extras.venue_id, extras.notes || 'automatic');
+  const automatic = await deliverAutomaticValue(redeemed, redeemed.offers || issuance.offers);
+  const nextData = { ...(redeemed.fulfillment_data || issuance.fulfillment_data || {}), ...fulfillmentData, automatic };
+  const { data, error } = await supabase.from('offer_issuances').update({ fulfillment_data: nextData }).eq('id', redeemed.id).select('*, offers(*)').single();
+  if (error) return { ...redeemed, fulfillment_data: nextData };
   return data;
+}
+
+async function claimIssuance(userId, issuanceId, extras = {}) {
+  const { data: issuance, error } = await supabase.from('offer_issuances').select('*, offers(*)').eq('id', issuanceId).eq('user_id', userId).single();
+  if (error || !issuance) throw new Error('Issued offer not found');
+  if (!['issued', 'fulfillment_pending'].includes(issuance.status)) throw new Error('Offer has already been claimed or closed');
+  if (issuance.expires_at && new Date(issuance.expires_at) <= new Date()) throw new Error('Offer has expired');
+  if (issuance.status === 'fulfillment_pending' && extras.shipping_address) {
+    return updateShippingAddress(userId, issuanceId, extras.shipping_address);
+  }
+  if (issuance.status !== 'issued') throw new Error('Offer has already been claimed or closed');
+  return completeIssuanceJourney(userId, issuance, extras);
 }
 
 async function listUserIssuances(userId) {
@@ -211,9 +281,11 @@ async function listUserIssuances(userId) {
 }
 
 async function redeemByCode(actorUserId, redemptionCode, venueId, notes) {
+  const normalizedCode = decodeOfferRedeemPayload(redemptionCode);
+  if (!normalizedCode) throw new Error('Redemption code is required');
   const { data: issuance, error } = await supabase.rpc('redeem_offer_atomic', {
     p_actor_user_id: actorUserId,
-    p_redemption_code: redemptionCode,
+    p_redemption_code: normalizedCode,
     p_venue_id: venueId || null,
     p_notes: notes || null,
   });
@@ -268,4 +340,93 @@ async function analytics(userId, offerId) {
   };
 }
 
-module.exports = { createOffer, getOffer, listOwnerOffers, updateOffer, listPublicOffers, issueForEvent, directClaim, claimIssuance, listUserIssuances, redeemByCode, analytics };
+async function listOwnerPendingFulfillments(userId) {
+  const { data, error } = await supabase
+    .from('offer_issuances')
+    .select('*, offers!inner(*)')
+    .eq('offers.owner_user_id', userId)
+    .eq('status', 'fulfillment_pending')
+    .order('claimed_at', { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
+async function updateShippingAddress(userId, issuanceId, shippingAddress) {
+  if (!isShippingAddressComplete(shippingAddress)) {
+    throw new Error('Name, street, city, postal code, and country are required');
+  }
+  const { data: issuance, error } = await supabase.from('offer_issuances').select('*, offers(*)').eq('id', issuanceId).eq('user_id', userId).single();
+  if (error || !issuance) throw new Error('Issued offer not found');
+  if (issuance.offers.fulfillment_type !== 'shipping') throw new Error('This offer is not delivered by shipping');
+  if (!['issued', 'fulfillment_pending'].includes(issuance.status)) throw new Error('This delivery address can no longer be changed');
+  const fulfillmentData = {
+    ...(issuance.fulfillment_data || {}),
+    shipping_address: shippingAddress,
+    shipping_stage: 'ready_to_ship',
+  };
+  const updates = { fulfillment_data: fulfillmentData };
+  if (issuance.status === 'issued') {
+    updates.status = 'fulfillment_pending';
+    updates.claimed_at = new Date().toISOString();
+  }
+  const { data, error: updateError } = await supabase.from('offer_issuances').update(updates).eq('id', issuanceId).select('*, offers(*)').single();
+  if (updateError) throw updateError;
+  await supabase.from('offer_redemption_events').insert({
+    issuance_id: issuanceId,
+    event_type: issuance.status === 'issued' ? 'claimed' : 'fulfillment_updated',
+    actor_user_id: userId,
+    notes: 'shipping_address',
+  });
+  return data;
+}
+
+async function fulfillIssuance(ownerUserId, issuanceId, payload = {}) {
+  const { data: issuance, error } = await supabase.from('offer_issuances').select('*, offers(*)').eq('id', issuanceId).single();
+  if (error || !issuance) throw new Error('Issued offer not found');
+  if (issuance.offers.owner_user_id !== ownerUserId) throw new Error('Not authorized to fulfill this offer');
+  if (issuance.status !== 'fulfillment_pending') throw new Error('This offer is not waiting for fulfillment');
+  const fulfillmentData = {
+    ...(issuance.fulfillment_data || {}),
+    ...(payload.shipping_address ? { shipping_address: payload.shipping_address } : {}),
+    ...(payload.tracking_number ? { tracking_number: String(payload.tracking_number).trim() } : {}),
+    ...(payload.carrier ? { carrier: String(payload.carrier).trim() } : {}),
+    ...(payload.notes ? { notes: payload.notes } : {}),
+  };
+  const plan = resolveFulfillPlan(issuance.offers.fulfillment_type, payload.action, fulfillmentData);
+  fulfillmentData.shipping_stage = plan.stage;
+  if (plan.stage === 'shipped') fulfillmentData.shipped_at = new Date().toISOString();
+  if (plan.stage === 'delivered') fulfillmentData.delivered_at = new Date().toISOString();
+  if (plan.redeem) {
+    const redeemed = await redeemByCode(ownerUserId, issuance.redemption_code, payload.venue_id, payload.notes || plan.stage);
+    const { data, error: updateError } = await supabase.from('offer_issuances').update({ fulfillment_data: fulfillmentData }).eq('id', redeemed.id).select('*, offers(*)').single();
+    if (updateError) return { ...redeemed, fulfillment_data: fulfillmentData };
+    return data;
+  }
+  const { data, error: updateError } = await supabase.from('offer_issuances').update({ fulfillment_data: fulfillmentData }).eq('id', issuanceId).select('*, offers(*)').single();
+  if (updateError) throw updateError;
+  await supabase.from('offer_redemption_events').insert({
+    issuance_id: issuanceId,
+    event_type: plan.event,
+    actor_user_id: ownerUserId,
+    notes: payload.notes || plan.stage,
+    metadata: { tracking_number: fulfillmentData.tracking_number || null, carrier: fulfillmentData.carrier || null },
+  });
+  return data;
+}
+
+module.exports = {
+  createOffer,
+  getOffer,
+  listOwnerOffers,
+  updateOffer,
+  listPublicOffers,
+  issueForEvent,
+  directClaim,
+  claimIssuance,
+  listUserIssuances,
+  redeemByCode,
+  analytics,
+  listOwnerPendingFulfillments,
+  updateShippingAddress,
+  fulfillIssuance,
+};
