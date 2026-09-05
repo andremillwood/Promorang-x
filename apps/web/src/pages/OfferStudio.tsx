@@ -10,8 +10,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { useAuth } from "@/contexts/AuthContext";
-import { useClaimIssuance, useCreateOffer, useDirectOfferClaim, useOfferWallet, useOwnerOffers, usePublicOffers, useRedeemOffer, useUpdateOffer } from "@/hooks/useOffers";
-import { ArrowRight, Banknote, CheckCircle2, ChevronDown, Gift, MapPin, PackageCheck, Plus, QrCode, Radio, ReceiptText, Settings2, Share2, ShieldCheck, Sparkles, Ticket, Users } from "lucide-react";
+import { OfferFulfillmentQueue } from "@/components/offers/OfferFulfillmentQueue";
+import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
+import { OfferQrScanner } from "@/components/offers/OfferQrScanner";
+import { useCreateOffer, useDirectOfferClaim, useOfferWallet, useOwnerOffers, usePublicOffers, useRedeemOffer, useUpdateOffer } from "@/hooks/useOffers";
+import { decodeOfferRedeemPayload } from "@promorang/shared";
+import { ArrowRight, Banknote, ChevronDown, Gift, MapPin, PackageCheck, Plus, QrCode, Radio, Settings2, Share2, Sparkles, Ticket } from "lucide-react";
 import { toast } from "sonner";
 import { cultureImages } from "@/data/culture-demo";
 import { useI18n } from "@/i18n/I18nContext";
@@ -123,6 +127,15 @@ const activationTemplates = [
   },
 ] as const;
 
+const fulfillmentHelp: Record<string, string> = {
+  merchant_validation: "The issuing business types or scans the code at the counter.",
+  code: "The customer shows a code. Anyone with the code can redeem it.",
+  qr: "The customer shows a scannable pass. Only the issuing business can complete it.",
+  automatic: "Claiming puts the value in the wallet immediately. No merchant scan.",
+  manual: "Claiming waits for the business to confirm it was given.",
+  shipping: "The customer leaves a delivery address. You pack, ship, then mark delivered.",
+};
+
 const initialForm = {
   title: "",
   description: "",
@@ -157,7 +170,6 @@ const OfferStudio = () => {
   const publicOffers = usePublicOffers();
   const createOffer = useCreateOffer();
   const updateOffer = useUpdateOffer();
-  const claimIssuance = useClaimIssuance();
   const directClaim = useDirectOfferClaim();
   const redeemOffer = useRedeemOffer();
 
@@ -255,13 +267,19 @@ const OfferStudio = () => {
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not create offer"); }
   };
 
-  const redeem = async (event: FormEvent) => {
-    event.preventDefault();
+  const redeemCode = async (raw: string) => {
+    const code = decodeOfferRedeemPayload(raw);
+    if (!code) return;
     try {
-      await redeemOffer.mutateAsync({ code: redemptionCode });
+      await redeemOffer.mutateAsync({ code, notes: "merchant_scan" });
       toast.success(t("offerStudio.toastRedeemed"));
       setRedemptionCode("");
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not redeem offer"); }
+  };
+
+  const redeem = async (event: FormEvent) => {
+    event.preventDefault();
+    await redeemCode(redemptionCode);
   };
 
   return (
@@ -395,7 +413,7 @@ const OfferStudio = () => {
                 <ChevronDown className="h-4 w-4 transition group-open:rotate-180" />
               </summary>
               <div className="mt-5 grid gap-4">
-                <div className="grid gap-4 sm:grid-cols-2"><div><Label>{t("offerStudio.rewardTypeLabel")}</Label><Select value={form.reward_type} onValueChange={(value) => update("reward_type", value)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["coupon", "product", "voucher", "experience", "cash", "gems", "points", "keys", "other"].map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent></Select></div><div><Label>{t("offerStudio.fulfillmentLabel")}</Label><Select value={form.fulfillment_type} onValueChange={(value) => update("fulfillment_type", value)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["merchant_validation", "code", "qr", "automatic", "manual", "shipping"].map((value) => <SelectItem key={value} value={value}>{value.replaceAll("_", " ")}</SelectItem>)}</SelectContent></Select></div></div>
+                <div className="grid gap-4 sm:grid-cols-2"><div><Label>{t("offerStudio.rewardTypeLabel")}</Label><Select value={form.reward_type} onValueChange={(value) => update("reward_type", value)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["coupon", "product", "voucher", "experience", "cash", "gems", "points", "keys", "other"].map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent></Select></div><div><Label>{t("offerStudio.fulfillmentLabel")}</Label><Select value={form.fulfillment_type} onValueChange={(value) => update("fulfillment_type", value)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["merchant_validation", "code", "qr", "automatic", "manual", "shipping"].map((value) => <SelectItem key={value} value={value}>{value.replaceAll("_", " ")}</SelectItem>)}</SelectContent></Select><p className="mt-2 text-xs text-muted-foreground">{fulfillmentHelp[form.fulfillment_type] || "Choose how the person actually receives this."}</p></div></div>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div><Label>{t("offerStudio.fundingSourceLabel")}</Label><Select value={form.funding_source} onValueChange={(value) => update("funding_source", value)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["merchant_inventory", "in_kind_perk", "sponsor_budget", "campaign_revenue", "featured_placement_revenue"].map((value) => <SelectItem key={value} value={value}>{value.replaceAll("_", " ")}</SelectItem>)}</SelectContent></Select></div>
                   <div><Label>{t("offerStudio.committedBacking")}</Label><Input type="number" min="0" value={form.committed_value} onChange={(e) => update("committed_value", e.target.value)} placeholder={needsCashBacking ? "Must cover liability" : "Optional"} disabled={!needsCashBacking} /></div>
@@ -435,9 +453,9 @@ const OfferStudio = () => {
 
         <TabsContent value="discover"><div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{publicOffers.data?.map((offer) => <Card key={offer.id}><CardContent className="flex h-full flex-col p-5"><div className="flex items-center justify-between"><Badge>{offer.reward_type}</Badge><Gift className="h-5 w-5 text-primary" /></div><h3 className="mt-4 font-serif text-2xl font-bold">{offer.title}</h3><p className="mt-2 flex-1 text-sm text-muted-foreground">{offer.description}</p><p className="mt-4 text-sm font-bold">{offer.value_amount ? `${offer.value_amount} ${offer.value_currency || ""}` : t("offerStudio.specialOffer")}</p><Button className="mt-4" onClick={async () => { try { await directClaim.mutateAsync(offer.id); toast.success(t("offerStudio.toastAddedToWallet")); } catch (error) { toast.error(error instanceof Error ? error.message : "Could not claim offer"); } }}>{t("offerStudio.claimOffer")}</Button></CardContent></Card>)}{!publicOffers.isLoading && !publicOffers.data?.length && <Card className="md:col-span-2 lg:col-span-3"><CardContent className="p-12 text-center text-muted-foreground">{t("offerStudio.emptyDiscover")}</CardContent></Card>}</div></TabsContent>
 
-        <TabsContent value="wallet"><div className="grid gap-4 md:grid-cols-2">{wallet.data?.map((issuance) => <Card key={issuance.id}><CardContent className="p-5"><div className="flex items-start justify-between gap-3"><div><Badge variant="secondary">{issuance.offers.reward_type}</Badge><h3 className="mt-3 font-serif text-2xl font-bold">{issuance.offers.title}</h3></div>{issuance.status === "redeemed" ? <CheckCircle2 className="h-6 w-6 text-emerald-500" /> : <Gift className="h-6 w-6 text-primary" />}</div><p className="mt-3 text-sm text-muted-foreground">{issuance.offers.description}</p><div className="mt-5 rounded-xl bg-muted p-4"><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("offerStudio.redemptionCodeLabel")}</p><p className="mt-1 font-mono text-2xl font-bold tracking-wider">{issuance.redemption_code}</p></div><div className="mt-4 flex items-center justify-between"><Badge variant="outline">{issuance.status.replaceAll("_", " ")}</Badge>{issuance.status === "issued" && <Button onClick={() => claimIssuance.mutate(issuance.id)}>{t("offerStudio.claim")}</Button>}</div></CardContent></Card>)}{!wallet.isLoading && !wallet.data?.length && <Card className="md:col-span-2"><CardContent className="p-12 text-center"><PackageCheck className="mx-auto mb-4 h-10 w-10 text-muted-foreground" /><p className="font-bold">{t("offerStudio.emptyWalletTitle")}</p><p className="mt-1 text-sm text-muted-foreground">{t("offerStudio.emptyWalletCopy")}</p></CardContent></Card>}</div></TabsContent>
+        <TabsContent value="wallet"><div className="grid gap-4 md:grid-cols-2">{wallet.data?.map((issuance) => <OfferIssuancePass key={issuance.id} issuance={issuance} />)}{!wallet.isLoading && !wallet.data?.length && <Card className="md:col-span-2"><CardContent className="p-12 text-center"><PackageCheck className="mx-auto mb-4 h-10 w-10 text-muted-foreground" /><p className="font-bold">{t("offerStudio.emptyWalletTitle")}</p><p className="mt-1 text-sm text-muted-foreground">{t("offerStudio.emptyWalletCopy")}</p></CardContent></Card>}</div></TabsContent>
 
-        {canManage && <TabsContent value="redeem"><Card className="max-w-xl"><CardHeader><CardTitle>{t("offerStudio.validateTitle")}</CardTitle></CardHeader><CardContent><form onSubmit={redeem} className="space-y-4"><div><Label htmlFor="redemption-code">{t("offerStudio.redemptionCodeLabel")}</Label><Input id="redemption-code" value={redemptionCode} onChange={(e) => setRedemptionCode(e.target.value.toUpperCase())} placeholder="PR-XXXXXXXX" className="font-mono uppercase" required /></div><Button className="w-full" disabled={redeemOffer.isPending}><Radio className="mr-2 h-4 w-4" />{t("offerStudio.validateButton")}</Button></form></CardContent></Card></TabsContent>}
+        {canManage && <TabsContent value="redeem"><div className="grid gap-8 lg:grid-cols-[minmax(0,22rem)_1fr]"><Card className="max-w-xl"><CardHeader><CardTitle>{t("offerStudio.validateTitle")}</CardTitle></CardHeader><CardContent className="space-y-5"><OfferQrScanner disabled={redeemOffer.isPending} onCode={(value) => void redeemCode(value)} /><form onSubmit={redeem} className="space-y-4"><div><Label htmlFor="redemption-code">{t("offerStudio.redemptionCodeLabel")}</Label><Input id="redemption-code" value={redemptionCode} onChange={(e) => setRedemptionCode(e.target.value.toUpperCase())} placeholder="PR-XXXXXXXX" className="font-mono uppercase" required /></div><Button className="w-full" disabled={redeemOffer.isPending}><Radio className="mr-2 h-4 w-4" />{t("offerStudio.validateButton")}</Button></form></CardContent></Card><OfferFulfillmentQueue /></div></TabsContent>}
       </Tabs>
       </div>
     </div>
