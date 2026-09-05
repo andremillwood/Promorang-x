@@ -5,6 +5,8 @@ const {
   classifyHappenedBucket,
   attributionFromMetadata,
   accountStakeholderOutcomes,
+  displayName,
+  givenName,
 } = require('../../services/peopleExperienceService');
 
 describe('people experience role and value rules', () => {
@@ -72,6 +74,12 @@ describe('people experience role and value rules', () => {
 
   test('inventory for others is an opportunity, not a personal drop', () => {
     expect(typeof require('../../services/peopleExperienceService').provideInventory).toBe('function');
+  });
+
+  test('does not treat Member as a real display name', () => {
+    expect(displayName({ display_name: 'Member', full_name: 'Adam Flash' })).toBe('Adam Flash');
+    expect(givenName({ display_name: 'Member', email: 'dev@flashcreate.co' })).toBe('Dev');
+    expect(displayName({ display_name: '', username: '' }, 'there')).toBe('there');
   });
 
   test('copies attribution from existing metadata keys', () => {

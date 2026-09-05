@@ -265,9 +265,9 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const isCinematicCultureRoute = ["/scenes", "/creators", "/for-you", "/saved", "/profile", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet"].some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
-  const isDashboardHome = location.pathname === "/dashboard";
-  const hidePageHeader = isImmersiveProductRoute || location.pathname === "/dashboard";
-  const showCompactDemoBanner = location.pathname !== "/dashboard" && !isImmersiveProductRoute;
+  const isDashboardHome = location.pathname === "/dashboard" || location.pathname === "/home";
+  const hidePageHeader = isImmersiveProductRoute || isDashboardHome;
+  const showCompactDemoBanner = !isDashboardHome && !isImmersiveProductRoute;
   const pageMeta = getPageMeta(location.pathname, location.search, safeRole);
 
   const handleSignOut = async () => {

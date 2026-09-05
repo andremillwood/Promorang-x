@@ -5,9 +5,13 @@ import {
   classifyHappenedBucket,
   contributorValueScore,
   dropShareCopy,
+  firstGivenName,
+  homeGreeting,
   inventoryOpenCopy,
+  isPlaceholderDisplayName,
   happenedBuckets,
   resolveCreateIntent,
+  resolveHomeNextMove,
   slugifyCommunityName,
   STAKEHOLDER_OUTCOMES,
 } from "./people-experience";
@@ -57,6 +61,25 @@ describe("people experience mapping", () => {
 
   it("writes drop share copy people can send as-is", () => {
     expect(dropShareCopy("Mikey", "2-for-1 Friday")).toBe("Mikey just dropped 2-for-1 Friday on your PromoCard.");
+  });
+
+  it("never greets a signed-in person as Member", () => {
+    expect(isPlaceholderDisplayName("Member")).toBe(true);
+    expect(firstGivenName({
+      displayName: "Member",
+      fullName: "Adam Flash",
+      email: "dev@flashcreate.co",
+    })).toBe("Adam");
+    expect(firstGivenName({
+      displayName: "Member",
+      email: "dev@flashcreate.co",
+    })).toBe("Dev");
+    expect(homeGreeting("Adam", new Date(2026, 8, 5, 22))).toBe("Good evening, Adam.");
+  });
+
+  it("points an empty home at one useful first move", () => {
+    expect(resolveHomeNextMove({ role: "contributor", communities: 0, perksGiven: 0 }).href).toBe("/start");
+    expect(resolveHomeNextMove({ role: "member", cardPerks: 0 }).href).toBe("/discover");
   });
 
   it("writes inventory copy as a people offer, not a storefront", () => {

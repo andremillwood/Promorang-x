@@ -31,8 +31,34 @@ function uniqueSlug(base) {
   return `${slugify(base)}-${crypto.randomBytes(2).toString('hex')}`;
 }
 
-function displayName(row) {
-  return row?.display_name || row?.full_name || row?.username || row?.name || 'Member';
+const PLACEHOLDER_NAMES = new Set(['member', 'you', 'there', 'explorer', 'user', 'community']);
+
+function isPlaceholderName(value) {
+  const trimmed = String(value || '').trim();
+  return !trimmed || PLACEHOLDER_NAMES.has(trimmed.toLowerCase());
+}
+
+function firstRealName(...values) {
+  for (const value of values) {
+    const trimmed = String(value || '').trim();
+    if (!isPlaceholderName(trimmed)) return trimmed;
+  }
+  return '';
+}
+
+function nameFromEmail(email) {
+  const local = String(email || '').split('@')[0].replace(/[._-]+/g, ' ').trim();
+  if (isPlaceholderName(local)) return '';
+  return local.replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function displayName(row, fallback = 'Member') {
+  return firstRealName(row?.display_name, row?.full_name, row?.username, row?.name, nameFromEmail(row?.email)) || fallback;
+}
+
+function givenName(row, fallback = 'there') {
+  const resolved = displayName(row, '');
+  return (resolved && resolved.split(/\s+/)[0]) || fallback;
 }
 
 function monthStart() {
@@ -168,19 +194,38 @@ function createPeopleExperienceService(db = defaultDb) {
     }
   };
 
-  async function profileFor(userId) {
-    const users = await maybe(db.from('users').select('id, display_name, username, profile_image, full_name').eq('id', userId).maybeSingle());
-    if (users.data) return users.data;
-    const profiles = await maybe(db.from('profiles').select('id, full_name, username, avatar_url').eq('id', userId).maybeSingle());
-    if (profiles.data) {
-      return {
-        id: profiles.data.id,
-        display_name: profiles.data.full_name,
-        username: profiles.data.username,
-        profile_image: profiles.data.avatar_url,
-      };
+  async function profileFor(userId, identity = {}) {
+    const users = await maybe(db.from('users').select('id, display_name, username, profile_image, full_name, email').eq('id', userId).maybeSingle());
+    const profilesById = await maybe(db.from('profiles').select('id, user_id, full_name, display_name, username, avatar_url, email').eq('id', userId).maybeSingle());
+    let profileRow = profilesById.data;
+    if (!profileRow) {
+      const profilesByUser = await maybe(db.from('profiles').select('id, user_id, full_name, display_name, username, avatar_url, email').eq('user_id', userId).maybeSingle());
+      profileRow = profilesByUser.data;
     }
-    return { id: userId };
+    const userRow = users.data || {};
+    return {
+      id: userId,
+      display_name: firstRealName(
+        userRow.display_name,
+        profileRow?.display_name,
+        profileRow?.full_name,
+        userRow.full_name,
+        identity.displayName,
+        identity.display_name,
+      ),
+      full_name: firstRealName(userRow.full_name, profileRow?.full_name, identity.fullName, identity.full_name),
+      username: firstRealName(userRow.username, profileRow?.username, identity.username),
+      email: userRow.email || profileRow?.email || identity.email || null,
+      profile_image: userRow.profile_image || profileRow?.avatar_url || identity.profileImage || null,
+      name: firstRealName(
+        userRow.display_name,
+        profileRow?.display_name,
+        profileRow?.full_name,
+        userRow.full_name,
+        identity.displayName,
+        identity.display_name,
+      ),
+    };
   }
 
   async function platformRoles(userId) {
@@ -527,7 +572,7 @@ function createPeopleExperienceService(db = defaultDb) {
     return items;
   }
 
-  async function getCard(userId) {
+  async function getCard(userId, identity = {}) {
     const [wallet, card, issuances, memberships] = await Promise.all([
       getWallet(userId),
       maybe(db.from('user_promo_cards').select('*').eq('user_id', userId).maybeSingle()),
@@ -537,7 +582,7 @@ function createPeopleExperienceService(db = defaultDb) {
     const dropClaims = await maybe(
       db.from('community_drop_claims').select('*, community_drops(*)').eq('user_id', userId).eq('status', 'claimed').order('claimed_at', { ascending: false }).limit(12),
     );
-    const person = await profileFor(userId);
+    const person = await profileFor(userId, identity);
     const issuanceIds = new Set((issuances.data || []).map((row) => row.id));
     const perks = [
       ...(issuances.data || []).map((row) => ({
@@ -562,7 +607,8 @@ function createPeopleExperienceService(db = defaultDb) {
       })),
     ];
     return {
-      name: displayName(person),
+      name: displayName(person, 'there'),
+      givenName: givenName(person),
       points: Number(wallet.points || 0),
       keys: Number(wallet.promokeys || 0),
       gems: Number(wallet.gems || 0),
@@ -577,7 +623,7 @@ function createPeopleExperienceService(db = defaultDb) {
     };
   }
 
-  async function getHome(userId) {
+  async function getHome(userId, identity = {}) {
     const [roles, memberships, network, happened, perks, opportunities, wallet, card] = await Promise.all([
       platformRoles(userId),
       membershipsFor(userId),
@@ -592,7 +638,7 @@ function createPeopleExperienceService(db = defaultDb) {
     const operatesHubs = (memberships || []).filter((row) => OPERATOR_ROLES.has(row.role) || row.scenes?.steward_id === userId).length;
     const contributorHubs = (memberships || []).filter((row) => CONTRIBUTOR_ROLES.has(row.role) || row.scenes?.steward_id === userId).length;
     const experienceRole = classifyExperienceRole({ operatesHubs, contributorHubs, platformRoles: roles });
-    const person = await profileFor(userId);
+    const person = await profileFor(userId, identity);
     const communities = (memberships || []).map((row) => ({
       id: row.scenes?.id || row.scene_id,
       slug: row.scenes?.slug,
@@ -628,7 +674,8 @@ function createPeopleExperienceService(db = defaultDb) {
 
     return {
       role: experienceRole,
-      name: displayName(person),
+      name: displayName(person, 'there'),
+      givenName: givenName(person),
       communities,
       people: network.people,
       peopleThisMonth: network.thisMonth,
@@ -1035,3 +1082,5 @@ module.exports.happenedBuckets = happenedBuckets;
 module.exports.classifyHappenedBucket = classifyHappenedBucket;
 module.exports.attributionFromMetadata = attributionFromMetadata;
 module.exports.accountStakeholderOutcomes = accountStakeholderOutcomes;
+module.exports.displayName = displayName;
+module.exports.givenName = givenName;
