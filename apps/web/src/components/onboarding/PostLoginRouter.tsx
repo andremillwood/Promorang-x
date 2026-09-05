@@ -10,7 +10,7 @@ import { flushMarketingIntent } from "@/lib/marketing-attribution";
  * Intelligently routes users based on role + completion state
  */
 export function PostLoginRouter() {
-  const { user, activeRole, profile, loading } = useAuth();
+  const { user, activeRole, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,133 +30,28 @@ export function PostLoginRouter() {
         return;
       }
 
-      // Check if first-time user (no completed onboarding)
-      const { data: onboardingCheck } = await supabase
-        .from('user_preferences')
-        .select('onboarding_completed')
-        .eq('user_id', user.id)
-        .single();
+      if (activeRole === "admin") {
+        navigate("/admin?tab=command", { replace: true });
+        return;
+      }
 
-      const hasCompletedOnboarding = onboardingCheck?.onboarding_completed || false;
+      // Onboarding is the only prerequisite. First actions belong on the
+      // dashboard, not in a chain of forced redirects after every sign-in.
+      const { data, error } = await supabase
+        .from("user_preferences")
+        .select("onboarding_completed")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-      // Check for profile completeness
-      const profileComplete = !!(
-        profile?.display_name && 
-        (profile?.avatar_url || profile?.user_metadata?.avatar_url)
-      );
-
-      // Check for first actions based on role
-      const { count: momentCount } = await supabase
-        .from('moments')
-        .select('id', { count: 'exact', head: true })
-        .eq('host_id', user.id);
-
-      const { count: joinedCount } = await supabase
-        .from('moment_participants')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-
-      const { count: campaignCount } = await supabase
-        .from('campaigns')
-        .select('id', { count: 'exact', head: true })
-        .eq('brand_id', user.id);
-
-      const { count: venueCount } = await supabase
-        .from('venues')
-        .select('id', { count: 'exact', head: true })
-        .eq('owner_id', user.id);
-
-      const { count: offerCount } = await supabase
-        .from('offers')
-        .select('id', { count: 'exact', head: true })
-        .eq('owner_user_id', user.id);
-
-      // Content ownership is keyed by the authenticated user. Avoid building a
-      // PostgREST expression from display names or email addresses: punctuation
-      // in those values can make the entire request invalid.
-      const { count: creatorContentCount } = await supabase
-        .from('content_pieces')
-        .select('id', { count: 'exact', head: true })
-        .eq('creator_id', user.id);
-
-      const hasCreatedContent = (momentCount || 0) > 0;
-      const hasJoinedContent = (joinedCount || 0) > 0;
-      const hasCreatedCampaign = (campaignCount || 0) > 0;
-      const hasRegisteredVenue = (venueCount || 0) > 0;
-      const hasCreatedFundedActivation = (offerCount || 0) > 0;
-      const hasPublishedCreatorContent = (creatorContentCount || 0) > 0;
-
-      // Role-specific routing
-      switch (activeRole) {
-        case "admin":
-          navigate("/admin?tab=command", { replace: true });
-          break;
-
-        case "brand":
-          if (!hasCompletedOnboarding) {
-            navigate("/onboarding/brand", { replace: true });
-          } else if (!hasCreatedFundedActivation) {
-            navigate("/offers?template=promoshare-funded-cycle", { replace: true });
-          } else if (!hasCreatedCampaign) {
-            navigate("/create/campaign", { replace: true });
-          } else {
-            navigate("/dashboard", { replace: true });
-          }
-          break;
-
-        case "merchant":
-          if (!hasCompletedOnboarding) {
-            navigate("/onboarding", { replace: true });
-          } else if (!hasRegisteredVenue) {
-            navigate("/dashboard/venues/add?firstTime=true", { replace: true });
-          } else if (!hasCreatedFundedActivation) {
-            navigate("/offers?template=slow-hour-checkin", { replace: true });
-          } else {
-            navigate("/dashboard", { replace: true });
-          }
-          break;
-
-        case "host":
-          if (!hasCompletedOnboarding) {
-            navigate("/onboarding", { replace: true });
-          } else if (!hasCreatedFundedActivation) {
-            navigate("/offers?template=slow-hour-checkin", { replace: true });
-          } else if (!hasCreatedContent) {
-            navigate("/create/moment?firstTime=true", { replace: true });
-          } else {
-            navigate("/dashboard", { replace: true });
-          }
-          break;
-
-        case "creator":
-          if (!hasCompletedOnboarding) {
-            navigate("/onboarding", { replace: true });
-          } else if (!hasCreatedFundedActivation) {
-            navigate("/offers?template=content-mission", { replace: true });
-          } else if (!hasPublishedCreatorContent) {
-            navigate("/dashboard?tab=publish", { replace: true });
-          } else {
-            navigate("/dashboard?tab=missions", { replace: true });
-          }
-          break;
-
-        case "participant":
-        default:
-          if (!hasCompletedOnboarding) {
-            navigate("/onboarding", { replace: true });
-          } else if (!hasJoinedContent) {
-            navigate("/discover?firstTime=true", { replace: true });
-          } else if (!profileComplete) {
-            navigate("/dashboard/settings?firstTime=true", { replace: true });
-          } else {
-            navigate("/dashboard", { replace: true });
-          }
-          break;
+      if (!error && !data?.onboarding_completed) {
+        navigate(activeRole === "brand" ? "/onboarding/brand" : "/onboarding", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
       }
     };
 
     determineLandingPage();
-  }, [user, activeRole, profile, loading, navigate]);
+  }, [user, activeRole, loading, navigate]);
 
   // Show loading while determining route
   return (

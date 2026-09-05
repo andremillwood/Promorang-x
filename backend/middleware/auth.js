@@ -1,18 +1,15 @@
 const { createClient } = require('@supabase/supabase-js');
-const jwt = require('jsonwebtoken');
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-const jwtSecret = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET;
 
 // Log environment variable status for debugging
 console.log('[Auth] Supabase URL:', supabaseUrl ? 'Set' : 'Missing');
 console.log('[Auth] Supabase Service Key:', supabaseServiceKey ? 'Set' : 'Missing');
-console.log('[Auth] JWT Secret:', jwtSecret ? 'Set' : 'Missing');
 
-if (!supabaseUrl || !supabaseServiceKey || !jwtSecret) {
+if (!supabaseUrl || !supabaseServiceKey) {
   console.error('[Auth] ❌ Required credentials missing; protected routes will reject requests.');
-  console.error('[Auth] Make sure SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and JWT_SECRET are set in your .env file');
+  console.error('[Auth] Make sure SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY are set in your .env file');
 }
 
 const supabase = supabaseUrl && supabaseServiceKey
@@ -26,34 +23,23 @@ const supabase = supabaseUrl && supabaseServiceKey
   })
   : null;
 
-const DEMO_USER_ID_PREFIXES = ['demo-', 'a0000000', '00000000-0000-'];
 const ADMIN_ROLES = ['admin', 'administrator', 'master_admin', 'moderator'];
 const PLATFORM_ADMIN_ROLES = ['admin', 'administrator', 'master_admin'];
 
-function isDemoUserId(userId) {
-  const value = String(userId || '');
-  return DEMO_USER_ID_PREFIXES.some((prefix) => value.startsWith(prefix));
+// Self-selected account categories are presentation/workflow context only.
+// Privileged roles always come from the protected user_roles table.
+function accountRole(roles, category) {
+  const categories = ['regular', 'participant', 'creator', 'host', 'brand', 'merchant', 'agency', 'advertiser', 'investor', 'promoter', 'pro'];
+  return roles.find((value) => ADMIN_ROLES.includes(value)) || roles[0]
+    || (categories.includes(category) ? category : 'regular');
 }
 
 async function getUserRoles(userId) {
-  if (!supabase || !userId || isDemoUserId(userId)) {
+  if (!supabase || !userId) {
     return [];
   }
 
   const roles = new Set();
-
-  const { data: userRecord, error: userError } = await supabase
-    .from('users')
-    .select('role, user_type')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (userError) {
-    console.warn('[Auth] Failed to fetch user role:', userError.message);
-  }
-
-  if (userRecord?.role) roles.add(userRecord.role);
-  if (userRecord?.user_type) roles.add(userRecord.user_type);
 
   const { data: roleRecords, error: roleError } = await supabase
     .from('user_roles')
@@ -101,67 +87,6 @@ async function requireAuth(req, res, next) {
   console.log('[Auth] 🔍 Verifying token...');
 
   try {
-    // Decode the token to check for demo users first (no verification needed for decode)
-    const decoded = jwt.decode(token);
-
-    if (!decoded) {
-      console.error('[Auth] ❌ Token could not be decoded');
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid token format',
-        code: 'INVALID_TOKEN_FORMAT'
-      });
-    }
-
-    const userId = decoded.userId || decoded.id || decoded.sub;
-
-    if (!userId) {
-      console.error('[Auth] ❌ Token missing user identifier');
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid token payload',
-        code: 'INVALID_TOKEN_PAYLOAD'
-      });
-    }
-
-    // Special handling for demo users to bypass database lookups
-    const isStateDemo = String(userId).startsWith('a0000000');
-    const isSeededDemo = String(userId).startsWith('00000000-0000-');
-    
-    if (String(userId).startsWith('demo-') || isStateDemo || isSeededDemo) {
-      const role = decoded.user_metadata?.role || decoded.user_type || (isSeededDemo ? 'merchant' : 'creator');
-
-      // Map demo IDs to valid UUIDs for database operations
-      const DEMO_UUID_MAP = {
-        'demo-creator-id': '00000000-0000-0000-0000-000000000001',
-        'demo-advertiser-id': '00000000-0000-0000-0000-000000000002',
-        'demo-pro-id': '00000000-0000-0000-0000-000000000003',
-        'demo-merchant-id': '00000000-0000-0000-0000-000000000004'
-      };
-
-      const mappedId = DEMO_UUID_MAP[userId] ||
-        (isStateDemo || isSeededDemo ? userId : (DEMO_UUID_MAP[`demo-${role}-id`] || '00000000-0000-0000-0000-00000000ffff'));
-
-      req.user = {
-        id: mappedId,
-        original_demo_id: userId,
-        email: decoded.email || `${role}@demo.com`,
-        username: decoded.user_metadata?.username || `demo-${role}`,
-        display_name: decoded.display_name || decoded.user_metadata?.full_name || `Demo ${role}`,
-        user_type: role,
-        role: role,
-        points_balance: 1000,
-        keys_balance: 50,
-        gems_balance: 100,
-        is_verified: true,
-        token_payload: decoded
-      };
-      console.log(`[Auth] ✅ Authenticated as Seeding/State Demo User: ${req.user.email} (ID: ${userId})`);
-      res.setHeader('X-Auth-Mode', 'demo-bypass');
-      return next();
-    }
-
-    // 116: Verify the token using Supabase's auth API
     let authData, authError;
     try {
       const result = await supabase.auth.getUser(token);
@@ -175,41 +100,6 @@ async function requireAuth(req, res, next) {
     if (authError || !authData?.user) {
       console.warn('[Auth] ⚠️ Supabase API verification failed:', authError?.message || 'No user returned');
       
-      // DEEP DIAGNOSTIC: Set headers to help pinpoint the issue in the browser console
-      res.setHeader('X-Auth-Error', authError?.message || 'Verification failed');
-      res.setHeader('X-Auth-Status', authError?.status || 'Unknown');
-      
-      // Fallback to local signature verification only. Never trust decoded JWTs
-      // without signature verification in production.
-      try {
-        let verified = null;
-        if (jwtSecret) {
-          try {
-            verified = jwt.verify(token, jwtSecret);
-            console.log('[Auth] Token verified manually via JWT_SECRET fallback');
-          } catch (jwtErr) {
-            console.warn('[Auth] Manual JWT signature verification failed:', jwtErr.message);
-            res.setHeader('X-Auth-JWT-Error', jwtErr.message);
-          }
-        }
-
-        if (verified) {
-          req.user = {
-            id: verified.sub,
-            email: verified.email,
-            username: verified.user_metadata?.username || verified.email?.split('@')[0] || 'user',
-            display_name: verified.user_metadata?.full_name || verified.email?.split('@')[0] || 'User',
-            user_type: verified.user_metadata?.user_type || 'regular',
-            role: verified.role || verified.user_metadata?.user_type || 'regular',
-            is_verified: true,
-            token_payload: verified
-          };
-          return next();
-        }
-      } catch (recoveryErr) {
-        console.error('[Auth] ❌ Recovery Mode failed:', recoveryErr.message);
-      }
-
       return res.status(401).json({
         success: false,
         error: 'Authentication failed',
@@ -221,6 +111,7 @@ async function requireAuth(req, res, next) {
     }
 
     const verifiedUserId = authData.user.id;
+    const roles = await getUserRoles(verifiedUserId);
 
     // Look up the user profile in public.profiles (the UUID-compatible table)
     let { data: profileData, error: profileError } = await supabase
@@ -233,6 +124,8 @@ async function requireAuth(req, res, next) {
       console.warn('[Auth] ⚠️ Error fetching profile data:', profileError.message);
     }
 
+    const role = accountRole(roles, profileData?.user_type);
+
     // Attach user to request for use in route handlers
     // We prioritize authData.user (the source of truth from Auth service) 
     // and use profileData for supplementary info like username/display_name
@@ -241,13 +134,13 @@ async function requireAuth(req, res, next) {
       email: authData.user.email,
       username: profileData?.username || authData.user.email?.split('@')[0] || 'user',
       display_name: profileData?.full_name || authData.user.user_metadata?.full_name || authData.user.email?.split('@')[0] || 'User',
-      user_type: profileData?.user_type || 'regular',
-      role: decoded.role || profileData?.user_type || 'regular',
+      user_type: role,
+      role,
+      roles,
       points_balance: profileData?.points_balance || 0,
       keys_balance: profileData?.keys_balance || 0,
       gems_balance: profileData?.gems_balance || 0,
-      is_verified: !!authData.user.email_confirmed_at,
-      token_payload: decoded
+      is_verified: !!authData.user.email_confirmed_at
     };
 
     console.log(`[Auth] ✅ Authenticated as user: ${req.user.email} (${req.user.id})`);
@@ -423,52 +316,17 @@ async function optionalAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
-  if (!token) {
+  if (!token || !supabase) {
     return next();
   }
 
   try {
-    const decoded = jwt.decode(token);
-    if (!decoded) return next();
-
-    const userId = decoded.userId || decoded.id || decoded.sub;
-    if (!userId) return next();
-
-    // Special handling for demo users to bypass database lookups
-    const isStateDemo = String(userId).startsWith('a0000000');
-    if (String(userId).startsWith('demo-') || isStateDemo) {
-      const role = decoded.user_metadata?.role || decoded.user_type || 'creator';
-      const DEMO_UUID_MAP = {
-        'demo-creator-id': '00000000-0000-0000-0000-000000000001',
-        'demo-advertiser-id': '00000000-0000-0000-0000-000000000002',
-        'demo-pro-id': '00000000-0000-0000-0000-000000000003'
-      };
-
-      const mappedId = DEMO_UUID_MAP[userId] ||
-        (isStateDemo ? userId : (DEMO_UUID_MAP[`demo-${role}-id`] || '00000000-0000-0000-0000-00000000ffff'));
-
-      req.user = {
-        id: mappedId,
-        original_demo_id: userId,
-        email: decoded.email || `${role}@demo.com`,
-        username: decoded.user_metadata?.username || `demo-${role}`,
-        display_name: decoded.display_name || decoded.user_metadata?.full_name || `Demo ${role}`,
-        user_type: role,
-        role: role,
-        points_balance: 1000,
-        keys_balance: 50,
-        gems_balance: 100,
-        is_verified: true,
-        token_payload: decoded
-      };
-      return next();
-    }
-
     // Verify token via Supabase auth API
     const { data: authData, error: authError } = await supabase.auth.getUser(token);
     if (authError || !authData?.user) return next();
 
     const verifiedUserId = authData.user.id;
+    const roles = await getUserRoles(verifiedUserId);
 
     const { data: userData } = await supabase
       .from('users')
@@ -477,18 +335,19 @@ async function optionalAuth(req, res, next) {
       .single();
 
     if (userData) {
+      const role = accountRole(roles, userData.user_type);
       req.user = {
         id: userData.id,
         email: userData.email,
         username: userData.username,
         display_name: userData.display_name,
-        user_type: userData.user_type,
-        role: decoded.role || userData.user_type,
+        user_type: role,
+        role,
+        roles,
         points_balance: userData.points_balance,
         keys_balance: userData.keys_balance,
         gems_balance: userData.gems_balance,
-        is_verified: Boolean(userData.email_verified),
-        token_payload: decoded
+        is_verified: Boolean(userData.email_verified)
       };
     }
     return next();
@@ -501,19 +360,6 @@ async function optionalAuth(req, res, next) {
 const requireAdmin = async (req, res, next) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Authentication required' });
-  }
-
-  const tokenRoles = [
-    req.user.role,
-    req.user.user_type,
-    req.user.token_payload?.role,
-    req.user.token_payload?.user_role,
-    req.user.token_payload?.user_metadata?.role,
-    req.user.token_payload?.user_metadata?.user_type
-  ].filter(Boolean);
-
-  if (tokenRoles.some((role) => ADMIN_ROLES.includes(role))) {
-    return next();
   }
 
   try {
@@ -540,20 +386,6 @@ const requirePlatformAdmin = async (req, res, next) => {
     return res.status(401).json({ error: 'Authentication required' });
   }
 
-  const tokenRoles = [
-    req.user.role,
-    req.user.user_type,
-    ...(req.user.roles || []),
-    req.user.token_payload?.role,
-    req.user.token_payload?.user_role,
-    req.user.token_payload?.user_metadata?.role,
-    req.user.token_payload?.user_metadata?.user_type
-  ].filter(Boolean);
-
-  if (tokenRoles.some((role) => PLATFORM_ADMIN_ROLES.includes(role))) {
-    return next();
-  }
-
   try {
     const roles = await getUserRoles(req.user.id);
     if (roles.some((role) => PLATFORM_ADMIN_ROLES.includes(role))) {
@@ -570,19 +402,6 @@ const requirePlatformAdmin = async (req, res, next) => {
 
 const requireMasterAdmin = async (req, res, next) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
-
-  const tokenRoles = [
-    req.user.role,
-    req.user.user_type,
-    req.user.token_payload?.role,
-    req.user.token_payload?.user_role,
-    req.user.token_payload?.user_metadata?.role,
-    req.user.token_payload?.user_metadata?.user_type
-  ].filter(Boolean);
-
-  if (tokenRoles.includes('master_admin')) {
-    return next();
-  }
 
   try {
     const roles = await getUserRoles(req.user.id);

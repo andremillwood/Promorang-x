@@ -13,13 +13,11 @@ const footerLinks = {
     { label: "Rewards", href: "/explore/rewards" },
     { label: "Venues", href: "/explore/venues" },
     { label: "Genesis Season", href: "/pioneers" },
-    { label: "Save & Win Vaults", href: "/nodes" },
   ],
   how: [
     { label: "What is Promorang?", href: "/what-is-promorang" },
     { label: "How It Works", href: "/how-it-works" },
     { label: "Overview", href: "/economy" },
-    { label: "Community Vaults", href: "/nodes" },
     { label: "Moments", href: "/economy/moments" },
     { label: "Points", href: "/economy/points" },
     { label: "PromoKeys", href: "/economy/keys" },

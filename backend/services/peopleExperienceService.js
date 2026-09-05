@@ -649,30 +649,26 @@ function createPeopleExperienceService(db = defaultDb) {
 
     let offerId = payload.offerId || null;
     if (!offerId && payload.kind && payload.title) {
-      try {
-        const rewardType = PERK_KIND_TO_REWARD[payload.kind] || 'other';
-        const offer = await offerService.createOffer(userId, {
-          title: payload.title,
-          description: payload.description,
-          image_url: payload.imageUrl,
-          reward_type: rewardType,
-          owner_type: payload.kind === 'merchant' ? 'merchant' : 'creator',
-          quantity_total: payload.audienceLimit || payload.quantity || null,
-          status: 'active',
-          metadata: { presentation: 'drop', audience: payload.audience || 'everyone' },
-          distributions: [{
-            channel: 'direct',
-            trigger_event: 'drop_claim',
-            source_label: payload.title,
-            allocation_limit: payload.audienceLimit || payload.quantity || null,
-            qualification_rules: {},
-          }],
-        });
-        offerId = offer.id;
-        await maybe(db.from('offer_distributions').update({ presentation_mode: 'drop' }).eq('offer_id', offerId));
-      } catch (error) {
-        console.warn('[people-experience] offer wrap skipped', error.message);
-      }
+      const rewardType = PERK_KIND_TO_REWARD[payload.kind] || 'other';
+      const offer = await offerService.createOffer(userId, {
+        title: payload.title,
+        description: payload.description,
+        image_url: payload.imageUrl,
+        reward_type: rewardType,
+        owner_type: payload.kind === 'merchant' ? 'merchant' : 'creator',
+        quantity_total: payload.audienceLimit || payload.quantity || null,
+        status: 'active',
+        metadata: { presentation: 'drop', audience: payload.audience || 'everyone' },
+        distributions: [{
+          channel: 'direct',
+          trigger_event: 'drop_claim',
+          source_label: payload.title,
+          allocation_limit: payload.audienceLimit || payload.quantity || null,
+          qualification_rules: {},
+        }],
+      });
+      offerId = offer.id;
+      await maybe(db.from('offer_distributions').update({ presentation_mode: 'drop' }).eq('offer_id', offerId));
     }
 
     const remaining = payload.audienceLimit || payload.quantity || null;
@@ -739,11 +735,7 @@ function createPeopleExperienceService(db = defaultDb) {
 
     let issuance = null;
     if (drop.offer_id) {
-      try {
-        issuance = await offerService.directClaim(userId, drop.offer_id);
-      } catch (error) {
-        console.warn('[people-experience] offer claim fallback', error.message);
-      }
+      issuance = await offerService.directClaim(userId, drop.offer_id);
     }
 
     const claim = await db.from('community_drop_claims').insert({
@@ -843,41 +835,23 @@ function createPeopleExperienceService(db = defaultDb) {
       contributor_earn: youEarn,
     };
 
-    let offer = null;
-    try {
-      offer = await offerService.createOffer(userId, {
-        title,
-        description: payload.description || peopleGet,
-        reward_type: rewardType,
-        owner_type: 'merchant',
-        quantity_total: quantity,
-        status: 'active',
-        fulfillment_type: 'merchant_validation',
-        metadata,
-        distributions: [{
-          channel: 'direct',
-          trigger_event: 'opportunity_take',
-          source_label: title,
-          allocation_limit: quantity,
-          qualification_rules: {},
-        }],
-      });
-    } catch (error) {
-      console.warn('[people-experience] inventory offer wrap skipped', error.message);
-      const inserted = await db.from('offers').insert({
-        owner_user_id: userId,
-        owner_type: 'merchant',
-        title,
-        description: payload.description || peopleGet,
-        reward_type: rewardType,
-        fulfillment_type: 'merchant_validation',
-        quantity_total: quantity,
-        status: 'active',
-        metadata,
-      }).select().single();
-      if (inserted.error) throw new Error('Could not put that up yet');
-      offer = inserted.data;
-    }
+    const offer = await offerService.createOffer(userId, {
+      title,
+      description: payload.description || peopleGet,
+      reward_type: rewardType,
+      owner_type: 'merchant',
+      quantity_total: quantity,
+      status: 'active',
+      fulfillment_type: 'merchant_validation',
+      metadata,
+      distributions: [{
+        channel: 'direct',
+        trigger_event: 'opportunity_take',
+        source_label: title,
+        allocation_limit: quantity,
+        qualification_rules: {},
+      }],
+    });
 
     await recordVerifiedAction({
       userId,

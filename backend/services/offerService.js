@@ -115,13 +115,14 @@ function rulesMatch(rules, context) {
   return true;
 }
 
-async function issueForEvent({ userId, channel, event, sourceId, sourceEventId, context = {} }) {
+async function issueForEvent({ userId, channel, event, sourceId, sourceEventId, offerId, context = {} }) {
   let query = supabase
     .from('offer_distributions')
     .select('*, offers(*)')
     .eq('channel', channel)
     .eq('trigger_event', event)
     .eq('is_active', true);
+  if (offerId) query = query.eq('offer_id', offerId);
   if (sourceId) query = query.or(`source_id.eq.${sourceId},source_id.is.null`);
   else query = query.is('source_id', null);
 
@@ -169,7 +170,7 @@ async function directClaim(userId, offerId) {
   const offer = await getOffer(offerId, userId);
   const distribution = (offer.offer_distributions || []).find((item) => item.channel === 'direct' && item.is_active);
   if (!distribution) throw new Error('This offer is not available for direct claim');
-  const rows = await issueForEvent({ userId, channel: 'direct', event: distribution.trigger_event, sourceId: distribution.source_id, sourceEventId: `direct:${offerId}:${userId}` });
+  const rows = await issueForEvent({ userId, offerId, channel: 'direct', event: distribution.trigger_event, sourceId: distribution.source_id, sourceEventId: `direct:${offerId}:${userId}` });
   if (!rows.length) throw new Error('Offer unavailable, already claimed, or out of stock');
   return rows[0];
 }
