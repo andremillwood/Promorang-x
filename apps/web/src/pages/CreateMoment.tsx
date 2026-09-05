@@ -291,10 +291,10 @@ export function CreateMoment() {
 
       toast({
         title: "Moment published",
-        description: "It’s live. PromoCard value is added only when a merchant validates a claimed benefit.",
+        description: "Attach a live merchant perk next so guests have something to claim.",
       });
 
-      navigate(`/moments/${newMoment.id}`);
+      navigate(`/give?moment=${encodeURIComponent(newMoment.id)}`);
     } catch (error: any) {
       console.error("Error creating moment:", error);
       toast({

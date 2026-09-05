@@ -32,6 +32,7 @@ import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { TeamSlashModal } from "@/components/TeamSlashModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
+import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 
 // Modular, High-Impact Consoles
 import MerchantScannerStation from "@/components/merchant/MerchantScannerStation";
@@ -96,7 +97,7 @@ export function MerchantDashboardV2() {
               </span>
             </div>
             <p className="text-xs text-white/60 mt-0.5">
-              Live foot traffic, point-of-sale scanner, inventory drops, and settlement runway.
+              Put a perk up, share it, then validate the code. That is the live shift.
             </p>
           </div>
         </div>
@@ -112,82 +113,23 @@ export function MerchantDashboardV2() {
           </button>
 
           <Link
-            to="/wallet"
+            to="/stock"
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-white/10 bg-white/5 hover:border-emerald-400/40 hover:bg-white/10 transition"
           >
-            <Gem className="h-4 w-4 text-emerald-400" />
-            <span className="text-xs font-black text-white">Node Vault</span>
+            <Plus className="h-4 w-4 text-emerald-400" />
+            <span className="text-xs font-black text-white">Put a perk up</span>
           </Link>
         </div>
       </div>
 
-      {/* 2. Merchant Action Runway (3 Clickable High-Impact Steps) */}
-      <div className="p-4 sm:p-5 rounded-3xl border border-emerald-500/25 bg-gradient-to-r from-emerald-950/20 via-black to-black text-xs text-white/80 space-y-3 shadow-lg">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-black font-black text-[10px] uppercase tracking-wider">
-              Shift Roadmap
-            </span>
-            <span className="font-bold text-white text-xs sm:text-sm">
-              Today's Operating Loop
-            </span>
-          </div>
-          <span className="text-[11px] text-white/50 font-medium">
-            Broadcast Perk &rarr; Verify Door &rarr; Settle Yield
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-          <button
-            onClick={() => handleTabChange("storefront")}
-            className="p-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-emerald-500/40 hover:bg-white/[0.06] transition flex items-center justify-between group text-left"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">1</span>
-              <div>
-                <p className="font-bold text-white text-xs">Launch Happy Hour Drop</p>
-                <p className="text-[10px] text-emerald-400 font-semibold">Attract nearby explorers</p>
-              </div>
-            </div>
-            <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-emerald-400 transition" />
-          </button>
-
-          <button
-            onClick={() => handleTabChange("redemptions")}
-            className="p-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-emerald-500/40 hover:bg-white/[0.06] transition flex items-center justify-between group text-left"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">2</span>
-              <div>
-                <p className="font-bold text-white text-xs">Scan & Verify Door Passes</p>
-                <p className="text-[10px] text-amber-300 font-semibold">Credit proof & reward points</p>
-              </div>
-            </div>
-            <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-emerald-400 transition" />
-          </button>
-
-          <button
-            onClick={() => handleTabChange("analytics")}
-            className="p-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-emerald-500/40 hover:bg-white/[0.06] transition flex items-center justify-between group text-left"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">3</span>
-              <div>
-                <p className="font-bold text-white text-xs">Review Node Yield & Settlement</p>
-                <p className="text-[10px] text-teal-300 font-semibold">Disburse Lynk / Bank payout</p>
-              </div>
-            </div>
-            <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-emerald-400 transition" />
-          </button>
-        </div>
-      </div>
+      <LiveLoopActions role="merchant" title="Today's live loop" />
 
       {/* 3. The 4 Operational Console Navigation Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
           { id: "storefront", label: "Storefront & Drops", icon: Store, hint: "Catalog & perks", count: "Live" },
           { id: "redemptions", label: "POS Scanner", icon: QrCode, hint: "Door verification", count: "Active" },
-          { id: "commerce", label: "Orders & Fulfillment", icon: ShoppingBag, hint: "Pickups & tickets", count: "4 Open" },
+          { id: "commerce", label: "Orders & Fulfillment", icon: ShoppingBag, hint: "Pickups & tickets", count: "Orders" },
           { id: "venues", label: "Venue Studio", icon: MapPin, hint: "Spaces & moments", count: `${venueCount} Places` },
           { id: "analytics", label: "Yield & Analytics", icon: BarChart3, hint: "GMV & Node APY", count: "12.5%" },
         ].map((tab) => {

@@ -9,6 +9,7 @@ import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
 import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
+import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -145,6 +146,8 @@ export default function PeopleHome() {
             : "Numbers stay quiet until someone actually does something."}
         />
       ) : null}
+
+      <LiveLoopActions role={String(activeRole || role)} title="Make it live" />
 
       {role !== "member" ? (
         <section className="grid gap-3">

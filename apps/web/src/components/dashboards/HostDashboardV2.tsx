@@ -26,6 +26,7 @@ import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { TeamSlashModal } from "@/components/TeamSlashModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
+import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 
 // Modular Host Consoles
 import HostMomentsStagingConsole from "@/components/host/HostMomentsStagingConsole";
@@ -89,7 +90,7 @@ export function HostDashboardV2() {
               </span>
             </div>
             <p className="text-xs text-white/60 mt-0.5">
-              Curate live gatherings, broadcast in-room announcements, verify guest proofs, and lock brand sponsorships.
+              Create tonight’s gathering, attach a live perk, and send the merchant to validate the code.
             </p>
           </div>
         </div>
@@ -105,75 +106,16 @@ export function HostDashboardV2() {
           </Link>
 
           <Link
-            to="/wallet"
+            to="/give"
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-white/10 bg-white/5 hover:border-amber-400/40 hover:bg-white/10 transition"
           >
-            <Gem className="h-4 w-4 text-amber-400" />
-            <span className="text-xs font-black text-white">Host Vault</span>
+            <Handshake className="h-4 w-4 text-amber-400" />
+            <span className="text-xs font-black text-white">Attach a perk</span>
           </Link>
         </div>
       </div>
 
-      {/* 2. Host Action Runway */}
-      <div className="p-4 sm:p-5 rounded-3xl border border-amber-500/25 bg-gradient-to-r from-amber-950/15 via-black to-black text-xs text-white/80 space-y-3 shadow-lg">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded-full bg-amber-400 text-black font-black text-[10px] uppercase tracking-wider">
-              Stage Lifecycle
-            </span>
-            <span className="font-bold text-white text-xs sm:text-sm">
-              Today's Gathering Flow
-            </span>
-          </div>
-          <span className="text-[11px] text-white/50 font-medium">
-            Stage Lineup &rarr; Pulse Announcements &rarr; Credit Attendee Proofs
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-          <button
-            onClick={() => handleTabChange("moments")}
-            className="p-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-amber-400/40 hover:bg-white/[0.06] transition flex items-center justify-between group text-left"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="h-6 w-6 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-xs">1</span>
-              <div>
-                <p className="font-bold text-white text-xs">Stage Next Gathering</p>
-                <p className="text-[10px] text-amber-300 font-semibold">Publish moment & set door perks</p>
-              </div>
-            </div>
-            <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-amber-400 transition" />
-          </button>
-
-          <button
-            onClick={() => handleTabChange("pulse")}
-            className="p-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-amber-400/40 hover:bg-white/[0.06] transition flex items-center justify-between group text-left"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="h-6 w-6 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-xs">2</span>
-              <div>
-                <p className="font-bold text-white text-xs">Live Room Pulse & Push</p>
-                <p className="text-[10px] text-emerald-400 font-semibold">Broadcast micro-drops to guests</p>
-              </div>
-            </div>
-            <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-emerald-400 transition" />
-          </button>
-
-          <button
-            onClick={() => handleTabChange("review")}
-            className="p-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:border-amber-400/40 hover:bg-white/[0.06] transition flex items-center justify-between group text-left"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="h-6 w-6 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-xs">3</span>
-              <div>
-                <p className="font-bold text-white text-xs">Verify Guest Proofs</p>
-                <p className="text-[10px] text-cyan-300 font-semibold">Disburse points & credit status</p>
-              </div>
-            </div>
-            <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-cyan-400 transition" />
-          </button>
-        </div>
-      </div>
+      <LiveLoopActions role="host" title="Tonight's live loop" />
 
       {/* 3. The 5 Operational Host Arenas */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">

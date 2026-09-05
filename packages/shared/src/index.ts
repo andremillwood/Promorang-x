@@ -17,6 +17,7 @@ export * from "./action-engine";
 export * from "./gem-ledger";
 export * from "./promocard-moment";
 export * from "./promocard-benefit";
+export * from "./promocard-activation";
 export * from "./people-experience";
 
 export type PromorangJourneyStepId =

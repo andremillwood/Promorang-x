@@ -29,6 +29,10 @@ router.get('/hubs/:slug', optionalAuth, async (req, res) => {
   }
 });
 
+router.get('/nearby', optionalAuth, async (req, res) => {
+  try { return ok(res, await experience.getNearbyBenefits()); } catch (error) { return fail(res, error, 500); }
+});
+
 router.use(requireAuth);
 
 const identityFrom = (user) => ({

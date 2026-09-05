@@ -748,6 +748,30 @@ function createPeopleExperienceService(db = defaultDb) {
     return (offers.data || []).map((offer) => ({ offer, drop: dropByOffer.get(offer.id) || null }));
   }
 
+  async function getNearbyBenefits() {
+    const participating = await getParticipatingOffers();
+    const issuerIds = new Set();
+    for (const item of participating) {
+      if (item.offer.owner_user_id) issuerIds.add(item.offer.owner_user_id);
+      if (item.drop?.creator_id) issuerIds.add(item.drop.creator_id);
+    }
+    const profiles = new Map();
+    await Promise.all([...issuerIds].map(async (id) => {
+      profiles.set(id, displayName(await profileFor(id)));
+    }));
+    return participating
+      .filter(({ offer }) => remainingQuantity(offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed) !== 0)
+      .map(({ offer, drop }) => toPromoCardBenefit({
+        id: offer.id,
+        offer,
+        drop: drop || {},
+        issuerName: profiles.get(offer.owner_user_id) || null,
+        sharedBy: drop?.creator_id
+          ? { id: drop.creator_id, name: profiles.get(drop.creator_id) || 'Ambassador' }
+          : null,
+      }));
+  }
+
   async function getRepeatUseRows() {
     const linked = await maybe(
       db.from('community_drops').select('offer_id').not('offer_id', 'is', null).limit(80),
@@ -1087,6 +1111,7 @@ function createPeopleExperienceService(db = defaultDb) {
       attribution: {
         creator_id: userId,
         scene_id: payload.sceneId || null,
+        moment_id: payload.momentId || payload.moment_id || null,
         source_opportunity_id: payload.sourceOpportunityId || null,
         source_kind: payload.sourceKind || null,
         source_id: payload.sourceId || null,
@@ -1403,6 +1428,7 @@ function createPeopleExperienceService(db = defaultDb) {
     getOpportunities,
     getHappened,
     getCard,
+    getNearbyBenefits,
     createDrop,
     getDrop,
     claimDrop,

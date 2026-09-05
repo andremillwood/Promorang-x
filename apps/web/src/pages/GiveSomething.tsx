@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AUDIENCE_LABELS, PERK_KIND_LABELS, dropShareCopy, type DropAudience, type PerkKind } from "@promorang/shared";
 import { useGiveablePerks, useExperienceActions } from "@/hooks/usePeopleExperience";
@@ -22,10 +22,20 @@ export default function GiveSomething() {
   const [audience, setAudience] = useState<DropAudience>("everyone");
   const [title, setTitle] = useState("");
   const [limit, setLimit] = useState("50");
-  const [offerId, setOfferId] = useState<string | null>(null);
+  const [offerId, setOfferId] = useState<string | null>(params.get("offer"));
   const [shareUrl, setShareUrl] = useState("");
+  const momentId = params.get("moment") || undefined;
 
   const selectedPerk = useMemo(() => (perks.data || []).find((item) => item.id === offerId), [perks.data, offerId]);
+
+  useEffect(() => {
+    const fromQuery = params.get("offer");
+    if (fromQuery && fromQuery !== offerId) setOfferId(fromQuery);
+  }, [params, offerId]);
+
+  useEffect(() => {
+    if (selectedPerk?.title && !title) setTitle(selectedPerk.title);
+  }, [selectedPerk, title]);
 
   const dropIt = async () => {
     try {
@@ -37,6 +47,7 @@ export default function GiveSomething() {
         audience,
         audienceLimit: audience === "first_x" ? Number(limit) || 50 : null,
         sceneId: params.get("hub") || undefined,
+        momentId,
       });
       const url = `${window.location.origin}/drop/${drop.slug}`;
       setShareUrl(url);
@@ -55,6 +66,11 @@ export default function GiveSomething() {
       description="Drop it onto their PromoCards. They should never need to understand the machinery underneath."
       backTo="/dashboard"
     >
+      {momentId ? (
+        <p className="rounded-[1.3rem] border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-white/70">
+          This drop will be attached to tonight’s gathering. Guests claim it, then the merchant validates the code.
+        </p>
+      ) : null}
       <section>
         <div className="grid grid-cols-2 gap-2">
           {KINDS.map(([id, label]) => (

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useOpportunities, useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
@@ -11,13 +12,15 @@ export default function EarnOpportunities() {
   const opportunities = useOpportunities(sceneId);
   const { takeOpportunity } = useExperienceActions();
   const { toast } = useToast();
+  const [taken, setTaken] = useState<{ title: string; slug: string; url: string } | null>(null);
 
-  const take = async (id: string) => {
+  const take = async (id: string, title: string) => {
     try {
       const result = await takeOpportunity.mutateAsync({ id, sceneId });
       const url = `${window.location.origin}/drop/${result.drop.slug}`;
       await navigator.clipboard.writeText(url).catch(() => undefined);
-      toast({ title: "You took it", description: "A drop is ready for your people." });
+      setTaken({ title, slug: result.drop.slug, url });
+      toast({ title: "You took it", description: "Share the live drop. Pay happens after the merchant validates." });
     } catch (error) {
       toast({ title: "Could not take this yet", description: (error as Error).message, variant: "destructive" });
     }
@@ -30,6 +33,22 @@ export default function EarnOpportunities() {
       description="Get people to try, visit, buy or show up. You earn when the action is verified."
       backTo="/dashboard"
     >
+      {taken ? (
+        <div className="rounded-[1.6rem] border border-primary/40 bg-primary/10 px-5 py-5">
+          <p className="font-serif text-2xl font-bold">Share {taken.title}</p>
+          <p className="mt-2 text-sm text-white/60">Your people claim this on their PromoCard. You earn when the merchant records the code.</p>
+          <p className="mt-3 break-all font-mono text-xs text-primary">{taken.url}</p>
+          <div className="mt-4 grid gap-2">
+            <Link to={to(`/drop/${taken.slug}`)} className="grid min-h-12 place-items-center rounded-full bg-primary text-sm font-black text-black">
+              Open the live drop
+            </Link>
+            <Link to={to("/give")} className="grid min-h-12 place-items-center rounded-full border border-white/20 text-sm font-black">
+              Share another perk
+            </Link>
+            <Link to={to("/card")} className="block text-center text-sm text-white/40">See what’s on PromoCard</Link>
+          </div>
+        </div>
+      ) : null}
       {opportunities.isLoading ? (
         <div className="h-40 animate-pulse rounded-[1.6rem] bg-white/5" />
       ) : opportunities.data?.length ? (
@@ -46,7 +65,7 @@ export default function EarnOpportunities() {
               <button
                 type="button"
                 disabled={takeOpportunity.isPending}
-                onClick={() => take(item.id)}
+                onClick={() => take(item.id, item.title)}
                 className="mt-5 min-h-12 w-full rounded-full bg-primary text-sm font-black text-black disabled:opacity-60"
               >
                 Take opportunity
