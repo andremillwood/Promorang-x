@@ -1,3 +1,4 @@
+import { cardsOnAsk, type UnlockTally } from "@/lib/discovery-card";
 import { intentWords, queryHits, votesRemaining, type PathablePoll } from "@/lib/discovery-path";
 
 export type DemandRole = "host" | "creator" | "brand" | "merchant";
@@ -19,6 +20,7 @@ export type DemandAsk = {
   count: number;
   matchedPollIds: string[];
   status: "live" | "miss";
+  onCards: number;
 };
 
 export type DemandOption = {
@@ -34,6 +36,8 @@ export type DemandQuestion = {
   options: DemandOption[];
   matchedAsks: string[];
   closeness: "unlocking" | "warming" | "early";
+  onCards: number;
+  used: number;
 };
 
 export type DemandInbox = {
@@ -44,6 +48,7 @@ export type DemandInbox = {
   unlocking: DemandQuestion[];
   namedAskCount: number;
   liveVoteCount: number;
+  onCards: number;
 };
 
 export function resolveDemandRole(role?: string | null): DemandRole {
@@ -84,8 +89,9 @@ export function closenessForPoll(poll: DemandPoll): DemandQuestion["closeness"] 
   return "early";
 }
 
-export function toDemandQuestion(poll: DemandPoll, asks: DemandAsk[] = []): DemandQuestion {
+export function toDemandQuestion(poll: DemandPoll, asks: DemandAsk[] = [], tallies: UnlockTally[] = []): DemandQuestion {
   const options = optionShares(poll.options, poll.totalVotes || 0);
+  const tally = tallies.find((row) => row.pollId === poll.id);
   return {
     poll,
     votesRemaining: votesRemaining(poll),
@@ -93,6 +99,8 @@ export function toDemandQuestion(poll: DemandPoll, asks: DemandAsk[] = []): Dema
     options,
     matchedAsks: asks.filter((ask) => ask.matchedPollIds.includes(poll.id)).map((ask) => ask.query),
     closeness: closenessForPoll(poll),
+    onCards: tally?.onCards || 0,
+    used: tally?.used || 0,
   };
 }
 
@@ -132,12 +140,14 @@ export function mergeNamedIntents(...groups: NamedIntent[][]): NamedIntent[] {
 export function buildDiscoveryDemandInbox(input: {
   polls: DemandPoll[];
   intents?: NamedIntent[];
+  unlocks?: UnlockTally[];
   city?: string;
   limit?: number;
 }): DemandInbox {
   const city = input.city || "this city";
   const limit = input.limit ?? 6;
   const polls = input.polls || [];
+  const tallies = input.unlocks || [];
 
   const asks = (input.intents || [])
     .map((intent) => {
@@ -149,13 +159,14 @@ export function buildDiscoveryDemandInbox(input: {
         count: intent.count,
         matchedPollIds,
         status: matchedPollIds.length ? ("live" as const) : ("miss" as const),
+        onCards: cardsOnAsk(matchedPollIds, tallies),
       };
     })
     .filter((ask) => normalizeIntentKey(ask.query))
     .sort((a, b) => b.count - a.count || a.query.localeCompare(b.query));
 
   const questions = polls
-    .map((poll) => toDemandQuestion(poll, asks))
+    .map((poll) => toDemandQuestion(poll, asks, tallies))
     .sort((a, b) => {
       const closenessRank = { unlocking: 0, warming: 1, early: 2 };
       if (closenessRank[a.closeness] !== closenessRank[b.closeness]) {
@@ -174,6 +185,7 @@ export function buildDiscoveryDemandInbox(input: {
     unlocking: questions.filter((item) => item.closeness === "unlocking"),
     namedAskCount: asks.reduce((sum, ask) => sum + ask.count, 0),
     liveVoteCount: polls.reduce((sum, poll) => sum + (poll.totalVotes || 0), 0),
+    onCards: tallies.reduce((sum, row) => sum + row.onCards, 0),
   };
 }
 

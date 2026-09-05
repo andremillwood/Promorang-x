@@ -186,7 +186,7 @@ export default function PeopleHome() {
             <TicketPass
               kicker="What’s happening"
               title="Find your next good thing"
-              detail="Explore local spots, nights out, and perks worth claiming."
+              detail="Explore local spots, nights out, and perks worth claiming. What Discover opens lands on your PromoCard."
               stub="GO"
               stubLabel="Live"
             />

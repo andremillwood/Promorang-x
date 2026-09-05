@@ -37,7 +37,7 @@ function questionAction(role: DemandRole, to: (path: string) => string): { href:
   if (role === "host") return { href: "/create/moment", label: "demand.stageNight" };
   if (role === "creator") return { href: to("/create") + "?intent=answer", label: "demand.shareQuestion" };
   if (role === "brand") return { href: "/dashboard?view=studio&tab=campaigns", label: "demand.fundUnlock" };
-  return { href: "/discover?tab=perks", label: "demand.postPerk" };
+  return { href: "/give", label: "demand.postPerk" };
 }
 
 function AskRow({ ask, tone }: { ask: DemandAsk; tone: string }) {
@@ -49,6 +49,7 @@ function AskRow({ ask, tone }: { ask: DemandAsk; tone: string }) {
         <span className="mt-0.5 block text-[11px] text-white/45">
           {t("demand.askCount", { count: ask.count })}
           {ask.status === "live" ? ` · ${t("demand.matchedLive")}` : ` · ${t("demand.notLive")}`}
+          {ask.onCards ? ` · ${t("demand.onCards", { count: ask.onCards })}` : ""}
         </span>
       </span>
       <span className="shrink-0 text-sm font-black text-white">{ask.count}</span>
@@ -108,7 +109,10 @@ function QuestionCard({
       {question.poll.targetUnlockPerk ? (
         <p className="mt-3 text-xs leading-5 text-white/50">
           {t("demand.opens")} {question.poll.targetUnlockPerk}
+          {question.onCards ? ` · ${t("demand.onCards", { count: question.onCards })}` : ""}
         </p>
+      ) : question.onCards ? (
+        <p className="mt-3 text-xs leading-5 text-white/50">{t("demand.onCards", { count: question.onCards })}</p>
       ) : null}
       <div className="mt-4 flex flex-wrap gap-2">
         <TactileButton variant="primary" asChild>
@@ -142,6 +146,7 @@ export function DiscoveryDemandInbox({
   );
   const tone = TONE[role];
   const topMiss = inbox.misses[0];
+  const topSpend = inbox.questions.find((question) => question.onCards > 0);
 
   if (variant === "peek") {
     return (
@@ -153,12 +158,18 @@ export function DiscoveryDemandInbox({
           {t("demand.eyebrow", { city: inbox.city })}
         </p>
         <p className="mt-2 font-serif text-2xl font-bold">
-          {topMiss ? t("demand.peekMiss", { query: topMiss.query }) : t("demand.peekLive")}
+          {topMiss
+            ? t("demand.peekMiss", { query: topMiss.query })
+            : topSpend
+              ? t("demand.peekSpend", { perk: topSpend.poll.targetUnlockPerk || topSpend.poll.question })
+              : t("demand.peekLive")}
         </p>
         <p className="mt-1 text-sm text-white/55">
           {topMiss
             ? t("demand.peekMissCopy", { count: topMiss.count })
-            : t("demand.peekLiveCopy", { count: inbox.questions.length })}
+            : topSpend
+              ? t("demand.peekSpendCopy", { count: topSpend.onCards })
+              : t("demand.peekLiveCopy", { count: inbox.questions.length })}
         </p>
       </Link>
     );
@@ -179,6 +190,7 @@ export function DiscoveryDemandInbox({
             { label: t("demand.receiptCity"), value: inbox.city, strong: true },
             { label: t("demand.receiptNamed"), value: String(inbox.namedAskCount), strong: true },
             { label: t("demand.receiptOpen"), value: String(inbox.misses.length) },
+            { label: t("demand.receiptCards"), value: String(inbox.onCards), strong: true },
             { label: t("demand.receiptAnswers"), value: String(inbox.liveVoteCount) },
           ]}
           footer={t("demand.privacy")}

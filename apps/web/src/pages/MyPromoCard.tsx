@@ -47,6 +47,7 @@ type CardPerk = {
   dropSlug?: string;
   href?: string;
   issuance?: PromoCardPerk["issuance"];
+  fromDiscover?: boolean;
 };
 
 const actionClass =
@@ -95,7 +96,9 @@ function BenefitTicket({
     <article className="rounded-[1.4rem] border border-white/10 px-4 py-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">{perk.issuer?.name || "Participating business"}</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+            {perk.fromDiscover ? "From Discover" : perk.issuer?.name || "Participating business"}
+          </p>
           <p className="mt-1 font-serif text-xl font-bold">{perk.title}</p>
         </div>
         <span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white/50">
@@ -336,7 +339,7 @@ export default function MyPromoCard() {
               </div>
             ) : (
               <div className="mt-3">
-                <QuietEmpty title="No perks yet" copy="When someone drops something for you, it lands here." />
+                <QuietEmpty title="No perks yet" copy="When someone drops something for you, or Discover opens a claimed perk, it lands here." />
               </div>
             )}
           </section>

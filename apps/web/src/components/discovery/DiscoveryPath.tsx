@@ -28,6 +28,9 @@ import {
   type PathWhy,
 } from "@/lib/discovery-path";
 import { recordDiscoveryNamedIntent } from "@/hooks/useDiscoveryDemand";
+import { unlockDiscoveryOntoCard } from "@/hooks/useDiscoveryCard";
+import { useExperiencePath } from "@/hooks/useExperiencePath";
+import { readLocalCardUnlocks, type DiscoveryCardUnlock } from "@/lib/discovery-card";
 import { cn } from "@/lib/utils";
 
 function whyCopy(
@@ -82,6 +85,7 @@ export function DiscoveryPath({
 }: DiscoveryPathProps) {
   const { t } = useI18n();
   const navigate = useNavigate();
+  const to = useExperiencePath();
   const [searchParams, setSearchParams] = useSearchParams();
   const handoffToDiscover = surface === "invite";
   const currentRef = useRef<HTMLElement | null>(null);
@@ -107,6 +111,7 @@ export function DiscoveryPath({
   const [justVotedId, setJustVotedId] = useState<string | null>(null);
   const [browseOpen, setBrowseOpen] = useState(false);
   const [intentTick, setIntentTick] = useState(0);
+  const [lastUnlock, setLastUnlock] = useState<DiscoveryCardUnlock | null>(null);
 
   const syncQueryParam = (nextQuery: string, nextLens: DiscoverLensId | null) => {
     if (!syncUrl) return;
@@ -150,6 +155,12 @@ export function DiscoveryPath({
     if (!intentTick) return;
     currentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [intentTick]);
+
+  useEffect(() => {
+    if (!current) return;
+    const existing = readLocalCardUnlocks().find((row) => row.pollId === current.poll.id);
+    if (existing) setLastUnlock(existing);
+  }, [current?.poll.id]);
 
   const namedIntent = Boolean(lens || intentWords(query).length);
   const otherActive = !lens && intentWords(query).length > 0;
@@ -311,9 +322,11 @@ export function DiscoveryPath({
           <DiscoveryWidget
             key={current.poll.id}
             {...current.poll}
+            landOnCard
             onVote={(pollId, optionId) => {
               void onCastVote?.(current.poll, optionId);
               markVoted(pollId);
+              void unlockDiscoveryOntoCard({ city: cityName, poll: current.poll, query }).then(setLastUnlock);
             }}
           />
 
@@ -324,8 +337,13 @@ export function DiscoveryPath({
                 lines={[
                   { label: t("discover.pathReceiptChose"), value: current.poll.question, strong: true },
                   {
-                    label: t("discover.pathReceiptUnlock"),
-                    value: current.poll.targetUnlockPerk || t("discover.pathFallbackPerk"),
+                    label: t("discover.pathReceiptCard"),
+                    value: lastUnlock?.perkTitle || current.poll.targetUnlockPerk || t("discover.pathFallbackPerk"),
+                    strong: true,
+                  },
+                  {
+                    label: t("discover.pathReceiptCode"),
+                    value: lastUnlock?.redemptionCode || t("discover.pathOnCard"),
                     strong: true,
                   },
                   {
@@ -337,12 +355,12 @@ export function DiscoveryPath({
               />
               <div className="space-y-3">
                 <p className="text-sm leading-6 text-white/60">
-                  {otherActive ? t("discover.pathUsedNext") : t("discover.pathAfterVote")}
+                  {t("discover.pathOnCardCopy")}
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <TactileButton variant="primary" asChild>
-                    <Link to={discoveryHref(current.poll)}>
-                      {t("discover.pathOpenMatch")}
+                    <Link to={to("/card")}>
+                      {t("discover.pathOpenCard")}
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </TactileButton>

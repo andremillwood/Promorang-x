@@ -125,4 +125,16 @@ describe("buildDiscoveryDemandInbox", () => {
     expect(inbox.misses.map((ask) => ask.query)).toEqual(["hiking with kids", "sunday church"]);
     expect(inbox.namedAskCount).toBe(18);
   });
+
+  it("shows how many cards can spend a live ask", () => {
+    const inbox = buildDiscoveryDemandInbox({
+      polls: [jerk, night],
+      intents: [{ query: "jerk on friday", count: 3 }],
+      unlocks: [{ pollId: "jerk", onCards: 5, used: 1 }],
+      city: "Kingston",
+    });
+    expect(inbox.onCards).toBe(5);
+    expect(inbox.asks[0].onCards).toBe(5);
+    expect(inbox.questions.find((item) => item.poll.id === "jerk")?.onCards).toBe(5);
+  });
 });

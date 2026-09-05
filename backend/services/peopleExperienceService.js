@@ -897,7 +897,7 @@ function createPeopleExperienceService(db = defaultDb) {
   }
 
   async function getCard(userId, identity = {}) {
-    const [wallet, card, issuances, redeemedIssuances, memberships, participating, dropClaims, repeatRows] = await Promise.all([
+    const [wallet, card, issuances, redeemedIssuances, memberships, participating, dropClaims, repeatRows, discoverUnlocks] = await Promise.all([
       getWallet(userId),
       maybe(db.from('user_promo_cards').select('*').eq('user_id', userId).maybeSingle()),
       maybe(db.from('offer_issuances').select('*, offers(*)').eq('user_id', userId).in('status', ['issued', 'claimed', 'fulfillment_pending']).order('issued_at', { ascending: false }).limit(20)),
@@ -906,6 +906,7 @@ function createPeopleExperienceService(db = defaultDb) {
       getParticipatingOffers(),
       maybe(db.from('community_drop_claims').select('*, community_drops(*)').eq('user_id', userId).in('status', ['claimed', 'redeemed']).order('claimed_at', { ascending: false }).limit(20)),
       getRepeatUseRows(),
+      maybe(db.from('discovery_card_unlocks').select('*').eq('user_id', userId).eq('status', 'claimed').order('created_at', { ascending: false }).limit(12)),
     ]);
     const requireLedger = (result) => {
       if (result?.error) {
@@ -967,6 +968,24 @@ function createPeopleExperienceService(db = defaultDb) {
             ? { id: row.referrer_id, name: profiles.get(row.referrer_id) || 'Ambassador' }
             : null,
         })),
+      ...(discoverUnlocks?.data || []).filter((row) => row.redemption_code).map((row) => ({
+        ...toPromoCardBenefit({
+          id: row.id,
+          offer: {
+            title: row.perk_title || 'City perk',
+            description: row.poll_question || '',
+            fulfillment_type: 'code',
+            owner_type: 'discover',
+          },
+          issuance: {
+            id: row.id,
+            status: 'claimed',
+            redemption_code: row.redemption_code,
+          },
+          issuerName: 'Discover',
+        }),
+        fromDiscover: true,
+      })),
     ];
     const used = (redeemedIssuances.data || []).map((row) => toPromoCardBenefit({
       id: row.id,
@@ -1024,6 +1043,7 @@ function createPeopleExperienceService(db = defaultDb) {
       redemption: benefit.redemption,
       sharedBy: benefit.sharedBy,
       issuance: benefit.issuance,
+      fromDiscover: Boolean(benefit.fromDiscover),
     }));
 
     return {
@@ -1455,6 +1475,54 @@ function createPeopleExperienceService(db = defaultDb) {
     };
   }
 
+  async function unlockDiscover(userId, payload) {
+    if (!payload?.pollId || !payload?.question) throw new Error('Answer a live question first.');
+    const perkTitle = String(payload.perkTitle || payload.targetUnlockPerk || 'City perk').replace(/^[^\w]+/, '').trim() || 'City perk';
+    const existing = await maybe(
+      db.from('discovery_card_unlocks').select('*').eq('user_id', userId).eq('poll_id', payload.pollId).maybeSingle(),
+    );
+    if (existing.data) {
+      return {
+        id: existing.data.id,
+        redemptionCode: existing.data.redemption_code,
+        perkTitle: existing.data.perk_title,
+        alreadyOnCard: true,
+      };
+    }
+    const code = `PR-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+    const inserted = await maybe(db.from('discovery_card_unlocks').insert({
+      city: payload.city || 'Kingston & St. Andrew',
+      poll_id: payload.pollId,
+      poll_question: payload.question,
+      perk_title: perkTitle,
+      query_raw: payload.query || null,
+      user_id: userId,
+      redemption_code: code,
+      status: 'claimed',
+    }).select().maybeSingle());
+    if (inserted.error && !String(inserted.error.message || '').includes('duplicate')) throw inserted.error;
+    const saved = inserted.data || (await maybe(
+      db.from('discovery_card_unlocks').select('*').eq('user_id', userId).eq('poll_id', payload.pollId).maybeSingle(),
+    )).data;
+    if (!saved) throw new Error('Could not put that on the card yet.');
+    await recordVerifiedAction({
+      userId,
+      actionType: 'DISCOVERY_RESPONSE',
+      metadata: { kind: 'discover_answer', poll_id: payload.pollId, question: payload.question },
+    });
+    await recordVerifiedAction({
+      userId,
+      actionType: 'PERK_CLAIM',
+      metadata: { kind: 'discover_card_unlock', poll_id: payload.pollId, perk_title: perkTitle },
+    });
+    return {
+      id: saved.id,
+      redemptionCode: saved.redemption_code,
+      perkTitle: saved.perk_title,
+      alreadyOnCard: Boolean(existing.data),
+    };
+  }
+
   async function createAsk(userId, payload) {
     if (!payload?.question) throw new Error('What do you want to ask?');
     const inserted = await maybe(db.from('discovery_questions').insert({
@@ -1496,6 +1564,7 @@ function createPeopleExperienceService(db = defaultDb) {
     inviteToHub,
     startCommunity,
     createAsk,
+    unlockDiscover,
     joinScene,
     recordVerifiedAction,
     ensureHubAttribution,
