@@ -69,6 +69,44 @@ function requiresOwnerToRedeem(fulfillmentType) {
   return fulfillmentType === 'merchant_validation' || fulfillmentType === 'qr';
 }
 
+function promoCardPerkFromIssuance(row) {
+  const offers = row.offers || {};
+  const issuance = {
+    id: row.id,
+    status: row.status,
+    redemption_code: row.redemption_code || '',
+    issued_at: row.issued_at,
+    claimed_at: row.claimed_at,
+    redeemed_at: row.redeemed_at,
+    expires_at: row.expires_at,
+    fulfillment_data: row.fulfillment_data || {},
+    offers: {
+      id: offers.id,
+      title: offers.title || 'Perk',
+      description: offers.description || '',
+      reward_type: offers.reward_type,
+      fulfillment_type: offers.fulfillment_type || 'code',
+      value_amount: offers.value_amount ?? null,
+      value_currency: offers.value_currency ?? null,
+    },
+  };
+  return {
+    id: row.id,
+    source: 'offer_issuance',
+    title: issuance.offers.title,
+    detail: issuance.offers.description || '',
+    kind: issuance.offers.reward_type || 'custom',
+    status: row.status,
+    redemptionCode: issuance.redemption_code || null,
+    expiresAt: row.expires_at || null,
+    fulfillmentType: issuance.offers.fulfillment_type,
+    fulfillmentData: issuance.fulfillment_data,
+    valueAmount: issuance.offers.value_amount,
+    valueCurrency: issuance.offers.value_currency,
+    issuance,
+  };
+}
+
 module.exports = {
   encodeOfferRedeemPayload,
   decodeOfferRedeemPayload,
@@ -76,4 +114,5 @@ module.exports = {
   resolveClaimPlan,
   resolveFulfillPlan,
   requiresOwnerToRedeem,
+  promoCardPerkFromIssuance,
 };

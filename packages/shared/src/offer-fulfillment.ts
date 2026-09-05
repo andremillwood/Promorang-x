@@ -135,6 +135,113 @@ export function isPresentablePass(fulfillmentType?: string | null, status?: stri
   return ["claimed", "issued"].includes(status || "") && ["code", "qr", "merchant_validation"].includes(type);
 }
 
+export type PromoCardPerkIssuance = {
+  id: string;
+  status: string;
+  redemption_code: string;
+  issued_at?: string;
+  claimed_at?: string | null;
+  redeemed_at?: string | null;
+  expires_at?: string | null;
+  fulfillment_data?: OfferFulfillmentData;
+  offers: {
+    id?: string;
+    title: string;
+    description?: string | null;
+    reward_type?: string;
+    fulfillment_type?: string | null;
+    value_amount?: number | null;
+    value_currency?: string | null;
+  };
+};
+
+export type PromoCardPerk = {
+  id: string;
+  source?: string;
+  title: string;
+  detail?: string;
+  kind?: string;
+  status: string;
+  redemptionCode?: string | null;
+  expiresAt?: string | null;
+  fulfillmentType?: string | null;
+  fulfillmentData?: OfferFulfillmentData;
+  valueAmount?: number | null;
+  valueCurrency?: string | null;
+  issuance?: PromoCardPerkIssuance | null;
+};
+
+export function promoCardPerkFromIssuance(row: {
+  id: string;
+  status: string;
+  redemption_code?: string | null;
+  issued_at?: string;
+  claimed_at?: string | null;
+  redeemed_at?: string | null;
+  expires_at?: string | null;
+  fulfillment_data?: OfferFulfillmentData | null;
+  offers?: PromoCardPerkIssuance["offers"] | null;
+}): PromoCardPerk {
+  const issuance: PromoCardPerkIssuance = {
+    id: row.id,
+    status: row.status,
+    redemption_code: row.redemption_code || "",
+    issued_at: row.issued_at,
+    claimed_at: row.claimed_at,
+    redeemed_at: row.redeemed_at,
+    expires_at: row.expires_at,
+    fulfillment_data: row.fulfillment_data || {},
+    offers: {
+      id: row.offers?.id,
+      title: row.offers?.title || "Perk",
+      description: row.offers?.description,
+      reward_type: row.offers?.reward_type,
+      fulfillment_type: row.offers?.fulfillment_type || "code",
+      value_amount: row.offers?.value_amount ?? null,
+      value_currency: row.offers?.value_currency ?? null,
+    },
+  };
+  return {
+    id: row.id,
+    source: "offer_issuance",
+    title: issuance.offers.title,
+    detail: issuance.offers.description || "",
+    kind: issuance.offers.reward_type || "custom",
+    status: row.status,
+    redemptionCode: issuance.redemption_code || null,
+    expiresAt: row.expires_at || null,
+    fulfillmentType: issuance.offers.fulfillment_type || "code",
+    fulfillmentData: issuance.fulfillment_data,
+    valueAmount: issuance.offers.value_amount ?? null,
+    valueCurrency: issuance.offers.value_currency ?? null,
+    issuance,
+  };
+}
+
+export function issuanceFromPromoCardPerk(perk: PromoCardPerk | PromoCardPerkIssuance): PromoCardPerkIssuance | null {
+  if ("offers" in perk && "redemption_code" in perk && perk.redemption_code) {
+    return perk as PromoCardPerkIssuance;
+  }
+  const wrapped = perk as PromoCardPerk;
+  if (wrapped.issuance?.redemption_code) return wrapped.issuance;
+  if (!wrapped.redemptionCode) return null;
+  return {
+    id: wrapped.id,
+    status: wrapped.status,
+    redemption_code: wrapped.redemptionCode,
+    expires_at: wrapped.expiresAt,
+    fulfillment_data: wrapped.fulfillmentData || {},
+    offers: {
+      title: wrapped.title,
+      description: wrapped.detail,
+      reward_type: wrapped.kind,
+      fulfillment_type: wrapped.fulfillmentType || "code",
+      value_amount: wrapped.valueAmount ?? null,
+      value_currency: wrapped.valueCurrency ?? null,
+    },
+  };
+}
+
 export function participantJourneyLabel(fulfillmentType?: string | null, status?: string | null, fulfillmentData: OfferFulfillmentData = {}): string {
   const type = fulfillmentType || "code";
   if (status === "redeemed") {

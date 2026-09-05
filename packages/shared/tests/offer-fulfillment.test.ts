@@ -5,7 +5,9 @@ import {
   encodeOfferRedeemPayload,
   isPresentablePass,
   isShippingAddressComplete,
+  issuanceFromPromoCardPerk,
   participantJourneyLabel,
+  promoCardPerkFromIssuance,
   requiresOwnerToRedeem,
   resolveClaimPlan,
   resolveFulfillPlan,
@@ -57,5 +59,18 @@ describe("offer fulfillment journeys", () => {
     expect(isPresentablePass("automatic", "claimed")).toBe(false);
     expect(participantJourneyLabel("automatic", "redeemed")).toBe("Already in your wallet");
     expect(participantJourneyLabel("shipping", "fulfillment_pending", { shipping_stage: "shipped" })).toBe("On the way");
+  });
+
+  it("keeps offer journeys on the PromoCard perk object", () => {
+    const perk = promoCardPerkFromIssuance({
+      id: "iss-1",
+      status: "claimed",
+      redemption_code: "PR-CARD01",
+      fulfillment_data: {},
+      offers: { title: "Slow-hour coffee", fulfillment_type: "qr", reward_type: "coupon", value_amount: 10, value_currency: "JMD" },
+    });
+    expect(perk.fulfillmentType).toBe("qr");
+    expect(issuanceFromPromoCardPerk(perk)?.redemption_code).toBe("PR-CARD01");
+    expect(isPresentablePass(perk.fulfillmentType, perk.status)).toBe(true);
   });
 });

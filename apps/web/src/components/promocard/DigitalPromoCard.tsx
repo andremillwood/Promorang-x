@@ -20,10 +20,13 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { QRCodeSVG } from "qrcode.react";
+import { issuanceFromPromoCardPerk, isPresentablePass, type PromoCardPerk } from "@promorang/shared";
 import { PromoCardService, PromoCardData, RechargeAction } from "@/lib/promocard";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePromoCard } from "@/hooks/usePromoCard";
+import { useMyPromoCard } from "@/hooks/usePeopleExperience";
+import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
+import type { OfferIssuance } from "@/hooks/useOffers";
 
 interface DigitalPromoCardProps {
   onCardUpdate?: (card: PromoCardData) => void;
@@ -35,9 +38,15 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ onCardUpdate
   const navigate = useNavigate();
   const { user } = useAuth();
   const cardQuery = usePromoCard(user?.id);
+  const perkCard = useMyPromoCard();
   const previewCard = PromoCardService.getCardSummary(user?.id);
   const card = cardQuery.data || previewCard;
   const isPreview = isPreviewData ?? !cardQuery.data;
+  const livePasses = ((perkCard.data?.perks || []) as PromoCardPerk[])
+    .map((perk) => issuanceFromPromoCardPerk(perk))
+    .filter((issuance): issuance is NonNullable<typeof issuance> => Boolean(issuance && isPresentablePass(issuance.offers.fulfillment_type, issuance.status)));
+  const otherPerks = ((perkCard.data?.perks || []) as PromoCardPerk[])
+    .filter((perk) => perk.status !== "redeemed" && !isPresentablePass(perk.fulfillmentType, perk.status));
   const [showQRModal, setShowQRModal] = useState(false);
   const [showRechargeModal, setShowRechargeModal] = useState(false);
   const [rechargeActions] = useState<RechargeAction[]>(
@@ -95,11 +104,10 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ onCardUpdate
               variant="outline"
               size="sm"
               onClick={() => setShowQRModal(true)}
-              disabled={isPreview}
               className="h-10 shrink-0 gap-1.5 rounded-xl border-white/20 bg-white/10 px-3 text-xs text-white shadow-sm backdrop-blur-md hover:bg-white/20 sm:rounded-full"
             >
               <QrCode className="h-4 w-4 text-amber-400" />
-              <span className="hidden sm:inline">{isPreview ? "QR unavailable" : "Use in store"}</span>
+              <span className="hidden sm:inline">{livePasses.length ? "Show pass" : "Use in store"}</span>
             </Button>
           </div>
 
@@ -188,30 +196,43 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ onCardUpdate
 
       {/* In-Store QR Modal */}
       <Dialog open={showQRModal} onOpenChange={setShowQRModal}>
-        <DialogContent className="bg-zinc-950 text-white border-zinc-800 max-w-sm text-center">
+        <DialogContent className="max-h-[90vh] overflow-y-auto border-zinc-800 bg-zinc-950 text-white sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-center text-lg font-bold">Present to Cashier</DialogTitle>
+            <DialogTitle className="text-center text-lg font-bold">On this PromoCard</DialogTitle>
             <DialogDescription className="text-center text-zinc-400 text-xs">
-              Show this code at a participating checkout to apply eligible PromoCard balance.
+              {livePasses.length
+                ? "Let the merchant scan the pass, or finish the shipping / confirmation journey here."
+                : "Perks you claim land on this card. If one is ready to show, it appears here."}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="my-6 p-6 rounded-2xl bg-white flex flex-col items-center justify-center shadow-inner">
-            <QRCodeSVG value={`promorang://promocard/${encodeURIComponent(card.cardNumber.replace(/\s/g, ""))}`} size={176} level="M" includeMargin />
-            <p className="mt-2 text-xs font-mono text-zinc-600 font-bold tracking-wider">
-              {card.cardNumber}
-            </p>
-          </div>
+          {livePasses.length ? (
+            <div className="space-y-4">
+              {livePasses.map((issuance) => (
+                <OfferIssuancePass key={issuance.id} issuance={issuance as OfferIssuance} />
+              ))}
+            </div>
+          ) : null}
 
-          <div className="text-xs text-zinc-400 space-y-1">
-            <p className="font-semibold text-white">Available Balance: ${card.availableBalance.toFixed(2)}</p>
-            <p>Your eligible PromoCard amount is applied first. Pay the remaining purchase amount normally.</p>
-          </div>
+          {otherPerks.length ? (
+            <div className="space-y-3">
+              {otherPerks.map((perk) => {
+                const issuance = issuanceFromPromoCardPerk(perk);
+                return issuance
+                  ? <OfferIssuancePass key={perk.id} issuance={issuance as OfferIssuance} />
+                  : <p key={perk.id} className="text-sm text-white/60">{perk.title}</p>;
+              })}
+            </div>
+          ) : null}
+
+          {!livePasses.length && !otherPerks.length ? (
+            <p className="py-6 text-center text-sm text-white/55">Nothing to redeem on this card yet. Claimed offers appear here with their QR, automatic receipt, confirmation wait, or delivery address.</p>
+          ) : null}
 
           <Button
             onClick={() => setShowQRModal(false)}
             variant="outline"
-            className="mt-4 w-full border-zinc-800 text-zinc-300"
+            className="mt-2 w-full border-zinc-800 text-zinc-300"
           >
             Done
           </Button>

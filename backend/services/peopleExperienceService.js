@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const { supabase: defaultDb } = require('../lib/supabase');
 const offerService = require('./offerService');
+const { promoCardPerkFromIssuance } = require('./offerFulfillment');
 
 const OPERATOR_ROLES = new Set(['operator', 'steward']);
 const CONTRIBUTOR_ROLES = new Set(['contributor', 'operator', 'steward']);
@@ -531,7 +532,7 @@ function createPeopleExperienceService(db = defaultDb) {
     const [wallet, card, issuances, memberships] = await Promise.all([
       getWallet(userId),
       maybe(db.from('user_promo_cards').select('*').eq('user_id', userId).maybeSingle()),
-      maybe(db.from('offer_issuances').select('*, offers(*)').eq('user_id', userId).in('status', ['issued', 'claimed', 'fulfillment_pending']).order('issued_at', { ascending: false }).limit(12)),
+      maybe(db.from('offer_issuances').select('*, offers(*)').eq('user_id', userId).in('status', ['issued', 'claimed', 'fulfillment_pending', 'redeemed']).order('issued_at', { ascending: false }).limit(20)),
       membershipsFor(userId),
     ]);
     const dropClaims = await maybe(
@@ -540,16 +541,7 @@ function createPeopleExperienceService(db = defaultDb) {
     const person = await profileFor(userId);
     const issuanceIds = new Set((issuances.data || []).map((row) => row.id));
     const perks = [
-      ...(issuances.data || []).map((row) => ({
-        id: row.id,
-        title: row.offers?.title || 'Perk',
-        detail: row.offers?.description || '',
-        kind: row.offers?.reward_type || 'custom',
-        status: row.status,
-        redemptionCode: row.redemption_code || null,
-        expiresAt: row.expires_at || null,
-        fulfillmentType: row.offers?.fulfillment_type || null,
-      })),
+      ...(issuances.data || []).map((row) => promoCardPerkFromIssuance(row)),
       ...(dropClaims.data || []).filter((row) => !row.offer_issuance_id || !issuanceIds.has(row.offer_issuance_id)).map((row) => ({
         id: row.id,
         title: row.community_drops?.title || 'Drop',

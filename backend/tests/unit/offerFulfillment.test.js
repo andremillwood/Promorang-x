@@ -5,6 +5,7 @@ const {
   resolveClaimPlan,
   resolveFulfillPlan,
   requiresOwnerToRedeem,
+  promoCardPerkFromIssuance,
 } = require('../../services/offerFulfillment');
 
 describe('offer fulfillment helpers', () => {
@@ -27,5 +28,17 @@ describe('offer fulfillment helpers', () => {
     expect(() => resolveFulfillPlan('shipping', 'ship', {})).toThrow(/delivery address/);
     expect(requiresOwnerToRedeem('qr')).toBe(true);
     expect(requiresOwnerToRedeem('automatic')).toBe(false);
+  });
+
+  test('PromoCard perks carry the live offer journey', () => {
+    const perk = promoCardPerkFromIssuance({
+      id: 'iss-9',
+      status: 'claimed',
+      redemption_code: 'PR-CARD09',
+      fulfillment_data: {},
+      offers: { title: 'Welcome drink', fulfillment_type: 'qr', reward_type: 'voucher' },
+    });
+    expect(perk.issuance.offers.fulfillment_type).toBe('qr');
+    expect(perk.redemptionCode).toBe('PR-CARD09');
   });
 });
