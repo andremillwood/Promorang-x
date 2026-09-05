@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { QRCodeSVG } from "qrcode.react";
 import { PromoCardService, PromoCardData, RechargeAction } from "@/lib/promocard";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePromoCard } from "@/hooks/usePromoCard";
@@ -196,7 +197,7 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ onCardUpdate
           </DialogHeader>
 
           <div className="my-6 p-6 rounded-2xl bg-white flex flex-col items-center justify-center shadow-inner">
-            <QrCode className="h-44 w-44 text-black" />
+            <QRCodeSVG value={`promorang://promocard/${encodeURIComponent(card.cardNumber.replace(/\s/g, ""))}`} size={176} level="M" includeMargin />
             <p className="mt-2 text-xs font-mono text-zinc-600 font-bold tracking-wider">
               {card.cardNumber}
             </p>

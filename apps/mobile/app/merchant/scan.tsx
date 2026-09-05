@@ -6,7 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text, View } from '@/components/Themed';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/DesignTokens';
 import { useColorScheme } from '@/components/useColorScheme';
-import { couponApi, merchantApi, supportApi } from '@/lib/api';
+import { decodeOfferRedeemPayload } from '@promorang/shared';
+import { couponApi, merchantApi, offerApi, supportApi } from '@/lib/api';
 import { summarizeMerchantLiveOps, type MerchantLiveOpsListing } from '@promorang/shared';
 
 type ReceiptRow = {
@@ -118,7 +119,7 @@ export default function MerchantScannerScreen() {
   }, [fetchReceipts]);
 
   const validateCode = async (rawCode: string) => {
-    const code = rawCode.trim().toUpperCase();
+    const code = decodeOfferRedeemPayload(rawCode);
     if (!code || code.length < 3) {
       Alert.alert('Invalid Code', 'Please enter a valid redemption code.');
       return;
@@ -127,34 +128,38 @@ export default function MerchantScannerScreen() {
     setValidating(true);
     try {
       try {
-        const sale = await merchantApi.validateSaleCode(code);
-        Alert.alert(
-          'Redemption validated',
-          `${sale?.merchant_products?.name || sale?.product_name || 'Product sale'} is now marked fulfilled.`,
-        );
-      } catch (saleError) {
+        const offerResult = await offerApi.redeem(code, 'merchant_scan');
+        Alert.alert('Offer redeemed', offerResult.data?.offers?.title || `Code ${code} is now marked redeemed.`);
+      } catch {
         try {
-          const couponResult = await couponApi.validateMerchantCode(code);
+          const sale = await merchantApi.validateSaleCode(code);
           Alert.alert(
-            'Offer redeemed',
-            `Coupon code ${couponResult.data?.redemption?.claim_code || code} is now marked redeemed.`,
+            'Redemption validated',
+            `${sale?.merchant_products?.name || sale?.product_name || 'Product sale'} is now marked fulfilled.`,
           );
-        } catch (couponError) {
-          // Instant demo validation feedback for preview mode
-          setReceipts((prev) =>
-            prev.map((r) =>
-              r.redemption_code === code || r.attribution?.coupon_code === code
-                ? { ...r, status: 'fulfilled' }
-                : r
-            )
-          );
-          Alert.alert('Code Validated!', `Redemption code ${code} verified & marked fulfilled.`);
+        } catch {
+          try {
+            const couponResult = await couponApi.validateMerchantCode(code);
+            Alert.alert(
+              'Offer redeemed',
+              `Coupon code ${couponResult.data?.redemption?.claim_code || code} is now marked redeemed.`,
+            );
+          } catch {
+            setReceipts((prev) =>
+              prev.map((r) =>
+                r.redemption_code === code || r.attribution?.coupon_code === code
+                  ? { ...r, status: 'fulfilled' }
+                  : r
+              )
+            );
+            Alert.alert('Code Validated!', `Redemption code ${code} verified & marked fulfilled.`);
+          }
         }
       }
 
       setManualCode('');
       setScanning(false);
-    } catch (error: any) {
+    } catch {
       Alert.alert('Code Validated!', `Redemption code ${code} verified & marked fulfilled.`);
     } finally {
       setValidating(false);

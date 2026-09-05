@@ -32,12 +32,36 @@ export type Offer = {
   offer_issuances?: Array<{ id: string; status: string }>;
 };
 
+export type OfferShippingAddress = {
+  name: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  region?: string;
+  postal_code: string;
+  country: string;
+  phone?: string;
+};
+
 export type OfferIssuance = {
   id: string;
   status: string;
   redemption_code: string;
   issued_at: string;
+  claimed_at?: string | null;
+  redeemed_at?: string | null;
   expires_at?: string | null;
+  fulfillment_data?: {
+    shipping_address?: Partial<OfferShippingAddress> | null;
+    shipping_stage?: string | null;
+    tracking_number?: string | null;
+    carrier?: string | null;
+    shipped_at?: string | null;
+    delivered_at?: string | null;
+    notes?: string | null;
+    automatic?: { delivered_at?: string; reward_type?: string; amount?: number | null; wallet?: string | null };
+    [key: string]: unknown;
+  };
   offers: Offer;
 };
 
@@ -102,8 +126,44 @@ export function useClaimIssuance() {
   const { session } = useAuth();
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => request<OfferIssuance>(`/issuances/${id}/claim`, session?.access_token, { method: "POST" }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["offers", "wallet"] }),
+    mutationFn: (input: string | { id: string; shipping_address?: OfferShippingAddress; notes?: string }) => {
+      const id = typeof input === "string" ? input : input.id;
+      const body = typeof input === "string" ? {} : { shipping_address: input.shipping_address, notes: input.notes };
+      return request<OfferIssuance>(`/issuances/${id}/claim`, session?.access_token, { method: "POST", body: JSON.stringify(body) });
+    },
+    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+  });
+}
+
+export function usePendingFulfillments() {
+  const { session } = useAuth();
+  return useQuery({
+    queryKey: ["offers", "pending"],
+    queryFn: () => request<OfferIssuance[]>("/pending", session?.access_token),
+    enabled: !!session?.access_token,
+  });
+}
+
+export function useSaveOfferAddress() {
+  const { session } = useAuth();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, shipping_address }: { id: string; shipping_address: OfferShippingAddress }) =>
+      request<OfferIssuance>(`/issuances/${id}/address`, session?.access_token, { method: "POST", body: JSON.stringify({ shipping_address }) }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
+  });
+}
+
+export function useFulfillOffer() {
+  const { session } = useAuth();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { id: string; action: "confirm" | "ship" | "deliver"; tracking_number?: string; carrier?: string; notes?: string }) =>
+      request<OfferIssuance>(`/issuances/${body.id}/fulfill`, session?.access_token, {
+        method: "POST",
+        body: JSON.stringify({ action: body.action, tracking_number: body.tracking_number, carrier: body.carrier, notes: body.notes }),
+      }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["offers"] }),
   });
 }
 
