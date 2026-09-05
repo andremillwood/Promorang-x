@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchProfileRow } from "@/lib/account-profile";
 import type { Tables } from "@/integrations/supabase/types";
 import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
 import { useI18n } from "@/i18n/I18nContext";
@@ -78,11 +79,7 @@ const UserProfilePage = () => {
             setLoading(true);
             try {
                 // Fetch profile from Supabase
-                const { data, error } = await supabase
-                    .from("profiles")
-                    .select("*")
-                    .eq("user_id", effectiveUserId)
-                    .maybeSingle();
+                const { data, error } = await fetchProfileRow(supabase, effectiveUserId);
 
                 if (error) throw error;
 
