@@ -41,8 +41,11 @@ describe("PromoCard benefit source of truth", () => {
   it("does not treat a claimed perk as used until a merchant records redemption", () => {
     expect(canUseBenefit(usable)).toBe(true);
     expect(canUseBenefit({ ...usable, redemption: { ...usable.redemption, recorded: true }, fulfillmentState: "redeemed" })).toBe(false);
+    expect(canUseBenefit({ ...usable, fulfillmentType: "shipping" })).toBe(false);
+    expect(canUseBenefit({ ...usable, fulfillmentState: "issued" })).toBe(false);
     expect(fulfillmentFromStatus("claimed")).toBe("claimed");
     expect(fulfillmentFromStatus("redeemed")).toBe("redeemed");
+    expect(fulfillmentFromStatus("claimed", "invalid")).toBe("expired");
   });
 
   it("leads the card with use, nearby, then the next benefit", () => {

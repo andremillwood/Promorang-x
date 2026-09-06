@@ -190,7 +190,10 @@ function remainingQuantity(total, reserved = 0, redeemed = 0) {
 }
 
 function fulfillmentFromStatus(status, expiresAt) {
-  if (expiresAt && new Date(expiresAt).getTime() <= Date.now()) return 'expired';
+  if (expiresAt) {
+    const expiry = Date.parse(expiresAt);
+    if (!Number.isFinite(expiry) || expiry <= Date.now()) return 'expired';
+  }
   switch (String(status || '')) {
     case 'issued': return 'issued';
     case 'claimed': return 'claimed';
@@ -226,6 +229,12 @@ function toPromoCardBenefit({
   const expiresAt = issuance.expires_at || offer.ends_at || null;
   const fulfillmentState = fulfillmentFromStatus(status, expiresAt);
   const recorded = fulfillmentState === 'redeemed' || Boolean(issuance.redeemed_at);
+  const fulfillmentType = offer.fulfillment_type || 'merchant_validation';
+  const presentable = Boolean(offer.id)
+    && fulfillmentState === 'claimed'
+    && ['code', 'merchant_validation'].includes(fulfillmentType)
+    && Boolean(issuance.redemption_code)
+    && !recorded;
   return {
     id,
     offerId: offer.id || drop.offer_id || null,
@@ -251,10 +260,10 @@ function toPromoCardBenefit({
       : (offer.value_amount != null ? Number(offer.value_amount) : null),
     expiresAt,
     fulfillmentState,
-    fulfillmentType: offer.fulfillment_type || 'merchant_validation',
+    fulfillmentType,
     redemption: {
       recorded,
-      code: issuance.redemption_code || null,
+      code: presentable ? issuance.redemption_code : null,
       redeemedAt: issuance.redeemed_at || null,
       redeemedBy: issuance.redeemed_by || null,
     },
@@ -266,8 +275,13 @@ function toPromoCardBenefit({
 
 function canUseBenefit(benefit) {
   if (!benefit || benefit.redemption?.recorded) return false;
-  if (benefit.expiresAt && new Date(benefit.expiresAt).getTime() <= Date.now()) return false;
-  return ['issued', 'claimed', 'pending'].includes(benefit.fulfillmentState);
+  if (benefit.expiresAt) {
+    const expiry = Date.parse(benefit.expiresAt);
+    if (!Number.isFinite(expiry) || expiry <= Date.now()) return false;
+  }
+  const type = benefit.fulfillmentType || 'merchant_validation';
+  if (!['code', 'merchant_validation'].includes(type)) return false;
+  return benefit.fulfillmentState === 'claimed' && Boolean(benefit.redemption?.code);
 }
 
 function selectUseThis(benefits) {
@@ -871,8 +885,22 @@ function createPeopleExperienceService(db = defaultDb) {
       maybe(db.from('community_drop_claims').select('*, community_drops(*)').eq('user_id', userId).in('status', ['claimed', 'redeemed']).order('claimed_at', { ascending: false }).limit(20)),
       getRepeatUseRows(),
     ]);
+    const requireLedger = (result) => {
+      if (result?.error) {
+        throw result.error instanceof Error ? result.error : new Error(result.error.message || 'Ledger unavailable');
+      }
+      return result;
+    };
+    requireLedger(card);
+    requireLedger(issuances);
+    requireLedger(redeemedIssuances);
+    requireLedger(dropClaims);
+
     const person = await profileFor(userId, identity);
-    const issuanceIds = new Set((issuances.data || []).map((row) => row.id));
+    const issuanceIds = new Set([
+      ...(issuances.data || []).map((row) => row.id),
+      ...(redeemedIssuances.data || []).map((row) => row.id),
+    ]);
     const claimedOfferIds = new Set([
       ...(issuances.data || []).map((row) => row.offer_id),
       ...(redeemedIssuances.data || []).map((row) => row.offer_id),

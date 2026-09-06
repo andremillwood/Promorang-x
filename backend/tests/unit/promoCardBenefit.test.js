@@ -51,6 +51,23 @@ test('every card benefit carries issuer, eligibility, quantity, expiry, fulfillm
   expect(canUseBenefit(benefit)).toBe(true);
 });
 
+test('issued and shipping journeys do not present a use-this credential', () => {
+  const issued = toPromoCardBenefit({
+    id: 'iss-issued',
+    offer: { id: 'offer-2', owner_user_id: 'm1', fulfillment_type: 'merchant_validation' },
+    issuance: { id: 'iss-issued', status: 'issued', redemption_code: 'PR-HIDDEN' },
+  });
+  const shipping = toPromoCardBenefit({
+    id: 'iss-ship',
+    offer: { id: 'offer-3', owner_user_id: 'm1', fulfillment_type: 'shipping' },
+    issuance: { id: 'iss-ship', status: 'claimed', redemption_code: 'PR-SHIP01' },
+  });
+  expect(issued.redemption.code).toBe(null);
+  expect(canUseBenefit(issued)).toBe(false);
+  expect(shipping.redemption.code).toBe(null);
+  expect(canUseBenefit(shipping)).toBe(false);
+});
+
 test('a claimed perk is not complete until the merchant records redemption', () => {
   const claimed = toPromoCardBenefit({
     id: 'iss-2',

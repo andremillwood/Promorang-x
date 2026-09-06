@@ -1,6 +1,6 @@
 # PromoCard readiness — absorbed into #60
 
-These notes came from closed PR #59. The primary implementation is now the verified loop on `cursor/promocard-verified-loop-8bcd`, rebased onto `main` after #63 and #61. `promoCardProjection.js` and `promoCardTrust.test.js` are kept as the isolated credential/expiry regression suite.
+These notes came from closed PR #59. The primary implementation is the verified loop on `cursor/promocard-verified-loop-8bcd`, rebased onto `main` after #63 and #61. Isolated `promoCardProjection.js` rules are wired into live `toPromoCardBenefit` / `getCard`: credentials only when claimed and unexpired, ledger read errors fail closed, and redeemed issuances cannot resurrect linked community claims.
 
 # PromoCard readiness — September 5, 2026
 

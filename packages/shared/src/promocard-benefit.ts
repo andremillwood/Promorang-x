@@ -91,7 +91,10 @@ export function remainingQuantity(total: number | null | undefined, reserved = 0
 }
 
 export function fulfillmentFromStatus(status?: string | null, expiresAt?: string | null): PromoCardFulfillmentState {
-  if (expiresAt && new Date(expiresAt).getTime() <= Date.now()) return "expired";
+  if (expiresAt) {
+    const expiry = Date.parse(expiresAt);
+    if (!Number.isFinite(expiry) || expiry <= Date.now()) return "expired";
+  }
   switch (String(status || "")) {
     case "issued":
       return "issued";
@@ -124,10 +127,15 @@ export function isCompleteBenefit(benefit: Partial<PromoCardBenefit> | null | un
   return true;
 }
 
-export function canUseBenefit(benefit: Pick<PromoCardBenefit, "fulfillmentState" | "redemption" | "expiresAt">) {
+export function canUseBenefit(benefit: Pick<PromoCardBenefit, "fulfillmentState" | "fulfillmentType" | "redemption" | "expiresAt">) {
   if (benefit.redemption?.recorded) return false;
-  if (benefit.expiresAt && new Date(benefit.expiresAt).getTime() <= Date.now()) return false;
-  return ["issued", "claimed", "pending"].includes(benefit.fulfillmentState);
+  if (benefit.expiresAt) {
+    const expiry = Date.parse(benefit.expiresAt);
+    if (!Number.isFinite(expiry) || expiry <= Date.now()) return false;
+  }
+  const type = benefit.fulfillmentType || "merchant_validation";
+  if (!["code", "merchant_validation"].includes(type)) return false;
+  return benefit.fulfillmentState === "claimed" && Boolean(benefit.redemption?.code);
 }
 
 export function selectUseThis(benefits: PromoCardBenefit[]) {

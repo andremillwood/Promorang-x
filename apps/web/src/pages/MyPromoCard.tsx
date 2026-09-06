@@ -8,7 +8,7 @@ import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { PromoCardActions } from "@/components/promocard/PromoCardActions";
 
 function BenefitTicket({ perk, action }: { perk: any; action?: string }) {
-  const usable = perk.fulfillmentState === "claimed" || perk.fulfillmentState === "issued" || perk.fulfillmentState === "pending";
+  const usable = perk.fulfillmentState === "claimed";
   return (
     <article className="rounded-[1.4rem] border border-white/10 px-4 py-4">
       <div className="flex items-start justify-between gap-3">
