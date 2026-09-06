@@ -4,57 +4,38 @@ description: how to manually deploy to Vercel (frontend and backend)
 
 # Manual Vercel Deployment
 
-// turbo-all
+`main` is the only production source. Read [docs/release-source-of-truth.md](../../docs/release-source-of-truth.md) before promoting anything.
 
 ## Project Mappings
 
 | Directory | Vercel Project | Production URL |
 |-----------|---------------|----------------|
-| `/backend` | promorang-api | https://api.promorang.co |
-| `/apps/web` | promorang-alt | https://www.promorang.co |
+| repo root (`apps/web` via root `vercel.json`) | `promorang-alt` | https://promorang.co |
+| `/backend` | `api` | https://api.promorang.co |
 
-## Backend Deployment (promorang-api)
-1. Navigate to the backend directory:
-   ```bash
-   cd /Users/bumblebeecreative/Documents/GitHub/Promorang-x/backend
-   ```
+Do not deploy a feature branch or a dirty worktree with `--prod`. Merge to `main` and let Git produce the production deployment.
 
-2. Deploy to production:
-   ```bash
-   npx vercel --prod --yes
-   ```
+## Backend Deployment (`api`)
 
-## Frontend Deployment (promorang-alt)
-1. Navigate to the web app directory:
-   ```bash
-   cd /Users/bumblebeecreative/Documents/GitHub/Promorang-x/apps/web
-   ```
+Only if Git production is blocked and the SHA is already on `main`:
 
-2. Build Vercel output locally and deploy prebuilt:
-   ```bash
-   npx vercel build --prod && npx vercel deploy --prebuilt --prod --yes
-   ```
-
-## Verify Deployments
-- Backend health: https://api.promorang.co/api/health
-- Frontend: https://www.promorang.co
-
-## Quick Reference Commands
 ```bash
-# Deploy backend only
-cd /Users/bumblebeecreative/Documents/GitHub/Promorang-x/backend && npx vercel --prod --yes
-
-# Deploy frontend only  
-cd /Users/bumblebeecreative/Documents/GitHub/Promorang-x/apps/web && npx vercel --prod --yes
-
-# Deploy both (run in sequence)
-cd /Users/bumblebeecreative/Documents/GitHub/Promorang-x/backend && npx vercel --prod --yes && \
-cd /Users/bumblebeecreative/Documents/GitHub/Promorang-x/apps/web && npx vercel --prod --yes
+cd backend
+npx vercel --prod --yes
 ```
 
-## Notes
-- The Vercel CLI uses the `.vercel/project.json` config in each directory
-- Backend project: **promorang-api** → api.promorang.co
-- Frontend project: **promorang-alt** → www.promorang.co
-- Both projects auto-deploy on push to main, but manual deploy is faster
-- If token expires, run `npx vercel login` to re-authenticate
+The `api` project Root Directory must be `backend`. If it is the repo root, the build runs the Vite web app and fails.
+
+## Frontend Deployment (`promorang-alt`)
+
+Only if Git production is blocked and the SHA is already on `main`:
+
+```bash
+npx vercel --prod --yes
+```
+
+## Verify Deployments
+
+- Backend health: https://api.promorang.co/api/health
+- Frontend: https://www.promorang.co
+- Both production deployments must report the same `main` commit SHA

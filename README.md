@@ -70,7 +70,9 @@ The mobile release check validates native configuration, TypeScript, and indepen
 
 ## Deployment
 
-Web and backend are separate Vercel deployments:
+`main` is the only branch that may become production. Web (`promorang-alt` → https://promorang.co) and API (`api` → https://api.promorang.co) must both deploy from the same `main` SHA. See [Release source of truth](docs/release-source-of-truth.md).
+
+Prefer merging to `main` over `vercel --prod` from a feature branch. Manual commands remain:
 
 ```bash
 npm run deploy:web

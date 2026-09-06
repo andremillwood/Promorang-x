@@ -4,6 +4,8 @@ Use this checklist before promoting a release beyond controlled beta. Record the
 
 ## Release Hygiene
 
+- [ ] The SHA being promoted is on `main`. See [Release source of truth](release-source-of-truth.md).
+- [ ] Web (`promorang-alt`) and API (`api`) production deployments report the same `main` commit.
 - [ ] Worktree is split into reviewable commits by area: frontend, backend/API, migrations, email, payments, admin.
 - [ ] Deleted/replaced migrations are intentional and ordered correctly.
 - [ ] `npm run build --workspace apps/web` passes.

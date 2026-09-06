@@ -4,26 +4,25 @@ description: Deploy Promorang to Vercel
 
 # Deploy Promorang to Vercel
 
+`main` is the only production source. See [docs/release-source-of-truth.md](../../docs/release-source-of-truth.md).
+
 This project uses a **split deployment** architecture:
 
-- **Frontend** (`apps/web`) → `promorang-alt` project → https://promorang.co
-- **Backend** (`backend`) → `promorang-api` project → https://promorang-api.vercel.app
+- **Frontend** (repo root → `apps/web`) → `promorang-alt` → https://promorang.co
+- **Backend** (`backend`) → `api` → https://api.promorang.co
 
 ## Prerequisites
 
 - Vercel CLI installed globally or use `npx vercel`
 - Access to `andre-millwoods-projects` Vercel team
-- Projects `promorang-alt` and `promorang-api` already exist in Vercel
+- Projects `promorang-alt` and `api` already exist in Vercel
+- The SHA being promoted is on `main`
 
 ## Deploy Frontend
 
+Prefer a Git merge to `main`. Manual fallback:
+
 ```bash
-cd apps/web
-
-# Link to existing project (one-time setup)
-npx vercel link --project promorang-alt --yes
-
-# Deploy to production
 npx vercel --prod --yes
 ```
 
@@ -31,49 +30,25 @@ npx vercel --prod --yes
 
 ## Deploy Backend
 
+Prefer a Git merge to `main` after the `api` project Root Directory is `backend`. Manual fallback:
+
 ```bash
 cd backend
-
-# Link to existing project (one-time setup)
-npx vercel link --project promorang-api --yes
-
-# Deploy to production
 npx vercel --prod --yes
 ```
 
-**Output:** https://promorang-api.vercel.app
-
-## Quick Deploy Both
-
-```bash
-# Frontend
-cd apps/web && npx vercel --prod --yes
-
-# Backend
-cd ../../backend && npx vercel --prod --yes
-```
-
-## Project Structure
-
-```
-Promorang-x/
-├── apps/web/          # React + Vite frontend
-│   ├── vercel.json    # SPA routing config
-│   └── .vercel/       # Linked project (gitignored)
-├── backend/           # Express API
-│   ├── vercel.json    # Serverless function config
-│   └── .vercel/       # Linked project (gitignored)
-└── .windsurf/workflows/deploy.md  # This file
-```
+**Output:** https://api.promorang.co
 
 ## Environment Variables
 
 Managed in Vercel Dashboard:
-- **promorang-alt**: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, etc.
-- **promorang-api**: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `STRIPE_SECRET_KEY`, etc.
+
+- **promorang-alt**: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`, etc.
+- **api**: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, etc.
 
 ## Troubleshooting
 
-- **Build fails**: Check `vercel.json` config matches framework
-- **CORS errors**: Ensure backend allows `promorang.co` origin
-- **API 404s**: Backend routes should use `/api/*` pattern in `vercel.json`
+- **API Git production fails with missing `vite`**: the `api` project Root Directory is the repo root. Set it to `backend`.
+- **CORS errors**: ensure backend allows `promorang.co` and `www.promorang.co`.
+- **API 404s**: backend routes should use `/api/*` in `backend/vercel.json`.
+- **Web and API on different SHAs**: do not CLI-promote a feature branch. Redeploy both from `main`.
