@@ -1,8 +1,14 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, Coins, Gem, KeyRound, ShieldCheck, Sparkles } from "lucide-react";
 import { TactileButton } from "@/components/ui/TactileButton";
+import { TiltCard3D } from "@/components/ui/TiltCard3D";
 import { cn } from "@/lib/utils";
+
+export function formatPromoPassId(userId?: string | null) {
+  const passIdRaw = (userId || "876049210038").replace(/[^a-zA-Z0-9]/g, "").padEnd(12, "0").toUpperCase();
+  return `PROMO • ${passIdRaw.slice(0, 4)} • ${passIdRaw.slice(4, 8)} • ${passIdRaw.slice(8, 12)}`;
+}
 
 export function PlainEnglish({ children }: { children: ReactNode }) {
   return (
@@ -19,6 +25,13 @@ type PromoCardFaceProps = {
   holder?: string;
   places?: string;
   className?: string;
+  userId?: string | null;
+  userTier?: string;
+  points?: number;
+  promoKeys?: number;
+  gems?: number;
+  status?: string;
+  tilt?: boolean;
 };
 
 export function PromoCardFace({
@@ -27,28 +40,103 @@ export function PromoCardFace({
   holder = "Member card",
   places = "Partner shops nearby",
   className,
+  userId,
+  userTier = "Starter",
+  points,
+  promoKeys,
+  gems,
+  status = "Active",
+  tilt = false,
 }: PromoCardFaceProps) {
-  return (
-    <article className={cn("pr-plastic-card w-full max-w-md p-5 text-white sm:p-6", className)} aria-label="PromoCard">
+  const showBalances = points != null || promoKeys != null || gems != null;
+  const card = (
+    <article
+      className={cn(
+        "pr-plastic-card relative aspect-[1.586/1] w-full select-none overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-neutral-900 via-[#16121a] to-[#0a080c] p-6 text-white shadow-[0_25px_60px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.25)] backdrop-blur-2xl",
+        className,
+      )}
+      aria-label="PromoCard"
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,106,0,0.28),transparent_42%),radial-gradient(circle_at_20%_85%,rgba(168,85,247,0.22),transparent_48%),linear-gradient(135deg,rgba(255,255,255,0.08)_0%,transparent_50%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.04] mix-blend-overlay bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"
+      />
+
       <div className="relative z-10 flex h-full flex-col justify-between">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.22em] text-amber-200/80">PROMORANG</p>
-            <h3 className="mt-1 font-serif text-2xl font-bold tracking-tight">PromoCard</h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-9 items-center justify-center rounded-md border border-amber-400/40 bg-gradient-to-tr from-amber-500/30 via-yellow-400/20 to-amber-600/40 shadow-inner">
+              <div className="h-4 w-6 rounded border border-amber-300/30 bg-amber-400/10" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/70">
+              Promorang Pass
+            </span>
           </div>
-          <span className="h-8 w-11 rounded-md bg-gradient-to-br from-amber-200 to-amber-500 shadow-inner" aria-hidden />
+          <div className="flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-300">
+            <ShieldCheck className="h-3 w-3" />
+            {status}
+          </div>
         </div>
-        <div>
-          <p className="text-[11px] tracking-wide text-white/55">Available to spend</p>
-          <p className="mt-0.5 font-serif text-4xl font-bold tracking-tight text-amber-100">{available}</p>
-          <p className="mt-1 text-xs text-white/50">of {limit} this cycle · {places}</p>
+
+        <div className="my-4 space-y-3">
+          <p className="font-mono text-xs tracking-widest text-white/50">{formatPromoPassId(userId)}</p>
+          {showBalances ? (
+            <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-black/40 p-2.5 backdrop-blur-md">
+              <div className="text-left">
+                <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-amber-400">
+                  <Coins className="h-2.5 w-2.5" />
+                  Pts
+                </div>
+                <p className="mt-0.5 text-sm font-black text-white">{Number(points || 0).toLocaleString()}</p>
+              </div>
+              <div className="text-left border-l border-white/10 pl-2.5">
+                <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-primary">
+                  <KeyRound className="h-2.5 w-2.5" />
+                  Keys
+                </div>
+                <p className="mt-0.5 text-sm font-black text-white">{Number(promoKeys || 0).toLocaleString()}</p>
+              </div>
+              <div className="text-left border-l border-white/10 pl-2.5">
+                <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-violet-400">
+                  <Gem className="h-2.5 w-2.5" />
+                  Gems
+                </div>
+                <p className="mt-0.5 text-sm font-black text-white">{Number(gems || 0).toLocaleString()}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-white/10 bg-black/40 p-2.5 backdrop-blur-md">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-amber-400">Available to spend</p>
+              <p className="mt-0.5 text-xl font-black tracking-tight text-white">{available}</p>
+              <p className="mt-1 text-[10px] text-white/50">of {limit} this cycle · {places}</p>
+            </div>
+          )}
         </div>
-        <div className="flex items-end justify-between gap-3 text-[11px] text-white/60">
-          <span>{holder}</span>
-          <span className="font-mono tracking-widest">PR · 0842</span>
+
+        <div className="flex items-end justify-between border-t border-white/10 pt-2.5">
+          <div>
+            <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/40">Cardholder</p>
+            <p className="text-xs font-black uppercase tracking-wider text-white line-clamp-1">{holder}</p>
+          </div>
+          <div className="flex items-center gap-1.5 text-white/60">
+            <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />
+            <span className="text-[9px] font-black uppercase tracking-widest text-primary">{userTier}</span>
+          </div>
         </div>
       </div>
     </article>
+  );
+
+  if (!tilt) return card;
+
+  return (
+    <TiltCard3D maxTilt={14} perspective={1200} scaleOnHover={1.03} className="w-full">
+      {card}
+    </TiltCard3D>
   );
 }
 

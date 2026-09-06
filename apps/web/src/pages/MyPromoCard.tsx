@@ -1,11 +1,19 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { DigitalWalletPass3D } from "@/components/wallet/DigitalWalletPass3D";
 
 export default function MyPromoCard() {
+  const { user, profile } = useAuth();
   const card = useMyPromoCard();
   const data = card.data;
+  const holder =
+    data?.name ||
+    profile?.full_name ||
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    "Member";
 
   return (
     <ExperienceShell
@@ -14,18 +22,16 @@ export default function MyPromoCard() {
       description="Identity, access, keys, points and claimed drops — one card."
       backTo="/dashboard"
     >
-      <PromoCardFace
-        holder={data?.name || "Member"}
-        available={`${Number(data?.points || 0).toLocaleString()} pts`}
-        limit={`${Number(data?.keys || 0)} keys`}
-        places="Active"
-      />
-
-      <section className="rounded-[1.6rem] border border-white/10 bg-white/[0.04] px-4 py-4">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">On the card</p>
-        <p className="mt-2 font-serif text-3xl font-bold">{Number(data?.points || 0).toLocaleString()} PromoPoints</p>
-        <p className="mt-1 text-sm text-white/55">{Number(data?.keys || 0)} PromoKeys</p>
-      </section>
+      <div className="flex justify-center">
+        <DigitalWalletPass3D
+          displayName={holder}
+          userEmail={user?.email}
+          userId={user?.id}
+          points={Number(data?.points || 0)}
+          promoKeys={Number(data?.keys || 0)}
+          gems={Number(data?.gems || 0)}
+        />
+      </div>
 
       <section>
         <h2 className="font-serif text-2xl font-bold">Active</h2>

@@ -122,9 +122,11 @@ export default function PeopleHome() {
           <Link to={to("/card")} className="block">
             <PromoCardFace
               holder={name}
-              available={`${Number(data?.wallet?.points || 0).toLocaleString()} pts`}
-              limit={`${Number(data?.wallet?.promokeys || 0)} keys`}
-              places="Your perks live here"
+              userId={user?.id}
+              points={Number(data?.wallet?.points || 0)}
+              promoKeys={Number(data?.wallet?.promokeys || 0)}
+              gems={Number(data?.wallet?.gems || 0)}
+              tilt
             />
           </Link>
           <Link to="/discover?tab=discoveries" className="block rounded-[1.6rem] border border-white/10 bg-white/[0.04] px-5 py-5">
