@@ -776,3 +776,19 @@ img.promorang-satellite-tiles {
     font-size: 16px;
   }
 }
+
+/* Quiet feedback for the participant journey; existing reduced-motion rules apply. */
+.experience-shell { color-scheme: dark; }
+.experience-shell :where(a, button):focus-visible {
+  outline: 2px solid #fde68a;
+  outline-offset: 4px;
+}
+.experience-interactive {
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .experience-interactive:hover { transform: translateY(-2px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .experience-interactive:active { transform: scale(.985); }
+}

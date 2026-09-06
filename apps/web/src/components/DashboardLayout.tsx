@@ -302,9 +302,17 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
     ],
   };
 
+  const participantMobileNav: NavItem[] = [
+    { icon: Home, label: "Home", href: "/dashboard" },
+    { icon: Compass, label: "Discover", href: "/discover" },
+    { icon: CreditCard, label: "Card", href: "/card" },
+    { icon: Users, label: "People", href: "/people" },
+    { icon: Sparkles, label: "Earn", href: "/earn" },
+  ];
+
   const currentMobileNav = safeRole === "admin"
     ? mobileNavItems.admin
-    : peopleMobileNav;
+    : safeRole === "participant" ? participantMobileNav : peopleMobileNav;
 
   return (
     <div className="app-shell-mobile relative flex min-h-screen min-h-dvh overflow-x-clip bg-background transition-colors duration-300">
@@ -996,7 +1004,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
       <DemoCoachmark />
 
-      <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/95 text-foreground backdrop-blur-xl lg:hidden">
+      <nav aria-label="Primary navigation" className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/95 text-foreground backdrop-blur-xl lg:hidden">
         <div className="mx-auto grid max-w-xl grid-cols-5 gap-1 px-2 pb-2 pt-2">
           {currentMobileNav.map((item) => {
             const isActive = isNavItemActive(location.pathname, item.href, location.search);
@@ -1004,16 +1012,17 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               <Link
                 key={item.href}
                 to={item.href}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[10px] font-bold uppercase tracking-widest transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
-                  item.accent
+                  "accent" in item && item.accent
                     ? "bg-gradient-primary text-primary-foreground shadow-glow"
                     : isActive
                       ? "bg-primary/15 text-primary font-bold"
                       : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                 )}
               >
-                <item.icon className={cn("h-4 w-4", item.accent && "fill-current")} />
+                <item.icon className={cn("h-4 w-4", "accent" in item && item.accent && "fill-current")} />
                 <span>{item.label}</span>
               </Link>
             );

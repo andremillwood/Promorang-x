@@ -138,10 +138,10 @@ const Discover = () => {
   const { data: preferences } = useUserPreferences();
   const { data: listingPolls = [] } = useListingDiscoveryPolls(12);
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = (searchParams.get("tab") as DiscoverTab) || "discoveries";
+  const tabParam = searchParams.get("tab");
+  const activeTab: DiscoverTab = ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam || "") ? tabParam as DiscoverTab : "discoveries";
   const lensParam = searchParams.get("lens");
 
-  const [activeTab, setActiveTab] = useState<DiscoverTab>(initialTab);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
@@ -153,15 +153,7 @@ const Discover = () => {
 
   const { perks, isLoading: perksLoading } = usePerks(activeCategory);
 
-  useEffect(() => {
-    const tabParam = searchParams.get("tab") as DiscoverTab;
-    if (tabParam && ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam)) {
-      setActiveTab(tabParam);
-    }
-  }, [searchParams]);
-
   const handleTabChange = (tab: DiscoverTab) => {
-    setActiveTab(tab);
     const next = new URLSearchParams(searchParams);
     next.set("tab", tab);
     setSearchParams(next);
@@ -396,9 +388,7 @@ const Discover = () => {
             <GlobalTicketBalancePill />
           </div>
 
-          <div className="mt-6 sm:mt-10">{path}</div>
-
-          <nav aria-label={t("discover.pathPageTitle")} className="mt-12 flex flex-wrap gap-2 border-t border-white/10 pt-8">
+          <nav aria-label={t("discover.pathPageTitle")} className="mt-6 flex flex-wrap gap-2">
             <p className="w-full text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
               {t("discover.pathBrowseEyebrow")} · {city.name}
             </p>
@@ -415,6 +405,7 @@ const Discover = () => {
               Places & Venues
             </button>
           </nav>
+          <div className="mt-8 sm:mt-10">{path}</div>
         </div>
       </div>
     );
@@ -460,11 +451,7 @@ const Discover = () => {
         <div className="flex items-center gap-2 border-b border-white/10 pb-4 overflow-x-auto scrollbar-none">
           <button
             onClick={() => handleTabChange("discoveries")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
-              activeTab === "discoveries"
-                ? "bg-primary text-white shadow-lg shadow-primary/25"
-                : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shrink-0 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
           >
             <Compass className="h-4 w-4 text-amber-400" />
             <span>{t("discover.pathTab")}</span>
@@ -482,7 +469,7 @@ const Discover = () => {
             }`}
           >
             <Gift className="h-4 w-4" />
-            <span>2. Perks & Drops</span>
+            <span>Perks & Drops</span>
             <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
               {hubPerks.length}
             </span>
@@ -497,7 +484,7 @@ const Discover = () => {
             }`}
           >
             <Ticket className="h-4 w-4" />
-            <span>3. Moments & Events</span>
+            <span>Moments & Events</span>
             <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
               {hubMoments.length}
             </span>
@@ -512,7 +499,7 @@ const Discover = () => {
             }`}
           >
             <Share2 className="h-4 w-4 text-purple-300" />
-            <span>4. Things to Share</span>
+            <span>Things to Share</span>
             <span className="px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">
               Earn Tickets
             </span>
