@@ -19,7 +19,7 @@ Preview deployments from feature branches are allowed. They must never be promot
 
 | Surface | SHA / source | State |
 | --- | --- | --- |
-| Web (`promorang-alt`) | `main` at `b068682` plus pending consolidation PR #63 | Git production from `main` is the web line. |
+| Web (`promorang-alt`) | `main` at `b31deddcc` after #63 and #61 | Git production from `main` is the web line. |
 | API (`api`) | `ff0c98d` on `cursor/creative-cook-shop-season-35a2` | Dirty CLI `--prod`. **Not `main`.** |
 | API Git `main` | repo-root Vite build | Skipped by `scripts/vercel-ignore-non-web.mjs` so it cannot replace the live API with a failed web build. |
 
@@ -33,6 +33,7 @@ Dashboard action still required: set the `api` project **Root Directory** to `ba
 4. Production web build tooling (#54).
 5. The PromoCard-centered world spec in `docs/design/promocard-world-experience-v1.md`.
 6. Salvaged production bugfixes landed in #63: preview boot without Supabase env, account-menu viewport, signed-in language/theme, real host stats / invite copy.
+7. Account identity / home greeting from #61 (`firstGivenName` / `homeGreeting`). No “Member” fallback.
 
 `main` must not absorb stacked agent PRs, parallel PromoCard experiments, or Today-as-public-home.
 
@@ -61,15 +62,16 @@ These target `main` and still change production behavior. Merge one overlapping 
 
 | PR | Branch | Verdict |
 | --- | --- | --- |
-| #63 | `cursor/git-production-source-of-truth-6dff` | This contract + salvaged bugfixes. Merge first. |
-| #61 | `cursor/home-greeting-experience-bc77` | MERGE-NOW after #63. Identity / greeting. Rebase once. |
-| #60 | `cursor/promocard-verified-loop-8bcd` | Primary PromoCard truth PR. Rebase after #61. Absorb #59 trust artifacts (`promoCardProjection.js`, trust tests, readiness doc) before merge. |
+| #60 | `cursor/promocard-verified-loop-8bcd` | Primary PromoCard truth PR. Rebased onto `main` after #63/#61. Absorbed #59 projection, trust tests, and readiness notes. Merge next. |
 | #56 | `cursor/offer-fulfillment-journeys-25fd` | QR / manual / shipping journeys. After #60. |
 | #55 | `cursor/discovery-demand-inbox-9e47` | Discover → PromoCard. After #53 (already on main) and #60. |
 | #57 | `cursor/mobile-web-parity-65dc` | Shared chrome. After homepage/card decision. |
 | #62 | `cursor/world-layer-kingston-a62d` | Kingston After Dark implementation of the spec already on main. Review, then merge last in this set. |
+| #64 | `cursor/promocard-present-recut-26bd` | Recut of closed #50. Do not merge in parallel with #60. |
 
-Suggested order after #63: **#61 → #60 (with #59 artifacts) → #56 → #55 → #57 → #62**.
+Landed 6 September 2026: **#63** (contract + salvaged bugfixes) then **#61** (identity / greeting).
+
+Suggested remaining order: **#60 → #56 → #55 → #57 → #62**.
 
 ## Closed in the 6 September 2026 pass
 
