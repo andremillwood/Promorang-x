@@ -22,7 +22,7 @@ type MobileMoment = {
 
 export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; moments: MobileMoment[] }) {
   const { user } = useAuth();
-  const primaryHref = user ? "/wallet" : "/auth?mode=signup&next=/wallet";
+  const primaryHref = user ? "/card" : "/auth?mode=signup&next=/card";
 
   return (
     <div className="bg-[#f3efe6] text-[#14120f] md:hidden">
