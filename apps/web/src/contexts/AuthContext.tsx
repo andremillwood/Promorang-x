@@ -1,8 +1,10 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
+import { isPlaceholderDisplayName } from "@promorang/shared";
 import { supabase } from "@/integrations/supabase/client";
 import { clearDemoSession, DemoRole, readDemoSession, writeDemoSession } from "@/lib/demo-session";
 import { getGrowthSignupMetadata } from "@/lib/marketing-attribution";
+import { ensureAccountProfile, fetchProfileRow, identityFromAuthUser, mergeAccountProfile } from "@/lib/account-profile";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "promoter" | "marketing" | "admin";
 
@@ -253,32 +255,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserProfile = async (sessionUser: User) => {
     try {
-      // 1. Fetch from profiles table
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      // 2. Fetch from users table (for maturity_state)
-      // Note: We use any here because users table might not be in the generated types
-      const { data: userData, error: userError } = await (supabase as any)
-        .from("users")
-        .select("maturity_state, last_used_surface, verified_actions_count, role, user_type")
-        .eq("id", userId)
-        .maybeSingle();
+      const [{ data: profileData, error: profileError }, userResult] = await Promise.all([
+        fetchProfileRow(supabase, sessionUser.id),
+        (supabase as any)
+          .from("users")
+          .select("maturity_state, last_used_surface, verified_actions_count, role, user_type, display_name, username, avatar_url")
+          .eq("id", sessionUser.id)
+          .maybeSingle(),
+      ]);
+      let userData = userResult.data;
+      let userError = userResult.error;
+      if (userError) {
+        const fallback = await (supabase as any)
+          .from("users")
+          .select("maturity_state, last_used_surface, verified_actions_count, role, user_type")
+          .eq("id", sessionUser.id)
+          .maybeSingle();
+        userData = fallback.data;
+        userError = fallback.error;
+      }
 
       if (profileError) console.error("Error fetching profile:", profileError);
       if (userError) console.error("Error fetching user maturity:", userError);
 
-      const mergedProfile = {
-        ...(profileData || {}),
-        ...(userData || {}),
-        // Fallback for full_name if missing from profile but in user_metadata
-        full_name: profileData?.full_name || (user?.user_metadata as any)?.full_name,
-      };
+      let row = profileData;
+      if (!row || (isPlaceholderDisplayName(row.full_name) && isPlaceholderDisplayName(row.display_name))) {
+        const ensured = await ensureAccountProfile(supabase, sessionUser.id, identityFromAuthUser(sessionUser));
+        if (ensured) row = ensured;
+      }
+
+      const mergedProfile = mergeAccountProfile({
+        profile: row,
+        userRow: userData,
+        authUser: sessionUser,
+      });
 
       setProfile(mergedProfile);
       return mergedProfile;
@@ -355,7 +367,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const syncSessionContext = async (sessionUser: User) => {
       const [fetchedRoles] = await Promise.all([
         fetchUserRoles(sessionUser.id, sessionUser),
-        fetchUserProfile(sessionUser.id),
+        fetchUserProfile(sessionUser),
       ]);
 
       setRoles(fetchedRoles);

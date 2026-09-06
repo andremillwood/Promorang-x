@@ -1,11 +1,21 @@
 import { Link } from "react-router-dom";
+import { firstGivenName } from "@promorang/shared";
+import { useAuth } from "@/contexts/AuthContext";
 import { useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 
 export default function MyPromoCard() {
+  const { user, profile } = useAuth();
   const card = useMyPromoCard();
   const data = card.data;
+  const holder = firstGivenName({
+    displayName: data?.givenName || data?.name,
+    fullName: profile?.full_name || profile?.display_name || user?.user_metadata?.full_name,
+    username: profile?.username,
+    email: user?.email,
+    fallback: "there",
+  });
 
   return (
     <ExperienceShell
@@ -15,7 +25,7 @@ export default function MyPromoCard() {
       backTo="/dashboard"
     >
       <PromoCardFace
-        holder={data?.name || "Member"}
+        holder={holder}
         available={`${Number(data?.points || 0).toLocaleString()} pts`}
         limit={`${Number(data?.keys || 0)} keys`}
         places="Active"

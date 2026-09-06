@@ -31,8 +31,15 @@ router.get('/hubs/:slug', optionalAuth, async (req, res) => {
 
 router.use(requireAuth);
 
+const identityFrom = (user) => ({
+  displayName: user?.display_name,
+  fullName: user?.full_name,
+  username: user?.username,
+  email: user?.email,
+});
+
 router.get('/home', async (req, res) => {
-  try { return ok(res, await experience.getHome(req.user.id)); } catch (error) { return fail(res, error, 500); }
+  try { return ok(res, await experience.getHome(req.user.id, identityFrom(req.user))); } catch (error) { return fail(res, error, 500); }
 });
 
 router.get('/network', async (req, res) => {
@@ -52,7 +59,7 @@ router.get('/happened', async (req, res) => {
 });
 
 router.get('/card', async (req, res) => {
-  try { return ok(res, await experience.getCard(req.user.id)); } catch (error) { return fail(res, error, 500); }
+  try { return ok(res, await experience.getCard(req.user.id, identityFrom(req.user))); } catch (error) { return fail(res, error, 500); }
 });
 
 router.post('/drops', async (req, res) => {

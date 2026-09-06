@@ -65,6 +65,7 @@ import { DemoCoachmark } from "@/components/demo/DemoCoachmark";
 import { CityQuickSwitcher } from "@/components/location/CityQuickSwitcher";
 import { useI18n } from "@/i18n/I18nContext";
 import { useMarket } from "@/contexts/MarketContext";
+import { firstGivenName } from "@promorang/shared";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "promoter" | "marketing" | "admin";
 
@@ -265,9 +266,9 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const isCinematicCultureRoute = ["/scenes", "/creators", "/for-you", "/saved", "/profile", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet"].some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
-  const isDashboardHome = location.pathname === "/dashboard";
-  const hidePageHeader = isImmersiveProductRoute || location.pathname === "/dashboard";
-  const showCompactDemoBanner = location.pathname !== "/dashboard" && !isImmersiveProductRoute;
+  const isDashboardHome = location.pathname === "/dashboard" || location.pathname === "/home";
+  const hidePageHeader = isImmersiveProductRoute || isDashboardHome;
+  const showCompactDemoBanner = !isDashboardHome && !isImmersiveProductRoute;
   const pageMeta = getPageMeta(location.pathname, location.search, safeRole);
 
   const handleSignOut = async () => {
@@ -878,7 +879,13 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-xs font-bold truncate text-foreground">{profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Member"}</p>
+                      <p className="text-xs font-bold truncate text-foreground">{firstGivenName({
+                        displayName: profile?.display_name,
+                        fullName: profile?.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name,
+                        username: profile?.username,
+                        email: user?.email,
+                        fallback: "You",
+                      })}</p>
                       <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary font-mono font-bold shrink-0">
                         {roleInfo.label}
                       </span>

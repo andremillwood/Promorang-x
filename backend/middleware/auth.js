@@ -113,18 +113,40 @@ async function requireAuth(req, res, next) {
     const verifiedUserId = authData.user.id;
     const roles = await getUserRoles(verifiedUserId);
 
-    // Look up the user profile in public.profiles (the UUID-compatible table)
+    // Look up the user profile in public.profiles. Rows may be keyed by id
+    // or user_id depending on how they were created.
     let { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', verifiedUserId)
+      .eq('user_id', verifiedUserId)
       .maybeSingle();
+
+    if (!profileData) {
+      const byId = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', verifiedUserId)
+        .maybeSingle();
+      profileData = byId.data;
+      profileError = profileError || byId.error;
+    }
 
     if (profileError) {
       console.warn('[Auth] ⚠️ Error fetching profile data:', profileError.message);
     }
 
     const role = accountRole(roles, profileData?.user_type);
+    const placeholderNames = new Set(['member', 'you', 'there', 'explorer', 'user', 'community']);
+    const realName = (...values) => values
+      .map((value) => String(value || '').trim())
+      .find((value) => value && !placeholderNames.has(value.toLowerCase())) || '';
+    const resolvedName = realName(
+      profileData?.display_name,
+      profileData?.full_name,
+      authData.user.user_metadata?.full_name,
+      authData.user.user_metadata?.name,
+      authData.user.email?.split('@')[0],
+    ) || 'You';
 
     // Attach user to request for use in route handlers
     // We prioritize authData.user (the source of truth from Auth service) 
@@ -133,7 +155,8 @@ async function requireAuth(req, res, next) {
       id: verifiedUserId,
       email: authData.user.email,
       username: profileData?.username || authData.user.email?.split('@')[0] || 'user',
-      display_name: profileData?.full_name || authData.user.user_metadata?.full_name || authData.user.email?.split('@')[0] || 'User',
+      display_name: resolvedName,
+      full_name: resolvedName,
       user_type: role,
       role,
       roles,

@@ -172,8 +172,122 @@ export function happenedBuckets(actions: Array<{ action_type?: string | null }>)
   return buckets;
 }
 
+const PLACEHOLDER_DISPLAY_NAMES = new Set([
+  "member",
+  "you",
+  "there",
+  "explorer",
+  "user",
+  "community",
+]);
+
+export function isPlaceholderDisplayName(value?: string | null): boolean {
+  const trimmed = String(value || "").trim();
+  return !trimmed || PLACEHOLDER_DISPLAY_NAMES.has(trimmed.toLowerCase());
+}
+
+function titleCaseWords(value: string): string {
+  return value
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+export function nameFromEmail(email?: string | null): string | null {
+  const local = String(email || "")
+    .split("@")[0]
+    .replace(/[._-]+/g, " ")
+    .trim();
+  if (isPlaceholderDisplayName(local) || local.includes(" ")) {
+    return isPlaceholderDisplayName(local) ? null : titleCaseWords(local);
+  }
+  if (!local) return null;
+  return titleCaseWords(local);
+}
+
+export function resolvePersonName(input: {
+  displayName?: string | null;
+  fullName?: string | null;
+  username?: string | null;
+  email?: string | null;
+  fallback?: string;
+}): string {
+  const candidates = [input.displayName, input.fullName, input.username];
+  for (const candidate of candidates) {
+    if (isPlaceholderDisplayName(candidate)) continue;
+    return String(candidate).trim();
+  }
+  return nameFromEmail(input.email) || input.fallback || "there";
+}
+
+export function firstGivenName(input: {
+  displayName?: string | null;
+  fullName?: string | null;
+  username?: string | null;
+  email?: string | null;
+  fallback?: string;
+}): string {
+  const resolved = resolvePersonName(input);
+  return resolved.split(/\s+/)[0] || input.fallback || "there";
+}
+
+export function homeGreeting(name: string, now = new Date()): string {
+  const hour = now.getHours();
+  const hello = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  if (isPlaceholderDisplayName(name)) return `${hello}.`;
+  return `${hello}, ${name}.`;
+}
+
+export function resolveHomeNextMove(input: {
+  role: ExperienceRole;
+  people?: number;
+  perksGiven?: number;
+  communities?: number;
+  cardPerks?: number;
+}): { href: string; label: string; copy: string; stub: string } {
+  if ((input.communities || 0) === 0 && input.role !== "member") {
+    return {
+      href: "/start",
+      label: "Start a community",
+      copy: "Name the room. Then give people a reason to come.",
+      stub: "START",
+    };
+  }
+  if (input.role !== "member" && (input.perksGiven || 0) === 0) {
+    return {
+      href: "/give",
+      label: "Give something",
+      copy: "Put a perk on your people's PromoCards.",
+      stub: "GIVE",
+    };
+  }
+  if (input.role === "member" && (input.cardPerks || 0) === 0) {
+    return {
+      href: "/discover",
+      label: "See what's open",
+      copy: "Find a perk, a room, or a night worth showing up for.",
+      stub: "GO",
+    };
+  }
+  if (input.role !== "member") {
+    return {
+      href: "/create",
+      label: "Make something happen",
+      copy: "Ask them to go, try, answer, or show up.",
+      stub: "MAKE",
+    };
+  }
+  return {
+    href: "/card",
+    label: "Open your PromoCard",
+    copy: "Your perks and access live on one card.",
+    stub: "CARD",
+  };
+}
+
 export function dropShareCopy(creatorName: string, perkTitle: string) {
-  const who = creatorName || "Someone";
+  const who = isPlaceholderDisplayName(creatorName) ? "Someone" : creatorName;
   const what = perkTitle || "something";
   return `${who} just dropped ${what} on your PromoCard.`;
 }

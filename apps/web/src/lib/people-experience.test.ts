@@ -6,6 +6,8 @@ import {
   classifyHappenedBucket,
   contributorValueScore,
   dropShareCopy,
+  firstGivenName,
+  homeGreeting,
   inventoryOpenCopy,
   resolveCreateIntent,
 } from "@promorang/shared";
@@ -33,6 +35,16 @@ describe("simplified PROMORANG experience", () => {
     expect(classifyHappenedBucket("PERK_REDEMPTION")).toBe("used");
     expect(dropShareCopy("Ada", "Free entry")).toBe("Ada just dropped Free entry on your PromoCard.");
     expect(inventoryOpenCopy("Ada", "Free entry")).toBe("Ada just put Free entry up for your people.");
+  });
+
+  it("greets the signed-in person instead of Member", () => {
+    expect(firstGivenName({
+      displayName: "Member",
+      fullName: "Adam Flash",
+      email: "dev@flashcreate.co",
+    })).toBe("Adam");
+    expect(homeGreeting("Adam", new Date(2026, 8, 5, 22))).toBe("Good evening, Adam.");
+    expect(homeGreeting("there", new Date(2026, 8, 5, 22))).toBe("Good evening.");
   });
 
   it("does not show merchant inventory outcomes as a member's people count", () => {

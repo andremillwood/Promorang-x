@@ -1,10 +1,14 @@
 import { Link } from "react-router-dom";
-import { Gift, Plus, Sparkles, Users } from "lucide-react";
+import {
+  firstGivenName,
+  homeGreeting,
+  resolveHomeNextMove,
+} from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
-import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
+import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -16,9 +20,43 @@ export default function PeopleHome() {
   const home = useExperienceHome();
   const to = useExperiencePath();
   const data = home.data;
-  const name = data?.name || profile?.full_name?.split(" ")[0] || user?.user_metadata?.full_name?.split(" ")[0] || "You";
+  const givenName = firstGivenName({
+    displayName: data?.givenName || data?.name,
+    fullName: profile?.full_name || profile?.display_name || user?.user_metadata?.full_name || user?.user_metadata?.name,
+    username: profile?.username || user?.user_metadata?.user_name || user?.user_metadata?.preferred_username,
+    email: user?.email,
+    fallback: "there",
+  });
   const role = data?.role || (["creator", "host", "promoter", "merchant", "brand"].includes(String(activeRole)) ? "contributor" : "member");
-  const communityName = data?.communities?.[0]?.title || name;
+  const greeting = homeGreeting(givenName);
+  const description = role === "member"
+    ? "See what’s happening, keep your perks, and join the rooms that feel like yours."
+    : "Build your people. Give them value. Move them to action.";
+  const perksGiven = Number(data?.outcomes?.ledger?.perksGiven || 0);
+  const nextMove = resolveHomeNextMove({
+    role,
+    people: Number(data?.people || 0),
+    perksGiven,
+    communities: data?.communities?.length || 0,
+    cardPerks: Number(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0),
+  });
+  const gems = Number(data?.wallet?.gems || 0);
+  const points = Number(data?.wallet?.points || 0);
+  const keys = Number(data?.wallet?.promokeys || 0);
+  const hasMovement = Boolean(
+    Number(data?.people || 0) ||
+    Number(data?.happening || 0) ||
+    Number(data?.earned || 0) ||
+    perksGiven ||
+    Number(data?.outcomes?.ledger?.perksClaimed || 0),
+  );
+  const ticker = role === "operator"
+    ? `${data?.happening || 0} showed up this week`
+    : Number(data?.peopleThisMonth || 0)
+      ? `+${data.peopleThisMonth} people this month`
+      : role === "member"
+        ? "Your card is ready"
+        : "Your people are waiting";
 
   if (home.isLoading) {
     return (
@@ -51,96 +89,102 @@ export default function PeopleHome() {
 
   return (
     <ExperienceShell
-      eyebrow={role === "operator" ? "Your community" : role === "contributor" ? "Your people" : "PROMORANG"}
-      title={communityName}
-      description={
-        role === "member"
-          ? "See what’s happening, keep your perks, and join the rooms that feel like yours."
-          : "Build your people. Give them value. Move them to action."
-      }
+      title={greeting}
+      seoTitle="Home"
+      description={description}
+      hero={(
+        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black/50 px-5 pb-5 pt-6 shadow-[0_0_40px_rgba(255,85,0,0.16)] backdrop-blur-xl">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_88%_0%,rgba(255,85,0,.24),transparent_46%)]" />
+          <div className="relative">
+            <p className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+              {ticker}
+            </p>
+            <h1 className="mt-4 font-serif text-[2.55rem] font-bold leading-[0.9] tracking-tight sm:text-5xl">{greeting}</h1>
+            <p className="mt-3 max-w-md text-sm leading-6 text-white/60">{description}</p>
+            <div className="mt-6">
+              <PromoCardFace
+                className="max-w-none"
+                holder={givenName === "there" ? "Your card" : givenName}
+                available={gems ? `${gems.toLocaleString()} Gems` : `${points.toLocaleString()} pts`}
+                limit={`${keys} keys`}
+                places={data?.communities?.[0]?.title || "Your perks live here"}
+              />
+            </div>
+            <Link
+              to={to(nextMove.href)}
+              className="mt-5 flex min-h-12 items-center justify-center rounded-full bg-primary px-5 text-sm font-black text-black shadow-[0_0_24px_rgba(255,85,0,0.28)]"
+            >
+              {nextMove.label}
+            </Link>
+          </div>
+        </section>
+      )}
     >
-      {role !== "member" ? (
-        <section className="grid grid-cols-2 gap-3">
-          {(data?.outcomes?.cards || [
-            { key: "people", label: "People", value: data?.people || 0, hint: data?.peopleThisMonth ? `+${data.peopleThisMonth} this month` : "Invite the first ones" },
-            { key: "earned", label: "Earned", value: Number(data?.earned || 0), hint: "From verified activity" },
-          ]).slice(0, 4).map((card: any) => (
-            <StatPile
-              key={card.key}
-              label={card.label}
-              value={card.key === "earned" ? money(Number(card.value || 0)) : card.value}
-              hint={card.hint}
-            />
-          ))}
-        </section>
-      ) : null}
-
-      {role === "operator" ? (
-        <section className="rounded-[1.5rem] border border-primary/30 bg-primary/10 px-4 py-4">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">This week</p>
-          <p className="mt-2 font-serif text-xl font-bold">
-            {data?.happening || 0} {data?.happening === 1 ? "person showed up" : "people showed up"}
-          </p>
-          <p className="mt-1 text-sm text-white/55">
-            {[
-              data?.happened?.buckets?.went ? `${data.happened.buckets.went} went` : null,
-              data?.happened?.buckets?.claimed ? `${data.happened.buckets.claimed} claimed` : null,
-              data?.happened?.buckets?.brought ? `${data.happened.buckets.brought} brought friends` : null,
-            ].filter(Boolean).join(" · ") || "Nothing verified yet. Give something or ask them to show up."}
-          </p>
-        </section>
+      {hasMovement ? (
+        <PaperReceipt
+          heading="What’s in play"
+          lines={
+            role === "member"
+              ? [
+                  { label: "On your card", value: String(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0) },
+                  { label: "Rooms", value: String(data?.communities?.length || 0) },
+                  { label: "Claimed", value: String(data?.happened?.buckets?.claimed || 0) },
+                  { label: "Used", value: String(data?.happened?.buckets?.used || 0), strong: true },
+                ]
+              : [
+                  { label: "People", value: String(data?.people || 0) },
+                  { label: "Verified activity", value: money(Number(data?.earned || 0)) },
+                  { label: "Given", value: String(perksGiven) },
+                  { label: "On PromoCards now", value: String(data?.outcomes?.ledger?.perksClaimed || 0), strong: true },
+                ]
+          }
+          footer={role === "operator"
+            ? `${data?.happening || 0} ${data?.happening === 1 ? "person showed up" : "people showed up"} this week.`
+            : "Numbers stay quiet until someone actually does something."}
+        />
       ) : null}
 
       {role !== "member" ? (
         <section className="grid gap-3">
           {[
-            { href: "/give", label: "Give something", copy: "Put a perk on your people’s PromoCards.", icon: Gift },
-            { href: "/create", label: "Create something", copy: "Ask them to go, try, answer or show up.", icon: Plus },
-            { href: "/people", label: "Grow my network", copy: "See who you brought and who is helping.", icon: Users },
-            { href: "/happened", label: "See results", copy: "What your people actually did.", icon: Sparkles },
+            { href: "/give", label: "Give something", detail: "Put a perk on your people’s PromoCards.", stub: "GIVE", stubLabel: "Perk" },
+            { href: "/create", label: "Create something", detail: "Ask them to go, try, answer or show up.", stub: "MAKE", stubLabel: "Move" },
           ].map((action) => (
-            <Link
-              key={action.href}
-              to={to(action.href)}
-              className="flex min-h-[88px] items-center gap-4 rounded-[1.7rem] border border-white/10 bg-gradient-to-r from-white/[0.07] to-transparent px-5 py-4"
-            >
-              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-black">
-                <action.icon className="h-5 w-5" />
-              </span>
-              <span>
-                <span className="block font-serif text-2xl font-bold leading-none">{action.label}</span>
-                <span className="mt-1 block text-sm text-white/55">{action.copy}</span>
-              </span>
+            <Link key={action.href} to={to(action.href)} className="block">
+              <TicketPass kicker="Next move" title={action.label} detail={action.detail} stub={action.stub} stubLabel={action.stubLabel} />
             </Link>
           ))}
         </section>
-      ) : null}
-
-      {role === "member" ? (
-        <section className="space-y-3">
-          <h2 className="font-serif text-2xl font-bold">For you</h2>
-          <Link to={to("/card")} className="block">
-            <PromoCardFace
-              holder={name}
-              available={`${Number(data?.wallet?.points || 0).toLocaleString()} pts`}
-              limit={`${Number(data?.wallet?.promokeys || 0)} keys`}
-              places="Your perks live here"
-            />
-          </Link>
-          <Link to="/discover?tab=discoveries" className="block rounded-[1.6rem] border border-white/10 bg-white/[0.04] px-5 py-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">What’s happening</p>
-            <p className="mt-2 font-serif text-2xl font-bold">Name what you want. Then we show the matching poll.</p>
-          </Link>
-        </section>
       ) : (
         <section className="space-y-3">
-          {data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole)) ? (
-            <Link to={to("/stock")} className="block rounded-[1.7rem] bg-primary px-5 py-5 text-black">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em]">Inventory</p>
-              <p className="mt-1 font-serif text-2xl font-bold">Put something up</p>
-              <p className="mt-1 text-sm">Other people move it. You see claimed and used.</p>
-            </Link>
-          ) : null}
+          <h2 className="font-serif text-2xl font-bold">For you</h2>
+          <Link to="/discover?tab=discoveries" className="block">
+            <TicketPass
+              kicker="What’s happening"
+              title="Name what you want"
+              detail="Then we show the matching poll, perk, or night."
+              stub="ASK"
+              stubLabel="Live"
+            />
+          </Link>
+        </section>
+      )}
+
+      {role !== "member" && (data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole))) ? (
+        <Link to={to("/stock")} className="block">
+          <TicketPass
+            kicker="Inventory"
+            title="Put something up"
+            detail="Other people move it. You see claimed and used."
+            stub="STOCK"
+            stubLabel="Open"
+          />
+        </Link>
+      ) : null}
+
+      {role !== "member" ? (
+        <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-2xl font-bold">Perks you can give</h2>
             <Link to={to("/give")} className="text-sm text-primary">See all</Link>
@@ -148,10 +192,14 @@ export default function PeopleHome() {
           {data?.perks?.length ? (
             <div className="grid gap-3">
               {data.perks.slice(0, 3).map((perk: any) => (
-                <Link key={perk.id} to={to("/give")} className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] px-4 py-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{perk.source === "yours" ? "Yours" : "Available"}</p>
-                  <p className="mt-1 font-serif text-xl font-bold">{perk.title}</p>
-                  {perk.remaining != null ? <p className="mt-1 text-xs text-white/50">{perk.remaining} remaining</p> : null}
+                <Link key={perk.id} to={to("/give")} className="block">
+                  <TicketPass
+                    kicker={perk.source === "yours" ? "Yours" : "Available"}
+                    title={perk.title}
+                    detail={perk.remaining != null ? `${perk.remaining} remaining` : "Ready to drop"}
+                    stub="DROP"
+                    stubLabel="Perk"
+                  />
                 </Link>
               ))}
             </div>
@@ -159,7 +207,7 @@ export default function PeopleHome() {
             <QuietEmpty title="Nothing to give yet" copy="When a merchant or brand opens inventory, it will show up here." action={<Link to={to("/give")} className="text-sm font-bold text-primary">Make a perk</Link>} />
           )}
         </section>
-      )}
+      ) : null}
 
       {data?.opportunityItems?.length ? (
         <section className="space-y-3">
@@ -168,23 +216,32 @@ export default function PeopleHome() {
             <Link to={to("/earn")} className="text-sm text-primary">Earn</Link>
           </div>
           {data.opportunityItems.slice(0, 2).map((item: any) => (
-              <Link key={item.id} to={to("/earn")} className="block rounded-[1.5rem] border border-white/10 bg-white/[0.04] px-4 py-4">
-                <p className="font-serif text-xl font-bold">{item.title}</p>
-                <p className="mt-1 text-sm text-white/50">{item.youEarn}</p>
-              </Link>
-            ))}
+            <Link key={item.id} to={to("/earn")} className="block">
+              <TicketPass kicker="Earn" title={item.title} detail={item.youEarn} stub="TAKE" stubLabel="Open" />
+            </Link>
+          ))}
         </section>
       ) : null}
 
       {!data?.communities?.length ? (
-        <Link to={to("/start")} className="block rounded-[1.7rem] bg-primary px-5 py-5 text-black">
-          <p className="text-[10px] font-black uppercase tracking-[0.22em]">First move</p>
-          <p className="mt-1 font-serif text-2xl font-bold">Start a community — or join one.</p>
+        <Link to={to("/start")} className="block">
+          <TicketPass
+            kicker="First room"
+            title="Start a community — or join one."
+            detail="A named room beats an empty dashboard."
+            stub="ROOM"
+            stubLabel="Open"
+          />
         </Link>
       ) : (
-        <Link to={`/scenes/${data.communities[0].slug}`} className="block rounded-[1.6rem] border border-white/10 px-5 py-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Your community</p>
-          <p className="mt-1 font-serif text-2xl font-bold">{data.communities[0].title}</p>
+        <Link to={`/scenes/${data.communities[0].slug}`} className="block">
+          <TicketPass
+            kicker="Your community"
+            title={data.communities[0].title}
+            detail="The room you already have. Keep it moving."
+            stub="IN"
+            stubLabel="Room"
+          />
         </Link>
       )}
 

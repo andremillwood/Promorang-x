@@ -6,22 +6,26 @@ import SEO from "@/components/SEO";
 
 type ExperienceShellProps = {
   title: string;
+  seoTitle?: string;
   eyebrow?: string;
   description?: string;
   backTo?: string;
   backLabel?: string;
   actions?: ReactNode;
+  hero?: ReactNode;
   children: ReactNode;
   className?: string;
 };
 
 export function ExperienceShell({
   title,
+  seoTitle,
   eyebrow,
   description,
   backTo,
   backLabel = "Back",
   actions,
+  hero,
   children,
   className,
 }: ExperienceShellProps) {
@@ -31,24 +35,36 @@ export function ExperienceShell({
     : backTo;
   return (
     <main className={cn("min-h-screen bg-[#0D0D0E] pb-28 text-white", className)}>
-      <SEO title={`${title} — PROMORANG`} description={description || title} />
+      <SEO title={`${seoTitle || title} — PROMORANG`} description={description || title} />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_20%_0%,rgba(255,85,0,.28),transparent_42%)]" />
-      <header className="relative mx-auto w-full max-w-3xl px-4 pt-6 sm:px-6">
-        {resolvedBack ? (
-          <Link to={resolvedBack} className="inline-flex min-h-11 items-center gap-2 text-sm text-white/50 hover:text-white">
-            <ArrowLeft className="h-4 w-4" />
-            {backLabel}
-          </Link>
-        ) : null}
-        {eyebrow ? <p className="mt-5 text-[10px] font-black uppercase tracking-[0.28em] text-primary">{eyebrow}</p> : null}
-        <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="font-serif text-4xl font-bold leading-[0.92] tracking-tight sm:text-5xl">{title}</h1>
-            {description ? <p className="mt-3 max-w-xl text-sm leading-6 text-white/60">{description}</p> : null}
-          </div>
-          {actions}
+      {hero ? (
+        <div className="relative mx-auto w-full max-w-3xl px-4 pt-6 sm:px-6">
+          {resolvedBack ? (
+            <Link to={resolvedBack} className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-white/50 hover:text-white">
+              <ArrowLeft className="h-4 w-4" />
+              {backLabel}
+            </Link>
+          ) : null}
+          {hero}
         </div>
-      </header>
+      ) : (
+        <header className="relative mx-auto w-full max-w-3xl px-4 pt-6 sm:px-6">
+          {resolvedBack ? (
+            <Link to={resolvedBack} className="inline-flex min-h-11 items-center gap-2 text-sm text-white/50 hover:text-white">
+              <ArrowLeft className="h-4 w-4" />
+              {backLabel}
+            </Link>
+          ) : null}
+          {eyebrow ? <p className="mt-5 text-[10px] font-black uppercase tracking-[0.28em] text-primary">{eyebrow}</p> : null}
+          <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="font-serif text-4xl font-bold leading-[0.92] tracking-tight sm:text-5xl">{title}</h1>
+              {description ? <p className="mt-3 max-w-xl text-sm leading-6 text-white/60">{description}</p> : null}
+            </div>
+            {actions}
+          </div>
+        </header>
+      )}
       <div className="relative mx-auto mt-8 w-full max-w-3xl space-y-5 px-4 sm:px-6">{children}</div>
     </main>
   );
