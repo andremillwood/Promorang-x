@@ -395,6 +395,10 @@ const Header = () => {
 
           {/* 3. Right Zone: Utilities & Unified User Dropdown */}
           <div className="flex items-center gap-2 shrink-0">
+            <div className="hidden items-center gap-1.5 sm:flex">
+              <LanguageSelector tone={hasDarkHeader ? "marketing" : "app"} />
+              <ThemeToggle tone={hasDarkHeader ? "marketing" : "app"} />
+            </div>
             {user ? (
               <>
                 {/* Global Ticket & Balances Pill */}
@@ -453,7 +457,12 @@ const Header = () => {
                     <ChevronDown className="w-3.5 h-3.5 text-white/40 group-hover:text-white/80 transition-colors shrink-0" />
                   </DropdownMenuTrigger>
 
-                  <DropdownMenuContent align="end" className="w-72 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/98 backdrop-blur-2xl text-white space-y-1.5 animate-in fade-in-50 zoom-in-95 duration-150">
+                  <DropdownMenuContent
+                    align="end"
+                    sideOffset={8}
+                    collisionPadding={12}
+                    className="w-72 max-h-[calc(100dvh-5.5rem)] overflow-y-auto overscroll-contain p-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/98 backdrop-blur-2xl text-white space-y-1.5 animate-in fade-in-50 zoom-in-95 duration-150"
+                  >
                     {/* User Identity Header Card */}
                     <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5 flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-gradient-primary flex items-center justify-center text-white text-sm font-black shrink-0 overflow-hidden shadow-inner">
@@ -600,17 +609,6 @@ const Header = () => {
 
                     <DropdownMenuSeparator className="bg-white/10" />
 
-                    {/* Preferences Row inside dropdown */}
-                    <div className="flex items-center justify-between px-2 py-1">
-                      <span className="text-[11px] text-white/50 font-medium">Preferences</span>
-                      <div className="flex items-center gap-1.5">
-                        <LanguageSelector />
-                        <ThemeToggle />
-                      </div>
-                    </div>
-
-                    <DropdownMenuSeparator className="bg-white/10" />
-
                     {/* Sign Out */}
                     <DropdownMenuItem
                       onClick={handleSignOut}
@@ -625,10 +623,6 @@ const Header = () => {
             ) : (
               /* Public / Logged Out Controls */
               <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-1.5">
-                  <LanguageSelector />
-                  <ThemeToggle />
-                </div>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -811,8 +805,8 @@ const Header = () => {
               <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/10">
                 <span className="text-xs text-white/60 font-medium">Preferences</span>
                 <div className="flex items-center gap-2">
-                  <LanguageSelector />
-                  <ThemeToggle />
+                  <LanguageSelector tone="marketing" />
+                  <ThemeToggle tone="marketing" />
                 </div>
               </div>
 

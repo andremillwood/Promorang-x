@@ -1,6 +1,7 @@
 {
   "framework": "vite",
   "installCommand": "npm install --legacy-peer-deps",
+  "ignoreCommand": "node scripts/vercel-ignore-non-web.mjs",
   "buildCommand": "npm run build",
   "outputDirectory": "apps/web/dist",
   "rewrites": [

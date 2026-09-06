@@ -76,6 +76,7 @@ import { buildVenuePath, getSiteUrl, slugifySegment } from "@/lib/discovery";
 import { getAccessState, type AccessQuote } from "@/lib/access";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
 import type { Scene } from "@promorang/shared";
+import { buildHostProfileStats } from "@/lib/host-profile-stats";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "https://api.promorang.co")
   .replace(/\/api\/?$/, "")
@@ -172,6 +173,9 @@ const MomentDetail = () => {
     display_name?: string | null;
     avatar_url?: string | null;
     created_at?: string | null;
+    momentsHosted?: number;
+    rating?: number;
+    reviewCount?: number;
   } | null>(null);
 
   const isHost = user && moment?.host_id === user.id;
@@ -255,6 +259,7 @@ const MomentDetail = () => {
           display_name: curatedMatch.venueName,
           avatar_url: curatedMatch.image,
           created_at: new Date().toISOString(),
+          momentsHosted: 1,
         });
       }
 
@@ -313,6 +318,7 @@ const MomentDetail = () => {
             display_name: demoMatch.host?.display_name || "Host",
             avatar_url: demoMatch.host?.avatar_url || null,
             created_at: new Date().toISOString(),
+            momentsHosted: 1,
           });
         } else {
           const cultureMatch = cultureEvents.find(c =>
@@ -344,6 +350,7 @@ const MomentDetail = () => {
               display_name: cultureMatch.host || "Featured Host",
               avatar_url: cultureMatch.image,
               created_at: new Date().toISOString(),
+              momentsHosted: 1,
             });
           }
         }
@@ -438,19 +445,40 @@ const MomentDetail = () => {
 
       if (momentData.host_id && UUID_PATTERN.test(momentData.host_id)) {
         try {
-          const { data: profileData } = await supabase
-            .from("profiles")
-            .select("full_name, avatar_url, created_at")
-            .eq("user_id", momentData.host_id)
-            .maybeSingle();
+          const [{ data: profileData }, { data: hostMoments, count: hostedCount }] = await Promise.all([
+            supabase
+              .from("profiles")
+              .select("full_name, avatar_url, created_at")
+              .eq("user_id", momentData.host_id)
+              .maybeSingle(),
+            supabase
+              .from("moments")
+              .select("id", { count: "exact" })
+              .eq("host_id", momentData.host_id)
+              .limit(100),
+          ]);
 
-          if (profileData) {
-            setHostProfile({
-              display_name: profileData.full_name,
-              avatar_url: profileData.avatar_url,
-              created_at: profileData.created_at,
-            });
+          const momentIds = (hostMoments || []).map((row) => row.id);
+          let ratings: number[] = [];
+          if (momentIds.length) {
+            const { data: reviews } = await supabase
+              .from("moment_reviews")
+              .select("rating")
+              .in("moment_id", momentIds);
+            ratings = (reviews || []).map((row) => row.rating);
           }
+
+          const stats = buildHostProfileStats({
+            hostedCount: hostedCount ?? momentIds.length,
+            ratings,
+          });
+
+          setHostProfile({
+            display_name: profileData?.full_name,
+            avatar_url: profileData?.avatar_url,
+            created_at: profileData?.created_at,
+            ...stats,
+          });
         } catch {
           // Ignore profile error
         }
@@ -738,7 +766,7 @@ const MomentDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white font-sans selection:bg-[#ff5500] selection:text-white">
+    <div className="min-h-screen bg-[#09090b] pb-[calc(var(--mobile-tabbar-offset,0px)+10rem)] text-white font-sans selection:bg-[#ff5500] selection:text-white lg:pb-16">
       <SEO
         title={moment.title}
         description={moment.description || `Join ${moment.title} on Promorang`}
@@ -1440,8 +1468,9 @@ const MomentDetail = () => {
               name={hostProfile?.display_name || "Event Host"}
               avatarUrl={hostProfile?.avatar_url}
               memberSince={hostProfile?.created_at}
-              momentsHosted={3}
-              isVerified={true}
+              momentsHosted={hostProfile?.momentsHosted ?? 0}
+              rating={hostProfile?.rating}
+              reviewCount={hostProfile?.reviewCount ?? 0}
             />
 
             <SquadJoinCard

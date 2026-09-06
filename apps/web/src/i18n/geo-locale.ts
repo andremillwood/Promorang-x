@@ -1,6 +1,7 @@
 import type { Locale } from "./translations";
 
 const STORAGE_KEY = "promorang:locale";
+const EXPLICIT_KEY = "promorang:locale_explicit";
 const COOKIE_NAME = "promorang_locale";
 const GEO_CACHE_KEY = "promorang:geo_country";
 
@@ -47,6 +48,21 @@ export function saveLocalePreference(locale: Locale): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(STORAGE_KEY, locale);
   setCookie(COOKIE_NAME, locale);
+}
+
+export function hasExplicitLocaleChoice(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(EXPLICIT_KEY) === "1";
+}
+
+export function markExplicitLocaleChoice(): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(EXPLICIT_KEY, "1");
+}
+
+/** City / market locale may suggest a language, but never override a signed-in user's choice. */
+export function shouldApplyMarketLocale(): boolean {
+  return !hasExplicitLocaleChoice();
 }
 
 export function detectBrowserLocale(): Locale {
