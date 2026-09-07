@@ -31,7 +31,6 @@ export default function EarnOpportunities() {
       eyebrow="Earn"
       title="Opportunities"
       description="Get people to try, visit, buy or show up. You earn when the action is verified."
-      backTo="/dashboard"
     >
       {taken ? (
         <div className="rounded-[1.6rem] border border-primary/40 bg-primary/10 px-5 py-5">

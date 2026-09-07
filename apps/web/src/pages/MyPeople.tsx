@@ -30,7 +30,6 @@ export default function MyPeople() {
       eyebrow="Your people"
       title="Your network"
       description="Credit follows the people you actually moved — not empty accounts."
-      backTo="/dashboard"
     >
       <section className="grid grid-cols-2 gap-3">
         <StatPile label="People" value={data?.people || 0} hint={data?.thisMonth ? `+${data.thisMonth} this month` : "Start with one invite"} />

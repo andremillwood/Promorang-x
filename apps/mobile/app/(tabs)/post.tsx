@@ -2,18 +2,92 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Platform, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { CREATE_INTENTS, resolveCreateIntent } from '@promorang/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/DesignTokens';
 import { useAuth } from '@/context/AuthContext';
+import { useExperienceActions } from '@/hooks/usePeopleExperience';
 import { supabase } from '@/lib/supabase';
+import { mobileCreateHref } from '@/lib/createIntents';
 import { useMoments, type Moment } from '@/hooks/useMoments';
+import { PrimaryButton } from '@/components/people/ExperienceShell';
 
 type ProofType = 'moment' | 'mission' | 'story';
 
-export default function PostScreen() {
+export default function CreateScreen() {
+  const params = useLocalSearchParams<{ intent?: string; momentId?: string }>();
+  const selected = resolveCreateIntent(params.intent);
+  const showAnswer = params.intent === 'answer';
+  const showCapture = params.intent === 'post';
+
+  if (showAnswer) return <AskPeopleForm />;
+  if (showCapture) return <CaptureContribution momentId={params.momentId} />;
+
+  return (
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <Text style={styles.eyebrow}>CREATE SOMETHING</Text>
+      <Text style={styles.title}>What do you want your people to do?</Text>
+      <Text style={styles.subtitle}>You choose the behaviour. PROMORANG picks the right tool underneath.</Text>
+      <View style={{ gap: 10, marginTop: 22 }}>
+        {CREATE_INTENTS.map((item) => (
+          <Pressable
+            key={item.intent}
+            style={[styles.intent, selected.intent === item.intent && styles.intentActive]}
+            onPress={() => router.push(mobileCreateHref(item.intent, item.href) as any)}
+          >
+            <Text style={styles.intentLabel}>{item.label}</Text>
+            <Text style={styles.intentPrompt}>{item.prompt}</Text>
+          </Pressable>
+        ))}
+      </View>
+      <View style={{ height: 110 }} />
+    </ScrollView>
+  );
+}
+
+function AskPeopleForm() {
+  const { ask } = useExperienceActions();
+  const [question, setQuestion] = useState('');
+
+  const submit = async () => {
+    try {
+      await ask.mutateAsync({ question, category: 'community' });
+      Alert.alert('Asked', 'Your people can answer this now.');
+      router.push('/promoshare');
+    } catch (error) {
+      Alert.alert('Could not ask that yet', error instanceof Error ? error.message : 'Try again.');
+    }
+  };
+
+  return (
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <Pressable onPress={() => router.replace('/post')} style={styles.back}>
+        <Ionicons name="arrow-back" size={16} color={Colors.gray[400]} />
+        <Text style={styles.backText}>All create paths</Text>
+      </Pressable>
+      <Text style={styles.eyebrow}>ASK YOUR PEOPLE</Text>
+      <Text style={styles.title}>What do you want to know?</Text>
+      <TextInput
+        value={question}
+        onChangeText={setQuestion}
+        placeholder="Where should we eat in Kingston this weekend?"
+        placeholderTextColor={Colors.gray[500]}
+        multiline
+        style={styles.askInput}
+      />
+      <PrimaryButton
+        label={ask.isPending ? 'Asking…' : 'Ask them'}
+        loading={ask.isPending}
+        disabled={!question.trim()}
+        onPress={submit}
+      />
+    </ScrollView>
+  );
+}
+
+function CaptureContribution({ momentId }: { momentId?: string }) {
   const { user } = useAuth();
-  const { momentId } = useLocalSearchParams<{ momentId?: string }>();
   const { moments, loading: momentsLoading } = useMoments();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [contentUrl, setContentUrl] = useState('');
@@ -54,8 +128,6 @@ export default function PostScreen() {
     setPublishError(null);
     try {
       let mediaUrl: string | null = null;
-
-      // Upload local image if provided
       if (imageUri) {
         const response = await fetch(imageUri);
         const blob = await response.blob();
@@ -65,13 +137,11 @@ export default function PostScreen() {
           contentType: blob.type || 'image/jpeg', cacheControl: '3600', upsert: false,
         });
         if (uploadError) throw uploadError;
-        const { data: url } = supabase.storage.from('moment-images').getPublicUrl(path);
-        mediaUrl = url.publicUrl;
+        mediaUrl = supabase.storage.from('moment-images').getPublicUrl(path).data.publicUrl;
       } else if (contentUrl.trim()) {
         mediaUrl = contentUrl.trim();
       }
 
-      // Detect platform from content URL
       const detectedPlatform = contentUrl.toLowerCase().includes('instagram') ? 'instagram'
         : contentUrl.toLowerCase().includes('tiktok') ? 'tiktok'
         : contentUrl.toLowerCase().includes('youtube') || contentUrl.toLowerCase().includes('youtu.be') ? 'youtube'
@@ -86,39 +156,22 @@ export default function PostScreen() {
         platform: contentUrl.trim() ? detectedPlatform : 'promorang-mobile',
         status: selectedMoment ? 'pending_review' : proofType === 'mission' ? 'pending_review' : 'published',
         posted_at: new Date().toISOString(),
-        metadata: {
-          content_url: contentUrl.trim() || null,
-          moment_id: selectedMomentId,
-          source: 'mobile_post',
-          has_local_image: Boolean(imageUri),
-        },
+        metadata: { content_url: contentUrl.trim() || null, moment_id: selectedMomentId, source: 'mobile_post', has_local_image: Boolean(imageUri) },
       }).select('id').single();
       if (insertError) throw insertError;
 
       if (selectedMoment && content?.id) {
-        const { error: linkError } = await supabase.from('content_moment_links').insert({
+        await supabase.from('content_moment_links').insert({
           content_item_id: content.id,
           moment_id: selectedMoment.id,
           entry_action_types: [proofType, locationAdded ? 'location_context' : 'media_proof'],
         });
-        if (linkError) throw linkError;
-
-        const { error: proofError } = await supabase.from('proof_submissions').insert({
+        await supabase.from('proof_submissions').insert({
           moment_id: selectedMoment.id,
           user_id: user.id,
           submission_state: 'pending',
-          proof_bundle: {
-            content_item_id: content.id,
-            media_url: mediaUrl,
-            content_url: contentUrl.trim() || null,
-            caption: caption.trim() || null,
-            proof_type: proofType,
-            location_added: locationAdded,
-            platform: contentUrl.trim() ? detectedPlatform : 'promorang-mobile',
-            source: 'mobile-post',
-          },
+          proof_bundle: { content_item_id: content.id, media_url: mediaUrl, content_url: contentUrl.trim() || null, caption: caption.trim() || null, proof_type: proofType, location_added: locationAdded, platform: detectedPlatform, source: 'mobile-post' },
         });
-        if (proofError) throw proofError;
       }
       setPublished(true);
     } catch (error) {
@@ -132,170 +185,73 @@ export default function PostScreen() {
     return (
       <View style={styles.successScreen}>
         <View style={styles.successMark}><Ionicons name="checkmark" size={35} color={Colors.black} /></View>
-        <Text style={styles.successEyebrow}>CONTRIBUTION RECEIVED</Text>
-        <Text style={styles.successTitle}>Your Moment has a receipt.</Text>
-        <Text style={styles.successDetail}>{selectedMoment ? `Your contribution is routed to ${selectedMoment.title} for review.` : 'Your post is live. Action value may remain pending until it is reviewed.'}</Text>
-        <View style={styles.successReceipt}>
-          <ReceiptLine icon="images" label="Content" value="Published" />
-          <ReceiptLine icon="shield-checkmark" label="Contribution" value={selectedMoment || proofType === 'mission' ? 'Under review' : 'Recorded'} />
-          <ReceiptLine icon="flash" label="Moment" value={selectedMoment?.title || 'Not linked'} />
-          <ReceiptLine icon="diamond" label="Estimated Reward" value={selectedMoment ? '50–250 Gems (pending host review)' : 'Gem eligibility tracked'} />
-          <ReceiptLine icon="archive" label="Vault" value="Eligible after verification" />
-        </View>
-        <Pressable style={styles.successPrimary} onPress={() => router.replace(selectedMoment ? `/moment/${selectedMoment.id}` as any : '/discover')}><Text style={styles.successPrimaryText}>{selectedMoment ? 'Back to moment' : 'Return to discovery'}</Text><Ionicons name="arrow-forward" size={17} color={Colors.black} /></Pressable>
+        <Text style={styles.successEyebrow}>IT COUNTED</Text>
+        <Text style={styles.successTitle}>Your story has a receipt.</Text>
+        <Pressable style={styles.publish} onPress={() => router.replace('/promoshare')}>
+          <Text style={styles.publishText}>See what happened</Text>
+        </Pressable>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <Text style={styles.eyebrow}>CREATE · COUNT · KEEP</Text>
-        <Text style={styles.title}>What do you want to make happen?</Text>
-        <Text style={styles.subtitle}>Start with an outcome, a Moment, or what happened. Promorang will connect it to people, value, and return.</Text>
-      </View>
-
-      <View style={styles.createPaths}>
-        <Pressable accessibilityRole="button" onPress={() => router.push('/create-proposal')} style={styles.createPathPrimary}>
-          <View style={styles.createPathIcon}><Ionicons name="sparkles" size={20} color={Colors.black} /></View>
-          <View style={styles.createPathCopy}>
-            <Text style={styles.createPathEyebrow}>ACTIVATION PLAN</Text>
-            <Text style={styles.createPathTitle}>Shape a funded outcome</Text>
-            <Text style={styles.createPathDetail}>Choose the Scene, Moment, content, people, what counts, participant value, and Gems.</Text>
-          </View>
-          <Ionicons name="arrow-forward" size={18} color={Colors.black} />
-        </Pressable>
-
-        <View style={styles.secondaryPaths}>
-          <Pressable accessibilityRole="button" onPress={() => router.push('/studio/create-moment' as any)} style={styles.secondaryPath}>
-            <Ionicons name="calendar" size={18} color={Colors.primary} />
-            <Text style={styles.secondaryPathText}>Create Moment</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" onPress={() => router.push('/discover')} style={styles.secondaryPath}>
-            <Ionicons name="compass" size={18} color={Colors.primary} />
-            <Text style={styles.secondaryPathText}>Find prompt</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.captureIntro}>
-          <Text style={styles.captureIntroEyebrow}>CAPTURE THE MOMENT</Text>
-          <Text style={styles.captureIntroTitle}>Show what happened.</Text>
-          <Text style={styles.captureIntroDetail}>A good post gives people context and gives Promorang something clear to review.</Text>
-        </View>
-      </View>
-
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <Pressable onPress={() => router.replace('/post')} style={styles.back}>
+        <Ionicons name="arrow-back" size={16} color={Colors.gray[400]} />
+        <Text style={styles.backText}>All create paths</Text>
+      </Pressable>
+      <Text style={styles.eyebrow}>POST SOMETHING</Text>
+      <Text style={styles.title}>Show what happened.</Text>
       <View style={styles.typeRow}>
-        {([
-          ['moment', 'Moment', 'flash'],
-          ['mission', 'Action contribution', 'checkmark-circle'],
-          ['story', 'Story', 'play-circle'],
-        ] as const).map(([id, label, icon]) => (
+        {([['moment', 'Moment'], ['mission', 'Action'], ['story', 'Story']] as const).map(([id, label]) => (
           <Pressable key={id} onPress={() => setProofType(id)} style={[styles.type, proofType === id && styles.typeActive]}>
-            <Ionicons name={icon} size={16} color={proofType === id ? Colors.black : Colors.gray[400]} />
             <Text style={[styles.typeText, proofType === id && styles.typeTextActive]}>{label}</Text>
           </Pressable>
         ))}
       </View>
-
       <View style={styles.capture}>
         {imageUri ? (
-          <>
-            <Image source={{ uri: imageUri }} style={styles.preview} />
-            <View style={styles.previewShade} />
-            <Pressable accessibilityLabel="Remove image" style={styles.remove} onPress={() => setImageUri(null)}><Ionicons name="close" size={20} color={Colors.white} /></Pressable>
-            <View style={styles.proofBadge}><Ionicons name="shield-checkmark" size={14} color={Colors.primary} /><Text style={styles.proofBadgeText}>READY TO REVIEW</Text></View>
-          </>
+          <Image source={{ uri: imageUri }} style={styles.preview} />
         ) : (
           <View style={styles.captureEmpty}>
-            <View style={styles.captureIcon}><Ionicons name="camera" size={29} color={Colors.primary} /></View>
             <Text style={styles.captureTitle}>Start with what happened</Text>
-            <Text style={styles.captureDetail}>Photos with clear people, place, and context make the Moment easier to understand.</Text>
             <View style={styles.captureActions}>
-              <Pressable style={styles.primaryButton} onPress={() => chooseImage(true)}><Ionicons name="camera" size={17} color={Colors.black} /><Text style={styles.primaryButtonText}>Open camera</Text></Pressable>
-              <Pressable style={styles.secondaryButton} onPress={() => chooseImage(false)}><Ionicons name="images" size={17} color={Colors.white} /><Text style={styles.secondaryButtonText}>Library</Text></Pressable>
+              <Pressable style={styles.primaryButton} onPress={() => chooseImage(true)}><Text style={styles.primaryButtonText}>Open camera</Text></Pressable>
+              <Pressable style={styles.secondaryButton} onPress={() => chooseImage(false)}><Text style={styles.secondaryButtonText}>Library</Text></Pressable>
             </View>
           </View>
         )}
       </View>
-
-      <View style={styles.composer}>
-        <Text style={styles.label}>CONTENT LINK (INSTAGRAM, TIKTOK, YOUTUBE, X)</Text>
-        <TextInput
-          value={contentUrl}
-          onChangeText={setContentUrl}
-          placeholder="https://instagram.com/p/... or https://tiktok.com/@..."
-          placeholderTextColor={Colors.gray[500]}
-          style={styles.linkInput}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="url"
-        />
-
-        <Text style={styles.label}>THE STORY & PERSPECTIVE</Text>
-        <TextInput
-          value={caption}
-          onChangeText={setCaption}
-          placeholder="What should people know about this moment?"
-          placeholderTextColor={Colors.gray[500]}
-          style={styles.caption}
-          multiline
-          maxLength={280}
-        />
-        <Text style={styles.count}>{caption.length}/280</Text>
-        <Pressable style={styles.contextRow} onPress={() => setLocationAdded(!locationAdded)}>
-          <View style={styles.contextIcon}><Ionicons name="location" size={18} color={Colors.primary} /></View>
-          <View style={styles.contextCopy}><Text style={styles.contextTitle}>{locationAdded ? 'Kingston, Jamaica' : 'Add the place'}</Text><Text style={styles.contextDetail}>{locationAdded ? 'Visible as participation context' : 'Location makes the contribution clearer'}</Text></View>
-          <Ionicons name={locationAdded ? 'checkmark-circle' : 'add-circle-outline'} size={22} color={locationAdded ? Colors.success : Colors.gray[500]} />
-        </Pressable>
-        <View style={styles.contextRow}>
-          <View style={styles.contextIcon}><Ionicons name="people" size={18} color={Colors.primary} /></View>
-          <View style={styles.contextCopy}><Text style={styles.contextTitle}>{selectedMoment ? selectedMoment.title : 'Tag a moment or scene'}</Text><Text style={styles.contextDetail}>{selectedMoment ? `${selectedMoment.location} · routed to review` : 'Connect this contribution to the people and place it supports'}</Text></View>
-          <Ionicons name={selectedMoment ? 'checkmark-circle' : 'chevron-forward'} size={20} color={selectedMoment ? Colors.success : Colors.gray[500]} />
-        </View>
-        <MomentRail moments={moments} selectedMomentId={selectedMomentId} loading={momentsLoading} onSelect={setSelectedMomentId} />
-      </View>
-
-      <View style={styles.receipt}>
-        <Ionicons name="sparkles" size={18} color={Colors.primary} />
-        <View style={styles.receiptCopy}><Text style={styles.receiptTitle}>What this can unlock</Text><Text style={styles.receiptDetail}>Vault memory · action progress · reward eligibility</Text></View>
-      </View>
-
-      {publishError && <View style={styles.errorBanner}><Ionicons name="alert-circle" size={18} color={Colors.error} /><Text style={styles.errorText}>{publishError}</Text></View>}
-      <Pressable style={[styles.publish, ((!imageUri && !contentUrl.trim() && !caption.trim()) || publishing) && styles.publishMuted]} onPress={publish} disabled={publishing}>
-        {publishing ? <><ActivityIndicator size="small" color={Colors.black} /><Text style={styles.publishText}>Publishing contribution…</Text></> : <><Text style={styles.publishText}>Publish contribution</Text><Ionicons name="arrow-forward" size={18} color={Colors.black} /></>}
+      <TextInput value={contentUrl} onChangeText={setContentUrl} placeholder="https://instagram.com/p/…" placeholderTextColor={Colors.gray[500]} style={styles.linkInput} autoCapitalize="none" />
+      <TextInput value={caption} onChangeText={setCaption} placeholder="What should people know about this moment?" placeholderTextColor={Colors.gray[500]} style={styles.caption} multiline />
+      <Pressable style={styles.contextRow} onPress={() => setLocationAdded(!locationAdded)}>
+        <Text style={styles.contextTitle}>{locationAdded ? 'Place added' : 'Add the place'}</Text>
       </Pressable>
-      <View style={{ height: 105 }} />
+      <MomentRail moments={moments} selectedMomentId={selectedMomentId} loading={momentsLoading} onSelect={setSelectedMomentId} />
+      {publishError ? <Text style={styles.errorText}>{publishError}</Text> : null}
+      <Pressable style={[styles.publish, publishing && styles.publishMuted]} onPress={publish} disabled={publishing}>
+        {publishing ? <ActivityIndicator color={Colors.black} /> : <Text style={styles.publishText}>Publish contribution</Text>}
+      </Pressable>
+      <View style={{ height: 110 }} />
     </ScrollView>
   );
 }
 
-function ReceiptLine({ icon, label, value }: { icon: any; label: string; value: string }) {
-  return <View style={styles.receiptLine}><Ionicons name={icon} size={17} color={Colors.primary} /><Text style={styles.receiptLineLabel}>{label}</Text><Text style={styles.receiptLineValue}>{value}</Text></View>;
-}
-
 function MomentRail({ moments, selectedMomentId, loading, onSelect }: { moments: Moment[]; selectedMomentId: string | null; loading: boolean; onSelect: (id: string | null) => void }) {
   return (
-    <View style={styles.momentRail}>
-      <View style={styles.momentRailHeader}>
-        <Text style={styles.momentRailLabel}>ROUTE CONTRIBUTION TO</Text>
-        {selectedMomentId ? <Pressable onPress={() => onSelect(null)}><Text style={styles.clearMoment}>Clear</Text></Pressable> : null}
-      </View>
-      {loading ? (
-        <View style={styles.momentLoading}><ActivityIndicator size="small" color={Colors.primary} /><Text style={styles.momentLoadingText}>Finding active moments…</Text></View>
-      ) : moments.length ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.momentOptions}>
+    <View style={{ marginTop: 12 }}>
+      <Text style={styles.eyebrow}>ROUTE TO A MOMENT</Text>
+      {loading ? <ActivityIndicator color={Colors.primary} /> : (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingTop: 10 }}>
           {moments.slice(0, 8).map((moment) => {
             const selected = moment.id === selectedMomentId;
             return (
               <Pressable key={moment.id} style={[styles.momentChip, selected && styles.momentChipActive]} onPress={() => onSelect(selected ? null : moment.id)}>
-                <View style={[styles.momentChipIcon, selected && styles.momentChipIconActive]}><Ionicons name={selected ? 'checkmark' : 'flash'} size={14} color={selected ? Colors.black : Colors.primary} /></View>
-                <View style={styles.momentChipCopy}><Text numberOfLines={1} style={[styles.momentChipTitle, selected && styles.momentChipTitleActive]}>{moment.title}</Text><Text numberOfLines={1} style={[styles.momentChipDetail, selected && styles.momentChipDetailActive]}>{moment.location}</Text></View>
+                <Text numberOfLines={1} style={styles.momentChipTitle}>{moment.title}</Text>
               </Pressable>
             );
           })}
         </ScrollView>
-      ) : (
-        <View style={styles.momentEmpty}><Text style={styles.momentEmptyTitle}>No active moments found</Text><Text style={styles.momentEmptyDetail}>Publish as a general contribution, or create a Moment in Studio first.</Text></View>
       )}
     </View>
   );
@@ -304,91 +260,43 @@ function MomentRail({ moments, selectedMomentId, loading, onSelect }: { moments:
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: Colors.black },
   content: { paddingTop: 18, paddingHorizontal: Spacing.container },
-  header: { backgroundColor: 'transparent' },
   eyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: 1.1 },
   title: { color: Colors.white, fontSize: Typography.sizes['3xl'], lineHeight: 38, fontWeight: '800', letterSpacing: -1, marginTop: 5 },
   subtitle: { color: Colors.gray[400], fontSize: 13, lineHeight: 19, marginTop: 6, maxWidth: 330 },
-  createPaths: { marginTop: 20, backgroundColor: 'transparent' },
-  createPathPrimary: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15, borderRadius: BorderRadius.xl, backgroundColor: Colors.primary },
-  createPathIcon: { width: 42, height: 42, borderRadius: 15, backgroundColor: 'rgba(0,0,0,.16)', alignItems: 'center', justifyContent: 'center' },
-  createPathCopy: { flex: 1, backgroundColor: 'transparent' },
-  createPathEyebrow: { color: 'rgba(0,0,0,.58)', fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: .7 },
-  createPathTitle: { color: Colors.black, fontSize: 14, fontWeight: '900', marginTop: 3 },
-  createPathDetail: { color: 'rgba(0,0,0,.68)', fontSize: 12, lineHeight: 15, marginTop: 3 },
-  secondaryPaths: { flexDirection: 'row', gap: 9, marginTop: 10, backgroundColor: 'transparent' },
-  secondaryPath: { flex: 1, minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, borderRadius: BorderRadius.lg, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[900] },
-  secondaryPathText: { color: Colors.white, fontSize: 13, fontWeight: '800' },
-  captureIntro: { marginTop: 18, paddingTop: 18, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border, backgroundColor: 'transparent' },
-  captureIntroEyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: .9 },
-  captureIntroTitle: { color: Colors.white, fontSize: 18, fontWeight: '800', marginTop: 5 },
-  captureIntroDetail: { color: Colors.gray[400], fontSize: 12, lineHeight: 18, marginTop: 4 },
-  typeRow: { flexDirection: 'row', gap: 8, marginTop: 22, backgroundColor: 'transparent' },
-  type: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 18, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[900] },
+  intent: { borderRadius: 24, borderWidth: 1, borderColor: Colors.border, backgroundColor: 'rgba(255,255,255,0.04)', padding: 16 },
+  intentActive: { borderColor: Colors.primary, backgroundColor: 'rgba(255,85,0,0.15)' },
+  intentLabel: { color: Colors.white, fontSize: 24, fontWeight: '800' },
+  intentPrompt: { color: Colors.gray[400], fontSize: 13, marginTop: 4 },
+  back: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 40, marginBottom: 8 },
+  backText: { color: Colors.gray[400], fontSize: 13 },
+  askInput: { minHeight: 120, marginVertical: 18, borderRadius: 18, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[900], color: Colors.white, padding: 16, textAlignVertical: 'top' },
+  typeRow: { flexDirection: 'row', gap: 8, marginTop: 18 },
+  type: { paddingHorizontal: 12, paddingVertical: 9, borderRadius: 18, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[900] },
   typeActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   typeText: { color: Colors.gray[300], fontSize: 13, fontWeight: '700' },
   typeTextActive: { color: Colors.black },
-  capture: { height: 330, marginTop: 15, borderRadius: BorderRadius['2xl'], overflow: 'hidden', borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[900] },
-  captureEmpty: { flex: 1, padding: 25, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' },
-  captureIcon: { width: 58, height: 58, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.ambientWash },
-  captureTitle: { color: Colors.white, fontSize: 19, fontWeight: '800', marginTop: 16 },
-  captureDetail: { color: Colors.gray[400], fontSize: 12, lineHeight: 18, textAlign: 'center', maxWidth: 275, marginTop: 6 },
-  captureActions: { flexDirection: 'row', gap: 10, marginTop: 20, backgroundColor: 'transparent' },
-  primaryButton: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 15, paddingVertical: 11, borderRadius: 20, backgroundColor: Colors.primary },
+  capture: { height: 240, marginTop: 15, borderRadius: BorderRadius['2xl'], overflow: 'hidden', borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[900] },
+  captureEmpty: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
+  captureTitle: { color: Colors.white, fontSize: 16, fontWeight: '800' },
+  captureActions: { flexDirection: 'row', gap: 10 },
+  primaryButton: { paddingHorizontal: 15, paddingVertical: 11, borderRadius: 20, backgroundColor: Colors.primary },
   primaryButtonText: { color: Colors.black, fontSize: 12, fontWeight: '800' },
-  secondaryButton: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 15, paddingVertical: 11, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[800] },
+  secondaryButton: { paddingHorizontal: 15, paddingVertical: 11, borderRadius: 20, borderWidth: 1, borderColor: Colors.border },
   secondaryButtonText: { color: Colors.white, fontSize: 12, fontWeight: '700' },
   preview: { width: '100%', height: '100%' },
-  previewShade: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,.12)' },
-  remove: { position: 'absolute', right: 13, top: 13, width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(8,8,8,.72)' },
-  proofBadge: { position: 'absolute', left: 13, bottom: 13, flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(8,8,8,.78)', paddingHorizontal: 10, paddingVertical: 7, borderRadius: 18 },
-  proofBadgeText: { color: Colors.white, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: .7 },
-  composer: { marginTop: 15, padding: 16, borderRadius: BorderRadius.xl, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
-  label: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: 1 },
-  caption: { color: Colors.white, minHeight: 80, fontSize: 15, lineHeight: 21, textAlignVertical: 'top', marginTop: 9 },
-  count: { color: Colors.gray[600], fontSize: 12, textAlign: 'right', marginBottom: 10 },
-  contextRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border, backgroundColor: 'transparent' },
-  contextIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: Colors.ambientWash, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
-  contextCopy: { flex: 1, backgroundColor: 'transparent' },
+  linkInput: { height: 48, borderRadius: 14, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border, paddingHorizontal: 14, color: Colors.white, fontSize: 13, marginTop: 14 },
+  caption: { minHeight: 80, borderRadius: 14, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border, padding: 14, color: Colors.white, marginTop: 10, textAlignVertical: 'top' },
+  contextRow: { paddingVertical: 14 },
   contextTitle: { color: Colors.white, fontSize: 13, fontWeight: '700' },
-  contextDetail: { color: Colors.gray[500], fontSize: 12, marginTop: 2 },
-  momentRail: { paddingTop: 13, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border, backgroundColor: 'transparent' },
-  momentRailHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'transparent' },
-  momentRailLabel: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: .7 },
-  clearMoment: { color: Colors.gray[400], fontSize: 12, fontWeight: '700' },
-  momentOptions: { gap: 8, paddingTop: 10, paddingRight: 8 },
-  momentChip: { width: 190, flexDirection: 'row', alignItems: 'center', padding: 10, borderRadius: 15, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[800] },
-  momentChipActive: { borderColor: Colors.primary, backgroundColor: '#2A180F' },
-  momentChipIcon: { width: 31, height: 31, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.ambientWash, marginRight: 9 },
-  momentChipIconActive: { backgroundColor: Colors.primary },
-  momentChipCopy: { flex: 1, backgroundColor: 'transparent' },
+  momentChip: { width: 180, padding: 10, borderRadius: 15, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[800] },
+  momentChipActive: { borderColor: Colors.primary },
   momentChipTitle: { color: Colors.white, fontSize: 13, fontWeight: '800' },
-  momentChipTitleActive: { color: Colors.white },
-  momentChipDetail: { color: Colors.gray[500], fontSize: 12, marginTop: 2 },
-  momentChipDetailActive: { color: Colors.gray[300] },
-  momentLoading: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, backgroundColor: 'transparent' },
-  momentLoadingText: { color: Colors.gray[500], fontSize: 12 },
-  momentEmpty: { paddingVertical: 12, backgroundColor: 'transparent' },
-  momentEmptyTitle: { color: Colors.white, fontSize: 13, fontWeight: '800' },
-  momentEmptyDetail: { color: Colors.gray[500], fontSize: 12, marginTop: 3 },
-  receipt: { flexDirection: 'row', alignItems: 'center', gap: 11, padding: 14, marginTop: 13, borderRadius: BorderRadius.lg, backgroundColor: '#25170F', borderWidth: 1, borderColor: 'rgba(255,106,26,.22)' },
-  receiptCopy: { flex: 1, backgroundColor: 'transparent' },
-  receiptTitle: { color: Colors.white, fontSize: 12, fontWeight: '700' },
-  receiptDetail: { color: Colors.gray[400], fontSize: 12, marginTop: 3 },
-  publish: { marginTop: 15, height: 52, borderRadius: 17, backgroundColor: Colors.primary, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  publishMuted: { opacity: .55 },
+  publish: { marginTop: 15, height: 52, borderRadius: 17, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
+  publishMuted: { opacity: 0.55 },
   publishText: { color: Colors.black, fontSize: 14, fontWeight: '900' },
-  errorBanner: { flexDirection: 'row', alignItems: 'center', gap: 9, padding: 13, borderRadius: BorderRadius.lg, marginTop: 13, backgroundColor: 'rgba(239,98,91,.10)', borderWidth: 1, borderColor: 'rgba(239,98,91,.28)' },
-  errorText: { color: Colors.gray[200], fontSize: 13, lineHeight: 16, flex: 1 },
+  errorText: { color: Colors.error, marginTop: 10 },
   successScreen: { flex: 1, paddingHorizontal: 25, paddingTop: Platform.OS === 'ios' ? 110 : 80, backgroundColor: Colors.black, alignItems: 'center' },
-  successMark: { width: 72, height: 72, borderRadius: 25, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '-5deg' }] },
+  successMark: { width: 72, height: 72, borderRadius: 25, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
   successEyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: 1.1, marginTop: 28 },
-  successTitle: { color: Colors.white, fontSize: 29, lineHeight: 35, fontWeight: '800', letterSpacing: -.8, textAlign: 'center', marginTop: 8, maxWidth: 330 },
-  successDetail: { color: Colors.gray[400], fontSize: 13, lineHeight: 19, textAlign: 'center', marginTop: 9, maxWidth: 320 },
-  successReceipt: { alignSelf: 'stretch', padding: 16, borderRadius: BorderRadius.xl, marginTop: 28, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
-  receiptLine: { flexDirection: 'row', alignItems: 'center', minHeight: 42, gap: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: Colors.border, backgroundColor: 'transparent' },
-  receiptLineLabel: { color: Colors.gray[400], fontSize: 13, flex: 1 },
-  receiptLineValue: { color: Colors.white, fontSize: 13, fontWeight: '700' },
-  successPrimary: { alignSelf: 'stretch', height: 52, borderRadius: 17, marginTop: 18, backgroundColor: Colors.primary, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  successPrimaryText: { color: Colors.black, fontSize: 13, fontWeight: '900' },
-  linkInput: { height: 48, borderRadius: 14, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border, paddingHorizontal: 14, color: Colors.white, fontSize: 13, marginBottom: 14 },
+  successTitle: { color: Colors.white, fontSize: 28, fontWeight: '800', textAlign: 'center', marginTop: 8 },
 });

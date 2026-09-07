@@ -1,7 +1,7 @@
 import { StyleSheet, ScrollView, Pressable, Image, ActivityIndicator, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import * as WebBrowser from 'expo-web-browser';
-import { useStripe } from '@stripe/stripe-react-native';
+import { useStripe } from '@/lib/stripe';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Text, View } from '@/components/Themed';

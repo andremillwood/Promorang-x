@@ -4,8 +4,8 @@ import { supabase } from '@/lib/supabase'
 import * as WebBrowser from 'expo-web-browser'
 import { makeRedirectUri } from 'expo-auth-session'
 import { AppState } from 'react-native'
-import * as SecureStore from 'expo-secure-store'
 import * as AppleAuthentication from 'expo-apple-authentication'
+import { deleteSecureItem, getSecureItem, setSecureItem } from '@/lib/secureStore'
 import * as Crypto from 'expo-crypto'
 import { Platform } from 'react-native'
 
@@ -192,7 +192,7 @@ const mapRole = (r: string): UserRole => {
 
         setOrganizations(orgs);
 
-        const savedOrgId = await SecureStore.getItemAsync("promorang_active_org_id");
+        const savedOrgId = await getSecureItem("promorang_active_org_id");
         if (savedOrgId && orgs.find(o => o.id === savedOrgId)) {
             setActiveOrgIdState(savedOrgId);
             const activeOrg = orgs.find(o => o.id === savedOrgId);
@@ -211,7 +211,7 @@ const mapRole = (r: string): UserRole => {
 
     const setActiveRole = async (role: UserRole) => {
         setActiveRoleState(role);
-        await SecureStore.setItemAsync("promorang_active_role", role);
+        await setSecureItem("promorang_active_role", role);
     };
 
     const chooseRole = async (role: UserRole) => {
@@ -228,7 +228,7 @@ const mapRole = (r: string): UserRole => {
     const setActiveOrgId = async (id: string | null) => {
         setActiveOrgIdState(id);
         if (id) {
-            await SecureStore.setItemAsync("promorang_active_org_id", id);
+            await setSecureItem("promorang_active_org_id", id);
             // If the new org is in our organizations list and is an agency, fetch clients
             const org = organizations.find(o => o.id === id);
             if (org?.type === 'agency') {
@@ -242,7 +242,7 @@ const mapRole = (r: string): UserRole => {
                 setAgencyClients([]);
             }
         } else {
-            await SecureStore.deleteItemAsync("promorang_active_org_id");
+            await deleteSecureItem("promorang_active_org_id");
             setAgencyClients([]);
         }
     };
@@ -266,7 +266,7 @@ const mapRole = (r: string): UserRole => {
                 setRoles(fetchedRoles);
                 await fetchUserOrganizations(session.user.id);
 
-                const savedRole = await SecureStore.getItemAsync("promorang_active_role") as UserRole;
+                const savedRole = await getSecureItem("promorang_active_role") as UserRole;
                 if (savedRole && fetchedRoles.includes(savedRole)) {
                     setActiveRoleState(savedRole);
                 } else if (fetchedRoles.length > 0) {
@@ -289,7 +289,7 @@ const mapRole = (r: string): UserRole => {
                 setRoles(fetchedRoles);
                 await fetchUserOrganizations(session.user.id);
 
-                const savedRole = await SecureStore.getItemAsync("promorang_active_role") as UserRole;
+                const savedRole = await getSecureItem("promorang_active_role") as UserRole;
                 if (savedRole && fetchedRoles.includes(savedRole)) {
                     setActiveRoleState(savedRole);
                 } else if (fetchedRoles.length > 0) {
@@ -419,8 +419,8 @@ const mapRole = (r: string): UserRole => {
 
         try {
             setIsLoading(true)
-            const apiBaseUrl = process.env.EXPO_PUBLIC_API_URL || 'https://api.promorang.co/api'
-            const response = await fetch(`${apiBaseUrl}/auth/demo/${role}`, {
+            const apiBaseUrl = (process.env.EXPO_PUBLIC_API_URL || 'https://api.promorang.co').replace(/\/$/, '')
+            const response = await fetch(`${apiBaseUrl}/api/auth/demo/${role}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({}),

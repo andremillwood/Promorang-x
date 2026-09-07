@@ -21,6 +21,7 @@ type PromoCardFaceProps = {
   action?: string;
   className?: string;
   variant?: "spending" | "membership";
+  tier?: string;
 };
 
 export function PromoCardFace({
@@ -31,6 +32,7 @@ export function PromoCardFace({
   action = "Use this",
   className,
   variant = "spending",
+  tier,
 }: PromoCardFaceProps) {
   return (
     <article className={cn("pr-plastic-card w-full max-w-md p-5 text-white sm:p-6", className)} aria-label="PromoCard">
@@ -39,6 +41,7 @@ export function PromoCardFace({
           <div>
             <p className="text-[10px] font-bold tracking-[0.22em] text-amber-200/80">PROMORANG</p>
             <h3 className="mt-1 font-serif text-2xl font-bold tracking-tight">PromoCard</h3>
+            {tier ? <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-100/70">{tier} tier</p> : null}
           </div>
           <span className="h-8 w-11 rounded-md bg-gradient-to-br from-amber-200 to-amber-500 shadow-inner" aria-hidden />
         </div>
