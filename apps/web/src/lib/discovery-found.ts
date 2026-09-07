@@ -1,4 +1,4 @@
-import { makeRedemptionCode, type DiscoveryCardUnlock } from "@/lib/discovery-card";
+import { type DiscoveryCardUnlock } from "@/lib/discovery-card";
 import { intentWords } from "@/lib/discovery-path";
 import type { DemandRole } from "@/lib/discovery-demand";
 
@@ -97,7 +97,7 @@ export function unlockFromFoundListing(listing: FoundListing): DiscoveryCardUnlo
     perkTitle: listing.perkToFinder,
     city: listing.city,
     query: listing.words,
-    redemptionCode: makeRedemptionCode(listing.id),
+    redemptionCode: "",
     status: "claimed",
     createdAt: new Date().toISOString(),
     source: "finder",

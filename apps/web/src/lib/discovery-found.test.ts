@@ -91,9 +91,9 @@ describe("claimFoundListing", () => {
 });
 
 describe("unlockFromFoundListing", () => {
-  it("writes a show-this code onto the card", () => {
+  it("does not invent a merchant code before the server issues one", () => {
     const slip = unlockFromFoundListing(hike);
-    expect(slip.redemptionCode.startsWith("PR-")).toBe(true);
+    expect(slip.redemptionCode).toBe("");
     expect(slip.source).toBe("finder");
   });
 });

@@ -27,9 +27,9 @@ describe("unlockFromPoll", () => {
   it("lands one perk per poll and reuses the existing slip", () => {
     const first = unlockFromPoll({ poll, city: "Kingston" });
     expect(first.perkTitle).toBe("25% Off Jerk Platter");
-    expect(first.redemptionCode.startsWith("PR-")).toBe(true);
+    expect(first.redemptionCode).toBe("");
     const again = unlockFromPoll({ poll, city: "Kingston", existing: first });
-    expect(again.redemptionCode).toBe(first.redemptionCode);
+    expect(again.id).toBe(first.id);
   });
 });
 

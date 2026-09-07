@@ -33,16 +33,6 @@ export function perkTitleForPoll(poll: { targetUnlockPerk?: string; question?: s
   return perk || "City perk";
 }
 
-export function makeRedemptionCode(pollId: string): string {
-  const stub = String(pollId || "city")
-    .replace(/[^a-z0-9]/gi, "")
-    .slice(-4)
-    .toUpperCase()
-    .padStart(4, "X");
-  const salt = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `PR-${stub}${salt}`;
-}
-
 export function unlockFromPoll(input: {
   poll: { id: string; question: string; targetUnlockPerk?: string };
   city: string;
@@ -57,7 +47,7 @@ export function unlockFromPoll(input: {
     perkTitle: perkTitleForPoll(input.poll),
     city: input.city,
     query: (input.query || "").trim() || undefined,
-    redemptionCode: makeRedemptionCode(input.poll.id),
+    redemptionCode: input.existing?.redemptionCode || "",
     status: "claimed",
     createdAt: new Date().toISOString(),
     source: "discover",
