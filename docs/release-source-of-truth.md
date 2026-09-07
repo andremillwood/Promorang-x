@@ -19,8 +19,8 @@ Preview deployments from feature branches are allowed. They must never be promot
 
 | Surface | SHA / source | State |
 | --- | --- | --- |
-| Web (`promorang-alt`) | `main` at `4f1760d02` after #63, #61, #66, #60, #56, and #55 | Git production from `main` is the web line. Production deploy of this SHA was queued after the merge. |
-| API (`api`) | `main` at `4f1760d02` building for production | Root Directory is `backend`. Confirm this SHA on `api.promorang.co`, then delete `cursor/creative-cook-shop-season-35a2`. The alias previously pointed at `e75554f95` / `5a21288e8`. |
+| Web (`promorang-alt`) | `main` at `a2cfcfb51` after #63, #61, #66, #60, #56, #55, and #57 | Git production from `main` is the web line. Production of `a77e7b8ed` (post-#55 contract) was READY before this merge. |
+| API (`api`) | `main` at `a2cfcfb51` after the #57 merge | Root Directory is `backend`. Production of `a77e7b8ed` was READY. Confirm this SHA on `api.promorang.co`, then delete `cursor/creative-cook-shop-season-35a2`. |
 | API Git skip | `scripts/vercel-ignore-non-web.mjs` | Still skips a repo-root Vite build if the project id is the API project and Root Directory is wrong. |
 
 ## What belongs on `main`
@@ -36,6 +36,7 @@ Preview deployments from feature branches are allowed. They must never be promot
 9. Verified PromoCard loop from #60: live inventory, claimed-only credentials, fail-closed ledger reads, no localStorage perks or simulated wallet.
 10. Offer fulfillment journeys from #56: QR, automatic, manual, and shipping on the live card. Code / merchant-validation keep the copy-code dialog. Do not restore recharge or preview balances.
 11. Discover → PromoCard from #55: named intents, found listings, demand inbox, and server `discovery_card_unlocks`. Unlock perks only when the server returns a `redemption_code`. Do not invent `PR-` codes in the browser or treat localStorage as card credentials.
+12. Shared people chrome from #57: Today · People · Create · Earn · Card on web mobile and native. Web `/card` stays the live verified loop. Do not restore recharge, fake balances, `"Member"`, or placeholder serial `PR · 0842`.
 
 `main` must not absorb stacked agent PRs, parallel PromoCard experiments, or Today-as-public-home.
 
@@ -64,14 +65,13 @@ These target `main` and still change production behavior. Merge one overlapping 
 
 | PR | Branch | Verdict |
 | --- | --- | --- |
-| #57 | `cursor/mobile-web-parity-65dc` | Shared chrome + native PromoCard. Rebase onto `main` after #55. Keep the live `/card` page and Discover unlocks. Take mobile chrome (Today · People · Create · Earn · Card). Do not restore recharge, fake balances, `"Member"`, or placeholder serial `PR · 0842`. |
-| #62 | `cursor/world-layer-kingston-a62d` | Kingston After Dark implementation of the spec already on main. Review, then merge last in this set. |
+| #62 | `cursor/world-layer-kingston-a62d` | Kingston After Dark. Rebase onto `main` after #57. Keep the live `/card` page, Discover unlocks, and shared chrome. Eligibility-only PromoCard Return — no dollar refill. Do not merge #64 or #65 in parallel. |
 | #64 | `cursor/promocard-present-recut-26bd` | Recut of closed #50. Do not merge in parallel with the live card path. |
 | #65 | `cursor/promocard-wallet-face-1356` | Parallel wallet 3D pass on `/card`. Do not merge in parallel with the live card path. |
 
-Landed: **#63**, **#61**, **#66**, **#60**, **#56**, then **#55** (`4f1760d02`) on 7 September 2026.
+Landed: **#63**, **#61**, **#66**, **#60**, **#56**, **#55**, then **#57** (`a2cfcfb51`) on 7 September 2026.
 
-Suggested remaining order: **#57 → #62**.
+Suggested remaining order: **#62**.
 
 ## Closed in the 6 September 2026 pass
 
@@ -113,7 +113,7 @@ Deleted after the close pass (zero unique production commits):
 - `fix/jamaica-local-drop-build`
 - `fix/promorang-shared-entry`
 
-**Ready to delete after the #55 production alias is confirmed:** `cursor/creative-cook-shop-season-35a2`. `api.promorang.co` already pointed at `main` before #55; wait for `4f1760d02` on the production alias.
+**Ready to delete after the #57 production alias is confirmed:** `cursor/creative-cook-shop-season-35a2`. `api.promorang.co` already pointed at `main` before #57; wait for `a2cfcfb51` on the production alias.
 
 Closed-PR feature branches may be deleted after GitHub closes the PRs.
 
