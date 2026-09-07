@@ -7,7 +7,7 @@ import { useScene } from "@/hooks/useScenes";
 import { useJoinScene } from "@/hooks/useScenes";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { useHubExperience, useExperienceActions } from "@/hooks/usePeopleExperience";
+import { useHubExperience, useExperienceActions, useExperienceHome } from "@/hooks/usePeopleExperience";
 import { getSiteUrl } from "@/lib/discovery";
 import { generateSceneSchema } from "@/lib/seo-schemas";
 import { useI18n } from "@/i18n/I18nContext";
@@ -17,6 +17,7 @@ export default function CommunityDetail() {
   const { slug } = useParams();
   const query = useScene(slug);
   const hub = useHubExperience(slug);
+  const home = useExperienceHome();
   const { contribute, invite } = useExperienceActions();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -61,6 +62,23 @@ export default function CommunityDetail() {
           </div>
         </div>
       </section>
+
+      {home.data?.world?.health?.some((item: { count: number }) => item.count > 0) || home.data?.world?.dispatch?.line ? (
+        <section className="container px-6 pt-10">
+          {home.data?.world?.dispatch?.line ? <p className="text-sm text-white/55">{home.data.world.dispatch.line}</p> : null}
+          {home.data?.world?.health?.some((item: { count: number }) => item.count > 0) ? (
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
+              {home.data.world.health.map((item: { dimension: string; label: string; count: number }) => (
+                <article key={item.dimension} className="rounded-2xl border border-white/10 px-3 py-3">
+                  <p className="text-[10px] uppercase tracking-widest text-white/40">{item.label}</p>
+                  <p className="mt-1 font-serif text-xl font-bold">{item.count}</p>
+                </article>
+              ))}
+            </div>
+          ) : null}
+          <Link to="/progress" className="mt-4 inline-block text-sm font-bold text-primary">What changed because of you</Link>
+        </section>
+      ) : null}
 
       <section className="container px-6 py-14 sm:py-20">
         <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr]">

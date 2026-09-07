@@ -16,6 +16,7 @@ import { ValueExchangeSummary, type ValueOutcome } from "@/components/economy/Va
 import { useClaimVenueEnrichment, useVenueEnrichment } from "@/hooks/useVenueEnrichment";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/I18nContext";
+import { worldObjectState } from "@promorang/shared";
 
 type CommerceListing = Tables<"view_public_commerce_directory">;
 
@@ -130,6 +131,7 @@ export default function VenueProfile() {
 
   const venue = venueQuery.data;
   const moments = momentsQuery.data || [];
+  const nextMoment = moments.find((item) => item.starts_at && new Date(item.starts_at).getTime() >= Date.now()) || moments[0] || null;
   const content = contentQuery.data || [];
   const commerceListings = commerceQuery.data || [];
   const enrichmentOpportunities = enrichmentQuery.data || [];
@@ -236,6 +238,26 @@ export default function VenueProfile() {
                   </span>
                   {venue.address && <span>{venue.address}</span>}
                 </div>
+                {nextMoment || commerceListings.length ? (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {worldObjectState({
+                      startsAt: nextMoment?.starts_at,
+                      promoCardAccepted: commerceListings.length > 0,
+                    }).map((chip) => (
+                      <span key={chip} className="rounded-full border border-white/12 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/55">
+                        {chip}
+                      </span>
+                    ))}
+                    {nextMoment ? (
+                      <Link to={`/moments/${nextMoment.id}`} className="text-[10px] font-black uppercase tracking-wider text-primary">
+                        Next Moment · {nextMoment.title}
+                      </Link>
+                    ) : null}
+                    <Link to="/card" className="text-[10px] font-black uppercase tracking-wider text-white/45">
+                      PromoCard
+                    </Link>
+                  </div>
+                ) : null}
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur">
                 <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{t("venueProfile.proof")}</p>

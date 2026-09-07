@@ -2,6 +2,8 @@ const {
   resolveWorldConsequence,
   resolvePathEvidence,
   resolveCrewRunProgress,
+  resolveSceneHealth,
+  resolveFaction,
   SHOW_UP_ACTION_TYPES,
   PATH_EVIDENCE_THRESHOLD,
 } = require('../../services/worldLayer');
@@ -59,5 +61,12 @@ describe('world layer presentation', () => {
   test('show-up types stay explicit so referrals cannot mint a presence receipt', () => {
     expect(SHOW_UP_ACTION_TYPES).toEqual(expect.arrayContaining(['MOMENT_ATTENDANCE', 'check_in']));
     expect(SHOW_UP_ACTION_TYPES).not.toEqual(expect.arrayContaining(['FRIEND_INVITE']));
+  });
+
+  test('scene health and factions stay optional and evidence-backed', () => {
+    expect(resolveFaction(null)).toBeNull();
+    const health = resolveSceneHealth([{ actionType: 'check_in' }, { actionType: 'PURCHASE' }]);
+    expect(health.find((item) => item.dimension === 'memory').count).toBe(1);
+    expect(health.find((item) => item.dimension === 'sustainability').count).toBe(1);
   });
 });

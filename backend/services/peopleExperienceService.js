@@ -3,6 +3,7 @@ const { supabase: defaultDb } = require('../lib/supabase');
 const offerService = require('./offerService');
 const worldLayer = require('./worldLayer');
 const worldCrewService = require('./worldCrewService');
+const worldPlayerService = require('./worldPlayerService');
 
 const OPERATOR_ROLES = new Set(['operator', 'steward']);
 const CONTRIBUTOR_ROLES = new Set(['contributor', 'operator', 'steward']);
@@ -1184,6 +1185,13 @@ function createPeopleExperienceService(db = defaultDb) {
     const latestMemory = (memories.data || [])[0] || null;
     const latestAction = (happened?.recent || []).find((row) => row.user_id === userId) || (happened?.recent || [])[0] || null;
     const path = worldLayer.resolvePathEvidence((happened?.recent || []).map((row) => ({ actionType: row.action_type })));
+    const health = worldLayer.resolveSceneHealth((happened?.recent || []).map((row) => ({ actionType: row.action_type })));
+    let player = { faction: null };
+    try {
+      player = await worldPlayerService.getPlayerState(userId, db);
+    } catch (error) {
+      console.warn('[People Experience] player state skipped:', error.message);
+    }
     let crew = null;
     try {
       crew = await worldCrewService.getMyCrew(userId, db);
@@ -1210,6 +1218,11 @@ function createPeopleExperienceService(db = defaultDb) {
       area: slice.area,
     });
     currentMove.header = worldLayer.timeAwareWorldHeader();
+    const dispatch = worldLayer.resolveSeasonDispatch({
+      seasonTitle: sceneRow?.metadata?.season_title || slice.seasonTitle,
+      hasLiveMoment: Boolean(nextMoment?.id),
+      placeName: nextMoment?.venue_name || nextMoment?.location || null,
+    });
 
     const latestReturn = latestAction && worldLayer.SHOW_UP_ACTION_TYPES.includes(latestAction.action_type)
       ? worldLayer.resolveWorldConsequence({
@@ -1251,7 +1264,11 @@ function createPeopleExperienceService(db = defaultDb) {
         forming: path.forming,
         title: path.title,
         cue: path.cue,
+        counts: path.counts,
       },
+      health,
+      faction: player.faction,
+      dispatch,
       crew: crew
         ? {
             id: crew.id,
@@ -1808,11 +1825,23 @@ function createPeopleExperienceService(db = defaultDb) {
     return inserted.data;
   }
 
+  async function getProgress(userId) {
+    const home = await getHome(userId);
+    return {
+      role: home.role,
+      name: home.name,
+      world: home.world,
+      happened: home.happened,
+      card: home.card,
+    };
+  }
+
   return {
     classifyExperienceRole,
     contributorValueScore,
     happenedBuckets,
     getHome,
+    getProgress,
     getNetwork,
     getGiveablePerks,
     getOpportunities,

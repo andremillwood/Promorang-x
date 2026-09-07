@@ -5,7 +5,7 @@
 
 const crypto = require('crypto');
 const { supabase: serviceSupabase } = require('../lib/supabase');
-const { KINGSTON_AFTER_DARK_SLICE, resolveCrewRunProgress, resolvePathEvidence } = require('./worldLayer');
+const { KINGSTON_AFTER_DARK_SLICE, resolveCrewRunProgress, resolvePathEvidence, resolveCrewRunRole, CREW_RUN_ROLES } = require('./worldLayer');
 
 const CREW_MIN = 3;
 const CREW_MAX = 8;
@@ -63,7 +63,7 @@ async function getCrew(crewId, viewerId, db = serviceSupabase) {
   const crew = await db.from('world_crews').select('*').eq('id', crewId).maybeSingle();
   if (crew.error || !crew.data) return null;
 
-  const members = await db.from('world_crew_members').select('user_id, joined_at').eq('crew_id', crewId);
+  const members = await db.from('world_crew_members').select('user_id, joined_at, run_role').eq('crew_id', crewId);
   const memberIds = (members.data || []).map((row) => row.user_id);
   const [actions, memories, scene] = await Promise.all([
     memberActions(db, memberIds, crew.data.scene_id),
@@ -87,12 +87,14 @@ async function getCrew(crewId, viewerId, db = serviceSupabase) {
     const person = await profileFor(db, member.user_id);
     const theirActions = (actions || []).filter((row) => row.user_id === member.user_id);
     const path = resolvePathEvidence(theirActions.map((row) => ({ actionType: row.action_type })));
+    const role = resolveCrewRunRole(member.run_role);
     profiles.push({
       userId: member.user_id,
       name: displayName(person),
       joinedAt: member.joined_at,
       pathCue: path.cue,
       pathTitle: path.title,
+      runRole: role ? { key: role.key, title: role.title, job: role.job } : null,
     });
   }
 
@@ -169,6 +171,28 @@ async function joinCrewByCode(userId, code, db = serviceSupabase) {
   return getCrew(crew.data.id, userId, db);
 }
 
+async function setRunRole(actorId, roleKey, memberUserId = actorId, db = serviceSupabase) {
+  if (!actorId) throw new Error('Sign in to take a Run role');
+  if (!CREW_RUN_ROLES[roleKey]) throw new Error('That Run role is not available');
+  const crew = await getMyCrew(actorId, db);
+  if (!crew) throw new Error('Form or join a Crew first');
+  const targetId = memberUserId || actorId;
+  if (!crew.members.some((member) => member.userId === targetId)) {
+    throw new Error('That person is not in this Crew');
+  }
+  const taken = crew.members.find((member) => member.runRole?.key === roleKey && member.userId !== targetId);
+  if (taken) throw new Error(`${CREW_RUN_ROLES[roleKey].title} is already taken`);
+  const updated = await db
+    .from('world_crew_members')
+    .update({ run_role: roleKey })
+    .eq('crew_id', crew.id)
+    .eq('user_id', targetId)
+    .select()
+    .maybeSingle();
+  if (updated.error) throw updated.error;
+  return getCrew(crew.id, actorId, db);
+}
+
 module.exports = {
   CREW_MIN,
   CREW_MAX,
@@ -176,4 +200,5 @@ module.exports = {
   getCrew,
   createCrew,
   joinCrewByCode,
+  setRunRole,
 };

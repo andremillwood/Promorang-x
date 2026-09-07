@@ -56,4 +56,10 @@ export const peopleExperienceApi = {
   crew: () => request<Record<string, any> | null>("/crew"),
   createCrew: (body: Record<string, unknown>) => request<Record<string, any>>("/crew", { method: "POST", body: JSON.stringify(body) }),
   joinCrew: (code: string) => request<Record<string, any>>("/crew/join", { method: "POST", body: JSON.stringify({ code }) }),
+  setCrewRole: (role: string, userId?: string) =>
+    request<Record<string, any>>("/crew/role", { method: "POST", body: JSON.stringify({ role, userId }) }),
+  progress: () => request<Record<string, any>>("/progress"),
+  faction: () => request<Record<string, any>>("/faction"),
+  setFaction: (faction: string | null) =>
+    request<Record<string, any>>("/faction", { method: "POST", body: JSON.stringify({ faction }) }),
 };

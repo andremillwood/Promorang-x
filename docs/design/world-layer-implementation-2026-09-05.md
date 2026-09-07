@@ -88,44 +88,54 @@ Design doctrine only (do not treat as live product):
 - New tables: `world_crews`, `world_crew_members`, `world_runs`
 - New surface: `/crews` (not `/crew`)
 - Barbican Run progress is derived from crew members’ `verified_actions` + memories
-- Size 3–8. One invite code. No factions.
+- Size 3–8. One invite code. Temporary Run roles: Captain, Scout, Chronicler, Keeper.
 
 ### Phase 7 — Emerging mastery
 
 - Six evidence dimensions from verified action types
 - Path title surfaces only after 3 matching actions (“A path is forming”)
+- `/progress` shows counts, latest Return, Scene contribution, optional faction
 
 ### Phase 8 — Story layer (light)
 
 - Time-aware Kingston headers
-- Season headers on the Scene
+- Season headers and dispatch on the Scene
 - Signal / Current / Return language only where it does not hide time, place, price, or proof
+
+### Remaining vision (7 September 2026)
+
+- Web Moment detail mounts the existing before/during/after `MomentNow` rail on real UUIDs
+- Place pages show truthful chips from the next Moment and PromoCard-accepted offers
+- Optional factions (Seekers / Weavers / Makers / Keepers / Stewards) — never required at signup, not wars
+- Scene health dimensions are counts of the viewer’s verified actions
+- Mobile `/crews` and `/progress` stack screens; Today links to world move, Crew, Vault
 
 ## What remains deferred
 
-- Factions, guilds, territory, trading, companions, AR, NPC chat
+- Guilds, territory, trading, companions, AR, NPC chat, faction wars
 - Financial PromoCard refill processor (eligibility is recorded; `available_balance` is **not** auto-incremented)
 - Map mode as a V1 requirement
 - `system_missions`, `gem_ledger_entries` (schema-only)
-- Mobile parity for `/crews` and the new Vault hierarchy
-- Deep Moment before / during / after rewrite
 - Creative mastery (player-authored Runs)
+- Discover wheel/streak removal (held for a dedicated pass)
 
 ### Explicit TODOs blocked on operations
 
 - TODO: wire a clearinghouse that applies eligible `attention_recharge_events` to `user_promo_cards.available_balance` after merchant / finance rules exist
 - TODO: seed 3–5 **live** Barbican Places / Moments with real hosts before claiming density
-- TODO: mobile Today / Vault / Crews parity
-- TODO: measure Phase 9 metrics after the slice is used with real nights
+- TODO: measure whether first/second verified action, Crew invites, Memory return, and merchant redemptions move
 
 ## Data / schema changes
 
 `supabase/migrations/202609050003_world_crews_and_kingston_season.sql`
+`supabase/migrations/202609070001_world_roles_and_factions.sql`
 
 - `world_crews`, `world_crew_members`, `world_runs`
 - Unique: one Crew seat per user
 - RLS: authenticated read of own seats; writes stay on the service role
 - Kingston scene metadata: `season_key`, `season_title`, `season_line`, `test_area`
+- `world_crew_members.run_role` (Captain / Scout / Chronicler / Keeper)
+- `world_player_state.faction_key` (optional; never required at signup)
 
 No second activity ledger. No second wallet.
 
@@ -139,7 +149,11 @@ No second activity ledger. No second wallet.
 | Vault | Cultural first impression; economy preserved lower |
 | `/crews` | Small-group unit + Barbican Run |
 | Scene | Season header when metadata exists |
-| Discover | Truthful chips; mock wheel/streak rail removed |
+| Discover | Truthful chips on non-editorial Moments |
+| `/progress` | Path evidence, Return, Scene contribution, optional faction |
+| Moment detail | Existing `MomentNow` before/during/after rail on real Moments |
+| Place | Signal / PromoCard chips from real next Moment and offers |
+| Mobile | `/crews`, `/progress`, Today world move |
 
 ## How PromoCard was protected
 

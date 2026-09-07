@@ -3,9 +3,14 @@ import {
   KINGSTON_AFTER_DARK_SLICE,
   PATH_EVIDENCE_THRESHOLD,
   resolveCrewRunProgress,
+  resolveCrewRunRole,
+  resolveFaction,
   resolvePathEvidence,
+  resolveSceneHealth,
+  resolveSeasonDispatch,
   resolveWorldConsequence,
   resolveWorldCurrentMove,
+  resolveWorldMomentPhase,
   timeAwareWorldHeader,
   worldObjectState,
 } from "../src/world-layer";
@@ -138,5 +143,42 @@ describe("world object chips", () => {
   it("keeps night copy after dark and a calmer header by day", () => {
     expect(timeAwareWorldHeader(new Date("2026-09-05T22:00:00"))).toBe("Tonight in Kingston");
     expect(timeAwareWorldHeader(new Date("2026-09-05T10:00:00"))).toBe("This morning in Kingston");
+  });
+});
+
+describe("optional factions and run roles", () => {
+  it("treats factions as philosophy, not a required class", () => {
+    expect(resolveFaction(null)).toBeNull();
+    expect(resolveFaction("weavers")?.verb).toBe("connection");
+  });
+
+  it("keeps Run roles temporary and named", () => {
+    expect(resolveCrewRunRole("captain")?.title).toBe("Captain");
+    expect(resolveCrewRunRole("wizard")).toBeNull();
+  });
+
+  it("counts Scene health from verified actions only", () => {
+    const health = resolveSceneHealth([
+      { actionType: "discovery_vote" },
+      { actionType: "referral_activated" },
+      { actionType: "check_in" },
+    ]);
+    expect(health.find((item) => item.dimension === "discovery")?.count).toBe(1);
+    expect(health.find((item) => item.dimension === "connection")?.count).toBe(1);
+    expect(health.find((item) => item.dimension === "memory")?.count).toBe(1);
+    expect(health.find((item) => item.dimension === "sustainability")?.count).toBe(0);
+  });
+
+  it("writes a season dispatch without inventing attendance", () => {
+    const quiet = resolveSeasonDispatch({});
+    expect(quiet.line).toBe(KINGSTON_AFTER_DARK_SLICE.currentLine);
+    const live = resolveSeasonDispatch({ hasLiveMoment: true, placeName: "Sea Deck" });
+    expect(live.line).toContain("Sea Deck");
+  });
+
+  it("places a Moment in before/during/after from proof, not a clock alone", () => {
+    expect(resolveWorldMomentPhase({ hasMemory: true })).toBe("after");
+    expect(resolveWorldMomentPhase({ arrived: true })).toBe("after");
+    expect(resolveWorldMomentPhase({ joined: false })).toBe("before");
   });
 });

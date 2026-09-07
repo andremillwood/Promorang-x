@@ -554,4 +554,14 @@ export const peopleExperienceApi = {
     experienceRequest<Record<string, any>>('/start', { method: 'POST', body: JSON.stringify(body) }),
   ask: (body: Record<string, unknown>) =>
     experienceRequest<Record<string, any>>('/ask', { method: 'POST', body: JSON.stringify(body) }),
+  crew: () => experienceRequest<Record<string, any> | null>('/crew'),
+  createCrew: (body: Record<string, unknown>) =>
+    experienceRequest<Record<string, any>>('/crew', { method: 'POST', body: JSON.stringify(body) }),
+  joinCrew: (code: string) =>
+    experienceRequest<Record<string, any>>('/crew/join', { method: 'POST', body: JSON.stringify({ code }) }),
+  setCrewRole: (role: string) =>
+    experienceRequest<Record<string, any>>('/crew/role', { method: 'POST', body: JSON.stringify({ role }) }),
+  progress: () => experienceRequest<Record<string, any>>('/progress'),
+  setFaction: (faction: string | null) =>
+    experienceRequest<Record<string, any>>('/faction', { method: 'POST', body: JSON.stringify({ faction }) }),
 };

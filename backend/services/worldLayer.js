@@ -246,6 +246,64 @@ function resolveWorldCurrentMove(facts = {}, slice = KINGSTON_AFTER_DARK_SLICE) 
   };
 }
 
+const WORLD_FACTIONS = {
+  seekers: { key: 'seekers', title: 'Seekers', verb: 'discovery', line: 'Find what the Current has not named yet.' },
+  weavers: { key: 'weavers', title: 'Weavers', verb: 'connection', line: 'Introduce people who should already know each other.' },
+  makers: { key: 'makers', title: 'Makers', verb: 'creation', line: 'Make the night worth remembering.' },
+  keepers: { key: 'keepers', title: 'Keepers', verb: 'memory', line: 'Keep what happened so the Scene does not forget.' },
+  stewards: { key: 'stewards', title: 'Stewards', verb: 'sustainability', line: 'Keep the Places able to do this again.' },
+};
+
+const CREW_RUN_ROLES = {
+  captain: { key: 'captain', title: 'Captain', job: 'Keep the Crew moving toward the Run.' },
+  scout: { key: 'scout', title: 'Scout', job: 'Find the Signal and the room.' },
+  chronicler: { key: 'chronicler', title: 'Chronicler', job: 'Keep proof of what counted.' },
+  keeper: { key: 'keeper', title: 'Keeper', job: 'Hold the Memory and what came back.' },
+};
+
+const DIMENSION_TO_HEALTH = {
+  discover: 'discovery',
+  connect: 'connection',
+  create: 'creation',
+  host: 'creation',
+  keep: 'memory',
+  support: 'sustainability',
+};
+
+function resolveFaction(key) {
+  return key && WORLD_FACTIONS[key] ? WORLD_FACTIONS[key] : null;
+}
+
+function resolveCrewRunRole(key) {
+  return key && CREW_RUN_ROLES[key] ? CREW_RUN_ROLES[key] : null;
+}
+
+function resolveSceneHealth(actions) {
+  const counts = { discovery: 0, connection: 0, creation: 0, memory: 0, sustainability: 0 };
+  for (const action of actions || []) {
+    const dimension = mapActionToPathDimension(action.actionType);
+    if (dimension) counts[DIMENSION_TO_HEALTH[dimension]] += 1;
+  }
+  return Object.entries(counts).map(([dimension, count]) => ({
+    dimension,
+    label: dimension[0].toUpperCase() + dimension.slice(1),
+    count,
+  }));
+}
+
+function resolveSeasonDispatch(facts = {}, slice = KINGSTON_AFTER_DARK_SLICE) {
+  const season = facts.seasonTitle || slice.seasonTitle;
+  if (facts.hasLiveMoment) {
+    return {
+      eyebrow: season,
+      line: facts.placeName
+        ? `A Signal is up at ${facts.placeName}. Follow it before the room thins.`
+        : 'A Signal is up. Follow it before the room thins.',
+    };
+  }
+  return { eyebrow: season, line: slice.currentLine };
+}
+
 function timeAwareWorldHeader(now = new Date(), slice = KINGSTON_AFTER_DARK_SLICE) {
   const hour = now.getHours();
   if (hour >= 17 || hour < 4) return slice.header;
@@ -281,6 +339,8 @@ module.exports = {
   KINGSTON_AFTER_DARK_SLICE,
   PATH_EVIDENCE_THRESHOLD,
   SHOW_UP_ACTION_TYPES,
+  WORLD_FACTIONS,
+  CREW_RUN_ROLES,
   resolveWorldConsequence,
   resolveWorldCurrentMove,
   resolvePathEvidence,
@@ -288,4 +348,8 @@ module.exports = {
   mapActionToPathDimension,
   timeAwareWorldHeader,
   consequenceFromCheckIn,
+  resolveFaction,
+  resolveCrewRunRole,
+  resolveSceneHealth,
+  resolveSeasonDispatch,
 };

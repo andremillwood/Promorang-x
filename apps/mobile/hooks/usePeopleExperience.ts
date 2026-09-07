@@ -82,6 +82,8 @@ export function useExperienceActions() {
     queryClient.invalidateQueries({ queryKey: ['experience-opportunities'] });
     queryClient.invalidateQueries({ queryKey: ['experience-happened'] });
     queryClient.invalidateQueries({ queryKey: ['experience-card'] });
+    queryClient.invalidateQueries({ queryKey: ['experience-crew'] });
+    queryClient.invalidateQueries({ queryKey: ['experience-progress'] });
   };
 
   return {
@@ -118,5 +120,41 @@ export function useExperienceActions() {
       mutationFn: peopleExperienceApi.provideInventory,
       onSuccess: invalidate,
     }),
+    createCrew: useMutation({
+      mutationFn: peopleExperienceApi.createCrew,
+      onSuccess: invalidate,
+    }),
+    joinCrew: useMutation({
+      mutationFn: (code: string) => peopleExperienceApi.joinCrew(code),
+      onSuccess: invalidate,
+    }),
+    setCrewRole: useMutation({
+      mutationFn: (role: string) => peopleExperienceApi.setCrewRole(role),
+      onSuccess: invalidate,
+    }),
+    setFaction: useMutation({
+      mutationFn: (faction: string | null) => peopleExperienceApi.setFaction(faction),
+      onSuccess: invalidate,
+    }),
   };
+}
+
+export function useMyCrew() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['experience-crew', user?.id],
+    queryFn: () => peopleExperienceApi.crew(),
+    enabled: Boolean(user),
+    retry: 1,
+  });
+}
+
+export function useWorldProgress() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['experience-progress', user?.id],
+    queryFn: () => peopleExperienceApi.progress(),
+    enabled: Boolean(user),
+    retry: 1,
+  });
 }

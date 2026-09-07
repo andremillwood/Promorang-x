@@ -466,3 +466,133 @@ export function timeAwareWorldHeader(now: Date = new Date(), slice: WorldSlice =
   if (hour < 12) return "This morning in Kingston";
   return "Today in Kingston";
 }
+
+export type WorldFactionKey = "seekers" | "weavers" | "makers" | "keepers" | "stewards";
+
+export type WorldFaction = {
+  key: WorldFactionKey;
+  title: string;
+  verb: "discovery" | "connection" | "creation" | "memory" | "sustainability";
+  line: string;
+};
+
+export const WORLD_FACTIONS: Record<WorldFactionKey, WorldFaction> = {
+  seekers: { key: "seekers", title: "Seekers", verb: "discovery", line: "Find what the Current has not named yet." },
+  weavers: { key: "weavers", title: "Weavers", verb: "connection", line: "Introduce people who should already know each other." },
+  makers: { key: "makers", title: "Makers", verb: "creation", line: "Make the night worth remembering." },
+  keepers: { key: "keepers", title: "Keepers", verb: "memory", line: "Keep what happened so the Scene does not forget." },
+  stewards: { key: "stewards", title: "Stewards", verb: "sustainability", line: "Keep the Places able to do this again." },
+};
+
+export const WORLD_FACTION_KEYS = Object.keys(WORLD_FACTIONS) as WorldFactionKey[];
+
+export function resolveFaction(key?: string | null): WorldFaction | null {
+  if (!key) return null;
+  return WORLD_FACTIONS[key as WorldFactionKey] || null;
+}
+
+export type CrewRunRoleKey = "captain" | "scout" | "chronicler" | "keeper";
+
+export type CrewRunRole = {
+  key: CrewRunRoleKey;
+  title: string;
+  job: string;
+};
+
+export const CREW_RUN_ROLES: Record<CrewRunRoleKey, CrewRunRole> = {
+  captain: { key: "captain", title: "Captain", job: "Keep the Crew moving toward the Run." },
+  scout: { key: "scout", title: "Scout", job: "Find the Signal and the room." },
+  chronicler: { key: "chronicler", title: "Chronicler", job: "Keep proof of what counted." },
+  keeper: { key: "keeper", title: "Keeper", job: "Hold the Memory and what came back." },
+};
+
+export const CREW_RUN_ROLE_KEYS = Object.keys(CREW_RUN_ROLES) as CrewRunRoleKey[];
+
+export function resolveCrewRunRole(key?: string | null): CrewRunRole | null {
+  if (!key) return null;
+  return CREW_RUN_ROLES[key as CrewRunRoleKey] || null;
+}
+
+export type SceneHealthDimension = WorldFaction["verb"];
+
+export type SceneHealth = {
+  dimension: SceneHealthDimension;
+  label: string;
+  count: number;
+};
+
+const HEALTH_LABELS: Record<SceneHealthDimension, string> = {
+  discovery: "Discovery",
+  connection: "Connection",
+  creation: "Creation",
+  memory: "Memory",
+  sustainability: "Sustainability",
+};
+
+const DIMENSION_TO_HEALTH: Record<WorldPathDimension, SceneHealthDimension> = {
+  discover: "discovery",
+  connect: "connection",
+  create: "creation",
+  host: "creation",
+  keep: "memory",
+  support: "sustainability",
+};
+
+export function resolveSceneHealth(actions: PathEvidenceInput[]): SceneHealth[] {
+  const counts: Record<SceneHealthDimension, number> = {
+    discovery: 0,
+    connection: 0,
+    creation: 0,
+    memory: 0,
+    sustainability: 0,
+  };
+  for (const action of actions || []) {
+    const dimension = mapActionToPathDimension(action.actionType);
+    if (dimension) counts[DIMENSION_TO_HEALTH[dimension]] += 1;
+  }
+  return (Object.keys(HEALTH_LABELS) as SceneHealthDimension[]).map((dimension) => ({
+    dimension,
+    label: HEALTH_LABELS[dimension],
+    count: counts[dimension],
+  }));
+}
+
+export function resolveSeasonDispatch(facts: {
+  seasonTitle?: string | null;
+  hasLiveMoment?: boolean;
+  placeName?: string | null;
+  now?: Date;
+  slice?: WorldSlice;
+}): { eyebrow: string; line: string } {
+  const slice = facts.slice || KINGSTON_AFTER_DARK_SLICE;
+  const season = facts.seasonTitle || slice.seasonTitle;
+  if (facts.hasLiveMoment) {
+    return {
+      eyebrow: season,
+      line: facts.placeName
+        ? `A Signal is up at ${facts.placeName}. Follow it before the room thins.`
+        : "A Signal is up. Follow it before the room thins.",
+    };
+  }
+  return {
+    eyebrow: season,
+    line: slice.currentLine,
+  };
+}
+
+export function resolveWorldMomentPhase(facts: {
+  joined?: boolean;
+  arrived?: boolean;
+  hasMemory?: boolean;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  now?: Date;
+}): "before" | "during" | "after" {
+  if (facts.hasMemory || facts.arrived) return "after";
+  const now = (facts.now || new Date()).getTime();
+  const start = facts.startsAt ? new Date(facts.startsAt).getTime() : NaN;
+  const end = facts.endsAt ? new Date(facts.endsAt).getTime() : NaN;
+  if (Number.isFinite(start) && Number.isFinite(end) && now >= start && now <= end) return "during";
+  if (facts.joined && Number.isFinite(start) && now >= start) return "during";
+  return "before";
+}
