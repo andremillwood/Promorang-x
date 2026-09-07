@@ -218,6 +218,30 @@ function contributorRewardAmount(offer = {}) {
   return 25;
 }
 
+function locationFromOffer(offer = {}, drop = {}) {
+  const meta = offer.metadata && typeof offer.metadata === 'object' ? offer.metadata : {};
+  const dropMeta = drop.metadata && typeof drop.metadata === 'object' ? drop.metadata : {};
+  return meta.location
+    || meta.venue
+    || meta.venue_name
+    || meta.area
+    || meta.city
+    || meta.neighbourhood
+    || meta.neighborhood
+    || meta.place
+    || dropMeta.location
+    || dropMeta.venue
+    || dropMeta.city
+    || drop.location
+    || null;
+}
+
+function minSpendFromOffer(offer = {}) {
+  const meta = offer.metadata && typeof offer.metadata === 'object' ? offer.metadata : {};
+  const value = Number(meta.min_spend ?? meta.minimum_spend ?? meta.minSpend);
+  return Number.isFinite(value) && value > 0 ? value : null;
+}
+
 function toPromoCardBenefit({
   id,
   offer = {},
@@ -244,6 +268,11 @@ function toPromoCardBenefit({
     dropId: drop.id || issuance.metadata?.drop_id || null,
     title: offer.title || drop.title || 'Perk',
     detail: offer.description || drop.description || '',
+    rewardType: offer.reward_type || null,
+    valueAmount: offer.value_amount != null ? Number(offer.value_amount) : null,
+    valueCurrency: offer.value_currency || null,
+    locationLabel: locationFromOffer(offer, drop),
+    minSpend: minSpendFromOffer(offer),
     issuer: {
       id: offer.owner_user_id || drop.creator_id || null,
       type: offer.owner_type || (drop.perk_kind === 'merchant' ? 'merchant' : 'creator'),

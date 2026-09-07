@@ -1,12 +1,21 @@
 import { describe, expect, it } from "vitest";
 import {
+  benefitCtaLabel,
+  benefitExpiryLabel,
+  benefitScarcityLabel,
   canUseBenefit,
+  classifyBenefitType,
   contributorRewardAmount,
+  emptyPromoBenefitPresentation,
   fulfillmentFromStatus,
   isCompleteBenefit,
+  isLivePromoBenefit,
   loopProgress,
+  presentBenefitHeadline,
+  presentPromoBenefit,
   primaryCardAction,
   remainingQuantity,
+  selectFeaturedBenefit,
   selectNextBenefit,
   selectUseThis,
   summarizeRepeatUse,
@@ -93,5 +102,69 @@ describe("PromoCard benefit source of truth", () => {
     expect(loop.current).toBe("return_reason");
     expect(loop.done.merchant_validated).toBe(true);
     expect(loopProgress({ supplied: true, shared: true }).current).toBe("member_claimed");
+  });
+});
+
+describe("PromoCard benefit presentation", () => {
+  const nearby = {
+    ...usable,
+    fulfillmentState: "available" as const,
+    redemption: { recorded: false, code: null, redeemedAt: null, redeemedBy: null },
+  };
+
+  it("derives concrete headlines for money, percent, free, access and bundle offers", () => {
+    expect(presentBenefitHeadline({ title: "Sea Deck weekend", valueAmount: 50, rewardType: "coupon" })).toBe("$50 OFF");
+    expect(presentBenefitHeadline({ title: "Barbican dinner", valueAmount: 500, rewardType: "voucher" })).toBe("$500 OFF");
+    expect(presentBenefitHeadline({ title: "10% off mains", valueAmount: 10, rewardType: "coupon" })).toBe("10% OFF");
+    expect(presentBenefitHeadline({ title: "Free Wings", detail: "with any main meal" })).toBe("FREE WINGS");
+    expect(presentBenefitHeadline({ title: "Free Entry", rewardType: "experience" })).toBe("FREE ENTRY");
+    expect(presentBenefitHeadline({ title: "2-for-1 rum special" })).toBe("2-FOR-1 RUM SPECIAL");
+    expect(presentBenefitHeadline({ title: "Complimentary drink" })).toBe("COMPLIMENTARY DRINK");
+    expect(presentBenefitHeadline({ title: "VIP Access" })).toBe("VIP ACCESS");
+    expect(presentBenefitHeadline({ title: "Early access" })).toBe("EARLY ACCESS");
+    expect(classifyBenefitType({ title: "10% off mains", valueAmount: 10 })).toBe("percentage_discount");
+    expect(classifyBenefitType({ title: "VIP Access" })).toBe("access");
+    expect(classifyBenefitType({ title: "Free Wings" })).toBe("free_item");
+  });
+
+  it("does not invent a dollar amount when the offer has no value", () => {
+    expect(presentBenefitHeadline({ title: "Friday tasting" })).toBe("FRIDAY TASTING");
+    expect(presentBenefitHeadline({ title: "" })).toBe("A LIVE BENEFIT");
+  });
+
+  it("shows real scarcity and omits it when inventory or expiry is missing", () => {
+    expect(benefitScarcityLabel({ availableQuantity: 23, eligibility: usable.eligibility, expiresAt: null })).toBe("23 remaining");
+    expect(benefitScarcityLabel({ availableQuantity: 8, eligibility: usable.eligibility, expiresAt: null })).toBe("Only 8 left");
+    expect(benefitScarcityLabel({ availableQuantity: null, eligibility: { ...usable.eligibility, remaining: null }, expiresAt: null })).toBeUndefined();
+    const tonight = new Date();
+    tonight.setHours(22, 0, 0, 0);
+    expect(benefitExpiryLabel(tonight.toISOString(), tonight.getTime() - 60_000)).toBe("Ends tonight");
+  });
+
+  it("uses contextual customer CTAs instead of Use this", () => {
+    expect(benefitCtaLabel({ ...nearby, title: "$500 OFF", valueAmount: 500 })).toBe("Claim $500 Off");
+    expect(benefitCtaLabel({ ...nearby, title: "Free Wings" })).toBe("Get Free Wings");
+    expect(benefitCtaLabel({ ...nearby, title: "Free Entry" })).toBe("Unlock Entry");
+    expect(benefitCtaLabel({ ...nearby, title: "VIP Access" })).toBe("Unlock Access");
+    expect(benefitCtaLabel({ ...nearby, title: "2-for-1 rum special" })).toBe("Unlock Offer");
+    expect(benefitCtaLabel(usable, { claimed: true })).toBe("Redeem Benefit");
+  });
+
+  it("features a claimed usable benefit, then the strongest live nearby offer", () => {
+    const weak = { ...nearby, id: "weak", title: "Open table", availableQuantity: 40, valueAmount: null };
+    const strong = { ...nearby, id: "strong", title: "$500 OFF", valueAmount: 500, availableQuantity: 12, locationLabel: "Barbican" };
+    expect(selectFeaturedBenefit({ useThis: usable, nearby: [weak, strong] })?.id).toBe("iss-1");
+    expect(selectFeaturedBenefit({ nearby: [weak, strong] })?.id).toBe("strong");
+    expect(selectFeaturedBenefit({ nearby: [{ ...strong, availableQuantity: 0, fulfillmentState: "exhausted" }] })).toBeNull();
+    expect(isLivePromoBenefit({ ...strong, availableQuantity: 0 })).toBe(false);
+  });
+
+  it("keeps the empty state honest", () => {
+    const empty = emptyPromoBenefitPresentation({ authenticated: false });
+    expect(empty.headline).toBe("NEW BENEFITS ARE LANDING");
+    expect(empty.ctaLabel).toBe("Get My PromoCard");
+    expect(empty.empty).toBe(true);
+    expect(presentPromoBenefit(null)).toBeNull();
+    expect(presentPromoBenefit({ ...nearby, title: "$50 OFF", valueAmount: 50, locationLabel: "Kingston" })?.headline).toBe("$50 OFF");
   });
 });

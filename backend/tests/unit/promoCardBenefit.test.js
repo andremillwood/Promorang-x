@@ -23,7 +23,10 @@ test('every card benefit carries issuer, eligibility, quantity, expiry, fulfillm
       quantity_redeemed: 3,
       per_user_limit: 1,
       value_amount: 15,
+      value_currency: 'JMD',
+      reward_type: 'coupon',
       ends_at: '2026-12-01T00:00:00.000Z',
+      metadata: { location: 'Barbican', min_spend: 3000, merchant_name: 'Yardbird' },
     },
     issuance: {
       id: 'iss-1',
@@ -37,6 +40,11 @@ test('every card benefit carries issuer, eligibility, quantity, expiry, fulfillm
   });
 
   expect(benefit.issuer).toMatchObject({ id: 'merchant-1', type: 'merchant', name: 'Yardbird' });
+  expect(benefit.rewardType).toBe('coupon');
+  expect(benefit.valueAmount).toBe(15);
+  expect(benefit.valueCurrency).toBe('JMD');
+  expect(benefit.locationLabel).toBe('Barbican');
+  expect(benefit.minSpend).toBe(3000);
   expect(benefit.eligibility.remaining).toBe(13);
   expect(benefit.availableQuantity).toBe(13);
   expect(benefit.budget).toBe(195);

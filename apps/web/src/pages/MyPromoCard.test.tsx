@@ -13,7 +13,11 @@ const { query } = vi.hoisted(() => ({
     refetch: vi.fn(),
   },
 }));
-vi.mock("@/hooks/usePeopleExperience", () => ({ useMyPromoCard: () => query }));
+vi.mock("@/hooks/usePeopleExperience", () => ({
+  useMyPromoCard: () => query,
+  useExperienceHome: () => ({ data: undefined, isLoading: false, isError: false, isFetching: false, refetch: vi.fn() }),
+  useNearbyBenefits: () => ({ data: [], isLoading: false, isError: false }),
+}));
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({ user: { id: "test-member" }, profile: {} }),
 }));

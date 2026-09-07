@@ -1,60 +1,79 @@
 import { Link } from "react-router-dom";
+import { ArrowRight, MapPin, Ticket, WalletCards } from "lucide-react";
 import {
-  ArrowRight,
-  CheckCircle2,
-  MapPin,
-  Sparkles,
-  Ticket,
-  WalletCards,
-} from "lucide-react";
+  canUseBenefit,
+  emptyPromoBenefitPresentation,
+  presentPromoBenefit,
+  selectFeaturedBenefit,
+  type PromoCardBenefit,
+} from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMyPromoCard, useNearbyBenefits } from "@/hooks/usePeopleExperience";
+import { useVisitorLocation } from "@/hooks/useVisitorLocation";
+import { PromoBenefitCard } from "@/components/promocard/PromoBenefitCard";
 
-const steps = [
-  {
-    icon: Ticket,
-    title: "Use this",
-    copy: "Show the claimed perk. The merchant records it.",
-  },
-  {
-    icon: MapPin,
-    title: "Available nearby",
-    copy: "Only participating businesses with live inventory.",
-  },
-  {
-    icon: Sparkles,
-    title: "Get your next benefit",
-    copy: "After a real redemption, come back for the next one.",
-  },
-];
+function signupHref(next: string) {
+  return `/auth?mode=signup&next=${encodeURIComponent(next)}`;
+}
 
 export function PromoCardGateway() {
   const { user } = useAuth();
+  const nearby = useNearbyBenefits();
+  const card = useMyPromoCard();
+  const visitorCity = useVisitorLocation();
+
+  const useThis = (card.data?.useThis || null) as PromoCardBenefit | null;
+  const nearbyBenefits = ((nearby.data || []) as PromoCardBenefit[]).filter(Boolean);
+  const nextBenefit = (card.data?.nextBenefit || nearbyBenefits[0] || null) as PromoCardBenefit | null;
+  const featured = selectFeaturedBenefit({ useThis, nearby: nearbyBenefits, nextBenefit });
+  const claimed = Boolean(featured && useThis && featured.id === useThis.id && canUseBenefit(useThis));
+  const loading = nearby.isLoading || Boolean(user && card.isLoading && !card.data && !nearby.data);
+  const presented = featured
+    ? {
+        ...presentPromoBenefit(featured, { authenticated: Boolean(user), claimed })!,
+        href: user ? featured.href || "/card" : signupHref(featured.href || "/card"),
+      }
+    : emptyPromoBenefitPresentation({
+        authenticated: Boolean(user),
+        href: user ? "/card" : signupHref("/card"),
+      });
+
+  const nearbyLabel =
+    visitorCity && visitorCity !== "Global"
+      ? `See What’s Available in ${visitorCity}`
+      : "See What’s Available Nearby";
+
+  const primaryHref = user ? "/card" : signupHref("/card");
+  const primaryLabel = user
+    ? claimed
+      ? presented?.ctaLabel || "View My PromoCard"
+      : "View My PromoCard"
+    : "Get My PromoCard";
+
+  const moreCount = Math.max(0, nearbyBenefits.filter((item) => item.id !== featured?.id).length);
 
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-[#070707] text-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(245,158,11,0.2),transparent_30%),radial-gradient(circle_at_15%_85%,rgba(255,85,0,0.14),transparent_32%)]" />
-      <div className="container relative px-5 pb-10 pt-[5.25rem] sm:px-6 sm:pb-20 sm:pt-28 lg:pt-32">
-        <div className="grid items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
+      <div className={`container relative px-5 pt-[5.25rem] sm:px-6 sm:pb-20 sm:pt-28 lg:pt-32 ${user ? "pb-10" : "pb-24"}`}>
+        <div className="grid items-center gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <div>
-            <div className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.18em] text-amber-200 sm:rounded-full sm:border sm:border-amber-300/25 sm:bg-amber-300/10 sm:px-3 sm:py-1.5 sm:text-[10px]">
-              <Sparkles className="h-3.5 w-3.5" />
-              Ambassador audience → verified customers
-            </div>
-            <h1 className="mt-4 max-w-2xl font-serif text-[clamp(3.2rem,15vw,6.4rem)] font-black uppercase leading-[0.82] tracking-[-0.065em] sm:mt-5 sm:font-sans sm:leading-[0.86] sm:tracking-[-0.07em]">
-              Use this.<br />
-              <span className="text-primary">Come back.</span>
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">PromoCard</p>
+            <h1 className="mt-3 max-w-2xl font-serif text-[clamp(2.5rem,12vw,6.2rem)] font-black uppercase leading-[0.84] tracking-[-0.065em] sm:mt-4 sm:font-sans sm:leading-[0.86] sm:tracking-[-0.07em]">
+              There’s something<br />
+              <span className="text-primary">for you.</span>
             </h1>
-            <p className="mt-5 max-w-xl text-[15px] leading-6 text-white/68 sm:text-lg sm:leading-8">
-              A merchant supplies a benefit. An ambassador shares it. You claim it. The merchant validates it. That recorded use is the only completion.
+            <p className="mt-4 max-w-xl text-[15px] leading-6 text-white/68 sm:mt-5 sm:text-lg sm:leading-8">
+              Your PromoCard unlocks offers, access and experiences from places around you.
             </p>
 
-            <div className="mt-6 grid gap-2.5 sm:flex sm:gap-3">
+            <div className="mt-5 grid gap-2.5 sm:mt-6 sm:flex sm:gap-3">
               <Link
-                to={user ? "/card" : "/auth?mode=signup&next=/card"}
-                className="inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-black text-white shadow-[0_18px_50px_rgba(255,85,0,0.28)] transition hover:bg-orange-600 active:scale-[0.98]"
+                to={primaryHref}
+                className={`${user ? "inline-flex" : "hidden sm:inline-flex"} min-h-[3.25rem] items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-black text-white shadow-[0_18px_50px_rgba(255,85,0,0.28)] transition hover:bg-orange-600 active:scale-[0.98]`}
               >
                 <Ticket className="h-4 w-4" />
-                {user ? "Use this" : "Get my PromoCard"}
+                {primaryLabel}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
@@ -62,51 +81,78 @@ export function PromoCardGateway() {
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-sm font-bold text-white transition hover:border-amber-300/40 hover:bg-white/[0.08] active:scale-[0.98]"
               >
                 <MapPin className="h-4 w-4 text-amber-300" />
-                Available nearby
+                {nearbyLabel}
               </Link>
             </div>
+            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40">
+              Use it. More comes back.
+            </p>
           </div>
 
           <div className="relative mx-auto w-full max-w-xl">
             <div className="absolute -inset-5 rounded-[2.5rem] bg-amber-400/10 blur-3xl" />
-            <div className="relative overflow-hidden rounded-[1.5rem] border border-amber-200/20 bg-gradient-to-br from-zinc-800 via-zinc-950 to-black p-5 shadow-[0_32px_100px_rgba(0,0,0,0.65)] sm:rounded-[1.75rem] sm:p-7">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-amber-200 to-amber-500 text-black">
-                    <WalletCards className="h-5 w-5" />
+            <div className="relative">
+              {loading && !featured ? (
+                <div className="overflow-hidden rounded-[1.5rem] border border-amber-200/20 bg-gradient-to-br from-zinc-800 via-zinc-950 to-black p-5 sm:rounded-[1.75rem] sm:p-7">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-white/10" />
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/40">PromoCard</p>
+                      <p className="text-sm text-white/45">Looking for live benefits…</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-black uppercase tracking-[0.12em]">PromoCard</p>
-                    <p className="text-[11px] text-white/45">Verified use, not a recharge</p>
-                  </div>
+                  <div className="mt-6 h-16 rounded-lg bg-white/5" />
+                  <div className="mt-4 h-4 w-2/3 rounded bg-white/5" />
                 </div>
-              </div>
-
-              <div className="my-6 sm:my-8">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">On the card</p>
-                <div className="mt-1 flex items-end gap-2">
-                  <span className="text-4xl font-black tracking-[-0.05em] text-amber-200">Use this</span>
-                </div>
-              </div>
-
-              <div className="hidden gap-2.5 sm:grid sm:grid-cols-3">
-                {steps.map((step) => (
-                  <div key={step.title} className="rounded-xl border border-white/10 bg-black/30 p-3.5">
-                    <step.icon className="h-4 w-4 text-amber-300" />
-                    <p className="mt-2 text-xs font-bold">{step.title}</p>
-                    <p className="mt-1 text-[10px] leading-4 text-white/45">{step.copy}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 flex items-start gap-2 text-[10px] leading-4 text-white/45 sm:mt-5 sm:border-t sm:border-white/10 sm:pt-4">
-                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />
-                Payment, gift activation and recharge are not customer completions. The merchant’s recorded redemption is.
-              </div>
+              ) : presented ? (
+                <PromoBenefitCard
+                  presentation={presented}
+                  moreCount={moreCount}
+                  showLoopLine={!presented.empty}
+                />
+              ) : null}
             </div>
           </div>
         </div>
+
+        <details className="group relative mx-auto mt-8 max-w-xl rounded-2xl border border-white/10 bg-black/30 px-4 py-3 lg:mx-0 lg:max-w-md">
+          <summary className="cursor-pointer list-none text-sm font-bold text-white/75 [&::-webkit-details-marker]:hidden">
+            How PromoCard works
+            <span className="ml-2 text-xs font-medium text-white/40 group-open:hidden">Show</span>
+            <span className="ml-2 hidden text-xs font-medium text-white/40 group-open:inline">Hide</span>
+          </summary>
+          <ol className="mt-3 space-y-2 text-sm leading-6 text-white/60">
+            <li>1. Claim a benefit.</li>
+            <li>2. Use it at the participating business.</li>
+            <li>3. The business confirms the redemption.</li>
+            <li>4. New opportunities continue to appear.</li>
+          </ol>
+          <p className="mt-3 text-[11px] leading-5 text-white/40">
+            A completed merchant redemption is what qualifies — not payment, gift activation, or a recharge.
+          </p>
+        </details>
       </div>
+
+      {!user ? (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[#070707]/95 px-4 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-xl md:hidden">
+          <div className="mx-auto grid max-w-md grid-cols-[1fr_auto] gap-2">
+            <Link
+              to={primaryHref}
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-black text-white shadow-[0_12px_28px_rgba(255,85,0,0.28)] active:scale-[0.98]"
+            >
+              <WalletCards className="h-4 w-4" />
+              Get My PromoCard
+            </Link>
+            <Link
+              to="/discover"
+              aria-label={nearbyLabel}
+              className="grid min-h-12 min-w-12 place-items-center rounded-xl border border-white/15 bg-white text-black active:bg-white/90"
+            >
+              <MapPin className="h-5 w-5" />
+            </Link>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
