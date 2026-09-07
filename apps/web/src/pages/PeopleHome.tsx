@@ -1,3 +1,4 @@
+import { ArrowRight, Compass, CreditCard, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   firstGivenName,
@@ -7,7 +8,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
-import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
+import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/people/ExperienceShell";
 import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 
 const money = (value: number) => {
@@ -60,9 +61,9 @@ export default function PeopleHome() {
 
   if (home.isLoading) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#0D0D0E] text-white">
-        <div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </main>
+      <ExperienceShell title={greeting} seoTitle="Home" description={description}>
+        <ExperienceLoading label="Getting your perks and communities ready…" />
+      </ExperienceShell>
     );
   }
 
@@ -102,18 +103,22 @@ export default function PeopleHome() {
             </p>
             <h1 className="mt-4 font-serif text-[2.55rem] font-bold leading-[0.9] tracking-tight sm:text-5xl">{greeting}</h1>
             <p className="mt-3 max-w-md text-sm leading-6 text-white/60">{description}</p>
-            <div className="mt-6">
+            <Link to={to("/card")} aria-label="Open your PromoCard" className="experience-interactive group mx-auto mt-6 block max-w-md rounded-[22px]">
               <PromoCardFace
+                variant="membership"
                 className="max-w-none"
                 holder={givenName === "there" ? "Your card" : givenName}
                 available={gems ? `${gems.toLocaleString()} Gems` : `${points.toLocaleString()} pts`}
                 limit={`${keys} keys`}
                 places={data?.communities?.[0]?.title || "Your perks live here"}
               />
-            </div>
+              <span className="mt-3 flex min-h-11 items-center justify-between px-1 text-sm font-semibold text-amber-200">
+                Open your PromoCard <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            </Link>
             <Link
               to={to(nextMove.href)}
-              className="mt-5 flex min-h-12 items-center justify-center rounded-full bg-primary px-5 text-sm font-black text-black shadow-[0_0_24px_rgba(255,85,0,0.28)]"
+              className="experience-interactive mt-5 flex min-h-12 items-center justify-center rounded-full bg-primary px-5 text-sm font-black text-black shadow-[0_0_24px_rgba(255,85,0,0.28)]"
             >
               {nextMove.label}
             </Link>
@@ -121,6 +126,17 @@ export default function PeopleHome() {
         </section>
       )}
     >
+      <nav aria-label="Your next stop" className="grid grid-cols-3 gap-2 sm:gap-3">
+        {[
+          { href: "/discover", label: "Discover", icon: Compass },
+          { href: "/card", label: "My card", icon: CreditCard },
+          { href: "/people", label: "My people", icon: Users },
+        ].map(({ href, label, icon: Icon }) => (
+          <Link key={href} to={to(href)} className="experience-interactive flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-2 text-sm font-semibold text-white/80 hover:border-amber-200/30 hover:bg-white/[0.08] hover:text-white">
+            <Icon aria-hidden="true" className="h-5 w-5 text-amber-200" />{label}
+          </Link>
+        ))}
+      </nav>
       {hasMovement ? (
         <PaperReceipt
           heading="What’s in play"
@@ -162,9 +178,9 @@ export default function PeopleHome() {
           <Link to="/discover?tab=discoveries" className="block">
             <TicketPass
               kicker="What’s happening"
-              title="Name what you want"
-              detail="Then we show the matching poll, perk, or night."
-              stub="ASK"
+              title="Find your next good thing"
+              detail="Explore local spots, nights out, and perks worth claiming."
+              stub="GO"
               stubLabel="Live"
             />
           </Link>
@@ -224,11 +240,11 @@ export default function PeopleHome() {
       ) : null}
 
       {!data?.communities?.length ? (
-        <Link to={to("/start")} className="block">
+        <Link to={role === "member" ? "/scenes" : to("/start")} className="block">
           <TicketPass
             kicker="First room"
-            title="Start a community — or join one."
-            detail="A named room beats an empty dashboard."
+            title={role === "member" ? "Find your people" : "Bring your people together"}
+            detail={role === "member" ? "Join a community around the things you love." : "Start a community and give people a reason to join."}
             stub="ROOM"
             stubLabel="Open"
           />

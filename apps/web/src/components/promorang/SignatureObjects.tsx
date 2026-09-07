@@ -19,6 +19,7 @@ type PromoCardFaceProps = {
   holder?: string;
   places?: string;
   className?: string;
+  variant?: "spending" | "membership";
 };
 
 export function PromoCardFace({
@@ -27,6 +28,7 @@ export function PromoCardFace({
   holder = "Member card",
   places = "Partner shops nearby",
   className,
+  variant = "spending",
 }: PromoCardFaceProps) {
   return (
     <article className={cn("pr-plastic-card w-full max-w-md p-5 text-white sm:p-6", className)} aria-label="PromoCard">
@@ -39,13 +41,13 @@ export function PromoCardFace({
           <span className="h-8 w-11 rounded-md bg-gradient-to-br from-amber-200 to-amber-500 shadow-inner" aria-hidden />
         </div>
         <div>
-          <p className="text-[11px] tracking-wide text-white/55">Available to spend</p>
+          <p className="text-[11px] tracking-wide text-white/70">{variant === "membership" ? "Your rewards" : "Available to spend"}</p>
           <p className="mt-0.5 font-serif text-4xl font-bold tracking-tight text-amber-100">{available}</p>
-          <p className="mt-1 text-xs text-white/50">of {limit} this cycle · {places}</p>
+          <p className="mt-1 text-xs text-white/70">{variant === "membership" ? `${limit} · ${places}` : `of ${limit} this cycle · ${places}`}</p>
         </div>
         <div className="flex items-end justify-between gap-3 text-[11px] text-white/60">
           <span>{holder}</span>
-          <span className="font-mono tracking-widest">PR · 0842</span>
+          <span className="font-mono tracking-widest">{variant === "membership" ? "MEMBER" : "PR · 0842"}</span>
         </div>
       </div>
     </article>
