@@ -33,7 +33,7 @@ Every channel creates an `offer_issuances` record. The participant then claims t
 
 Surfaces:
 
-- PromoCard: `/card` and the card “Show pass” modal. Issuances land on `user_promo_cards` perks via `/api/experience/card`.
+- PromoCard: `/card` and `/app-preview/card`. Code and merchant-validation journeys keep the copy-code dialog. QR, shipping, manual, and automatic render `OfferIssuancePass` on the card. Issuances land via `/api/experience/card` with `fulfillmentData` and a live `issuance` payload.
 - Participant wallet: `/offers` → My offers
 - Merchant scan + pending queue: `/offers` → Validate redemption, `/staff/scanner`
 - Mobile merchant camera: `apps/mobile/app/merchant/scan.tsx`
