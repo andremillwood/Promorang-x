@@ -10,10 +10,23 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyPromoCard, useNearbyBenefits } from "@/hooks/usePeopleExperience";
 import { useVisitorLocation } from "@/hooks/useVisitorLocation";
+import { ALL_CITY_HUBS } from "@/lib/city-hubs";
 import { PromoBenefitCard } from "@/components/promocard/PromoBenefitCard";
 
 function signupHref(next: string) {
   return `/auth?mode=signup&next=${encodeURIComponent(next)}`;
+}
+
+function nearbyMarketLabel(visitorCity?: string | null) {
+  const city = String(visitorCity || "").trim();
+  if (!city || city === "Global") return null;
+  const needle = city.toLowerCase();
+  const known = ALL_CITY_HUBS.some((hub) => {
+    const name = hub.name.toLowerCase();
+    const slug = hub.id.replace(/-/g, " ");
+    return name.includes(needle) || needle.includes(slug) || needle.includes(name.split("&")[0].trim());
+  });
+  return known ? city : null;
 }
 
 export function PromoCardGateway() {
@@ -38,10 +51,10 @@ export function PromoCardGateway() {
         href: user ? "/card" : signupHref("/card"),
       });
 
-  const nearbyLabel =
-    visitorCity && visitorCity !== "Global"
-      ? `See What’s Available in ${visitorCity}`
-      : "See What’s Available Nearby";
+  const marketLabel = nearbyMarketLabel(visitorCity);
+  const nearbyLabel = marketLabel
+    ? `See What’s Available in ${marketLabel}`
+    : "See What’s Available Nearby";
 
   const primaryHref = user ? "/card" : signupHref("/card");
   const primaryLabel = user

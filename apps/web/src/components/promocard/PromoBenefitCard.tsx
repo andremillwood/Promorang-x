@@ -29,7 +29,11 @@ export function PromoBenefitCard({
           </div>
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/55">PromoCard</p>
-            <p className="text-sm font-bold text-white">{presentation.merchantName}</p>
+            {presentation.empty ? (
+              <p className="text-sm text-white/55">Participating places</p>
+            ) : (
+              <p className="text-sm font-bold text-white">{presentation.merchantName}</p>
+            )}
           </div>
         </div>
       </div>
@@ -58,7 +62,7 @@ export function PromoBenefitCard({
 
       <Link
         to={presentation.href}
-        className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-black text-white shadow-[0_18px_50px_rgba(255,85,0,0.28)] transition hover:bg-orange-600 active:scale-[0.98] sm:w-auto"
+        className={`${presentation.empty ? "mt-5 hidden sm:inline-flex" : "mt-5 inline-flex"} min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-black text-white shadow-[0_18px_50px_rgba(255,85,0,0.28)] transition hover:bg-orange-600 active:scale-[0.98] sm:w-auto`}
       >
         {presentation.ctaLabel}
         <ArrowRight className="h-4 w-4" />
