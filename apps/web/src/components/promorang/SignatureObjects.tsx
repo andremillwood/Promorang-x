@@ -20,6 +20,7 @@ type PromoCardFaceProps = {
   places?: string;
   action?: string;
   className?: string;
+  variant?: "spending" | "membership";
 };
 
 export function PromoCardFace({
@@ -29,6 +30,7 @@ export function PromoCardFace({
   places = "Partner shops nearby",
   action = "Use this",
   className,
+  variant = "spending",
 }: PromoCardFaceProps) {
   return (
     <article className={cn("pr-plastic-card w-full max-w-md p-5 text-white sm:p-6", className)} aria-label="PromoCard">
@@ -41,13 +43,15 @@ export function PromoCardFace({
           <span className="h-8 w-11 rounded-md bg-gradient-to-br from-amber-200 to-amber-500 shadow-inner" aria-hidden />
         </div>
         <div>
-          <p className="text-[11px] tracking-wide text-white/55">{action}</p>
+          <p className="text-[11px] tracking-wide text-white/55">
+            {variant === "membership" ? "Your rewards" : action}
+          </p>
           <p className="mt-0.5 font-serif text-3xl font-bold tracking-tight text-amber-100 sm:text-4xl">{available}</p>
           <p className="mt-1 text-xs text-white/50">{limit} · {places}</p>
         </div>
         <div className="flex items-end justify-between gap-3 text-[11px] text-white/60">
           <span>{holder}</span>
-          <span className="font-mono tracking-widest">Show the merchant</span>
+          <span className="font-mono tracking-widest">{variant === "membership" ? "MEMBER" : "Show the merchant"}</span>
         </div>
       </div>
     </article>

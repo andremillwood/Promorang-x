@@ -34,7 +34,7 @@ export function ExperienceShell({
     ? "/app-preview"
     : backTo;
   return (
-    <main className={cn("min-h-screen bg-[#0D0D0E] pb-28 text-white", className)}>
+    <section aria-label={title} className={cn("experience-shell relative isolate min-h-screen bg-[#0D0D0E] pb-28 text-white", className)}>
       <SEO title={`${seoTitle || title} — PROMORANG`} description={description || title} />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_20%_0%,rgba(255,85,0,.28),transparent_42%)]" />
       {hero ? (
@@ -66,7 +66,20 @@ export function ExperienceShell({
         </header>
       )}
       <div className="relative mx-auto mt-8 w-full max-w-3xl space-y-5 px-4 sm:px-6">{children}</div>
-    </main>
+    </section>
+  );
+}
+
+export function ExperienceLoading({ label = "Loading your experience…" }: { label?: string }) {
+  return (
+    <div role="status" aria-live="polite" className="space-y-5">
+      <p className="text-sm text-white/70">{label}</p>
+      <div aria-hidden="true" className="space-y-5 motion-safe:animate-pulse">
+        <div className="h-56 rounded-3xl border border-white/10 bg-white/[0.06]" />
+        <div className="h-24 rounded-2xl bg-white/[0.04]" />
+        <div className="h-24 rounded-2xl bg-white/[0.04]" />
+      </div>
+    </div>
   );
 }
 

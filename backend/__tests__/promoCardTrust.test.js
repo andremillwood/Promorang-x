@@ -67,10 +67,11 @@ test('missing offer records never produce a usable credential', () => {
 });
 
 test('live benefits hide the code until a claimed, unexpired code journey is ready', () => {
+  const live = { ...issued, expires_at: '2027-09-06T12:00:00Z' };
   const claimed = toPromoCardBenefit({
     id: 'iss-1',
     offer: issued.offers,
-    issuance: issued,
+    issuance: live,
   });
   const redeemed = toPromoCardBenefit({
     id: 'used-1',
@@ -80,7 +81,7 @@ test('live benefits hide the code until a claimed, unexpired code journey is rea
   const shipping = toPromoCardBenefit({
     id: 'ship-1',
     offer: { ...issued.offers, fulfillment_type: 'shipping' },
-    issuance: issued,
+    issuance: live,
   });
   assert.equal(claimed.redemption.code, 'PR-REAL');
   assert.equal(canUseBenefit(claimed), true);
