@@ -15,16 +15,22 @@ interface MobilePromoCardProps {
   tier?: string;
   cycleDaysRemaining?: number;
   onScanPress?: () => void;
+  actionLabel?: string;
+  perkTitle?: string;
+  redemptionCode?: string | null;
 }
 
 const { width } = Dimensions.get("window");
 
 export const MobilePromoCard: React.FC<MobilePromoCardProps> = ({
-  availableBalance = 45.0,
-  monthlyLimit = 50.0,
-  tier = "Platinum Tier",
-  cycleDaysRemaining = 14,
+  availableBalance = 0,
+  monthlyLimit: _monthlyLimit = 0,
+  tier = "Member",
+  cycleDaysRemaining: _cycleDaysRemaining = 0,
   onScanPress,
+  actionLabel = "Use this",
+  perkTitle = "No live perk yet",
+  redemptionCode = null,
 }) => {
   const [showQRModal, setShowQRModal] = useState(false);
 
@@ -46,39 +52,40 @@ export const MobilePromoCard: React.FC<MobilePromoCardProps> = ({
 
           <TouchableOpacity
             style={styles.qrButton}
+            disabled={!redemptionCode}
             onPress={() => {
+              if (!redemptionCode) return;
               setShowQRModal(true);
               if (onScanPress) onScanPress();
             }}
           >
-            <Ionicons name="qr-code-outline" size={16} color="#FFB800" />
-            <Text style={styles.qrButtonText}>In-Store QR</Text>
+            <Ionicons name="ticket-outline" size={16} color="#FFB800" />
+            <Text style={styles.qrButtonText}>{redemptionCode ? "Use this" : "No perk"}</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Balance Display */}
         <View style={styles.balanceContainer}>
-          <Text style={styles.balanceLabel}>ACTIVE SPENDING POWER</Text>
+          <Text style={styles.balanceLabel}>{actionLabel.toUpperCase()}</Text>
           <View style={styles.amountRow}>
-            <Text style={styles.balanceAmount}>${availableBalance.toFixed(2)}</Text>
-            <Text style={styles.limitText}>of ${monthlyLimit.toFixed(2)} limit</Text>
+            <Text style={styles.balanceAmount}>{perkTitle}</Text>
           </View>
           <View style={styles.acceptedRow}>
             <Ionicons name="shield-checkmark" size={14} color="#10B981" />
-            <Text style={styles.acceptedText}>Accepted at 35+ partner venues</Text>
+            <Text style={styles.acceptedText}>
+              {redemptionCode ? "Show the merchant. Nothing is used until they validate it." : "Available nearby after a merchant supplies a benefit."}
+            </Text>
           </View>
         </View>
 
-        {/* Card Footer */}
         <View style={styles.footer}>
           <View>
-            <Text style={styles.footerLabel}>CARD NUMBER</Text>
-            <Text style={styles.cardNumber}>•••• •••• •••• 8842</Text>
+            <Text style={styles.footerLabel}>GET YOUR NEXT BENEFIT</Text>
+            <Text style={styles.cardNumber}>After verified use</Text>
           </View>
           <View style={styles.divider} />
           <View>
-            <Text style={styles.footerLabel}>CYCLE RESETS</Text>
-            <Text style={styles.resetDays}>{cycleDaysRemaining} Days</Text>
+            <Text style={styles.footerLabel}>POINTS</Text>
+            <Text style={styles.resetDays}>{availableBalance ? Math.round(availableBalance) : 0}</Text>
           </View>
         </View>
       </View>
@@ -88,22 +95,22 @@ export const MobilePromoCard: React.FC<MobilePromoCardProps> = ({
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Present to Cashier</Text>
+              <Text style={styles.modalTitle}>Use this</Text>
               <TouchableOpacity onPress={() => setShowQRModal(false)}>
                 <Ionicons name="close" size={24} color="#FFF" />
               </TouchableOpacity>
             </View>
 
             <View style={styles.qrCodeBox}>
-              <Ionicons name="qr-code" size={180} color="#000" />
-              <Text style={styles.qrCardNumber}>•••• •••• •••• 8842</Text>
+              <Ionicons name="ticket" size={80} color="#000" />
+              <Text style={styles.qrCardNumber}>{redemptionCode}</Text>
             </View>
 
             <Text style={styles.modalBalance}>
-              Available Credit: ${availableBalance.toFixed(2)}
+              {perkTitle}
             </Text>
             <Text style={styles.modalInstructions}>
-              Cashier scans this code to apply your PromoCard discount. Settle remainder with regular payment.
+              The merchant records this code. A local balance change is not a redemption.
             </Text>
 
             <TouchableOpacity

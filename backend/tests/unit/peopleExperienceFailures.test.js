@@ -40,3 +40,45 @@ test('failed inventory creation cannot bypass offer distribution creation', asyn
   await expect(createPeopleExperienceService(db).provideInventory('owner-1', { title: 'Entry', quantity: 2 })).rejects.toThrow('Distribution unavailable');
   expect(db.writes).toEqual([]);
 });
+
+test('nearby includes merchant inventory even before a drop exists', async () => {
+  const offer = {
+    id: 'offer-9',
+    title: 'First drink',
+    status: 'active',
+    fulfillment_type: 'merchant_validation',
+    owner_user_id: 'merchant-1',
+    quantity_total: 10,
+    quantity_reserved: 0,
+    quantity_redeemed: 0,
+  };
+  const db = {
+    from(table) {
+      const result = {
+        data: table === 'offers' ? [offer] : table === 'community_drops' ? [] : null,
+        error: null,
+      };
+      for (const method of ['select', 'eq', 'in', 'not', 'order', 'limit', 'maybeSingle']) {
+        result[method] = () => result;
+      }
+      return result;
+    },
+  };
+  const nearby = await createPeopleExperienceService(db).getNearbyBenefits();
+  expect(nearby).toHaveLength(1);
+  expect(nearby[0].offerId).toBe('offer-9');
+  expect(nearby[0].title).toBe('First drink');
+  expect(nearby[0].dropSlug).toBe(null);
+});
+
+test('createDrop stores the host moment on drop attribution', async () => {
+  const db = database({ id: 'drop-1', slug: 'door-perk', creator_id: 'host-1', title: 'Door perk' });
+  await createPeopleExperienceService(db).createDrop('host-1', {
+    title: 'Door perk',
+    offerId: 'offer-9',
+    momentId: 'moment-4',
+  });
+  const inserted = db.writes.find((row) => row.table === 'community_drops' && row.method === 'insert');
+  expect(inserted.value.attribution.moment_id).toBe('moment-4');
+  expect(inserted.value.offer_id).toBe('offer-9');
+});

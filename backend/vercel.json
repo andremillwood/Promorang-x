@@ -1,6 +1,7 @@
 {
   "version": 2,
   "name": "api.promorang.co",
+  "installCommand": "npm install --legacy-peer-deps --no-workspaces",
   "builds": [
     {
       "src": "api/index.js",

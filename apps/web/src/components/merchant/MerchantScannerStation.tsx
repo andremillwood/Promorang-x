@@ -45,6 +45,12 @@ export function MerchantScannerStation({ venueName = "Merchant station" }: { ven
           <p className="flex items-center gap-2 font-black text-emerald-300"><CheckCircle2 className="h-5 w-5" /> Redemption recorded</p>
           <p className="mt-1 text-sm text-zinc-200">{lastRedemption.offers?.title || "PromoCard perk"}</p>
           <p className="mt-1 text-xs text-zinc-400">Reference {lastRedemption.id}</p>
+          {lastRedemption.contributorReward ? (
+            <p className="mt-2 text-xs text-emerald-200">Ambassador reward updated: {lastRedemption.contributorReward.amount} PromoPoints.</p>
+          ) : null}
+          {lastRedemption.nextBenefit ? (
+            <p className="mt-2 text-xs text-zinc-300">Next benefit for this member: {lastRedemption.nextBenefit.title}.</p>
+          ) : null}
         </div>
       ) : null}
     </section>

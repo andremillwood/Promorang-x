@@ -10,6 +10,7 @@ import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/people/ExperienceShell";
 import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
+import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -105,12 +106,13 @@ export default function PeopleHome() {
             <p className="mt-3 max-w-md text-sm leading-6 text-white/60">{description}</p>
             <Link to={to("/card")} aria-label="Open your PromoCard" className="experience-interactive group mx-auto mt-6 block max-w-md rounded-[22px]">
               <PromoCardFace
-                variant="membership"
+                variant={data?.card?.useThis ? "spending" : "membership"}
                 className="max-w-none"
                 holder={givenName === "there" ? "Your card" : givenName}
-                available={gems ? `${gems.toLocaleString()} Gems` : `${points.toLocaleString()} pts`}
-                limit={`${keys} keys`}
-                places={data?.communities?.[0]?.title || "Your perks live here"}
+                available={data?.card?.useThis ? "Ready to use" : data?.card?.nearby?.length ? "Available nearby" : gems ? `${gems.toLocaleString()} Gems` : `${points.toLocaleString()} pts`}
+                limit={data?.card?.useThis?.title || data?.card?.nextBenefit?.title || `${keys} keys`}
+                places={data?.card?.useThis?.issuer?.name || data?.communities?.[0]?.title || "Your perks live here"}
+                action={data?.card?.useThis ? "Use this" : data?.card?.nearby?.length ? "Available nearby" : "Get your next benefit"}
               />
               <span className="mt-3 flex min-h-11 items-center justify-between px-1 text-sm font-semibold text-amber-200">
                 Open your PromoCard <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -160,6 +162,8 @@ export default function PeopleHome() {
             : "Numbers stay quiet until someone actually does something."}
         />
       ) : null}
+
+      <LiveLoopActions role={String(activeRole || role)} title="Make it live" />
 
       {role !== "member" ? (
         <section className="grid gap-3">

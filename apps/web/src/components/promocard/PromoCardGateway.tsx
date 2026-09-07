@@ -3,30 +3,27 @@ import {
   ArrowRight,
   CheckCircle2,
   MapPin,
-  QrCode,
-  RefreshCw,
-  ShieldCheck,
   Sparkles,
-  Store,
+  Ticket,
   WalletCards,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const steps = [
   {
+    icon: Ticket,
+    title: "Use this",
+    copy: "Show the claimed perk. The merchant records it.",
+  },
+  {
     icon: MapPin,
-    title: "Find a participating place",
-    copy: "See the exact offer and minimum purchase before you go.",
+    title: "Available nearby",
+    copy: "Only participating businesses with live inventory.",
   },
   {
-    icon: QrCode,
-    title: "Use your PromoCard",
-    copy: "Apply promotional balance, then pay the remainder normally.",
-  },
-  {
-    icon: RefreshCw,
-    title: "Recharge through action",
-    copy: "Verified check-ins, reviews, Moments and shares can reload value.",
+    icon: Sparkles,
+    title: "Get your next benefit",
+    copy: "After a real redemption, come back for the next one.",
   },
 ];
 
@@ -41,43 +38,31 @@ export function PromoCardGateway() {
           <div>
             <div className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.18em] text-amber-200 sm:rounded-full sm:border sm:border-amber-300/25 sm:bg-amber-300/10 sm:px-3 sm:py-1.5 sm:text-[10px]">
               <Sparkles className="h-3.5 w-3.5" />
-              Promorang’s member spending benefit
+              Ambassador audience → verified customers
             </div>
             <h1 className="mt-4 max-w-2xl font-serif text-[clamp(3.2rem,15vw,6.4rem)] font-black uppercase leading-[0.82] tracking-[-0.065em] sm:mt-5 sm:font-sans sm:leading-[0.86] sm:tracking-[-0.07em]">
-              Spend less.<br />
-              <span className="text-primary">Do more.</span>
+              Use this.<br />
+              <span className="text-primary">Come back.</span>
             </h1>
             <p className="mt-5 max-w-xl text-[15px] leading-6 text-white/68 sm:text-lg sm:leading-8">
-              PromoCard gives members promotional spending balance at participating restaurants, events and local businesses.
+              A merchant supplies a benefit. An ambassador shares it. You claim it. The merchant validates it. That recorded use is the only completion.
             </p>
-
-            <div className="mt-5 border-l-2 border-emerald-300/60 pl-3 sm:mt-6 sm:rounded-2xl sm:border sm:border-white/10 sm:bg-white/[0.04] sm:p-4">
-              <div className="flex gap-3">
-                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" />
-                <div>
-                  <p className="text-sm font-bold">Not a loan. No cash repayment.</p>
-                  <p className="mt-1 text-xs leading-5 text-white/55">
-                    Each participating merchant sets its own offer, minimum purchase and availability. Eligible promotional value is shown before checkout.
-                  </p>
-                </div>
-              </div>
-            </div>
 
             <div className="mt-6 grid gap-2.5 sm:flex sm:gap-3">
               <Link
-                to={user ? "/wallet" : "/auth?mode=signup&next=/wallet"}
+                to={user ? "/card" : "/auth?mode=signup&next=/card"}
                 className="inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-black text-white shadow-[0_18px_50px_rgba(255,85,0,0.28)] transition hover:bg-orange-600 active:scale-[0.98]"
               >
-                <WalletCards className="h-4 w-4" />
-                {user ? "Open my PromoCard" : "Get my PromoCard"}
+                <Ticket className="h-4 w-4" />
+                {user ? "Use this" : "Get my PromoCard"}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                to="/shop"
+                to="/discover"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-sm font-bold text-white transition hover:border-amber-300/40 hover:bg-white/[0.08] active:scale-[0.98]"
               >
-                <Store className="h-4 w-4 text-amber-300" />
-                See where to use it
+                <MapPin className="h-4 w-4 text-amber-300" />
+                Available nearby
               </Link>
             </div>
           </div>
@@ -92,19 +77,15 @@ export function PromoCardGateway() {
                   </div>
                   <div>
                     <p className="text-sm font-black uppercase tracking-[0.12em]">PromoCard</p>
-                    <p className="text-[11px] text-white/45">Promotional spending balance</p>
+                    <p className="text-[11px] text-white/45">Verified use, not a recharge</p>
                   </div>
                 </div>
-                <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-white/65">
-                  Example
-                </span>
               </div>
 
               <div className="my-6 sm:my-8">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Example member benefit</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">On the card</p>
                 <div className="mt-1 flex items-end gap-2">
-                  <span className="text-5xl font-black tracking-[-0.05em] text-amber-200">Up to $50</span>
-                  <span className="pb-1 text-xs text-white/45">subject to eligibility</span>
+                  <span className="text-4xl font-black tracking-[-0.05em] text-amber-200">Use this</span>
                 </div>
               </div>
 
@@ -118,20 +99,9 @@ export function PromoCardGateway() {
                 ))}
               </div>
 
-              <div className="grid grid-cols-3 divide-x divide-white/10 border-y border-white/10 py-3 sm:hidden">
-                {[
-                  [MapPin, "Find"],
-                  [QrCode, "Use"],
-                  [RefreshCw, "Recharge"],
-                ].map(([Icon, label]) => {
-                  const StepIcon = Icon as typeof MapPin;
-                  return <div key={label as string} className="flex flex-col items-center gap-1.5 text-[10px] font-bold text-white/65"><StepIcon className="h-4 w-4 text-amber-300" />{label as string}</div>;
-                })}
-              </div>
-
               <div className="mt-4 flex items-start gap-2 text-[10px] leading-4 text-white/45 sm:mt-5 sm:border-t sm:border-white/10 sm:pt-4">
                 <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />
-                Promotional balances, recharge amounts and participating locations vary. Your account shows the value currently available to you.
+                Payment, gift activation and recharge are not customer completions. The merchant’s recorded redemption is.
               </div>
             </div>
           </div>

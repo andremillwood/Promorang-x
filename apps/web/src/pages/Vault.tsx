@@ -24,9 +24,9 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { LiquidityVaultDashboard } from "@/components/LiquidityVaultDashboard";
 import { useI18n } from "@/i18n/I18nContext";
-import { usePerks } from "@/hooks/usePerks";
+import { useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
-import { PerkCard } from "@/components/perks/PerkCard";
+import { LivePerkCard } from "@/components/perks/LivePerkCard";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -38,11 +38,10 @@ const Vault = () => {
   const { user, session } = useAuth();
   const [activeTab, setActiveTab] = useState<VaultTab>("perks");
 
-  const { perks, isLoading: perksLoading } = usePerks();
+  const card = useMyPromoCard();
   const { balances } = usePromoShareRail();
-
-  const claimedPerks = perks.filter((p) => p.userState?.isClaimed);
-  const savedPerks = perks.filter((p) => p.userState?.isSaved);
+  const claimedPerks = card.data?.benefits || [];
+  const usedPerks = card.data?.used || [];
 
   const vaultQuery = useQuery({
     queryKey: ["vault-data", user?.id],
@@ -122,8 +121,8 @@ const Vault = () => {
                 <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Active Perks</span>
                 <Gift className="w-3.5 h-3.5 text-emerald-400" />
               </div>
-              <p className="text-2xl font-black text-emerald-400">{claimedPerks.length || balances.claimedPerksCount}</p>
-              <span className="text-[10px] text-zinc-500 block">Ready to redeem</span>
+              <p className="text-2xl font-black text-emerald-400">{claimedPerks.length}</p>
+              <span className="text-[10px] text-zinc-500 block">Ready to use at the counter</span>
             </div>
 
             {/* PromoShare Tickets: Possibility */}
@@ -159,9 +158,9 @@ const Vault = () => {
             }`}
           >
             <Gift className="h-4 w-4" />
-            <span>Claimed &amp; Saved Perks</span>
+            <span>Claimed perks</span>
             <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
-              {claimedPerks.length + savedPerks.length || 4}
+              {claimedPerks.length}
             </span>
           </button>
 
@@ -213,19 +212,43 @@ const Vault = () => {
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-black text-white">Your Unlocked Utility Passes</h3>
-                <p className="text-xs text-white/60">Show your redemption QR code at partner merchants or venues.</p>
+                <h3 className="text-xl font-black text-white">On your PromoCard</h3>
+                <p className="text-xs text-white/60">Use these at the merchant. A local claim is not a completion.</p>
               </div>
               <Button asChild variant="outline" className="border-white/15 bg-white/5 text-xs rounded-xl font-bold">
-                <Link to="/discover?tab=perks">Explore More Perks →</Link>
+                <Link to="/card">Open PromoCard →</Link>
               </Button>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {(claimedPerks.length > 0 ? claimedPerks : perks.slice(0, 3)).map((perk) => (
-                <PerkCard key={perk.id} perk={perk} />
-              ))}
-            </div>
+            {card.isLoading ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3].map((n) => (
+                  <Skeleton key={n} className="h-48 w-full rounded-3xl bg-white/5" />
+                ))}
+              </div>
+            ) : claimedPerks.length ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {claimedPerks.map((perk: any) => (
+                  <LivePerkCard key={perk.id} perk={perk} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+                <p className="font-serif text-2xl font-bold">Nothing claimed yet</p>
+                <p className="mt-2 text-sm text-white/55">Take a live perk, then use it where the merchant can validate the code.</p>
+                <Link to="/earn" className="mt-4 inline-block text-sm font-black text-emerald-400">Claim a nearby perk →</Link>
+              </div>
+            )}
+            {usedPerks.length ? (
+              <div className="space-y-3">
+                <h4 className="text-sm font-black uppercase tracking-[0.16em] text-white/40">Already used</h4>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {usedPerks.map((perk: any) => (
+                    <LivePerkCard key={perk.id} perk={perk} />
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         )}
 

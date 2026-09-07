@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { PERK_KIND_LABELS, inventoryOpenCopy, type PerkKind } from "@promorang/shared";
+import { Link, useSearchParams } from "react-router-dom";
+import { PERK_KIND_LABELS, inventoryOpenCopy, merchantPerkPostedNext, type PerkKind } from "@promorang/shared";
 import { useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell } from "@/components/people/ExperienceShell";
@@ -12,16 +12,17 @@ const KINDS = (Object.entries(PERK_KIND_LABELS) as Array<[PerkKind, string]>).fi
 );
 
 export default function PutInventoryUp() {
+  const [params] = useSearchParams();
   const { user, profile } = useAuth();
   const { provideInventory } = useExperienceActions();
   const to = useExperiencePath();
   const { toast } = useToast();
   const merchantName = profile?.full_name?.split(" ")[0] || user?.user_metadata?.full_name?.split(" ")[0] || "A place";
   const [kind, setKind] = useState<PerkKind>("merchant");
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(params.get("title") || "");
   const [quantity, setQuantity] = useState("50");
   const [youEarn, setYouEarn] = useState("");
-  const [opened, setOpened] = useState<{ title: string; remaining: number | null } | null>(null);
+  const [opened, setOpened] = useState<{ title: string; remaining: number | null; offerId?: string } | null>(null);
 
   const submit = async () => {
     try {
@@ -32,7 +33,11 @@ export default function PutInventoryUp() {
         peopleGet: title,
         youEarn: youEarn || undefined,
       });
-      setOpened({ title: result.opportunity.title, remaining: result.opportunity.remaining });
+      setOpened({
+        title: result.opportunity.title,
+        remaining: result.opportunity.remaining,
+        offerId: result.offer?.id || result.opportunity?.sourceId,
+      });
       toast({ title: "It’s up", description: inventoryOpenCopy(merchantName, title) });
     } catch (error) {
       toast({ title: "Could not put that up yet", description: (error as Error).message, variant: "destructive" });
@@ -43,18 +48,24 @@ export default function PutInventoryUp() {
     return (
       <ExperienceShell eyebrow="It’s up" title={inventoryOpenCopy(merchantName, opened.title)} backTo="/dashboard">
         <p className="text-sm text-white/55">
-          Contributors will see this under Earn. You will see claimed and used — not a funding dashboard.
+          Contributors will see this under Earn. The loop finishes only when you validate the code at the counter.
         </p>
         {opened.remaining != null ? (
           <p className="text-sm text-white/45">{opened.remaining} available.</p>
         ) : null}
-        <Link to={to("/earn")} className="block rounded-[1.6rem] bg-primary px-5 py-5 text-black">
+        {merchantPerkPostedNext(opened.offerId).map((action) => (
+          <Link
+            key={action.id}
+            to={to(action.href)}
+            className={`block rounded-[1.6rem] px-5 py-5 ${action.id === "share-perk" ? "bg-primary text-black" : "border border-white/10"}`}
+          >
+            <p className="font-serif text-2xl font-bold">{action.label}</p>
+            <p className={`mt-1 text-sm ${action.id === "share-perk" ? "text-black/70" : "text-white/50"}`}>{action.why}</p>
+          </Link>
+        ))}
+        <Link to={to("/earn")} className="block rounded-[1.6rem] border border-white/10 px-5 py-5">
           <p className="font-serif text-2xl font-bold">See it as an opportunity</p>
-          <p className="mt-1 text-sm">Other people take it and drop it on their PromoCards.</p>
-        </Link>
-        <Link to={to("/give")} className="block rounded-[1.6rem] border border-white/10 px-5 py-5">
-          <p className="font-serif text-2xl font-bold">Drop it on your own people too</p>
-          <p className="mt-1 text-sm text-white/50">Same inventory. Your network first, if you want.</p>
+          <p className="mt-1 text-sm text-white/50">Other people take it and drop it on their PromoCards.</p>
         </Link>
         <Link to={to("/happened")} className="block text-center text-sm text-white/40">Watch claimed and used</Link>
       </ExperienceShell>

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
@@ -8,7 +7,6 @@ import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import PioneerCallout from "@/components/pioneer/PioneerCallout";
 import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
-import { PostPerkModal } from "@/components/merchant/PostPerkModal";
 import { MerchantRoiSimulator } from "@/components/value/MerchantRoiSimulator";
 import { PromoCardEconomyExplainer } from "@/components/promocard";
 
@@ -33,7 +31,6 @@ const ForMerchants = () => {
     const [searchParams] = useSearchParams();
     const claimVenue = searchParams.get("claimVenue") || searchParams.get("venue");
     const { t } = useI18n();
-    const [postPerkOpen, setPostPerkOpen] = useState(false);
 
     const merchantBenefits: Array<{ icon: typeof MapPin; titleKey: TranslationKey; descKey: TranslationKey }> = [
         {
@@ -124,13 +121,15 @@ const ForMerchants = () => {
                         />
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Button 
-                                size="xl" 
-                                onClick={() => setPostPerkOpen(true)}
+                            <Button
+                                size="xl"
+                                asChild
                                 className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black shadow-xl shadow-emerald-500/25 px-8 py-6 rounded-2xl text-base"
                             >
-                                <Plus className="w-5 h-5 mr-2" />
-                                <span>Post a Perk (Zero Risk)</span>
+                                <Link to={user ? "/stock" : "/auth?next=/stock"}>
+                                    <Plus className="w-5 h-5 mr-2" />
+                                    <span>Put a perk up</span>
+                                </Link>
                             </Button>
                             <Button variant="hero" size="xl" asChild>
                                 <Link to="/dashboard/venues/add">
@@ -283,11 +282,6 @@ const ForMerchants = () => {
                 </div>
             </section>
 
-            <PostPerkModal
-                open={postPerkOpen}
-                onOpenChange={setPostPerkOpen}
-                onCreated={() => {}}
-            />
         </div>
     );
 };

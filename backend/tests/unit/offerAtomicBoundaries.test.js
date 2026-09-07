@@ -5,7 +5,11 @@ jest.mock('../../lib/supabase', () => ({
   supabase: { from: mockFrom, rpc: mockRpc },
 }));
 jest.mock('../../services/revenueFunnelService', () => ({ record: jest.fn().mockResolvedValue(null) }));
-jest.mock('../../services/peopleExperienceService', () => ({ recordVerifiedAction: jest.fn().mockResolvedValue(null) }));
+jest.mock('../../services/peopleExperienceService', () => ({
+  recordVerifiedAction: jest.fn().mockResolvedValue(null),
+  awardContributorOnRedemption: jest.fn().mockResolvedValue({ contributorId: 'amb-1', amount: 25 }),
+  getCard: jest.fn().mockResolvedValue({ nextBenefit: null }),
+}));
 
 const offers = require('../../services/offerService');
 

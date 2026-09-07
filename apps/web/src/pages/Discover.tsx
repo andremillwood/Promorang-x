@@ -44,9 +44,8 @@ import { castListingDiscoveryVote, useListingDiscoveryPolls } from "@/hooks/useL
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useAuth } from "@/contexts/AuthContext";
 import { VERIFIED_VENUES } from "@/data/venuesData";
-import { usePerks } from "@/hooks/usePerks";
-import { PerkCard } from "@/components/perks/PerkCard";
-import { PostPerkModal } from "@/components/merchant/PostPerkModal";
+import { useNearbyBenefits } from "@/hooks/usePeopleExperience";
+import { LivePerkCard } from "@/components/perks/LivePerkCard";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 import { useI18n } from "@/i18n/I18nContext";
@@ -149,9 +148,11 @@ const Discover = () => {
 
   const [wheelOpen, setWheelOpen] = useState(false);
   const [streakOpen, setStreakOpen] = useState(false);
-  const [postPerkOpen, setPostPerkOpen] = useState(false);
 
-  const { perks, isLoading: perksLoading } = usePerks(activeCategory);
+  const nearby = useNearbyBenefits();
+  const perksLoading = nearby.isLoading;
+  const livePerks = nearby.data || [];
+  const putPerkUpHref = user ? "/stock" : "/auth?next=/stock";
 
   const handleTabChange = (tab: DiscoverTab) => {
     const next = new URLSearchParams(searchParams);
@@ -251,18 +252,22 @@ const Discover = () => {
   );
   const hubPerks = useMemo(
     () =>
-      perks.filter((perk) =>
-        matchesCityHub(
+      livePerks.filter((perk) => {
+        if (activeCategory !== "all") {
+          const haystack = `${perk.title || ""} ${perk.detail || ""} ${perk.issuer?.type || ""}`.toLowerCase();
+          if (!haystack.includes(activeCategory.toLowerCase())) return false;
+        }
+        return matchesCityHub(
           {
             title: perk.title,
-            description: perk.description,
-            location: perk.merchantLocation,
-            venue_name: perk.merchantName,
+            description: perk.detail,
+            location: perk.issuer?.name,
+            venue_name: perk.issuer?.name,
           },
           city,
-        ),
-      ),
-    [perks, city],
+        ) || livePerks.length <= 8;
+      }),
+    [livePerks, city, activeCategory],
   );
   const filteredMoments = useMemo(() => {
     const matched = hubMoments.filter((m) => {
@@ -439,11 +444,13 @@ const Discover = () => {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
             <GlobalTicketBalancePill />
             <Button
-              onClick={() => setPostPerkOpen(true)}
+              asChild
               className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 h-10 px-4"
             >
-              <Store className="w-4 h-4" />
-              <span>Post a Perk</span>
+              <Link to={putPerkUpHref}>
+                <Store className="w-4 h-4" />
+                <span>Put a perk up</span>
+              </Link>
             </Button>
           </div>
         </div>
@@ -539,16 +546,18 @@ const Discover = () => {
                       Verified Perks, Discounts & Complimentary Drops
                     </h3>
                     <p className="text-xs text-white/60">
-                      Claim passes, discounts, and VIP upgrades. Show your QR code at the merchant to redeem in real life.
+                      Live merchant perks with a drop you can claim. The merchant still has to validate the code.
                     </p>
                   </div>
 
                   <Button
-                    onClick={() => setPostPerkOpen(true)}
+                    asChild
                     className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 h-10 px-4 shrink-0"
                   >
-                    <Plus className="w-4 h-4" />
-                    <span>Post a Perk</span>
+                    <Link to={putPerkUpHref}>
+                      <Plus className="w-4 h-4" />
+                      <span>Put a perk up</span>
+                    </Link>
                   </Button>
                 </div>
 
@@ -583,16 +592,21 @@ const Discover = () => {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {hubPerks.map((perk) => (
-                      <PerkCard key={perk.id} perk={perk} />
+                      <LivePerkCard key={perk.id} perk={perk} />
                     ))}
                   </div>
                 )}
                 {!perksLoading && hubPerks.length === 0 && (
-                  <HubEmptyState
-                    cityName={city.name}
-                    noun="perks"
-                    onShowLiveHub={() => setCity(getDefaultCityHub())}
-                  />
+                  <div className="space-y-4">
+                    <HubEmptyState
+                      cityName={city.name}
+                      noun="perks"
+                      onShowLiveHub={() => setCity(getDefaultCityHub())}
+                    />
+                    <Link to={putPerkUpHref} className="block text-center text-sm font-black text-emerald-400">
+                      Put a live perk up →
+                    </Link>
+                  </div>
                 )}
               </div>
             )}
@@ -781,12 +795,6 @@ const Discover = () => {
           />
         </div>
 
-        {/* Modals */}
-        <PostPerkModal
-          open={postPerkOpen}
-          onOpenChange={setPostPerkOpen}
-          onCreated={() => handleTabChange("perks")}
-        />
         <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
         <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
       </div>

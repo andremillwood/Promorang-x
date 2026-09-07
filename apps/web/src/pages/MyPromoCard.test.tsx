@@ -92,6 +92,7 @@ describe("PromoCard journey", () => {
           id: "one",
           title: "Coffee on us",
           detail: "Valid at the counter",
+          fulfillmentState: "claimed",
           redemptionCode: "COFFEE-TEST",
         },
       ],
@@ -146,7 +147,7 @@ describe("PromoCard journey", () => {
   it("keeps the code readable when clipboard access fails", async () => {
     query.data = {
       perks: [
-        { id: "one", title: "Coffee on us", redemptionCode: "COFFEE-TEST" },
+        { id: "one", title: "Coffee on us", fulfillmentState: "claimed", redemptionCode: "COFFEE-TEST" },
       ],
     };
     Object.defineProperty(navigator, "clipboard", {

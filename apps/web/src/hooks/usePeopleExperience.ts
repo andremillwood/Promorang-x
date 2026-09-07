@@ -53,6 +53,15 @@ export function useWhatHappened(sceneId?: string) {
   });
 }
 
+export function useNearbyBenefits() {
+  return useQuery({
+    queryKey: ["experience-nearby"],
+    queryFn: () => peopleExperienceApi.nearby(),
+    retry: 1,
+    staleTime: 30_000,
+  });
+}
+
 export function useMyPromoCard() {
   const { user } = useAuth();
   return useQuery({
@@ -90,6 +99,7 @@ export function useExperienceActions() {
     queryClient.invalidateQueries({ queryKey: ["experience-opportunities"] });
     queryClient.invalidateQueries({ queryKey: ["experience-happened"] });
     queryClient.invalidateQueries({ queryKey: ["experience-card"] });
+    queryClient.invalidateQueries({ queryKey: ["experience-nearby"] });
     queryClient.invalidateQueries({ queryKey: ["experience-hub"] });
     queryClient.invalidateQueries({ queryKey: ["scene"] });
   };

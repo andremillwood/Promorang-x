@@ -27,6 +27,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import ProductCatalogManager from "@/components/merchant/ProductCatalogManager";
 
 export function MerchantStorefrontConsole({
@@ -38,6 +39,7 @@ export function MerchantStorefrontConsole({
 }) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [activeDeal, setActiveDeal] = useState<string | null>("2-for-1 Artisan Pour-Over (3-6 PM)");
   const [dealDiscount, setDealDiscount] = useState("20");
@@ -57,10 +59,8 @@ export function MerchantStorefrontConsole({
   };
 
   const handleLaunchFlashDrop = () => {
-    toast({
-      title: "Flash Drop Activated! ⚡",
-      description: `${dealDiscount}% off offer is now broadcast to nearby Kingston scouts & explorers!`,
-    });
+    const title = activeDeal || `${dealDiscount}% off`;
+    navigate(`/stock?title=${encodeURIComponent(title)}`);
   };
 
   return (
@@ -79,7 +79,7 @@ export function MerchantStorefrontConsole({
               </Badge>
             </div>
             <p className="text-xs text-white/60 mt-1">
-              Curate your digital menu, flash drops, and venue passes seen by local explorers.
+              Put a live perk up, share the drop, and validate codes at the counter.
             </p>
           </div>
         </div>
@@ -198,7 +198,7 @@ export function MerchantStorefrontConsole({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-amber-400" />
-                <h3 className="font-bold text-base text-white">Instant Flash Drop & Radar Perk</h3>
+                <h3 className="font-bold text-base text-white">Put a live perk up</h3>
               </div>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-bold uppercase">
                 Dynamic Demand Boost
@@ -206,7 +206,7 @@ export function MerchantStorefrontConsole({
             </div>
 
             <p className="text-xs text-white/60">
-              Broadcasting a flash drop notifies explorers within 5km on the live radar and highlights your venue with a glowing amber beacon.
+              This opens live inventory. Hosts and creators share it. Members claim it. You validate the code.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -237,14 +237,14 @@ export function MerchantStorefrontConsole({
             <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
               <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
                 <TrendingUp className="h-3.5 w-3.5" />
-                Est. +35 to +60 arrivals in next 4 hours
+                Next: share the drop, then validate at the counter
               </span>
               <Button
                 onClick={handleLaunchFlashDrop}
                 className="h-10 px-5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-black font-extrabold text-xs shadow-lg shadow-amber-500/20"
               >
                 <Flame className="h-4 w-4 mr-1.5" />
-                Broadcast Flash Drop
+                Put this perk up
               </Button>
             </div>
           </div>

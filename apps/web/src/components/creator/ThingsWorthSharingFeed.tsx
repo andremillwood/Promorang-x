@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { usePerks } from '@/hooks/usePerks';
 import { DISCOVERY_POLLS } from '@/data/discoveriesData';
 import { CURATED_KINGSTON_MOMENTS } from '@/lib/curated-radar';
 import { PromoShareAction } from '@/components/promoshare/PromoShareAction';
-import { PerkCard } from '@/components/perks/PerkCard';
+import { LivePerkCard } from '@/components/perks/LivePerkCard';
+import { useNearbyBenefits } from '@/hooks/usePeopleExperience';
 import { 
   Sparkles, 
   Share2, 
@@ -22,12 +22,12 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 export const ThingsWorthSharingFeed: React.FC = () => {
-  const { perks } = usePerks();
+  const nearby = useNearbyBenefits();
   const [filter, setFilter] = useState<'all' | 'perks' | 'discoveries' | 'moments'>('all');
 
   const distributableDiscoveries = DISCOVERY_POLLS.slice(0, 3);
   const distributableMoments = CURATED_KINGSTON_MOMENTS.slice(0, 3);
-  const distributablePerks = perks.slice(0, 4);
+  const distributablePerks = (nearby.data || []).slice(0, 8);
 
   return (
     <section className="space-y-8">
@@ -47,19 +47,14 @@ export const ThingsWorthSharingFeed: React.FC = () => {
             </p>
           </div>
 
-          {/* Distribution Proof Highlights */}
-          <div className="grid grid-cols-3 gap-3 bg-black/50 p-4 rounded-2xl border border-white/10 shrink-0">
+          <div className="grid grid-cols-2 gap-3 bg-black/50 p-4 rounded-2xl border border-white/10 shrink-0">
             <div className="text-center">
-              <span className="text-[10px] text-zinc-400 font-bold uppercase block">Attributed Moves</span>
-              <span className="text-xl font-mono font-black text-purple-300">142</span>
+              <span className="text-[10px] text-zinc-400 font-bold uppercase block">Live perks</span>
+              <span className="text-xl font-mono font-black text-emerald-400">{distributablePerks.length}</span>
             </div>
-            <div className="text-center border-x border-white/10 px-3">
-              <span className="text-[10px] text-zinc-400 font-bold uppercase block">Perk Claims</span>
-              <span className="text-xl font-mono font-black text-emerald-400">89</span>
-            </div>
-            <div className="text-center">
-              <span className="text-[10px] text-zinc-400 font-bold uppercase block">Draw Tickets</span>
-              <span className="text-xl font-mono font-black text-amber-400">17 🎟️</span>
+            <div className="text-center border-l border-white/10 px-3">
+              <span className="text-[10px] text-zinc-400 font-bold uppercase block">Next move</span>
+              <span className="text-sm font-black text-purple-300">Share, then validate</span>
             </div>
           </div>
         </div>
@@ -92,9 +87,17 @@ export const ThingsWorthSharingFeed: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Perks Section */}
         {(filter === 'all' || filter === 'perks') &&
-          distributablePerks.map((perk) => (
-            <PerkCard key={perk.id} perk={perk} />
-          ))}
+          (distributablePerks.length
+            ? distributablePerks.map((perk) => (
+                <LivePerkCard key={perk.id} perk={perk} intent="share" />
+              ))
+            : filter === 'perks' ? (
+                <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 md:col-span-2">
+                  <p className="font-serif text-2xl font-bold">No live perks to share yet</p>
+                  <p className="mt-2 text-sm text-white/55">Take one from Earn, or ask a merchant to put inventory up.</p>
+                  <Link to="/earn" className="mt-4 inline-block text-sm font-black text-emerald-400">Take a perk →</Link>
+                </div>
+              ) : null)}
 
         {/* Discoveries Section */}
         {(filter === 'all' || filter === 'discoveries') &&

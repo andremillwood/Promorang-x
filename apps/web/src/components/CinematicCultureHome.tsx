@@ -837,7 +837,7 @@ export default function CinematicCultureHome() {
                 <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Store className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">{t("home.meetMerchantsTitle")}</strong><span className="text-xs text-white/45">{t("home.meetMerchantsDesc")}</span></span></span>
                 <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
               </Link>
-              <Link to="/rewards" className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-primary/45">
+              <Link to="/earn" className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-primary/45">
                 <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Gift className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">{t("home.claimPerksTitle")}</strong><span className="text-xs text-white/45">{t("home.claimPerksDesc")}</span></span></span>
                 <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
               </Link>

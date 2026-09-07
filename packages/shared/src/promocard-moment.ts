@@ -39,7 +39,7 @@ export const PROMOCARD_MOMENT_LOOP: Array<{
     stage: "after",
     label: "After",
     title: "Carry value into the next move",
-    meaning: "Verified activity can recharge future spending value while attributed outcomes help stakeholders decide what to repeat or fund next.",
+    meaning: "Merchant validation records the redemption, updates attribution and any earned reward, then gives the member a real next benefit instead of a simulated recharge.",
   },
 ];
 
@@ -83,7 +83,7 @@ export const PROMOCARD_MOMENT_IMPACTS: Record<PromoCardMomentStakeholder, PromoC
     role: "brand",
     label: "Partner",
     value: "Funding tied to human and commercial outcomes",
-    outcome: "Sponsor access or recharges without taking over the Moment, then follow value through to action.",
+    outcome: "Sponsor a real benefit without taking over the Moment, then follow verified use through to the next visit.",
     signal: "Qualified actions, attributed spend, reach-to-visit, lift",
   },
   community: {

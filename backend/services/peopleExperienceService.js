@@ -184,6 +184,171 @@ function attributionFromMetadata(metadata = {}, extras = {}) {
   };
 }
 
+function remainingQuantity(total, reserved = 0, redeemed = 0) {
+  if (total == null) return null;
+  return Math.max(0, Number(total) - Number(reserved || 0) - Number(redeemed || 0));
+}
+
+function fulfillmentFromStatus(status, expiresAt) {
+  if (expiresAt) {
+    const expiry = Date.parse(expiresAt);
+    if (!Number.isFinite(expiry) || expiry <= Date.now()) return 'expired';
+  }
+  switch (String(status || '')) {
+    case 'issued': return 'issued';
+    case 'claimed': return 'claimed';
+    case 'fulfillment_pending': return 'pending';
+    case 'redeemed': return 'redeemed';
+    case 'expired': return 'expired';
+    case 'exhausted': return 'exhausted';
+    case 'active':
+    case 'available': return 'available';
+    default: return status ? 'available' : 'issued';
+  }
+}
+
+function contributorRewardAmount(offer = {}) {
+  const meta = offer.metadata && typeof offer.metadata === 'object' ? offer.metadata : {};
+  const fromMeta = Number(meta.contributor_reward_points ?? meta.you_earn_points);
+  if (Number.isFinite(fromMeta) && fromMeta > 0) return Math.min(Math.round(fromMeta), 500);
+  const value = Number(offer.value_amount);
+  if (Number.isFinite(value) && value > 0) return Math.min(Math.max(5, Math.round(value)), 100);
+  return 25;
+}
+
+function toPromoCardBenefit({
+  id,
+  offer = {},
+  issuance = {},
+  drop = {},
+  issuerName = null,
+  sharedBy = null,
+}) {
+  const remaining = remainingQuantity(offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed);
+  const status = issuance.status || (drop.status === 'exhausted' ? 'exhausted' : drop.id ? 'claimed' : offer.status);
+  const expiresAt = issuance.expires_at || offer.ends_at || null;
+  const fulfillmentState = fulfillmentFromStatus(status, expiresAt);
+  const recorded = fulfillmentState === 'redeemed' || Boolean(issuance.redeemed_at);
+  const fulfillmentType = offer.fulfillment_type || 'merchant_validation';
+  const presentable = Boolean(offer.id)
+    && fulfillmentState === 'claimed'
+    && ['code', 'merchant_validation'].includes(fulfillmentType)
+    && Boolean(issuance.redemption_code)
+    && !recorded;
+  return {
+    id,
+    offerId: offer.id || drop.offer_id || null,
+    issuanceId: issuance.id || null,
+    dropId: drop.id || issuance.metadata?.drop_id || null,
+    title: offer.title || drop.title || 'Perk',
+    detail: offer.description || drop.description || '',
+    issuer: {
+      id: offer.owner_user_id || drop.creator_id || null,
+      type: offer.owner_type || (drop.perk_kind === 'merchant' ? 'merchant' : 'creator'),
+      name: issuerName || offer.metadata?.issuer_name || offer.metadata?.merchant_name || 'Participating business',
+    },
+    eligibility: {
+      who: offer.metadata?.eligibility || (issuance.id ? 'Claimed members' : 'People this ambassador shared with'),
+      perUserLimit: offer.per_user_limit ?? 1,
+      startsAt: offer.starts_at || null,
+      endsAt: offer.ends_at || null,
+      remaining,
+    },
+    availableQuantity: remaining,
+    budget: offer.value_amount != null && remaining != null
+      ? Number(offer.value_amount) * remaining
+      : (offer.value_amount != null ? Number(offer.value_amount) : null),
+    expiresAt,
+    fulfillmentState,
+    fulfillmentType,
+    redemption: {
+      recorded,
+      code: presentable ? issuance.redemption_code : null,
+      redeemedAt: issuance.redeemed_at || null,
+      redeemedBy: issuance.redeemed_by || null,
+    },
+    sharedBy,
+    dropSlug: drop.slug || null,
+    href: drop.slug ? `/drop/${drop.slug}` : recorded ? '/discover' : '/card',
+  };
+}
+
+function canUseBenefit(benefit) {
+  if (!benefit || benefit.redemption?.recorded) return false;
+  if (benefit.expiresAt) {
+    const expiry = Date.parse(benefit.expiresAt);
+    if (!Number.isFinite(expiry) || expiry <= Date.now()) return false;
+  }
+  const type = benefit.fulfillmentType || 'merchant_validation';
+  if (!['code', 'merchant_validation'].includes(type)) return false;
+  return benefit.fulfillmentState === 'claimed' && Boolean(benefit.redemption?.code);
+}
+
+function selectUseThis(benefits) {
+  return (benefits || []).find((benefit) => canUseBenefit(benefit)) || null;
+}
+
+function selectNextBenefit(nearby, used) {
+  const pool = nearby || [];
+  if (!pool.length) return null;
+  const usedOffer = used?.offerId;
+  return pool.find((benefit) => benefit.offerId && benefit.offerId !== usedOffer) || pool[0] || null;
+}
+
+function summarizeRepeatUse(rows = []) {
+  const redemptionsByUser = new Map();
+  const merchants = new Set();
+  const referred = new Set();
+  const contributors = new Set();
+  let pointsAwarded = 0;
+
+  for (const row of rows) {
+    redemptionsByUser.set(row.userId, (redemptionsByUser.get(row.userId) || 0) + 1);
+    if (row.merchantId) merchants.add(row.merchantId);
+    if (row.referrerId) referred.add(row.userId);
+    if (row.contributorId) {
+      contributors.add(row.contributorId);
+      pointsAwarded += Number(row.contributorPoints || 0);
+    }
+  }
+
+  let firstRedemptions = 0;
+  let secondUses = 0;
+  for (const count of redemptionsByUser.values()) {
+    if (count === 1) firstRedemptions += 1;
+    if (count >= 2) secondUses += 1;
+  }
+
+  return {
+    firstRedemptions,
+    secondUses,
+    referredUsersWhoRedeem: referred.size,
+    merchantOutcomes: {
+      participatingBusinesses: merchants.size,
+      verifiedRedemptions: rows.length,
+      uniqueCustomers: redemptionsByUser.size,
+    },
+    contributorRewards: {
+      rewardedContributors: contributors.size,
+      pointsAwarded,
+    },
+  };
+}
+
+function loopProgress({ supplied = false, shared = false, claimed = false, validated = false, attributed = false, returnReason = false } = {}) {
+  const stages = ['merchant_supplied', 'ambassador_shared', 'member_claimed', 'merchant_validated', 'attribution_updated', 'return_reason'];
+  const done = {
+    merchant_supplied: Boolean(supplied),
+    ambassador_shared: Boolean(shared),
+    member_claimed: Boolean(claimed),
+    merchant_validated: Boolean(validated),
+    attribution_updated: Boolean(attributed),
+    return_reason: Boolean(returnReason),
+  };
+  const current = stages.find((stage) => !done[stage]) || 'return_reason';
+  return { stages, done, current };
+}
+
 function createPeopleExperienceService(db = defaultDb) {
   const maybe = async (promise) => {
     try {
@@ -572,40 +737,271 @@ function createPeopleExperienceService(db = defaultDb) {
     return items;
   }
 
+  async function getParticipatingOffers() {
+    const linked = await maybe(
+      db.from('community_drops')
+        .select('id, offer_id, creator_id, title, slug, scene_id, remaining, status, perk_kind')
+        .eq('status', 'active')
+        .not('offer_id', 'is', null)
+        .limit(24),
+    );
+    const dropByOffer = new Map();
+    for (const drop of linked.data || []) {
+      if (drop.offer_id && !dropByOffer.has(drop.offer_id)) dropByOffer.set(drop.offer_id, drop);
+    }
+    const inventory = await maybe(
+      db.from('offers')
+        .select('*')
+        .eq('status', 'active')
+        .in('fulfillment_type', ['merchant_validation', 'code', 'qr'])
+        .order('created_at', { ascending: false })
+        .limit(24),
+    );
+    const seen = new Set();
+    const rows = [];
+    for (const offer of inventory.data || []) {
+      if (seen.has(offer.id)) continue;
+      seen.add(offer.id);
+      rows.push({ offer, drop: dropByOffer.get(offer.id) || null });
+    }
+    return rows;
+  }
+
+  async function getNearbyBenefits() {
+    const participating = await getParticipatingOffers();
+    const issuerIds = new Set();
+    for (const item of participating) {
+      if (item.offer.owner_user_id) issuerIds.add(item.offer.owner_user_id);
+      if (item.drop?.creator_id) issuerIds.add(item.drop.creator_id);
+    }
+    const profiles = new Map();
+    await Promise.all([...issuerIds].map(async (id) => {
+      profiles.set(id, displayName(await profileFor(id)));
+    }));
+    return participating
+      .filter(({ offer }) => remainingQuantity(offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed) !== 0)
+      .map(({ offer, drop }) => toPromoCardBenefit({
+        id: offer.id,
+        offer,
+        drop: drop || {},
+        issuerName: profiles.get(offer.owner_user_id) || null,
+        sharedBy: drop?.creator_id
+          ? { id: drop.creator_id, name: profiles.get(drop.creator_id) || 'Ambassador' }
+          : null,
+      }));
+  }
+
+  async function getRepeatUseRows() {
+    const linked = await maybe(
+      db.from('community_drops').select('offer_id').not('offer_id', 'is', null).limit(80),
+    );
+    const offerIds = [...new Set((linked.data || []).map((row) => row.offer_id).filter(Boolean))];
+    if (!offerIds.length) return [];
+    const redeemed = await maybe(
+      db.from('offer_issuances')
+        .select('id, user_id, offer_id, redeemed_at, metadata, offers(owner_user_id, owner_type, value_amount)')
+        .eq('status', 'redeemed')
+        .in('offer_id', offerIds)
+        .order('redeemed_at', { ascending: false })
+        .limit(200),
+    );
+    const rewards = await maybe(
+      db.from('verified_actions')
+        .select('user_id, amount, action_metadata')
+        .eq('action_type', 'CONTRIBUTOR_REWARD')
+        .limit(200),
+    );
+    const rewardByIssuance = new Map();
+    for (const row of rewards.data || []) {
+      const issuanceId = row.action_metadata?.issuance_id;
+      if (issuanceId) rewardByIssuance.set(issuanceId, Number(row.amount || 0));
+    }
+    return (redeemed.data || []).map((row) => ({
+      userId: row.user_id,
+      referrerId: row.metadata?.referrer_id || row.metadata?.contributor_id || null,
+      merchantId: row.offers?.owner_user_id || null,
+      contributorId: row.metadata?.contributor_id || row.metadata?.referrer_id || null,
+      contributorPoints: rewardByIssuance.get(row.id) || 0,
+    }));
+  }
+
+  async function awardContributorOnRedemption({ issuance, offer }) {
+    const contributorId = issuance?.metadata?.contributor_id || issuance?.metadata?.referrer_id || null;
+    if (!contributorId || contributorId === issuance.user_id) return null;
+    const amount = contributorRewardAmount(offer);
+    try {
+      const economy = require('./economyService');
+      await economy.addCurrency(
+        contributorId,
+        'points',
+        amount,
+        'promocard_redemption',
+        issuance.id,
+        `Verified customer used ${offer?.title || 'a PromoCard benefit'}`,
+      );
+    } catch (error) {
+      console.warn('[people-experience] contributor reward skipped:', error.message);
+    }
+    await recordVerifiedAction({
+      userId: contributorId,
+      actionType: 'CONTRIBUTOR_REWARD',
+      merchantId: offer?.owner_user_id || null,
+      sceneId: issuance.metadata?.scene_id || null,
+      contributorId,
+      referrerId: issuance.metadata?.referrer_id || contributorId,
+      dropId: issuance.metadata?.drop_id || null,
+      amount,
+      verificationMethod: 'redemption',
+      metadata: {
+        issuance_id: issuance.id,
+        offer_id: offer?.id || null,
+        referred_user_id: issuance.user_id,
+      },
+    });
+    const referral = await maybe(
+      db.from('user_referrals')
+        .select('id, reward_points')
+        .eq('referrer_id', contributorId)
+        .eq('referred_id', issuance.user_id)
+        .maybeSingle(),
+    );
+    if (referral.data) {
+      await maybe(db.from('user_referrals').update({
+        reward_points: Number(referral.data.reward_points || 0) + amount,
+        status: 'rewarded',
+      }).eq('id', referral.data.id));
+    }
+    return { contributorId, amount };
+  }
+
   async function getCard(userId, identity = {}) {
-    const [wallet, card, issuances, memberships] = await Promise.all([
+    const [wallet, card, issuances, redeemedIssuances, memberships, participating, dropClaims, repeatRows] = await Promise.all([
       getWallet(userId),
       maybe(db.from('user_promo_cards').select('*').eq('user_id', userId).maybeSingle()),
-      maybe(db.from('offer_issuances').select('*, offers(*)').eq('user_id', userId).in('status', ['issued', 'claimed', 'fulfillment_pending']).order('issued_at', { ascending: false }).limit(12)),
+      maybe(db.from('offer_issuances').select('*, offers(*)').eq('user_id', userId).in('status', ['issued', 'claimed', 'fulfillment_pending']).order('issued_at', { ascending: false }).limit(20)),
+      maybe(db.from('offer_issuances').select('*, offers(*)').eq('user_id', userId).eq('status', 'redeemed').order('redeemed_at', { ascending: false }).limit(20)),
       membershipsFor(userId),
+      getParticipatingOffers(),
+      maybe(db.from('community_drop_claims').select('*, community_drops(*)').eq('user_id', userId).in('status', ['claimed', 'redeemed']).order('claimed_at', { ascending: false }).limit(20)),
+      getRepeatUseRows(),
     ]);
-    const dropClaims = await maybe(
-      db.from('community_drop_claims').select('*, community_drops(*)').eq('user_id', userId).eq('status', 'claimed').order('claimed_at', { ascending: false }).limit(12),
-    );
+    const requireLedger = (result) => {
+      if (result?.error) {
+        throw result.error instanceof Error ? result.error : new Error(result.error.message || 'Ledger unavailable');
+      }
+      return result;
+    };
+    requireLedger(card);
+    requireLedger(issuances);
+    requireLedger(redeemedIssuances);
+    requireLedger(dropClaims);
+
     const person = await profileFor(userId, identity);
-    const issuanceIds = new Set((issuances.data || []).map((row) => row.id));
-    const perks = [
-      ...(issuances.data || []).map((row) => ({
+    const issuanceIds = new Set([
+      ...(issuances.data || []).map((row) => row.id),
+      ...(redeemedIssuances.data || []).map((row) => row.id),
+    ]);
+    const claimedOfferIds = new Set([
+      ...(issuances.data || []).map((row) => row.offer_id),
+      ...(redeemedIssuances.data || []).map((row) => row.offer_id),
+    ].filter(Boolean));
+
+    const issuerIds = new Set();
+    for (const row of [...(issuances.data || []), ...(redeemedIssuances.data || [])]) {
+      if (row.offers?.owner_user_id) issuerIds.add(row.offers.owner_user_id);
+      if (row.metadata?.contributor_id) issuerIds.add(row.metadata.contributor_id);
+      if (row.metadata?.referrer_id) issuerIds.add(row.metadata.referrer_id);
+    }
+    for (const row of dropClaims.data || []) {
+      if (row.community_drops?.creator_id) issuerIds.add(row.community_drops.creator_id);
+    }
+    for (const item of participating) {
+      if (item.offer.owner_user_id) issuerIds.add(item.offer.owner_user_id);
+      if (item.drop?.creator_id) issuerIds.add(item.drop.creator_id);
+    }
+    const profiles = new Map();
+    await Promise.all([...issuerIds].map(async (id) => {
+      profiles.set(id, displayName(await profileFor(id)));
+    }));
+
+    const benefits = [
+      ...(issuances.data || []).map((row) => toPromoCardBenefit({
         id: row.id,
-        title: row.offers?.title || 'Perk',
-        detail: row.offers?.description || '',
-        kind: row.offers?.reward_type || 'custom',
-        status: row.status,
-        redemptionCode: row.redemption_code || null,
-        expiresAt: row.expires_at || null,
-        fulfillmentType: row.offers?.fulfillment_type || null,
+        offer: row.offers || {},
+        issuance: row,
+        issuerName: profiles.get(row.offers?.owner_user_id) || null,
+        sharedBy: row.metadata?.contributor_id || row.metadata?.referrer_id
+          ? { id: row.metadata.contributor_id || row.metadata.referrer_id, name: profiles.get(row.metadata.contributor_id || row.metadata.referrer_id) || 'Ambassador' }
+          : null,
       })),
-      ...(dropClaims.data || []).filter((row) => !row.offer_issuance_id || !issuanceIds.has(row.offer_issuance_id)).map((row) => ({
-        id: row.id,
-        title: row.community_drops?.title || 'Drop',
-        detail: row.community_drops?.description || '',
-        kind: row.community_drops?.perk_kind || 'custom',
-        status: row.status,
-        redemptionCode: null,
-        expiresAt: null,
-        fulfillmentType: null,
-      })),
+      ...(dropClaims.data || [])
+        .filter((row) => !row.offer_issuance_id || !issuanceIds.has(row.offer_issuance_id))
+        .map((row) => toPromoCardBenefit({
+          id: row.id,
+          drop: row.community_drops || {},
+          issuance: { status: row.status, metadata: { drop_id: row.drop_id } },
+          issuerName: profiles.get(row.community_drops?.creator_id) || null,
+          sharedBy: row.referrer_id
+            ? { id: row.referrer_id, name: profiles.get(row.referrer_id) || 'Ambassador' }
+            : null,
+        })),
     ];
+    const used = (redeemedIssuances.data || []).map((row) => toPromoCardBenefit({
+      id: row.id,
+      offer: row.offers || {},
+      issuance: row,
+      issuerName: profiles.get(row.offers?.owner_user_id) || null,
+      sharedBy: row.metadata?.contributor_id || row.metadata?.referrer_id
+        ? { id: row.metadata.contributor_id || row.metadata.referrer_id, name: profiles.get(row.metadata.contributor_id || row.metadata.referrer_id) || 'Ambassador' }
+        : null,
+    }));
+
+    const nearby = participating
+      .filter(({ offer }) => remainingQuantity(offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed) !== 0)
+      .filter(({ offer }) => !claimedOfferIds.has(offer.id))
+      .slice(0, 6)
+      .map(({ offer, drop }) => toPromoCardBenefit({
+        id: offer.id,
+        offer,
+        drop: drop || {},
+        issuerName: profiles.get(offer.owner_user_id) || null,
+        sharedBy: drop?.creator_id
+          ? { id: drop.creator_id, name: profiles.get(drop.creator_id) || 'Ambassador' }
+          : null,
+      }));
+
+    const useThis = selectUseThis(benefits);
+    const lastUsed = used[0] || null;
+    const nextBenefit = selectNextBenefit(nearby, lastUsed || useThis);
+    const repeatUse = summarizeRepeatUse(repeatRows);
+    const attributed = used.some((row) => row.sharedBy?.id) || Number(repeatUse.contributorRewards.pointsAwarded) > 0;
+    const loop = loopProgress({
+      supplied: participating.length > 0 || benefits.length > 0,
+      shared: benefits.some((row) => row.sharedBy?.id) || nearby.some((row) => row.sharedBy?.id),
+      claimed: benefits.length > 0,
+      validated: used.length > 0,
+      attributed,
+      returnReason: Boolean(nextBenefit),
+    });
+
+    const perks = benefits.map((benefit) => ({
+      id: benefit.id,
+      title: benefit.title,
+      detail: benefit.detail,
+      kind: benefit.issuer.type,
+      status: benefit.fulfillmentState,
+      redemptionCode: benefit.redemption.code,
+      expiresAt: benefit.expiresAt,
+      fulfillmentType: benefit.fulfillmentType,
+      issuer: benefit.issuer,
+      eligibility: benefit.eligibility,
+      availableQuantity: benefit.availableQuantity,
+      budget: benefit.budget,
+      fulfillmentState: benefit.fulfillmentState,
+      redemption: benefit.redemption,
+      sharedBy: benefit.sharedBy,
+    }));
+
     return {
       name: displayName(person, 'there'),
       givenName: givenName(person),
@@ -614,6 +1010,14 @@ function createPeopleExperienceService(db = defaultDb) {
       gems: Number(wallet.gems || 0),
       card: card.data || null,
       perks,
+      benefits,
+      used,
+      useThis,
+      nearby,
+      nextBenefit,
+      primaryAction: useThis ? 'use_this' : nextBenefit ? 'get_next_benefit' : nearby.length ? 'available_nearby' : 'get_next_benefit',
+      loop,
+      repeatUse,
       memberships: (memberships || []).map((row) => ({
         id: row.scene_id || row.scenes?.id,
         title: row.scenes?.title || 'Community',
@@ -740,6 +1144,7 @@ function createPeopleExperienceService(db = defaultDb) {
       attribution: {
         creator_id: userId,
         scene_id: payload.sceneId || null,
+        moment_id: payload.momentId || payload.moment_id || null,
         source_opportunity_id: payload.sourceOpportunityId || null,
         source_kind: payload.sourceKind || null,
         source_id: payload.sourceId || null,
@@ -1056,6 +1461,7 @@ function createPeopleExperienceService(db = defaultDb) {
     getOpportunities,
     getHappened,
     getCard,
+    getNearbyBenefits,
     createDrop,
     getDrop,
     claimDrop,
@@ -1070,6 +1476,7 @@ function createPeopleExperienceService(db = defaultDb) {
     recordVerifiedAction,
     ensureHubAttribution,
     bumpContributorStats,
+    awardContributorOnRedemption,
     accountStakeholderOutcomes,
   };
 }
@@ -1084,3 +1491,12 @@ module.exports.attributionFromMetadata = attributionFromMetadata;
 module.exports.accountStakeholderOutcomes = accountStakeholderOutcomes;
 module.exports.displayName = displayName;
 module.exports.givenName = givenName;
+module.exports.toPromoCardBenefit = toPromoCardBenefit;
+module.exports.canUseBenefit = canUseBenefit;
+module.exports.selectUseThis = selectUseThis;
+module.exports.selectNextBenefit = selectNextBenefit;
+module.exports.summarizeRepeatUse = summarizeRepeatUse;
+module.exports.contributorRewardAmount = contributorRewardAmount;
+module.exports.loopProgress = loopProgress;
+module.exports.remainingQuantity = remainingQuantity;
+module.exports.fulfillmentFromStatus = fulfillmentFromStatus;
