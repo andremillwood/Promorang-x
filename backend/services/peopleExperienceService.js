@@ -270,6 +270,28 @@ function toPromoCardBenefit({
     sharedBy,
     dropSlug: drop.slug || null,
     href: drop.slug ? `/drop/${drop.slug}` : recorded ? '/discover' : '/card',
+    fulfillmentData: issuance.fulfillment_data || {},
+    issuance: issuance.id
+      ? {
+          id: issuance.id,
+          status: issuance.status,
+          redemption_code: issuance.redemption_code || null,
+          issued_at: issuance.issued_at,
+          claimed_at: issuance.claimed_at,
+          redeemed_at: issuance.redeemed_at,
+          expires_at: issuance.expires_at || expiresAt,
+          fulfillment_data: issuance.fulfillment_data || {},
+          offers: {
+            id: offer.id,
+            title: offer.title || drop.title || 'Perk',
+            description: offer.description || drop.description || '',
+            reward_type: offer.reward_type,
+            fulfillment_type: fulfillmentType,
+            value_amount: offer.value_amount ?? null,
+            value_currency: offer.value_currency ?? null,
+          },
+        }
+      : null,
   };
 }
 
@@ -993,6 +1015,7 @@ function createPeopleExperienceService(db = defaultDb) {
       redemptionCode: benefit.redemption.code,
       expiresAt: benefit.expiresAt,
       fulfillmentType: benefit.fulfillmentType,
+      fulfillmentData: benefit.fulfillmentData,
       issuer: benefit.issuer,
       eligibility: benefit.eligibility,
       availableQuantity: benefit.availableQuantity,
@@ -1000,6 +1023,7 @@ function createPeopleExperienceService(db = defaultDb) {
       fulfillmentState: benefit.fulfillmentState,
       redemption: benefit.redemption,
       sharedBy: benefit.sharedBy,
+      issuance: benefit.issuance,
     }));
 
     return {

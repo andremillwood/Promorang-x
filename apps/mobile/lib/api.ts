@@ -140,6 +140,14 @@ export const commerceApi = {
   getCheckoutUrl: (productId: string) => `${WEB_BASE}/shop/${encodeURIComponent(productId)}`,
 };
 
+export const offerApi = {
+  redeem: (code: string, notes?: string) =>
+    apiRequest<{ success: boolean; data: { id: string; offers?: { title?: string } } }>('/api/offers/redeem', {
+      method: 'POST',
+      body: JSON.stringify({ code, notes }),
+    }),
+};
+
 export const merchantApi = {
   getLiveOps: () => apiRequest<{ generated_at: string; moments: Array<{ id: string; title: string }>; listings: any[]; receipts: any[]; live_moment_ids: string[] }>('/api/merchant/live-ops'),
   getReceipts: () =>

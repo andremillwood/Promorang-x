@@ -9,7 +9,7 @@ import {
   Sparkles,
   Ticket,
 } from "lucide-react";
-import { firstGivenName } from "@promorang/shared";
+import { firstGivenName, issuanceFromPromoCardPerk, isPresentablePass, type PromoCardPerk } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
@@ -20,6 +20,8 @@ import {
 } from "@/components/people/ExperienceShell";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { PromoCardActions } from "@/components/promocard/PromoCardActions";
+import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
+import type { OfferIssuance } from "@/hooks/useOffers";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +37,8 @@ type CardPerk = {
   expiresAt?: string | null;
   status?: string;
   fulfillmentState?: string;
+  fulfillmentType?: string | null;
+  fulfillmentData?: Record<string, unknown>;
   issuer?: { name?: string };
   eligibility?: { who?: string };
   availableQuantity?: number | null;
@@ -42,6 +46,7 @@ type CardPerk = {
   sharedBy?: { name?: string };
   dropSlug?: string;
   href?: string;
+  issuance?: PromoCardPerk["issuance"];
 };
 
 const actionClass =
@@ -59,7 +64,21 @@ function isExpired(perk: CardPerk) {
 
 function canShowCode(perk: CardPerk | null | undefined) {
   if (!perk || isExpired(perk) || perk.redemption?.recorded) return false;
+  const type = perk.fulfillmentType || perk.issuance?.offers?.fulfillment_type || "merchant_validation";
+  if (type === "qr" || type === "shipping" || type === "manual" || type === "automatic") return false;
   return perk.fulfillmentState === "claimed" && Boolean(perkCode(perk));
+}
+
+function issuanceForPerk(perk: CardPerk) {
+  return issuanceFromPromoCardPerk(perk as PromoCardPerk);
+}
+
+function journeyIssuance(perk: CardPerk) {
+  const issuance = issuanceForPerk(perk);
+  if (!issuance) return null;
+  const type = issuance.offers?.fulfillment_type || perk.fulfillmentType;
+  if (type === "code" || type === "merchant_validation") return null;
+  return issuance;
 }
 
 function BenefitTicket({
@@ -137,6 +156,9 @@ export default function MyPromoCard() {
   const nearby = data?.nearby || [];
   const nextBenefit = data?.nextBenefit || nearby[0] || null;
   const perks: CardPerk[] = data?.perks || [];
+  const qrPass = perks
+    .map(issuanceForPerk)
+    .find((issuance) => issuance && isPresentablePass(issuance.offers.fulfillment_type, issuance.status) && issuance.offers.fulfillment_type === "qr") || null;
   const expiredPerks = perks.filter(isExpired);
   const selectedExpired = selected ? isExpired(selected) : false;
   const selectedCode = perkCode(selected);
@@ -227,6 +249,10 @@ export default function MyPromoCard() {
               <div className="mt-3">
                 <BenefitTicket perk={useThis} action="Show redemption code" onShowCode={openPerk} />
               </div>
+            ) : qrPass ? (
+              <div className="mt-3">
+                <OfferIssuancePass issuance={qrPass as OfferIssuance} />
+              </div>
             ) : (
               <div className="mt-3">
                 <QuietEmpty
@@ -299,9 +325,14 @@ export default function MyPromoCard() {
             <h2 className="font-serif text-2xl font-bold">On the card</h2>
             {perks.filter((perk) => !isExpired(perk)).length ? (
               <div className="mt-3 space-y-2">
-                {perks.filter((perk) => !isExpired(perk)).map((perk) => (
-                  <BenefitTicket key={perk.id} perk={perk} onShowCode={openPerk} />
-                ))}
+                {perks.filter((perk) => !isExpired(perk)).map((perk) => {
+                  const journey = journeyIssuance(perk);
+                  return journey ? (
+                    <OfferIssuancePass key={perk.id} issuance={journey as OfferIssuance} />
+                  ) : (
+                    <BenefitTicket key={perk.id} perk={perk} onShowCode={openPerk} />
+                  );
+                })}
               </div>
             ) : (
               <div className="mt-3">
