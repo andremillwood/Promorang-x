@@ -11,6 +11,7 @@ import { BorderRadius, Colors, Spacing } from '@/constants/DesignTokens';
 import { useAuth } from '@/context/AuthContext';
 import { useMoments } from '@/hooks/useMoments';
 import { useMyPromoCard } from '@/hooks/usePeopleExperience';
+import { firstGivenName } from '@promorang/shared';
 import { PROMOCARD_LOOP, PROMOCARD_RECHARGE_ACTIONS, presentPromoCard } from '@/lib/promoCard';
 
 export default function CardTabScreen() {
@@ -18,7 +19,12 @@ export default function CardTabScreen() {
   const card = useMyPromoCard();
   const { moments } = useMoments();
   const [using, setUsing] = useState(false);
-  const view = presentPromoCard(card.data, user?.user_metadata?.full_name?.split(' ')[0] || 'Member');
+  const holder = firstGivenName({
+    displayName: user?.user_metadata?.full_name || user?.user_metadata?.name,
+    email: user?.email,
+    fallback: '',
+  });
+  const view = presentPromoCard(card.data, holder);
   const nearby = moments.slice(0, 3);
 
   if (card.isLoading) {
@@ -36,13 +42,13 @@ export default function CardTabScreen() {
     <View style={styles.screen}>
       <AppHeader title="PromoCard" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.kicker}>PROMORANG’S MEMBER SPENDING BENEFIT</Text>
+        <Text style={styles.kicker}>YOUR LIVE PROMORANG CARD</Text>
         <Text style={styles.hero}>
-          Spend less.{'\n'}
-          <Text style={styles.heroAccent}>Do more.</Text>
+          Hold it.{'\n'}
+          <Text style={styles.heroAccent}>Use it.</Text>
         </Text>
         <Text style={styles.lead}>
-          PromoCard is how members spend promotional value at participating places — then recharge it by showing up.
+          PromoCard holds live perks, access, points, and keys. Show a claimed benefit — do not invent a spend balance.
         </Text>
         <View style={styles.promise}>
           <Ionicons name="shield-checkmark" size={18} color="#67C587" />
@@ -68,7 +74,7 @@ export default function CardTabScreen() {
           <View style={styles.preview}>
             <Ionicons name="information-circle" size={16} color="#F6D48A" />
             <Text style={styles.previewCopy}>
-              Your live spendable balance appears when the card is issued. Points, keys and claimed drops already live here.
+              Points, keys, and claimed drops already live here. A showable code appears only after the server issues one.
             </Text>
           </View>
         ) : null}
@@ -136,7 +142,7 @@ export default function CardTabScreen() {
           />
         )}
 
-        <Text style={styles.section}>Ways to recharge</Text>
+        <Text style={styles.section}>Next moves</Text>
         {PROMOCARD_RECHARGE_ACTIONS.map((action) => (
           <Pressable key={action.id} style={styles.action} onPress={() => router.push(action.mobileHref as any)}>
             <View style={{ flex: 1 }}>

@@ -17,12 +17,12 @@ type PromoCardFaceProps = {
 };
 
 export function PromoCardFace({
-  holder = 'Member',
+  holder = 'Your card',
   available = '0 pts',
   limit = '0 keys',
   places = 'Your perks live here',
   tier,
-  cardNumber = 'PR · 0842',
+  cardNumber = '',
   compact = false,
   onPress,
   onUsePress,
@@ -42,7 +42,7 @@ export function PromoCardFace({
         </View>
       </View>
       <View>
-        <Text style={styles.meta}>Available to spend</Text>
+        <Text style={styles.meta}>On this card</Text>
         <Text style={[styles.available, compact && styles.availableCompact]}>{available}</Text>
         <Text style={styles.limit}>
           of {limit} this cycle · {places}

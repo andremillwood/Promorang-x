@@ -71,7 +71,7 @@ export default function TodayScreen() {
         <Text style={styles.description}>
           {role === 'member'
             ? 'Your PromoCard is the thing you hold. Discover what’s next, then use it when you get there.'
-            : 'Give value that lands on people’s PromoCards. Your card is how you spend and recharge too.'}
+            : 'Give value that lands on people’s PromoCards. Your card is how they hold and use it.'}
         </Text>
 
         {home.isError ? (

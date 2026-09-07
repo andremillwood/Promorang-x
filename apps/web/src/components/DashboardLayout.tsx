@@ -110,6 +110,7 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/saved", label: "Saved", description: "Things worth returning to without having to rediscover them." },
   { match: "/dashboard/analytics", label: "Analytics", description: "Operational reporting for the active hub." },
   { match: "/dashboard/settings", label: "Settings", description: "Personal, role, and hub-level configuration." },
+  { match: "/demand", label: "Demand", description: "Named asks and finds from Discover." },
   { match: "/people", label: "People", description: "The network you built and the people helping you build it." },
   { match: "/give", label: "Give Something", description: "Drop a perk onto your people’s PromoCards." },
   { match: "/earn", label: "Earn", description: "Opportunities you can take and earn from." },
@@ -303,17 +304,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
     ],
   };
 
-  const participantMobileNav: NavItem[] = [
-    { icon: Home, label: "Home", href: "/dashboard" },
-    { icon: Compass, label: "Discover", href: "/discover" },
-    { icon: CreditCard, label: "Card", href: "/card" },
-    { icon: Users, label: "People", href: "/people" },
-    { icon: Sparkles, label: "Earn", href: "/earn" },
-  ];
-
-  const currentMobileNav = safeRole === "admin"
-    ? mobileNavItems.admin
-    : safeRole === "participant" ? participantMobileNav : peopleMobileNav;
+  const currentMobileNav = safeRole === "admin" ? mobileNavItems.admin : peopleMobileNav;
 
   return (
     <div className="app-shell-mobile relative flex min-h-screen min-h-dvh overflow-x-clip bg-background transition-colors duration-300">
