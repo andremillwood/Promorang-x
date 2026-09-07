@@ -10,6 +10,7 @@ import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/people/ExperienceShell";
 import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
+import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { resolveDemandRole } from "@/lib/discovery-demand";
@@ -24,6 +25,7 @@ export default function PeopleHome() {
   const home = useExperienceHome();
   const to = useExperiencePath();
   const data = home.data;
+  const world = data?.world;
   const givenName = firstGivenName({
     displayName: data?.givenName || data?.name,
     fullName: profile?.full_name || profile?.display_name || user?.user_metadata?.full_name || user?.user_metadata?.name,
@@ -113,8 +115,10 @@ export default function PeopleHome() {
                 holder={givenName === "there" ? "Your card" : givenName}
                 available={data?.card?.useThis ? "Ready to use" : data?.card?.nearby?.length ? "Available nearby" : gems ? `${gems.toLocaleString()} Gems` : `${points.toLocaleString()} pts`}
                 limit={data?.card?.useThis?.title || data?.card?.nextBenefit?.title || `${keys} keys`}
-                places={data?.card?.useThis?.issuer?.name || data?.communities?.[0]?.title || "Your perks live here"}
+                places={data?.card?.useThis?.issuer?.name || world?.promoCard?.places || data?.communities?.[0]?.title || "Your perks live here"}
                 action={data?.card?.useThis ? "Use this" : data?.card?.nearby?.length ? "Available nearby" : "Get your next benefit"}
+                sceneMark={world?.promoCard?.sceneMark}
+                crewMark={world?.promoCard?.crewMark}
               />
               <span className="mt-3 flex min-h-11 items-center justify-between px-1 text-sm font-semibold text-amber-200">
                 Open your PromoCard <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -182,17 +186,49 @@ export default function PeopleHome() {
       ) : (
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-bold">For you</h2>
-          <Link to="/discover?tab=discoveries" className="block">
+          {world?.currentMove ? (
+            <Link to={to(world.currentMove.href || "/discover")} className="block">
+              <TicketPass
+                kicker={world.currentMove.eyebrow || "Tonight"}
+                title={world.currentMove.title}
+                detail={world.currentMove.why || world.slice?.currentLine || "Show up and the Scene can return something useful."}
+                stub="GO"
+                stubLabel="Live"
+              />
+            </Link>
+          ) : (
+            <Link to="/discover?tab=discoveries" className="block">
+              <TicketPass
+                kicker="What’s happening"
+                title="Find your next good thing"
+                detail="Explore local spots, nights out, and perks worth claiming. What Discover opens lands on your PromoCard."
+                stub="GO"
+                stubLabel="Live"
+              />
+            </Link>
+          )}
+          <Link to={to("/crews")} className="block">
             <TicketPass
-              kicker="What’s happening"
-              title="Find your next good thing"
-              detail="Explore local spots, nights out, and perks worth claiming. What Discover opens lands on your PromoCard."
-              stub="GO"
-              stubLabel="Live"
+              kicker="Who you move with"
+              title={world?.crew?.name || "Form a Crew"}
+              detail={
+                world?.crew
+                  ? `${world.crew.size} people · ${world.crew.runTitle || "Kingston After Dark"}`
+                  : "3–8 people. One run. No factions required."
+              }
+              stub="CREW"
+              stubLabel="Open"
             />
           </Link>
         </section>
       )}
+
+      {role === "member" && world?.latestReturn ? (
+        <section className="space-y-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Latest Return</p>
+          <ConsequenceReceipt receipt={world.latestReturn} />
+        </section>
+      ) : null}
 
       {role !== "member" && (data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole))) ? (
         <Link to={to("/stock")} className="block">

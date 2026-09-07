@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const experience = require('../services/peopleExperienceService');
+const worldCrewService = require('../services/worldCrewService');
 
 const ok = (res, data, status = 200) => res.status(status).json({ success: true, data });
 const fail = (res, error, status = 400) => res.status(status).json({
@@ -116,6 +117,18 @@ router.post('/found', async (req, res) => {
 
 router.post('/found/:id/claim', async (req, res) => {
   try { return ok(res, await experience.claimFound(req.user.id, req.params.id), 201); } catch (error) { return fail(res, error); }
+});
+
+router.get('/crew', async (req, res) => {
+  try { return ok(res, await worldCrewService.getMyCrew(req.user.id)); } catch (error) { return fail(res, error, 500); }
+});
+
+router.post('/crew', async (req, res) => {
+  try { return ok(res, await worldCrewService.createCrew(req.user.id, req.body || {}), 201); } catch (error) { return fail(res, error); }
+});
+
+router.post('/crew/join', async (req, res) => {
+  try { return ok(res, await worldCrewService.joinCrewByCode(req.user.id, req.body?.code || req.body?.inviteCode), 201); } catch (error) { return fail(res, error); }
 });
 
 module.exports = router;

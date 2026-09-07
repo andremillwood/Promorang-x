@@ -53,4 +53,7 @@ export const peopleExperienceApi = {
   listFound: (city?: string) => request<any[]>(`/found${city ? `?city=${encodeURIComponent(city)}` : ""}`),
   claimFound: (id: string) =>
     request<Record<string, any>>(`/found/${encodeURIComponent(id)}/claim`, { method: "POST", body: "{}" }),
+  crew: () => request<Record<string, any> | null>("/crew"),
+  createCrew: (body: Record<string, unknown>) => request<Record<string, any>>("/crew", { method: "POST", body: JSON.stringify(body) }),
+  joinCrew: (code: string) => request<Record<string, any>>("/crew/join", { method: "POST", body: JSON.stringify({ code }) }),
 };

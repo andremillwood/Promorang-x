@@ -90,6 +90,16 @@ export function useHubExperience(slug?: string) {
   });
 }
 
+export function useMyCrew() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["experience-crew", user?.id],
+    queryFn: () => peopleExperienceApi.crew(),
+    enabled: Boolean(user),
+    retry: 1,
+  });
+}
+
 export function useExperienceActions() {
   const queryClient = useQueryClient();
   const invalidate = () => {
@@ -101,6 +111,7 @@ export function useExperienceActions() {
     queryClient.invalidateQueries({ queryKey: ["experience-card"] });
     queryClient.invalidateQueries({ queryKey: ["experience-nearby"] });
     queryClient.invalidateQueries({ queryKey: ["experience-hub"] });
+    queryClient.invalidateQueries({ queryKey: ["experience-crew"] });
     queryClient.invalidateQueries({ queryKey: ["scene"] });
   };
 
@@ -135,6 +146,14 @@ export function useExperienceActions() {
     mutationFn: peopleExperienceApi.provideInventory,
     onSuccess: invalidate,
   });
+  const createCrew = useMutation({
+    mutationFn: peopleExperienceApi.createCrew,
+    onSuccess: invalidate,
+  });
+  const joinCrew = useMutation({
+    mutationFn: (code: string) => peopleExperienceApi.joinCrew(code),
+    onSuccess: invalidate,
+  });
 
-  return { createDrop, claimDrop, takeOpportunity, contribute, invite, start, ask, provideInventory };
+  return { createDrop, claimDrop, takeOpportunity, contribute, invite, start, ask, provideInventory, createCrew, joinCrew };
 }

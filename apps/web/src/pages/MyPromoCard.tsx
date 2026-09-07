@@ -11,14 +11,14 @@ import {
 } from "lucide-react";
 import { firstGivenName, issuanceFromPromoCardPerk, isPresentablePass, type PromoCardPerk } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMyPromoCard } from "@/hooks/usePeopleExperience";
+import { useExperienceHome, useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import {
   ExperienceShell,
   ExperienceLoading,
   QuietEmpty,
 } from "@/components/people/ExperienceShell";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { PromoCardFace, PromoCardWorldContext } from "@/components/promorang/SignatureObjects";
 import { PromoCardActions } from "@/components/promocard/PromoCardActions";
 import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
 import type { OfferIssuance } from "@/hooks/useOffers";
@@ -143,7 +143,9 @@ function BenefitTicket({
 export default function MyPromoCard() {
   const { user, profile } = useAuth();
   const card = useMyPromoCard();
+  const home = useExperienceHome();
   const to = useExperiencePath();
+  const world = home.data?.world;
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [selected, setSelected] = useState<CardPerk | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
@@ -236,8 +238,25 @@ export default function MyPromoCard() {
             holder={holder === "there" ? "Your card" : holder}
             available={useThis ? "Ready to use" : nearby.length ? "Available nearby" : "Get your next benefit"}
             limit={useThis?.title || nextBenefit?.title || "No live perk yet"}
-            places={useThis?.issuer?.name || `${nearby.length || 0} participating places`}
+            places={useThis?.issuer?.name || world?.promoCard?.places || `${nearby.length || 0} participating places`}
             action={useThis ? "Use this" : nearby.length ? "Available nearby" : "Get your next benefit"}
+            sceneMark={world?.promoCard?.sceneMark}
+            crewMark={world?.promoCard?.crewMark}
+          />
+
+          <PromoCardWorldContext
+            scene={world?.slice?.sceneTitle}
+            season={world?.slice?.seasonTitle}
+            crew={world?.crew?.name}
+            run={
+              world?.crew?.runTitle
+                ? `${world.crew.runTitle} · ${world.crew.runCompleted || 0}/${world.crew.runTotal || 0}`
+                : null
+            }
+            pathCue={world?.path?.cue}
+            latestReturn={world?.latestReturn?.heading}
+            nearestUnlock={world?.promoCard?.nearestUnlock}
+            latestPiece={world?.latestMemory?.title}
           />
 
           <PromoCardActions

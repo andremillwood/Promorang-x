@@ -19,10 +19,59 @@ type PromoCardFaceProps = {
   holder?: string;
   places?: string;
   action?: string;
+  sceneMark?: string;
+  crewMark?: string;
   className?: string;
   variant?: "spending" | "membership";
   tier?: string;
 };
+
+export function PromoCardWorldContext({
+  scene,
+  season,
+  crew,
+  run,
+  pathCue,
+  latestReturn,
+  nearestUnlock,
+  latestPiece,
+}: {
+  scene?: string | null;
+  season?: string | null;
+  crew?: string | null;
+  run?: string | null;
+  pathCue?: string | null;
+  latestReturn?: string | null;
+  nearestUnlock?: string | null;
+  latestPiece?: string | null;
+}) {
+  const rows = [
+    scene ? { label: "Scene", value: scene } : null,
+    season ? { label: "Season", value: season } : null,
+    crew ? { label: "Crew", value: crew } : null,
+    run ? { label: "Run", value: run } : null,
+    pathCue ? { label: "Path", value: pathCue } : null,
+    latestReturn ? { label: "Latest Return", value: latestReturn } : null,
+    latestPiece ? { label: "Kept", value: latestPiece } : null,
+    nearestUnlock ? { label: "Closest opening", value: nearestUnlock } : null,
+  ].filter((row): row is { label: string; value: string } => Boolean(row));
+
+  if (!rows.length) return null;
+
+  return (
+    <section className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] px-4 py-4" aria-label="PromoCard world context">
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Around the card</p>
+      <dl className="mt-3 space-y-2">
+        {rows.map((row) => (
+          <div key={row.label} className="flex items-start justify-between gap-3 text-sm">
+            <dt className="text-white/45">{row.label}</dt>
+            <dd className="text-right font-medium text-white">{row.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
 
 export function PromoCardFace({
   available = "Use this",
@@ -30,6 +79,8 @@ export function PromoCardFace({
   holder = "Member card",
   places = "Partner shops nearby",
   action = "Use this",
+  sceneMark,
+  crewMark,
   className,
   variant = "spending",
   tier,
@@ -42,6 +93,11 @@ export function PromoCardFace({
             <p className="text-[10px] font-bold tracking-[0.22em] text-amber-200/80">PROMORANG</p>
             <h3 className="mt-1 font-serif text-2xl font-bold tracking-tight">PromoCard</h3>
             {tier ? <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-100/70">{tier} tier</p> : null}
+            {sceneMark || crewMark ? (
+              <p className="mt-1 text-[10px] tracking-[0.16em] text-white/55">
+                {[sceneMark, crewMark].filter(Boolean).join(" · ")}
+              </p>
+            ) : null}
           </div>
           <span className="h-8 w-11 rounded-md bg-gradient-to-br from-amber-200 to-amber-500 shadow-inner" aria-hidden />
         </div>
@@ -118,15 +174,20 @@ type RelicProps = {
   title: string;
   origin: string;
   perk: string;
+  scene?: string;
+  place?: string;
+  verifiedDate?: string;
   className?: string;
 };
 
-export function CollectibleRelic({ serial, title, origin, perk, className }: RelicProps) {
+export function CollectibleRelic({ serial, title, origin, perk, scene, place, verifiedDate, className }: RelicProps) {
+  const provenance = [scene, place, verifiedDate].filter(Boolean).join(" · ");
   return (
     <article className={cn("pr-relic rounded-3xl border border-purple-300/20 p-5 text-white", className)}>
       <p className="font-mono text-[10px] tracking-[0.2em] text-purple-200/80">{serial}</p>
       <h3 className="mt-3 font-serif text-2xl font-bold leading-tight">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-white/65">{origin}</p>
+      {provenance ? <p className="mt-2 text-xs leading-5 text-white/45">{provenance}</p> : null}
       <p className="mt-4 border-t border-white/10 pt-3 text-sm text-purple-100">{perk}</p>
     </article>
   );

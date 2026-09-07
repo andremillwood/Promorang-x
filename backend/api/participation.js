@@ -17,6 +17,9 @@ const growthOperatingService = require('../services/growthOperatingService');
 const masterKeyService = require('../services/masterKeyService');
 const demandEventService = require('../services/demandEventService');
 const peopleExperience = require('../services/peopleExperienceService');
+const worldLayer = require('../services/worldLayer');
+const promoCardReturnService = require('../services/promoCardReturnService');
+const worldCrewService = require('../services/worldCrewService');
 
 const supabase = global.supabase || serviceSupabase || null;
 
@@ -329,6 +332,61 @@ async function performCheckIn({
     }
   }
 
+  let promoCardReturn = { eligible: false, label: null, event: null };
+  if (finalizeRewards && verificationStatus === 'verified') {
+    try {
+      promoCardReturn = await promoCardReturnService.recordEligibleReturn({
+        userId,
+        actionType: 'check_in',
+        referenceEntityId: momentId,
+      });
+    } catch (promoCardError) {
+      console.warn('[Participation API] PromoCard Return skipped:', promoCardError.message);
+    }
+  }
+
+  let scene = null;
+  try {
+    if (moment?.scene_id) {
+      const { data } = await supabase.from('scenes').select('id, slug, title, metadata').eq('id', moment.scene_id).maybeSingle();
+      scene = data;
+    }
+    if (!scene) {
+      const { data: link } = await supabase
+        .from('moment_scene_links')
+        .select('scenes(id, slug, title, metadata)')
+        .eq('moment_id', momentId)
+        .limit(1)
+        .maybeSingle();
+      scene = link?.scenes || null;
+    }
+  } catch (sceneError) {
+    console.warn('[Participation API] scene context skipped:', sceneError.message);
+  }
+
+  let runProgress = null;
+  let pathCue = null;
+  try {
+    const crew = await worldCrewService.getMyCrew(userId);
+    if (crew?.run) {
+      runProgress = { title: crew.run.title, completed: crew.run.completed, total: crew.run.total };
+    }
+    pathCue = crew?.members?.find((member) => member.userId === userId)?.pathCue || null;
+  } catch (worldError) {
+    console.warn('[Participation API] world context skipped:', worldError.message);
+  }
+
+  const consequence = worldLayer.consequenceFromCheckIn({
+    moment,
+    memory,
+    reward,
+    verificationStatus,
+    promoCardReturn,
+    runProgress,
+    pathCue,
+    scene,
+  });
+
   return {
     participation: updatedParticipation,
     reward,
@@ -337,6 +395,8 @@ async function performCheckIn({
     piece_awards: pieceAwards,
     verification_status: verificationStatus,
     reward_pending: !finalizeRewards,
+    promo_card_return: promoCardReturn,
+    consequence,
   };
 }
 

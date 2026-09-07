@@ -4,6 +4,8 @@ This is the canonical design contract for Promorang.
 
 Implementation is governed by [`docs/design/a-plus-platform-execution-plan.md`](docs/design/a-plus-platform-execution-plan.md). `DESIGN.md` defines the product law; the execution plan defines the workstreams, sequence, release gates, and evidence required to meet it.
 
+The PromoCard-centered world layer — Kingston After Dark / The City Wakes — is specified in [`docs/design/promocard-world-experience-v1.md`](docs/design/promocard-world-experience-v1.md). Implementation notes for the first vertical slice live in [`docs/design/world-layer-implementation-2026-09-05.md`](docs/design/world-layer-implementation-2026-09-05.md). The world layer must increase PromoCard usefulness. It must never become a second product.
+
 It exists because "better dashboard sections" are not enough. Promorang must not become a polished stack of panels, metrics, and explanatory blocks. It should feel like a living social opportunity marketplace where real-world action creates proof, value, memory, and return behavior.
 
 Every designer, engineer, and coding agent should treat this file as product law.

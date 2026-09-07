@@ -10,6 +10,10 @@ export type SceneMetadata = {
   accessibility?: string[];
   recurring_ritual?: string;
   next_invitation?: string;
+  season_key?: string;
+  season_title?: string;
+  season_line?: string;
+  test_area?: string;
   hosts?: Array<{ id?: string; name: string; role?: string; avatar_url?: string }>;
   places?: Array<{ id?: string; name: string; detail?: string; image_url?: string }>;
 };
