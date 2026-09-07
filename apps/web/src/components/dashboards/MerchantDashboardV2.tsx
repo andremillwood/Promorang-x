@@ -20,7 +20,9 @@ import {
   Calendar,
   Flame,
   ChevronRight,
+  Vote,
 } from "lucide-react";
+import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMerchantVenues } from "@/hooks/useVenues";
 import { useMerchantEconomy } from "@/hooks/useStakeholderEconomy";
@@ -125,8 +127,9 @@ export function MerchantDashboardV2() {
       <LiveLoopActions role="merchant" title="Today's live loop" />
 
       {/* 3. The 4 Operational Console Navigation Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
         {[
+          { id: "demand", label: "City Asks", icon: Vote, hint: "What people named", count: "Live asks" },
           { id: "storefront", label: "Storefront & Drops", icon: Store, hint: "Catalog & perks", count: "Live" },
           { id: "redemptions", label: "POS Scanner", icon: QrCode, hint: "Door verification", count: "Active" },
           { id: "commerce", label: "Orders & Fulfillment", icon: ShoppingBag, hint: "Pickups & tickets", count: "Orders" },
@@ -169,12 +172,17 @@ export function MerchantDashboardV2() {
         <div className="min-w-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <TabsList className="sr-only">
+              <TabsTrigger value="demand">Demand</TabsTrigger>
               <TabsTrigger value="storefront">Storefront</TabsTrigger>
               <TabsTrigger value="redemptions">Scanner</TabsTrigger>
               <TabsTrigger value="commerce">Orders</TabsTrigger>
               <TabsTrigger value="venues">Venues</TabsTrigger>
               <TabsTrigger value="analytics">Yield</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="demand" className="mt-0">
+              <DiscoveryDemandInbox role="merchant" />
+            </TabsContent>
 
             <TabsContent value="storefront" className="mt-0">
               <MerchantStorefrontConsole
