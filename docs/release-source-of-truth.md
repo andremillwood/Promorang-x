@@ -19,8 +19,8 @@ Preview deployments from feature branches are allowed. They must never be promot
 
 | Surface | SHA / source | State |
 | --- | --- | --- |
-| Web (`promorang-alt`) | `main` at `a2cfcfb51` after #63, #61, #66, #60, #56, #55, and #57 | Git production from `main` is the web line. Production of `a77e7b8ed` (post-#55 contract) was READY before this merge. |
-| API (`api`) | `main` at `a2cfcfb51` after the #57 merge | Root Directory is `backend`. Production of `a77e7b8ed` was READY. Confirm this SHA on `api.promorang.co`, then delete `cursor/creative-cook-shop-season-35a2`. |
+| Web (`promorang-alt`) | `main` at `7f9960944` after #63, #61, #66, #60, #56, #55, #57, and #62 | Git production from `main` is the web line. |
+| API (`api`) | `main` at `7f9960944` after the #62 merge | Root Directory is `backend`. Confirm this SHA on `api.promorang.co`, then delete `cursor/creative-cook-shop-season-35a2`. |
 | API Git skip | `scripts/vercel-ignore-non-web.mjs` | Still skips a repo-root Vite build if the project id is the API project and Root Directory is wrong. |
 
 ## What belongs on `main`
@@ -37,6 +37,7 @@ Preview deployments from feature branches are allowed. They must never be promot
 10. Offer fulfillment journeys from #56: QR, automatic, manual, and shipping on the live card. Code / merchant-validation keep the copy-code dialog. Do not restore recharge or preview balances.
 11. Discover → PromoCard from #55: named intents, found listings, demand inbox, and server `discovery_card_unlocks`. Unlock perks only when the server returns a `redemption_code`. Do not invent `PR-` codes in the browser or treat localStorage as card credentials.
 12. Shared people chrome from #57: Today · People · Create · Earn · Card on web mobile and native. Web `/card` stays the live verified loop. Do not restore recharge, fake balances, `"Member"`, or placeholder serial `PR · 0842`.
+13. Kingston After Dark world layer from #62: Consequence Receipt, eligibility-only PromoCard Return (`recharge_amount: 0`), Crews, Scene/Crew context around the live card. Apply `supabase/migrations/202609050003_world_crews_and_kingston_season.sql` before production use. No Game tab and no dollar refill.
 
 `main` must not absorb stacked agent PRs, parallel PromoCard experiments, or Today-as-public-home.
 
@@ -65,13 +66,12 @@ These target `main` and still change production behavior. Merge one overlapping 
 
 | PR | Branch | Verdict |
 | --- | --- | --- |
-| #62 | `cursor/world-layer-kingston-a62d` | Kingston After Dark. Rebase onto `main` after #57. Keep the live `/card` page, Discover unlocks, and shared chrome. Eligibility-only PromoCard Return — no dollar refill. Do not merge #64 or #65 in parallel. |
 | #64 | `cursor/promocard-present-recut-26bd` | Recut of closed #50. Do not merge in parallel with the live card path. |
 | #65 | `cursor/promocard-wallet-face-1356` | Parallel wallet 3D pass on `/card`. Do not merge in parallel with the live card path. |
 
-Landed: **#63**, **#61**, **#66**, **#60**, **#56**, **#55**, then **#57** (`a2cfcfb51`) on 7 September 2026.
+Landed: **#63**, **#61**, **#66**, **#60**, **#56**, **#55**, **#57**, then **#62** (`7f9960944`) on 7 September 2026.
 
-Suggested remaining order: **#62**.
+The agreed keep-open sequence is complete. Do not merge #64 or #65.
 
 ## Closed in the 6 September 2026 pass
 
@@ -113,7 +113,7 @@ Deleted after the close pass (zero unique production commits):
 - `fix/jamaica-local-drop-build`
 - `fix/promorang-shared-entry`
 
-**Ready to delete after the #57 production alias is confirmed:** `cursor/creative-cook-shop-season-35a2`. `api.promorang.co` already pointed at `main` before #57; wait for `a2cfcfb51` on the production alias.
+**Ready to delete after the #62 production alias is confirmed:** `cursor/creative-cook-shop-season-35a2`. `api.promorang.co` already pointed at `main` before #62; wait for `7f9960944` on the production alias.
 
 Closed-PR feature branches may be deleted after GitHub closes the PRs.
 
