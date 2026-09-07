@@ -9,7 +9,7 @@ This document is the git and deploy contract for Promorang. Agent branches, stac
 | Surface | Vercel project | Production URL | Git production branch |
 | --- | --- | --- | --- |
 | Public web | `promorang-alt` | https://promorang.co and https://www.promorang.co | `main` |
-| API | `api` | https://api.promorang.co | `main` (intended) |
+| API | `api` | https://api.promorang.co | `main` |
 
 There is no `production` branch and no `promorang-api` project.
 
@@ -19,11 +19,9 @@ Preview deployments from feature branches are allowed. They must never be promot
 
 | Surface | SHA / source | State |
 | --- | --- | --- |
-| Web (`promorang-alt`) | `main` at `dc9784020` after #63, #61, #66, and #60 | Git production from `main` is the web line. |
-| API (`api`) | `ff0c98d` on `cursor/creative-cook-shop-season-35a2` | Dirty CLI `--prod`. **Not `main`.** |
-| API Git `main` | repo-root Vite build | Skipped by `scripts/vercel-ignore-non-web.mjs` so it cannot replace the live API with a failed web build. |
-
-Dashboard action still required: set the `api` project **Root Directory** to `backend`. This environment has no Vercel project-settings token, so that click cannot be done from git.
+| Web (`promorang-alt`) | `main` at `33667f74f` after #63, #61, #66, #60, and #56 | Git production from `main` is the web line. |
+| API (`api`) | `main` at `e75554f95` on `api.promorang.co` | Root Directory is `backend`. Git production from `main` is live. Confirm the #56 production deploy aliases here, then delete `cursor/creative-cook-shop-season-35a2`. |
+| API Git skip | `scripts/vercel-ignore-non-web.mjs` | Still skips a repo-root Vite build if the project id is the API project and Root Directory is wrong. |
 
 ## What belongs on `main`
 
@@ -36,6 +34,7 @@ Dashboard action still required: set the `api` project **Root Directory** to `ba
 7. Account identity / home greeting from #61 (`firstGivenName` / `homeGreeting`). No “Member” fallback.
 8. #66 discovery / PromoCard UX polish (loading, copy-code, preview nav). Keep its surfaces; do not take back fake spend copy or placeholder serials.
 9. Verified PromoCard loop from #60: live inventory, claimed-only credentials, fail-closed ledger reads, no localStorage perks or simulated wallet.
+10. Offer fulfillment journeys from #56: QR, automatic, manual, and shipping on the live card. Code / merchant-validation keep the copy-code dialog. Do not restore recharge or preview balances.
 
 `main` must not absorb stacked agent PRs, parallel PromoCard experiments, or Today-as-public-home.
 
@@ -64,15 +63,15 @@ These target `main` and still change production behavior. Merge one overlapping 
 
 | PR | Branch | Verdict |
 | --- | --- | --- |
-| #56 | `cursor/offer-fulfillment-journeys-25fd` | QR / manual / shipping journeys. Rebase onto `main` after #60. Merge next. |
-| #55 | `cursor/discovery-demand-inbox-9e47` | Discover → PromoCard. After #56. Still has some localStorage unlocks — do not restore simulated completions. |
+| #55 | `cursor/discovery-demand-inbox-9e47` | Discover → PromoCard. Rebase onto `main` after #56. Keep server `discovery_card_unlocks`. Do not restore client-made `PR-` codes or localStorage perks. |
 | #57 | `cursor/mobile-web-parity-65dc` | Shared chrome. After homepage/card decision. |
 | #62 | `cursor/world-layer-kingston-a62d` | Kingston After Dark implementation of the spec already on main. Review, then merge last in this set. |
 | #64 | `cursor/promocard-present-recut-26bd` | Recut of closed #50. Do not merge in parallel with the live card path. |
+| #65 | `cursor/promocard-wallet-face-1356` | Parallel wallet 3D pass on `/card`. Do not merge in parallel with the live card path. |
 
-Landed: **#63**, **#61**, **#66**, then **#60** (`dc9784020`) on 7 September 2026.
+Landed: **#63**, **#61**, **#66**, **#60**, then **#56** (`33667f74f`) on 7 September 2026.
 
-Suggested remaining order: **#56 → #55 → #57 → #62**.
+Suggested remaining order: **#55 → #57 → #62**.
 
 ## Closed in the 6 September 2026 pass
 
@@ -114,7 +113,7 @@ Deleted after the close pass (zero unique production commits):
 - `fix/jamaica-local-drop-build`
 - `fix/promorang-shared-entry`
 
-**Kept:** `cursor/creative-cook-shop-season-35a2` until `api.promorang.co` is on a `main` SHA. That branch is the live API alias.
+**Ready to delete after the #56 production alias is confirmed:** `cursor/creative-cook-shop-season-35a2`. `api.promorang.co` already pointed at `main` `e75554f95` before the #56 merge.
 
 Closed-PR feature branches may be deleted after GitHub closes the PRs.
 
@@ -125,6 +124,6 @@ Closed-PR feature branches may be deleted after GitHub closes the PRs.
 | `promorang-alt` | repository root (root `vercel.json`) | `main` | `npm run build` → `apps/web/dist` |
 | `api` | **`backend` (set in the Vercel dashboard)** | `main` | `backend/vercel.json` / Express |
 
-Until the dashboard root is `backend`, `scripts/vercel-ignore-non-web.mjs` skips repo-root Git builds for the `api` project so they cannot clobber the last working API deploy.
+The `api` Root Directory is now `backend`. `scripts/vercel-ignore-non-web.mjs` remains as a safety net if that setting is cleared.
 
 Do not add a third Vercel project for this repo.
