@@ -1,18 +1,19 @@
-import { ArrowRight, Compass, CreditCard, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import {
   firstGivenName,
+  getStakeholderLens,
   homeGreeting,
-  resolveHomeNextMove,
   resolvePromoCardFace,
+  resolveStakeholderHomeMove,
 } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/people/ExperienceShell";
+import { StakeholderLoopTrail, StakeholderPutInPass, StakeholderSetupPlaybook } from "@/components/people/StakeholderLoop";
 import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
-import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { resolveDemandRole } from "@/lib/discovery-demand";
 
@@ -21,10 +22,15 @@ const money = (value: number) => {
   return `J$${Math.round(value).toLocaleString()}`;
 };
 
+const PREVIEW_ROLES = ["participant", "creator", "host", "merchant", "brand"] as const;
+
 export default function PeopleHome() {
   const { user, profile, activeRole } = useAuth();
   const home = useExperienceHome();
   const to = useExperiencePath();
+  const location = useLocation();
+  const [params] = useSearchParams();
+  const previewRole = params.get("role");
   const data = home.data;
   const world = data?.world;
   const givenName = firstGivenName({
@@ -35,17 +41,18 @@ export default function PeopleHome() {
     fallback: "there",
   });
   const role = data?.role || (["creator", "host", "promoter", "merchant", "brand"].includes(String(activeRole)) ? "contributor" : "member");
+  const lensRole = previewRole || activeRole || role;
+  const lens = getStakeholderLens(lensRole);
+  const isMemberWorkspace = lens.role === "participant";
+  const isPreview = location.pathname.startsWith("/app-preview");
   const greeting = homeGreeting(givenName);
-  const description = role === "member"
-    ? "See what’s happening, keep your perks, and join the rooms that feel like yours."
-    : "Build your people. Give them value. Move them to action.";
+  const description = lens.promise;
   const perksGiven = Number(data?.outcomes?.ledger?.perksGiven || 0);
-  const nextMove = resolveHomeNextMove({
-    role,
-    people: Number(data?.people || 0),
+  const nextMove = resolveStakeholderHomeMove(lensRole, {
     perksGiven,
     communities: data?.communities?.length || 0,
     cardPerks: Number(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0),
+    hasInventory: Boolean(data?.outcomes?.suppliesInventory),
   });
   const hasMovement = Boolean(
     Number(data?.people || 0) ||
@@ -54,13 +61,11 @@ export default function PeopleHome() {
     perksGiven ||
     Number(data?.outcomes?.ledger?.perksClaimed || 0),
   );
-  const ticker = role === "operator"
+  const ticker = role === "operator" && Number(data?.happening || 0)
     ? `${data?.happening || 0} showed up this week`
     : Number(data?.peopleThisMonth || 0)
       ? `+${data.peopleThisMonth} people this month`
-      : role === "member"
-        ? "Your card is ready"
-        : "Your people are waiting";
+      : lens.ticker;
 
   if (home.isLoading) {
     return (
@@ -127,6 +132,7 @@ export default function PeopleHome() {
               <span className="mt-3 flex min-h-11 items-center justify-between px-1 text-sm font-semibold text-amber-200">
                 Open your PromoCard <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
+              <p className="mt-2 px-1 text-xs leading-5 text-white/45">{lens.promoCard.meaning}</p>
             </Link>
             <Link
               to={to(nextMove.href)}
@@ -138,22 +144,28 @@ export default function PeopleHome() {
         </section>
       )}
     >
-      <nav aria-label="Your next stop" className="grid grid-cols-3 gap-2 sm:gap-3">
-        {[
-          { href: "/discover", label: "Discover", icon: Compass },
-          { href: "/card", label: "My card", icon: CreditCard },
-          { href: "/people", label: "My people", icon: Users },
-        ].map(({ href, label, icon: Icon }) => (
-          <Link key={href} to={to(href)} className="experience-interactive flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-2 text-sm font-semibold text-white/80 hover:border-amber-200/30 hover:bg-white/[0.08] hover:text-white">
-            <Icon aria-hidden="true" className="h-5 w-5 text-amber-200" />{label}
-          </Link>
-        ))}
-      </nav>
+      {isPreview ? (
+        <nav aria-label="Preview this home as another role" className="flex flex-wrap gap-2">
+          {PREVIEW_ROLES.map((item) => (
+            <Link
+              key={item}
+              to={`/app-preview?role=${item}`}
+              className={`rounded-full border px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] ${
+                lens.role === item ? "border-primary bg-primary text-black" : "border-white/15 text-white/60"
+              }`}
+            >
+              {item}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
+      <StakeholderLoopTrail role={lensRole} />
+      <StakeholderSetupPlaybook role={lensRole} />
       {hasMovement ? (
         <PaperReceipt
           heading="What’s in play"
           lines={
-            role === "member"
+            isMemberWorkspace
               ? [
                   { label: "On your card", value: String(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0) },
                   { label: "Rooms", value: String(data?.communities?.length || 0) },
@@ -173,19 +185,15 @@ export default function PeopleHome() {
         />
       ) : null}
 
-      <LiveLoopActions role={String(activeRole || role)} title="Make it live" />
-
-      {role !== "member" ? (
+      {!isMemberWorkspace ? (
         <section className="grid gap-3">
-          {[
-            { href: "/give", label: "Give something", detail: "Put a perk on your people’s PromoCards.", stub: "GIVE", stubLabel: "Perk" },
-            { href: "/demand", label: "Open what they asked", detail: "Named asks and finds from Discover. Claim the one that is yours.", stub: "ASK", stubLabel: "Inbox" },
-            { href: "/create", label: "Create something", detail: "Ask them to go, try, answer or show up.", stub: "MAKE", stubLabel: "Move" },
-          ].map((action) => (
-            <Link key={action.href} to={to(action.href)} className="block">
-              <TicketPass kicker="Next move" title={action.label} detail={action.detail} stub={action.stub} stubLabel={action.stubLabel} />
-            </Link>
-          ))}
+          <StakeholderPutInPass role={lensRole} />
+          <Link to={to(lens.world.href)} className="block">
+            <TicketPass kicker="The world" title="See the Scene" detail={lens.world.meaning} stub="WORLD" stubLabel="Open" />
+          </Link>
+          <Link to={to(lens.activity.href)} className="block">
+            <TicketPass kicker="Activity" title={lens.activity.href === "/happened" ? "What happened" : "Recent activity"} detail={lens.activity.meaning} stub="DID" stubLabel="Open" />
+          </Link>
         </section>
       ) : (
         <section className="space-y-3">
@@ -246,14 +254,14 @@ export default function PeopleHome() {
         </section>
       )}
 
-      {role === "member" && world?.latestReturn ? (
+      {isMemberWorkspace && world?.latestReturn ? (
         <section className="space-y-3">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Latest Return</p>
           <ConsequenceReceipt receipt={world.latestReturn} />
         </section>
       ) : null}
 
-      {role !== "member" && (data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole))) ? (
+      {!isMemberWorkspace && lens.putIn.href !== "/stock" && (data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole))) ? (
         <Link to={to("/stock")} className="block">
           <TicketPass
             kicker="Inventory"
@@ -265,7 +273,7 @@ export default function PeopleHome() {
         </Link>
       ) : null}
 
-      {role !== "member" ? (
+      {!isMemberWorkspace ? (
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-bold">What they asked</h2>
           <DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" />
@@ -275,7 +283,7 @@ export default function PeopleHome() {
           </div>
           {data?.perks?.length ? (
             <div className="grid gap-3">
-              {data.perks.slice(0, 3).map((perk: any) => (
+              {data.perks.slice(0, 3).map((perk: { id: string; source?: string; title: string; remaining?: number }) => (
                 <Link key={perk.id} to={to("/give")} className="block">
                   <TicketPass
                     kicker={perk.source === "yours" ? "Yours" : "Available"}
@@ -299,7 +307,7 @@ export default function PeopleHome() {
             <h2 className="font-serif text-2xl font-bold">Opportunities</h2>
             <Link to={to("/earn")} className="text-sm text-primary">Earn</Link>
           </div>
-          {data.opportunityItems.slice(0, 2).map((item: any) => (
+          {data.opportunityItems.slice(0, 2).map((item: { id: string; title: string; youEarn?: string }) => (
             <Link key={item.id} to={to("/earn")} className="block">
               <TicketPass kicker="Earn" title={item.title} detail={item.youEarn} stub="TAKE" stubLabel="Open" />
             </Link>
@@ -308,11 +316,11 @@ export default function PeopleHome() {
       ) : null}
 
       {!data?.communities?.length ? (
-        <Link to={role === "member" ? "/scenes" : to("/start")} className="block">
+        <Link to={isMemberWorkspace ? "/scenes" : to("/start")} className="block">
           <TicketPass
             kicker="First room"
-            title={role === "member" ? "Find your people" : "Bring your people together"}
-            detail={role === "member" ? "Join a community around the things you love." : "Start a community and give people a reason to join."}
+            title={isMemberWorkspace ? "Find your people" : "Bring your people together"}
+            detail={isMemberWorkspace ? "Join a community around the things you love." : "Start a community and give people a reason to join."}
             stub="ROOM"
             stubLabel="Open"
           />
@@ -329,7 +337,7 @@ export default function PeopleHome() {
         </Link>
       )}
 
-      {role !== "member" ? (
+      {!isMemberWorkspace ? (
         <Link to="/dashboard?view=studio" className="block text-center text-xs text-white/30">
           Open the older studio tools
         </Link>

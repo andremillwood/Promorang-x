@@ -24,6 +24,10 @@ export const LIVE_PATHS = {
   validate: '/staff/scanner',
   merchantValidateTab: '/dashboard?view=studio&tab=redemptions',
   createMoment: '/create/moment',
+  addVenue: '/dashboard/venues/add',
+  launchCampaign: '/create/campaign',
+  contentDrops: '/content-drops',
+  happened: '/happened',
   liveDrop: (slug: string) => `/drop/${slug}`,
 } as const;
 
@@ -77,16 +81,37 @@ const CREATOR_ACTIONS: FirstAction[] = [
     why: 'Creators share inventory that already exists — they do not invent it.',
   },
   {
+    id: 'publish-drop',
+    label: 'Publish a content drop',
+    href: LIVE_PATHS.contentDrops,
+    why: 'A story brands can sponsor and participants can distribute.',
+  },
+  {
     id: 'share-perk',
     label: 'Share the drop',
     href: LIVE_PATHS.sharePerk,
     why: 'The audience claims a live drop, then uses it at the merchant.',
   },
+];
+
+const BRAND_ACTIONS: FirstAction[] = [
   {
-    id: 'card',
-    label: 'See what is on the card',
-    href: LIVE_PATHS.card,
-    why: 'Pay happens after the merchant validates, not when the link is copied.',
+    id: 'fund-perk',
+    label: 'Fund a real benefit',
+    href: LIVE_PATHS.putPerkUp,
+    why: 'A campaign without inventory is a draft. A merchant still validates use.',
+  },
+  {
+    id: 'launch-campaign',
+    label: 'Launch the campaign',
+    href: LIVE_PATHS.launchCampaign,
+    why: 'Choose the flight: who, where, and what counts.',
+  },
+  {
+    id: 'watch-attributed',
+    label: 'Watch attributed use',
+    href: LIVE_PATHS.happened,
+    why: 'Pay on recorded use, not impressions.',
   },
 ];
 
@@ -108,6 +133,7 @@ const PEOPLE_ACTIONS: FirstAction[] = [
 export function firstActionsForRole(role: string | null | undefined): FirstAction[] {
   const key = String(role || '').toLowerCase();
   if (key === 'merchant') return MERCHANT_ACTIONS;
+  if (key === 'brand' || key === 'marketing' || key === 'agency') return BRAND_ACTIONS;
   if (key === 'host') return HOST_ACTIONS;
   if (key === 'creator') return CREATOR_ACTIONS;
   return PEOPLE_ACTIONS;

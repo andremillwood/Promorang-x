@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { getStakeholderHowLead } from "@promorang/shared";
 import { useOpportunities, useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
+import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function EarnOpportunities() {
   const [params] = useSearchParams();
+  const { activeRole } = useAuth();
+  const lensRole = params.get("role") || activeRole;
+  const how = getStakeholderHowLead(lensRole, "earn");
   const sceneId = params.get("hub") || undefined;
   const to = useExperiencePath();
   const opportunities = useOpportunities(sceneId);
@@ -28,10 +34,11 @@ export default function EarnOpportunities() {
 
   return (
     <ExperienceShell
-      eyebrow="Earn"
-      title="Opportunities"
-      description="Get people to try, visit, buy or show up. You earn when the action is verified."
+      eyebrow={how.eyebrow}
+      title={how.title}
+      description={how.body}
     >
+      <StakeholderHowLead role={lensRole} surface="earn" />
       {taken ? (
         <div className="rounded-[1.6rem] border border-primary/40 bg-primary/10 px-5 py-5">
           <p className="font-serif text-2xl font-bold">Share {taken.title}</p>
@@ -76,7 +83,11 @@ export default function EarnOpportunities() {
         <QuietEmpty
           title="Nothing to earn from right now"
           copy="When a merchant, brand or venue wants your people, the opportunity will land here."
-          action={<Link to={to("/stock")} className="text-sm font-bold text-primary">Put something up yourself</Link>}
+          action={
+            <Link to={to(how.nextHref || "/stock")} className="text-sm font-bold text-primary">
+              {how.nextLabel || "Put something up yourself"}
+            </Link>
+          }
         />
       )}
     </ExperienceShell>

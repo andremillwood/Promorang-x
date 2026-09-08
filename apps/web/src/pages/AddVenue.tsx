@@ -80,10 +80,10 @@ const AddVenue = () => {
     });
 
     toast({
-      title: "Venue submitted for the Genesis record",
-      description: "Verification is required before its Pioneer onboarding receipt becomes eligible.",
+      title: "Venue is on the record",
+      description: "Next put one real perk up. People claim it. You validate the code.",
     });
-    navigate("/dashboard");
+    navigate("/stock");
   };
 
   if (!user) {
@@ -97,17 +97,17 @@ const AddVenue = () => {
       <div className="mb-8">
         <Button
           variant="ghost"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/stock")}
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
+          Back to Put up
         </Button>
         <h1 className="font-serif text-3xl font-bold text-foreground">
-          Add New Venue
+          Add the venue
         </h1>
         <p className="text-muted-foreground mt-2">
-          Register your venue to host moments
+          Register the place people will use the perk. After this, put inventory up so someone can claim a real benefit.
         </p>
       </div>
 
@@ -220,9 +220,9 @@ const AddVenue = () => {
             type="button"
             variant="outline"
             className="flex-1"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/stock")}
           >
-            Cancel
+            Skip to Put up
           </Button>
           <Button
             type="submit"

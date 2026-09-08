@@ -4,6 +4,7 @@ import { AUDIENCE_LABELS, PERK_KIND_LABELS, dropShareCopy, type DropAudience, ty
 import { useGiveablePerks, useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
+import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { readLocalFoundListings } from "@/lib/discovery-found";
@@ -13,7 +14,8 @@ const AUDIENCES = Object.entries(AUDIENCE_LABELS) as Array<[DropAudience, string
 
 export default function GiveSomething() {
   const [params] = useSearchParams();
-  const { user, profile } = useAuth();
+  const { user, profile, activeRole } = useAuth();
+  const lensRole = params.get("role") || activeRole;
   const perks = useGiveablePerks();
   const { createDrop } = useExperienceActions();
   const to = useExperiencePath();
@@ -80,6 +82,7 @@ export default function GiveSomething() {
       description="Drop it onto their PromoCards. They should never need to understand the machinery underneath."
       backTo="/dashboard"
     >
+      <StakeholderHowLead role={lensRole} surface="give" />
       {momentId ? (
         <p className="rounded-[1.3rem] border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-white/70">
           This drop will be attached to tonight’s gathering. Guests claim it, then the merchant validates the code.
