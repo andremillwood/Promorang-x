@@ -38,6 +38,28 @@ function uniqueSlug(base) {
   return `${slugify(base)}-${crypto.randomBytes(2).toString('hex')}`;
 }
 
+async function picturesForMoments(db, momentIds = []) {
+  const ids = [...new Set((momentIds || []).filter(Boolean))];
+  if (!db || !ids.length) return {};
+  const moments = await db.from('moments').select('id, title, venue_name, location, image_url, banner_image_url, venue_id').in('id', ids);
+  const rows = moments.data || [];
+  const venueIds = [...new Set(rows.map((row) => row.venue_id).filter(Boolean))];
+  const venues = venueIds.length
+    ? await db.from('venues').select('id, name, image_url').in('id', venueIds)
+    : { data: [] };
+  const venueMap = Object.fromEntries((venues.data || []).map((row) => [row.id, row]));
+  const map = {};
+  for (const moment of rows) {
+    map[moment.id] = {
+      momentTitle: moment.title || null,
+      placeName: moment.venue_name || moment.location || null,
+      momentImageUrl: worldLayer.firstPictureUrl(moment.image_url, moment.banner_image_url),
+      placeImageUrl: worldLayer.firstPictureUrl(venueMap[moment.venue_id]?.image_url),
+    };
+  }
+  return map;
+}
+
 const PLACEHOLDER_NAMES = new Set(['member', 'you', 'there', 'explorer', 'user', 'community']);
 
 function isPlaceholderName(value) {
@@ -687,12 +709,18 @@ function createPeopleExperienceService(db = defaultDb) {
       .slice(0, 4)
       .map(([label]) => label);
 
+    const recentPictures = await picturesForMoments(db, thisWeek.slice(0, 8).map((row) => row.moment_id)).catch(() => ({}));
     const recent = [];
     for (const row of thisWeek.slice(0, 8)) {
       const actor = row.user_id ? await profileFor(row.user_id) : null;
+      const pictures = (row.moment_id && recentPictures[row.moment_id]) || {};
       recent.push({
         ...row,
         actorName: actor ? displayName(actor) : 'Someone',
+        momentTitle: row.action_metadata?.moment_title || pictures.momentTitle || row.momentTitle || null,
+        placeName: row.action_metadata?.venue_name || pictures.placeName || null,
+        momentImageUrl: pictures.momentImageUrl || row.action_metadata?.image_url || null,
+        placeImageUrl: pictures.placeImageUrl || row.action_metadata?.venue_image_url || null,
       });
     }
 
@@ -1211,7 +1239,7 @@ function createPeopleExperienceService(db = defaultDb) {
     let arrived = false;
     if (sceneId) {
       const links = await maybe(
-        db.from('moment_scene_links').select('moments(id, title, venue_name, location, starts_at, pulse_state, status)').eq('scene_id', sceneId).limit(12),
+        db.from('moment_scene_links').select('moments(id, title, venue_name, location, starts_at, pulse_state, status, image_url, banner_image_url, venue_id)').eq('scene_id', sceneId).limit(12),
       );
       const moments = (links.data || []).map((row) => row.moments).filter(Boolean);
       const now = Date.now();
@@ -1249,6 +1277,17 @@ function createPeopleExperienceService(db = defaultDb) {
     );
     const ownActions = ownVerified.data || (happened?.recent || []).filter((row) => !userId || row.user_id === userId);
     const latestAction = ownActions[0] || (happened?.recent || []).find((row) => row.user_id === userId) || null;
+    const momentPictures = await picturesForMoments(db, [
+      nextMoment?.id,
+      latestAction?.moment_id,
+      latestMemory?.moment_id,
+      ...ownActions.map((row) => row.moment_id),
+    ]).catch(() => ({}));
+    const nextPictures = (nextMoment?.id && momentPictures[nextMoment.id]) || {
+      momentImageUrl: worldLayer.firstPictureUrl(nextMoment?.image_url, nextMoment?.banner_image_url),
+      placeImageUrl: null,
+    };
+    const latestPictures = (latestAction?.moment_id && momentPictures[latestAction.moment_id]) || {};
     const path = worldLayer.resolvePathEvidence(ownActions.map((row) => ({ actionType: row.action_type })));
     const health = worldLayer.resolveSceneHealth(ownActions.map((row) => ({ actionType: row.action_type })));
     let worldSystem = null;
@@ -1295,6 +1334,9 @@ function createPeopleExperienceService(db = defaultDb) {
       sceneSlug: sceneRow?.slug || slice.sceneSlug,
       sceneTitle: sceneRow?.title || slice.sceneTitle,
       seasonTitle: sceneRow?.metadata?.season_title || slice.seasonTitle,
+      momentImageUrl: nextPictures.momentImageUrl || null,
+      placeImageUrl: nextPictures.placeImageUrl || null,
+      sceneImageUrl: sceneRow?.image_url || null,
       joined,
       arrived,
       hasMemory: Boolean(latestMemory),
@@ -1315,10 +1357,13 @@ function createPeopleExperienceService(db = defaultDb) {
     const latestReturn = latestAction && worldLayer.SHOW_UP_ACTION_TYPES.includes(latestAction.action_type)
       ? worldLayer.resolveWorldConsequence({
           verified: true,
-          momentTitle: latestAction.action_metadata?.moment_title || latestAction.momentTitle || null,
-          placeName: latestAction.action_metadata?.venue_name || latestAction.action_metadata?.place || null,
+          momentTitle: latestAction.action_metadata?.moment_title || latestPictures.momentTitle || latestAction.momentTitle || null,
+          placeName: latestAction.action_metadata?.venue_name || latestAction.action_metadata?.place || latestPictures.placeName || null,
           sceneTitle: sceneRow?.title || slice.sceneTitle,
           seasonTitle: sceneRow?.metadata?.season_title || slice.seasonTitle,
+          momentImageUrl: latestPictures.momentImageUrl || latestAction.action_metadata?.image_url || null,
+          placeImageUrl: latestPictures.placeImageUrl || latestAction.action_metadata?.venue_image_url || null,
+          sceneImageUrl: sceneRow?.image_url || null,
           promoCardEligible: Boolean(latestAction.action_type),
           memoryKept: Boolean(latestMemory),
           memoryTitle: latestMemory?.title || null,
@@ -1339,6 +1384,7 @@ function createPeopleExperienceService(db = defaultDb) {
         sceneTitle: sceneRow?.title || slice.sceneTitle,
         seasonTitle: sceneRow?.metadata?.season_title || slice.seasonTitle,
         area: slice.area,
+        imageUrl: sceneRow?.image_url || slice.imageUrl,
         currentLine: sceneRow?.metadata?.season_line || slice.currentLine,
         runTitle: crew?.run?.title || slice.runTitle,
       },

@@ -60,12 +60,20 @@ export default function Crews() {
     <ExperienceShell
       eyebrow="Who you move with"
       title={crew?.name || "Form a Crew"}
-      description="3–8 people. One Barbican Run. Mixed-faction Crews are valid. Progress only from verified action."
+      description="3–8 people. One Barbican Run. Progress only from verified action."
       backTo="/dashboard"
     >
       {crew ? (
         <>
-          <section className="rounded-[1.6rem] border border-primary/30 bg-primary/10 px-5 py-5">
+          <section className="overflow-hidden rounded-[1.6rem] border border-primary/30 bg-primary/10">
+            {(run?.imageUrl || KINGSTON_AFTER_DARK_SLICE.imageUrl) ? (
+              <img
+                src={run?.imageUrl || KINGSTON_AFTER_DARK_SLICE.imageUrl}
+                alt={run?.title || KINGSTON_AFTER_DARK_SLICE.runTitle}
+                className="h-44 w-full object-cover sm:h-52"
+              />
+            ) : null}
+            <div className="px-5 py-5">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{run?.title || KINGSTON_AFTER_DARK_SLICE.runTitle}</p>
             <p className="mt-2 font-serif text-3xl font-bold">
               {run?.completed || 0}/{run?.total || 4} objectives counted
@@ -90,16 +98,34 @@ export default function Crews() {
                 Find tonight’s move
               </Link>
             </div>
+            </div>
           </section>
+
+          {(crew.places || KINGSTON_AFTER_DARK_SLICE.places).length ? (
+            <section>
+              <h2 className="font-serif text-2xl font-bold">Barbican and the corridors</h2>
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                {(crew.places || KINGSTON_AFTER_DARK_SLICE.places).map((place: { name: string; area: string; role: string; imageUrl?: string | null }) => (
+                  <article key={place.name} className="overflow-hidden rounded-[1.4rem] border border-white/10">
+                    {place.imageUrl ? <img src={place.imageUrl} alt={place.name} className="h-32 w-full object-cover" /> : null}
+                    <div className="px-4 py-3">
+                      <p className="font-serif text-lg font-bold">{place.name}</p>
+                      <p className="mt-1 text-xs text-white/45">{place.area} · {place.role}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <section>
             <h2 className="font-serif text-2xl font-bold">People</h2>
             <div className="mt-3 space-y-2">
-              {crew.members?.map((member: { userId: string; name: string; pathCue?: string | null; pathTitle?: string | null; runRole?: { key: string; title: string; job: string } | null }) => (
+              {crew.members?.map((member: { userId: string; name: string; pathCue?: string | null; pathTitle?: string | null; runRole?: { key: string; title: string; job: string } | null; house?: { key: string; title: string; color?: string } | null }) => (
                 <article key={member.userId} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
                   <p className="font-serif text-xl font-bold">{member.name}</p>
                   <p className="mt-1 text-xs uppercase tracking-widest text-white/40">
-                    {[member.runRole?.title, member.pathCue || "A path has not formed yet"].filter(Boolean).join(" · ")}
+                    {[member.runRole?.title, member.house ? `${member.house.title} House` : null, member.pathCue || "A path has not formed yet"].filter(Boolean).join(" · ")}
                   </p>
                   {member.userId === user.id && !member.runRole ? (
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -131,13 +157,18 @@ export default function Crews() {
           <section>
             <h2 className="font-serif text-2xl font-bold">Barbican Run</h2>
             <ol className="mt-3 space-y-2">
-              {(run?.objectives || KINGSTON_AFTER_DARK_SLICE.objectives).map((objective: { key: string; title: string; proof: string; complete?: boolean }) => (
-                <li key={objective.key} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
-                    {objective.complete ? "Counted" : "Open"}
-                  </p>
-                  <p className="mt-1 font-serif text-xl font-bold">{objective.title}</p>
-                  <p className="mt-1 text-sm text-white/50">{objective.proof}</p>
+              {(run?.objectives || KINGSTON_AFTER_DARK_SLICE.objectives).map((objective: { key: string; title: string; proof: string; complete?: boolean; imageUrl?: string | null }) => (
+                <li key={objective.key} className="overflow-hidden rounded-[1.4rem] border border-white/10">
+                  {objective.imageUrl ? (
+                    <img src={objective.imageUrl} alt={objective.title} className="h-36 w-full object-cover" />
+                  ) : null}
+                  <div className="px-4 py-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+                      {objective.complete ? "Counted" : "Open"}
+                    </p>
+                    <p className="mt-1 font-serif text-xl font-bold">{objective.title}</p>
+                    <p className="mt-1 text-sm text-white/50">{objective.proof}</p>
+                  </div>
                 </li>
               ))}
             </ol>
@@ -145,6 +176,18 @@ export default function Crews() {
         </>
       ) : (
         <>
+          <section className="overflow-hidden rounded-[1.6rem] border border-white/10">
+            <img
+              src={KINGSTON_AFTER_DARK_SLICE.imageUrl}
+              alt={KINGSTON_AFTER_DARK_SLICE.runTitle}
+              className="h-44 w-full object-cover sm:h-52"
+            />
+            <div className="px-5 py-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{KINGSTON_AFTER_DARK_SLICE.runTitle}</p>
+              <h2 className="mt-2 font-serif text-2xl font-bold">Move through Barbican together</h2>
+              <p className="mt-2 text-sm text-white/50">Show up at a Moment, support a Place, bring someone, keep a Memory.</p>
+            </div>
+          </section>
           <QuietEmpty
             title="No Crew yet"
             copy="This is not the invite ladder. Form 3–8 people you will actually go out with."

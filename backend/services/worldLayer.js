@@ -3,6 +3,17 @@
  * Mirrors packages/shared/src/world-layer.ts — keep fixtures aligned.
  */
 
+const KINGSTON_SLICE_IMAGES = {
+  run: 'https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=1400&q=80',
+  barbican: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=80',
+  redHills: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=80',
+  newKingston: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1400&q=80',
+  attendMoment: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1400&q=80',
+  supportPlace: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1400&q=80',
+  bringNewcomer: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=80',
+  keepMemory: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1400&q=80',
+};
+
 const KINGSTON_AFTER_DARK_SLICE = {
   sceneSlug: 'kingston-after-dark',
   sceneTitle: 'Kingston After Dark',
@@ -17,11 +28,17 @@ const KINGSTON_AFTER_DARK_SLICE = {
   currentLine: 'The Current is moving through Barbican.',
   signalEyebrow: 'A Signal appeared',
   welcome: 'Find a night worth leaving home for. PromoCard is the passport that carries what comes back.',
+  imageUrl: KINGSTON_SLICE_IMAGES.run,
+  places: [
+    { name: 'Barbican', area: 'St. Andrew', role: 'First coherent test area', imageUrl: KINGSTON_SLICE_IMAGES.barbican },
+    { name: 'Red Hills Road', area: 'Kingston 19', role: 'Participating corridor', imageUrl: KINGSTON_SLICE_IMAGES.redHills },
+    { name: 'New Kingston', area: 'Kingston', role: 'After-hours corridor', imageUrl: KINGSTON_SLICE_IMAGES.newKingston },
+  ],
   objectives: [
-    { key: 'attend_moment', title: 'Show up at one participating Moment', proof: 'Verified check-in or accepted proof', actionTypes: ['MOMENT_ATTENDANCE', 'check_in', 'moment_join_verified', 'proof_verified'] },
-    { key: 'support_place', title: 'Support one participating Place', proof: 'Verified visit, purchase, or perk use', actionTypes: ['MERCHANT_VISIT', 'PURCHASE', 'PERK_REDEMPTION', 'coupon_redeemed', 'order_paid', 'split_tender'] },
-    { key: 'bring_newcomer', title: 'Bring one newcomer', proof: 'Activated referral or attributed Scene join', actionTypes: ['FRIEND_INVITE', 'REFERRAL', 'referral_activated'] },
-    { key: 'keep_memory', title: 'Retain one Memory', proof: 'A Memory issued from verified participation', actionTypes: ['MOMENT_ATTENDANCE', 'proof_verified'] },
+    { key: 'attend_moment', title: 'Show up at one participating Moment', proof: 'Verified check-in or accepted proof', actionTypes: ['MOMENT_ATTENDANCE', 'check_in', 'moment_join_verified', 'proof_verified'], imageUrl: KINGSTON_SLICE_IMAGES.attendMoment },
+    { key: 'support_place', title: 'Support one participating Place', proof: 'Verified visit, purchase, or perk use', actionTypes: ['MERCHANT_VISIT', 'PURCHASE', 'PERK_REDEMPTION', 'coupon_redeemed', 'order_paid', 'split_tender'], imageUrl: KINGSTON_SLICE_IMAGES.supportPlace },
+    { key: 'bring_newcomer', title: 'Bring one newcomer', proof: 'Activated referral or attributed Scene join', actionTypes: ['FRIEND_INVITE', 'REFERRAL', 'referral_activated'], imageUrl: KINGSTON_SLICE_IMAGES.bringNewcomer },
+    { key: 'keep_memory', title: 'Retain one Memory', proof: 'A Memory issued from verified participation', actionTypes: ['MOMENT_ATTENDANCE', 'proof_verified'], imageUrl: KINGSTON_SLICE_IMAGES.keepMemory },
   ],
 };
 
@@ -94,7 +111,7 @@ function resolveCrewRunProgress(actions, slice = KINGSTON_AFTER_DARK_SLICE) {
     const complete = objective.key === 'keep_memory'
       ? keptMemory
       : objective.actionTypes.some((type) => types.has(type));
-    return { key: objective.key, title: objective.title, proof: objective.proof, complete };
+    return { key: objective.key, title: objective.title, proof: objective.proof, complete, imageUrl: objective.imageUrl || null };
   });
   return {
     completed: objectives.filter((item) => item.complete).length,
@@ -103,7 +120,46 @@ function resolveCrewRunProgress(actions, slice = KINGSTON_AFTER_DARK_SLICE) {
   };
 }
 
+function firstPictureUrl(...urls) {
+  for (const url of urls) {
+    if (typeof url === 'string' && url.trim()) return url.trim();
+  }
+  return null;
+}
+
+function pictureForPlaceName(placeName, slice = KINGSTON_AFTER_DARK_SLICE) {
+  const hay = String(placeName || '').toLowerCase();
+  if (!hay) return null;
+  const match = (slice.places || []).find((place) => hay.includes(String(place.name || '').toLowerCase()));
+  if (match?.imageUrl) return match.imageUrl;
+  if (hay.includes('barbican')) return firstPictureUrl(slice.places?.[0]?.imageUrl, KINGSTON_SLICE_IMAGES.barbican);
+  return null;
+}
+
+function resolveReceiptPictures(facts = {}, slice = KINGSTON_AFTER_DARK_SLICE) {
+  const pictures = [];
+  const seen = new Set();
+  const push = (kind, title, url) => {
+    if (!url || seen.has(url)) return;
+    seen.add(url);
+    pictures.push({ kind, title: title || (kind === 'moment' ? 'Moment' : kind === 'place' ? 'Place' : 'Scene'), url });
+  };
+  push('moment', facts.momentTitle, firstPictureUrl(facts.momentImageUrl));
+  push('place', facts.placeName, firstPictureUrl(facts.placeImageUrl, pictureForPlaceName(facts.placeName, slice)));
+  if (facts.momentTitle && !pictures.some((picture) => picture.kind === 'moment')) {
+    push('moment', facts.momentTitle, firstPictureUrl(slice.objectives?.find((item) => item.key === 'attend_moment')?.imageUrl));
+  }
+  if (pictures.length < 2) {
+    push('scene', facts.sceneTitle, firstPictureUrl(facts.sceneImageUrl, slice.imageUrl));
+  }
+  if (!pictures.length && (facts.momentTitle || facts.placeName)) {
+    push('place', facts.placeName || slice.area, firstPictureUrl(slice.places?.[0]?.imageUrl, slice.imageUrl));
+  }
+  return pictures.slice(0, 2);
+}
+
 function resolveWorldConsequence(facts = {}) {
+  const pictures = resolveReceiptPictures(facts);
   if (facts.pending && !facts.verified) {
     return {
       counted: false,
@@ -118,6 +174,7 @@ function resolveWorldConsequence(facts = {}) {
       footer: 'Nothing is celebrated as complete until it is verified.',
       next: facts.nextHref ? { label: facts.nextLabel || 'See the Moment', href: facts.nextHref } : { label: 'Open Vault', href: '/vault' },
       kept: null,
+      pictures,
     };
   }
 
@@ -130,6 +187,7 @@ function resolveWorldConsequence(facts = {}) {
       footer: 'Promorang only keeps what it can prove.',
       next: { label: 'Find a move', href: '/discover' },
       kept: null,
+      pictures,
     };
   }
 
@@ -168,12 +226,22 @@ function resolveWorldConsequence(facts = {}) {
       : facts.rewardTitle
         ? { title: facts.rewardTitle, kind: 'perk' }
         : null,
+    pictures,
   };
 }
 
 function resolveWorldCurrentMove(facts = {}, slice = KINGSTON_AFTER_DARK_SLICE) {
   const sceneTitle = facts.sceneTitle || (facts.sceneSlug === slice.sceneSlug ? slice.sceneTitle : null);
   const seasonTitle = facts.seasonTitle || (facts.sceneSlug === slice.sceneSlug || !facts.sceneSlug ? slice.seasonTitle : null);
+  const placeName = facts.placeName || null;
+  const imageUrl = firstPictureUrl(
+    facts.momentImageUrl,
+    facts.placeImageUrl,
+    pictureForPlaceName(facts.placeName, slice),
+    facts.sceneImageUrl,
+    slice.imageUrl,
+  );
+  const imageAlt = facts.momentTitle || facts.placeName || sceneTitle || slice.area;
   const context = [sceneTitle, facts.placeName, facts.promoCardAccepted ? 'PromoCard accepted' : null].filter(Boolean);
 
   if (facts.arrived && !facts.hasMemory) {
@@ -186,7 +254,9 @@ function resolveWorldCurrentMove(facts = {}, slice = KINGSTON_AFTER_DARK_SLICE) 
       href: '/vault',
       sceneTitle,
       seasonTitle,
-      placeName: facts.placeName || null,
+      placeName,
+      imageUrl,
+      imageAlt,
       context,
     };
   }
@@ -200,7 +270,9 @@ function resolveWorldCurrentMove(facts = {}, slice = KINGSTON_AFTER_DARK_SLICE) 
       href: `/moments/${facts.momentId}/checkin`,
       sceneTitle,
       seasonTitle,
-      placeName: facts.placeName || null,
+      placeName,
+      imageUrl,
+      imageAlt,
       context,
     };
   }
@@ -214,7 +286,9 @@ function resolveWorldCurrentMove(facts = {}, slice = KINGSTON_AFTER_DARK_SLICE) 
       href: `/moments/${facts.momentId}`,
       sceneTitle,
       seasonTitle,
-      placeName: facts.placeName || null,
+      placeName,
+      imageUrl,
+      imageAlt,
       context,
     };
   }
@@ -228,7 +302,9 @@ function resolveWorldCurrentMove(facts = {}, slice = KINGSTON_AFTER_DARK_SLICE) 
       href: '/card',
       sceneTitle,
       seasonTitle,
-      placeName: facts.placeName || null,
+      placeName,
+      imageUrl,
+      imageAlt,
       context,
     };
   }
@@ -242,6 +318,8 @@ function resolveWorldCurrentMove(facts = {}, slice = KINGSTON_AFTER_DARK_SLICE) 
     sceneTitle: slice.sceneTitle,
     seasonTitle: slice.seasonTitle,
     placeName: slice.area,
+    imageUrl: firstPictureUrl(imageUrl, slice.imageUrl),
+    imageAlt: slice.area,
     context: [slice.sceneTitle, slice.area],
   };
 }
@@ -433,7 +511,7 @@ function resolveFactionContest({ factionCurrents = {}, unalignedCurrent = 0, mix
   const unaligned = Math.max(0, Number(unalignedCurrent) || 0);
   const totalCurrent = board.reduce((sum, row) => sum + row.current, 0) + unaligned;
 
-  let contestLine = 'No philosophy is moving the Scene yet. The war is Current versus Static.';
+  let contestLine = 'The Scene is waiting for verified movement. Houses form from how people move — the war is Current versus Static.';
   if (leadingCurrent) {
     contestLine = `${WORLD_FACTIONS[leadingCurrent].title} lead ${WORLD_FACTIONS[leadingCurrent].verb}. The war is Current versus Static — not people versus people.`;
   } else if (tied && top) {
@@ -463,6 +541,9 @@ function consequenceFromCheckIn({ moment, memory, reward, verificationStatus, pr
     placeName: moment?.venue_name || moment?.location || null,
     sceneTitle: scene?.title || (scene?.slug === KINGSTON_AFTER_DARK_SLICE.sceneSlug ? KINGSTON_AFTER_DARK_SLICE.sceneTitle : null),
     seasonTitle: scene?.metadata?.season_title || (scene?.slug === KINGSTON_AFTER_DARK_SLICE.sceneSlug ? KINGSTON_AFTER_DARK_SLICE.seasonTitle : null),
+    momentImageUrl: firstPictureUrl(moment?.image_url, moment?.banner_image_url),
+    placeImageUrl: firstPictureUrl(moment?.venue_image_url, moment?.venues?.image_url),
+    sceneImageUrl: firstPictureUrl(scene?.image_url),
     promoCardEligible: Boolean(promoCardReturn?.eligible),
     promoCardReturnLabel: promoCardReturn?.label || null,
     runTitle: runProgress?.title || null,
@@ -479,6 +560,10 @@ function consequenceFromCheckIn({ moment, memory, reward, verificationStatus, pr
 
 module.exports = {
   KINGSTON_AFTER_DARK_SLICE,
+  KINGSTON_SLICE_IMAGES,
+  firstPictureUrl,
+  pictureForPlaceName,
+  resolveReceiptPictures,
   PATH_EVIDENCE_THRESHOLD,
   SHOW_UP_ACTION_TYPES,
   WORLD_FACTIONS,

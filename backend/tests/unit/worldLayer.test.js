@@ -40,6 +40,19 @@ describe('world layer presentation', () => {
     expect(receipt.heading).toBe('You showed up');
     expect(receipt.lines.some((line) => line.label === 'What came back')).toBe(true);
     expect(receipt.kept.title).toBe('First Current Memory');
+    expect(receipt.pictures.length).toBeGreaterThan(0);
+  });
+
+  test('receipts keep live Moment and Place photos', () => {
+    const receipt = resolveWorldConsequence({
+      verified: true,
+      momentTitle: 'AftrHrs',
+      placeName: 'Sea Deck, Barbican',
+      momentImageUrl: 'https://cdn.promorang.test/aftrhrs.jpg',
+      placeImageUrl: 'https://cdn.promorang.test/seadeck.jpg',
+    });
+    expect(receipt.pictures.map((picture) => picture.kind)).toEqual(['moment', 'place']);
+    expect(receipt.pictures[0].url).toBe('https://cdn.promorang.test/aftrhrs.jpg');
   });
 
   test('path titles stay hidden until evidence threshold', () => {

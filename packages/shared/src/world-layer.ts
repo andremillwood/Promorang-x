@@ -71,6 +71,15 @@ export type WorldSlicePlace = {
   name: string;
   area: string;
   role: string;
+  imageUrl?: string | null;
+};
+
+export type WorldSliceObjective = {
+  key: WorldRunObjectiveKey;
+  title: string;
+  proof: string;
+  actionTypes: string[];
+  imageUrl?: string | null;
 };
 
 export type WorldSlice = {
@@ -87,14 +96,22 @@ export type WorldSlice = {
   currentLine: string;
   signalEyebrow: string;
   welcome: string;
+  imageUrl?: string | null;
   places: WorldSlicePlace[];
-  objectives: Array<{
-    key: WorldRunObjectiveKey;
-    title: string;
-    proof: string;
-    actionTypes: string[];
-  }>;
+  objectives: WorldSliceObjective[];
 };
+
+/** Editorial pictures for the first Kingston test area. Live Moment / Place photos always win. */
+export const KINGSTON_SLICE_IMAGES = {
+  run: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=1400&q=80",
+  barbican: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=80",
+  redHills: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=80",
+  newKingston: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1400&q=80",
+  attendMoment: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1400&q=80",
+  supportPlace: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1400&q=80",
+  bringNewcomer: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=80",
+  keepMemory: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1400&q=80",
+} as const;
 
 /** Copy and configuration only. Never treat these as live attendance or Crew counts. */
 export const KINGSTON_AFTER_DARK_SLICE: WorldSlice = {
@@ -111,10 +128,11 @@ export const KINGSTON_AFTER_DARK_SLICE: WorldSlice = {
   currentLine: "The Current is moving through Barbican.",
   signalEyebrow: "A Signal appeared",
   welcome: "Find a night worth leaving home for. PromoCard is the passport that carries what comes back.",
+  imageUrl: KINGSTON_SLICE_IMAGES.run,
   places: [
-    { name: "Barbican", area: "St. Andrew", role: "First coherent test area" },
-    { name: "Red Hills Road", area: "Kingston 19", role: "Participating corridor" },
-    { name: "New Kingston", area: "Kingston", role: "After-hours corridor" },
+    { name: "Barbican", area: "St. Andrew", role: "First coherent test area", imageUrl: KINGSTON_SLICE_IMAGES.barbican },
+    { name: "Red Hills Road", area: "Kingston 19", role: "Participating corridor", imageUrl: KINGSTON_SLICE_IMAGES.redHills },
+    { name: "New Kingston", area: "Kingston", role: "After-hours corridor", imageUrl: KINGSTON_SLICE_IMAGES.newKingston },
   ],
   objectives: [
     {
@@ -122,24 +140,28 @@ export const KINGSTON_AFTER_DARK_SLICE: WorldSlice = {
       title: "Show up at one participating Moment",
       proof: "Verified check-in or accepted proof",
       actionTypes: ["MOMENT_ATTENDANCE", "check_in", "moment_join_verified", "proof_verified"],
+      imageUrl: KINGSTON_SLICE_IMAGES.attendMoment,
     },
     {
       key: "support_place",
       title: "Support one participating Place",
       proof: "Verified visit, purchase, or perk use",
       actionTypes: ["MERCHANT_VISIT", "PURCHASE", "PERK_REDEMPTION", "coupon_redeemed", "order_paid", "split_tender"],
+      imageUrl: KINGSTON_SLICE_IMAGES.supportPlace,
     },
     {
       key: "bring_newcomer",
       title: "Bring one newcomer",
       proof: "Activated referral or attributed Scene join",
       actionTypes: ["FRIEND_INVITE", "REFERRAL", "referral_activated"],
+      imageUrl: KINGSTON_SLICE_IMAGES.bringNewcomer,
     },
     {
       key: "keep_memory",
       title: "Retain one Memory",
       proof: "A Memory issued from verified participation",
       actionTypes: ["MOMENT_ATTENDANCE", "proof_verified"],
+      imageUrl: KINGSTON_SLICE_IMAGES.keepMemory,
     },
   ],
 };
@@ -153,6 +175,9 @@ export type WorldConsequenceFacts = {
   placeName?: string | null;
   sceneTitle?: string | null;
   seasonTitle?: string | null;
+  momentImageUrl?: string | null;
+  placeImageUrl?: string | null;
+  sceneImageUrl?: string | null;
   promoCardEligible?: boolean;
   promoCardReturnLabel?: string | null;
   runTitle?: string | null;
@@ -172,6 +197,14 @@ export type WorldConsequenceLine = {
   strong?: boolean;
 };
 
+export type WorldReceiptPictureKind = "moment" | "place" | "scene";
+
+export type WorldReceiptPicture = {
+  kind: WorldReceiptPictureKind;
+  title: string;
+  url: string;
+};
+
 export type WorldConsequenceReceipt = {
   counted: boolean;
   heading: string;
@@ -180,9 +213,57 @@ export type WorldConsequenceReceipt = {
   footer: string;
   next: { label: string; href: string } | null;
   kept: { title: string; kind: "memory" | "perk" | "none" } | null;
+  pictures: WorldReceiptPicture[];
 };
 
+export function firstPictureUrl(...urls: Array<string | null | undefined>): string | null {
+  for (const url of urls) {
+    if (typeof url === "string" && url.trim()) return url.trim();
+  }
+  return null;
+}
+
+export function pictureForPlaceName(
+  placeName?: string | null,
+  slice: WorldSlice = KINGSTON_AFTER_DARK_SLICE,
+): string | null {
+  const hay = String(placeName || "").toLowerCase();
+  if (!hay) return null;
+  const match = slice.places.find((place) => hay.includes(place.name.toLowerCase()));
+  if (match?.imageUrl) return match.imageUrl;
+  if (hay.includes("barbican")) return firstPictureUrl(slice.places[0]?.imageUrl, KINGSTON_SLICE_IMAGES.barbican);
+  return null;
+}
+
+export function resolveReceiptPictures(
+  facts: Pick<WorldConsequenceFacts, "momentTitle" | "placeName" | "sceneTitle" | "momentImageUrl" | "placeImageUrl" | "sceneImageUrl">,
+  slice: WorldSlice = KINGSTON_AFTER_DARK_SLICE,
+): WorldReceiptPicture[] {
+  const pictures: WorldReceiptPicture[] = [];
+  const seen = new Set<string>();
+  const push = (kind: WorldReceiptPictureKind, title: string | null | undefined, url: string | null) => {
+    if (!url || seen.has(url)) return;
+    seen.add(url);
+    pictures.push({ kind, title: title || (kind === "moment" ? "Moment" : kind === "place" ? "Place" : "Scene"), url });
+  };
+
+  push("moment", facts.momentTitle, firstPictureUrl(facts.momentImageUrl));
+  push("place", facts.placeName, firstPictureUrl(facts.placeImageUrl, pictureForPlaceName(facts.placeName, slice)));
+  if (facts.momentTitle && !pictures.some((picture) => picture.kind === "moment")) {
+    push("moment", facts.momentTitle, firstPictureUrl(slice.objectives.find((item) => item.key === "attend_moment")?.imageUrl));
+  }
+  if (pictures.length < 2) {
+    push("scene", facts.sceneTitle, firstPictureUrl(facts.sceneImageUrl, slice.imageUrl));
+  }
+  if (!pictures.length && (facts.momentTitle || facts.placeName)) {
+    push("place", facts.placeName || slice.area, firstPictureUrl(slice.places[0]?.imageUrl, slice.imageUrl));
+  }
+  return pictures.slice(0, 2);
+}
+
 export function resolveWorldConsequence(facts: WorldConsequenceFacts): WorldConsequenceReceipt {
+  const pictures = resolveReceiptPictures(facts);
+
   if (facts.pending && !facts.verified) {
     return {
       counted: false,
@@ -197,6 +278,7 @@ export function resolveWorldConsequence(facts: WorldConsequenceFacts): WorldCons
       footer: "Nothing is celebrated as complete until it is verified.",
       next: facts.nextHref ? { label: facts.nextLabel || "See the Moment", href: facts.nextHref } : { label: "Open Vault", href: "/vault" },
       kept: null,
+      pictures,
     };
   }
 
@@ -209,6 +291,7 @@ export function resolveWorldConsequence(facts: WorldConsequenceFacts): WorldCons
       footer: "Promorang only keeps what it can prove.",
       next: { label: "Find a move", href: "/discover" },
       kept: null,
+      pictures,
     };
   }
 
@@ -258,6 +341,7 @@ export function resolveWorldConsequence(facts: WorldConsequenceFacts): WorldCons
       : facts.rewardTitle
         ? { title: facts.rewardTitle, kind: "perk" }
         : null,
+    pictures,
   };
 }
 
@@ -269,6 +353,9 @@ export type WorldCurrentMoveFacts = {
   sceneSlug?: string | null;
   sceneTitle?: string | null;
   seasonTitle?: string | null;
+  momentImageUrl?: string | null;
+  placeImageUrl?: string | null;
+  sceneImageUrl?: string | null;
   joined?: boolean;
   arrived?: boolean;
   hasMemory?: boolean;
@@ -288,12 +375,23 @@ export type WorldCurrentMove = {
   sceneTitle: string | null;
   seasonTitle: string | null;
   placeName: string | null;
+  imageUrl: string | null;
+  imageAlt: string | null;
   context: string[];
 };
 
 export function resolveWorldCurrentMove(facts: WorldCurrentMoveFacts, slice: WorldSlice = KINGSTON_AFTER_DARK_SLICE): WorldCurrentMove {
   const sceneTitle = facts.sceneTitle || (facts.sceneSlug === slice.sceneSlug ? slice.sceneTitle : null);
   const seasonTitle = facts.seasonTitle || (facts.sceneSlug === slice.sceneSlug || !facts.sceneSlug ? slice.seasonTitle : null);
+  const placeName = facts.placeName || null;
+  const imageUrl = firstPictureUrl(
+    facts.momentImageUrl,
+    facts.placeImageUrl,
+    pictureForPlaceName(facts.placeName, slice),
+    facts.sceneImageUrl,
+    slice.imageUrl,
+  );
+  const imageAlt = facts.momentTitle || facts.placeName || sceneTitle || slice.area;
   const context = [
     sceneTitle,
     facts.placeName,
@@ -310,7 +408,9 @@ export function resolveWorldCurrentMove(facts: WorldCurrentMoveFacts, slice: Wor
       href: "/vault",
       sceneTitle,
       seasonTitle,
-      placeName: facts.placeName || null,
+      placeName,
+      imageUrl,
+      imageAlt,
       context,
     };
   }
@@ -325,7 +425,9 @@ export function resolveWorldCurrentMove(facts: WorldCurrentMoveFacts, slice: Wor
       href: `/moments/${facts.momentId}/checkin`,
       sceneTitle,
       seasonTitle,
-      placeName: facts.placeName || null,
+      placeName,
+      imageUrl,
+      imageAlt,
       context,
     };
   }
@@ -340,7 +442,9 @@ export function resolveWorldCurrentMove(facts: WorldCurrentMoveFacts, slice: Wor
       href: `/moments/${facts.momentId}`,
       sceneTitle,
       seasonTitle,
-      placeName: facts.placeName || null,
+      placeName,
+      imageUrl,
+      imageAlt,
       context,
     };
   }
@@ -355,7 +459,9 @@ export function resolveWorldCurrentMove(facts: WorldCurrentMoveFacts, slice: Wor
       href: "/card",
       sceneTitle,
       seasonTitle,
-      placeName: facts.placeName || null,
+      placeName,
+      imageUrl,
+      imageAlt,
       context,
     };
   }
@@ -370,6 +476,8 @@ export function resolveWorldCurrentMove(facts: WorldCurrentMoveFacts, slice: Wor
     sceneTitle: slice.sceneTitle,
     seasonTitle: slice.seasonTitle,
     placeName: slice.area,
+    imageUrl: firstPictureUrl(imageUrl, slice.imageUrl),
+    imageAlt: slice.area,
     context: [slice.sceneTitle, slice.area],
   };
 }
@@ -418,6 +526,7 @@ export type WorldRunObjectiveState = {
   title: string;
   proof: string;
   complete: boolean;
+  imageUrl?: string | null;
 };
 
 export function resolveCrewRunProgress(
@@ -430,7 +539,7 @@ export function resolveCrewRunProgress(
     const complete = objective.key === "keep_memory"
       ? keptMemory
       : objective.actionTypes.some((type) => types.has(type));
-    return { key: objective.key, title: objective.title, proof: objective.proof, complete };
+    return { key: objective.key, title: objective.title, proof: objective.proof, complete, imageUrl: objective.imageUrl || null };
   });
   return {
     completed: objectives.filter((objective) => objective.complete).length,
@@ -798,7 +907,7 @@ export function resolveFactionContest(input: {
   const unalignedCurrent = Math.max(0, Number(input.unalignedCurrent) || 0);
   const totalCurrent = board.reduce((sum, row) => sum + row.current, 0) + unalignedCurrent;
 
-  let contestLine = "No philosophy is moving the Scene yet. The war is Current versus Static.";
+  let contestLine = "The Scene is waiting for verified movement. Houses form from how people move — the war is Current versus Static.";
   if (leadingCurrent) {
     contestLine = `${WORLD_FACTIONS[leadingCurrent].title} lead ${WORLD_FACTIONS[leadingCurrent].verb}. The war is Current versus Static — not people versus people.`;
   } else if (tied && top) {

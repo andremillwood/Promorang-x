@@ -36,6 +36,8 @@ export interface ValueReceiptData {
   proofHash?: string;
   hostQuote?: string;
   hostSigner?: string;
+  targetImageUrl?: string;
+  placeName?: string;
   metrics: Array<{
     label: string;
     value: string | number;
@@ -204,6 +206,15 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
               <p className="text-sm font-bold text-primary">{receipt.targetEntity}</p>
             </div>
           </div>
+
+          {(receipt.targetImageUrl) ? (
+            <figure className="mt-4 overflow-hidden rounded-xl border border-white/10">
+              <img src={receipt.targetImageUrl} alt={receipt.placeName || receipt.targetEntity} className="aspect-[16/9] w-full object-cover" />
+              <figcaption className="px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-white/45">
+                {receipt.placeName || receipt.targetEntity}
+              </figcaption>
+            </figure>
+          ) : null}
 
           {/* Action Narrative Banner */}
           <div className="mt-4 rounded-xl border border-primary/20 bg-primary/[0.06] p-3.5">

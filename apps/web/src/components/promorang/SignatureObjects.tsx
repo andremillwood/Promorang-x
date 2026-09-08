@@ -71,16 +71,26 @@ type TicketPassProps = {
   detail: string;
   stub: string;
   stubLabel?: string;
+  imageUrl?: string | null;
+  imageAlt?: string | null;
   className?: string;
 };
 
-export function TicketPass({ kicker, title, detail, stub, stubLabel = "Keep", className }: TicketPassProps) {
+export function TicketPass({ kicker, title, detail, stub, stubLabel = "Keep", imageUrl, imageAlt, className }: TicketPassProps) {
   return (
-    <article className={cn("pr-ticket min-h-[148px] rounded-2xl", className)}>
-      <div className="p-4 sm:p-5">
-        <p className="text-[10px] font-bold tracking-[0.18em] text-orange-700">{kicker}</p>
-        <h3 className="mt-1 font-serif text-xl font-bold leading-tight text-[#1a120c]">{title}</h3>
-        <p className="mt-2 text-sm leading-5 text-[#4a3b2f]">{detail}</p>
+    <article className={cn("pr-ticket min-h-[148px] overflow-hidden rounded-2xl", className)}>
+      <div className="min-w-0 flex-1">
+        {imageUrl ? (
+          <div className="relative h-28 overflow-hidden sm:h-32">
+            <img src={imageUrl} alt={imageAlt || title} className="h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#f6ecd8] via-transparent to-black/10" />
+          </div>
+        ) : null}
+        <div className="p-4 sm:p-5">
+          <p className="text-[10px] font-bold tracking-[0.18em] text-orange-700">{kicker}</p>
+          <h3 className="mt-1 font-serif text-xl font-bold leading-tight text-[#1a120c]">{title}</h3>
+          <p className="mt-2 text-sm leading-5 text-[#4a3b2f]">{detail}</p>
+        </div>
       </div>
       <div className="pr-ticket-stub">
         <p className="rotate-180 text-[9px] font-bold tracking-[0.18em] text-[#7a6554]" style={{ writingMode: "vertical-rl" }}>
@@ -92,18 +102,42 @@ export function TicketPass({ kicker, title, detail, stub, stubLabel = "Keep", cl
   );
 }
 
+type ReceiptPicture = {
+  kind?: string;
+  title?: string;
+  url: string;
+};
+
 type PaperReceiptProps = {
   heading: string;
   lines: Array<{ label: string; value: string; strong?: boolean }>;
   footer?: string;
+  pictures?: ReceiptPicture[] | null;
   className?: string;
 };
 
-export function PaperReceipt({ heading, lines, footer, className }: PaperReceiptProps) {
+export function PaperReceipt({ heading, lines, footer, pictures, className }: PaperReceiptProps) {
+  const shots = (pictures || []).filter((picture) => picture?.url).slice(0, 2);
   return (
     <article className={cn("pr-receipt px-5 py-7 font-mono", className)}>
       <p className="text-center text-[10px] font-bold tracking-[0.22em] text-[#7a6554]">PROMORANG</p>
       <h3 className="mt-1 text-center font-serif text-lg font-bold text-[#1a120c]">{heading}</h3>
+      {shots.length ? (
+        <div className={`mt-4 grid gap-2 ${shots.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+          {shots.map((picture) => (
+            <figure key={`${picture.kind || "shot"}-${picture.url}`} className="overflow-hidden rounded-md border border-[#1a120c]/10 bg-[#efe4d0]">
+              <img src={picture.url} alt={picture.title || heading} className="aspect-[16/10] w-full object-cover" />
+              {picture.title ? (
+                <figcaption className="px-2 py-1.5 text-[10px] uppercase tracking-[0.14em] text-[#7a6554]">
+                  {picture.kind === "place" ? "Place" : picture.kind === "moment" ? "Moment" : picture.kind === "scene" ? "Scene" : "Kept"}
+                  {" · "}
+                  {picture.title}
+                </figcaption>
+              ) : null}
+            </figure>
+          ))}
+        </div>
+      ) : null}
       <div className="mt-4 space-y-2 border-t border-dashed border-[#1a120c]/20 pt-3 text-[12px]">
         {lines.map((line) => (
           <div key={line.label} className="flex items-start justify-between gap-3">

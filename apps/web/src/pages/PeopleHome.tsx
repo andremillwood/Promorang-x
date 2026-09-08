@@ -210,6 +210,8 @@ export default function PeopleHome() {
                 }
                 stub="GO"
                 stubLabel="Live"
+                imageUrl={world.currentMove.imageUrl}
+                imageAlt={world.currentMove.imageAlt || world.currentMove.title}
               />
             </Link>
           ) : (
@@ -229,11 +231,13 @@ export default function PeopleHome() {
               title={world?.crew?.name || "Form a Crew"}
               detail={
                 world?.crew
-                  ? `${world.crew.size} people · ${world.crew.runTitle || "Kingston After Dark"}`
-                  : "3–8 people. One run. No factions required."
+                  ? `${world.crew.size} people · ${world.crew.runTitle || "Barbican Run"}`
+                  : "3–8 people. One Barbican Run."
               }
               stub="CREW"
               stubLabel="Open"
+              imageUrl={world?.currentMove?.imageUrl || world?.slice?.imageUrl}
+              imageAlt={world?.crew?.runTitle || "Barbican Run"}
             />
           </Link>
           {world?.crew ? (

@@ -27,7 +27,7 @@ export default function Progress() {
       await setFaction.mutateAsync(world?.faction?.key === key ? null : key);
       toast({
         title: world?.faction?.key === key ? "Philosophy cleared" : "Philosophy noted",
-        description: "The war is Current versus Static — not people versus people. Mixed-faction Crews stay valid.",
+        description: "Houses form from how you move. The war is Current versus Static — not people versus people.",
       });
     } catch (error) {
       toast({ title: "Could not save that", description: (error as Error).message, variant: "destructive" });
@@ -199,10 +199,10 @@ export default function Progress() {
       <section>
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Philosophy · optional</p>
         <h2 className="mt-2 font-serif text-3xl font-bold">
-          {world?.faction ? world.faction.title : "No faction required"}
+          {world?.house?.title ? `${world.house.title} House` : "House forms from how you move"}
         </h2>
         <p className="mt-2 text-sm text-white/50">
-          House is earned from verified movement. This leftover philosophy does not change it, and it is not a class or a Crew. The war is Current versus Static.
+          Ember, Tide, Radiant, and Grove are earned from verified movement. They are not chosen at signup and they are not a Crew. A leftover philosophy below does not change your House.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {WORLD_FACTION_KEYS.map((key) => {

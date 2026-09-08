@@ -6,6 +6,7 @@
 const crypto = require('crypto');
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const { KINGSTON_AFTER_DARK_SLICE, resolveCrewRunProgress, resolvePathEvidence, resolveCrewRunRole, CREW_RUN_ROLES } = require('./worldLayer');
+const { resolveHouse, FACTION_TO_HOUSE } = require('./worldSystemV2');
 
 const CREW_MIN = 3;
 const CREW_MAX = 8;
@@ -65,13 +66,17 @@ async function getCrew(crewId, viewerId, db = serviceSupabase) {
 
   const members = await db.from('world_crew_members').select('user_id, joined_at, run_role').eq('crew_id', crewId);
   const memberIds = (members.data || []).map((row) => row.user_id);
-  const [actions, memories, scene] = await Promise.all([
+  const [actions, memories, scene, playerStates] = await Promise.all([
     memberActions(db, memberIds, crew.data.scene_id),
     memoriesFor(db, memberIds),
     crew.data.scene_id
       ? db.from('scenes').select('id, slug, title, metadata').eq('id', crew.data.scene_id).maybeSingle().then((row) => row.data)
       : Promise.resolve(null),
+    memberIds.length
+      ? db.from('world_player_state').select('user_id, faction_key, house_key').in('user_id', memberIds).then((row) => row.data || [])
+      : Promise.resolve([]),
   ]);
+  const playerByUser = Object.fromEntries((playerStates || []).map((row) => [row.user_id, row]));
 
   const run = await db
     .from('world_runs')
@@ -88,6 +93,8 @@ async function getCrew(crewId, viewerId, db = serviceSupabase) {
     const theirActions = (actions || []).filter((row) => row.user_id === member.user_id);
     const path = resolvePathEvidence(theirActions.map((row) => ({ actionType: row.action_type })));
     const role = resolveCrewRunRole(member.run_role);
+    const player = playerByUser[member.user_id] || {};
+    const house = resolveHouse(player.house_key) || resolveHouse(FACTION_TO_HOUSE[player.faction_key]);
     profiles.push({
       userId: member.user_id,
       name: displayName(person),
@@ -95,6 +102,7 @@ async function getCrew(crewId, viewerId, db = serviceSupabase) {
       pathCue: path.cue,
       pathTitle: path.title,
       runRole: role ? { key: role.key, title: role.title, job: role.job } : null,
+      house: house ? { key: house.key, title: house.title, line: house.line, color: house.color } : null,
     });
   }
 
@@ -115,6 +123,7 @@ async function getCrew(crewId, viewerId, db = serviceSupabase) {
           slug: run.data.slug,
           title: run.data.title,
           status: run.data.status,
+          imageUrl: KINGSTON_AFTER_DARK_SLICE.imageUrl,
           ...progress,
         }
       : {
@@ -122,8 +131,10 @@ async function getCrew(crewId, viewerId, db = serviceSupabase) {
           slug: KINGSTON_AFTER_DARK_SLICE.runSlug,
           title: KINGSTON_AFTER_DARK_SLICE.runTitle,
           status: profiles.length >= CREW_MIN ? 'ready' : 'forming',
+          imageUrl: KINGSTON_AFTER_DARK_SLICE.imageUrl,
           ...progress,
         },
+    places: KINGSTON_AFTER_DARK_SLICE.places,
   };
 }
 

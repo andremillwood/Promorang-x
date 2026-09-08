@@ -43,7 +43,7 @@ export default function CrewsScreen() {
 
   return (
     <ExperienceShell eyebrow="Crew" title="Form 3–8 people">
-      <Text style={{ color: Colors.gray[400] }}>Not the invite ladder. Mixed-faction Crews are valid.</Text>
+      <Text style={{ color: Colors.gray[400] }}>Not the invite ladder. 3–8 people on one Barbican Run.</Text>
       <TextInput value={name} onChangeText={setName} placeholder="Crew name" placeholderTextColor={Colors.gray[600]} style={{ color: Colors.white, borderColor: Colors.gray[700], borderWidth: 1, borderRadius: 16, padding: 14 }} />
       <PrimaryButton
         label={createCrew.isPending ? 'Forming…' : 'Form Crew'}

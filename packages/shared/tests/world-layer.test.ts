@@ -59,6 +59,8 @@ describe("world consequence receipt", () => {
       "What opened next",
     ]));
     expect(receipt.kept?.title).toBe("First Current Memory");
+    expect(receipt.pictures.some((picture) => picture.title === "AftrHrs" || picture.title === "Sea Deck")).toBe(true);
+    expect(receipt.pictures[0]?.url).toBeTruthy();
   });
 
   it("omits Crew Run and PromoCard lines when those facts are absent", () => {
@@ -68,6 +70,19 @@ describe("world consequence receipt", () => {
     });
     expect(receipt.lines.some((line) => line.label === "What came back")).toBe(false);
     expect(receipt.lines.some((line) => line.label === "Crew Run")).toBe(false);
+  });
+
+  it("prefers live Moment and Place photos on the receipt", () => {
+    const receipt = resolveWorldConsequence({
+      verified: true,
+      momentTitle: "AftrHrs",
+      placeName: "Sea Deck, Barbican",
+      momentImageUrl: "https://cdn.promorang.test/aftrhrs.jpg",
+      placeImageUrl: "https://cdn.promorang.test/seadeck.jpg",
+    });
+    expect(receipt.pictures.map((picture) => picture.kind)).toEqual(["moment", "place"]);
+    expect(receipt.pictures[0].url).toBe("https://cdn.promorang.test/aftrhrs.jpg");
+    expect(receipt.pictures[1].url).toBe("https://cdn.promorang.test/seadeck.jpg");
   });
 });
 
@@ -96,12 +111,14 @@ describe("world current move", () => {
     expect(move.eyebrow).toBe(KINGSTON_AFTER_DARK_SLICE.signalEyebrow);
     expect(move.href).toBe("/moments/m2");
     expect(move.context).toContain("PromoCard accepted");
+    expect(move.imageUrl).toBeTruthy();
   });
 
   it("falls back to the Scene doorway without inventing live density", () => {
     const move = resolveWorldCurrentMove({});
     expect(move.href).toBe("/scenes/kingston-after-dark");
     expect(move.why).toContain("PromoCard");
+    expect(move.imageUrl).toBe(KINGSTON_AFTER_DARK_SLICE.imageUrl);
   });
 });
 
