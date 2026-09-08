@@ -566,12 +566,14 @@
     overflow: hidden;
     aspect-ratio: 1.586 / 1;
     border-radius: 22px;
+    border: 1px solid rgba(255, 85, 0, 0.32);
     background:
-      radial-gradient(circle at 88% 12%, rgba(255, 196, 90, 0.28), transparent 32%),
+      radial-gradient(circle at 88% 12%, rgba(255, 85, 0, 0.34), transparent 34%),
       linear-gradient(135deg, #1a120c 0%, #0b0b0c 46%, #17110d 100%);
     box-shadow:
       0 24px 50px -18px rgba(0, 0, 0, 0.7),
-      inset 0 1px 0 rgba(255, 255, 255, 0.16);
+      0 0 30px rgba(255, 85, 0, 0.18),
+      inset 0 1px 0 rgba(255, 176, 103, 0.22);
   }
 
   .pr-plastic-card::after {

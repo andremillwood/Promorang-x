@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { PromorangMark } from '@/components/brand/PromorangMark';
 import { BorderRadius, Colors } from '@/constants/DesignTokens';
 
 type PromoCardFaceProps = {
@@ -32,13 +33,13 @@ export function PromoCardFace({
       <View style={styles.glow} />
       <View style={styles.sheen} />
       <View style={styles.top}>
-        <View>
-          <Text style={styles.brand}>PROMORANG</Text>
-          <Text style={styles.title}>PromoCard</Text>
-          {tier ? <Text style={styles.tier}>{tier} tier</Text> : null}
-        </View>
-        <View style={styles.chipWrap}>
-          <LinearGradient colors={['#F6D48A', '#E8B15A', '#C8892E']} style={styles.chip} />
+        <View style={styles.brandLockup}>
+          <PromorangMark size={34} />
+          <View>
+            <Text style={styles.brand}>PROMORANG</Text>
+            <Text style={styles.title}>PromoCard</Text>
+            {tier ? <Text style={styles.tier}>{tier} tier</Text> : null}
+          </View>
         </View>
       </View>
       <View>
@@ -70,7 +71,7 @@ export function PromoCardFace({
 
   return (
     <LinearGradient
-      colors={['#1A120C', '#0B0B0C', '#17110D']}
+      colors={['#1A120C', '#0B0B0C', '#1A0E08']}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={[styles.card, compact && styles.cardCompact]}
@@ -102,8 +103,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,176,103,0.28)',
-    shadowColor: '#000',
+    borderColor: 'rgba(255,85,0,0.38)',
+    shadowColor: '#FF5500',
     shadowOffset: { width: 0, height: 18 },
     shadowOpacity: 0.45,
     shadowRadius: 24,
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
     borderRadius: 90,
     right: -50,
     top: -70,
-    backgroundColor: 'rgba(255,196,90,0.22)',
+    backgroundColor: 'rgba(255,85,0,0.28)',
   },
   sheen: {
     position: 'absolute',
@@ -132,8 +133,9 @@ const styles = StyleSheet.create({
     transform: [{ skewX: '-18deg' }],
   },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  brandLockup: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   brand: {
-    color: 'rgba(255,210,140,0.8)',
+    color: Colors.primary,
     fontFamily: 'SpaceMono',
     fontSize: 10,
     letterSpacing: 2.2,
@@ -143,29 +145,19 @@ const styles = StyleSheet.create({
   tier: {
     marginTop: 6,
     alignSelf: 'flex-start',
-    color: '#F6D48A',
+    color: Colors.primary,
     fontFamily: 'SpaceMono',
     fontSize: 9,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
     borderWidth: 1,
-    borderColor: 'rgba(246,212,138,0.35)',
+    borderColor: 'rgba(255,85,0,0.4)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 999,
   },
-  chipWrap: {
-    width: 44,
-    height: 32,
-    borderRadius: 8,
-    overflow: 'hidden',
-    shadowColor: '#E8B15A',
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-  },
-  chip: { flex: 1 },
   meta: { color: Colors.gray[400], fontSize: 11, letterSpacing: 0.4 },
-  available: { color: '#FFE4B5', fontSize: 36, fontWeight: '800', letterSpacing: -1, marginTop: 2 },
+  available: { color: '#FFD4B0', fontSize: 36, fontWeight: '800', letterSpacing: -1, marginTop: 2 },
   availableCompact: { fontSize: 28 },
   limit: { color: Colors.gray[400], fontSize: 12, marginTop: 4 },
   foot: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
@@ -175,7 +167,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#F6D48A',
+    backgroundColor: Colors.primary,
     borderRadius: BorderRadius.full,
     paddingHorizontal: 12,
     paddingVertical: 8,

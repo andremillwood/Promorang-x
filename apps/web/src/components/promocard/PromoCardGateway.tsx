@@ -5,9 +5,9 @@ import {
   MapPin,
   Sparkles,
   Ticket,
-  WalletCards,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 
 const steps = [
   {
@@ -67,43 +67,29 @@ export function PromoCardGateway() {
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-xl">
-            <div className="absolute -inset-5 rounded-[2.5rem] bg-amber-400/10 blur-3xl" />
-            <div className="relative overflow-hidden rounded-[1.5rem] border border-amber-200/20 bg-gradient-to-br from-zinc-800 via-zinc-950 to-black p-5 shadow-[0_32px_100px_rgba(0,0,0,0.65)] sm:rounded-[1.75rem] sm:p-7">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-amber-200 to-amber-500 text-black">
-                    <WalletCards className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-black uppercase tracking-[0.12em]">PromoCard</p>
-                    <p className="text-[11px] text-white/45">Verified use, not a recharge</p>
-                  </div>
+          <div className="relative mx-auto w-full max-w-md">
+            <div className="absolute -inset-5 rounded-[2.5rem] bg-primary/20 blur-3xl" />
+            <PromoCardFace
+              className="relative max-w-none"
+              holder="Your card"
+              available="Use this"
+              limit="A live perk"
+              places="Participating businesses"
+              action="Use this"
+            />
+            <div className="relative mt-4 hidden gap-2.5 sm:grid sm:grid-cols-3">
+              {steps.map((step) => (
+                <div key={step.title} className="rounded-xl border border-white/10 bg-black/30 p-3.5">
+                  <step.icon className="h-4 w-4 text-primary" />
+                  <p className="mt-2 text-xs font-bold">{step.title}</p>
+                  <p className="mt-1 text-[10px] leading-4 text-white/45">{step.copy}</p>
                 </div>
-              </div>
-
-              <div className="my-6 sm:my-8">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">On the card</p>
-                <div className="mt-1 flex items-end gap-2">
-                  <span className="text-4xl font-black tracking-[-0.05em] text-amber-200">Use this</span>
-                </div>
-              </div>
-
-              <div className="hidden gap-2.5 sm:grid sm:grid-cols-3">
-                {steps.map((step) => (
-                  <div key={step.title} className="rounded-xl border border-white/10 bg-black/30 p-3.5">
-                    <step.icon className="h-4 w-4 text-amber-300" />
-                    <p className="mt-2 text-xs font-bold">{step.title}</p>
-                    <p className="mt-1 text-[10px] leading-4 text-white/45">{step.copy}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 flex items-start gap-2 text-[10px] leading-4 text-white/45 sm:mt-5 sm:border-t sm:border-white/10 sm:pt-4">
-                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />
-                Payment, gift activation and recharge are not customer completions. The merchant’s recorded redemption is.
-              </div>
+              ))}
             </div>
+            <p className="relative mt-4 flex items-start gap-2 text-[10px] leading-4 text-white/45">
+              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />
+              Payment, gift activation and recharge are not customer completions. The merchant’s recorded redemption is.
+            </p>
           </div>
         </div>
       </div>
