@@ -1,7 +1,11 @@
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PromoCardFace } from "./SignatureObjects";
+
+vi.mock("qrcode.react", () => ({
+  QRCodeSVG: ({ value }: { value: string }) => <svg data-testid="promo-qr" data-value={value} />,
+}));
 
 let root: Root;
 let container: HTMLDivElement;
@@ -75,7 +79,7 @@ describe("PromoCardFace brand lockup", () => {
     });
     expect(container.querySelector('[aria-label="Sea Deck mark"]')?.textContent).toBe("S");
     expect(container.querySelectorAll('[aria-label="PromoCard scan mark"]').length).toBeGreaterThan(0);
-    expect(container.querySelector("svg")).toBeTruthy();
+    expect(container.querySelector('[data-testid="promo-qr"]')).toBeTruthy();
     const flip = Array.from(container.querySelectorAll("button")).find(
       (item) => item.getAttribute("aria-label") === "Flip PromoCard to show the merchant",
     );
