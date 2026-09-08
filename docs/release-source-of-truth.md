@@ -19,8 +19,8 @@ Preview deployments from feature branches are allowed. They must never be promot
 
 | Surface | SHA / source | State |
 | --- | --- | --- |
-| Web (`promorang-alt`) | `main` at `7f9960944` after #63, #61, #66, #60, #56, #55, #57, and #62 | Git production from `main` is the web line. |
-| API (`api`) | `main` at `7f9960944` after the #62 merge | Root Directory is `backend`. Confirm this SHA on `api.promorang.co`, then delete `cursor/creative-cook-shop-season-35a2`. |
+| Web (`promorang-alt`) | `main` at `791bd230a` after #67, #69, #71, and #73 | Git production from `main` is the web line. |
+| API (`api`) | `main` at `791bd230a` after the #73 merge | Root Directory is `backend`. Confirm this SHA on `api.promorang.co`, then delete `cursor/creative-cook-shop-season-35a2`. |
 | API Git skip | `scripts/vercel-ignore-non-web.mjs` | Still skips a repo-root Vite build if the project id is the API project and Root Directory is wrong. |
 
 ## What belongs on `main`
@@ -38,8 +38,12 @@ Preview deployments from feature branches are allowed. They must never be promot
 11. Discover → PromoCard from #55: named intents, found listings, demand inbox, and server `discovery_card_unlocks`. Unlock perks only when the server returns a `redemption_code`. Do not invent `PR-` codes in the browser or treat localStorage as card credentials.
 12. Shared people chrome from #57: Today · People · Create · Earn · Card on web mobile and native. Web `/card` stays the live verified loop. Do not restore recharge, fake balances, `"Member"`, or placeholder serial `PR · 0842`.
 13. Kingston After Dark world layer from #62: Consequence Receipt, eligibility-only PromoCard Return (`recharge_amount: 0`), Crews, Scene/Crew context around the live card. Apply `supabase/migrations/202609050003_world_crews_and_kingston_season.sql` before production use. No Game tab and no dollar refill.
+14. Value-first PromoCard gateway from #67: lead with live customer value. Do not recut the homepage hero.
+15. Interest aim and owned perk from #69: chips aim the card; a claimed perk is On your card / Ready to use / Show this. Persist aim on `promocard_member_aims`.
+16. Aimed Discover from #71: card Find {scene} carries `aim`; a live answer can unlock onto the card.
+17. Empty-card fill moves from #73: when nothing live can fill the card, prompt Discover, request a perk, start a poll, or host a moment. Do not invent nearby inventory, unbacked credit, or browser `PR-` codes.
 
-`main` must not absorb stacked agent PRs, parallel PromoCard experiments, or Today-as-public-home.
+`main` must not absorb parallel PromoCard experiments or Today-as-public-home.
 
 ## How work reaches production
 
@@ -69,9 +73,9 @@ These target `main` and still change production behavior. Merge one overlapping 
 | #64 | `cursor/promocard-present-recut-26bd` | Recut of closed #50. Do not merge in parallel with the live card path. |
 | #65 | `cursor/promocard-wallet-face-1356` | Parallel wallet 3D pass on `/card`. Do not merge in parallel with the live card path. |
 
-Landed: **#63**, **#61**, **#66**, **#60**, **#56**, **#55**, **#57**, then **#62** (`7f9960944`) on 7 September 2026.
+Landed: **#63**, **#61**, **#66**, **#60**, **#56**, **#55**, **#57**, **#62**, then **#67**, **#69**, **#71**, and **#73** (`791bd230a`) on 8 September 2026.
 
-The agreed keep-open sequence is complete. Do not merge #64 or #65.
+The PromoCard aim / fill stack is on `main`. Do not merge #64 or #65.
 
 ## Closed in the 6 September 2026 pass
 
@@ -113,7 +117,7 @@ Deleted after the close pass (zero unique production commits):
 - `fix/jamaica-local-drop-build`
 - `fix/promorang-shared-entry`
 
-**Ready to delete after the #62 production alias is confirmed:** `cursor/creative-cook-shop-season-35a2`. `api.promorang.co` already pointed at `main` before #62; wait for `7f9960944` on the production alias.
+**Ready to delete after the #73 production alias is confirmed:** `cursor/creative-cook-shop-season-35a2`. Wait for `791bd230a` on the production aliases.
 
 Closed-PR feature branches may be deleted after GitHub closes the PRs.
 
