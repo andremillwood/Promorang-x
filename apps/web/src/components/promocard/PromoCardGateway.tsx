@@ -13,17 +13,17 @@ const steps = [
   {
     icon: Ticket,
     title: "Use this",
-    copy: "Show the claimed perk. The merchant records it.",
+    copy: "Walk in with something they already said yes to.",
   },
   {
     icon: MapPin,
-    title: "Available nearby",
-    copy: "Only participating businesses with live inventory.",
+    title: "Places that want you back",
+    copy: "Only the rooms that actually expect you this week.",
   },
   {
     icon: Sparkles,
-    title: "Get your next benefit",
-    copy: "After a real redemption, come back for the next one.",
+    title: "Come back",
+    copy: "The next perk arrives because the last one counted.",
   },
 ];
 
@@ -38,14 +38,14 @@ export function PromoCardGateway() {
           <div>
             <div className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.18em] text-amber-200 sm:rounded-full sm:border sm:border-amber-300/25 sm:bg-amber-300/10 sm:px-3 sm:py-1.5 sm:text-[10px]">
               <Sparkles className="h-3.5 w-3.5" />
-              Ambassador audience → verified customers
+              Passed along, not advertised
             </div>
             <h1 className="mt-4 max-w-2xl font-serif text-[clamp(3.2rem,15vw,6.4rem)] font-black uppercase leading-[0.82] tracking-[-0.065em] sm:mt-5 sm:font-sans sm:leading-[0.86] sm:tracking-[-0.07em]">
               Use this.<br />
               <span className="text-primary">Come back.</span>
             </h1>
             <p className="mt-5 max-w-xl text-[15px] leading-6 text-white/68 sm:text-lg sm:leading-8">
-              A merchant supplies a benefit. An ambassador shares it. You claim it. The merchant validates it. That recorded use is the only completion.
+              People don’t come back because it was cheaper. They come back because last time felt like it counted. Someone you follow hands you a real perk. You walk in. They mark it. That’s the only ending that counts.
             </p>
 
             <div className="mt-6 grid gap-2.5 sm:flex sm:gap-3">
@@ -62,7 +62,7 @@ export function PromoCardGateway() {
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-sm font-bold text-white transition hover:border-amber-300/40 hover:bg-white/[0.08] active:scale-[0.98]"
               >
                 <MapPin className="h-4 w-4 text-amber-300" />
-                Available nearby
+                Places that want you back
               </Link>
             </div>
           </div>
@@ -77,7 +77,7 @@ export function PromoCardGateway() {
                   </div>
                   <div>
                     <p className="text-sm font-black uppercase tracking-[0.12em]">PromoCard</p>
-                    <p className="text-[11px] text-white/45">Verified use, not a recharge</p>
+                    <p className="text-[11px] text-white/45">It counts when they see you</p>
                   </div>
                 </div>
               </div>
@@ -101,7 +101,7 @@ export function PromoCardGateway() {
 
               <div className="mt-4 flex items-start gap-2 text-[10px] leading-4 text-white/45 sm:mt-5 sm:border-t sm:border-white/10 sm:pt-4">
                 <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />
-                Payment, gift activation and recharge are not customer completions. The merchant’s recorded redemption is.
+                Buying it, gifting it, or topping it up doesn’t count. Walking in does.
               </div>
             </div>
           </div>
