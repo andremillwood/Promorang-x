@@ -525,20 +525,28 @@ export default function CinematicCultureHome() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                to="/promoshare"
-                onClick={() => rememberMarketingIntent("hero_promoshare", "/promoshare", "participant")}
-                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
-              >
-                <Share2 className="h-4 w-4 text-purple-400" />
-                <span>PromoShare</span>
-              </Link>
-              <Link
                 to="/hosting"
                 onClick={() => rememberMarketingIntent("hero_host_moment", "/hosting", "host")}
                 className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
               >
+                <Users className="h-4 w-4 text-emerald-400" />
+                <span>{t("nav.hostMoment")}</span>
+              </Link>
+              <Link
+                to="/for-creators"
+                onClick={() => rememberMarketingIntent("hero_creators", "/for-creators", "creator")}
+                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
+              >
+                <PlayCircle className="h-4 w-4 text-violet-400" />
+                <span>{t("nav.forCreators")}</span>
+              </Link>
+              <Link
+                to="/for-merchants"
+                onClick={() => rememberMarketingIntent("hero_merchants", "/for-merchants", "merchant")}
+                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
+              >
                 <Store className="h-4 w-4 text-amber-400" />
-                <span>Host / Venue Pass</span>
+                <span>{t("nav.forMerchants")}</span>
               </Link>
               <Link
                 to="/for-brands"
@@ -546,7 +554,7 @@ export default function CinematicCultureHome() {
                 className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
               >
                 <Building2 className="h-4 w-4 text-cyan-400" />
-                <span>Brands &amp; Retail</span>
+                <span>{t("nav.forBrands")}</span>
               </Link>
             </div>
 
@@ -619,6 +627,37 @@ export default function CinematicCultureHome() {
               </TiltCard3D>
             </motion.div>
           ) : null}
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-[#080808]">
+        <div className="container px-5 py-10 md:px-6 md:py-14">
+          <div className="grid gap-6 lg:grid-cols-[1.1fr_.9fr] lg:items-end">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.playEyebrow")}</p>
+              <h2 className="mt-3 max-w-2xl text-3xl font-black uppercase leading-[0.9] tracking-[-0.05em] md:text-5xl">
+                {t("home.playTitle")} <span className="text-primary">{t("home.playAccent")}</span>
+              </h2>
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-white/58">{t("home.playCopy")}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                [t("home.playMissions"), "/missions"],
+                [t("home.playProgress"), "/progress"],
+                [t("home.playGuilds"), "/guilds"],
+                [t("home.playCard"), "/card"],
+              ].map(([label, href]) => (
+                <Link
+                  key={href}
+                  to={href}
+                  className="inline-flex min-h-12 items-center justify-between rounded-2xl border border-white/12 bg-white/[0.04] px-4 text-xs font-black uppercase tracking-wide text-white/80 transition hover:border-primary/50 hover:text-white"
+                >
+                  {label}
+                  <ArrowRight className="h-3.5 w-3.5 text-primary" />
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -972,7 +1011,7 @@ export default function CinematicCultureHome() {
                 promise: t("home.roleHostPromise"),
                 value: ["Verify visits", "Prompt customer content", "Give people a reason to return"],
                 cta: t("home.roleHostCta"),
-                href: "/auth?mode=signup&role=merchant&next=/create/moment",
+                href: `/auth?mode=signup&role=host&next=${encodeURIComponent("/propose/new?from=home")}`,
                 footnote: t("home.roleHostFootnote"),
               },
               {
