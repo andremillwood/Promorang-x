@@ -191,7 +191,11 @@ export default function PeopleHome() {
               <TicketPass
                 kicker={world.currentMove.eyebrow || "Tonight"}
                 title={world.currentMove.title}
-                detail={world.currentMove.why || world.slice?.currentLine || "Show up and the Scene can return something useful."}
+                detail={
+                  [world.identity?.line, world.currentMove.why || world.slice?.currentLine || "Show up and the Scene can return something useful."]
+                    .filter(Boolean)
+                    .join(" · ")
+                }
                 stub="GO"
                 stubLabel="Live"
               />
@@ -220,6 +224,21 @@ export default function PeopleHome() {
               stubLabel="Open"
             />
           </Link>
+          {world?.crew ? (
+            <Link to={to("/guilds")} className="block">
+              <TicketPass
+                kicker="Who coordinates the Scene"
+                title={world?.guild?.name || "Form a Guild"}
+                detail={
+                  world?.guild
+                    ? `${world.guild.crewCount} Crews · ${world.guild.line || "Scene federation"}`
+                    : "2–6 Crews. Flat. Not an upline."
+                }
+                stub="GUILD"
+                stubLabel="Open"
+              />
+            </Link>
+          ) : null}
         </section>
       )}
 

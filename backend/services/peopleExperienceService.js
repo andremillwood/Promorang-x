@@ -3,7 +3,11 @@ const { supabase: defaultDb } = require('../lib/supabase');
 const offerService = require('./offerService');
 const worldLayer = require('./worldLayer');
 const worldCrewService = require('./worldCrewService');
+const worldPlayerService = require('./worldPlayerService');
+const worldGuildService = require('./worldGuildService');
+const worldSceneBoardService = require('./worldSceneBoardService');
 const { inferPromoCardAimFromText, resolvePromoCardAim, sortBenefitsByAim } = require('../lib/promocardAim');
+const worldSystemService = require('./worldSystemService');
 
 const OPERATOR_ROLES = new Set(['operator', 'steward']);
 const CONTRIBUTOR_ROLES = new Set(['contributor', 'operator', 'steward']);
@@ -1229,13 +1233,58 @@ function createPeopleExperienceService(db = defaultDb) {
 
     const memories = await maybe(db.from('memories').select('id, title, issued_at, rarity, moment_id').eq('user_id', userId).order('issued_at', { ascending: false }).limit(4));
     const latestMemory = (memories.data || [])[0] || null;
-    const latestAction = (happened?.recent || []).find((row) => row.user_id === userId) || (happened?.recent || [])[0] || null;
-    const path = worldLayer.resolvePathEvidence((happened?.recent || []).map((row) => ({ actionType: row.action_type })));
+    const ownVerified = await maybe(
+      db.from('verified_actions')
+        .select('id, user_id, action_type, verified_at, referrer_id, contributor_id, merchant_id, scene_id, moment_id, action_metadata')
+        .eq('user_id', userId)
+        .order('verified_at', { ascending: false })
+        .limit(80),
+    );
+    const attributed = await maybe(
+      db.from('verified_actions')
+        .select('id, user_id, action_type, verified_at, referrer_id, contributor_id, merchant_id, scene_id, moment_id, action_metadata')
+        .eq('referrer_id', userId)
+        .order('verified_at', { ascending: false })
+        .limit(40),
+    );
+    const ownActions = ownVerified.data || (happened?.recent || []).filter((row) => !userId || row.user_id === userId);
+    const latestAction = ownActions[0] || (happened?.recent || []).find((row) => row.user_id === userId) || null;
+    const path = worldLayer.resolvePathEvidence(ownActions.map((row) => ({ actionType: row.action_type })));
+    const health = worldLayer.resolveSceneHealth(ownActions.map((row) => ({ actionType: row.action_type })));
+    let worldSystem = null;
+    try {
+      worldSystem = await worldSystemService.resolveForUser(userId, {
+        ownActions,
+        attributedActions: attributed.data || [],
+        pathTitle: path.title,
+        memoriesKept: (memories.data || []).length,
+      }, db);
+    } catch (error) {
+      console.warn('[People Experience] world system skipped:', error.message);
+    }
+    let player = { faction: null };
+    try {
+      player = await worldPlayerService.getPlayerState(userId, db);
+    } catch (error) {
+      console.warn('[People Experience] player state skipped:', error.message);
+    }
     let crew = null;
     try {
       crew = await worldCrewService.getMyCrew(userId, db);
     } catch (error) {
       console.warn('[People Experience] crew context skipped:', error.message);
+    }
+    let guild = null;
+    try {
+      guild = await worldGuildService.getMyGuild(userId, db);
+    } catch (error) {
+      console.warn('[People Experience] guild context skipped:', error.message);
+    }
+    let board = { territories: [], contest: null, polarity: null };
+    try {
+      board = await worldSceneBoardService.getSceneBoard(sceneId, userId, db);
+    } catch (error) {
+      console.warn('[People Experience] scene board skipped:', error.message);
     }
 
     const currentMove = worldLayer.resolveWorldCurrentMove({
@@ -1257,6 +1306,11 @@ function createPeopleExperienceService(db = defaultDb) {
       area: slice.area,
     });
     currentMove.header = worldLayer.timeAwareWorldHeader();
+    const dispatch = worldLayer.resolveSeasonDispatch({
+      seasonTitle: sceneRow?.metadata?.season_title || slice.seasonTitle,
+      hasLiveMoment: Boolean(nextMoment?.id),
+      placeName: nextMoment?.venue_name || nextMoment?.location || null,
+    });
 
     const latestReturn = latestAction && worldLayer.SHOW_UP_ACTION_TYPES.includes(latestAction.action_type)
       ? worldLayer.resolveWorldConsequence({
@@ -1298,7 +1352,14 @@ function createPeopleExperienceService(db = defaultDb) {
         forming: path.forming,
         title: path.title,
         cue: path.cue,
+        counts: path.counts,
       },
+      worldSystem,
+      identity: worldSystem?.identity || null,
+      house: worldSystem?.house || null,
+      health,
+      faction: player.faction,
+      dispatch,
       crew: crew
         ? {
             id: crew.id,
@@ -1309,6 +1370,17 @@ function createPeopleExperienceService(db = defaultDb) {
             runTotal: crew.run?.total ?? 0,
           }
         : null,
+      guild: guild
+        ? {
+            id: guild.id,
+            name: guild.name,
+            crewCount: guild.crewCount,
+            line: guild.readiness?.line || null,
+          }
+        : null,
+      territories: board.territories || [],
+      contest: board.contest || null,
+      polarity: board.polarity || null,
       promoCard: {
         available: Number(card?.card?.available_balance ?? card?.points ?? wallet?.points ?? 0),
         keys: Number(card?.keys ?? wallet?.promokeys ?? 0),
@@ -1564,6 +1636,12 @@ function createPeopleExperienceService(db = defaultDb) {
     const contributors = memberships
       .filter((row) => CONTRIBUTOR_ROLES.has(row.role || ''))
       .slice(0, 12);
+    let board = { territories: [], contest: null, polarity: null };
+    try {
+      board = await worldSceneBoardService.getSceneBoard(scene.data.id, userId || null, db);
+    } catch (error) {
+      console.warn('[People Experience] hub board skipped:', error.message);
+    }
 
     return {
       scene: scene.data,
@@ -1578,6 +1656,9 @@ function createPeopleExperienceService(db = defaultDb) {
       opportunities: opportunities.slice(0, 6),
       moments: (moments.data || []).map((link) => link.moments).filter(Boolean),
       contributors,
+      territories: board.territories || [],
+      contest: board.contest || null,
+      polarity: board.polarity || null,
     };
   }
 
@@ -1876,11 +1957,23 @@ function createPeopleExperienceService(db = defaultDb) {
     return inserted.data;
   }
 
+  async function getProgress(userId) {
+    const home = await getHome(userId);
+    return {
+      role: home.role,
+      name: home.name,
+      world: home.world,
+      happened: home.happened,
+      card: home.card,
+    };
+  }
+
   return {
     classifyExperienceRole,
     contributorValueScore,
     happenedBuckets,
     getHome,
+    getProgress,
     getNetwork,
     getGiveablePerks,
     getOpportunities,

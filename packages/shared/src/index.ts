@@ -23,6 +23,7 @@ export * from "./offer-fulfillment";
 export * from "./promocard-product";
 export * from "./people-experience";
 export * from "./world-layer";
+export * from "./world-system-v2";
 export * from "./value-instruments";
 
 export type PromorangJourneyStepId =

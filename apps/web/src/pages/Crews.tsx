@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { KINGSTON_AFTER_DARK_SLICE } from "@promorang/shared";
+import { CREW_RUN_ROLE_KEYS, CREW_RUN_ROLES, KINGSTON_AFTER_DARK_SLICE } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceActions, useMyCrew } from "@/hooks/usePeopleExperience";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function Crews() {
   const { user } = useAuth();
   const crewQuery = useMyCrew();
-  const { createCrew, joinCrew } = useExperienceActions();
+  const { createCrew, joinCrew, setCrewRole } = useExperienceActions();
   const { toast } = useToast();
   const [name, setName] = useState("Night Owls");
   const [code, setCode] = useState("");
@@ -60,7 +60,7 @@ export default function Crews() {
     <ExperienceShell
       eyebrow="Who you move with"
       title={crew?.name || "Form a Crew"}
-      description="3–8 people. One Barbican Run. No factions. Progress only from verified action."
+      description="3–8 people. One Barbican Run. Mixed-faction Crews are valid. Progress only from verified action."
       backTo="/dashboard"
     >
       {crew ? (
@@ -95,15 +95,37 @@ export default function Crews() {
           <section>
             <h2 className="font-serif text-2xl font-bold">People</h2>
             <div className="mt-3 space-y-2">
-              {crew.members?.map((member: { userId: string; name: string; pathCue?: string | null; pathTitle?: string | null }) => (
+              {crew.members?.map((member: { userId: string; name: string; pathCue?: string | null; pathTitle?: string | null; runRole?: { key: string; title: string; job: string } | null }) => (
                 <article key={member.userId} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
                   <p className="font-serif text-xl font-bold">{member.name}</p>
                   <p className="mt-1 text-xs uppercase tracking-widest text-white/40">
-                    {member.pathCue || "A path has not formed yet"}
+                    {[member.runRole?.title, member.pathCue || "A path has not formed yet"].filter(Boolean).join(" · ")}
                   </p>
+                  {member.userId === user.id && !member.runRole ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {CREW_RUN_ROLE_KEYS.map((role) => (
+                        <button
+                          key={role}
+                          type="button"
+                          disabled={setCrewRole.isPending}
+                          onClick={() => void setCrewRole.mutateAsync({ role }).catch((error) => toast({ title: "Role still open for someone else", description: (error as Error).message, variant: "destructive" }))}
+                          className="rounded-full border border-white/15 px-3 py-1 text-[11px] font-bold text-white/70"
+                        >
+                          {CREW_RUN_ROLES[role].title}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
                 </article>
               ))}
             </div>
+          </section>
+
+          <section className="rounded-[1.6rem] border border-white/10 px-5 py-5">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Scene scale</p>
+            <h2 className="mt-2 font-serif text-2xl font-bold">Federate this Crew</h2>
+            <p className="mt-1 text-sm text-white/50">A Guild is 2–6 Crews coordinating one Scene. Still no Game tab.</p>
+            <Link to="/guilds" className="mt-4 inline-block text-sm font-bold text-primary">Open Guilds</Link>
           </section>
 
           <section>

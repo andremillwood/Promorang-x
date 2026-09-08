@@ -285,6 +285,7 @@ export default function MyPromoCard() {
                 : null
             }
             pathCue={world?.path?.cue}
+            identityLine={world?.identity?.line}
             latestReturn={world?.latestReturn?.heading}
             nearestUnlock={world?.promoCard?.nearestUnlock}
             latestPiece={world?.latestMemory?.title}

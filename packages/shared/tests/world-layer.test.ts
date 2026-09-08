@@ -3,9 +3,20 @@ import {
   KINGSTON_AFTER_DARK_SLICE,
   PATH_EVIDENCE_THRESHOLD,
   resolveCrewRunProgress,
+  resolveCrewRunRole,
+  resolveFaction,
   resolvePathEvidence,
+  resolveSceneHealth,
+  resolveSeasonDispatch,
   resolveWorldConsequence,
   resolveWorldCurrentMove,
+  resolveWorldMomentPhase,
+  resolveGuildReadiness,
+  resolveAreaKey,
+  resolveTerritoryStanding,
+  resolveKingstonTerritories,
+  resolveCurrentStatic,
+  resolveFactionContest,
   timeAwareWorldHeader,
   worldObjectState,
 } from "../src/world-layer";
@@ -138,5 +149,90 @@ describe("world object chips", () => {
   it("keeps night copy after dark and a calmer header by day", () => {
     expect(timeAwareWorldHeader(new Date("2026-09-05T22:00:00"))).toBe("Tonight in Kingston");
     expect(timeAwareWorldHeader(new Date("2026-09-05T10:00:00"))).toBe("This morning in Kingston");
+  });
+});
+
+describe("optional factions and run roles", () => {
+  it("treats factions as philosophy, not a required class", () => {
+    expect(resolveFaction(null)).toBeNull();
+    expect(resolveFaction("weavers")?.verb).toBe("connection");
+  });
+
+  it("keeps Run roles temporary and named", () => {
+    expect(resolveCrewRunRole("captain")?.title).toBe("Captain");
+    expect(resolveCrewRunRole("wizard")).toBeNull();
+  });
+
+  it("counts Scene health from verified actions only", () => {
+    const health = resolveSceneHealth([
+      { actionType: "discovery_vote" },
+      { actionType: "referral_activated" },
+      { actionType: "check_in" },
+    ]);
+    expect(health.find((item) => item.dimension === "discovery")?.count).toBe(1);
+    expect(health.find((item) => item.dimension === "connection")?.count).toBe(1);
+    expect(health.find((item) => item.dimension === "memory")?.count).toBe(1);
+    expect(health.find((item) => item.dimension === "sustainability")?.count).toBe(0);
+  });
+
+  it("writes a season dispatch without inventing attendance", () => {
+    const quiet = resolveSeasonDispatch({});
+    expect(quiet.line).toBe(KINGSTON_AFTER_DARK_SLICE.currentLine);
+    const live = resolveSeasonDispatch({ hasLiveMoment: true, placeName: "Sea Deck" });
+    expect(live.line).toContain("Sea Deck");
+  });
+
+  it("places a Moment in before/during/after from proof, not a clock alone", () => {
+    expect(resolveWorldMomentPhase({ hasMemory: true })).toBe("after");
+    expect(resolveWorldMomentPhase({ arrived: true })).toBe("after");
+    expect(resolveWorldMomentPhase({ joined: false })).toBe("before");
+  });
+});
+
+describe("guilds, territory, and faction contest", () => {
+  it("treats a Guild as forming until two Crews sit together", () => {
+    const early = resolveGuildReadiness(1);
+    expect(early.forming).toBe(true);
+    expect(early.needsCrews).toBe(1);
+    expect(resolveGuildReadiness(2).ready).toBe(true);
+    expect(resolveGuildReadiness(6).full).toBe(true);
+  });
+
+  it("maps Kingston place copy to corridors without inventing ownership", () => {
+    expect(resolveAreaKey("Sea Deck, Barbican")).toBe("barbican");
+    expect(resolveAreaKey("Red Hills Road night")).toBe("red-hills");
+    expect(resolveAreaKey("somewhere else")).toBeNull();
+  });
+
+  it("derives territory standing from verified presence and support only", () => {
+    expect(resolveTerritoryStanding({ areaKey: "barbican" }).state).toBe("unknown");
+    expect(resolveTerritoryStanding({ areaKey: "barbican", presenceCount: 2 }).state).toBe("known");
+    expect(resolveTerritoryStanding({ areaKey: "barbican", presenceCount: 3 }).state).toBe("held");
+    expect(resolveTerritoryStanding({ areaKey: "barbican", presenceCount: 4, supportCount: 2 }).state).toBe("stewarded");
+    const board = resolveKingstonTerritories();
+    expect(board).toHaveLength(3);
+    expect(board.every((area) => area.state === "unknown")).toBe(true);
+  });
+
+  it("calls the war Current versus Static, never people versus people", () => {
+    const quiet = resolveFactionContest();
+    expect(quiet.leadingCurrent).toBeNull();
+    expect(quiet.contestLine).toContain("Current versus Static");
+    const moving = resolveFactionContest({
+      factionCurrents: { seekers: 4, weavers: 1 },
+      mixedCrew: true,
+    });
+    expect(moving.leadingCurrent).toBe("seekers");
+    expect(moving.contestLine).toContain("not people versus people");
+    expect(moving.mixedCrewNote).toContain("stronger");
+    const tied = resolveFactionContest({ factionCurrents: { seekers: 2, weavers: 2 } });
+    expect(tied.leadingCurrent).toBeNull();
+    expect(tied.contestLine).toContain("even");
+  });
+
+  it("marks a Scene Static when nothing useful has moved", () => {
+    expect(resolveCurrentStatic({ currentCount: 0 }).polarity).toBe("static");
+    expect(resolveCurrentStatic({ currentCount: 2, lastActionAt: "2026-09-06T20:00:00Z", now: new Date("2026-09-07T21:00:00Z") }).polarity).toBe("thin");
+    expect(resolveCurrentStatic({ currentCount: 5, lastActionAt: "2026-09-07T20:00:00Z", now: new Date("2026-09-07T21:00:00Z") }).polarity).toBe("current");
   });
 });
