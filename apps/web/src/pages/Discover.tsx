@@ -50,6 +50,8 @@ import { LivePerkCard } from "@/components/perks/LivePerkCard";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 import { useI18n } from "@/i18n/I18nContext";
+import { SpinWheelModal } from "@/components/SpinWheelModal";
+import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 
 const categoryFilters = [
   { id: "all", label: "All Drops", icon: Sparkles },
@@ -159,7 +161,7 @@ const Discover = () => {
   const perksLoading = nearby.isLoading;
   const livePerks = nearby.data || [];
   const stake = getStakeholderLens(searchParams.get("role") || activeRole);
-  const putPerkUpHref = user ? "/stock" : "/auth?next=/stock";
+  const putPerkUpHref = user ? "/stock" : "/auth?mode=signup&role=merchant&next=%2Fstock";
   const putInHref = user ? stake.putIn.href : `/auth?next=${encodeURIComponent(stake.putIn.href)}`;
 
   const handleTabChange = (tab: DiscoverTab) => {
@@ -556,7 +558,7 @@ const Discover = () => {
                       Verified Perks, Discounts & Complimentary Drops
                     </h3>
                     <p className="text-xs text-white/60">
-                      Live merchant perks with a drop you can claim. The merchant still has to validate the code.
+                      Live perks other shops put on PromoCards. Guests claim one, show the card, and you confirm with a PIN.
                     </p>
                   </div>
 

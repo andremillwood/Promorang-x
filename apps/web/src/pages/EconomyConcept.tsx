@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
   CheckCircle2,
@@ -904,13 +904,16 @@ function HeroObject({ concept }: { concept: ConceptKey }) {
 export default function EconomyConcept() {
   const { t } = useI18n();
   const { concept } = useParams();
+  const [searchParams] = useSearchParams();
   const conceptKey = resolveConceptKey(concept);
   const data = conceptData[conceptKey] ?? conceptData.overview;
+  const roleHint = searchParams.get("role");
+  const shopRoleIndex = data.roles.findIndex((role) => /shop|venue|merchant/i.test(role.role));
   const [selectedRoleIndex, setSelectedRoleIndex] = useState(0);
 
   useEffect(() => {
-    setSelectedRoleIndex(0);
-  }, [conceptKey]);
+    setSelectedRoleIndex(roleHint === "merchant" && shopRoleIndex >= 0 ? shopRoleIndex : 0);
+  }, [conceptKey, roleHint, shopRoleIndex]);
 
   return (
     <div className="min-h-screen bg-[#090909] text-white">
