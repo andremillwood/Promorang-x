@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCreateVenue } from "@/hooks/useVenues";
 import { useImageUpload } from "@/hooks/useImageUpload";
@@ -88,8 +88,7 @@ const AddVenue = () => {
   };
 
   if (!user) {
-    navigate(authEntryHref({ mode: "login", role: "merchant", next: "/dashboard/venues/add" }));
-    return null;
+    return <Navigate to={authEntryHref({ mode: "login", role: "merchant", next: "/dashboard/venues/add" })} replace />;
   }
 
   return (
