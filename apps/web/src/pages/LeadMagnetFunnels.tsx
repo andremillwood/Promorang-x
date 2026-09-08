@@ -1,9 +1,10 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowRight, Check, ChevronLeft, Clock3, Lightbulb, LockKeyhole, Sparkles } from "lucide-react";
 import SEO from "@/components/SEO";
 import { API_BASE_URL } from "@/lib/api";
-import { captureGrowthAttribution, getAnonymousId, trackGrowthEvent } from "@/lib/marketing-attribution";
+import { rememberMarketingIntent, captureGrowthAttribution, getAnonymousId, trackGrowthEvent } from "@/lib/marketing-attribution";
+import { writeSponsorBrief } from "@/lib/commercial-intent";
 import "./LeadMagnetFunnels.css";
 
 type FunnelKey = "scene" | "moment" | "demand" | "creator" | "sponsor";
@@ -115,13 +116,13 @@ const funnels: Record<FunnelKey, Funnel> = {
     result: (a) => ({ score: a.response?.includes("visit") ? 91 : a.response?.includes("details") ? 84 : 76, name: "Your Movement Advantage", insight: `Your strongest commercial story is not “I post.” It is “I help people ${a.value?.replace("I ", "").toLowerCase() || "take meaningful action"} through ${a.format?.toLowerCase() || "trusted content"}."`, moves: ["Choose one behaviour to prove", "Build a brief around your native format", "Capture the join, visit or unlock—not just views"], route: "/for-creators", cta: "Find a creator mission" }),
   },
   sponsor: {
-    key: "sponsor", index: "05", eyebrow: "A sponsor-ready activation brief", title: "Turn budget into behaviour.", accent: "Make culture happen—and know what happened next.",
-    promise: "Shape a one-page activation direction connecting a human outcome to creators, places, participation and measurable commercial return.",
+    key: "sponsor", index: "05", eyebrow: "A sponsor-ready activation brief", title: "Turn brand presence into behaviour.", accent: "Product, content and budget should all move people.",
+    promise: "Shape a one-page activation direction that puts your brand, product and content in a real room — then shows who showed up, created, redeemed and came back. Budget funds the Moment; it is not the only thing that moves people.",
     proof: "The strongest sponsorship is not a logo near culture. It gives people something worth doing together.", time: "5 minutes", audience: "For brands and agencies",
     questions: [
       { id: "human", prompt: "What should become better for people?", note: "Begin here; mechanics come later.", options: ["They discover something new", "They feel they belong", "They gain useful access", "They create or contribute"] },
-      { id: "action", prompt: "Which behaviour would make the investment meaningful?", note: "Choose the outcome leadership will care about.", options: ["Qualified attendance", "Visits or redemptions", "Creator output", "Repeat participation"] },
-      { id: "role", prompt: "How should the brand show up?", note: "Credibility often comes from restraint.", options: ["Enable the experience", "Reward participation", "Open access", "Commission the story"] },
+      { id: "action", prompt: "Which behaviour would make this activation meaningful?", note: "Brand, product, content and spend should all point at one action.", options: ["Qualified attendance", "Visits or redemptions", "Creator output", "Repeat participation"] },
+      { id: "role", prompt: "How should the brand show up?", note: "Credibility often comes from restraint — product and story can lead before media does.", options: ["Enable the experience", "Put the product in the room", "Open access", "Commission the story"] },
       { id: "proof", prompt: "What proof is missing from current campaigns?", note: "Your brief will make this visible.", options: ["What people actually did", "Which creators moved action", "What commercial value returned", "Why people came back"] },
     ],
     pillars: [
@@ -134,7 +135,7 @@ const funnels: Record<FunnelKey, Funnel> = {
       { q: "Does Promorang replace our agency?", a: "No. Promorang can equip agencies with participation infrastructure, partner coordination and outcome records." },
       { q: "Can this work with an existing campaign?", a: "Yes. The brief can add a real-world participation and measurement layer to an existing platform or media idea." },
     ],
-    result: (a) => ({ score: 86, name: "Your Activation Direction", insight: `Position the brand as the one that helps people ${a.human?.toLowerCase() || "participate"}. Let the experience lead; let ${a.proof?.toLowerCase() || "verified action"} justify the investment.`, moves: ["Write the human promise before the media line", `Design for ${a.action?.toLowerCase() || "one qualified action"}`, "Fund a small, measurable Moment before scaling"], route: "/propose", cta: "Develop the campaign brief" }),
+    result: (a) => ({ score: 86, name: "Your Activation Direction", insight: `Position the brand as the one that helps people ${a.human?.toLowerCase() || "participate"}. Let the experience, product and story lead; let ${a.proof?.toLowerCase() || "verified action"} justify the investment.`, moves: ["Write the human promise before the media line", `Design for ${a.action?.toLowerCase() || "one qualified action"}`, "Fund a small, measurable Moment before scaling"], route: "/propose?audience=brand", cta: "Develop the campaign brief" }),
   },
 };
 
@@ -159,7 +160,28 @@ export default function LeadMagnetFunnels() {
   const question = config.questions[step];
   const progress = ((step + (complete ? 1 : 0)) / config.questions.length) * 100;
 
-  const begin = () => { setStarted(true); requestAnimationFrame(() => document.getElementById("diagnostic")?.scrollIntoView({ behavior: "smooth" })); };
+  useEffect(() => {
+    if (config.key !== "sponsor") return;
+    rememberMarketingIntent("sponsor_diagnostic", "/free/sponsor", "brand");
+  }, [config.key]);
+
+  useEffect(() => {
+    if (config.key !== "sponsor" || !complete) return;
+    writeSponsorBrief({
+      human: answers.human,
+      action: answers.action,
+      role: answers.role,
+      proof: answers.proof,
+      insight: result.insight,
+      name: result.name,
+    });
+  }, [answers, complete, config.key, result.insight, result.name]);
+
+  const begin = () => {
+    if (config.key === "sponsor") rememberMarketingIntent("sponsor_diagnostic_start", "/free/sponsor", "brand");
+    setStarted(true);
+    requestAnimationFrame(() => document.getElementById("diagnostic")?.scrollIntoView({ behavior: "smooth" }));
+  };
   const select = (value: string) => {
     setAnswers(prev => ({ ...prev, [question.id]: value }));
     window.setTimeout(() => step < config.questions.length - 1 ? setStep(s => s + 1) : setComplete(true), 180);
@@ -254,7 +276,15 @@ export default function LeadMagnetFunnels() {
                     {saved && <p className="lm-saved" role="status"><Check /> Your report is saved and your next Promorang route is ready.</p>}{captureError&&<p className="lm-capture-error" role="alert">{captureError}</p>}
                   </div>
                 </form>
-                <Link className="lm-primary lm-result-cta" to={result.route}>{result.cta} <ArrowRight /></Link>
+                <Link
+                  className="lm-primary lm-result-cta"
+                  to={result.route}
+                  onClick={() => {
+                    if (config.key === "sponsor") {
+                      rememberMarketingIntent("develop_campaign_brief", result.route, "brand");
+                    }
+                  }}
+                >{result.cta} <ArrowRight /></Link>
               </div>
             )}
           </div>

@@ -92,7 +92,7 @@ const toolsConfig: Array<{
     campaign: "/campaigns/sponsor-kingston",
     campaignLabelKey: "leadMagnet.brand.campaignLabel",
     personaBadge: "Brands & Agencies",
-    outputPreview: "Activation Brief & ROI Proof Model",
+    outputPreview: "Activation brief & proof of what happened",
     personaTone: "border-orange-400/25 bg-orange-400/10 text-orange-300",
   },
 ];

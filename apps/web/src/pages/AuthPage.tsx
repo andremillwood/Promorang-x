@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import { captureGrowthAttribution, markPendingSignup, trackGrowthEvent } from "@
 import { trackMetaEvent } from "@/components/MetaPixel";
 import { useI18n } from "@/i18n/I18nContext";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
+import { inferAuthRole, persistPreferredRole, readStoredCommercialAudience, safeNextPath, splitPathAndSearch } from "@/lib/commercial-intent";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
 
@@ -67,6 +68,7 @@ const AuthPage = () => {
   const { signIn, signUp, demoSignIn, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const commercialIntent = searchParams.get("intent");
   const selectedPlan = searchParams.get("plan");
@@ -82,22 +84,32 @@ const AuthPage = () => {
 
   useEffect(() => {
     captureGrowthAttribution();
+    const from = (location.state as { from?: { pathname: string; search: string } } | null)?.from;
+    const next = safeNextPath(searchParams.get("next") || (from ? `${from.pathname}${from.search}` : null));
     const requestedRole = searchParams.get("role");
-    const next = searchParams.get("next");
-    if (next?.startsWith("/") && !next.startsWith("//")) {
+    const nextParts = splitPathAndSearch(next);
+    const inferredRole = inferAuthRole(
+      from?.pathname || nextParts.pathname,
+      from?.search || nextParts.search,
+      readStoredCommercialAudience(),
+    );
+    const role = ["participant", "creator", "host", "brand", "merchant"].includes(requestedRole || "")
+      ? (requestedRole as UserRole)
+      : inferredRole;
+
+    if (next) {
       sessionStorage.setItem("promorang_post_auth_next", next);
       const aimed = promoCardAimFromNext(next);
       if (aimed) writePromoCardAim(aimed);
     }
     if (searchParams.get("mode") === "signup") setMode("signup");
-    if (!requestedRole) return;
+    if (!role) return;
 
-    if (["participant", "creator", "host", "brand", "merchant"].includes(requestedRole)) {
-      setSelectedRole(requestedRole as UserRole);
-      setShowRolePicker(requestedRole !== "participant");
-      setMode("signup");
-    }
-  }, [searchParams]);
+    persistPreferredRole(role);
+    setSelectedRole(role);
+    setShowRolePicker(role !== "participant");
+    if (role !== "participant" && searchParams.get("mode") !== "login") setMode("signup");
+  }, [searchParams, location.state]);
 
   useEffect(() => {
     const savedDemoEmail = localStorage.getItem(DEMO_EMAIL_STORAGE_KEY);
@@ -157,7 +169,13 @@ const AuthPage = () => {
           navigate("/post-login", { replace: true });
         }
       } else {
-        void trackGrowthEvent({ eventName: "signup_started", journey: "participant", stage: "captured", properties: { role: selectedRole } });
+        persistPreferredRole(selectedRole);
+        void trackGrowthEvent({
+          eventName: "signup_started",
+          journey: selectedRole === "participant" || selectedRole === "creator" ? "participant" : "commercial",
+          stage: "captured",
+          properties: { role: selectedRole },
+        });
         const { error } = await signUp(email, password, fullName, selectedRole);
         if (error) {
           toast({
@@ -287,6 +305,12 @@ const AuthPage = () => {
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t("auth.saved")}</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in or create an account to continue {selectedPlan ? `with the ${selectedPlan} plan` : selectedSku ? `with Moment package ${selectedSku}` : "with your selected Promorang route"}. You will not need to start over.</p>
+            </div>
+          )}
+          {selectedRole === "brand" && (
+            <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t("auth.brandContinueBadge")}</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("auth.brandContinueCopy")}</p>
             </div>
           )}
 

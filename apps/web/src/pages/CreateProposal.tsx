@@ -17,6 +17,7 @@ import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
+import { mapSponsorActionToOutcome, readSponsorBrief } from "@/lib/commercial-intent";
 import { supabase } from "@/integrations/supabase/client";
 import { operationalSupabase } from "@/integrations/supabase/operational";
 import { useI18n } from "@/i18n/I18nContext";
@@ -170,7 +171,18 @@ export default function CreateProposal() {
     const vertical = searchParams.get("vertical");
     if (vertical && VERTICAL_PRESETS[vertical]) {
       applyPreset(vertical);
+      return;
     }
+    const brief = readSponsorBrief();
+    if (!brief) return;
+    setForm((current) => ({
+      ...current,
+      outcome: current.outcome || mapSponsorActionToOutcome(brief.action),
+      outcomeDetail: current.outcomeDetail || brief.insight || [brief.human, brief.action].filter(Boolean).join(" — "),
+      collaborators: current.collaborators.includes("brand") ? current.collaborators : [...current.collaborators, "brand"],
+      whatCounts: current.whatCounts || brief.proof || "",
+      commercialReturn: current.commercialReturn || brief.proof || "",
+    }));
   }, [searchParams]);
 
   const { data: availableScenes = [] } = useQuery({ queryKey: ["activation-scenes"], queryFn: async () => { const { data, error } = await operationalSupabase.from("scenes").select("id,title,city").eq("status", "active").order("title").limit(24); if (error) throw error; return data || []; } });

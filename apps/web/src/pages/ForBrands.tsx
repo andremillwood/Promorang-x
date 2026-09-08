@@ -113,7 +113,7 @@ const ForBrands = () => {
                                 {user ? (
                                     <Link to="/onboarding/brand">{t("forBrands.startAccount")}</Link>
                                 ) : (
-                                    <Link to="/auth">{t("forBrands.startPilot")}</Link>
+                                    <Link to="/auth?mode=signup&role=brand&next=/onboarding/brand">{t("forBrands.startPilot")}</Link>
                                 )}
                             </Button>
                         </div>
@@ -300,7 +300,7 @@ const ForBrands = () => {
                                 </div>
                             </div>
                             <Button variant="outline" className="w-full" asChild>
-                                <Link to="/auth">{t("forBrands.cardStartFree")}</Link>
+                                <Link to="/auth?mode=signup&role=brand&next=/onboarding/brand">{t("forBrands.cardStartFree")}</Link>
                             </Button>
                         </div>
 
@@ -627,7 +627,7 @@ const ForBrands = () => {
                                         <ArrowRight className="w-5 h-5 ml-2" />
                                     </Link>
                                 ) : (
-                                    <Link to="/auth">
+                                    <Link to="/auth?mode=signup&role=brand&next=/onboarding/brand">
                                         {t("forBrands.startPilot")}
                                         <ArrowRight className="w-5 h-5 ml-2" />
                                     </Link>

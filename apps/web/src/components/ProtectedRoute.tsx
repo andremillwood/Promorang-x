@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { buildAuthHref, inferAuthRole, readStoredCommercialAudience } from "@/lib/commercial-intent";
 import { Loader2 } from "lucide-react";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -15,7 +16,9 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     }
 
     if (!user) {
-        return <Navigate to="/auth" state={{ from: location }} replace />;
+        const next = `${location.pathname}${location.search}`;
+        const role = inferAuthRole(location.pathname, location.search, readStoredCommercialAudience());
+        return <Navigate to={buildAuthHref(next, role)} state={{ from: location }} replace />;
     }
 
     return <>{children}</>;

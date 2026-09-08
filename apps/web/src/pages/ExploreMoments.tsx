@@ -41,6 +41,7 @@ const ExploreMoments = () => {
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const requestedCategory = searchParams.get("category");
+  const isBrandAudience = searchParams.get("audience") === "brand";
   const [activeCategory, setActiveCategory] = useState(
     categories.some((category) => category.value === requestedCategory) ? requestedCategory! : "all",
   );
@@ -169,8 +170,14 @@ const ExploreMoments = () => {
                 <Compass className="h-4 w-4 text-primary" />
                 <span className="text-xs font-black uppercase tracking-[0.18em] text-zinc-200">{t("exploreMoments.badge")}</span>
               </div>
+              {isBrandAudience && (
+                <div className="mb-5 max-w-2xl rounded-2xl border border-primary/30 bg-black/50 px-4 py-3 backdrop-blur">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">{t("exploreMoments.brandLensBadge")}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/75">{t("exploreMoments.brandLensCopy")}</p>
+                </div>
+              )}
               <h1 className="max-w-3xl text-5xl font-black uppercase leading-[0.84] tracking-[-0.065em] text-white sm:text-7xl">
-                {t("exploreMoments.heroTitle")}
+                {isBrandAudience ? t("exploreMoments.brandHeroTitle") : t("exploreMoments.heroTitle")}
               </h1>
               <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                 <p className="max-w-xl text-base leading-7 text-white/65">

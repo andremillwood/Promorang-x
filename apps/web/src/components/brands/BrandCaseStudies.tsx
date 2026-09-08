@@ -72,7 +72,7 @@ export const CASE_STUDIES: CaseStudy[] = [
 
 export function BrandCaseStudies() {
   return (
-    <section className="py-20 bg-charcoal text-white relative overflow-hidden">
+    <section id="brand-examples" className="py-20 bg-charcoal text-white relative overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/10 rounded-full blur-[120px] pointer-events-none" />
 
