@@ -62,11 +62,11 @@ export function useNearbyBenefits() {
   });
 }
 
-export function useMyPromoCard() {
+export function useMyPromoCard(aim?: string | null) {
   const { user } = useAuth();
   return useQuery({
-    queryKey: ["experience-card", user?.id],
-    queryFn: () => peopleExperienceApi.card(),
+    queryKey: ["experience-card", user?.id, aim || null],
+    queryFn: () => peopleExperienceApi.card(aim),
     enabled: Boolean(user),
     retry: 1,
   });
@@ -100,6 +100,26 @@ export function useMyCrew() {
   });
 }
 
+export function useWorldProgress() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["experience-progress", user?.id],
+    queryFn: () => peopleExperienceApi.progress(),
+    enabled: Boolean(user),
+    retry: 1,
+  });
+}
+
+export function useMyGuild() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["experience-guild", user?.id],
+    queryFn: () => peopleExperienceApi.guild(),
+    enabled: Boolean(user),
+    retry: 1,
+  });
+}
+
 export function useExperienceActions() {
   const queryClient = useQueryClient();
   const invalidate = () => {
@@ -112,6 +132,8 @@ export function useExperienceActions() {
     queryClient.invalidateQueries({ queryKey: ["experience-nearby"] });
     queryClient.invalidateQueries({ queryKey: ["experience-hub"] });
     queryClient.invalidateQueries({ queryKey: ["experience-crew"] });
+    queryClient.invalidateQueries({ queryKey: ["experience-progress"] });
+    queryClient.invalidateQueries({ queryKey: ["experience-guild"] });
     queryClient.invalidateQueries({ queryKey: ["scene"] });
   };
 
@@ -154,6 +176,22 @@ export function useExperienceActions() {
     mutationFn: (code: string) => peopleExperienceApi.joinCrew(code),
     onSuccess: invalidate,
   });
+  const setCrewRole = useMutation({
+    mutationFn: ({ role, userId }: { role: string; userId?: string }) => peopleExperienceApi.setCrewRole(role, userId),
+    onSuccess: invalidate,
+  });
+  const setFaction = useMutation({
+    mutationFn: (faction: string | null) => peopleExperienceApi.setFaction(faction),
+    onSuccess: invalidate,
+  });
+  const createGuild = useMutation({
+    mutationFn: peopleExperienceApi.createGuild,
+    onSuccess: invalidate,
+  });
+  const joinGuild = useMutation({
+    mutationFn: (code: string) => peopleExperienceApi.joinGuild(code),
+    onSuccess: invalidate,
+  });
 
-  return { createDrop, claimDrop, takeOpportunity, contribute, invite, start, ask, provideInventory, createCrew, joinCrew };
+  return { createDrop, claimDrop, takeOpportunity, contribute, invite, start, ask, provideInventory, createCrew, joinCrew, setCrewRole, setFaction, createGuild, joinGuild };
 }

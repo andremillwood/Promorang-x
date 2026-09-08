@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MyPromoCard from "./MyPromoCard";
 
-const { query } = vi.hoisted(() => ({
+const { query, aimState } = vi.hoisted(() => ({
   query: {
     data: undefined as Record<string, unknown> | undefined,
     isLoading: false,
@@ -12,10 +12,18 @@ const { query } = vi.hoisted(() => ({
     isFetching: false,
     refetch: vi.fn(),
   },
+  aimState: { current: null as { id: string; label: string; cardLine: string; watchingLine: string } | null },
 }));
 vi.mock("@/hooks/usePeopleExperience", () => ({
   useMyPromoCard: () => query,
   useExperienceHome: () => ({ data: undefined, isLoading: false, isError: false, isFetching: false, refetch: vi.fn() }),
+  useNearbyBenefits: () => ({ data: [], isLoading: false, isError: false }),
+}));
+vi.mock("@/hooks/usePromoCardAim", () => ({
+  useApplyPromoCardAim: () => ({ aim: aimState.current, chooseAim: vi.fn() }),
+}));
+vi.mock("qrcode.react", () => ({
+  QRCodeSVG: () => null,
 }));
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({ user: { id: "test-member" }, profile: {} }),
@@ -55,6 +63,7 @@ beforeEach(() => {
     isFetching: false,
   });
   vi.clearAllMocks();
+  aimState.current = null;
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -106,7 +115,8 @@ describe("PromoCard journey", () => {
       value: { writeText },
     });
     await renderCard();
-    expect(document.body).not.toHaveTextContent("COFFEE-TEST");
+    expect(document.querySelector('[role="dialog"]')).not.toBeInTheDocument();
+    expect(container.querySelector(".pr-card-back")).toHaveTextContent("COFFEE-TEST");
     await click("Show code for Coffee on us");
     expect(document.querySelector('[role="dialog"]')).toHaveTextContent(
       "COFFEE-TEST",
@@ -143,7 +153,7 @@ describe("PromoCard journey", () => {
       document.querySelector('button[aria-label="Show code for Past offer"]'),
     ).not.toBeInTheDocument();
     expect(
-      document.querySelector('a[href="/discover?tab=perks"]'),
+      document.querySelector('a[href="/discover"]'),
     ).toBeInTheDocument();
   });
 
@@ -177,8 +187,84 @@ describe("PromoCard journey", () => {
       ),
     ).toHaveAttribute("href", "/app-preview");
     expect(container).toHaveTextContent("This is your PromoCard");
+    expect(container).toHaveTextContent("Aim this card");
+    expect(
+      Array.from(container.querySelectorAll("button")).some((item) => item.textContent === "Tonight"),
+    ).toBe(true);
     expect(container).not.toHaveTextContent("Available to spend");
     expect(container).not.toHaveTextContent("PR · 0842");
     expect(container).not.toHaveTextContent("$24");
+  });
+
+  it("shows the aimed scene when interest unlocked the card", async () => {
+    aimState.current = {
+      id: "kingston-after-dark",
+      label: "Kingston After Dark",
+      cardLine: "Your card is set for Kingston After Dark.",
+      watchingLine: "Watching nightlife, late food, and after-hours tables.",
+    };
+    query.data = { points: 0, keys: 0, perks: [], nearby: [] };
+    await renderCard();
+    expect(container).toHaveTextContent("Your card is set for Kingston After Dark.");
+    expect(container).toHaveTextContent("Nothing for Kingston After Dark yet");
+    expect(container).toHaveTextContent("On your card");
+    expect(container).not.toHaveTextContent("Available to spend");
+    expect(container).not.toHaveTextContent("From Discover");
+    expect(container).not.toHaveTextContent("A merchant supplied it");
+    expect(container).not.toHaveTextContent("Aim this card");
+    expect(container).toHaveTextContent("You can still fill the card");
+    expect(container).toHaveTextContent("Answer a Kingston After Dark question");
+    expect(container).toHaveTextContent("Start a poll");
+    expect(container).toHaveTextContent("Host a moment");
+    expect(
+      Array.from(container.querySelectorAll("button")).some((item) => item.textContent === "Food"),
+    ).toBe(true);
+    expect(
+      Array.from(container.querySelectorAll("a")).some((link) => {
+        const href = link.getAttribute("href") || "";
+        return href.includes("lens=go_out") && href.includes("aim=kingston-after-dark");
+      }),
+    ).toBe(true);
+  });
+
+  it("presents a claimed aimed perk as owned", async () => {
+    aimState.current = {
+      id: "food",
+      label: "Food",
+      cardLine: "Your card is set for food.",
+      watchingLine: "Watching tastings, tables, and food benefits.",
+    };
+    query.data = {
+      points: 0,
+      keys: 0,
+      useThis: {
+        id: "one",
+        title: "25% Off Jerk Platter",
+        fromDiscover: true,
+        fulfillmentState: "claimed",
+        redemptionCode: "PR-FOOD01",
+        redemption: { recorded: false, code: "PR-FOOD01" },
+        issuer: { name: "Food" },
+      },
+      perks: [
+        {
+          id: "one",
+          title: "25% Off Jerk Platter",
+          fromDiscover: true,
+          fulfillmentState: "claimed",
+          redemptionCode: "PR-FOOD01",
+          redemption: { recorded: false, code: "PR-FOOD01" },
+          issuer: { name: "Food" },
+        },
+      ],
+    };
+    await renderCard();
+    expect(container).toHaveTextContent("On your card · Food");
+    expect(container).toHaveTextContent("Ready to use");
+    expect(container).toHaveTextContent("Show this");
+    expect(container).toHaveTextContent("Your Food");
+    expect(container).toHaveTextContent("Show it where it works");
+    expect(container).not.toHaveTextContent("From Discover");
+    expect(container).not.toHaveTextContent("Use what’s on the card");
   });
 });

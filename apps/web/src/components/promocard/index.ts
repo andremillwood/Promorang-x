@@ -2,6 +2,7 @@ export * from "./DigitalPromoCard";
 export * from "./PromoCardActions";
 export * from "./LiveLoopActions";
 export * from "./PromoCardGateway";
+export * from "./PromoBenefitCard";
 export * from "./MobilePromoHome";
 export * from "./PromoCardEconomyExplainer";
 export * from "./PromoAcceptanceBadge";

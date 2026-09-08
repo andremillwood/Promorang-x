@@ -31,7 +31,10 @@ export const peopleExperienceApi = {
   perks: () => request<any[]>("/perks"),
   opportunities: (sceneId?: string) => request<any[]>(`/opportunities${sceneId ? `?sceneId=${sceneId}` : ""}`),
   happened: (sceneId?: string) => request<Record<string, any>>(`/happened${sceneId ? `?sceneId=${sceneId}` : ""}`),
-  card: () => request<Record<string, any>>("/card"),
+  card: (aim?: string | null) =>
+    request<Record<string, any>>(`/card${aim ? `?aim=${encodeURIComponent(aim)}` : ""}`),
+  aimCard: (aim: string) =>
+    request<Record<string, any>>("/card/aim", { method: "POST", body: JSON.stringify({ aim }) }),
   nearby: () => request<any[]>("/nearby"),
   drop: (slug: string) => request<Record<string, any>>(`/drops/${slug}`),
   createDrop: (body: Record<string, unknown>) => request<Record<string, any>>("/drops", { method: "POST", body: JSON.stringify(body) }),
@@ -56,4 +59,13 @@ export const peopleExperienceApi = {
   crew: () => request<Record<string, any> | null>("/crew"),
   createCrew: (body: Record<string, unknown>) => request<Record<string, any>>("/crew", { method: "POST", body: JSON.stringify(body) }),
   joinCrew: (code: string) => request<Record<string, any>>("/crew/join", { method: "POST", body: JSON.stringify({ code }) }),
+  setCrewRole: (role: string, userId?: string) =>
+    request<Record<string, any>>("/crew/role", { method: "POST", body: JSON.stringify({ role, userId }) }),
+  progress: () => request<Record<string, any>>("/progress"),
+  faction: () => request<Record<string, any>>("/faction"),
+  setFaction: (faction: string | null) =>
+    request<Record<string, any>>("/faction", { method: "POST", body: JSON.stringify({ faction }) }),
+  guild: () => request<Record<string, any> | null>("/guild"),
+  createGuild: (body: Record<string, unknown>) => request<Record<string, any>>("/guild", { method: "POST", body: JSON.stringify(body) }),
+  joinGuild: (code: string) => request<Record<string, any>>("/guild/join", { method: "POST", body: JSON.stringify({ code }) }),
 };

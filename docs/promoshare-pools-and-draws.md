@@ -105,7 +105,7 @@ Always-on progression may run without a funded pool:
 - leaderboard rank
 - access eligibility
 
-Participant-facing name: **Community Draw**. Do not label these experiences "non-funded draws" in product copy.
+Participant-facing name: **Perk draws**. Legacy name: Community Draws. Do not label these experiences "non-funded draws" in product copy. Perk draws pay a published Key, access, partner perk, product, or Piece — not cash. Save & Win is the PromoShare family that pays extra Gems.
 
 Gems must come only from funded pools, revenue-backed allocations, or explicitly approved platform budgets.
 

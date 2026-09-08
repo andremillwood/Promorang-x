@@ -27,8 +27,8 @@ export function EconomyPathGuide() {
     },
     { 
         icon: Key, 
-        label: "Mint Keys", 
-        desc: "500 Pts converts to 1 PromoKey.",
+        label: "Make a Key",
+        desc: "500 Points become 1 PromoKey.",
         color: "text-purple-500",
         bg: "bg-purple-500/10"
     },
@@ -45,8 +45,8 @@ export function EconomyPathGuide() {
     <GuidanceDisclosure
       id="rewards:point-to-key-path"
       eyebrow="Verified status economy"
-      title="The Point-to-Key Path"
-      summary="Every action is a step toward exclusive access. Open this when you want the conversion path."
+      title="Points become Keys. Keys open doors."
+      summary="Points are a score, not money. 500 become 1 PromoKey. The Master Key is today's free contribution gate — it is not something you buy."
       className="mt-0"
       compactClassName="bg-charcoal text-cream border-white/10"
     >
@@ -80,7 +80,7 @@ export function EconomyPathGuide() {
                 Verified Status Economy
             </div>
             <p className="text-[9px] text-white/40 max-w-xs text-center md:text-right">
-                Points are non-monetary attribution units used to verify behavioral ROI for Brands & Venues. They fuel the scarcity of the Vault.
+                Points prove you showed up. They never pay a bill. Gems are the money. Spend Gems for extras cash cannot buy.
             </p>
         </div>
       </div>

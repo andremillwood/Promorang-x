@@ -153,6 +153,19 @@ describe("buildDiscoveryPath", () => {
 
     expect(buildDiscoveryPath({ polls, lenses: ["eat"] })).toHaveLength(4);
   });
+
+  it("pins the aimed poll first without inventing a new question", () => {
+    const path = buildDiscoveryPath({
+      polls: [eatPoll, nightPoll],
+      lenses: ["eat"],
+      query: "jerk on friday",
+      preferPollId: "night",
+      cityName: "Kingston",
+    });
+
+    expect(path[0].poll.id).toBe("night");
+    expect(path.some((item) => item.poll.id === "jerk")).toBe(true);
+  });
 });
 
 describe("discoveryPollLocationHint", () => {
@@ -201,6 +214,9 @@ describe("discoverPathHref", () => {
     expect(discoverPathHref(null, "eat")).toBe("/discover?tab=discoveries&lens=eat");
     expect(discoverPathHref("hiking with kids", "try")).toBe(
       "/discover?tab=discoveries&lens=try&q=hiking%20with%20kids",
+    );
+    expect(discoverPathHref("jerk on friday", "eat", "food")).toBe(
+      "/discover?tab=discoveries&lens=eat&q=jerk%20on%20friday&aim=food",
     );
   });
 });

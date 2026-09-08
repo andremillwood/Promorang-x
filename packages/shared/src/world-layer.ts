@@ -2,6 +2,7 @@
  * PromoCard-centered world layer.
  *
  * Canonical product law: docs/design/promocard-world-experience-v1.md
+ * Strategy layer: docs/design/promorang-world-system-v2.md
  *
  * This module resolves presentation from server-trusted facts.
  * It never invents live density, financial Return, Crew progress, or path titles.
@@ -465,4 +466,354 @@ export function timeAwareWorldHeader(now: Date = new Date(), slice: WorldSlice =
   if (hour >= 17 || hour < 4) return slice.header;
   if (hour < 12) return "This morning in Kingston";
   return "Today in Kingston";
+}
+
+export type WorldFactionKey = "seekers" | "weavers" | "makers" | "keepers" | "stewards";
+
+export type WorldFaction = {
+  key: WorldFactionKey;
+  title: string;
+  verb: "discovery" | "connection" | "creation" | "memory" | "sustainability";
+  line: string;
+};
+
+export const WORLD_FACTIONS: Record<WorldFactionKey, WorldFaction> = {
+  seekers: { key: "seekers", title: "Seekers", verb: "discovery", line: "Find what the Current has not named yet." },
+  weavers: { key: "weavers", title: "Weavers", verb: "connection", line: "Introduce people who should already know each other." },
+  makers: { key: "makers", title: "Makers", verb: "creation", line: "Make the night worth remembering." },
+  keepers: { key: "keepers", title: "Keepers", verb: "memory", line: "Keep what happened so the Scene does not forget." },
+  stewards: { key: "stewards", title: "Stewards", verb: "sustainability", line: "Keep the Places able to do this again." },
+};
+
+export const WORLD_FACTION_KEYS = Object.keys(WORLD_FACTIONS) as WorldFactionKey[];
+
+export function resolveFaction(key?: string | null): WorldFaction | null {
+  if (!key) return null;
+  return WORLD_FACTIONS[key as WorldFactionKey] || null;
+}
+
+export type CrewRunRoleKey = "captain" | "scout" | "connector" | "amplifier" | "chronicler" | "keeper";
+
+export type CrewRunRole = {
+  key: CrewRunRoleKey;
+  title: string;
+  job: string;
+};
+
+export const CREW_RUN_ROLES: Record<CrewRunRoleKey, CrewRunRole> = {
+  captain: { key: "captain", title: "Captain", job: "Keep the Crew moving toward the Run." },
+  scout: { key: "scout", title: "Scout", job: "Find the Signal and the room." },
+  connector: { key: "connector", title: "Connector", job: "Bring the person who should be in the room." },
+  amplifier: { key: "amplifier", title: "Amplifier", job: "Make the night visible." },
+  chronicler: { key: "chronicler", title: "Amplifier", job: "Keep proof of what counted — now Amplifier." },
+  keeper: { key: "keeper", title: "Keeper", job: "Hold the Memory and what came back." },
+};
+
+export const CREW_RUN_ROLE_KEYS = Object.keys(CREW_RUN_ROLES) as CrewRunRoleKey[];
+
+export function resolveCrewRunRole(key?: string | null): CrewRunRole | null {
+  if (!key) return null;
+  return CREW_RUN_ROLES[key as CrewRunRoleKey] || null;
+}
+
+export type SceneHealthDimension = WorldFaction["verb"];
+
+export type SceneHealth = {
+  dimension: SceneHealthDimension;
+  label: string;
+  count: number;
+};
+
+const HEALTH_LABELS: Record<SceneHealthDimension, string> = {
+  discovery: "Discovery",
+  connection: "Connection",
+  creation: "Creation",
+  memory: "Memory",
+  sustainability: "Sustainability",
+};
+
+const DIMENSION_TO_HEALTH: Record<WorldPathDimension, SceneHealthDimension> = {
+  discover: "discovery",
+  connect: "connection",
+  create: "creation",
+  host: "creation",
+  keep: "memory",
+  support: "sustainability",
+};
+
+export function resolveSceneHealth(actions: PathEvidenceInput[]): SceneHealth[] {
+  const counts: Record<SceneHealthDimension, number> = {
+    discovery: 0,
+    connection: 0,
+    creation: 0,
+    memory: 0,
+    sustainability: 0,
+  };
+  for (const action of actions || []) {
+    const dimension = mapActionToPathDimension(action.actionType);
+    if (dimension) counts[DIMENSION_TO_HEALTH[dimension]] += 1;
+  }
+  return (Object.keys(HEALTH_LABELS) as SceneHealthDimension[]).map((dimension) => ({
+    dimension,
+    label: HEALTH_LABELS[dimension],
+    count: counts[dimension],
+  }));
+}
+
+export function resolveSeasonDispatch(facts: {
+  seasonTitle?: string | null;
+  hasLiveMoment?: boolean;
+  placeName?: string | null;
+  now?: Date;
+  slice?: WorldSlice;
+}): { eyebrow: string; line: string } {
+  const slice = facts.slice || KINGSTON_AFTER_DARK_SLICE;
+  const season = facts.seasonTitle || slice.seasonTitle;
+  if (facts.hasLiveMoment) {
+    return {
+      eyebrow: season,
+      line: facts.placeName
+        ? `A Signal is up at ${facts.placeName}. Follow it before the room thins.`
+        : "A Signal is up. Follow it before the room thins.",
+    };
+  }
+  return {
+    eyebrow: season,
+    line: slice.currentLine,
+  };
+}
+
+export function resolveWorldMomentPhase(facts: {
+  joined?: boolean;
+  arrived?: boolean;
+  hasMemory?: boolean;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  now?: Date;
+}): "before" | "during" | "after" {
+  if (facts.hasMemory || facts.arrived) return "after";
+  const now = (facts.now || new Date()).getTime();
+  const start = facts.startsAt ? new Date(facts.startsAt).getTime() : NaN;
+  const end = facts.endsAt ? new Date(facts.endsAt).getTime() : NaN;
+  if (Number.isFinite(start) && Number.isFinite(end) && now >= start && now <= end) return "during";
+  if (facts.joined && Number.isFinite(start) && now >= start) return "during";
+  return "before";
+}
+
+export const GUILD_CREW_MIN = 2;
+export const GUILD_CREW_MAX = 6;
+
+export function resolveGuildReadiness(crewCount: number): {
+  crewCount: number;
+  min: number;
+  max: number;
+  needsCrews: number;
+  forming: boolean;
+  ready: boolean;
+  full: boolean;
+  line: string;
+} {
+  const count = Math.max(0, Number(crewCount) || 0);
+  const needsCrews = Math.max(0, GUILD_CREW_MIN - count);
+  const forming = count < GUILD_CREW_MIN;
+  const full = count >= GUILD_CREW_MAX;
+  return {
+    crewCount: count,
+    min: GUILD_CREW_MIN,
+    max: GUILD_CREW_MAX,
+    needsCrews,
+    forming,
+    ready: !forming && !full,
+    full,
+    line: forming
+      ? `Need ${needsCrews} more ${needsCrews === 1 ? "Crew" : "Crews"} before this is a Guild.`
+      : full
+        ? "This Guild is full. Coordinate the Scene from here."
+        : `${count} Crews coordinating one Scene.`,
+  };
+}
+
+export type WorldAreaKey = "barbican" | "red-hills" | "new-kingston";
+
+export type WorldArea = {
+  key: WorldAreaKey;
+  title: string;
+  corridor: string;
+  aliases: string[];
+};
+
+export const KINGSTON_AREAS: WorldArea[] = [
+  { key: "barbican", title: "Barbican", corridor: "First coherent test area", aliases: ["barbican"] },
+  { key: "red-hills", title: "Red Hills Road", corridor: "Participating corridor", aliases: ["red hills", "red-hills", "kingston 19"] },
+  { key: "new-kingston", title: "New Kingston", corridor: "After-hours corridor", aliases: ["new kingston"] },
+];
+
+export const WORLD_AREA_KEYS = KINGSTON_AREAS.map((area) => area.key);
+
+export function resolveArea(key?: string | null): WorldArea | null {
+  if (!key) return null;
+  return KINGSTON_AREAS.find((area) => area.key === key) || null;
+}
+
+export function resolveAreaKey(text?: string | null, explicitKey?: string | null): WorldAreaKey | null {
+  if (explicitKey && resolveArea(explicitKey)) return explicitKey as WorldAreaKey;
+  const hay = String(text || "").toLowerCase();
+  if (!hay) return null;
+  for (const area of KINGSTON_AREAS) {
+    if (area.aliases.some((alias) => hay.includes(alias))) return area.key;
+  }
+  return null;
+}
+
+export type TerritoryState = "unknown" | "known" | "held" | "stewarded";
+
+export type TerritoryStanding = {
+  key: WorldAreaKey;
+  title: string;
+  corridor: string;
+  state: TerritoryState;
+  standingLine: string;
+  presenceCount: number;
+  supportCount: number;
+};
+
+const TERRITORY_LINES: Record<TerritoryState, (title: string) => string> = {
+  unknown: (title) => `${title} has no proven standing yet.`,
+  known: (title) => `${title} is known. Someone showed up or supported a Place.`,
+  held: (title) => `${title} is held. Repeated verified presence is keeping it in the Current.`,
+  stewarded: (title) => `${title} is stewarded. Presence and support are keeping the Places able to do this again.`,
+};
+
+export function resolveTerritoryStanding(input: {
+  areaKey: WorldAreaKey;
+  presenceCount?: number;
+  supportCount?: number;
+}): TerritoryStanding {
+  const area = resolveArea(input.areaKey) || KINGSTON_AREAS[0];
+  const presenceCount = Math.max(0, Number(input.presenceCount) || 0);
+  const supportCount = Math.max(0, Number(input.supportCount) || 0);
+  const total = presenceCount + supportCount;
+  let state: TerritoryState = "unknown";
+  if (total >= 5 && supportCount >= 1) state = "stewarded";
+  else if (total >= 3) state = "held";
+  else if (total >= 1) state = "known";
+  return {
+    key: area.key,
+    title: area.title,
+    corridor: area.corridor,
+    state,
+    standingLine: TERRITORY_LINES[state](area.title),
+    presenceCount,
+    supportCount,
+  };
+}
+
+export function resolveKingstonTerritories(
+  counts: Partial<Record<WorldAreaKey, { presenceCount?: number; supportCount?: number }>> = {},
+): TerritoryStanding[] {
+  return KINGSTON_AREAS.map((area) => resolveTerritoryStanding({
+    areaKey: area.key,
+    presenceCount: counts[area.key]?.presenceCount,
+    supportCount: counts[area.key]?.supportCount,
+  }));
+}
+
+export type CurrentPolarity = "current" | "thin" | "static";
+
+export function resolveCurrentStatic(input: {
+  currentCount?: number;
+  lastActionAt?: string | null;
+  now?: Date;
+}): { polarity: CurrentPolarity; currentCount: number; line: string } {
+  const currentCount = Math.max(0, Number(input.currentCount) || 0);
+  const now = (input.now || new Date()).getTime();
+  const last = input.lastActionAt ? new Date(input.lastActionAt).getTime() : NaN;
+  const stale = Number.isFinite(last) ? now - last > 7 * 24 * 60 * 60 * 1000 : currentCount === 0;
+  if (currentCount <= 0 || stale) {
+    return {
+      polarity: "static",
+      currentCount,
+      line: "The Scene is Static. Nothing useful has moved recently.",
+    };
+  }
+  if (currentCount < 3) {
+    return {
+      polarity: "thin",
+      currentCount,
+      line: "The Current is thin. One more verified move can turn it.",
+    };
+  }
+  return {
+    polarity: "current",
+    currentCount,
+    line: "The Current is moving. Keep it from going still.",
+  };
+}
+
+export type FactionContestStanding = {
+  key: WorldFactionKey;
+  title: string;
+  verb: WorldFaction["verb"];
+  current: number;
+  rank: number;
+};
+
+export type FactionContest = {
+  board: FactionContestStanding[];
+  leadingCurrent: WorldFactionKey | null;
+  contestLine: string;
+  mixedCrewNote: string | null;
+  totalCurrent: number;
+  unalignedCurrent: number;
+};
+
+export function resolveFactionContest(input: {
+  factionCurrents?: Partial<Record<WorldFactionKey, number>>;
+  unalignedCurrent?: number;
+  mixedCrew?: boolean;
+} = {}): FactionContest {
+  const currents = input.factionCurrents || {};
+  const ranked = WORLD_FACTION_KEYS
+    .map((key) => ({
+      key,
+      title: WORLD_FACTIONS[key].title,
+      verb: WORLD_FACTIONS[key].verb,
+      current: Math.max(0, Number(currents[key]) || 0),
+    }))
+    .sort((a, b) => b.current - a.current || a.key.localeCompare(b.key));
+
+  let rank = 0;
+  let previous = -1;
+  const board = ranked.map((row, index) => {
+    if (row.current !== previous) {
+      rank = index + 1;
+      previous = row.current;
+    }
+    return { ...row, rank };
+  });
+
+  const top = board[0];
+  const tied = Boolean(top && top.current > 0 && board.filter((row) => row.current === top.current).length > 1);
+  const leadingCurrent = top && top.current > 0 && !tied ? top.key : null;
+  const unalignedCurrent = Math.max(0, Number(input.unalignedCurrent) || 0);
+  const totalCurrent = board.reduce((sum, row) => sum + row.current, 0) + unalignedCurrent;
+
+  let contestLine = "No philosophy is moving the Scene yet. The war is Current versus Static.";
+  if (leadingCurrent) {
+    contestLine = `${WORLD_FACTIONS[leadingCurrent].title} lead ${WORLD_FACTIONS[leadingCurrent].verb}. The war is Current versus Static — not people versus people.`;
+  } else if (tied && top) {
+    const names = board.filter((row) => row.current === top.current).map((row) => row.title);
+    contestLine = `${names.join(" and ")} are even. Mixed Crews usually move a Scene further than one banner.`;
+  }
+
+  return {
+    board,
+    leadingCurrent,
+    contestLine,
+    mixedCrewNote: input.mixedCrew
+      ? "This Crew holds more than one philosophy. That is valid, and usually stronger."
+      : null,
+    totalCurrent,
+    unalignedCurrent,
+  };
 }

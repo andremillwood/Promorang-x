@@ -35,8 +35,10 @@ import { getCityHubCenter, getDefaultCityHub, matchesCityHub } from "@/lib/city-
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getMomentStatus } from "@/lib/moment-recurrence";
 import { DISCOVERY_POLLS, type DiscoveryPoll } from "@/data/discoveriesData";
+import { AimedDiscoverLead } from "@/components/discovery/AimedDiscoverLead";
 import { DiscoveryPath } from "@/components/discovery/DiscoveryPath";
 import { filterDiscoveryPollsForHub, isDiscoverLensId, mergeDiscoveryPolls } from "@/lib/discovery-path";
+import { resolveStoredPromoCardAim, writePromoCardAim } from "@/lib/promocard-aim";
 import { toast } from "sonner";
 import { castListingDiscoveryVote, useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
@@ -138,6 +140,11 @@ const Discover = () => {
   const tabParam = searchParams.get("tab");
   const activeTab: DiscoverTab = ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam || "") ? tabParam as DiscoverTab : "discoveries";
   const lensParam = searchParams.get("lens");
+  const aim = resolveStoredPromoCardAim(searchParams);
+
+  useEffect(() => {
+    if (aim) writePromoCardAim(aim);
+  }, [aim]);
 
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -358,6 +365,7 @@ const Discover = () => {
       preferredCategories={preferences?.preferred_categories || []}
       initialLens={isDiscoverLensId(lensParam) ? lensParam : null}
       initialQuery={searchParams.get("q")}
+      aim={aim}
       onQuestionCreated={(newQ) => {
         setLivePolls((prev) => [newQ as DiscoveryPoll, ...prev]);
       }}
@@ -380,8 +388,8 @@ const Discover = () => {
     return (
       <div className="relative min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
         <SEO
-          title={`${t("discover.pathPageTitle")} — Promorang`}
-          description={t("discover.pathPageCopy")}
+          title={`${aim ? aim.cardLine.replace(/\.$/, "") : t("discover.pathPageTitle")} — Promorang`}
+          description={aim ? `${aim.watchingLine} Answer a live question and it lands on your card.` : t("discover.pathPageCopy")}
           url={getSiteUrl("/discover")}
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[46rem] bg-[radial-gradient(circle_at_12%_0%,rgba(255,106,0,.16),transparent_42%),radial-gradient(circle_at_90%_10%,rgba(80,160,140,.08),transparent_34%)]" />
@@ -408,7 +416,10 @@ const Discover = () => {
               Places & Venues
             </button>
           </nav>
-          <div className="mt-8 sm:mt-10">{path}</div>
+          <div className="mt-8 sm:mt-10 space-y-6">
+            {aim ? <AimedDiscoverLead aim={aim} authenticated={Boolean(user)} /> : null}
+            {path}
+          </div>
         </div>
       </div>
     );

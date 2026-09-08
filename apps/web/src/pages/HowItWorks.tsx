@@ -35,6 +35,8 @@ import SEO from "@/components/SEO";
 import { useI18n } from "@/i18n/I18nContext";
 import type { TranslationKey } from "@/i18n/translations";
 import { PromoCardEconomyExplainer } from "@/components/promocard";
+import { NightPathJourney } from "@/components/marketing/NightPathJourney";
+import { WhatIsWhatMap } from "@/components/economy/WhatIsWhatMap";
 
 type RoleId = "member" | "creator" | "merchant" | "brand" | "promoter";
 
@@ -142,10 +144,10 @@ const rolesData: Record<
       statLabel: "how.memberPreviewStatLabel",
     },
     steps: [
-      roleStep("member", 1, "/radar?tab=discover", "01"),
-      roleStep("member", 2, "/discover", "02"),
-      roleStep("member", 3, "/missions", "03"),
-      roleStep("member", 4, "/wallet", "04"),
+      roleStep("member", 1, "/discover?tab=discoveries", "01"),
+      roleStep("member", 2, "/promoshare", "02"),
+      roleStep("member", 3, "/discover", "03"),
+      roleStep("member", 4, "/progress", "04"),
     ],
   },
   creator: {
@@ -307,6 +309,7 @@ const faqs: Array<{ q: TranslationKey; a: TranslationKey }> = [
   { q: "how.faq5Q", a: "how.faq5A" },
   { q: "how.faq6Q", a: "how.faq6A" },
   { q: "how.faq7Q", a: "how.faq7A" },
+  { q: "how.faq8Q", a: "how.faq8A" },
 ];
 
 export default function HowItWorks() {
@@ -352,7 +355,7 @@ export default function HowItWorks() {
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
-                to="/radar?tab=discover"
+                to="/discover?tab=discoveries"
                 className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-orange-500 px-6 py-3 text-sm font-black text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-primary/40 active:scale-[0.98]"
               >
                 <span>{t("how.getCard")}</span>
@@ -416,6 +419,12 @@ export default function HowItWorks() {
 
       <PromoCardEconomyExplainer audience="member" />
 
+      <section className="border-b border-white/10 bg-[#0b0a09] px-5 py-16 md:py-24">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <WhatIsWhatMap compact />
+        </div>
+      </section>
+
       {/* 5 Ways You Get Rewarded (Benefit-First) */}
       <section className="border-b border-white/10 px-5 py-16">
         <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -466,12 +475,14 @@ export default function HowItWorks() {
       {/* Complete Journey Interactive Stepper */}
       <section className="px-5 py-16 md:py-24">
         <div className="w-full px-4 sm:px-6 lg:px-8">
+          <NightPathJourney className="mb-12" />
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">{t("how.journeyEyebrow")}</p>
               <h2 className="mt-2 text-4xl font-black tracking-[-0.05em] sm:text-5xl">
                 {t("how.journey")}
               </h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-white/55">{t("how.journeyLead")}</p>
             </div>
 
             {/* Role Tabs */}

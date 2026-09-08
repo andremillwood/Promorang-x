@@ -34,8 +34,11 @@ import { PutUpFoundModal } from "@/components/discovery/PutUpFoundModal";
 import { FoundListingCard } from "@/components/discovery/FoundListingCard";
 import { foundListingHits } from "@/lib/discovery-found";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
+import { useAuth } from "@/contexts/AuthContext";
+import { matchPollForAim, writePromoCardAim } from "@/lib/promocard-aim";
+import { promoCardAimPath, promoCardUnlockHref, type PromoCardAim } from "@promorang/shared";
+import { FillCardMoves } from "@/components/promocard/FillCardMoves";
 import { readLocalCardUnlocks, type DiscoveryCardUnlock } from "@/lib/discovery-card";
-import { cn } from "@/lib/utils";
 
 function whyCopy(
   why: PathWhy,
@@ -68,6 +71,7 @@ type DiscoveryPathProps = {
   preferredCategories?: string[];
   initialLens?: string | null;
   initialQuery?: string | null;
+  aim?: PromoCardAim | null;
   onQuestionCreated?: (poll: DiscoveryPoll) => void;
   onVoted?: (pollId: string) => void;
   onCastVote?: (poll: DiscoveryPoll, optionId: string) => void | Promise<void>;
@@ -81,6 +85,7 @@ export function DiscoveryPath({
   preferredCategories = [],
   initialLens = null,
   initialQuery = null,
+  aim = null,
   onQuestionCreated,
   onVoted,
   onCastVote,
@@ -88,6 +93,7 @@ export function DiscoveryPath({
   surface = "page",
 }: DiscoveryPathProps) {
   const { t } = useI18n();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const to = useExperiencePath();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -116,7 +122,9 @@ export function DiscoveryPath({
   const [browseOpen, setBrowseOpen] = useState(false);
   const [intentTick, setIntentTick] = useState(0);
   const [lastUnlock, setLastUnlock] = useState<DiscoveryCardUnlock | null>(null);
+  const [requestOpen, setRequestOpen] = useState(false);
   const found = useDiscoveryFound(cityName);
+  const fillRequest = searchParams.get("fill") === "request";
 
   const syncQueryParam = (nextQuery: string, nextLens: DiscoverLensId | null) => {
     if (!syncUrl) return;
@@ -130,6 +138,7 @@ export function DiscoveryPath({
       if (nextLens) next.set("lens", nextLens);
       else next.delete("lens");
     }
+    if (aim) next.set("aim", aim.id);
     setSearchParams(next, { replace: true });
   };
 
@@ -150,6 +159,14 @@ export function DiscoveryPath({
   }, [initialLens, initialQuery]);
 
   useEffect(() => {
+    if (aim) writePromoCardAim(aim);
+  }, [aim]);
+
+  useEffect(() => {
+    if (fillRequest) setRequestOpen(true);
+  }, [fillRequest]);
+
+  useEffect(() => {
     if (lens) {
       window.localStorage.setItem(DISCOVER_LENS_STORAGE_KEY, lens);
       writeStoredDiscoverQuery("");
@@ -164,6 +181,7 @@ export function DiscoveryPath({
   const namedIntent = Boolean(lens || intentWords(query).length);
   const otherActive = !lens && intentWords(query).length > 0;
 
+  const preferredPoll = aim ? matchPollForAim(aim, polls) : null;
   const path = useMemo(
     () =>
       buildDiscoveryPath({
@@ -174,9 +192,13 @@ export function DiscoveryPath({
         skippedIds,
         cityName,
         limit: 4,
+        preferPollId: preferredPoll?.id,
       }),
-    [polls, lens, query, votedIds, skippedIds, cityName, justVotedId],
+    [polls, lens, query, votedIds, skippedIds, cityName, justVotedId, preferredPoll?.id],
   );
+  const cardHref = user
+    ? to(promoCardAimPath(aim))
+    : promoCardUnlockHref({ aim });
 
   const hasLiveMatch = polls.some(
     (poll) => intentMatchCount(poll, lens ? [lens] : [], query) > 0,
@@ -210,7 +232,7 @@ export function DiscoveryPath({
     writeStoredIdList(DISCOVER_SKIPPED_STORAGE_KEY, []);
     writeStoredDiscoverQuery("");
     if (handoffToDiscover) {
-      navigate(discoverPathHref(null, next));
+      navigate(discoverPathHref(null, next, aim?.id));
       return;
     }
     syncQueryParam("", next);
@@ -230,7 +252,7 @@ export function DiscoveryPath({
     writeStoredDiscoverQuery(next);
     void recordDiscoveryNamedIntent(cityName, next);
     if (handoffToDiscover) {
-      navigate(discoverPathHref(next));
+      navigate(discoverPathHref(next, null, aim?.id));
       return;
     }
     syncQueryParam(next, null);
@@ -269,6 +291,19 @@ export function DiscoveryPath({
 
   const continuePath = () => setJustVotedId(null);
 
+  const putUpFound = async (input: Parameters<typeof found.putUp>[0]) => {
+    await recordDiscoveryNamedIntent(cityName, input.title);
+    await found.putUp(input);
+  };
+
+  const handleRequestOpenChange = (open: boolean) => {
+    setRequestOpen(open);
+    if (open || !syncUrl || !fillRequest) return;
+    const next = new URLSearchParams(searchParams);
+    next.delete("fill");
+    setSearchParams(next, { replace: true });
+  };
+
   return (
     <div className="space-y-8">
       <DiscoveryIntentStage
@@ -287,6 +322,35 @@ export function DiscoveryPath({
         onClearQuery={clearQuery}
       />
 
+      {fillRequest && !handoffToDiscover ? (
+        <section className="rounded-[1.6rem] border border-amber-200/20 bg-amber-200/5 p-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">
+            Fill the card
+          </p>
+          <h3 className="mt-1 font-serif text-2xl font-bold text-white">
+            {aim ? `Ask for ${aim.label}` : "Ask for a perk"}
+          </h3>
+          <p className="mt-1 max-w-xl text-sm leading-6 text-white/60">
+            Put the place or night on the table. A house can claim it. That is how something lands when nothing is live.
+          </p>
+          <div className="mt-4">
+            <PutUpFoundModal
+              cityName={cityName}
+              defaultTitle={query || aim?.discoverQuery || ""}
+              open={requestOpen}
+              onOpenChange={handleRequestOpenChange}
+              onPutUp={putUpFound}
+              trigger={
+                <TactileButton variant="primary">
+                  {t("found.putUp")}
+                  <ArrowRight className="h-4 w-4" />
+                </TactileButton>
+              }
+            />
+          </div>
+        </section>
+      ) : null}
+
       {handoffToDiscover ? null : !namedIntent && surface === "page" ? (
         <NightTrail
           eyebrow={t("discover.pathHowEyebrow")}
@@ -303,14 +367,18 @@ export function DiscoveryPath({
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200/80">
-                {otherActive
-                  ? t(votedIds.includes(current.poll.id) ? "discover.pathUsedEyebrow" : "discover.pathHitEyebrow")
-                  : t("discover.pathPosition", { current: 1, total: path.length })}
+                {aim
+                  ? `On your card · ${aim.label}`
+                  : otherActive
+                    ? t(votedIds.includes(current.poll.id) ? "discover.pathUsedEyebrow" : "discover.pathHitEyebrow")
+                    : t("discover.pathPosition", { current: 1, total: path.length })}
               </p>
               <h3 id="discover-current-move" className="mt-1 font-serif text-2xl font-bold text-white">
-                {otherActive
-                  ? t(votedIds.includes(current.poll.id) ? "discover.pathUsedTitle" : "discover.pathHitTitle")
-                  : t("discover.pathCurrent")}
+                {aim
+                  ? "This one goes on your card"
+                  : otherActive
+                    ? t(votedIds.includes(current.poll.id) ? "discover.pathUsedTitle" : "discover.pathHitTitle")
+                    : t("discover.pathCurrent")}
               </h3>
               <p className="mt-1 max-w-xl text-sm leading-6 text-white/55">
                 {otherActive && votedIds.includes(current.poll.id)
@@ -338,14 +406,19 @@ export function DiscoveryPath({
             onVote={(pollId, optionId) => {
               void onCastVote?.(current.poll, optionId);
               markVoted(pollId);
-              void unlockDiscoveryOntoCard({ city: cityName, poll: current.poll, query }).then(setLastUnlock);
+              void unlockDiscoveryOntoCard({
+                city: cityName,
+                poll: current.poll,
+                query,
+                aim: aim?.id,
+              }).then(setLastUnlock);
             }}
           />
 
           {votedIds.includes(current.poll.id) ? (
             <div className="grid gap-4 lg:grid-cols-[minmax(0,280px)_1fr] lg:items-center">
               <PaperReceipt
-                heading={t("discover.pathReceiptHeading")}
+                heading={aim ? "On your card" : t("discover.pathReceiptHeading")}
                 lines={[
                   { label: t("discover.pathReceiptChose"), value: current.poll.question, strong: true },
                   {
@@ -367,12 +440,14 @@ export function DiscoveryPath({
               />
               <div className="space-y-3">
                 <p className="text-sm leading-6 text-white/60">
-                  {t("discover.pathOnCardCopy")}
+                  {aim
+                    ? "It's on your card now. Show it where it works."
+                    : t("discover.pathOnCardCopy")}
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <TactileButton variant="primary" asChild>
-                    <Link to={to("/card")}>
-                      {t("discover.pathOpenCard")}
+                    <Link to={cardHref}>
+                      {aim ? (user ? "Show this on your card" : "Unlock this") : t("discover.pathOpenCard")}
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </TactileButton>
@@ -439,10 +514,7 @@ export function DiscoveryPath({
                 <PutUpFoundModal
                   cityName={cityName}
                   defaultTitle={query}
-                  onPutUp={async (input) => {
-                    await recordDiscoveryNamedIntent(cityName, input.title);
-                    await found.putUp(input);
-                  }}
+                  onPutUp={putUpFound}
                   trigger={
                     <TactileButton variant="obsidian">
                       {t("found.putUp")}
@@ -489,10 +561,7 @@ export function DiscoveryPath({
                 <PutUpFoundModal
                   cityName={cityName}
                   defaultTitle={query}
-                  onPutUp={async (input) => {
-                    await recordDiscoveryNamedIntent(cityName, input.title);
-                    await found.putUp(input);
-                  }}
+                  onPutUp={putUpFound}
                   trigger={
                     <TactileButton variant="primary">
                       {t("found.putUp")}
@@ -512,6 +581,7 @@ export function DiscoveryPath({
                   {t("discover.pathMissBrowse")}
                 </TactileButton>
               </div>
+              {aim ? <FillCardMoves aim={aim} authenticated={Boolean(user)} /> : null}
             </>
           )}
         </section>

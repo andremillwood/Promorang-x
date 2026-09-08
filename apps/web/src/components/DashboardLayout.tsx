@@ -115,6 +115,9 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/give", label: "Give Something", description: "Drop a perk onto your people’s PromoCards." },
   { match: "/earn", label: "Earn", description: "Opportunities you can take and earn from." },
   { match: "/happened", label: "What Happened", description: "What your people actually did." },
+  { match: "/progress", label: "Progress", description: "What happened because of you, and what you are becoming good at." },
+  { match: "/crews", label: "Crews", description: "3–8 people you actually move with." },
+  { match: "/guilds", label: "Guilds", description: "2–6 Crews coordinating one Scene." },
   { match: "/card", label: "Card", description: "Your perks, access, points and keys." },
   { match: "/start", label: "Start a Community", description: "Name a community and give people something immediately." },
   { match: "/stock", label: "Put Something Up", description: "Open inventory so other people can move it." },
@@ -167,6 +170,8 @@ const peopleExperienceNav: NavItem[] = [
   { icon: Megaphone, label: "Demand", href: "/demand", group: "primary" },
   { icon: Sparkles, label: "Earn", href: "/earn", group: "primary" },
   { icon: CreditCard, label: "Card", href: "/card", group: "primary" },
+  { icon: Activity, label: "Progress", href: "/progress", group: "primary" },
+  { icon: Archive, label: "Vault", href: "/vault", group: "primary" },
   { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
   { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
   { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
@@ -261,7 +266,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const manageNavItems = navItems.filter((item) => item.group === "manage");
   const utilityNavItems = navItems.filter((item) => item.group === "utility");
   const roleInfo = safeRoleInfo(safeRole);
-  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/demand", "/shop", "/wallet", "/admin", "/organizer", "/people", "/give", "/earn", "/happened", "/card", "/start", "/stock", "/drop"];
+  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/demand", "/shop", "/wallet", "/admin", "/organizer", "/people", "/give", "/earn", "/happened", "/progress", "/crews", "/guilds", "/card", "/start", "/stock", "/drop"];
   const isImmersiveProductRoute = immersiveProductRoutes.some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );

@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
 import { flushMarketingIntent } from "@/lib/marketing-attribution";
+import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 
 /**
  * Post-Login Router
@@ -21,6 +22,8 @@ export function PostLoginRouter() {
       const requestedNext = sessionStorage.getItem("promorang_post_auth_next");
       if (requestedNext?.startsWith("/") && !requestedNext.startsWith("//")) {
         sessionStorage.removeItem("promorang_post_auth_next");
+        const aimed = promoCardAimFromNext(requestedNext);
+        if (aimed) writePromoCardAim(aimed);
         navigate(requestedNext, { replace: true });
         return;
       }

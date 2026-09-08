@@ -82,6 +82,14 @@ export default function TodayScreen() {
           </Pressable>
         ) : null}
 
+        {role === 'member' && data?.world?.currentMove ? (
+          <Pressable style={styles.move} onPress={() => router.push((data.world.currentMove.href || '/discover') as any)}>
+            <Text style={styles.moveEyebrow}>{data.world.currentMove.eyebrow || 'YOUR MOVE'}</Text>
+            <Text style={styles.moveTitle}>{data.world.currentMove.title}</Text>
+            <Text style={styles.moveBody}>{data.world.currentMove.why}</Text>
+          </Pressable>
+        ) : null}
+
         <PromoCardFace
           model={cardView.face}
           tier={cardView.tier}
@@ -187,7 +195,7 @@ export default function TodayScreen() {
         <View>
           <View style={styles.sectionRow}>
             <Text style={styles.sectionTitle}>What happened</Text>
-            <Pressable onPress={() => router.push('/promoshare')}><Text style={styles.link}>All results</Text></Pressable>
+            <Pressable onPress={() => router.push('/progress')}><Text style={styles.link}>All results</Text></Pressable>
           </View>
           <View style={styles.statGrid}>
             {[
@@ -211,6 +219,24 @@ export default function TodayScreen() {
           ) : (
             <Text style={styles.description}>When people claim, show up or answer, it will read like a story here.</Text>
           )}
+          {role === 'member' ? (
+            <View style={{ gap: 10, marginTop: 8 }}>
+              <Pressable style={styles.listCard} onPress={() => router.push('/crews')}>
+                <Text style={styles.moveEyebrow}>WHO YOU MOVE WITH</Text>
+                <Text style={styles.listTitle}>{data?.world?.crew?.name || 'Form a Crew'}</Text>
+              </Pressable>
+              {data?.world?.crew ? (
+                <Pressable style={styles.listCard} onPress={() => router.push('/guilds')}>
+                  <Text style={styles.moveEyebrow}>WHO COORDINATES THE SCENE</Text>
+                  <Text style={styles.listTitle}>{data?.world?.guild?.name || 'Form a Guild'}</Text>
+                </Pressable>
+              ) : null}
+              <Pressable style={styles.listCard} onPress={() => router.push('/vault')}>
+                <Text style={styles.moveEyebrow}>WHAT YOU KEEP</Text>
+                <Text style={styles.listTitle}>Open Vault</Text>
+              </Pressable>
+            </View>
+          ) : null}
         </View>
 
         {role !== 'member' && (data?.outcomes?.suppliesInventory || ['merchant', 'brand'].includes(String(activeRole))) ? (

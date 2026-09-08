@@ -45,6 +45,8 @@ import { PARTICIPANT_ECONOMY } from "@promorang/shared";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { ValueInstrumentCard } from "@/components/value/ValueInstrumentCard";
+import { GemSpendBenefits } from "@/components/economy/WhatIsWhatMap";
+import { VALUE_INSTRUMENTS, VALUE_STORY } from "@promorang/shared";
 
 type GemsTransaction = {
   id: string;
@@ -334,7 +336,7 @@ const Wallet = () => {
           id="wallet:economy-path"
           eyebrow="Wallet path"
           title="How participation becomes usable value"
-          summary={`Show up, verify, unlock PromoKeys, and earn Gems through funded work. ${pointsPerKey} Points becomes 1 PromoKey.`}
+          summary={`${VALUE_STORY.gemsPay} ${pointsPerKey} Points becomes 1 PromoKey. Gems can be bought or earned.`}
           className="mt-0"
         >
           <section className="overflow-hidden rounded-2xl border border-border bg-card">
@@ -362,14 +364,18 @@ const Wallet = () => {
               <h2 id="available-value-heading" className="mt-1 text-3xl font-black tracking-[-.045em]">What your value can do</h2>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Each balance has one job. Use it, convert it, or see exactly why it is waiting.</p>
             </div>
-            <Button asChild variant="outline" className="rounded-xl"><Link to="/portfolio">View your Pieces <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline" className="rounded-xl"><Link to="/economy">What is what <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+              <Button asChild variant="outline" className="rounded-xl"><Link to="/portfolio">View your Pieces <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+            </div>
           </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            <ValueInstrumentCard icon={Coins} label="Participation points" value={formatNumber(points)} meaning="Proof that you showed up and contributed. Turn enough Points into access." status="Builds access" tone="amber" loading={walletLoading} progress={nextKeyProgress} progressLabel={`${Math.max(0, pointsPerKey - (points % pointsPerKey))} to next PromoKey`} actionLabel="Convert to PromoKeys" onAction={() => setConvertDialogOpen(true)} disabled={availableConversions < 1} disabledReason={`Need ${Math.max(0, pointsPerKey - points)} more Points`} />
-            <ValueInstrumentCard icon={KeyRound} label="PromoKeys" value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning="Access for funded Moments, gated drops, and proof-backed experiences." status="Spend for access" tone="orange" loading={walletLoading} actionLabel="Find something to unlock" onAction={() => window.location.assign("/discover")} />
-            <ValueInstrumentCard icon={Gem} label="Gems" value={formatNumber(gemsSnapshot.balance || gems)} meaning="Value earned through funded work. Some Gems may need to clear before withdrawal." status={Number(gemsSnapshot.pending_purchase_redemption_balance || 0) > 0 ? "Partly pending" : "Usable value"} tone="violet" loading={gemsLoading} actionLabel={canBuyGems ? "Buy or manage Gems" : "View Gem details"} onAction={() => { setCheckoutActive(false); setBuyDialogOpen(true); }} />
+            <ValueInstrumentCard icon={Coins} label="Points" value={formatNumber(points)} meaning={VALUE_INSTRUMENTS.points.job} status="Not money" tone="amber" loading={walletLoading} progress={nextKeyProgress} progressLabel={`${Math.max(0, pointsPerKey - (points % pointsPerKey))} to next PromoKey`} actionLabel="Convert to PromoKeys" onAction={() => setConvertDialogOpen(true)} disabled={availableConversions < 1} disabledReason={`Need ${Math.max(0, pointsPerKey - points)} more Points`} />
+            <ValueInstrumentCard icon={KeyRound} label="PromoKeys" value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning={VALUE_INSTRUMENTS.promokeys.job} status="Unlocks doors" tone="orange" loading={walletLoading} actionLabel="Find something to unlock" onAction={() => window.location.assign("/discover")} />
+            <ValueInstrumentCard icon={Gem} label="Gems" value={formatNumber(gemsSnapshot.balance || gems)} meaning={VALUE_INSTRUMENTS.gems.is} status={Number(gemsSnapshot.pending_purchase_redemption_balance || 0) > 0 ? "Partly pending" : "Buy or earn"} tone="violet" loading={gemsLoading} actionLabel={canBuyGems ? "Buy or manage Gems" : "View Gem details"} onAction={() => { setCheckoutActive(false); setBuyDialogOpen(true); }} />
             <ValueInstrumentCard icon={DollarSign} label="Withdrawable" value={formatCurrency(Number(gemsSnapshot.withdrawable_balance || 0))} meaning={pendingWithdrawalGems > 0 ? `${formatNumber(pendingWithdrawalGems)} Gems are already under review.` : "The portion currently eligible to request as a payout."} status={pendingWithdrawalGems > 0 ? "Request pending" : "Eligible now"} tone="emerald" loading={gemsLoading || withdrawalsLoading} actionLabel="Request withdrawal" onAction={() => setWithdrawDialogOpen(true)} disabled={!canWithdrawGems || Number(gemsSnapshot.withdrawable_balance || 0) <= 0} disabledReason={!canWithdrawGems ? `Unavailable in ${country.name}` : "Nothing eligible yet"} />
           </div>
+          <GemSpendBenefits />
         </section>
 
         <div className="hidden" aria-hidden="true">
@@ -888,7 +894,7 @@ const Wallet = () => {
           <DialogHeader>
             <DialogTitle>{t("wallet.buyTitle")}</DialogTitle>
             <DialogDescription>
-              This market settles Gem purchases in USD through Stripe. Your local currency is {country.currency}; your bank may apply conversion fees. Purchased and promotional Gems remain separately traceable. Purchases above US$100 require KYC.
+              1 Gem = $1. Buying Gems is how money enters Promorang. Spending those Gems — not paying cash outside — is what can unlock Pieces, Save & Win tickets, and PromoShare entries.
             </DialogDescription>
           </DialogHeader>
 
@@ -903,6 +909,7 @@ const Wallet = () => {
             />
           ) : (
             <div className="space-y-6">
+              <GemSpendBenefits />
               <div className="grid gap-3 sm:grid-cols-4">
                 {GEM_PACKS.map((amount) => (
                   <button

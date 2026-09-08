@@ -57,6 +57,7 @@ const Pioneers = lazy(() => import("./pages/Pioneers"));
 const OrganizerWorkspace = lazy(() => import("./pages/OrganizerWorkspace"));
 const OrganizerLanding = lazy(() => import("./pages/OrganizerLanding"));
 const EconomyConcept = lazy(() => import("./pages/EconomyConcept"));
+const SaveAndWin = lazy(() => import("./pages/SaveAndWin"));
 const VenueReportTeaser = lazy(() => import("./pages/VenueReportTeaser"));
 const Hosting = lazy(() => import("./pages/Hosting"));
 const Pricing = lazy(() => import("./pages/Pricing"));
@@ -118,8 +119,10 @@ const CreateSomething = lazy(() => import("./pages/CreateSomething"));
 const DemandInbox = lazy(() => import("./pages/DemandInbox"));
 const EarnOpportunities = lazy(() => import("./pages/EarnOpportunities"));
 const WhatHappened = lazy(() => import("./pages/WhatHappened"));
+const Progress = lazy(() => import("./pages/Progress"));
 const MyPromoCard = lazy(() => import("./pages/MyPromoCard"));
 const Crews = lazy(() => import("./pages/Crews"));
+const Guilds = lazy(() => import("./pages/Guilds"));
 const DropClaim = lazy(() => import("./pages/DropClaim"));
 const StartCommunity = lazy(() => import("./pages/StartCommunity"));
 const PutInventoryUp = lazy(() => import("./pages/PutInventoryUp"));
@@ -294,7 +297,8 @@ const App = () => (
                     <Route path="/economy/:concept" element={<EconomyConcept />} />
                     <Route path="/venue-report/:id" element={<VenueReportTeaser />} />
                     <Route path="/pricing" element={<Pricing />} />
-                    <Route path="/nodes" element={<Navigate to="/value-studio" replace />} />
+                    <Route path="/nodes" element={<SaveAndWin />} />
+                    <Route path="/save-and-win" element={<SaveAndWin />} />
                     <Route path="/membership/checkout" element={<ProtectedRoute><MembershipCheckout /></ProtectedRoute>} />
                     <Route path="/claim-pages" element={<ProtectedRoute><ClaimPages /></ProtectedRoute>} />
                     <Route path="/billing/result" element={<ProtectedRoute><BillingResult /></ProtectedRoute>} />
@@ -322,8 +326,10 @@ const App = () => (
                     <Route path="/give" element={<ProtectedRoute><GiveSomething /></ProtectedRoute>} />
                     <Route path="/earn" element={<ProtectedRoute><EarnOpportunities /></ProtectedRoute>} />
                     <Route path="/happened" element={<ProtectedRoute><WhatHappened /></ProtectedRoute>} />
+                    <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
                     <Route path="/card" element={<ProtectedRoute><MyPromoCard /></ProtectedRoute>} />
                     <Route path="/crews" element={<ProtectedRoute><Crews /></ProtectedRoute>} />
+                    <Route path="/guilds" element={<ProtectedRoute><Guilds /></ProtectedRoute>} />
                     <Route path="/start" element={<ProtectedRoute><StartCommunity /></ProtectedRoute>} />
                     <Route path="/stock" element={<ProtectedRoute><PutInventoryUp /></ProtectedRoute>} />
                     <Route path="/home" element={<ProtectedRoute><PeopleHome /></ProtectedRoute>} />
@@ -336,8 +342,10 @@ const App = () => (
                     <Route path="/app-preview/create/moment" element={<CreateMoment />} />
                     <Route path="/app-preview/earn" element={<EarnOpportunities />} />
                     <Route path="/app-preview/happened" element={<WhatHappened />} />
+                    <Route path="/app-preview/progress" element={<Progress />} />
                     <Route path="/app-preview/card" element={<MyPromoCard />} />
                     <Route path="/app-preview/crews" element={<Crews />} />
+                    <Route path="/app-preview/guilds" element={<Guilds />} />
                     <Route path="/app-preview/start" element={<StartCommunity />} />
                     <Route path="/app-preview/stock" element={<PutInventoryUp />} />
                     <Route path="/create/campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
