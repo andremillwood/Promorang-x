@@ -126,8 +126,8 @@ export function PromoCardFace({
     <LinearGradient
       colors={
         face.state === 'empty' || face.state === 'expired' || face.state === 'used'
-          ? ['#D45A1A', '#A33D00', '#7A2C00']
-          : ['#FF7A2D', '#FF5500', '#C43D00']
+          ? ['#C24600', '#C24600', '#C24600']
+          : ['#FF5500', '#FF5500', '#FF5500']
       }
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
@@ -193,17 +193,16 @@ const styles = StyleSheet.create({
     borderRadius: 90,
     left: -40,
     top: -70,
-    backgroundColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
-  glowQuiet: { backgroundColor: 'rgba(255,85,0,0.22)' },
+  glowQuiet: { backgroundColor: 'transparent' },
   sheen: {
     position: 'absolute',
     top: 0,
-    bottom: 0,
-    width: 70,
-    left: '42%',
-    backgroundColor: 'rgba(255,255,255,0.16)',
-    transform: [{ skewX: '-18deg' }],
+    height: 64,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   markBadge: {
     width: 48,
