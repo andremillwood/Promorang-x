@@ -16,9 +16,9 @@ Promorang rewards useful contribution without allowing users to extract funded v
 | Instrument | Sole primary job | Earned from | Used for |
 |---|---|---|---|
 | Points | Measure useful participation and progress | Verified organic and Proof activity, after tier multiplier | Convert to PromoKeys; rank and selected milestones |
-| PromoKeys | Ration access to individual gated opportunities | 500 Points per Key, verified milestones, Community Draws, disclosed subscription allowances | Apply to or enter a specific gated opportunity |
+| PromoKeys | Ration access to individual gated opportunities | 500 Points per Key, verified milestones, perk draws, disclosed subscription allowances | Apply to or enter a specific gated opportunity |
 | Master Key | Prove the user has completed today's required free contribution | Complete the subscription tier's daily verified Proof requirement | Permission to spend PromoKeys on funded or premium opportunities that day |
-| Gems | Represent funded platform value | Successfully complete funded activity, win a funded allocation, or receive a disclosed allowance | Approved platform utility and eligible redemption flows |
+| Gems | Represent funded platform value | Successfully complete funded activity, win Save & Win extra Gems, or receive a disclosed allowance | Approved platform utility and eligible redemption flows |
 | PromoShare Tickets | Create chances in a named draw | Actions matching that draw's published rules | Participate only in the draw shown on the ticket |
 
 Points never purchase or activate the Master Key. Points convert to PromoKeys. The Master Key is activated only by verified free contribution.
@@ -45,7 +45,7 @@ Upgrading provides two connected benefits: faster Point accumulation and less fr
 - Default conversion: 500 Points to 1 PromoKey.
 - Maximum conversion: 3 PromoKeys per user per platform day.
 - Conversion debits Points and credits PromoKeys atomically.
-- PromoKeys may also be granted by verified milestones, Community Draws, or disclosed subscription benefits.
+- PromoKeys may also be granted by verified milestones, perk draws, or disclosed subscription benefits.
 - A PromoKey is consumed only when the opportunity's published access rule requires one.
 - A failed or reversed application follows the opportunity's disclosed refund rule.
 
@@ -61,17 +61,19 @@ Upgrading provides two connected benefits: faster Point accumulation and less fr
 
 ## PromoShare rules
 
+PromoShare is one system. Every Ticket names its eligible draw. Every draw publishes the prize before anyone enters. A Ticket is not Points, weight, or a guaranteed reward. More eligible Tickets improve odds. Leaderboard Points remain separate from random selection.
+
 PromoShare has two participant-facing draw families:
 
-### Funded Draws
+### Perk draws
 
-Committed value exists before launch. Rewards may include Gems, cash-equivalent prizes, products, coupons, discounts, experiences, or VIP access.
+Rewards create progression or partner value rather than open-ended payout liability. A published perk draw may pay PromoKeys, access, partner perks, products, Pieces, boosts, badges, or rank. Perk draws do not pay cash or withdrawable Gems.
 
-### Community Draws
+### Save & Win
 
-Rewards create progression rather than open-ended payout liability. Rewards may include Points, PromoKeys, boosts, badges, rank, status, or early access.
+Save & Win is the PromoShare family that pays money winnings. Participants park Gems, keep 100% of that principal, and collect Tickets for that pot's named draws. A win pays extra Gems from a committed prize already set aside. Losing does not take the parked Gems. Holding Gems in a wallet, without parking them in Save & Win, earns no return.
 
-Every Ticket names its eligible draw. A Ticket is not Points, weight, or a guaranteed reward. More eligible Tickets improve a user's chance in a random draw. Leaderboard Points remain separate from random selection.
+Legacy name: Funded Draws. New participant-facing name: Save & Win. Legacy name: Community Draws. New participant-facing name: Perk draws.
 
 ## Earning receipt
 
@@ -79,7 +81,7 @@ One verified contribution may legitimately advance several systems. The receipt 
 
 - `+30 Points (20 base x 1.5 Professional multiplier)`
 - `Master Key: 1 of 2 verified Proofs completed today`
-- `+1 Ticket: Weekly Community Draw`
+- `+1 Ticket: Weekly perk draw`
 - `+1 Ticket: Sponsor Summer Draw`, when rules match
 
 This is one action producing several transparent receipts, not one currency being silently transformed into another.

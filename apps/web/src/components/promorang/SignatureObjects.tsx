@@ -324,10 +324,13 @@ export function ObjectShelf({
   const marks: Record<string, string> = {
     PromoCard: "from-amber-200 to-amber-500",
     Points: "from-amber-400 to-orange-600",
+    PromoKeys: "from-orange-300 to-orange-600",
     Keys: "from-orange-300 to-orange-600",
-    "Daily streak": "from-amber-300 to-red-500",
+    "Master Key": "from-amber-300 to-red-500",
     Pieces: "from-purple-300 to-fuchsia-600",
     Gems: "from-cyan-300 to-teal-500",
+    "PromoShare tickets": "from-sky-300 to-indigo-500",
+    "Save & Win": "from-emerald-300 to-emerald-600",
   };
 
   return (

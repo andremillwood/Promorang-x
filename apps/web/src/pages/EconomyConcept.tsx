@@ -25,6 +25,8 @@ import {
 } from "@/components/promorang/SignatureObjects";
 import { useI18n } from "@/i18n/I18nContext";
 import type { TranslationKey } from "@/i18n/translations";
+import { listValueInstruments, VALUE_INSTRUMENTS, VALUE_STORY } from "@promorang/shared";
+import { WhatIsWhatMap } from "@/components/economy/WhatIsWhatMap";
 
 type ConceptKey =
   | "overview"
@@ -35,32 +37,56 @@ type ConceptKey =
   | "promocard"
   | "pieces"
   | "content"
-  | "promoshare-gems"
+  | "gems"
+  | "promoshare"
+  | "save-and-win"
   | "network"
   | "sustainability";
 
 const navigationLinks: Array<{ label: TranslationKey; slug: string; path: string }> = [
   { label: "economy.navOverview", slug: "overview", path: "/economy" },
+  { label: "economy.navPromoCard", slug: "promocard", path: "/economy/promocard" },
   { label: "economy.navMoments", slug: "moments", path: "/economy/moments" },
   { label: "economy.navPoints", slug: "points", path: "/economy/points" },
+  { label: "economy.navGems", slug: "gems", path: "/economy/gems" },
+  { label: "economy.navPieces", slug: "pieces", path: "/economy/pieces" },
   { label: "economy.navKeys", slug: "keys", path: "/economy/keys" },
   { label: "economy.navMasterKey", slug: "master-key", path: "/economy/master-key" },
-  { label: "economy.navPromoCard", slug: "promocard", path: "/economy/promocard" },
-  { label: "economy.navPieces", slug: "pieces", path: "/economy/pieces" },
+  { label: "economy.navPromoShare", slug: "promoshare", path: "/economy/promoshare" },
+  { label: "economy.navSaveWin", slug: "save-and-win", path: "/economy/save-and-win" },
   { label: "economy.navContent", slug: "content", path: "/economy/content" },
-  { label: "economy.navGems", slug: "promoshare-gems", path: "/economy/promoshare-gems" },
   { label: "economy.navCrews", slug: "network", path: "/economy/network" },
   { label: "economy.navMoney", slug: "sustainability", path: "/economy/sustainability" },
 ];
 
-const objectShelf = [
-  { href: "/economy/promocard", name: "PromoCard", like: "A local gift card you can refill.", use: "Comes off the bill at partner shops." },
-  { href: "/economy/points", name: "Points", like: "A punch card for showing up.", use: "500 Points can become 1 Key." },
-  { href: "/economy/keys", name: "Keys", like: "A ticket you earn, not buy.", use: "Opens a limited prize or VIP table." },
-  { href: "/economy/master-key", name: "Daily streak", like: "One real action keeps it on for 24 hours.", use: "Can boost what you earn that day." },
-  { href: "/economy/pieces", name: "Pieces", like: "A concert poster you can still use.", use: "Keep for perks, or pass it on later." },
-  { href: "/economy/promoshare-gems", name: "Gems", like: "Store credit a brand already paid for.", use: "Redeem for perks, products, or eligible cash." },
-];
+const objectShelf = listValueInstruments().map((item) => ({
+  href: item.href,
+  name: item.name,
+  like: item.like,
+  use: item.shelfUse,
+}));
+
+const CONCEPT_SLUGS = new Set<ConceptKey>([
+  "overview",
+  "moments",
+  "points",
+  "keys",
+  "master-key",
+  "promocard",
+  "pieces",
+  "content",
+  "gems",
+  "promoshare",
+  "save-and-win",
+  "network",
+  "sustainability",
+]);
+
+function resolveConceptKey(concept?: string): ConceptKey {
+  if (concept === "promoshare-gems") return "gems";
+  if (concept && CONCEPT_SLUGS.has(concept as ConceptKey)) return concept as ConceptKey;
+  return "overview";
+}
 
 const conceptData: Record<
   ConceptKey,
@@ -273,43 +299,42 @@ const conceptData: Record<
     tagline: "Keys open the city for people who actually show up.",
   },
   "master-key": {
-    eyebrow: "Your daily streak",
-    headline: "Do one real thing today and keep the streak going.",
-    subhead:
-      "Check in, leave a review, or finish a small action. The daily streak stays on for 24 hours. Keep it active and you can earn more Points and enter daily prize draws.",
-    inPlainEnglish: "It is a daily stamp, not a lockout. One honest action keeps the door open.",
-    primaryCta: { label: "Check your streak", href: "/activity" },
-    secondaryCta: { label: "Do one thing today", href: "/explore/moments" },
+    eyebrow: "Today's contribution gate",
+    headline: VALUE_INSTRUMENTS["master-key"].job.replace(/\.$/, "."),
+    subhead: VALUE_INSTRUMENTS["master-key"].is,
+    inPlainEnglish: VALUE_INSTRUMENTS["master-key"].like,
+    primaryCta: { label: "See today's Proofs", href: "/activity" },
+    secondaryCta: { label: "Do one Proof today", href: "/explore/moments" },
     roles: [
       {
         role: "If you go out",
-        why: "A small habit should make the rest of the week nicer, not stressful.",
-        outcome: "Keep the streak on with one action. Active streaks can boost Points and daily draws.",
-        action: "Activate today's streak",
+        why: "Funded extras should go to people who already contributed today — not to a wallet that bought a shortcut.",
+        outcome: "Finish your tier's free Proofs. The Master Key turns on by itself. Then PromoKeys can be spent.",
+        action: "Do today's Proof",
         href: "/explore/moments",
       },
       {
         role: "If you run a shop",
-        why: "Tuesdays and Wednesdays need a reason to visit.",
-        outcome: "Become a check-in spot for neighborhood regulars who want to keep a streak alive.",
+        why: "Quiet weekdays need a reason to visit that is not a discount war.",
+        outcome: "Become a place people stop to finish today's Proof, then stay for a real purchase.",
         action: "Register your place",
         href: "/create/moment",
       },
       {
-        role: "If you sponsor daily perks",
-        why: "One-week campaigns spike, then disappear.",
-        outcome: "Fund a daily perk for people who actually did something today.",
-        action: "Sponsor a daily drop",
+        role: "If you fund opportunities",
+        why: "Open giveaways get farmed by accounts that never show up.",
+        outcome: "Require today's Master Key so the budget reaches people who already did the work.",
+        action: "Launch a gated campaign",
         href: "/for-brands",
       },
     ],
     steps: [
-      { label: "01", title: "Do one thing", text: "Check in, review, or complete a short mission." },
-      { label: "02", title: "Streak stays on", text: "You have 24 hours before it needs another action." },
-      { label: "03", title: "Earn a little more", text: "Active streaks can boost Points and daily prize access." },
-      { label: "04", title: "Miss a day? Start again", text: "No punishment theater. Just come back." },
+      { label: "01", title: "Know your count", text: "Starter needs 5 verified free Proofs. Professional 2. Power User 1." },
+      { label: "02", title: "Do the free work", text: "Only completed, unpaid Proofs count. Likes do not, unless they sit inside a Proof mission." },
+      { label: "03", title: "It turns on", text: "No Point charge. No purchase. The gate opens until daily reset." },
+      { label: "04", title: "Then spend Keys", text: "A PromoKey still answers how many doors you may open. The Master Key answers whether today counts." },
     ],
-    tagline: "One small action every day keeps the extras open.",
+    tagline: VALUE_INSTRUMENTS["master-key"].marketKnows,
   },
   pieces: {
     eyebrow: "Keepsakes with perks",
@@ -389,44 +414,122 @@ const conceptData: Record<
     ],
     tagline: "Content that brings people together in the real world.",
   },
-  "promoshare-gems": {
-    eyebrow: "Rewards already paid for",
-    headline: "Gems and tickets are prizes a sponsor already funded.",
+  gems: {
+    eyebrow: "The money inside Promorang",
+    headline: "1 Gem = $1. Buy it, earn it, spend it for extras.",
     subhead:
-      "Before a prize is offered, the brand sets the money aside. PromoShare tickets are entries in a fair draw. Gems can be redeemed for products, perks, or eligible cash.",
-    inPlainEnglish: "Nothing is printed out of thin air. If you can win it, someone already paid for it.",
-    primaryCta: { label: "See live draws", href: "/promoshare" },
-    secondaryCta: { label: "Fund a prize pot", href: "/for-brands" },
+      "Gems are platform money. Pay with a card and $25 becomes 25 Gems. Or earn them from funded work. Spending Gems — on Pieces, perks, tips, or Save & Win — opens benefits a cash swipe outside the app cannot.",
+    inPlainEnglish: VALUE_STORY.gemsBuyBenefits,
+    primaryCta: { label: "Buy or earn Gems", href: "/wallet" },
+    secondaryCta: { label: "See Save & Win", href: "/economy/save-and-win" },
+    roles: [
+      {
+        role: "If you spend",
+        why: "Cash outside Promorang does not put you in the loop.",
+        outcome: "Buy Gems once, then spend them on Pieces, partner perks, and parked Save & Win pots. Those spends can also drop tickets.",
+        action: "Open your wallet",
+        href: "/wallet",
+      },
+      {
+        role: "If you earn",
+        why: "Showing up should be able to pay you in the same unit brands already use.",
+        outcome: "Finish a funded mission or Moment and Gems move from money that was already set aside.",
+        action: "Browse missions",
+        href: "/missions",
+      },
+      {
+        role: "If you fund it",
+        why: "You want every prize dollar to stay a prize dollar.",
+        outcome: "Deposit Gems first. People buy, earn, and redeem against a pot you can inspect.",
+        action: "Fund a pot",
+        href: "/for-brands",
+      },
+    ],
+    steps: [
+      { label: "Buy", title: "Pay $1, receive 1 Gem", text: "Purchased Gems are spendable right away inside Promorang." },
+      { label: "Earn", title: "Do funded work", text: "Missions, Moments, allowances, and Save & Win winnings can pay Gems. Holding them still earns nothing." },
+      { label: "Spend", title: "Use them for extras", text: "Pieces, tips, boosts, and partner perks. Gem spend can also issue PromoShare tickets." },
+      { label: "Park", title: "Or set them aside", text: "Save & Win keeps 100% of parked Gems and adds draw tickets while they sit." },
+    ],
+    tagline: VALUE_STORY.gemsEarn,
+  },
+  promoshare: {
+    eyebrow: "The draw names the prize",
+    headline: "A ticket is a chance. The named draw says what you can win.",
+    subhead:
+      "Every PromoShare ticket belongs to one published draw. Perk draws pay a Key, access, partner perk, product, or Piece. They do not pay cash. Save & Win is the PromoShare family that pays extra Gems.",
+    inPlainEnglish: VALUE_STORY.namedDrawPays,
+    primaryCta: { label: "See perk draws", href: "/promoshare" },
+    secondaryCta: { label: "See money draws", href: "/economy/save-and-win" },
     roles: [
       {
         role: "If you play along",
-        why: "Rewards should be redeemable, not theoretical.",
-        outcome: "Collect tickets for draws and redeem Gems for real products and perks.",
+        why: "You should know the prize before you care about the ticket.",
+        outcome: "Read the draw. Perk tickets can win a Key or perk. Save & Win tickets can win extra Gems. Neither is a guarantee.",
         action: "View PromoShare draws",
         href: "/promoshare",
       },
       {
         role: "If you host a night",
         why: "A mid-event draw keeps people in the room.",
-        outcome: "Run a live ticket draw that is already funded, so the prize is real.",
+        outcome: "Run a perk draw with a Key or tasting already set aside, or point people to Save & Win for money winnings.",
         action: "Host a draw",
         href: "/create/moment",
       },
       {
         role: "If you sponsor",
         why: "You want every prize dollar to stay a prize dollar.",
-        outcome: "Deposit the pot first. Get a clear record of what was given out.",
+        outcome: "Fund a perk, or fund extra Gems in Save & Win. Deposit first. Get a record of what was given out.",
         action: "Fund a brand pot",
         href: "/for-brands",
       },
     ],
     steps: [
-      { label: "01", title: "A sponsor funds it", text: "The prize money is set aside before anyone can win." },
-      { label: "02", title: "You earn a ticket or Gems", text: "Verified actions issue entries and reward units." },
-      { label: "03", title: "A fair draw happens", text: "Winners are selected in a way that can be checked." },
-      { label: "04", title: "You redeem", text: "Gems become products, perks, or eligible cash." },
+      { label: "01", title: "The draw is named", text: "It says perk or Save & Win, and it lists the prize before anyone enters." },
+      { label: "02", title: "You earn a ticket", text: "Show up for perk draws. Park Gems for Save & Win money draws." },
+      { label: "03", title: "A fair draw happens", text: "Random among eligible tickets. More tickets, better odds. Not a Points ranking." },
+      { label: "04", title: "You get what that draw published", text: "Perk: Key, access, or a partner perk. Save & Win: extra Gems. Your parked Gems stay yours." },
     ],
-    tagline: "Honest rewards backed by real sponsors.",
+    tagline: VALUE_INSTRUMENTS["promoshare-tickets"].marketKnows,
+  },
+  "save-and-win": {
+    eyebrow: "PromoShare's money draws",
+    headline: "This is the PromoShare family that pays extra Gems.",
+    subhead:
+      "Park Gems. Keep 100% of them. While they sit, you hold tickets in weekly and monthly money draws. If you win, extra Gems land on top — 1 Gem = $1. If you do not, take your parked Gems out whenever.",
+    inPlainEnglish: VALUE_STORY.saveAndWin,
+    primaryCta: { label: "See Save & Win pots", href: "/nodes" },
+    secondaryCta: { label: "Perk draws pay Keys, not cash", href: "/economy/promoshare" },
+    roles: [
+      {
+        role: "If you set money aside",
+        why: "A lottery should not be a way to lose the money you walked in with.",
+        outcome: "Park Gems, collect money-draw tickets, and keep the same Gems. A win is extra Gems.",
+        action: "Open the pots",
+        href: "/nodes",
+      },
+      {
+        role: "If you run a shop",
+        why: "Parked community value can back local discounts and check-in perks.",
+        outcome: "People keep their Gems. Your night still gets a float that helps perks land.",
+        action: "See merchant tools",
+        href: "/for-merchants",
+      },
+      {
+        role: "If you sponsor a pot",
+        why: "You want a prize people can enter without gambling their principal.",
+        outcome: "Fund the extra Gems. Participants park Gems they still own. That is the only PromoShare path that pays money winnings.",
+        action: "Fund a pot",
+        href: "/for-brands",
+      },
+    ],
+    steps: [
+      { label: "Set aside", title: "You park some Gems", text: "They still belong to you. Pull them out whenever you want." },
+      { label: "Tickets", title: "Those Gems collect money-draw tickets", text: "This is PromoShare, not a separate casino. The pot is named. The prize is extra Gems." },
+      { label: "Draw", title: "If you win, extra Gems land", text: "1 Gem = $1. Everyday perk draws do not do this." },
+      { label: "Keep", title: "If you do not win, nothing is lost", text: "Your parked Gems are still there. That is the no-loss part." },
+    ],
+    tagline: VALUE_INSTRUMENTS["save-and-win"].is,
   },
   network: {
     eyebrow: "Going out with your people",
@@ -645,29 +748,58 @@ function KeysDemo() {
   );
 }
 
-function StreakDemo() {
-  const [on, setOn] = useState(true);
+function MasterKeyDemo() {
+  const [proofs, setProofs] = useState(1);
+  const need = 2;
+  const on = proofs >= need;
   return (
     <article className="rounded-[1.7rem] border border-amber-400/30 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),transparent_46%),#120e0a] p-6">
       <div className="flex items-center justify-between gap-3">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-400 text-black">
           <Flame className="h-6 w-6" />
         </div>
-        <StatusChip ok={on}>{on ? "On · 14h left" : "Off · do one thing"}</StatusChip>
+        <StatusChip ok={on}>{on ? "Master Key on" : `${proofs} of ${need} Proofs`}</StatusChip>
       </div>
-      <h3 className="mt-5 font-serif text-2xl font-bold text-white">{on ? "6-day streak" : "Streak paused"}</h3>
+      <h3 className="mt-5 font-serif text-2xl font-bold text-white">{on ? "Today's gate is open" : "Do today's free Proofs"}</h3>
       <p className="mt-2 text-sm leading-6 text-zinc-300">
-        {on ? "Daily prize access is open. Points can get a 1.5× bump." : "Check in, review, or finish a short mission to start again."}
+        {on
+          ? "Professional member. Two verified free Proofs done. PromoKeys can now be spent on funded work."
+          : "Points cannot buy this. Finish the remaining Proof and the Master Key turns on until reset."}
       </p>
       <div className="mt-5">
-        <TactileButton variant="vault" size="lg" fullWidth onClick={() => setOn((v) => !v)}>
-          {on ? "Skip a day" : "Do today's action"}
+        <TactileButton variant="vault" size="lg" fullWidth onClick={() => setProofs((n) => (n >= need ? 1 : n + 1))}>
+          {on ? "Reset the day" : "Complete a Proof"}
         </TactileButton>
       </div>
       <p className="sr-only" aria-live="polite">
-        {on ? "Streak is on." : "Streak is off."}
+        {on ? "Master Key is on." : "Master Key is off."}
       </p>
     </article>
+  );
+}
+
+function GemsDemo() {
+  const [step, setStep] = useState<"buy" | "earn" | "spend">("buy");
+  const receipt =
+    step === "buy"
+      ? { heading: "You bought Gems", lines: [{ label: "Card charge", value: "$25.00" }, { label: "You received", value: "25 Gems", strong: true }], footer: "1 Gem = $1. Spendable inside Promorang now." }
+      : step === "earn"
+        ? { heading: "Mission paid out", lines: [{ label: "Cocktail recap", value: "Verified" }, { label: "From funded pot", value: "+120 Gems", strong: true }], footer: "Earned Gems. Holding them still earns nothing." }
+        : { heading: "Gem spend extras", lines: [{ label: "Neon Nights Piece", value: "−50 Gems" }, { label: "PromoShare tickets", value: "+2 this week", strong: true }, { label: "Cash outside would get", value: "Neither" }], footer: "Spending Gems is how extras open." };
+  return (
+    <div className="space-y-4">
+      <PaperReceipt heading={receipt.heading} lines={receipt.lines} footer={receipt.footer} />
+      <div className="grid grid-cols-3 gap-2">
+        {(["buy", "earn", "spend"] as const).map((key) => (
+          <TactileButton key={key} variant={step === key ? "primary" : "obsidian"} size="sm" fullWidth onClick={() => setStep(key)}>
+            {key === "buy" ? "Buy" : key === "earn" ? "Earn" : "Spend"}
+          </TactileButton>
+        ))}
+      </div>
+      <p className="sr-only" aria-live="polite">
+        Showing the {step} path for Gems.
+      </p>
+    </div>
   );
 }
 
@@ -680,7 +812,31 @@ function HeroObject({ concept }: { concept: ConceptKey }) {
     case "keys":
       return <KeysDemo />;
     case "master-key":
-      return <StreakDemo />;
+      return <MasterKeyDemo />;
+    case "gems":
+      return <GemsDemo />;
+    case "promoshare":
+      return (
+        <TicketPass
+          kicker="Friday 8pm perk draw"
+          title="Austin weekend Key"
+          detail="Ticket PS-88219. Prize already published: one PromoKey. This ticket is a chance, not the Key."
+          stub="PS"
+          stubLabel="Draw"
+        />
+      );
+    case "save-and-win":
+      return (
+        <PaperReceipt
+          heading="Local perks pot"
+          lines={[
+            { label: "Gems parked", value: "250", strong: true },
+            { label: "Still yours", value: "100%" },
+            { label: "Draw tickets", value: "+25 this week" },
+          ]}
+          footer="If you win, it is extra. If you do not, the 250 Gems stay."
+        />
+      );
     case "pieces":
       return (
         <CollectibleRelic
@@ -698,16 +854,6 @@ function HeroObject({ concept }: { concept: ConceptKey }) {
           detail="Film the seasonal drink at Velvet Lounge. Payout is already set aside."
           stub="120"
           stubLabel="Gems"
-        />
-      );
-    case "promoshare-gems":
-      return (
-        <TicketPass
-          kicker="Friday 8pm draw"
-          title="Austin weekend pot"
-          detail="Ticket PS-88219. The $500 prize is already funded."
-          stub="PS"
-          stubLabel="Draw"
         />
       );
     case "network":
@@ -747,7 +893,7 @@ function HeroObject({ concept }: { concept: ConceptKey }) {
 export default function EconomyConcept() {
   const { t } = useI18n();
   const { concept } = useParams();
-  const conceptKey = (concept ?? "overview") as ConceptKey;
+  const conceptKey = resolveConceptKey(concept);
   const data = conceptData[conceptKey] ?? conceptData.overview;
   const [selectedRoleIndex, setSelectedRoleIndex] = useState(0);
 
@@ -784,7 +930,7 @@ export default function EconomyConcept() {
                 </TactileButton>
               </div>
             </div>
-            <HeroObject concept={conceptData[conceptKey] ? conceptKey : "overview"} />
+            <HeroObject concept={conceptKey} />
           </div>
         </div>
       </section>
@@ -793,7 +939,7 @@ export default function EconomyConcept() {
         <div className="container px-6">
           <div className="flex gap-2 overflow-x-auto py-3 pr-scroll-rail">
             {navigationLinks.map((item) => {
-              const isActive = (conceptKey === "overview" && item.slug === "overview") || conceptKey === item.slug;
+              const isActive = conceptKey === item.slug;
               return (
                 <Link
                   key={item.slug}
@@ -830,6 +976,14 @@ export default function EconomyConcept() {
         </section>
       ) : null}
 
+      {conceptKey === "overview" ? (
+        <section className="border-b border-white/10 bg-[#0b0a09] py-16 md:py-24">
+          <div className="container px-6">
+            <WhatIsWhatMap homeLink={false} />
+          </div>
+        </section>
+      ) : null}
+
       <section className="border-b border-white/10 bg-[#0a0a0a] py-16 md:py-24">
         <div className="container px-6">
           <p className="text-xs font-bold tracking-[0.2em] text-primary">{t("economy.quickGuide")}</p>
@@ -838,7 +992,7 @@ export default function EconomyConcept() {
             {t("economy.eachItemCopy")}
           </p>
           <div className="mt-8">
-            <ObjectShelf items={objectShelf.map((item) => ({ ...item, active: item.href.endsWith(conceptKey) }))} />
+            <ObjectShelf items={objectShelf.map((item) => ({ ...item, active: item.href.endsWith(`/${conceptKey}`) || (conceptKey === "overview" && item.href.endsWith("/promocard")) }))} />
           </div>
         </div>
       </section>

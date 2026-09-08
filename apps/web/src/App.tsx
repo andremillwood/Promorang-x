@@ -57,6 +57,7 @@ const Pioneers = lazy(() => import("./pages/Pioneers"));
 const OrganizerWorkspace = lazy(() => import("./pages/OrganizerWorkspace"));
 const OrganizerLanding = lazy(() => import("./pages/OrganizerLanding"));
 const EconomyConcept = lazy(() => import("./pages/EconomyConcept"));
+const SaveAndWin = lazy(() => import("./pages/SaveAndWin"));
 const VenueReportTeaser = lazy(() => import("./pages/VenueReportTeaser"));
 const Hosting = lazy(() => import("./pages/Hosting"));
 const Pricing = lazy(() => import("./pages/Pricing"));
@@ -294,7 +295,8 @@ const App = () => (
                     <Route path="/economy/:concept" element={<EconomyConcept />} />
                     <Route path="/venue-report/:id" element={<VenueReportTeaser />} />
                     <Route path="/pricing" element={<Pricing />} />
-                    <Route path="/nodes" element={<Navigate to="/value-studio" replace />} />
+                    <Route path="/nodes" element={<SaveAndWin />} />
+                    <Route path="/save-and-win" element={<SaveAndWin />} />
                     <Route path="/membership/checkout" element={<ProtectedRoute><MembershipCheckout /></ProtectedRoute>} />
                     <Route path="/claim-pages" element={<ProtectedRoute><ClaimPages /></ProtectedRoute>} />
                     <Route path="/billing/result" element={<ProtectedRoute><BillingResult /></ProtectedRoute>} />
