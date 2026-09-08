@@ -149,8 +149,8 @@ export const PromorangNodeHub = ({
 
       <div className="flex flex-wrap gap-3 pb-4">
         <TactileButton variant="primary" size="lg" asChild>
-          <Link to="/economy">
-            How the rest of Promorang works
+          <Link to="/economy/save-and-win">
+            How Save & Win sits next to Gems
             <ArrowRight className="h-4 w-4" />
           </Link>
         </TactileButton>

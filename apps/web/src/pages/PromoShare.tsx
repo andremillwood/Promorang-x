@@ -45,6 +45,8 @@ import { TeamSlashModal } from '@/components/TeamSlashModal';
 import { DailyRewardsModal } from '@/components/DailyRewardsModal';
 import { cultureEvents } from '@/data/culture-demo';
 import { useI18n } from '@/i18n/I18nContext';
+import { VALUE_INSTRUMENTS, VALUE_STORY } from '@promorang/shared';
+import { PlainEnglish } from '@/components/promorang/SignatureObjects';
 
 interface CycleStats {
   cycle_id: string;
@@ -282,12 +284,15 @@ const PromoShare = () => {
         />
         <SurfaceHero
           eyebrow="PromoShare"
-          title="See what your influence actually moved."
-          body="PromoShare connects useful content and sharing to verified visits, joins, referrals, and purchases. Funded rewards and draws can sit on top of that proof; they are not the purpose of the system."
-          meta={['verified attribution', 'creator impact', 'funded outcomes']}
+          title={VALUE_INSTRUMENTS["promoshare-tickets"].job}
+          body={VALUE_STORY.ticketsChance}
+          meta={['named draw', 'not Gems', 'not a guarantee']}
           primary={user ? undefined : { label: 'Sign in', href: '/auth' }}
-          secondary={{ label: 'Find drops', href: '/content-drops' }}
+          secondary={{ label: 'How tickets work', href: '/economy/promoshare' }}
         />
+        <div className="mt-6 max-w-2xl">
+          <PlainEnglish>{VALUE_INSTRUMENTS["promoshare-tickets"].isNot}</PlainEnglish>
+        </div>
         <div className="pr-feed-surface mt-6 p-8 text-center">
             <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">
@@ -352,6 +357,15 @@ const PromoShare = () => {
         multiplier={3.5}
         onOpenSlash={() => setSlashOpen(true)}
       />
+      <div className="mb-8 grid gap-3 md:grid-cols-2">
+        <PlainEnglish>{VALUE_STORY.ticketsChance}</PlainEnglish>
+        <aside className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/70">
+          {VALUE_INSTRUMENTS.gems.shelfUse} Parked Gems in{" "}
+          <Link to="/nodes" className="font-semibold text-amber-200 hover:text-white">Save & Win</Link>{" "}
+          can also issue tickets.{" "}
+          <Link to="/economy/promoshare" className="font-semibold text-amber-200 hover:text-white">See the map</Link>
+        </aside>
+      </div>
 
       {/* Pre-Loaded Card Drop Creator */}
       <div className="mb-8">

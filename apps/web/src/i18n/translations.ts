@@ -205,9 +205,9 @@ const en = {
 
 
   // PromoShare
-  "promoshare.heroEyebrow": "Verified Distribution & Yield Engine",
-  "promoshare.heroTitle": "Turn verified moves into real return.",
-  "promoshare.heroSubtitle": "Verified visits, shared content, and referred patrons earn action entries into community & sponsored prize pools.",
+  "promoshare.heroEyebrow": "Named draws, not mystery prizes",
+  "promoshare.heroTitle": "A ticket is a chance in one draw.",
+  "promoshare.heroSubtitle": "Verified visits, shares, and missions can issue tickets for a named pot. More eligible tickets improve odds. A ticket is not Gems, not Points, and not a guarantee. Prize money is set aside first.",
   "promoshare.enterTicketDraw": "Enter Ticket Draw",
   "promoshare.squadSlash": "Group Squad Slash",
   "promoshare.yourStanding": "Your Standing",
@@ -217,7 +217,7 @@ const en = {
   "promoshare.hostLayer": "Host Layer",
   "promoshare.activeTickets": "Active Tickets",
 
-  "promoshare.yieldMultiplier": "Yield Multiplier",
+  "promoshare.yieldMultiplier": "Ticket boost",
   "promoshare.recentReceipts": "Recent earning receipts",
   "promoshare.noReceiptsYet": "No receipts yet",
   "promoshare.noReceiptsDesc": "Move content, join Moments, submit proof, or refer users to start earning.",
@@ -4824,7 +4824,7 @@ const en = {
   "economy.assetGemsSupply": "Sponsors fund every Gem before it is offered",
   "economy.assetGemsRisk": "Reward money is set aside in advance",
   "economy.assetGemsBurn": "Redeem for products, perks, or eligible cash payouts",
-  "economy.assetGemsSummary": "Liquid reward units funded upfront by brand campaign deposits with transparent on-chain audit trails.",
+  "economy.assetGemsSummary": "1 Gem = $1 of platform value. Buy them or earn them from funded work. Spending Gems opens extras cash outside the app cannot.",
   "economy.overviewEyebrow": "How value moves through Promorang",
   "economy.overviewHeadline": "A closed-loop local economy led by PromoCard spending and verified participation.",
   "economy.overviewSubhead": "PromoCard is the everyday value layer connecting members, merchants, creators and brands. Members use promotional value on eligible partner purchases, merchants gain attributable paying customers, and verified participation can recharge the next purchase.",
@@ -5299,9 +5299,9 @@ const es: Record<TranslationKey, string> = {
 
 
   // PromoShare
-  "promoshare.heroEyebrow": "Motor de distribución y rendimiento verificado",
-  "promoshare.heroTitle": "Convierte acciones verificadas en recompensas reales.",
-  "promoshare.heroSubtitle": "Las visitas verificadas, el contenido compartido y los referidos otorgan entradas para sorteos comunitarios y patrocinados.",
+  "promoshare.heroEyebrow": "Sorteos con nombre, no premios misteriosos",
+  "promoshare.heroTitle": "Un ticket es una chance en un sorteo.",
+  "promoshare.heroSubtitle": "Visitas, shares y misiones verificadas pueden emitir tickets para una olla con nombre. Más tickets elegibles mejoran las probabilidades. Un ticket no es Gemas, ni Puntos, ni una garantía. El premio se reserva antes.",
   "promoshare.enterTicketDraw": "Ingresar al sorteo de entradas",
   "promoshare.squadSlash": "Pool grupal Slash",
   "promoshare.yourStanding": "Tu estado",
@@ -5310,7 +5310,7 @@ const es: Record<TranslationKey, string> = {
   "promoshare.fundOutcome": "Financiar un resultado verificado",
   "promoshare.hostLayer": "Capa de Anfitriones",
   "promoshare.activeTickets": "Entradas activas",
-  "promoshare.yieldMultiplier": "Multiplicador de rendimiento",
+  "promoshare.yieldMultiplier": "Impulso de tickets",
   "promoshare.recentReceipts": "Recibos recientes de ganancias",
   "promoshare.noReceiptsYet": "Aún no hay recibos",
   "promoshare.noReceiptsDesc": "Comparte contenido, únete a Momentos, envía pruebas o refiere usuarios para comenzar a ganar.",
@@ -9917,7 +9917,7 @@ const es: Record<TranslationKey, string> = {
   "economy.assetGemsSupply": "Los patrocinadores financian cada Gema antes de ofrecerla",
   "economy.assetGemsRisk": "El dinero de recompensa se reserva de antemano",
   "economy.assetGemsBurn": "Canjea por productos, beneficios o pagos elegibles",
-  "economy.assetGemsSummary": "Unidades líquidas de recompensa financiadas por depósitos de campaña de marca, con auditoría transparente.",
+  "economy.assetGemsSummary": "1 Gema = $1 de valor en la plataforma. Cómpralas o gánalas en trabajo financiado. Gastarlas abre extras que el efectivo fuera de la app no da.",
   "economy.overviewEyebrow": "Cómo se mueve el valor en Promorang",
   "economy.overviewHeadline": "Una economía local de ciclo cerrado liderada por el gasto con PromoCard y la participación verificada.",
   "economy.overviewSubhead": "PromoCard es la capa cotidiana de valor que conecta miembros, comercios, creadores y marcas. Los miembros usan valor promocional en compras elegibles, los comercios ganan clientes que pagan y la participación verificada puede recargar la próxima compra.",
@@ -10390,9 +10390,9 @@ const ptBR: Record<TranslationKey, string> = {
 
 
   // PromoShare
-  "promoshare.heroEyebrow": "Mecanismo de distribuição e rendimento verificado",
-  "promoshare.heroTitle": "Transforme ações verificadas em retorno real.",
-  "promoshare.heroSubtitle": "Visitas verificadas, conteúdo compartilhado e indicações geram entradas para sorteios comunitários e patrocinados.",
+  "promoshare.heroEyebrow": "Sorteios com nome, sem prêmio misterioso",
+  "promoshare.heroTitle": "Um ticket é uma chance em um sorteio.",
+  "promoshare.heroSubtitle": "Visitas, compartilhamentos e missões verificadas podem emitir tickets para um pote com nome. Mais tickets elegíveis melhoram as chances. Um ticket não é Gema, nem Ponto, nem garantia. O prêmio é separado antes.",
   "promoshare.enterTicketDraw": "Entrar no sorteio de ingressos",
   "promoshare.squadSlash": "Pool em grupo Slash",
   "promoshare.yourStanding": "Seu status",
@@ -10401,7 +10401,7 @@ const ptBR: Record<TranslationKey, string> = {
   "promoshare.fundOutcome": "Financiar um resultado verificado",
   "promoshare.hostLayer": "Camada de Anfitriões",
   "promoshare.activeTickets": "Ingressos ativos",
-  "promoshare.yieldMultiplier": "Multiplicador de rendimento",
+  "promoshare.yieldMultiplier": "Impulso de tickets",
   "promoshare.recentReceipts": "Comprovantes recentes de ganhos",
   "promoshare.noReceiptsYet": "Nenhum comprovante ainda",
   "promoshare.noReceiptsDesc": "Divulgue conteúdo, participe de Momentos, envie comprovações ou indique usuários para começar a ganhar.",
@@ -15008,7 +15008,7 @@ const ptBR: Record<TranslationKey, string> = {
   "economy.assetGemsSupply": "Patrocinadores financiam cada Gema antes de oferecê-la",
   "economy.assetGemsRisk": "O dinheiro da recompensa é reservado antecipadamente",
   "economy.assetGemsBurn": "Resgate por produtos, benefícios ou saques elegíveis",
-  "economy.assetGemsSummary": "Unidades líquidas de recompensa financiadas por depósitos de campanha de marca, com auditoria transparente.",
+  "economy.assetGemsSummary": "1 Gema = $1 de valor na plataforma. Compre ou ganhe em trabalho financiado. Gastar abre extras que o dinheiro de fora do app não dá.",
   "economy.overviewEyebrow": "Como o valor se move na Promorang",
   "economy.overviewHeadline": "Uma economia local de ciclo fechado liderada pelo gasto com PromoCard e participação verificada.",
   "economy.overviewSubhead": "O PromoCard é a camada cotidiana de valor que conecta membros, comércios, criadores e marcas. Membros usam valor promocional em compras elegíveis, comércios ganham clientes que pagam e a participação verificada pode recarregar a próxima compra.",
