@@ -18,9 +18,18 @@ export default function ProgressScreen() {
       eyebrow={world?.dispatch?.eyebrow || 'Progress'}
       title="What happened because of you"
     >
+      {world?.identity?.line ? (
+        <Text style={{ color: Colors.white, fontSize: 20, fontWeight: '700' }}>{world.identity.line}</Text>
+      ) : null}
       <Text style={{ color: Colors.gray[400] }}>
         {world?.path?.forming ? world.path.cue : 'A path has not formed yet. Three matching verified actions first.'}
       </Text>
+      {world?.identity?.influenceLine ? (
+        <Text style={{ color: Colors.gray[400] }}>{world.identity.influenceLine}</Text>
+      ) : null}
+      {world?.worldSystem?.returnChain?.line ? (
+        <Text style={{ color: Colors.white, fontSize: 18, fontWeight: '700' }}>{world.worldSystem.returnChain.heading}</Text>
+      ) : null}
       {world?.latestReturn ? (
         <Text style={{ color: Colors.white, fontSize: 22, fontWeight: '700' }}>{world.latestReturn.heading}</Text>
       ) : (

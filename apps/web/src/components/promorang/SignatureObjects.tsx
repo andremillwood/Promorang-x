@@ -32,6 +32,7 @@ export function PromoCardWorldContext({
   crew,
   run,
   pathCue,
+  identityLine,
   latestReturn,
   nearestUnlock,
   latestPiece,
@@ -41,6 +42,7 @@ export function PromoCardWorldContext({
   crew?: string | null;
   run?: string | null;
   pathCue?: string | null;
+  identityLine?: string | null;
   latestReturn?: string | null;
   nearestUnlock?: string | null;
   latestPiece?: string | null;
@@ -50,7 +52,8 @@ export function PromoCardWorldContext({
     season ? { label: "Season", value: season } : null,
     crew ? { label: "Crew", value: crew } : null,
     run ? { label: "Run", value: run } : null,
-    pathCue ? { label: "Path", value: pathCue } : null,
+    identityLine ? { label: "How you move", value: identityLine } : null,
+    pathCue && !identityLine ? { label: "Path", value: pathCue } : null,
     latestReturn ? { label: "Latest Return", value: latestReturn } : null,
     latestPiece ? { label: "Kept", value: latestPiece } : null,
     nearestUnlock ? { label: "Closest opening", value: nearestUnlock } : null,

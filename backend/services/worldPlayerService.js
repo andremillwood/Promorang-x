@@ -3,10 +3,12 @@ const { resolveFaction, WORLD_FACTIONS } = require('./worldLayer');
 
 async function getPlayerState(userId, db = serviceSupabase) {
   if (!db || !userId) return { faction: null };
-  const row = await db.from('world_player_state').select('faction_key, declared_at').eq('user_id', userId).maybeSingle();
+  const row = await db.from('world_player_state').select('faction_key, declared_at, house_key, house_revealed_at').eq('user_id', userId).maybeSingle();
   return {
     faction: resolveFaction(row.data?.faction_key),
     declaredAt: row.data?.declared_at || null,
+    houseKey: row.data?.house_key || null,
+    houseRevealedAt: row.data?.house_revealed_at || null,
   };
 }
 

@@ -2,6 +2,7 @@
  * PromoCard-centered world layer.
  *
  * Canonical product law: docs/design/promocard-world-experience-v1.md
+ * Strategy layer: docs/design/promorang-world-system-v2.md
  *
  * This module resolves presentation from server-trusted facts.
  * It never invents live density, financial Return, Crew progress, or path titles.
@@ -491,7 +492,7 @@ export function resolveFaction(key?: string | null): WorldFaction | null {
   return WORLD_FACTIONS[key as WorldFactionKey] || null;
 }
 
-export type CrewRunRoleKey = "captain" | "scout" | "chronicler" | "keeper";
+export type CrewRunRoleKey = "captain" | "scout" | "connector" | "amplifier" | "chronicler" | "keeper";
 
 export type CrewRunRole = {
   key: CrewRunRoleKey;
@@ -502,7 +503,9 @@ export type CrewRunRole = {
 export const CREW_RUN_ROLES: Record<CrewRunRoleKey, CrewRunRole> = {
   captain: { key: "captain", title: "Captain", job: "Keep the Crew moving toward the Run." },
   scout: { key: "scout", title: "Scout", job: "Find the Signal and the room." },
-  chronicler: { key: "chronicler", title: "Chronicler", job: "Keep proof of what counted." },
+  connector: { key: "connector", title: "Connector", job: "Bring the person who should be in the room." },
+  amplifier: { key: "amplifier", title: "Amplifier", job: "Make the night visible." },
+  chronicler: { key: "chronicler", title: "Amplifier", job: "Keep proof of what counted — now Amplifier." },
   keeper: { key: "keeper", title: "Keeper", job: "Hold the Memory and what came back." },
 };
 
