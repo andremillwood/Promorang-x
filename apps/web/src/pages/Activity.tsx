@@ -157,7 +157,7 @@ const Activity = () => {
                             </p>
                             <div className="mt-7 flex flex-wrap gap-3">
                                 <Button asChild className="bg-orange-500 font-bold text-black hover:bg-orange-400">
-                                    <Link to="/discover">{t("activity.find")} <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                                    <Link to={lens.putIn.href}>{lens.putIn.label} <ArrowRight className="ml-2 h-4 w-4" /></Link>
                                 </Button>
                                 <Button asChild variant="outline" className="border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white">
                                     <Link to="/creators">{t("activity.follow")}</Link>

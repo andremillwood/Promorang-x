@@ -27,7 +27,7 @@ import {
 import { getSiteUrl } from "@/lib/discovery";
 import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModal";
 import { PromorangMap, MapMarkerItem } from "@/components/PromorangMap";
-import { worldObjectState } from "@promorang/shared";
+import { getStakeholderLens, worldObjectState } from "@promorang/shared";
 import { DiscoverRightRail } from "@/components/discovery/DiscoverRightRail";
 import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
 import { useMarket } from "@/contexts/MarketContext";
@@ -132,7 +132,7 @@ type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places"
 
 const Discover = () => {
   const { t } = useI18n();
-  const { user } = useAuth();
+  const { user, activeRole } = useAuth();
   const { city, setCity } = useMarket();
   const { data: preferences } = useUserPreferences();
   const { data: listingPolls = [] } = useListingDiscoveryPolls(12);
@@ -157,7 +157,9 @@ const Discover = () => {
   const nearby = useNearbyBenefits();
   const perksLoading = nearby.isLoading;
   const livePerks = nearby.data || [];
+  const stake = getStakeholderLens(searchParams.get("role") || activeRole);
   const putPerkUpHref = user ? "/stock" : "/auth?next=/stock";
+  const putInHref = user ? stake.putIn.href : `/auth?next=${encodeURIComponent(stake.putIn.href)}`;
 
   const handleTabChange = (tab: DiscoverTab) => {
     const next = new URLSearchParams(searchParams);
@@ -429,7 +431,7 @@ const Discover = () => {
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white pb-16">
       <SEO
         title="Discover Culture, Perks & Opportunities — Promorang"
-        description="Discover what is worth doing, choosing, and sharing. Vote on community demand signals, unlock verified perks, and promote culture drops."
+        description={stake.world.meaning}
         url={getSiteUrl("/discover")}
       />
 
@@ -438,15 +440,15 @@ const Discover = () => {
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <Badge className="rounded-full bg-primary text-white font-black text-[10px] uppercase tracking-wider border-none">
-                People → Discover
+                {stake.workspaceLabel} → World
               </Badge>
               <span className="text-xs text-white/50 font-semibold">{city.name}</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-              Discover What's Worth Doing & Choosing
+              {stake.world.label === "World" ? "Discover What's Worth Doing & Choosing" : stake.world.label}
             </h1>
             <p className="text-white/60 text-xs sm:text-sm max-w-xl">
-              Answer one relevant choice, unlock partner Perks, RSVP to live moments, or share them to earn draw tickets.
+              {stake.world.meaning}
             </p>
           </div>
 
@@ -456,9 +458,9 @@ const Discover = () => {
               asChild
               className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 h-10 px-4"
             >
-              <Link to={putPerkUpHref}>
+              <Link to={putInHref}>
                 <Store className="w-4 h-4" />
-                <span>Put a perk up</span>
+                <span>{stake.putIn.label}</span>
               </Link>
             </Button>
           </div>

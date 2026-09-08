@@ -49,3 +49,33 @@ export function StakeholderPutInPass({ role }: { role?: string | null }) {
     </Link>
   );
 }
+
+export function StakeholderSurfaceLead({
+  role,
+  surface,
+}: {
+  role?: string | null;
+  surface: "world" | "promoCard" | "activity";
+}) {
+  const lens = getStakeholderLens(role);
+  const to = useExperiencePath();
+  const object =
+    surface === "world"
+      ? lens.world
+      : surface === "activity"
+        ? lens.activity
+        : { label: "Card", meaning: lens.promoCard.meaning, href: "/card" };
+
+  return (
+    <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] px-4 py-4">
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{object.label}</p>
+      <p className="mt-2 text-sm leading-6 text-white/70">{object.meaning}</p>
+      <Link
+        to={to(lens.putIn.href)}
+        className="experience-interactive mt-3 inline-flex min-h-11 items-center text-sm font-bold text-primary"
+      >
+        {lens.putIn.label}: {lens.putIn.detail}
+      </Link>
+    </div>
+  );
+}

@@ -12,6 +12,7 @@ import {
 import {
   discoverHrefForAim,
   firstGivenName,
+  getStakeholderLens,
   issuanceFromPromoCardPerk,
   isPresentablePass,
   ownedBenefitKicker,
@@ -37,6 +38,7 @@ import {
 } from "@/components/people/ExperienceShell";
 import { PromoCardFace, PromoCardWorldContext } from "@/components/promorang/SignatureObjects";
 import { FillCardMoves } from "@/components/promocard/FillCardMoves";
+import { StakeholderPutInPass } from "@/components/people/StakeholderLoop";
 import { PromoCardActions } from "@/components/promocard/PromoCardActions";
 import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
 import type { OfferIssuance } from "@/hooks/useOffers";
@@ -161,8 +163,9 @@ function BenefitTicket({
 }
 
 export default function MyPromoCard() {
-  const { user, profile } = useAuth();
+  const { user, profile, activeRole } = useAuth();
   const [searchParams] = useSearchParams();
+  const stake = getStakeholderLens(searchParams.get("role") || activeRole);
   const previewAim = resolveStoredPromoCardAim(searchParams);
   const card = useMyPromoCard(previewAim?.id);
   const applied = useApplyPromoCardAim(card.data?.aim);
@@ -219,7 +222,7 @@ export default function MyPromoCard() {
     <ExperienceShell
       eyebrow="PromoCard"
       title={copy.title}
-      description={copy.description}
+      description={stake.promoCard.meaning}
       backTo="/dashboard"
       actions={
         data ? (
@@ -274,6 +277,8 @@ export default function MyPromoCard() {
             sceneMark={world?.promoCard?.sceneMark}
             crewMark={world?.promoCard?.crewMark}
           />
+
+          {stake.role !== "participant" ? <StakeholderPutInPass role={stake.role} /> : null}
 
           <PromoCardWorldContext
             scene={world?.slice?.sceneTitle}
