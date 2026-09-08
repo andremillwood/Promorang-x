@@ -78,7 +78,7 @@ describe("PromoCard aim", () => {
     expect(empty.headline).toBe("SET FOR TONIGHT");
     expect(empty.ctaLabel).toBe("Unlock this");
     expect(empty.description).toContain("tonight");
-    expect(empty.href).toContain("aim=tonight");
+    expect(empty.href).toContain("aim%3Dtonight");
     expect(empty.headline).not.toContain("$");
   });
 });

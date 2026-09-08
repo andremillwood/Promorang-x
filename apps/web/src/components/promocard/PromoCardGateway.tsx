@@ -79,7 +79,7 @@ export function PromoCardGateway() {
     : "See What’s Available Nearby";
 
   const canUnlock = Boolean(aim || featured);
-  const primaryHref = user ? (claimed ? "/card" : promoCardAimPath(unlockAim)) : unlockHref;
+  const primaryHref = user ? (claimed ? "/card" : promoCardAimPath(aim)) : unlockHref;
   const primaryLabel = user
     ? claimed
       ? presented?.ctaLabel || "View My PromoCard"
