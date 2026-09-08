@@ -14,7 +14,6 @@ export function StakeholderLoopTrail({ role }: { role?: string | null }) {
       <h2 id="stakeholder-loop-heading" className="mt-2 font-serif text-2xl font-bold">
         {lens.workspaceLabel}
       </h2>
-      <p className="mt-2 max-w-xl text-sm leading-6 text-white/55">{lens.promise}</p>
       <ol className="mt-5">
         {steps.map((step, index) => (
           <li key={step.id} className="relative border-l border-white/10 pl-5">
