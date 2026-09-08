@@ -34,6 +34,7 @@ export default function PeopleHome() {
   const previewRole = params.get("role");
   const data = home.data;
   const world = data?.world;
+  const invitation = world?.invitation || world?.worldSystem?.invitation || null;
   const givenName = firstGivenName({
     displayName: data?.givenName || data?.name,
     fullName: profile?.full_name || profile?.display_name || user?.user_metadata?.full_name || user?.user_metadata?.name,
@@ -200,14 +201,18 @@ export default function PeopleHome() {
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-bold">For you</h2>
           {world?.currentMove ? (
-            <Link to={to(world.currentMove.href || "/discover")} className="block">
+            <Link to={to(world.currentMove.href || invitation?.nextHref || "/discover")} className="block">
               <TicketPass
                 kicker={world.currentMove.eyebrow || "Tonight"}
                 title={world.currentMove.title}
                 detail={
-                  [world.identity?.line, world.currentMove.why || world.slice?.currentLine || "Show up and the Scene can return something useful."]
-                    .filter(Boolean)
-                    .join(" · ")
+                  world.identity?.line
+                    ? [world.identity.line, world.currentMove.why || world.slice?.currentLine].filter(Boolean).join(" · ")
+                    : [
+                        invitation?.why,
+                        invitation?.benefit,
+                        world.currentMove.why || world.slice?.currentLine,
+                      ].filter(Boolean).join(" ")
                 }
                 stub="GO"
                 stubLabel="Live"
@@ -216,11 +221,15 @@ export default function PeopleHome() {
               />
             </Link>
           ) : (
-            <Link to="/discover?tab=discoveries" className="block">
+            <Link to={invitation?.nextHref || "/discover?tab=discoveries"} className="block">
               <TicketPass
                 kicker="What’s happening"
-                title="Find your next good thing"
-                detail="Explore local spots, nights out, and perks worth claiming. What Discover opens lands on your PromoCard."
+                title={invitation?.headline || "Find your next good thing"}
+                detail={
+                  invitation
+                    ? `${invitation.why} ${invitation.benefit}`
+                    : "Explore local spots, nights out, and perks worth claiming. What Discover opens lands on your PromoCard."
+                }
                 stub="GO"
                 stubLabel="Live"
               />

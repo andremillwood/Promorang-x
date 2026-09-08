@@ -1297,6 +1297,8 @@ function createPeopleExperienceService(db = defaultDb) {
         attributedActions: attributed.data || [],
         pathTitle: path.title,
         memoriesKept: (memories.data || []).length,
+        hasLiveMoment: Boolean(nextMoment?.id),
+        nextHref: nextMoment?.id ? `/moments/${nextMoment.id}` : '/discover',
       }, db);
     } catch (error) {
       console.warn('[People Experience] world system skipped:', error.message);
@@ -1401,6 +1403,7 @@ function createPeopleExperienceService(db = defaultDb) {
         counts: path.counts,
       },
       worldSystem,
+      invitation: worldSystem?.invitation || null,
       identity: worldSystem?.identity || null,
       house: worldSystem?.house || null,
       health,

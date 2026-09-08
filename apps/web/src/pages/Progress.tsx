@@ -9,7 +9,7 @@ import {
   type WorldPathDimension,
 } from "@promorang/shared";
 import { useExperienceActions, useWorldProgress } from "@/hooks/usePeopleExperience";
-import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
+import { ExperienceShell, WorldInvitationCard } from "@/components/people/ExperienceShell";
 import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { useToast } from "@/hooks/use-toast";
 
@@ -21,6 +21,7 @@ export default function Progress() {
   const { toast } = useToast();
   const data = query.data;
   const world = data?.world;
+  const invitation = world?.invitation || world?.worldSystem?.invitation || null;
   const counts = world?.path?.counts || {};
   const health = world?.health || [];
 
@@ -48,7 +49,7 @@ export default function Progress() {
     <ExperienceShell
       eyebrow={world?.dispatch?.eyebrow || world?.slice?.seasonTitle || "Progress"}
       title="What happened because of you"
-      description="Verified action only. House and path form from what counted. Territory is standing, not ownership."
+      description="Verified action only. House and path form from what counted. Until then, this page tells you what to do and why it pays."
       backTo="/dashboard"
     >
       {world?.polarity?.line || world?.dispatch?.line ? (
@@ -62,18 +63,19 @@ export default function Progress() {
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Latest Return</p>
           <ConsequenceReceipt receipt={world.latestReturn} />
         </section>
-      ) : (
-        <QuietEmpty title="Nothing counted yet" copy="Show up, support a Place, or bring someone. Progress starts after proof." />
-      )}
+      ) : invitation ? (
+        <WorldInvitationCard invitation={invitation} />
+      ) : null}
 
-      {world?.identity?.line || world?.worldSystem?.resonance?.cue ? (
+      {world?.identity?.line || world?.worldSystem?.resonance?.cue || invitation?.formingLine ? (
         <section>
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">How you move</p>
           <h2 className="mt-2 font-serif text-3xl font-bold">
-            {world?.identity?.line || world?.worldSystem?.resonance?.cue}
+            {world?.identity?.line || world?.worldSystem?.resonance?.cue || "A path is not named yet"}
           </h2>
           <p className="mt-2 text-sm text-white/50">
-            House is how you tend to move. Path is what you have demonstrated. Neither is chosen at signup.
+            {invitation?.formingLine
+              || "House is how you tend to move. Path is what you have demonstrated. Neither is chosen at signup."}
           </p>
           {world?.house ? (
             <p className="mt-3 text-sm text-white/60">{world.house.line}</p>
