@@ -23,8 +23,10 @@ const footerLinks = {
     { label: "PromoKeys", href: "/economy/keys" },
     { label: "Master Key", href: "/economy/master-key" },
     { label: "Pieces", href: "/economy/pieces" },
+    { label: "Gems", href: "/economy/gems" },
+    { label: "PromoShare", href: "/economy/promoshare" },
+    { label: "Save & Win", href: "/economy/save-and-win" },
     { label: "Content", href: "/economy/content" },
-    { label: "Tickets & Gems", href: "/economy/promoshare-gems" },
     { label: "Network value", href: "/economy/network" },
   ],
   partners: [

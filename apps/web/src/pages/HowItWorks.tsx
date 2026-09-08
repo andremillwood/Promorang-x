@@ -36,6 +36,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import type { TranslationKey } from "@/i18n/translations";
 import { PromoCardEconomyExplainer } from "@/components/promocard";
 import { NightPathJourney } from "@/components/marketing/NightPathJourney";
+import { WhatIsWhatMap } from "@/components/economy/WhatIsWhatMap";
 
 type RoleId = "member" | "creator" | "merchant" | "brand" | "promoter";
 
@@ -417,6 +418,12 @@ export default function HowItWorks() {
       </section>
 
       <PromoCardEconomyExplainer audience="member" />
+
+      <section className="border-b border-white/10 bg-[#0b0a09] px-5 py-16 md:py-24">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <WhatIsWhatMap compact />
+        </div>
+      </section>
 
       {/* 5 Ways You Get Rewarded (Benefit-First) */}
       <section className="border-b border-white/10 px-5 py-16">
