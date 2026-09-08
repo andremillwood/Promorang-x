@@ -93,6 +93,7 @@ describe("PromoCard aim", () => {
     const food = resolvePromoCardAim("food")!;
     expect(inferPromoCardAimFromText("aim:food jerk on friday")?.id).toBe("food");
     expect(discoverHrefForAim(food)).toContain("lens=eat");
+    expect(discoverHrefForAim(food)).toContain("aim=food");
     expect(selectOwnedUseThis({ aim: afterDark, benefits: [claimed, { ...barbicanOffer, fulfillmentState: "claimed", redemption: claimed.redemption }] })?.id).toBe("iss-1");
     expect(ownedBenefitKicker({ fromDiscover: true }, afterDark)).toBe("On your card · Kingston After Dark");
     expect(ownedBenefitStatus(claimed)).toBe("Ready to use");

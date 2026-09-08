@@ -156,11 +156,16 @@ export function discoveryHref(poll: { id: string; slug?: string }): string {
   return `/discoveries/${poll.slug || poll.id}`;
 }
 
-export function discoverPathHref(query?: string | null, lens?: string | null): string {
+export function discoverPathHref(
+  query?: string | null,
+  lens?: string | null,
+  aim?: string | null,
+): string {
   const parts = ["tab=discoveries"];
   if (isDiscoverLensId(lens)) parts.push(`lens=${encodeURIComponent(lens)}`);
   const next = (query || "").trim();
   if (intentWords(next).length) parts.push(`q=${encodeURIComponent(next)}`);
+  if (aim) parts.push(`aim=${encodeURIComponent(aim)}`);
   return `/discover?${parts.join("&")}`;
 }
 
@@ -297,6 +302,7 @@ export function buildDiscoveryPath<T extends PathablePoll>(input: {
   skippedIds?: Iterable<string>;
   cityName?: string;
   limit?: number;
+  preferPollId?: string | null;
 }): DiscoveryPathItem<T>[] {
   const voted = new Set(input.votedIds || []);
   const skipped = new Set(input.skippedIds || []);
@@ -320,12 +326,18 @@ export function buildDiscoveryPath<T extends PathablePoll>(input: {
       };
     })
     .sort((a, b) => {
+      if (input.preferPollId) {
+        const aPreferred = a.poll.id === input.preferPollId ? 1 : 0;
+        const bPreferred = b.poll.id === input.preferPollId ? 1 : 0;
+        if (aPreferred !== bPreferred) return bPreferred - aPreferred;
+      }
       if (query && a.textHits !== b.textHits) return b.textHits - a.textHits;
       if (lenses.length && a.tasteHits !== b.tasteHits) return b.tasteHits - a.tasteHits;
       return b.score - a.score;
     });
 
   const matched = ranked.filter((item) => {
+    if (input.preferPollId && item.poll.id === input.preferPollId) return true;
     if (query) return item.textHits > 0;
     if (lenses.length) return item.tasteHits > 0;
     return true;
