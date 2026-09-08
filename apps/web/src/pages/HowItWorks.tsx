@@ -142,10 +142,10 @@ const rolesData: Record<
       statLabel: "how.memberPreviewStatLabel",
     },
     steps: [
-      roleStep("member", 1, "/radar?tab=discover", "01"),
-      roleStep("member", 2, "/discover", "02"),
-      roleStep("member", 3, "/missions", "03"),
-      roleStep("member", 4, "/wallet", "04"),
+      roleStep("member", 1, "/discover?tab=discoveries", "01"),
+      roleStep("member", 2, "/promoshare", "02"),
+      roleStep("member", 3, "/discover", "03"),
+      roleStep("member", 4, "/card", "04"),
     ],
   },
   creator: {
@@ -352,7 +352,7 @@ export default function HowItWorks() {
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
-                to="/radar?tab=discover"
+                to="/discover?tab=discoveries"
                 className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-orange-500 px-6 py-3 text-sm font-black text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-primary/40 active:scale-[0.98]"
               >
                 <span>{t("how.getCard")}</span>

@@ -27,10 +27,10 @@ const audiences = [
     color: "from-amber-500/20 to-orange-500/10 border-amber-500/30 text-amber-400",
     badge: "Locals & Explorers",
     points: [
-      "Vote in weekly Monday city debates on local food, drinks, and hidden gems.",
-      "Unlock exclusive PromoKey tasting passes every Wednesday at 6 PM.",
-      "Check in at partner venues on weekends to redeem VIP perks and earn Gems.",
-      "Level up your Access Rank for bigger perks and direct brand bounties.",
+      "Vote on discoveries and polls so the city names the night.",
+      "Share it with PromoShare. When your people show up, you keep the credit.",
+      "Walk in with PromoCard. Check in. You were there. It counted.",
+      "Keep what comes back — a perk, a memory, or a Crew to go with next time.",
     ],
     cta: "Start Exploring",
     href: "/discover",
@@ -88,23 +88,23 @@ const audiences = [
 const coreMechanics = [
   {
     icon: Flame,
-    title: "The Weekly City Rhythm",
-    description: "Every Monday, the city debates the best spots. On Wednesday, exclusive PromoKeys drop. On Friday and Saturday, locals move to verified venues.",
+    titleKey: "about.step1" as const,
+    copyKey: "about.step1Copy" as const,
   },
   {
     icon: KeyRound,
-    title: "PromoKeys",
-    description: "Digital VIP passes funded by brands that grant complimentary tastings, secret menu items, or special experiences at winning venues.",
+    titleKey: "about.step2" as const,
+    copyKey: "about.step2Copy" as const,
   },
   {
     icon: QrCode,
-    title: "Proof-of-Visit Verification",
-    description: "Patrons verify attendance on-site using GPS geofencing or physical countertop QR scans, ensuring 100% genuine attribution.",
+    titleKey: "about.step3" as const,
+    copyKey: "about.step3Copy" as const,
   },
   {
     icon: DollarSign,
-    title: "Bounties & Gems",
-    description: "Perform valuable community moves (hosting, content creation, check-ins) to earn Gems and cash bounties redeemable in your digital wallet.",
+    titleKey: "about.step4" as const,
+    copyKey: "about.step4Copy" as const,
   },
 ];
 
@@ -147,10 +147,16 @@ export default function WhatIsPromorang() {
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
-              to="/discover"
+              to="/discover?tab=discoveries"
               className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-7 py-3.5 text-sm font-black text-primary-foreground shadow-lg shadow-primary/25 transition hover:scale-105"
             >
               {t("about.explore")} <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/promoshare"
+              className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10"
+            >
+              PromoShare <ArrowRight className="h-4 w-4 text-primary" />
             </Link>
             <Link
               to="/how-it-works"
@@ -176,36 +182,21 @@ export default function WhatIsPromorang() {
             <h2 className="mt-2 text-3xl font-black sm:text-4xl md:text-5xl">{t("about.connects")}</h2>
           </div>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 transition hover:border-primary/40">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 text-xl font-black text-primary">
-                1
+          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["about.step1", "about.step1Copy", "bg-orange-500/10 text-primary"],
+              ["about.step2", "about.step2Copy", "bg-amber-500/10 text-amber-400"],
+              ["about.step3", "about.step3Copy", "bg-purple-500/10 text-purple-400"],
+              ["about.step4", "about.step4Copy", "bg-emerald-500/10 text-emerald-400"],
+            ].map(([title, copy, tone], index) => (
+              <div key={title} className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 transition hover:border-primary/40">
+                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl text-xl font-black ${tone}`}>
+                  {index + 1}
+                </div>
+                <h3 className="mt-6 text-xl font-black">{t(title as "about.step1")}</h3>
+                <p className="mt-3 text-sm leading-6 text-white/65">{t(copy as "about.step1Copy")}</p>
               </div>
-              <h3 className="mt-6 text-xl font-black">{t("about.step1")}</h3>
-              <p className="mt-3 text-sm leading-6 text-white/65">
-                {t("about.step1Copy")}
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 transition hover:border-primary/40">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-xl font-black text-amber-400">
-                2
-              </div>
-              <h3 className="mt-6 text-xl font-black">{t("about.step2")}</h3>
-              <p className="mt-3 text-sm leading-6 text-white/65">
-                {t("about.step2Copy")}
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 transition hover:border-primary/40">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10 text-xl font-black text-purple-400">
-                3
-              </div>
-              <h3 className="mt-6 text-xl font-black">{t("about.step3")}</h3>
-              <p className="mt-3 text-sm leading-6 text-white/65">
-                {t("about.step3Copy")}
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -276,10 +267,10 @@ export default function WhatIsPromorang() {
 
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {coreMechanics.map((mech) => (
-              <div key={mech.title} className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 transition hover:border-white/20">
+              <div key={mech.titleKey} className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 transition hover:border-white/20">
                 <mech.icon className="h-8 w-8 text-primary" />
-                <h3 className="mt-6 text-lg font-black">{mech.title}</h3>
-                <p className="mt-2 text-xs leading-5 text-white/60">{mech.description}</p>
+                <h3 className="mt-6 text-lg font-black">{t(mech.titleKey)}</h3>
+                <p className="mt-2 text-xs leading-5 text-white/60">{t(mech.copyKey)}</p>
               </div>
             ))}
           </div>

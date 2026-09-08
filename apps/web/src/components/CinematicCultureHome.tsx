@@ -515,13 +515,21 @@ export default function CinematicCultureHome() {
             </p>
             <div className="mt-5 grid w-full grid-cols-2 gap-2.5 sm:mt-7 sm:flex sm:max-w-2xl sm:flex-wrap sm:gap-3">
               <Link
-                to="/discover"
-                onClick={() => rememberMarketingIntent("hero_explore_discover", "/discover", "participant")}
+                to="/discover?tab=discoveries"
+                onClick={() => rememberMarketingIntent("hero_explore_discover", "/discover?tab=discoveries", "participant")}
                 className="col-span-2 inline-flex min-h-12 min-w-0 items-center justify-center gap-2.5 rounded-xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-wider text-white shadow-[0_16px_40px_rgba(255,85,0,0.3)] transition-all hover:bg-orange-600 active:scale-[0.98] sm:col-auto sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm"
               >
                 <Compass className="h-4 w-4" />
                 <span>{t("home.exploreMoments")}</span>
                 <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/promoshare"
+                onClick={() => rememberMarketingIntent("hero_promoshare", "/promoshare", "participant")}
+                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
+              >
+                <Share2 className="h-4 w-4 text-purple-400" />
+                <span>PromoShare</span>
               </Link>
               <Link
                 to="/hosting"
@@ -648,70 +656,67 @@ export default function CinematicCultureHome() {
             </nav>
           </div>
 
+          <div className="mb-10 rounded-[2rem] border border-white/10 bg-white/[0.03] px-5 py-6 sm:px-6 sm:py-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.nightEyebrow")}</p>
+            <h3 className="mt-2 max-w-3xl text-3xl font-black uppercase leading-[0.9] tracking-[-0.05em] md:text-4xl">
+              {t("home.nightTitle")} <span className="text-primary">{t("home.nightAccent")}</span>
+            </h3>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">{t("home.nightCopy")}</p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                ["home.night1Label", "home.night1Title", "home.night1Text", "/discover?tab=discoveries"],
+                ["home.night2Label", "home.night2Title", "home.night2Text", "/promoshare"],
+                ["home.night3Label", "home.night3Title", "home.night3Text", "/card"],
+                ["home.night4Label", "home.night4Title", "home.night4Text", "/progress"],
+              ].map(([label, title, text, href]) => (
+                <Link
+                  key={href}
+                  to={href}
+                  className="rounded-2xl border border-white/10 bg-black/30 px-4 py-4 transition hover:border-primary/40"
+                >
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t(label as "home.night1Label")}</p>
+                  <p className="mt-2 font-serif text-xl font-bold text-white">{t(title as "home.night1Title")}</p>
+                  <p className="mt-2 text-xs leading-5 text-white/50">{t(text as "home.night1Text")}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+
           <DiscoveriesFeedSection />
 
-          {/* 4 CORE ECOSYSTEM PILLARS */}
           <div className="my-8">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">The Ecosystem Architecture</p>
-                <h3 className="text-2xl font-black uppercase tracking-tight text-white sm:text-3xl">4 Pillars of Promorang</h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.pillarsEyebrow")}</p>
+                <h3 className="text-2xl font-black uppercase tracking-tight text-white sm:text-3xl">
+                  {t("home.pillarsTitle")} <span className="text-primary">{t("home.pillarsAccent")}</span>
+                </h3>
               </div>
-              <span className="hidden sm:inline-block text-xs font-medium text-white/50">From Culture to Shared Wealth</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Pillar 1: Moments & Passes */}
               <Link
-                to="/discover/moments"
+                to="/discover?tab=discoveries"
                 className="group p-5 rounded-3xl border border-orange-500/30 bg-gradient-to-b from-orange-500/10 via-zinc-950 to-zinc-950 hover:border-orange-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      1. Moments &amp; Passes
+                      {t("home.pillar1Badge")}
                     </span>
                     <Flame className="w-4 h-4 text-orange-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-orange-300 transition-colors leading-snug">
-                    Access Dope Nights &amp; Fill Venues
+                    {t("home.pillar1Title")}
                   </h4>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    Exclusive guestlist passes, Kingston DJ nights, beach fetes, and dead-night venue revival from 0 to 230+ guests.
-                  </p>
+                  <p className="text-xs text-zinc-400 leading-relaxed">{t("home.pillar1Copy")}</p>
                 </div>
                 <div className="pt-2 text-xs font-black text-orange-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>Explore Moments</span>
+                  <span>{t("home.pillar1Cta")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
 
-              {/* Pillar 2: PromoCard & Margin Clearinghouse */}
-              <Link
-                to="/shop"
-                className="group p-5 rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-500/10 via-zinc-950 to-zinc-950 hover:border-emerald-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      2. PromoCard &amp; Margin
-                    </span>
-                    <Store className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
-                  </div>
-                  <h4 className="text-lg font-black text-white group-hover:text-emerald-300 transition-colors leading-snug">
-                    Split-Tender Perks at Partner Spots
-                  </h4>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    Restore promotional spending balance through verified actions and apply eligible value to food, drinks, and retail purchases.
-                  </p>
-                </div>
-                <div className="pt-2 text-xs font-black text-emerald-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>View Member Perks</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
-              </Link>
-
-              {/* Pillar 3: PromoShare & Sponsor Draws */}
               <Link
                 to="/promoshare"
                 className="group p-5 rounded-3xl border border-purple-500/30 bg-gradient-to-b from-purple-500/10 via-zinc-950 to-zinc-950 hover:border-purple-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
@@ -719,44 +724,61 @@ export default function CinematicCultureHome() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[10px] font-black uppercase tracking-wider">
-                      3. PromoShare &amp; Draws
+                      {t("home.pillar2Badge")}
                     </span>
                     <Share2 className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-purple-300 transition-colors leading-snug">
-                    WhatsApp Loops &amp; Cash Commissions
+                    {t("home.pillar2Title")}
                   </h4>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    Share drops with 1 tap. Earn instant cash per RSVP and enter sponsor-funded jackpot cycle draws.
-                  </p>
+                  <p className="text-xs text-zinc-400 leading-relaxed">{t("home.pillar2Copy")}</p>
                 </div>
                 <div className="pt-2 text-xs font-black text-purple-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>Open PromoShare</span>
+                  <span>{t("home.pillar2Cta")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
 
-              {/* Pillar 4: Pieces & AMM Dividends */}
               <Link
-                to="/wallet"
+                to="/card"
+                className="group p-5 rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-500/10 via-zinc-950 to-zinc-950 hover:border-emerald-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-black uppercase tracking-wider">
+                      {t("home.pillar3Badge")}
+                    </span>
+                    <Store className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+                  </div>
+                  <h4 className="text-lg font-black text-white group-hover:text-emerald-300 transition-colors leading-snug">
+                    {t("home.pillar3Title")}
+                  </h4>
+                  <p className="text-xs text-zinc-400 leading-relaxed">{t("home.pillar3Copy")}</p>
+                </div>
+                <div className="pt-2 text-xs font-black text-emerald-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
+                  <span>{t("home.pillar3Cta")}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Link>
+
+              <Link
+                to="/progress"
                 className="group p-5 rounded-3xl border border-cyan-500/30 bg-gradient-to-b from-cyan-500/10 via-zinc-950 to-zinc-950 hover:border-cyan-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      4. Pieces &amp; Equity
+                      {t("home.pillar4Badge")}
                     </span>
                     <Coins className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-cyan-300 transition-colors leading-snug">
-                    Own a Slice &amp; Collect Dividends
+                    {t("home.pillar4Title")}
                   </h4>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    Hold fractional Pieces of recurring events, media drops, and cultural IP. Earn automated quarterly cash dividends.
-                  </p>
+                  <p className="text-xs text-zinc-400 leading-relaxed">{t("home.pillar4Copy")}</p>
                 </div>
                 <div className="pt-2 text-xs font-black text-cyan-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>View Pieces Portfolio</span>
+                  <span>{t("home.pillar4Cta")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
