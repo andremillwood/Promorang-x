@@ -629,6 +629,7 @@ export default function CinematicCultureHome() {
           ) : null}
         </div>
       </section>
+      </div>
 
       <section className="border-b border-white/10 bg-[#080808]">
         <div className="container px-5 py-10 md:px-6 md:py-14">
@@ -663,6 +664,7 @@ export default function CinematicCultureHome() {
 
       <LeadMagnetGateway />
 
+      <div className="hidden md:block">
       <section className="relative overflow-hidden border-b border-white/10 bg-[#070707]">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(255,106,0,0.16),transparent_32%)]" />
         <div className="container relative px-6 py-14 md:py-20">

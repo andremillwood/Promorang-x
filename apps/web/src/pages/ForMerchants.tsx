@@ -24,6 +24,7 @@ import {
     Plus,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
+import { authPathForReturn } from "@/lib/post-auth-next";
 import { TranslationKey } from "@/i18n/translations";
 
 const ForMerchants = () => {
@@ -126,13 +127,13 @@ const ForMerchants = () => {
                                 asChild
                                 className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black shadow-xl shadow-emerald-500/25 px-8 py-6 rounded-2xl text-base"
                             >
-                                <Link to={user ? "/stock" : "/auth?next=/stock"}>
+                                <Link to={user ? "/stock" : authPathForReturn("/stock", { mode: "signup", role: "merchant" })}>
                                     <Plus className="w-5 h-5 mr-2" />
                                     <span>Put a perk up</span>
                                 </Link>
                             </Button>
                             <Button variant="hero" size="xl" asChild>
-                                <Link to="/dashboard/venues/add">
+                                <Link to={user ? "/dashboard/venues/add" : authPathForReturn("/dashboard/venues/add", { mode: "signup", role: "merchant" })}>
                                     {t("forMerchants.registerSpot")}
                                     <ArrowRight className="w-5 h-5 ml-2" />
                                 </Link>
@@ -273,7 +274,7 @@ const ForMerchants = () => {
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button variant="hero" size="xl" asChild>
-                            <Link to="/dashboard/venues/add">{t("forMerchants.registerSpotNow")}</Link>
+                            <Link to={user ? "/dashboard/venues/add" : authPathForReturn("/dashboard/venues/add", { mode: "signup", role: "merchant" })}>{t("forMerchants.registerSpotNow")}</Link>
                         </Button>
                         <Link to="/help" className="text-white/40 hover:text-white transition-colors uppercase font-black text-[10px] tracking-widest">
                             {t("forMerchants.howItWorksForSpots")}
