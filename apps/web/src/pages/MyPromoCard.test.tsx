@@ -207,6 +207,10 @@ describe("PromoCard journey", () => {
     expect(container).not.toHaveTextContent("From Discover");
     expect(container).not.toHaveTextContent("A merchant supplied it");
     expect(container).not.toHaveTextContent("Aim this card");
+    expect(container).toHaveTextContent("You can still fill the card");
+    expect(container).toHaveTextContent("Answer a Kingston After Dark question");
+    expect(container).toHaveTextContent("Start a poll");
+    expect(container).toHaveTextContent("Host a moment");
     expect(
       Array.from(container.querySelectorAll("button")).some((item) => item.textContent === "Food"),
     ).toBe(true);

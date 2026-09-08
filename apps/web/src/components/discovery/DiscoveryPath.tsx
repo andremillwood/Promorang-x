@@ -37,6 +37,7 @@ import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { useAuth } from "@/contexts/AuthContext";
 import { matchPollForAim, writePromoCardAim } from "@/lib/promocard-aim";
 import { promoCardAimPath, promoCardUnlockHref, type PromoCardAim } from "@promorang/shared";
+import { FillCardMoves } from "@/components/promocard/FillCardMoves";
 import { readLocalCardUnlocks, type DiscoveryCardUnlock } from "@/lib/discovery-card";
 
 function whyCopy(
@@ -538,6 +539,7 @@ export function DiscoveryPath({
                   {t("discover.pathMissBrowse")}
                 </TactileButton>
               </div>
+              {aim ? <FillCardMoves aim={aim} authenticated={Boolean(user)} /> : null}
             </>
           )}
         </section>
