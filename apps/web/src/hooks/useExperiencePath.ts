@@ -2,14 +2,23 @@ import { useLocation } from "react-router-dom";
 
 const PREVIEW_PATHS = new Set(["/people", "/give", "/create", "/create/moment", "/earn", "/happened", "/card", "/start", "/stock"]);
 
+export function experiencePathFor(currentPathname: string, currentSearch: string, path: string): string {
+  const preview = currentPathname.startsWith("/app-preview");
+  const role = new URLSearchParams(currentSearch.startsWith("?") ? currentSearch.slice(1) : currentSearch).get("role");
+  if (!preview) return path;
+
+  const [pathname, existingQuery = ""] = path.split("?");
+  const params = new URLSearchParams(existingQuery);
+  if (role && !params.has("role")) params.set("role", role);
+  const qs = params.toString();
+  const suffix = qs ? `?${qs}` : "";
+
+  if (pathname === "/dashboard" || pathname === "/home") return `/app-preview${suffix}`;
+  if (PREVIEW_PATHS.has(pathname)) return `/app-preview${pathname}${suffix}`;
+  return `${pathname}${suffix}`;
+}
+
 export function useExperiencePath() {
   const location = useLocation();
-  const preview = location.pathname.startsWith("/app-preview");
-  return (path: string) => {
-    if (!preview) return path;
-    const pathname = path.split("?")[0];
-    if (pathname === "/dashboard" || pathname === "/home") return "/app-preview";
-    if (PREVIEW_PATHS.has(pathname)) return `/app-preview${path}`;
-    return path;
-  };
+  return (path: string) => experiencePathFor(location.pathname, location.search, path);
 }
