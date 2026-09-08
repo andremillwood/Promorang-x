@@ -116,10 +116,11 @@ describe("PromoCard aim", () => {
     expect(fillCardHref(moves[3].path)).toContain("next=%2Fcreate%2Fmoment");
     expect(fillCardHref(moves[0].path)).toContain("/discover");
     expect(fillCardCopy(food).title).toBe("Nothing for Food yet");
-    expect(fillCardCopy(food).description).toContain("fill the card");
-    expect(fillCardCopy(null).description).toContain("start a poll");
-    expect(fillCardCopy(null).description).toContain("host a moment");
+    expect(fillCardCopy(food).description).toContain("Browse live perks");
+    expect(fillCardCopy(null).description).toContain("Browse live perks");
+    expect(fillCardCopy(null).description).not.toContain("start a poll");
     expect(fillCardCopy(null).description).not.toContain("$");
+    expect(moves[0].path).toContain("tab=perks");
     expect(JSON.stringify(moves)).not.toContain("Available to spend");
   });
 });

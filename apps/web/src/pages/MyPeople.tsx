@@ -28,8 +28,8 @@ export default function MyPeople() {
   return (
     <ExperienceShell
       eyebrow="Your people"
-      title="Your network"
-      description="Credit follows the people you actually moved — not empty accounts."
+      title="People you actually moved"
+      description="Optional. Invite a friend if you want them on Promorang. This is not required to use your card. If they claim or use something because of you, it shows up here — that is not an affiliate dashboard yet."
     >
       <section className="grid grid-cols-2 gap-3">
         <StatPile label="People" value={data?.people || 0} hint={data?.thisMonth ? `+${data.thisMonth} this month` : "Start with one invite"} />
@@ -41,7 +41,7 @@ export default function MyPeople() {
         onClick={handleInvite}
         className="min-h-14 w-full rounded-full bg-primary text-sm font-black text-black"
       >
-        {copied ? "Invite copied" : "Invite someone to build"}
+        {copied ? "Invite copied" : "Invite a friend"}
       </button>
 
       <section>

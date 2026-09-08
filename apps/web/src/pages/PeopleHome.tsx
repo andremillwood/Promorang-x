@@ -213,39 +213,33 @@ export default function PeopleHome() {
               />
             </Link>
           ) : (
-            <Link to="/discover?tab=discoveries" className="block">
+            <Link to="/discover?tab=perks" className="block">
               <TicketPass
                 kicker="What’s happening"
-                title="Find your next good thing"
-                detail="Explore local spots, nights out, and perks worth claiming. What Discover opens lands on your PromoCard."
+                title="Browse live perks"
+                detail="These are offers businesses already put up. Pick one for your card. You do not have to join a crew or answer a poll first."
                 stub="GO"
                 stubLabel="Live"
               />
             </Link>
           )}
-          <Link to={to("/crews")} className="block">
-            <TicketPass
-              kicker="Who you move with"
-              title={world?.crew?.name || "Form a Crew"}
-              detail={
-                world?.crew
-                  ? `${world.crew.size} people · ${world.crew.runTitle || "Kingston After Dark"}`
-                  : "3–8 people. One run. No factions required."
-              }
-              stub="CREW"
-              stubLabel="Open"
-            />
-          </Link>
           {world?.crew ? (
+            <Link to={to("/crews")} className="block">
+              <TicketPass
+                kicker="Who you move with"
+                title={world.crew.name}
+                detail={`${world.crew.size} people · ${world.crew.runTitle || "Your run"}`}
+                stub="CREW"
+                stubLabel="Open"
+              />
+            </Link>
+          ) : null}
+          {world?.crew && world?.guild ? (
             <Link to={to("/guilds")} className="block">
               <TicketPass
                 kicker="Who coordinates the Scene"
-                title={world?.guild?.name || "Form a Guild"}
-                detail={
-                  world?.guild
-                    ? `${world.guild.crewCount} Crews · ${world.guild.line || "Scene federation"}`
-                    : "2–6 Crews. Flat. Not an upline."
-                }
+                title={world.guild.name}
+                detail={`${world.guild.crewCount} Crews · ${world.guild.line || "Scene federation"}`}
                 stub="GUILD"
                 stubLabel="Open"
               />
@@ -316,15 +310,17 @@ export default function PeopleHome() {
       ) : null}
 
       {!data?.communities?.length ? (
-        <Link to={isMemberWorkspace ? "/scenes" : to("/start")} className="block">
+        isMemberWorkspace ? null : (
+        <Link to={to("/start")} className="block">
           <TicketPass
             kicker="First room"
-            title={isMemberWorkspace ? "Find your people" : "Bring your people together"}
-            detail={isMemberWorkspace ? "Join a community around the things you love." : "Start a community and give people a reason to join."}
+            title="Bring your people together"
+            detail="Start a community and give people a reason to join."
             stub="ROOM"
             stubLabel="Open"
           />
         </Link>
+        )
       ) : (
         <Link to={`/scenes/${data.communities[0].slug}`} className="block">
           <TicketPass

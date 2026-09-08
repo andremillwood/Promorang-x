@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DISCOVERY_POLLS, getDiscoveryPollByIdOrSlug } from "./discoveriesData";
+import { DISCOVERY_POLLS, getActiveDiscoveryPolls, getDiscoveryPollByIdOrSlug } from "./discoveriesData";
 import { pollHasRedeemablePerk } from "@/lib/discovery-signal";
 
 describe("Kingston Friday jerk poll", () => {
@@ -23,5 +23,11 @@ describe("Kingston Friday jerk poll", () => {
 
   it("keeps every seeded poll as demand unless a house offer is marked live", () => {
     expect(DISCOVERY_POLLS.every((item) => !pollHasRedeemablePerk(item))).toBe(true);
+  });
+
+  it("hides the ended Arla roadshow from the live Discover path", () => {
+    expect(getActiveDiscoveryPolls().some((item) => item.id.startsWith("disc-arla"))).toBe(false);
+    expect(DISCOVERY_POLLS.filter((item) => item.id.startsWith("disc-arla")).every((item) => item.retired)).toBe(true);
+    expect(getDiscoveryPollByIdOrSlug("arla-tasteoff-rasta-pasta-vs-mousse")?.retired).toBe(true);
   });
 });

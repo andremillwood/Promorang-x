@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { isConsumerPostAuthNext } from "@/lib/auth-roles";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
 import { flushMarketingIntent } from "@/lib/marketing-attribution";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
@@ -11,7 +12,7 @@ import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
  * Intelligently routes users based on role + completion state
  */
 export function PostLoginRouter() {
-  const { user, activeRole, loading } = useAuth();
+  const { user, activeRole, roles, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export function PostLoginRouter() {
         return;
       }
 
-      if (activeRole === "admin") {
+      if (activeRole === "admin" || (roles.includes("admin") && !isConsumerPostAuthNext(requestedNext))) {
         navigate("/admin?tab=command", { replace: true });
         return;
       }
@@ -54,7 +55,7 @@ export function PostLoginRouter() {
     };
 
     determineLandingPage();
-  }, [user, activeRole, loading, navigate]);
+  }, [user, activeRole, roles, loading, navigate]);
 
   // Show loading while determining route
   return (

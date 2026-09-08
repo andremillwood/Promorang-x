@@ -361,16 +361,16 @@ export function resolveWorldCurrentMove(facts: WorldCurrentMoveFacts, slice: Wor
   }
 
   return {
-    eyebrow: slice.signalEyebrow,
-    header: slice.header,
-    title: `Find a night in ${slice.sceneTitle}`,
-    why: slice.welcome,
-    ctaLabel: "Discover",
-    href: `/scenes/${slice.sceneSlug}`,
-    sceneTitle: slice.sceneTitle,
-    seasonTitle: slice.seasonTitle,
-    placeName: slice.area,
-    context: [slice.sceneTitle, slice.area],
+    eyebrow: "What’s on",
+    header: "Tonight",
+    title: "Find a night worth leaving home for",
+    why: "Browse live nights and places. A scene is optional — join one only if you want a room around a night you already care about.",
+    ctaLabel: "Browse nights",
+    href: "/discover?tab=moments",
+    sceneTitle: null,
+    seasonTitle: null,
+    placeName: null,
+    context: [],
   };
 }
 

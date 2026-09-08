@@ -15,6 +15,7 @@ export type PathablePoll = {
   totalVotes?: number;
   thresholdForMoment?: number;
   signalKind?: DiscoverySignalKind;
+  retired?: boolean;
 };
 
 export type PathWhyKind = "close" | "taste" | "query" | "city";
@@ -183,7 +184,12 @@ export function discoveryPollLocationHint(poll: PathablePoll): {
 }
 
 export function filterDiscoveryPollsForHub<T extends PathablePoll>(polls: T[], city: CityOption): T[] {
-  return polls.filter((poll) => matchesCityHub(discoveryPollLocationHint(poll), city));
+  return polls.filter((poll) => {
+    if (poll.retired || poll.categorySlug === "arla-campaign" || String(poll.id || "").startsWith("disc-arla")) {
+      return false;
+    }
+    return matchesCityHub(discoveryPollLocationHint(poll), city);
+  });
 }
 
 export function mergeDiscoveryPolls<T extends { id: string }>(...groups: T[][]): T[] {

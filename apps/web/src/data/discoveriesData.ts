@@ -74,11 +74,14 @@ export interface DiscoveryPoll {
     type: string;
     url: string;
   }>;
+  /** Hidden from Discover. Ended campaigns stay in the file for history. */
+  retired?: boolean;
 }
 
 export const DISCOVERY_POLLS: DiscoveryPoll[] = [
   {
     id: 'disc-arla-price-003',
+    retired: true,
     slug: 'arla-price-perception-1l-cream',
     question: 'What would you pay for a 1L cream that cooks savory AND whips sweet without curdling?',
     category: 'Price-Drop Quest 💡',
@@ -487,6 +490,7 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
   },
   {
     id: 'disc-arla-tasteoff-001',
+    retired: true,
     slug: 'arla-tasteoff-rasta-pasta-vs-mousse',
     question: 'Rasta Pasta or Chocolate Chip Mousse: Which one wins the PriceSmart Taste-Off?',
     category: 'Arla Taste-Off 🍝🍫',
@@ -534,6 +538,7 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
   },
   {
     id: 'disc-arla-mode-002',
+    retired: true,
     slug: 'arla-whip-cook-drink-mode',
     question: 'Whip It, Cook It, or Drink It: If you get one carton of Arla Whip & Cook right now, what happens first?',
     category: 'Product Mode 🍳🍰🥤',
@@ -651,6 +656,16 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
     ]
   }
 ];
+
+export function isActiveDiscoveryPoll(poll: { retired?: boolean; id?: string; categorySlug?: string }): boolean {
+  if (poll.retired) return false;
+  if (poll.categorySlug === "arla-campaign") return false;
+  return !String(poll.id || "").startsWith("disc-arla");
+}
+
+export function getActiveDiscoveryPolls(): DiscoveryPoll[] {
+  return DISCOVERY_POLLS.filter(isActiveDiscoveryPoll);
+}
 
 export function getDiscoveryPollByIdOrSlug(idOrSlug: string): DiscoveryPoll | undefined {
   const clean = (idOrSlug || '').toLowerCase().trim();

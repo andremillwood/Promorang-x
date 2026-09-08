@@ -34,7 +34,7 @@ import { useMarket } from "@/contexts/MarketContext";
 import { getCityHubCenter, getDefaultCityHub, matchesCityHub } from "@/lib/city-hubs";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getMomentStatus } from "@/lib/moment-recurrence";
-import { DISCOVERY_POLLS, type DiscoveryPoll } from "@/data/discoveriesData";
+import { getActiveDiscoveryPolls, isActiveDiscoveryPoll, type DiscoveryPoll } from "@/data/discoveriesData";
 import { AimedDiscoverLead } from "@/components/discovery/AimedDiscoverLead";
 import { StakeholderSurfaceLead } from "@/components/people/StakeholderLoop";
 import { DiscoveryPath } from "@/components/discovery/DiscoveryPath";
@@ -139,7 +139,7 @@ const Discover = () => {
   const { data: listingPolls = [] } = useListingDiscoveryPolls(12);
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const activeTab: DiscoverTab = ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam || "") ? tabParam as DiscoverTab : "discoveries";
+  const activeTab: DiscoverTab = ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam || "") ? tabParam as DiscoverTab : "perks";
   const lensParam = searchParams.get("lens");
   const aim = resolveStoredPromoCardAim(searchParams);
 
@@ -150,10 +150,7 @@ const Discover = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
-  const [livePolls, setLivePolls] = useState<DiscoveryPoll[]>(DISCOVERY_POLLS);
-
-  const [wheelOpen, setWheelOpen] = useState(false);
-  const [streakOpen, setStreakOpen] = useState(false);
+  const [livePolls, setLivePolls] = useState<DiscoveryPoll[]>(() => getActiveDiscoveryPolls());
 
   const nearby = useNearbyBenefits();
   const perksLoading = nearby.isLoading;
@@ -235,7 +232,11 @@ const Discover = () => {
       });
 
       const seenTitles = new Set(dbMoments.map((m) => m.title.toLowerCase()));
-      const filteredCurated = curatedAsMoments.filter((cm) => !seenTitles.has(cm.title.toLowerCase()));
+      const filteredCurated = curatedAsMoments.filter((cm) => {
+        if (seenTitles.has(cm.title.toLowerCase())) return false;
+        const hay = `${cm.title} ${cm.description}`.toLowerCase();
+        return !hay.includes("arla");
+      });
 
       return [...filteredCurated, ...dbMoments];
     },
@@ -251,7 +252,7 @@ const Discover = () => {
     [city],
   );
   const catalog = useMemo(
-    () => mergeDiscoveryPolls(livePolls, listingPolls, DISCOVERY_POLLS),
+    () => mergeDiscoveryPolls(livePolls, listingPolls, getActiveDiscoveryPolls()).filter(isActiveDiscoveryPoll),
     [livePolls, listingPolls],
   );
   const hubDiscoveries = useMemo(
@@ -556,10 +557,10 @@ const Discover = () => {
                       <span>Businesses → Offer</span>
                     </div>
                     <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">
-                      Verified Perks, Discounts & Complimentary Drops
+                      Live perks you can put on PromoCard
                     </h3>
                     <p className="text-xs text-white/60">
-                      Live merchant perks with a drop you can claim. The merchant still has to validate the code.
+                      A perk is a real offer a business put up — a free item, a deal, or entry. Pick one here. You do not have to answer a poll first. The business still has to honor the code at the door.
                     </p>
                   </div>
 
@@ -824,8 +825,6 @@ const Discover = () => {
           />
         </div>
 
-        <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
-        <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
       </div>
     </div>
   );
