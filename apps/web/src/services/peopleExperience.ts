@@ -31,7 +31,10 @@ export const peopleExperienceApi = {
   perks: () => request<any[]>("/perks"),
   opportunities: (sceneId?: string) => request<any[]>(`/opportunities${sceneId ? `?sceneId=${sceneId}` : ""}`),
   happened: (sceneId?: string) => request<Record<string, any>>(`/happened${sceneId ? `?sceneId=${sceneId}` : ""}`),
-  card: () => request<Record<string, any>>("/card"),
+  card: (aim?: string | null) =>
+    request<Record<string, any>>(`/card${aim ? `?aim=${encodeURIComponent(aim)}` : ""}`),
+  aimCard: (aim: string) =>
+    request<Record<string, any>>("/card/aim", { method: "POST", body: JSON.stringify({ aim }) }),
   nearby: () => request<any[]>("/nearby"),
   drop: (slug: string) => request<Record<string, any>>(`/drops/${slug}`),
   createDrop: (body: Record<string, unknown>) => request<Record<string, any>>("/drops", { method: "POST", body: JSON.stringify(body) }),

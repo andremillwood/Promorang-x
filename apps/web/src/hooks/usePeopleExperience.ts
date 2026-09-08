@@ -62,11 +62,11 @@ export function useNearbyBenefits() {
   });
 }
 
-export function useMyPromoCard() {
+export function useMyPromoCard(aim?: string | null) {
   const { user } = useAuth();
   return useQuery({
-    queryKey: ["experience-card", user?.id],
-    queryFn: () => peopleExperienceApi.card(),
+    queryKey: ["experience-card", user?.id, aim || null],
+    queryFn: () => peopleExperienceApi.card(aim),
     enabled: Boolean(user),
     retry: 1,
   });

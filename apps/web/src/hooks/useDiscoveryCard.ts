@@ -14,6 +14,7 @@ export async function unlockDiscoveryOntoCard(input: {
   city: string;
   poll: { id: string; question: string; targetUnlockPerk?: string };
   query?: string;
+  aim?: string | null;
 }): Promise<DiscoveryCardUnlock> {
   const existing = readLocalCardUnlocks().find((row) => row.pollId === input.poll.id) || null;
   const local = writeLocalCardUnlock(unlockFromPoll({ ...input, existing }));
@@ -28,6 +29,7 @@ export async function unlockDiscoveryOntoCard(input: {
           question: input.poll.question,
           perkTitle: perkTitleForPoll(input.poll),
           query: input.query,
+          aim: input.aim || undefined,
         });
         if (remote?.redemptionCode) {
           return writeLocalCardUnlock({
@@ -68,7 +70,7 @@ export async function unlockDiscoveryOntoCard(input: {
 export function useDiscoveryCard() {
   const queryClient = useQueryClient();
   return {
-    unlock: async (input: { city: string; poll: { id: string; question: string; targetUnlockPerk?: string }; query?: string }) => {
+    unlock: async (input: { city: string; poll: { id: string; question: string; targetUnlockPerk?: string }; query?: string; aim?: string | null }) => {
       const unlock = await unlockDiscoveryOntoCard(input);
       queryClient.invalidateQueries({ queryKey: ["experience-card"] });
       queryClient.invalidateQueries({ queryKey: ["discovery-card-unlocks"] });

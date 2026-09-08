@@ -18,6 +18,7 @@ export * from "./gem-ledger";
 export * from "./promocard-moment";
 export * from "./promocard-benefit";
 export * from "./promocard-activation";
+export * from "./promocard-aim";
 export * from "./offer-fulfillment";
 export * from "./promocard-product";
 export * from "./people-experience";

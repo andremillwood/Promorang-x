@@ -23,7 +23,10 @@ test('every card benefit carries issuer, eligibility, quantity, expiry, fulfillm
       quantity_redeemed: 3,
       per_user_limit: 1,
       value_amount: 15,
+      value_currency: 'JMD',
+      reward_type: 'coupon',
       ends_at: '2026-12-01T00:00:00.000Z',
+      metadata: { location: 'Barbican', min_spend: 3000, merchant_name: 'Yardbird' },
     },
     issuance: {
       id: 'iss-1',
@@ -37,6 +40,11 @@ test('every card benefit carries issuer, eligibility, quantity, expiry, fulfillm
   });
 
   expect(benefit.issuer).toMatchObject({ id: 'merchant-1', type: 'merchant', name: 'Yardbird' });
+  expect(benefit.rewardType).toBe('coupon');
+  expect(benefit.valueAmount).toBe(15);
+  expect(benefit.valueCurrency).toBe('JMD');
+  expect(benefit.locationLabel).toBe('Barbican');
+  expect(benefit.minSpend).toBe(3000);
   expect(benefit.eligibility.remaining).toBe(13);
   expect(benefit.availableQuantity).toBe(13);
   expect(benefit.budget).toBe(195);
@@ -114,6 +122,23 @@ test('card actions prefer use this, then nearby, then the next benefit', () => {
   })];
   expect(selectUseThis([useThis])).toEqual(useThis);
   expect(selectNextBenefit(nearby, useThis).offerId).toBe('offer-2');
+});
+
+test('an aimed card prefers the matching claimed perk', () => {
+  const nightlife = toPromoCardBenefit({
+    id: 'iss-night',
+    offer: { id: 'offer-night', title: '20% tab after dark', owner_user_id: 'm3', fulfillment_type: 'code' },
+    issuance: { status: 'claimed', redemption_code: 'PR-NIGHT' },
+    issuerName: 'Tracks',
+  });
+  const food = toPromoCardBenefit({
+    id: 'iss-food',
+    offer: { id: 'offer-food', title: 'Jerk platter', owner_user_id: 'm4', fulfillment_type: 'code' },
+    issuance: { status: 'claimed', redemption_code: 'PR-FOOD' },
+    issuerName: 'Yardbird',
+  });
+  expect(selectUseThis([food, nightlife], { keywords: ['after dark', 'tab'] }).id).toBe('iss-night');
+  expect(selectUseThis([food, nightlife]).id).toBe('iss-food');
 });
 
 test('repeat-use proof counts first redemption, second use, referred redeemers and contributor rewards', () => {
