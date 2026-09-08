@@ -211,9 +211,10 @@ describe("PromoCard journey", () => {
       Array.from(container.querySelectorAll("button")).some((item) => item.textContent === "Food"),
     ).toBe(true);
     expect(
-      Array.from(container.querySelectorAll("a")).some((link) =>
-        (link.getAttribute("href") || "").includes("lens=go_out"),
-      ),
+      Array.from(container.querySelectorAll("a")).some((link) => {
+        const href = link.getAttribute("href") || "";
+        return href.includes("lens=go_out") && href.includes("aim=kingston-after-dark");
+      }),
     ).toBe(true);
   });
 

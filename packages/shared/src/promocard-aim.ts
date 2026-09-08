@@ -208,7 +208,7 @@ export function sortBenefitsByAim<T extends Pick<PromoCardBenefit, "title" | "de
 
 export function discoverHrefForAim(aim?: PromoCardAim | null): string {
   if (!aim) return "/discover";
-  return `/discover?tab=discoveries&lens=${encodeURIComponent(aim.lens)}&q=${encodeURIComponent(aim.discoverQuery)}`;
+  return `/discover?tab=discoveries&lens=${encodeURIComponent(aim.lens)}&q=${encodeURIComponent(aim.discoverQuery)}&aim=${encodeURIComponent(aim.id)}`;
 }
 
 export function inferPromoCardAimFromText(value?: string | null): PromoCardAim | null {
