@@ -61,18 +61,14 @@ export default function CardTabScreen() {
         </View>
 
         <PromoCardFace
-          holder={view.holder}
-          available={view.available}
-          limit={view.limit}
-          places={view.places}
+          model={view.face}
           tier={view.tier}
-          cardNumber={view.cardNumber}
           onUsePress={() => setUsing(true)}
         />
 
         {!view.isLive ? (
           <View style={styles.preview}>
-            <Ionicons name="information-circle" size={16} color="#F6D48A" />
+            <Ionicons name="information-circle" size={16} color={Colors.primary} />
             <Text style={styles.previewCopy}>
               Points, keys, and claimed drops already live here. A showable code appears only after the server issues one.
             </Text>
@@ -208,7 +204,9 @@ export default function CardTabScreen() {
         visible={using}
         onClose={() => setUsing(false)}
         holder={view.holder}
-        available={view.available}
+        headline={view.face.headline}
+        detail={view.face.detail}
+        issuer={view.face.issuer}
         useCode={view.useCode}
       />
     </View>
@@ -219,7 +217,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: Colors.black },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: Spacing.container, paddingTop: 8, gap: 14 },
-  kicker: { color: '#F6D48A', fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 1.8, fontWeight: '800' },
+  kicker: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 1.8, fontWeight: '800' },
   hero: { color: Colors.white, fontSize: 42, lineHeight: 42, fontWeight: '900', letterSpacing: -1.6 },
   heroAccent: { color: Colors.primary },
   lead: { color: Colors.gray[400], fontSize: 15, lineHeight: 22, maxWidth: 360 },

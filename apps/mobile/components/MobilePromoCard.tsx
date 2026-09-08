@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+import { PromorangMark } from "@/components/brand/PromorangMark";
+
 interface MobilePromoCardProps {
   availableBalance?: number;
   monthlyLimit?: number;
@@ -41,12 +43,10 @@ export const MobilePromoCard: React.FC<MobilePromoCardProps> = ({
         {/* Card Header */}
         <View style={styles.header}>
           <View style={styles.brandRow}>
-            <View style={styles.iconContainer}>
-              <Ionicons name="card" size={18} color="#000" />
-            </View>
+            <PromorangMark size={36} />
             <View>
-              <Text style={styles.brandTitle}>PROMORANG CARD</Text>
-              <Text style={styles.tierSubtitle}>{tier}</Text>
+              <Text style={styles.brandTitle}>PROMORANG</Text>
+              <Text style={styles.tierSubtitle}>{tier} · PromoCard</Text>
             </View>
           </View>
 
@@ -59,7 +59,7 @@ export const MobilePromoCard: React.FC<MobilePromoCardProps> = ({
               if (onScanPress) onScanPress();
             }}
           >
-            <Ionicons name="ticket-outline" size={16} color="#FFB800" />
+            <Ionicons name="ticket-outline" size={16} color="#FF5500" />
             <Text style={styles.qrButtonText}>{redemptionCode ? "Use this" : "No perk"}</Text>
           </TouchableOpacity>
         </View>
@@ -136,8 +136,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 22,
     borderWidth: 1,
-    borderColor: "rgba(255, 184, 0, 0.3)",
-    shadowColor: "#FFB800",
+    borderColor: "rgba(255, 85, 0, 0.38)",
+    shadowColor: "#FF5500",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 16,
@@ -153,14 +153,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
   },
-  iconContainer: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    backgroundColor: "#FFB800",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   brandTitle: {
     color: "#FFFFFF",
     fontSize: 14,
@@ -168,7 +160,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
   },
   tierSubtitle: {
-    color: "#FFB800",
+    color: "#FF5500",
     fontSize: 10,
     fontWeight: "700",
     textTransform: "uppercase",
@@ -251,7 +243,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   resetDays: {
-    color: "#FFB800",
+    color: "#FF5500",
     fontSize: 13,
     fontWeight: "700",
     marginTop: 2,
@@ -299,7 +291,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   modalBalance: {
-    color: "#FFB800",
+    color: "#FF5500",
     fontSize: 16,
     fontWeight: "800",
     marginTop: 14,

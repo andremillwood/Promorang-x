@@ -22,6 +22,9 @@ vi.mock("@/hooks/usePeopleExperience", () => ({
 vi.mock("@/hooks/usePromoCardAim", () => ({
   useApplyPromoCardAim: () => ({ aim: aimState.current, chooseAim: vi.fn() }),
 }));
+vi.mock("qrcode.react", () => ({
+  QRCodeSVG: () => null,
+}));
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({ user: { id: "test-member" }, profile: {} }),
 }));
@@ -112,7 +115,8 @@ describe("PromoCard journey", () => {
       value: { writeText },
     });
     await renderCard();
-    expect(document.body).not.toHaveTextContent("COFFEE-TEST");
+    expect(document.querySelector('[role="dialog"]')).not.toBeInTheDocument();
+    expect(container.querySelector(".pr-card-back")).toHaveTextContent("COFFEE-TEST");
     await click("Show code for Coffee on us");
     expect(document.querySelector('[role="dialog"]')).toHaveTextContent(
       "COFFEE-TEST",
@@ -182,13 +186,14 @@ describe("PromoCard journey", () => {
         (link) => link.textContent === "Back to your home",
       ),
     ).toHaveAttribute("href", "/app-preview");
-    expect(container).toHaveTextContent("Your rewards");
+    expect(container).toHaveTextContent("This is your PromoCard");
     expect(container).toHaveTextContent("Aim this card");
     expect(
       Array.from(container.querySelectorAll("button")).some((item) => item.textContent === "Tonight"),
     ).toBe(true);
     expect(container).not.toHaveTextContent("Available to spend");
     expect(container).not.toHaveTextContent("PR · 0842");
+    expect(container).not.toHaveTextContent("$24");
   });
 
   it("shows the aimed scene when interest unlocked the card", async () => {

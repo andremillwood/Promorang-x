@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
@@ -20,6 +20,7 @@ import {
   ownedCardCopy,
   PROMOCARD_AIMS,
   resolvePromoCardAim,
+  resolvePromoCardFace,
   selectOwnedUseThis,
   sortBenefitsByAim,
   type PromoCardAim,
@@ -174,6 +175,7 @@ export default function MyPromoCard() {
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [selected, setSelected] = useState<CardPerk | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const [flipped, setFlipped] = useState(false);
   const data = card.data;
   const holder = firstGivenName({
     displayName: data?.givenName || data?.name,
@@ -194,10 +196,28 @@ export default function MyPromoCard() {
     .map(issuanceForPerk)
     .find((issuance) => issuance && isPresentablePass(issuance.offers.fulfillment_type, issuance.status) && issuance.offers.fulfillment_type === "qr") || null;
   const expiredPerks = perks.filter(isExpired);
+  const livePerks = perks.filter((perk) => !isExpired(perk));
   const selectedExpired = selected ? isExpired(selected) : false;
   const selectedCode = perkCode(selected);
+  const face = resolvePromoCardFace({
+    holder: holder === "there" ? "Your card" : holder,
+    useThis: useThis,
+    nearbyCount: nearby.length,
+    nextBenefitTitle: nextBenefit?.title,
+    latestReturn: world?.latestReturn?.heading,
+    latestReturnAt: world?.latestMemory?.issuedAt
+      ? new Date(world.latestMemory.issuedAt).toLocaleDateString()
+      : undefined,
+    sceneMark: world?.promoCard?.sceneMark,
+    crewMark: world?.promoCard?.crewMark,
+    recordedUse: Boolean(useThis?.redemption?.recorded),
+    expiredOnly: !useThis && livePerks.length === 0 && expiredPerks.length > 0,
+  });
   const copy = ownedCardCopy({ aim, owned: Boolean(useThis), holder });
   const empty = fillCardCopy(aim);
+  useEffect(() => {
+    if (face.credential) sessionStorage.setItem("promorang.promocard.lastCredential", face.credential);
+  }, [face.credential]);
 
   async function copyCode() {
     if (!selectedCode) return;
@@ -265,14 +285,18 @@ export default function MyPromoCard() {
           ) : null}
 
           <PromoCardFace
-            variant={useThis ? "spending" : "membership"}
-            holder={holder === "there" ? "Your card" : holder}
-            available={useThis ? "Ready to use" : aim ? aim.label : nearby.length ? "Available nearby" : "Unlock your first benefit"}
-            limit={useThis?.title || nextBenefit?.title || aim?.cardLine || "Nothing on the card yet"}
-            places={useThis?.issuer?.name || aim?.label || world?.promoCard?.places || `${nearby.length || 0} participating places`}
-            action={useThis ? "On your card" : aim ? "Watching" : nearby.length ? "Available nearby" : "Get something on it"}
-            sceneMark={world?.promoCard?.sceneMark}
-            crewMark={world?.promoCard?.crewMark}
+            model={face}
+            flipped={flipped}
+            onFlip={() => setFlipped((value) => !value)}
+            onCopy={() => {
+              if (!face.credential) return;
+              void navigator.clipboard.writeText(face.credential).then(
+                () => setCopyState("copied"),
+                () => setCopyState("failed"),
+              );
+            }}
+            copyState={copyState}
+            lastLoaded={Boolean(card.isError && face.credential)}
           />
 
           <PromoCardWorldContext
@@ -296,6 +320,7 @@ export default function MyPromoCard() {
             nearbyCount={nearby.length}
             nextBenefit={nextBenefit}
             aim={aim}
+            onUseThis={face.canFlip ? () => setFlipped(true) : undefined}
           />
 
           <section className="rounded-[1.4rem] border border-amber-200/20 bg-amber-200/5 px-4 py-4">
@@ -497,7 +522,7 @@ export default function MyPromoCard() {
           }}
           className="max-h-[90dvh] overflow-y-auto rounded-3xl border-white/15 bg-[#141313] text-white sm:max-w-md"
         >
-          <p className="text-xs font-semibold uppercase tracking-widest text-amber-200">
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary">
             On your PromoCard
           </p>
           <DialogTitle className="break-words pr-5 font-serif text-3xl">
@@ -507,8 +532,8 @@ export default function MyPromoCard() {
             {selected?.detail || "Show this to the merchant. Nothing is used until they validate it."}
           </DialogDescription>
           {selectedCode && !selectedExpired && canShowCode(selected) ? (
-            <div className="mt-2 rounded-2xl border border-amber-200/25 bg-amber-200/5 p-5 text-center">
-              <p className="text-sm text-amber-100">Show this code to redeem</p>
+            <div className="mt-2 rounded-2xl border border-primary/30 bg-primary/10 p-5 text-center">
+              <p className="text-sm text-white/80">Show this code to redeem</p>
               <code className="my-5 block select-all break-all font-mono text-3xl font-bold tracking-wider">
                 {selectedCode}
               </code>

@@ -7,6 +7,7 @@ import { Text, View } from '@/components/Themed';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/DesignTokens';
 import { useColorScheme } from '@/components/useColorScheme';
 import { decodeOfferRedeemPayload } from '@promorang/shared';
+import { PromorangValidReceipt } from '@/components/people/PromorangValidReceipt';
 import { couponApi, merchantApi, offerApi, supportApi } from '@/lib/api';
 import { summarizeMerchantLiveOps, type MerchantLiveOpsListing } from '@promorang/shared';
 
@@ -94,6 +95,7 @@ export default function MerchantScannerScreen() {
   const [commerceCases, setCommerceCases] = useState<any[]>([]);
   const [selectedCase, setSelectedCase] = useState<any | null>(null);
   const [caseResponse, setCaseResponse] = useState('');
+  const [lastValid, setLastValid] = useState<{ title: string; reference?: string; nextBenefit?: string } | null>(null);
 
   const pendingReceipts = useMemo(() => receipts.filter((receipt) => ['issued', 'pending'].includes(receipt.status)), [receipts]);
 
@@ -129,19 +131,32 @@ export default function MerchantScannerScreen() {
     try {
       try {
         const offerResult = await offerApi.redeem(code, 'merchant_scan');
-        Alert.alert('Offer redeemed', offerResult.data?.offers?.title || `Code ${code} is now marked redeemed.`);
+        setLastValid({
+          title: offerResult.data?.offers?.title || 'PromoCard perk',
+          reference: offerResult.data?.id || code,
+          nextBenefit: offerResult.data?.nextBenefit?.title,
+        });
+        Alert.alert('VALID', offerResult.data?.offers?.title || `Code ${code} is now marked redeemed.`);
       } catch {
         try {
           const sale = await merchantApi.validateSaleCode(code);
+          setLastValid({
+            title: sale?.merchant_products?.name || sale?.product_name || 'Product sale',
+            reference: code,
+          });
           Alert.alert(
-            'Redemption validated',
+            'VALID',
             `${sale?.merchant_products?.name || sale?.product_name || 'Product sale'} is now marked fulfilled.`,
           );
         } catch {
           try {
             const couponResult = await couponApi.validateMerchantCode(code);
+            setLastValid({
+              title: couponResult.data?.offers?.title || 'PromoCard perk',
+              reference: couponResult.data?.redemption?.claim_code || code,
+            });
             Alert.alert(
-              'Offer redeemed',
+              'VALID',
               `Coupon code ${couponResult.data?.redemption?.claim_code || code} is now marked redeemed.`,
             );
           } catch {
@@ -214,6 +229,7 @@ export default function MerchantScannerScreen() {
         </View>
         {pressuredListings.length ? <View style={styles.stockRail}>{pressuredListings.map((item) => <View key={item.id} style={[styles.stockPill, Number(item.inventory_quantity) === 0 && styles.stockPillOut]}><Text style={styles.stockText} numberOfLines={1}>{item.name} · {Number(item.inventory_quantity) === 0 ? 'sold out' : `${item.inventory_quantity} left`}</Text></View>)}</View> : null}
       </View>
+      {lastValid ? <PromorangValidReceipt title={lastValid.title} reference={lastValid.reference} nextBenefit={lastValid.nextBenefit} /> : null}
 
       <View style={styles.toggleContainer}>
         <Pressable style={[styles.toggleButton, !scanning && styles.toggleButtonActive]} onPress={() => setScanning(false)}>

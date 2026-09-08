@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useConsumerHomeLiveData } from "@/hooks/useConsumerHomeLiveData";
 import { useConsumerInteractions } from "@/hooks/useConsumerInteractions";
 import { usePromoCard } from "@/hooks/usePromoCard";
+import { resolvePromoCardFace } from "@promorang/shared";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { LatestPersonReceipt } from "@/components/promorang/PersonReceiptCallout";
 
@@ -36,11 +37,6 @@ const formatMomentTime = (value?: string | null) => {
   } catch {
     return undefined;
   }
-};
-
-const money = (value?: number | null) => {
-  if (value == null) return "$24.00";
-  return `$${value.toFixed(2)}`;
 };
 
 const ConsumerHomePreview = () => {
@@ -145,8 +141,6 @@ const ConsumerHomePreview = () => {
   const activeKeys = live.activePromoKeys.data || [];
 
   const cardHref = user ? "/card" : "/auth?mode=signup&next=/card";
-  const available = promoCard.data?.availableBalance;
-  const limit = promoCard.data?.monthlyLimit;
 
   return (
     <ConsumerShell
@@ -176,10 +170,14 @@ const ConsumerHomePreview = () => {
       <section className="space-y-3">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Your PromoCard</p>
         <PromoCardFace
-          holder={user ? displayName : "Member card"}
-          available={money(available)}
-          limit={money(limit ?? 40)}
-          places={promoCard.data ? "Partner shops nearby" : "Example benefit · shown before checkout"}
+          interactive={false}
+          model={resolvePromoCardFace({
+            holder: user ? displayName : "Your card",
+            nearbyCount: Number(promoCard.data?.acceptedLocationsCount || 0),
+            nextBenefitTitle: promoCard.data
+              ? "A participating place can put a perk on this card."
+              : null,
+          })}
         />
         <div className="flex flex-wrap gap-2">
           <Link

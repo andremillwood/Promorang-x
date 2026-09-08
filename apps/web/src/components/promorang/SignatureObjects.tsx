@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { TactileButton } from "@/components/ui/TactileButton";
 import { cn } from "@/lib/utils";
+export { PromoCardFace, PromorangValidReceipt } from "@/components/promorang/PromoCardObject";
 
 export function PlainEnglish({ children }: { children: ReactNode }) {
   return (
@@ -12,19 +13,6 @@ export function PlainEnglish({ children }: { children: ReactNode }) {
     </aside>
   );
 }
-
-type PromoCardFaceProps = {
-  available?: string;
-  limit?: string;
-  holder?: string;
-  places?: string;
-  action?: string;
-  sceneMark?: string;
-  crewMark?: string;
-  className?: string;
-  variant?: "spending" | "membership";
-  tier?: string;
-};
 
 export function PromoCardWorldContext({
   scene,
@@ -76,49 +64,6 @@ export function PromoCardWorldContext({
   );
 }
 
-export function PromoCardFace({
-  available = "Use this",
-  limit = "A live perk",
-  holder = "Member card",
-  places = "Partner shops nearby",
-  action = "Use this",
-  sceneMark,
-  crewMark,
-  className,
-  variant = "spending",
-  tier,
-}: PromoCardFaceProps) {
-  return (
-    <article className={cn("pr-plastic-card w-full max-w-md p-5 text-white sm:p-6", className)} aria-label="PromoCard">
-      <div className="relative z-10 flex h-full flex-col justify-between">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.22em] text-amber-200/80">PROMORANG</p>
-            <h3 className="mt-1 font-serif text-2xl font-bold tracking-tight">PromoCard</h3>
-            {tier ? <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-100/70">{tier} tier</p> : null}
-            {sceneMark || crewMark ? (
-              <p className="mt-1 text-[10px] tracking-[0.16em] text-white/55">
-                {[sceneMark, crewMark].filter(Boolean).join(" · ")}
-              </p>
-            ) : null}
-          </div>
-          <span className="h-8 w-11 rounded-md bg-gradient-to-br from-amber-200 to-amber-500 shadow-inner" aria-hidden />
-        </div>
-        <div>
-          <p className="text-[11px] tracking-wide text-white/55">
-            {variant === "membership" ? "Your rewards" : action}
-          </p>
-          <p className="mt-0.5 font-serif text-3xl font-bold tracking-tight text-amber-100 sm:text-4xl">{available}</p>
-          <p className="mt-1 text-xs text-white/50">{limit} · {places}</p>
-        </div>
-        <div className="flex items-end justify-between gap-3 text-[11px] text-white/60">
-          <span>{holder}</span>
-          <span className="font-mono tracking-widest">{variant === "membership" ? "MEMBER" : "Show the merchant"}</span>
-        </div>
-      </div>
-    </article>
-  );
-}
 
 type TicketPassProps = {
   kicker: string;
@@ -325,7 +270,7 @@ export function ObjectShelf({
   }>;
 }) {
   const marks: Record<string, string> = {
-    PromoCard: "from-amber-200 to-amber-500",
+    PromoCard: "from-orange-400 to-orange-600",
     Points: "from-amber-400 to-orange-600",
     PromoKeys: "from-orange-300 to-orange-600",
     Keys: "from-orange-300 to-orange-600",

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, MapPin, Ticket, WalletCards } from "lucide-react";
+import { ArrowRight, CheckCircle2, MapPin, Ticket, WalletCards } from "lucide-react";
 import {
   aimedEmptyPresentation,
   canUseBenefit,
@@ -99,7 +99,7 @@ export function PromoCardGateway() {
 
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-[#070707] text-white">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(245,158,11,0.2),transparent_30%),radial-gradient(circle_at_15%_85%,rgba(255,85,0,0.14),transparent_32%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(255,85,0,0.2),transparent_30%),radial-gradient(circle_at_18%_82%,rgba(214,178,90,0.12),transparent_32%)]" />
       <div className={`container relative px-5 pt-[5.25rem] sm:px-6 sm:pb-20 sm:pt-28 lg:pt-32 ${user ? "pb-10" : "pb-24"}`}>
         <div className="grid items-center gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <div>
@@ -149,7 +149,7 @@ export function PromoCardGateway() {
               </Link>
               <Link
                 to="/discover"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-sm font-bold text-white transition hover:border-amber-300/40 hover:bg-white/[0.08] active:scale-[0.98]"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-sm font-bold text-white transition hover:border-primary/40 hover:bg-white/[0.08] active:scale-[0.98]"
               >
                 <MapPin className="h-4 w-4 text-amber-300" />
                 {nearbyLabel}
@@ -161,7 +161,7 @@ export function PromoCardGateway() {
           </div>
 
           <div className="relative mx-auto w-full max-w-xl">
-            <div className="absolute -inset-5 rounded-[2.5rem] bg-amber-400/10 blur-3xl" />
+            <div className="absolute -inset-5 rounded-[2.5rem] bg-[radial-gradient(circle,rgba(255,85,0,0.22),rgba(214,178,90,0.1),transparent_70%)] blur-3xl" />
             <div className="relative">
               {loading && !featured ? (
                 <div className="overflow-hidden rounded-[1.5rem] border border-amber-200/20 bg-gradient-to-br from-zinc-800 via-zinc-950 to-black p-5 sm:rounded-[1.75rem] sm:p-7">
@@ -183,6 +183,10 @@ export function PromoCardGateway() {
                 />
               ) : null}
             </div>
+            <p className="relative mt-4 flex items-start gap-2 text-[10px] leading-4 text-white/45">
+              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />
+              Payment, gift activation and recharge are not customer completions. The merchant’s recorded redemption is.
+            </p>
           </div>
         </div>
 

@@ -110,13 +110,13 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
       )}
 
       <section className="px-5 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] pt-4">
-        <div className="rounded-[1.5rem] bg-[#e8ddc9] p-5">
-          <WalletCards className="h-6 w-6 text-[#a34a1a]" />
+        <div className="rounded-[1.5rem] bg-[#171512] p-5 text-white">
+          <WalletCards className="h-6 w-6 text-primary" />
           <h2 className="mt-5 font-serif text-2xl font-black leading-tight">Ready when your next plan is.</h2>
-          <ul className="mt-4 space-y-2 text-sm text-[#51483e]">
-            {["No cash repayment", "Offer shown before checkout", "Merchant terms stay visible"].map((item) => <li key={item} className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-700" />{item}</li>)}
+          <ul className="mt-4 space-y-2 text-sm text-white/70">
+            {["No cash repayment", "Offer shown before checkout", "Merchant terms stay visible"].map((item) => <li key={item} className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-400" />{item}</li>)}
           </ul>
-          <Link to={primaryHref} className="mt-6 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#171512] px-5 text-sm font-black text-white active:scale-[0.98]">
+          <Link to={primaryHref} className="mt-6 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-black text-white active:scale-[0.98]">
             {user ? "Open my PromoCard" : "Get my PromoCard"}<ArrowRight className="h-4 w-4" />
           </Link>
         </div>

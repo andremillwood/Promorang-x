@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Info } from "lucide-react";
-import { firstGivenName, issuanceFromPromoCardPerk, isPresentablePass, type PromoCardPerk } from "@promorang/shared";
+import { firstGivenName, issuanceFromPromoCardPerk, isPresentablePass, resolvePromoCardFace, type PromoCardPerk } from "@promorang/shared";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { PromoCardActions } from "@/components/promocard/PromoCardActions";
 import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
@@ -52,11 +52,12 @@ export const DigitalPromoCard: React.FC<DigitalPromoCardProps> = ({ isPreviewDat
       ) : null}
 
       <PromoCardFace
-        holder={holder === "there" ? "Your card" : holder}
-        available={useThis ? "Use this" : nearby.length ? "Available nearby" : "Get your next benefit"}
-        limit={useThis?.title || nextBenefit?.title || "No live perk yet"}
-        places={useThis?.issuer?.name || "Participating businesses"}
-        action={useThis ? "Use this" : nearby.length ? "Available nearby" : "Get your next benefit"}
+        model={resolvePromoCardFace({
+          holder: holder === "there" ? "Your card" : holder,
+          useThis,
+          nearbyCount: nearby.length,
+          nextBenefitTitle: nextBenefit?.title,
+        })}
       />
 
       <PromoCardActions useThis={useThis} nearbyCount={nearby.length} nextBenefit={nextBenefit} />
