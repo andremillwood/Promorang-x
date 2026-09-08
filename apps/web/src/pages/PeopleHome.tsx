@@ -10,10 +10,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/people/ExperienceShell";
-import { StakeholderLoopTrail, StakeholderPutInPass } from "@/components/people/StakeholderLoop";
+import { StakeholderLoopTrail, StakeholderPutInPass, StakeholderSetupPlaybook } from "@/components/people/StakeholderLoop";
 import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
-import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { resolveDemandRole } from "@/lib/discovery-demand";
 
@@ -22,7 +21,7 @@ const money = (value: number) => {
   return `J$${Math.round(value).toLocaleString()}`;
 };
 
-const PREVIEW_ROLES = ["participant", "host", "merchant", "brand"] as const;
+const PREVIEW_ROLES = ["participant", "creator", "host", "merchant", "brand"] as const;
 
 export default function PeopleHome() {
   const { user, profile, activeRole } = useAuth();
@@ -157,6 +156,7 @@ export default function PeopleHome() {
         </nav>
       ) : null}
       <StakeholderLoopTrail role={lensRole} />
+      <StakeholderSetupPlaybook role={lensRole} />
       {hasMovement ? (
         <PaperReceipt
           heading="What’s in play"
@@ -180,8 +180,6 @@ export default function PeopleHome() {
             : "Numbers stay quiet until someone actually does something."}
         />
       ) : null}
-
-      <LiveLoopActions role={String(lensRole)} title="Make it live" />
 
       {!isMemberWorkspace ? (
         <section className="grid gap-3">

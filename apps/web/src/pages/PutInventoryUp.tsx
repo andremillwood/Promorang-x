@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { PERK_KIND_LABELS, inventoryOpenCopy, merchantPerkPostedNext, type PerkKind } from "@promorang/shared";
+import { PERK_KIND_LABELS, getStakeholderHowLead, inventoryOpenCopy, merchantPerkPostedNext, type PerkKind } from "@promorang/shared";
 import { useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell } from "@/components/people/ExperienceShell";
+import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -13,7 +14,8 @@ const KINDS = (Object.entries(PERK_KIND_LABELS) as Array<[PerkKind, string]>).fi
 
 export default function PutInventoryUp() {
   const [params] = useSearchParams();
-  const { user, profile } = useAuth();
+  const { user, profile, activeRole } = useAuth();
+  const lensRole = params.get("role") || activeRole;
   const { provideInventory } = useExperienceActions();
   const to = useExperiencePath();
   const { toast } = useToast();
@@ -72,13 +74,16 @@ export default function PutInventoryUp() {
     );
   }
 
+  const how = getStakeholderHowLead(lensRole, "stock");
+
   return (
     <ExperienceShell
-      eyebrow="Put something up"
-      title="What can people get from you?"
-      description="This becomes an opportunity. Other people move it. You see claimed and used."
+      eyebrow={how.eyebrow}
+      title={how.title}
+      description={how.body}
       backTo="/dashboard"
     >
+      <StakeholderHowLead role={lensRole} surface="stock" />
       <section>
         <div className="grid grid-cols-2 gap-2">
           {KINDS.map(([id, label]) => (

@@ -361,6 +361,9 @@ export function CreateMoment() {
             <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">
               {foundListing?.title || (fromPeopleFlow ? createIntent.prompt : "Host a Moment & Experience")}
             </h1>
+            <p className="mt-2 max-w-xl text-sm text-white/55">
+              Publishing the night is not the finish. After this, attach a live perk a merchant already put up, then send them to the scanner.
+            </p>
             {foundListing ? (
               <p className="mt-2 max-w-xl text-sm text-white/55">
                 You claimed this from Discover. The asks come with it.

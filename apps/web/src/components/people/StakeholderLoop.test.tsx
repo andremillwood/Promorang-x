@@ -2,7 +2,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { StakeholderPutInPass, StakeholderSurfaceLead } from "./StakeholderLoop";
+import { StakeholderPutInPass, StakeholderSetupPlaybook, StakeholderSurfaceLead } from "./StakeholderLoop";
 
 let root: Root;
 let container: HTMLDivElement;
@@ -44,5 +44,48 @@ describe("stakeholder surface lead", () => {
     });
     expect(container).toHaveTextContent("Where your perk can be used tonight.");
     expect(container.querySelector("a")?.getAttribute("href")).toBe("/stock");
+  });
+});
+
+describe("stakeholder setup playbook", () => {
+  it("names the merchant venue-to-scanner path", async () => {
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <StakeholderSetupPlaybook role="merchant" />
+        </MemoryRouter>,
+      );
+    });
+    expect(container).toHaveTextContent("Add the venue");
+    expect(container).toHaveTextContent("Put one perk up");
+    expect(container).toHaveTextContent("Validate at the counter");
+    expect(container.querySelector('a[href="/dashboard/venues/add"]')).toBeTruthy();
+    expect(container.querySelector('a[href="/stock"]')).toBeTruthy();
+  });
+
+  it("names the brand fund-then-fly path", async () => {
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <StakeholderSetupPlaybook role="brand" />
+        </MemoryRouter>,
+      );
+    });
+    expect(container).toHaveTextContent("Fund a real benefit");
+    expect(container).toHaveTextContent("Launch the campaign flight");
+    expect(container.querySelector('a[href="/create/campaign"]')).toBeTruthy();
+  });
+
+  it("names the creator take-or-publish path", async () => {
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <StakeholderSetupPlaybook role="creator" />
+        </MemoryRouter>,
+      );
+    });
+    expect(container).toHaveTextContent("Take a live perk");
+    expect(container).toHaveTextContent("Publish a content drop");
+    expect(container.querySelector('a[href="/content-drops"]')).toBeTruthy();
   });
 });

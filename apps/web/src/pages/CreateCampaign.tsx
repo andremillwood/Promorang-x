@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -20,12 +20,17 @@ import { cultureImages } from "@/data/culture-demo";
 import { PromoPilotWorkspace } from "@/components/campaigns/PromoPilotWorkspace";
 import type { DemandPlan } from "@promorang/shared";
 import { useI18n } from "@/i18n/I18nContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
 
 type ActivationPlan = CompiledCampaign & { metadata: CompilerMetadata };
 
 const CreateCampaign = () => {
   const { t } = useI18n();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const { activeRole } = useAuth();
+  const lensRole = params.get("role") || activeRole;
   const createCampaign = useCreateCampaign();
   const { compile, isCompiling } = useCampaignCompiler();
   const [prompt, setPrompt] = useState("");
@@ -123,6 +128,9 @@ const CreateCampaign = () => {
                 <p className="mt-7 max-w-2xl text-lg leading-8 text-black/58">
                   {t("createCampaign.heroSubtitle")}
                 </p>
+                <div className="mt-8 max-w-2xl">
+                  <StakeholderHowLead role={lensRole} surface="campaign" variant="light" />
+                </div>
 
                 <div className="mt-10 border-y border-black/15 py-6">
                   <div className="flex items-center justify-between">

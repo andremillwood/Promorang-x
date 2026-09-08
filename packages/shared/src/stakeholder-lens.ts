@@ -166,6 +166,7 @@ const ROLE_LENSES: Record<Exclude<StakeholderNavRole, "admin">, StakeholderLens>
     activityHref: "/activity",
     activityMeaning: "Joins, visits, and uses that came from your share.",
     extras: [
+      { label: "Content drops", href: "/content-drops", group: "manage" },
       { label: "Studio", href: "/dashboard?view=studio", group: "manage" },
       ...PEOPLE_EXTRAS,
     ],
@@ -210,6 +211,7 @@ const ROLE_LENSES: Record<Exclude<StakeholderNavRole, "admin">, StakeholderLens>
     activityHref: "/happened",
     activityMeaning: "Claims, redemptions, and people who came back.",
     extras: [
+      { label: "Add venue", href: "/dashboard/venues/add", group: "manage" },
       { label: "Storefront", href: "/dashboard?view=studio&tab=storefront", group: "manage" },
       { label: "Redeem", href: "/staff/scanner", group: "manage" },
       ...PEOPLE_EXTRAS,
@@ -233,6 +235,7 @@ const ROLE_LENSES: Record<Exclude<StakeholderNavRole, "admin">, StakeholderLens>
     activityHref: "/happened",
     activityMeaning: "Qualified actions after your benefit was used.",
     extras: [
+      { label: "Launch campaign", href: "/create/campaign", group: "manage" },
       { label: "Campaigns", href: "/dashboard?view=studio", group: "manage" },
       ...PEOPLE_EXTRAS,
     ],

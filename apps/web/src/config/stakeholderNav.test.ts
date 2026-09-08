@@ -22,5 +22,11 @@ describe("stakeholder navigation", () => {
       .map((item) => item.label);
     expect(manage).toContain("Redeem");
     expect(manage).toContain("Storefront");
+    expect(manage).toContain("Add venue");
+  });
+
+  it("surfaces brand campaign launch and creator content drops in manage", () => {
+    expect(stakeholderNavItems("brand").map((item) => item.href)).toContain("/create/campaign");
+    expect(stakeholderNavItems("creator").map((item) => item.href)).toContain("/content-drops");
   });
 });

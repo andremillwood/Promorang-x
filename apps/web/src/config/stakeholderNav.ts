@@ -5,7 +5,9 @@ import {
   CreditCard,
   Gift,
   Home,
+  MapPin,
   Plus,
+  Radio,
   Settings,
   Sparkles,
   Store,
@@ -59,6 +61,9 @@ const EXTRA_ICONS: Record<string, LucideIcon> = {
   "/staff/scanner": Gift,
   "/organizer/check-ins": Activity,
   "/stock": Gift,
+  "/dashboard/venues/add": MapPin,
+  "/create/campaign": Briefcase,
+  "/content-drops": Radio,
 };
 
 export function stakeholderNavItems(role: StakeholderNavRole): StakeholderNavItem[] {

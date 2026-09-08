@@ -63,7 +63,10 @@ describe("stakeholder lens", () => {
 
   it("surfaces merchant redeem and brand campaigns as extras, not a second product", () => {
     expect(getStakeholderLens("merchant").extras.map((item) => item.href)).toContain("/staff/scanner");
+    expect(getStakeholderLens("merchant").extras.map((item) => item.href)).toContain("/dashboard/venues/add");
     expect(getStakeholderLens("brand").extras.map((item) => item.label)).toContain("Campaigns");
+    expect(getStakeholderLens("brand").extras.map((item) => item.href)).toContain("/create/campaign");
+    expect(getStakeholderLens("creator").extras.map((item) => item.href)).toContain("/content-drops");
     expect(getStakeholderLens("host").extras.map((item) => item.label)).toContain("Door Check-Ins");
   });
 });

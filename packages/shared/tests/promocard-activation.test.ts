@@ -24,12 +24,21 @@ describe('promocard activation landings', () => {
     ]);
   });
 
-  it('sends creators to take a live perk before sharing', () => {
+  it('sends creators to take a live perk or publish a drop before sharing', () => {
     expect(landingPathForRole('creator')).toBe('/earn');
     expect(firstActionsForRole('creator').map((a) => a.id)).toEqual([
       'take-perk',
+      'publish-drop',
       'share-perk',
-      'card',
+    ]);
+  });
+
+  it('sends brands to fund inventory, then launch a campaign', () => {
+    expect(landingPathForRole('brand')).toBe('/stock');
+    expect(firstActionsForRole('brand').map((a) => a.href)).toEqual([
+      '/stock',
+      '/create/campaign',
+      '/happened',
     ]);
   });
 
