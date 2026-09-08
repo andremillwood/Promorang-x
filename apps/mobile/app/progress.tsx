@@ -34,7 +34,19 @@ export default function ProgressScreen() {
           </View>
         ))}
       </View>
+      {world?.polarity?.line ? (
+        <Text style={{ color: Colors.gray[400] }}>{world.polarity.line}</Text>
+      ) : null}
+      {world?.contest?.contestLine ? (
+        <Text style={{ color: Colors.white, fontSize: 18, fontWeight: '700' }}>{world.contest.contestLine}</Text>
+      ) : null}
+      {(world?.territories || []).map((area: { key: string; title: string; state: string }) => (
+        <Text key={area.key} style={{ color: Colors.gray[500] }}>
+          {area.title} · {area.state}
+        </Text>
+      ))}
       <PrimaryButton label="Open Crew" onPress={() => router.push('/crews')} />
+      <PrimaryButton label="Open Guild" onPress={() => router.push('/guilds')} />
       <PrimaryButton label="Open Vault" onPress={() => router.push('/vault')} />
     </ExperienceShell>
   );

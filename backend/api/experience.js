@@ -4,6 +4,7 @@ const { requireAuth, optionalAuth } = require('../middleware/auth');
 const experience = require('../services/peopleExperienceService');
 const worldCrewService = require('../services/worldCrewService');
 const worldPlayerService = require('../services/worldPlayerService');
+const worldGuildService = require('../services/worldGuildService');
 
 const ok = (res, data, status = 200) => res.status(status).json({ success: true, data });
 const fail = (res, error, status = 400) => res.status(status).json({
@@ -150,6 +151,18 @@ router.post('/crew/role', async (req, res) => {
   } catch (error) {
     return fail(res, error);
   }
+});
+
+router.get('/guild', async (req, res) => {
+  try { return ok(res, await worldGuildService.getMyGuild(req.user.id)); } catch (error) { return fail(res, error, 500); }
+});
+
+router.post('/guild', async (req, res) => {
+  try { return ok(res, await worldGuildService.createGuild(req.user.id, req.body || {}), 201); } catch (error) { return fail(res, error); }
+});
+
+router.post('/guild/join', async (req, res) => {
+  try { return ok(res, await worldGuildService.joinGuildByCode(req.user.id, req.body?.code || req.body?.inviteCode), 201); } catch (error) { return fail(res, error); }
 });
 
 module.exports = router;

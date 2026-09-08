@@ -121,6 +121,7 @@ const WhatHappened = lazy(() => import("./pages/WhatHappened"));
 const Progress = lazy(() => import("./pages/Progress"));
 const MyPromoCard = lazy(() => import("./pages/MyPromoCard"));
 const Crews = lazy(() => import("./pages/Crews"));
+const Guilds = lazy(() => import("./pages/Guilds"));
 const DropClaim = lazy(() => import("./pages/DropClaim"));
 const StartCommunity = lazy(() => import("./pages/StartCommunity"));
 const PutInventoryUp = lazy(() => import("./pages/PutInventoryUp"));
@@ -326,6 +327,7 @@ const App = () => (
                     <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
                     <Route path="/card" element={<ProtectedRoute><MyPromoCard /></ProtectedRoute>} />
                     <Route path="/crews" element={<ProtectedRoute><Crews /></ProtectedRoute>} />
+                    <Route path="/guilds" element={<ProtectedRoute><Guilds /></ProtectedRoute>} />
                     <Route path="/start" element={<ProtectedRoute><StartCommunity /></ProtectedRoute>} />
                     <Route path="/stock" element={<ProtectedRoute><PutInventoryUp /></ProtectedRoute>} />
                     <Route path="/home" element={<ProtectedRoute><PeopleHome /></ProtectedRoute>} />
@@ -341,6 +343,7 @@ const App = () => (
                     <Route path="/app-preview/progress" element={<Progress />} />
                     <Route path="/app-preview/card" element={<MyPromoCard />} />
                     <Route path="/app-preview/crews" element={<Crews />} />
+                    <Route path="/app-preview/guilds" element={<Guilds />} />
                     <Route path="/app-preview/start" element={<StartCommunity />} />
                     <Route path="/app-preview/stock" element={<PutInventoryUp />} />
                     <Route path="/create/campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />

@@ -4,6 +4,10 @@ const {
   resolveCrewRunProgress,
   resolveSceneHealth,
   resolveFaction,
+  resolveGuildReadiness,
+  resolveTerritoryStanding,
+  resolveFactionContest,
+  resolveCurrentStatic,
   SHOW_UP_ACTION_TYPES,
   PATH_EVIDENCE_THRESHOLD,
 } = require('../../services/worldLayer');
@@ -68,5 +72,18 @@ describe('world layer presentation', () => {
     const health = resolveSceneHealth([{ actionType: 'check_in' }, { actionType: 'PURCHASE' }]);
     expect(health.find((item) => item.dimension === 'memory').count).toBe(1);
     expect(health.find((item) => item.dimension === 'sustainability').count).toBe(1);
+  });
+
+  test('guilds stay a Crew federation and territory stays earned standing', () => {
+    expect(resolveGuildReadiness(1).forming).toBe(true);
+    expect(resolveTerritoryStanding({ areaKey: 'barbican' }).state).toBe('unknown');
+    expect(resolveTerritoryStanding({ areaKey: 'barbican', presenceCount: 3 }).state).toBe('held');
+  });
+
+  test('faction contest is Current versus Static', () => {
+    const contest = resolveFactionContest({ factionCurrents: { keepers: 3 } });
+    expect(contest.leadingCurrent).toBe('keepers');
+    expect(contest.contestLine).toMatch(/Current versus Static/);
+    expect(resolveCurrentStatic({ currentCount: 0 }).polarity).toBe('static');
   });
 });

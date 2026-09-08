@@ -564,4 +564,9 @@ export const peopleExperienceApi = {
   progress: () => experienceRequest<Record<string, any>>('/progress'),
   setFaction: (faction: string | null) =>
     experienceRequest<Record<string, any>>('/faction', { method: 'POST', body: JSON.stringify({ faction }) }),
+  guild: () => experienceRequest<Record<string, any> | null>('/guild'),
+  createGuild: (body: Record<string, unknown>) =>
+    experienceRequest<Record<string, any>>('/guild', { method: 'POST', body: JSON.stringify(body) }),
+  joinGuild: (code: string) =>
+    experienceRequest<Record<string, any>>('/guild/join', { method: 'POST', body: JSON.stringify({ code }) }),
 };

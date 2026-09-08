@@ -62,4 +62,7 @@ export const peopleExperienceApi = {
   faction: () => request<Record<string, any>>("/faction"),
   setFaction: (faction: string | null) =>
     request<Record<string, any>>("/faction", { method: "POST", body: JSON.stringify({ faction }) }),
+  guild: () => request<Record<string, any> | null>("/guild"),
+  createGuild: (body: Record<string, unknown>) => request<Record<string, any>>("/guild", { method: "POST", body: JSON.stringify(body) }),
+  joinGuild: (code: string) => request<Record<string, any>>("/guild/join", { method: "POST", body: JSON.stringify({ code }) }),
 };

@@ -84,6 +84,7 @@ export function useExperienceActions() {
     queryClient.invalidateQueries({ queryKey: ['experience-card'] });
     queryClient.invalidateQueries({ queryKey: ['experience-crew'] });
     queryClient.invalidateQueries({ queryKey: ['experience-progress'] });
+    queryClient.invalidateQueries({ queryKey: ['experience-guild'] });
   };
 
   return {
@@ -136,6 +137,14 @@ export function useExperienceActions() {
       mutationFn: (faction: string | null) => peopleExperienceApi.setFaction(faction),
       onSuccess: invalidate,
     }),
+    createGuild: useMutation({
+      mutationFn: peopleExperienceApi.createGuild,
+      onSuccess: invalidate,
+    }),
+    joinGuild: useMutation({
+      mutationFn: (code: string) => peopleExperienceApi.joinGuild(code),
+      onSuccess: invalidate,
+    }),
   };
 }
 
@@ -154,6 +163,16 @@ export function useWorldProgress() {
   return useQuery({
     queryKey: ['experience-progress', user?.id],
     queryFn: () => peopleExperienceApi.progress(),
+    enabled: Boolean(user),
+    retry: 1,
+  });
+}
+
+export function useMyGuild() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['experience-guild', user?.id],
+    queryFn: () => peopleExperienceApi.guild(),
     enabled: Boolean(user),
     retry: 1,
   });

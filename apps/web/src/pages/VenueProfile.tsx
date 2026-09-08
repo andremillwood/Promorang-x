@@ -16,7 +16,8 @@ import { ValueExchangeSummary, type ValueOutcome } from "@/components/economy/Va
 import { useClaimVenueEnrichment, useVenueEnrichment } from "@/hooks/useVenueEnrichment";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/I18nContext";
-import { worldObjectState } from "@promorang/shared";
+import { resolveAreaKey, worldObjectState } from "@promorang/shared";
+import { useExperienceHome } from "@/hooks/usePeopleExperience";
 
 type CommerceListing = Tables<"view_public_commerce_directory">;
 
@@ -63,6 +64,7 @@ interface PublicMomentDirectoryRow {
 export default function VenueProfile() {
   const { t } = useI18n();
   const { slug = "" } = useParams<{ slug: string }>();
+  const home = useExperienceHome();
 
   const venueQuery = useQuery({
     queryKey: ["venue-profile", slug],
@@ -141,6 +143,8 @@ export default function VenueProfile() {
     { label: t("venueProfile.checkIn"), body: t("venueProfile.checkInCopy"), icon: CheckCircle2 },
     { label: t("venueProfile.unlock"), body: t("venueProfile.unlockCopy"), icon: Gem },
   ];
+  const areaKey = resolveAreaKey([venue?.name, venue?.address, venue?.location, venue?.city].filter(Boolean).join(" "));
+  const territory = (home.data?.world?.territories || []).find((area: { key: string }) => area.key === areaKey) || null;
   const venueOutcomes: ValueOutcome[] = [
     ...(commerceListings.length > 0 ? [{ kind: "reward" as const, label: `${commerceListings.length} offers or services` }] : []),
     ...(moments.length > 0 ? [{ kind: "access" as const, label: `${moments.length} active Moments` }] : []),
@@ -238,6 +242,12 @@ export default function VenueProfile() {
                   </span>
                   {venue.address && <span>{venue.address}</span>}
                 </div>
+                {territory ? (
+                  <p className="pt-1 text-xs text-white/50">
+                    {territory.standingLine}{" "}
+                    <Link to="/progress" className="font-bold text-primary">Season board</Link>
+                  </p>
+                ) : null}
                 {nextMoment || commerceListings.length ? (
                   <div className="flex flex-wrap gap-2 pt-1">
                     {worldObjectState({
@@ -256,6 +266,11 @@ export default function VenueProfile() {
                     <Link to="/card" className="text-[10px] font-black uppercase tracking-wider text-white/45">
                       PromoCard
                     </Link>
+                    {territory ? (
+                      <Link to="/progress" className="text-[10px] font-black uppercase tracking-wider text-primary">
+                        {territory.title} · {territory.state}
+                      </Link>
+                    ) : null}
                   </div>
                 ) : null}
               </div>

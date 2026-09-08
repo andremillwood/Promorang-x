@@ -121,6 +121,13 @@ export default function Crews() {
             </div>
           </section>
 
+          <section className="rounded-[1.6rem] border border-white/10 px-5 py-5">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Scene scale</p>
+            <h2 className="mt-2 font-serif text-2xl font-bold">Federate this Crew</h2>
+            <p className="mt-1 text-sm text-white/50">A Guild is 2–6 Crews coordinating one Scene. Still no Game tab.</p>
+            <Link to="/guilds" className="mt-4 inline-block text-sm font-bold text-primary">Open Guilds</Link>
+          </section>
+
           <section>
             <h2 className="font-serif text-2xl font-bold">Barbican Run</h2>
             <ol className="mt-3 space-y-2">

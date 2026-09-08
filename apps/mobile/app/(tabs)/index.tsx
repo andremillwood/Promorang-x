@@ -229,6 +229,12 @@ export default function TodayScreen() {
                 <Text style={styles.moveEyebrow}>WHO YOU MOVE WITH</Text>
                 <Text style={styles.listTitle}>{data?.world?.crew?.name || 'Form a Crew'}</Text>
               </Pressable>
+              {data?.world?.crew ? (
+                <Pressable style={styles.listCard} onPress={() => router.push('/guilds')}>
+                  <Text style={styles.moveEyebrow}>WHO COORDINATES THE SCENE</Text>
+                  <Text style={styles.listTitle}>{data?.world?.guild?.name || 'Form a Guild'}</Text>
+                </Pressable>
+              ) : null}
               <Pressable style={styles.listCard} onPress={() => router.push('/vault')}>
                 <Text style={styles.moveEyebrow}>WHAT YOU KEEP</Text>
                 <Text style={styles.listTitle}>Open Vault</Text>

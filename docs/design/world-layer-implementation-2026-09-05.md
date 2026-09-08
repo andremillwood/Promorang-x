@@ -106,13 +106,16 @@ Design doctrine only (do not treat as live product):
 
 - Web Moment detail mounts the existing before/during/after `MomentNow` rail on real UUIDs
 - Place pages show truthful chips from the next Moment and PromoCard-accepted offers
-- Optional factions (Seekers / Weavers / Makers / Keepers / Stewards) — never required at signup, not wars
+- Optional factions (Seekers / Weavers / Makers / Keepers / Stewards) — never required at signup
 - Scene health dimensions are counts of the viewer’s verified actions
 - Mobile `/crews` and `/progress` stack screens; Today links to world move, Crew, Vault
+- Guilds: Scene-scoped federation of 2–6 Crews at `/guilds`. Invite code. Not `/crew` and not a hierarchy.
+- Faction war: season board on Progress / Scene. Current versus Static. Mixed-faction Crews stay valid and are treated as stronger.
+- Territory: Barbican, Red Hills Road, New Kingston standing (`unknown` / `known` / `held` / `stewarded`) derived from verified presence and support. Not ownership.
 
 ## What remains deferred
 
-- Guilds, territory, trading, companions, AR, NPC chat, faction wars
+- Trading, companions, AR, NPC chat, combat, land ownership
 - Financial PromoCard refill processor (eligibility is recorded; `available_balance` is **not** auto-incremented)
 - Map mode as a V1 requirement
 - `system_missions`, `gem_ledger_entries` (schema-only)
@@ -129,6 +132,7 @@ Design doctrine only (do not treat as live product):
 
 `supabase/migrations/202609050003_world_crews_and_kingston_season.sql`
 `supabase/migrations/202609070001_world_roles_and_factions.sql`
+`supabase/migrations/202609070002_world_guilds_and_territory.sql`
 
 - `world_crews`, `world_crew_members`, `world_runs`
 - Unique: one Crew seat per user
@@ -136,6 +140,8 @@ Design doctrine only (do not treat as live product):
 - Kingston scene metadata: `season_key`, `season_title`, `season_line`, `test_area`
 - `world_crew_members.run_role` (Captain / Scout / Chronicler / Keeper)
 - `world_player_state.faction_key` (optional; never required at signup)
+- `world_guilds`, `world_guild_crews` (one Guild seat per Crew)
+- Optional `venues.area_key` for Kingston corridor mapping
 
 No second activity ledger. No second wallet.
 
@@ -150,7 +156,8 @@ No second activity ledger. No second wallet.
 | `/crews` | Small-group unit + Barbican Run |
 | Scene | Season header when metadata exists |
 | Discover | Truthful chips on non-editorial Moments |
-| `/progress` | Path evidence, Return, Scene contribution, optional faction |
+| `/progress` | Path evidence, Return, Scene contribution, faction contest, territory |
+| `/guilds` | 2–6 Crew federation |
 | Moment detail | Existing `MomentNow` before/during/after rail on real Moments |
 | Place | Signal / PromoCard chips from real next Moment and offers |
 | Mobile | `/crews`, `/progress`, Today world move |
@@ -194,4 +201,4 @@ No second activity ledger. No second wallet.
 - Merchant visits / redemptions
 - Host turnout; Scene repeat participation
 
-Do not proceed to factions, trading, territory, companions, or guilds unless these improve.
+Do not add combat, land deeds, or a Game tab unless these improve.

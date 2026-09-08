@@ -4,6 +4,8 @@ const offerService = require('./offerService');
 const worldLayer = require('./worldLayer');
 const worldCrewService = require('./worldCrewService');
 const worldPlayerService = require('./worldPlayerService');
+const worldGuildService = require('./worldGuildService');
+const worldSceneBoardService = require('./worldSceneBoardService');
 
 const OPERATOR_ROLES = new Set(['operator', 'steward']);
 const CONTRIBUTOR_ROLES = new Set(['contributor', 'operator', 'steward']);
@@ -1198,6 +1200,18 @@ function createPeopleExperienceService(db = defaultDb) {
     } catch (error) {
       console.warn('[People Experience] crew context skipped:', error.message);
     }
+    let guild = null;
+    try {
+      guild = await worldGuildService.getMyGuild(userId, db);
+    } catch (error) {
+      console.warn('[People Experience] guild context skipped:', error.message);
+    }
+    let board = { territories: [], contest: null, polarity: null };
+    try {
+      board = await worldSceneBoardService.getSceneBoard(sceneId, userId, db);
+    } catch (error) {
+      console.warn('[People Experience] scene board skipped:', error.message);
+    }
 
     const currentMove = worldLayer.resolveWorldCurrentMove({
       hasLiveMoment: Boolean(nextMoment?.id),
@@ -1279,6 +1293,17 @@ function createPeopleExperienceService(db = defaultDb) {
             runTotal: crew.run?.total ?? 0,
           }
         : null,
+      guild: guild
+        ? {
+            id: guild.id,
+            name: guild.name,
+            crewCount: guild.crewCount,
+            line: guild.readiness?.line || null,
+          }
+        : null,
+      territories: board.territories || [],
+      contest: board.contest || null,
+      polarity: board.polarity || null,
       promoCard: {
         available: Number(card?.card?.available_balance ?? card?.points ?? wallet?.points ?? 0),
         keys: Number(card?.keys ?? wallet?.promokeys ?? 0),
@@ -1534,6 +1559,12 @@ function createPeopleExperienceService(db = defaultDb) {
     const contributors = memberships
       .filter((row) => CONTRIBUTOR_ROLES.has(row.role || ''))
       .slice(0, 12);
+    let board = { territories: [], contest: null, polarity: null };
+    try {
+      board = await worldSceneBoardService.getSceneBoard(scene.data.id, userId || null, db);
+    } catch (error) {
+      console.warn('[People Experience] hub board skipped:', error.message);
+    }
 
     return {
       scene: scene.data,
@@ -1548,6 +1579,9 @@ function createPeopleExperienceService(db = defaultDb) {
       opportunities: opportunities.slice(0, 6),
       moments: (moments.data || []).map((link) => link.moments).filter(Boolean),
       contributors,
+      territories: board.territories || [],
+      contest: board.contest || null,
+      polarity: board.polarity || null,
     };
   }
 

@@ -110,6 +110,16 @@ export function useWorldProgress() {
   });
 }
 
+export function useMyGuild() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["experience-guild", user?.id],
+    queryFn: () => peopleExperienceApi.guild(),
+    enabled: Boolean(user),
+    retry: 1,
+  });
+}
+
 export function useExperienceActions() {
   const queryClient = useQueryClient();
   const invalidate = () => {
@@ -123,6 +133,7 @@ export function useExperienceActions() {
     queryClient.invalidateQueries({ queryKey: ["experience-hub"] });
     queryClient.invalidateQueries({ queryKey: ["experience-crew"] });
     queryClient.invalidateQueries({ queryKey: ["experience-progress"] });
+    queryClient.invalidateQueries({ queryKey: ["experience-guild"] });
     queryClient.invalidateQueries({ queryKey: ["scene"] });
   };
 
@@ -173,6 +184,14 @@ export function useExperienceActions() {
     mutationFn: (faction: string | null) => peopleExperienceApi.setFaction(faction),
     onSuccess: invalidate,
   });
+  const createGuild = useMutation({
+    mutationFn: peopleExperienceApi.createGuild,
+    onSuccess: invalidate,
+  });
+  const joinGuild = useMutation({
+    mutationFn: (code: string) => peopleExperienceApi.joinGuild(code),
+    onSuccess: invalidate,
+  });
 
-  return { createDrop, claimDrop, takeOpportunity, contribute, invite, start, ask, provideInventory, createCrew, joinCrew, setCrewRole, setFaction };
+  return { createDrop, claimDrop, takeOpportunity, contribute, invite, start, ask, provideInventory, createCrew, joinCrew, setCrewRole, setFaction, createGuild, joinGuild };
 }

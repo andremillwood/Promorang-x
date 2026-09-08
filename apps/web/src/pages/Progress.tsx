@@ -27,7 +27,7 @@ export default function Progress() {
       await setFaction.mutateAsync(world?.faction?.key === key ? null : key);
       toast({
         title: world?.faction?.key === key ? "Philosophy cleared" : "Philosophy noted",
-        description: "This is not a class and not a war. Mixed-faction Crews stay valid.",
+        description: "The war is Current versus Static — not people versus people. Mixed-faction Crews stay valid.",
       });
     } catch (error) {
       toast({ title: "Could not save that", description: (error as Error).message, variant: "destructive" });
@@ -46,11 +46,13 @@ export default function Progress() {
     <ExperienceShell
       eyebrow={world?.dispatch?.eyebrow || world?.slice?.seasonTitle || "Progress"}
       title="What happened because of you"
-      description="Verified action only. Paths form from behaviour. Factions are optional philosophy — never required at signup."
+      description="Verified action only. Factions race to move the Scene. Territory is standing, not ownership."
       backTo="/dashboard"
     >
-      {world?.dispatch?.line ? (
-        <p className="rounded-[1.4rem] border border-white/10 px-4 py-3 text-sm text-white/60">{world.dispatch.line}</p>
+      {world?.polarity?.line || world?.dispatch?.line ? (
+        <p className="rounded-[1.4rem] border border-white/10 px-4 py-3 text-sm text-white/60">
+          {world?.polarity?.line || world.dispatch.line}
+        </p>
       ) : null}
 
       {world?.latestReturn ? (
@@ -94,6 +96,44 @@ export default function Progress() {
         </section>
       ) : null}
 
+      {world?.contest ? (
+        <section>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Faction war · Current vs Static</p>
+          <h2 className="mt-2 font-serif text-3xl font-bold">Who is moving the Scene</h2>
+          <p className="mt-2 text-sm text-white/50">{world.contest.contestLine}</p>
+          {world.contest.mixedCrewNote ? <p className="mt-2 text-sm text-white/45">{world.contest.mixedCrewNote}</p> : null}
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {world.contest.board?.map((row: { key: string; title: string; verb: string; current: number; rank: number }) => (
+              <article key={row.key} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
+                <p className="text-[10px] uppercase tracking-widest text-white/40">#{row.rank} · {row.verb}</p>
+                <p className="mt-1 font-serif text-2xl font-bold">{row.title}</p>
+                <p className="mt-1 text-sm text-white/50">{row.current} verified {row.current === 1 ? "move" : "moves"}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {world?.territories?.length ? (
+        <section>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Territory · standing</p>
+          <h2 className="mt-2 font-serif text-3xl font-bold">Kingston corridors</h2>
+          <p className="mt-2 text-sm text-white/50">Not ownership. Standing comes from verified presence and support.</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            {world.territories.map((area: { key: string; title: string; state: string; standingLine: string; presenceCount: number; supportCount: number }) => (
+              <article key={area.key} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
+                <p className="text-[10px] uppercase tracking-widest text-white/40">{area.state}</p>
+                <p className="mt-1 font-serif text-2xl font-bold">{area.title}</p>
+                <p className="mt-2 text-sm text-white/50">{area.standingLine}</p>
+                <p className="mt-2 text-xs text-white/35">
+                  {area.presenceCount} presence · {area.supportCount} support
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className="rounded-[1.6rem] border border-white/10 px-5 py-5">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Who you move with</p>
         <h2 className="mt-2 font-serif text-2xl font-bold">{world?.crew?.name || "No Crew yet"}</h2>
@@ -107,9 +147,12 @@ export default function Progress() {
             <span key={role.key}>{role.title}</span>
           ))}
         </div>
-        <Link to="/crews" className="mt-4 inline-block text-sm font-bold text-primary">
-          Open Crew
-        </Link>
+        <div className="mt-4 flex flex-wrap gap-4">
+          <Link to="/crews" className="text-sm font-bold text-primary">Open Crew</Link>
+          <Link to="/guilds" className="text-sm font-bold text-primary">
+            {world?.guild?.name || "Open Guild"}
+          </Link>
+        </div>
       </section>
 
       <section>
@@ -118,7 +161,7 @@ export default function Progress() {
           {world?.faction ? world.faction.title : "No faction required"}
         </h2>
         <p className="mt-2 text-sm text-white/50">
-          A faction is how you like to strengthen a Scene. It is not a class, not a Crew, and not a war.
+          A faction is how you like to strengthen a Scene. It is not a class and not a Crew. The war is Current versus Static.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {WORLD_FACTION_KEYS.map((key) => {

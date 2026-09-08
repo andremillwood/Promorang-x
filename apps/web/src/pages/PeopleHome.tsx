@@ -220,6 +220,21 @@ export default function PeopleHome() {
               stubLabel="Open"
             />
           </Link>
+          {world?.crew ? (
+            <Link to={to("/guilds")} className="block">
+              <TicketPass
+                kicker="Who coordinates the Scene"
+                title={world?.guild?.name || "Form a Guild"}
+                detail={
+                  world?.guild
+                    ? `${world.guild.crewCount} Crews · ${world.guild.line || "Scene federation"}`
+                    : "2–6 Crews. Flat. Not an upline."
+                }
+                stub="GUILD"
+                stubLabel="Open"
+              />
+            </Link>
+          ) : null}
         </section>
       )}
 

@@ -1,4 +1,5 @@
 import { KINGSTON_AFTER_DARK_SLICE } from '@promorang/shared';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Text, TextInput, View } from 'react-native';
 
@@ -35,6 +36,7 @@ export default function CrewsScreen() {
           label={`Copy invite · ${crew.inviteCode}`}
           onPress={() => Alert.alert('Invite code', crew.inviteCode)}
         />
+        <PrimaryButton label="Open Guilds" onPress={() => router.push('/guilds')} />
       </ExperienceShell>
     );
   }

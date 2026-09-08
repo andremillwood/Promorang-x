@@ -11,6 +11,12 @@ import {
   resolveWorldConsequence,
   resolveWorldCurrentMove,
   resolveWorldMomentPhase,
+  resolveGuildReadiness,
+  resolveAreaKey,
+  resolveTerritoryStanding,
+  resolveKingstonTerritories,
+  resolveCurrentStatic,
+  resolveFactionContest,
   timeAwareWorldHeader,
   worldObjectState,
 } from "../src/world-layer";
@@ -180,5 +186,53 @@ describe("optional factions and run roles", () => {
     expect(resolveWorldMomentPhase({ hasMemory: true })).toBe("after");
     expect(resolveWorldMomentPhase({ arrived: true })).toBe("after");
     expect(resolveWorldMomentPhase({ joined: false })).toBe("before");
+  });
+});
+
+describe("guilds, territory, and faction contest", () => {
+  it("treats a Guild as forming until two Crews sit together", () => {
+    const early = resolveGuildReadiness(1);
+    expect(early.forming).toBe(true);
+    expect(early.needsCrews).toBe(1);
+    expect(resolveGuildReadiness(2).ready).toBe(true);
+    expect(resolveGuildReadiness(6).full).toBe(true);
+  });
+
+  it("maps Kingston place copy to corridors without inventing ownership", () => {
+    expect(resolveAreaKey("Sea Deck, Barbican")).toBe("barbican");
+    expect(resolveAreaKey("Red Hills Road night")).toBe("red-hills");
+    expect(resolveAreaKey("somewhere else")).toBeNull();
+  });
+
+  it("derives territory standing from verified presence and support only", () => {
+    expect(resolveTerritoryStanding({ areaKey: "barbican" }).state).toBe("unknown");
+    expect(resolveTerritoryStanding({ areaKey: "barbican", presenceCount: 2 }).state).toBe("known");
+    expect(resolveTerritoryStanding({ areaKey: "barbican", presenceCount: 3 }).state).toBe("held");
+    expect(resolveTerritoryStanding({ areaKey: "barbican", presenceCount: 4, supportCount: 2 }).state).toBe("stewarded");
+    const board = resolveKingstonTerritories();
+    expect(board).toHaveLength(3);
+    expect(board.every((area) => area.state === "unknown")).toBe(true);
+  });
+
+  it("calls the war Current versus Static, never people versus people", () => {
+    const quiet = resolveFactionContest();
+    expect(quiet.leadingCurrent).toBeNull();
+    expect(quiet.contestLine).toContain("Current versus Static");
+    const moving = resolveFactionContest({
+      factionCurrents: { seekers: 4, weavers: 1 },
+      mixedCrew: true,
+    });
+    expect(moving.leadingCurrent).toBe("seekers");
+    expect(moving.contestLine).toContain("not people versus people");
+    expect(moving.mixedCrewNote).toContain("stronger");
+    const tied = resolveFactionContest({ factionCurrents: { seekers: 2, weavers: 2 } });
+    expect(tied.leadingCurrent).toBeNull();
+    expect(tied.contestLine).toContain("even");
+  });
+
+  it("marks a Scene Static when nothing useful has moved", () => {
+    expect(resolveCurrentStatic({ currentCount: 0 }).polarity).toBe("static");
+    expect(resolveCurrentStatic({ currentCount: 2, lastActionAt: "2026-09-06T20:00:00Z", now: new Date("2026-09-07T21:00:00Z") }).polarity).toBe("thin");
+    expect(resolveCurrentStatic({ currentCount: 5, lastActionAt: "2026-09-07T20:00:00Z", now: new Date("2026-09-07T21:00:00Z") }).polarity).toBe("current");
   });
 });
