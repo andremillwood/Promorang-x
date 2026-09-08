@@ -36,6 +36,7 @@ import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getMomentStatus } from "@/lib/moment-recurrence";
 import { DISCOVERY_POLLS, type DiscoveryPoll } from "@/data/discoveriesData";
 import { AimedDiscoverLead } from "@/components/discovery/AimedDiscoverLead";
+import { StakeholderSurfaceLead } from "@/components/people/StakeholderLoop";
 import { DiscoveryPath } from "@/components/discovery/DiscoveryPath";
 import { filterDiscoveryPollsForHub, isDiscoverLensId, mergeDiscoveryPolls } from "@/lib/discovery-path";
 import { resolveStoredPromoCardAim, writePromoCardAim } from "@/lib/promocard-aim";
@@ -391,14 +392,17 @@ const Discover = () => {
       <div className="relative min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
         <SEO
           title={`${aim ? aim.cardLine.replace(/\.$/, "") : t("discover.pathPageTitle")} — Promorang`}
-          description={aim ? `${aim.watchingLine} Answer a live question and it lands on your card.` : t("discover.pathPageCopy")}
+          description={aim ? `${aim.watchingLine} Answer a live question and it lands on your card.` : stake.world.meaning}
           url={getSiteUrl("/discover")}
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[46rem] bg-[radial-gradient(circle_at_12%_0%,rgba(255,106,0,.16),transparent_42%),radial-gradient(circle_at_90%_10%,rgba(80,160,140,.08),transparent_34%)]" />
         <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-5 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold text-white/50">{city.name}</p>
+            <p className="text-xs font-semibold text-white/50">{stake.workspaceLabel} · {city.name}</p>
             <GlobalTicketBalancePill />
+          </div>
+          <div className="mt-5">
+            <StakeholderSurfaceLead role={stake.role} surface="world" />
           </div>
 
           <nav aria-label={t("discover.pathPageTitle")} className="mt-6 flex flex-wrap gap-2">
