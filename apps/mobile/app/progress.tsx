@@ -1,4 +1,4 @@
-import { presentContestLine, WORLD_PATH_TITLES, type WorldPathDimension } from '@promorang/shared';
+import { presentContestLine, resolveWorldInvitation, WORLD_PATH_TITLES, type WorldPathDimension } from '@promorang/shared';
 import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 
@@ -11,7 +11,10 @@ const DIMENSIONS: WorldPathDimension[] = ['discover', 'connect', 'create', 'host
 export default function ProgressScreen() {
   const query = useWorldProgress();
   const world = query.data?.world;
-  const invitation = world?.invitation || world?.worldSystem?.invitation || null;
+  const invitation = world?.invitation || world?.worldSystem?.invitation || resolveWorldInvitation({
+    identityLine: world?.identity?.line,
+    nextHref: '/discover',
+  });
   const counts = world?.path?.counts || {};
 
   return (

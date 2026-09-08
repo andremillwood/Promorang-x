@@ -7,6 +7,7 @@ import {
   presentWorldRunTitle,
   resolvePromoCardFace,
   resolveStakeholderHomeMove,
+  resolveWorldInvitation,
 } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
@@ -34,7 +35,11 @@ export default function PeopleHome() {
   const previewRole = params.get("role");
   const data = home.data;
   const world = data?.world;
-  const invitation = world?.invitation || world?.worldSystem?.invitation || null;
+  const invitation = world?.invitation || world?.worldSystem?.invitation || resolveWorldInvitation({
+    identityLine: world?.identity?.line,
+    hasLiveMoment: Boolean(world?.currentMove?.href && String(world.currentMove.href).includes("/moments/")),
+    nextHref: world?.currentMove?.href || "/discover",
+  });
   const givenName = firstGivenName({
     displayName: data?.givenName || data?.name,
     fullName: profile?.full_name || profile?.display_name || user?.user_metadata?.full_name || user?.user_metadata?.name,

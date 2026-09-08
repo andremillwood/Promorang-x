@@ -22,6 +22,7 @@ import {
   PROMOCARD_AIMS,
   resolvePromoCardAim,
   resolvePromoCardFace,
+  resolveWorldInvitation,
   selectOwnedUseThis,
   sortBenefitsByAim,
   type PromoCardAim,
@@ -175,6 +176,10 @@ export default function MyPromoCard() {
   const home = useExperienceHome();
   const to = useExperiencePath();
   const world = home.data?.world;
+  const invitation = world?.invitation || world?.worldSystem?.invitation || resolveWorldInvitation({
+    identityLine: world?.identity?.line,
+    nextHref: "/discover",
+  });
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [selected, setSelected] = useState<CardPerk | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
@@ -315,7 +320,7 @@ export default function MyPromoCard() {
             }
             pathCue={world?.path?.cue}
             identityLine={world?.identity?.line}
-            formingLine={world?.invitation?.formingLine || world?.worldSystem?.invitation?.formingLine}
+            formingLine={invitation.formingLine}
             latestReturn={world?.latestReturn?.heading}
             nearestUnlock={world?.promoCard?.nearestUnlock}
             latestPiece={world?.latestMemory?.title}

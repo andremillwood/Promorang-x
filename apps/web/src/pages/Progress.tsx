@@ -6,6 +6,7 @@ import {
   WORLD_PATH_TITLES,
   presentContestLine,
   presentWorldRunTitle,
+  resolveWorldInvitation,
   type WorldPathDimension,
 } from "@promorang/shared";
 import { useExperienceActions, useWorldProgress } from "@/hooks/usePeopleExperience";
@@ -21,7 +22,11 @@ export default function Progress() {
   const { toast } = useToast();
   const data = query.data;
   const world = data?.world;
-  const invitation = world?.invitation || world?.worldSystem?.invitation || null;
+  const invitation = world?.invitation || world?.worldSystem?.invitation || resolveWorldInvitation({
+    identityLine: world?.identity?.line,
+    hasLiveMoment: Boolean(world?.currentMove?.href && String(world.currentMove.href).includes("/moments/")),
+    nextHref: world?.currentMove?.href || "/discover",
+  });
   const counts = world?.path?.counts || {};
   const health = world?.health || [];
 
