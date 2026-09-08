@@ -9,6 +9,9 @@ export type PersonReceipt = {
   counted: string;
   keep: string;
   href?: string;
+  momentImageUrl?: string | null;
+  placeImageUrl?: string | null;
+  placeName?: string | null;
 };
 
 export function PersonReceiptCallout({
@@ -17,7 +20,14 @@ export function PersonReceiptCallout({
   counted,
   keep,
   href,
+  momentImageUrl,
+  placeImageUrl,
+  placeName,
 }: PersonReceipt) {
+  const pictures = [
+    momentImageUrl ? { kind: "moment", title: momentTitle, url: momentImageUrl } : null,
+    placeImageUrl ? { kind: "place", title: placeName || "Place", url: placeImageUrl } : null,
+  ].filter((picture): picture is { kind: string; title: string; url: string } => Boolean(picture));
   const inner = (
     <PaperReceipt
       heading="It counted"
@@ -27,6 +37,7 @@ export function PersonReceiptCallout({
         { label: "What counted", value: counted },
         { label: "They keep", value: keep, strong: true },
       ]}
+      pictures={pictures}
     />
   );
 
@@ -52,6 +63,9 @@ export function LatestPersonReceipt({ fallback }: { fallback?: PersonReceipt | n
           latest.action_metadata?.perk ||
           (latest.amount ? `J$${Math.round(Number(latest.amount)).toLocaleString()}` : "The proof of showing up"),
         href: latest.moment_id ? `/moments/${latest.moment_id}` : "/happened",
+        momentImageUrl: latest.momentImageUrl || latest.action_metadata?.image_url || null,
+        placeImageUrl: latest.placeImageUrl || latest.action_metadata?.venue_image_url || null,
+        placeName: latest.placeName || latest.action_metadata?.venue_name || null,
       }
     : fallback || null;
 

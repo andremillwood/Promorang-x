@@ -14,6 +14,8 @@ const toolsConfig: Array<{
   promiseKey: TranslationKey;
   ctaKey: TranslationKey;
   href: string;
+  landingHref: string;
+  landingLabelKey: TranslationKey;
   campaign: string;
   campaignLabelKey: TranslationKey;
   personaBadge: string;
@@ -29,6 +31,8 @@ const toolsConfig: Array<{
     promiseKey: "leadMagnet.participant.promise",
     ctaKey: "leadMagnet.participant.cta",
     href: "/free/scene",
+    landingHref: "/discover",
+    landingLabelKey: "leadMagnet.participant.landing",
     campaign: "/campaigns/kingston-comes-alive",
     campaignLabelKey: "leadMagnet.participant.campaignLabel",
     personaBadge: "Attendees",
@@ -44,6 +48,8 @@ const toolsConfig: Array<{
     promiseKey: "leadMagnet.host.promise",
     ctaKey: "leadMagnet.host.cta",
     href: "/free/moment",
+    landingHref: "/hosting",
+    landingLabelKey: "leadMagnet.host.landing",
     campaign: "/campaigns/moment-lab",
     campaignLabelKey: "leadMagnet.host.campaignLabel",
     personaBadge: "Hosts & Orgs",
@@ -59,6 +65,8 @@ const toolsConfig: Array<{
     promiseKey: "leadMagnet.merchant.promise",
     ctaKey: "leadMagnet.merchant.cta",
     href: "/free/demand",
+    landingHref: "/for-merchants",
+    landingLabelKey: "leadMagnet.merchant.landing",
     campaign: "/campaigns/quiet-hours",
     campaignLabelKey: "leadMagnet.merchant.campaignLabel",
     personaBadge: "Venues & Food",
@@ -74,6 +82,8 @@ const toolsConfig: Array<{
     promiseKey: "leadMagnet.creator.promise",
     ctaKey: "leadMagnet.creator.cta",
     href: "/free/creator",
+    landingHref: "/for-creators",
+    landingLabelKey: "leadMagnet.creator.landing",
     campaign: "/campaigns/creators-who-move",
     campaignLabelKey: "leadMagnet.creator.campaignLabel",
     personaBadge: "Creators",
@@ -89,6 +99,8 @@ const toolsConfig: Array<{
     promiseKey: "leadMagnet.brand.promise",
     ctaKey: "leadMagnet.brand.cta",
     href: "/free/sponsor",
+    landingHref: "/for-brands",
+    landingLabelKey: "leadMagnet.brand.landing",
     campaign: "/campaigns/sponsor-kingston",
     campaignLabelKey: "leadMagnet.brand.campaignLabel",
     personaBadge: "Brands & Agencies",
@@ -132,6 +144,9 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
               <Link to={tool.href} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-black text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-primary/90">
                 {t(tool.ctaKey)}<ArrowRight className="h-4 w-4"/>
               </Link>
+              <Link to={tool.landingHref} className={`inline-flex items-center justify-center gap-2 text-xs font-bold ${dark ? "text-white/80 hover:text-white" : "text-foreground hover:text-primary"}`}>
+                {t(tool.landingLabelKey)}<ArrowRight className="h-3 w-3"/>
+              </Link>
               <Link to={tool.campaign} className={`inline-flex items-center justify-center gap-2 text-xs font-bold ${dark ? "text-white/55 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
                 {t(tool.campaignLabelKey)}<ArrowRight className="h-3 w-3"/>
               </Link>
@@ -149,6 +164,7 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("leadMagnet.sectionEyebrow")}</p>
             <h2 className="mt-3 max-w-xl font-serif text-3xl font-bold leading-[1.02] tracking-[-0.035em] sm:text-4xl md:mt-4 md:text-6xl md:leading-[0.95] md:tracking-[-0.04em]">{t("leadMagnet.sectionTitle")}</h2>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-white/55">{t("leadMagnet.momentDefinition")}</p>
           </div>
           <p className="max-w-2xl text-sm leading-7 text-white/60 lg:justify-self-end">{t("leadMagnet.sectionCopy")}</p>
         </div>
@@ -158,9 +174,8 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
           {toolsConfig.map(tool => {
             const Icon = tool.icon;
             return (
-              <Link
+              <article
                 key={tool.audience}
-                to={tool.href}
                 className="group relative flex w-[82vw] max-w-[19rem] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/50 hover:bg-white/[0.06] hover:shadow-[0_12px_32px_-12px_rgba(255,107,0,0.2)] sm:w-auto sm:max-w-none"
               >
                 {/* Subtle Card Accent Glow on Hover */}
@@ -195,16 +210,22 @@ export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:Ga
                 </div>
 
                 {/* Card Footer: Time & CTA Button */}
-                <div className="mt-6 pt-3 border-t border-white/8 flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white/40">
-                    <Clock3 className="h-3 w-3 text-primary/80" /> 2 min
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-black text-primary transition group-hover:translate-x-0.5 group-hover:text-white">
-                    {t(tool.ctaKey)}
-                    <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
-                  </span>
+                <div className="mt-6 space-y-3 border-t border-white/8 pt-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white/40">
+                      <Clock3 className="h-3 w-3 text-primary/80" /> 2 min
+                    </span>
+                    <Link to={tool.href} className="inline-flex items-center gap-1.5 text-xs font-black text-primary transition hover:text-white">
+                      {t(tool.ctaKey)}
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
+                  <Link to={tool.landingHref} className="inline-flex items-center gap-1 text-[11px] font-bold text-white/55 transition hover:text-white">
+                    {t(tool.landingLabelKey)}
+                    <ArrowRight className="h-3 w-3" />
+                  </Link>
                 </div>
-              </Link>
+              </article>
             );
           })}
         </div>

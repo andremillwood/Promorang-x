@@ -8,6 +8,9 @@ import {
   resolvePathEvidence,
   resolveSceneHealth,
   resolveSeasonDispatch,
+  presentContestLine,
+  presentWorldRunTitle,
+  SCENE_WAITING_CONTEST_LINE,
   resolveWorldConsequence,
   resolveWorldCurrentMove,
   resolveWorldMomentPhase,
@@ -43,7 +46,7 @@ describe("world consequence receipt", () => {
       promoCardEligible: true,
       memoryKept: true,
       memoryTitle: "First Current Memory",
-      runTitle: "Barbican Run",
+      runTitle: "The City Wakes",
       runCompleted: 1,
       runTotal: 4,
       pathCue: "A path is forming · Connector",
@@ -59,6 +62,8 @@ describe("world consequence receipt", () => {
       "What opened next",
     ]));
     expect(receipt.kept?.title).toBe("First Current Memory");
+    expect(receipt.pictures.some((picture) => picture.title === "AftrHrs" || picture.title === "Sea Deck")).toBe(true);
+    expect(receipt.pictures[0]?.url).toBeTruthy();
   });
 
   it("omits Crew Run and PromoCard lines when those facts are absent", () => {
@@ -68,6 +73,19 @@ describe("world consequence receipt", () => {
     });
     expect(receipt.lines.some((line) => line.label === "What came back")).toBe(false);
     expect(receipt.lines.some((line) => line.label === "Crew Run")).toBe(false);
+  });
+
+  it("prefers live Moment and Place photos on the receipt", () => {
+    const receipt = resolveWorldConsequence({
+      verified: true,
+      momentTitle: "AftrHrs",
+      placeName: "Sea Deck, Barbican",
+      momentImageUrl: "https://cdn.promorang.test/aftrhrs.jpg",
+      placeImageUrl: "https://cdn.promorang.test/seadeck.jpg",
+    });
+    expect(receipt.pictures.map((picture) => picture.kind)).toEqual(["moment", "place"]);
+    expect(receipt.pictures[0].url).toBe("https://cdn.promorang.test/aftrhrs.jpg");
+    expect(receipt.pictures[1].url).toBe("https://cdn.promorang.test/seadeck.jpg");
   });
 });
 
@@ -96,6 +114,7 @@ describe("world current move", () => {
     expect(move.eyebrow).toBe(KINGSTON_AFTER_DARK_SLICE.signalEyebrow);
     expect(move.href).toBe("/moments/m2");
     expect(move.context).toContain("PromoCard accepted");
+    expect(move.imageUrl).toBeTruthy();
   });
 
   it("falls back to browsing nights without forcing one Scene", () => {
@@ -126,7 +145,15 @@ describe("emerging path", () => {
   });
 });
 
-describe("Barbican Run progress", () => {
+describe("Crew Run naming", () => {
+  it("does not brand the Run as Barbican", () => {
+    expect(KINGSTON_AFTER_DARK_SLICE.runTitle).toBe("The City Wakes");
+    expect(presentWorldRunTitle("Barbican Run")).toBe("The City Wakes");
+    expect(presentWorldRunTitle("Night Shift")).toBe("Night Shift");
+  });
+});
+
+describe("Crew Run progress", () => {
   it("counts only objectives that have matching verified actions", () => {
     const progress = resolveCrewRunProgress([
       { actionType: "MOMENT_ATTENDANCE", memoryKept: true },
@@ -218,7 +245,8 @@ describe("guilds, territory, and faction contest", () => {
   it("calls the war Current versus Static, never people versus people", () => {
     const quiet = resolveFactionContest();
     expect(quiet.leadingCurrent).toBeNull();
-    expect(quiet.contestLine).toContain("Current versus Static");
+    expect(quiet.contestLine).toBe(SCENE_WAITING_CONTEST_LINE);
+    expect(quiet.contestLine).not.toMatch(/philosophy|faction/i);
     const moving = resolveFactionContest({
       factionCurrents: { seekers: 4, weavers: 1 },
       mixedCrew: true,
@@ -229,6 +257,15 @@ describe("guilds, territory, and faction contest", () => {
     const tied = resolveFactionContest({ factionCurrents: { seekers: 2, weavers: 2 } });
     expect(tied.leadingCurrent).toBeNull();
     expect(tied.contestLine).toContain("even");
+  });
+
+  it("remaps leftover V1 contest copy at the UI boundary", () => {
+    expect(presentContestLine("No philosophy is moving the Scene yet. The war is Current versus Static.")).toBe(
+      SCENE_WAITING_CONTEST_LINE,
+    );
+    expect(presentContestLine("Faction war · Current vs Static", 4)).toBe(SCENE_WAITING_CONTEST_LINE);
+    expect(presentContestLine("Seekers lead by showing up. The war is Current versus Static — not people versus people.", 4))
+      .toContain("Seekers");
   });
 
   it("marks a Scene Static when nothing useful has moved", () => {

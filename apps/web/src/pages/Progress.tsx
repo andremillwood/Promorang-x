@@ -4,6 +4,8 @@ import {
   WORLD_FACTIONS,
   WORLD_FACTION_KEYS,
   WORLD_PATH_TITLES,
+  presentContestLine,
+  presentWorldRunTitle,
   type WorldPathDimension,
 } from "@promorang/shared";
 import { useExperienceActions, useWorldProgress } from "@/hooks/usePeopleExperience";
@@ -27,7 +29,7 @@ export default function Progress() {
       await setFaction.mutateAsync(world?.faction?.key === key ? null : key);
       toast({
         title: world?.faction?.key === key ? "Philosophy cleared" : "Philosophy noted",
-        description: "The war is Current versus Static — not people versus people. Mixed-faction Crews stay valid.",
+        description: "Houses form from how you move. The war is Current versus Static — not people versus people.",
       });
     } catch (error) {
       toast({ title: "Could not save that", description: (error as Error).message, variant: "destructive" });
@@ -137,21 +139,31 @@ export default function Progress() {
         </section>
       ) : null}
 
-      {world?.contest ? (
+      {world?.contest || world?.polarity ? (
         <section>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Faction war · Current vs Static</p>
-          <h2 className="mt-2 font-serif text-3xl font-bold">Who is moving the Scene</h2>
-          <p className="mt-2 text-sm text-white/50">{world.contest.contestLine}</p>
-          {world.contest.mixedCrewNote ? <p className="mt-2 text-sm text-white/45">{world.contest.mixedCrewNote}</p> : null}
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {world.contest.board?.map((row: { key: string; title: string; verb: string; current: number; rank: number }) => (
-              <article key={row.key} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
-                <p className="text-[10px] uppercase tracking-widest text-white/40">#{row.rank} · {row.verb}</p>
-                <p className="mt-1 font-serif text-2xl font-bold">{row.title}</p>
-                <p className="mt-1 text-sm text-white/50">{row.current} verified {row.current === 1 ? "move" : "moves"}</p>
-              </article>
-            ))}
-          </div>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Current versus Static</p>
+          <h2 className="mt-2 font-serif text-3xl font-bold">
+            {(world.contest?.totalCurrent || 0) > 0 ? "Who is moving the Scene" : "The Scene is waiting"}
+          </h2>
+          <p className="mt-2 text-sm text-white/50">
+            {(world.contest?.totalCurrent || 0) > 0
+              ? presentContestLine(world.contest?.contestLine, world.contest?.totalCurrent)
+              : world.polarity?.line || presentContestLine(world.contest?.contestLine, world.contest?.totalCurrent)}
+          </p>
+          {(world.contest?.totalCurrent || 0) > 0 ? (
+            <>
+              {world.contest?.mixedCrewNote ? <p className="mt-2 text-sm text-white/45">{world.contest.mixedCrewNote}</p> : null}
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {world.contest?.board?.map((row: { key: string; title: string; verb: string; current: number; rank: number }) => (
+                  <article key={row.key} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
+                    <p className="text-[10px] uppercase tracking-widest text-white/40">#{row.rank} · {row.verb}</p>
+                    <p className="mt-1 font-serif text-2xl font-bold">{row.title}</p>
+                    <p className="mt-1 text-sm text-white/50">{row.current} verified {row.current === 1 ? "move" : "moves"}</p>
+                  </article>
+                ))}
+              </div>
+            </>
+          ) : null}
         </section>
       ) : null}
 
@@ -180,7 +192,7 @@ export default function Progress() {
         <h2 className="mt-2 font-serif text-2xl font-bold">{world?.crew?.name || "No Crew yet"}</h2>
         <p className="mt-1 text-sm text-white/50">
           {world?.crew
-            ? `${world.crew.runTitle || "Barbican Run"} · ${world.crew.runCompleted || 0}/${world.crew.runTotal || 4}`
+            ? `${presentWorldRunTitle(world.crew.runTitle)} · ${world.crew.runCompleted || 0}/${world.crew.runTotal || 4}`
             : "Form 3–8 people. Run roles are temporary."}
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs text-white/45">
@@ -199,10 +211,10 @@ export default function Progress() {
       <section>
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Philosophy · optional</p>
         <h2 className="mt-2 font-serif text-3xl font-bold">
-          {world?.faction ? world.faction.title : "No faction required"}
+          {world?.house?.title ? `${world.house.title} House` : "House forms from how you move"}
         </h2>
         <p className="mt-2 text-sm text-white/50">
-          House is earned from verified movement. This leftover philosophy does not change it, and it is not a class or a Crew. The war is Current versus Static.
+          Ember, Tide, Radiant, and Grove are earned from verified movement. They are not chosen at signup and they are not a Crew. A leftover philosophy below does not change your House.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {WORLD_FACTION_KEYS.map((key) => {

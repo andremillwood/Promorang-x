@@ -7,10 +7,11 @@ import { getAnonymousId, trackGrowthEvent } from "@/lib/marketing-attribution";
 import { useI18n } from "@/i18n/I18nContext";
 import { landingPathForRole, promoCardAimPath } from "@promorang/shared";
 import { readPromoCardAim } from "@/lib/promocard-aim";
+import { consumePostAuthNext, defaultPostAuthPath } from "@/lib/post-auth-next";
 
 const Onboarding = () => {
   const { t } = useI18n();
-  const { user, loading: authLoading } = useAuth();
+  const { user, activeRole, loading: authLoading } = useAuth();
   const { hasCompleted, isLoading: prefsLoading } = useHasCompletedOnboarding();
   const navigate = useNavigate();
 
@@ -23,9 +24,9 @@ const Onboarding = () => {
   useEffect(() => {
     // If user has already completed onboarding, redirect to dashboard
     if (!prefsLoading && hasCompleted) {
-      navigate("/dashboard");
+      navigate(consumePostAuthNext() || defaultPostAuthPath(activeRole));
     }
-  }, [hasCompleted, prefsLoading, navigate]);
+  }, [hasCompleted, prefsLoading, navigate, activeRole]);
 
   const handleComplete = (personaChoice?: string) => {
     void trackGrowthEvent({
@@ -48,7 +49,7 @@ const Onboarding = () => {
     sessionStorage.setItem('promorang_role_pilot_role', roleId);
     sessionStorage.setItem('promorang_role_pilot_step', '0');
     
-    const next = landingPathForRole(roleId);
+    const next = consumePostAuthNext() || landingPathForRole(roleId);
     navigate(next === "/card" ? promoCardAimPath(readPromoCardAim()) : next);
   };
 

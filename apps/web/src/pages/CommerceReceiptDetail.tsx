@@ -222,6 +222,13 @@ export default function CommerceReceiptDetail() {
                   <h2 className="text-xl font-black tracking-[-0.04em]">{t("receipt.connected")}</h2>
                 </div>
                 <div className="mt-4 space-y-3 text-sm">
+                  {receipt.merchant_products?.image_url ? (
+                    <img
+                      src={receipt.merchant_products.image_url}
+                      alt={receipt.merchant_products.name || "Place or product"}
+                      className="h-40 w-full rounded-2xl object-cover"
+                    />
+                  ) : null}
                   <p className="text-muted-foreground">{t("receipt.product")}: <span className="font-semibold text-foreground">{receipt.merchant_products?.name || t("receipt.notAttached")}</span></p>
                   <p className="text-muted-foreground">{t("receipt.fulfillment")}: <span className="font-semibold text-foreground">{receipt.merchant_products?.fulfillment_mode || receipt.attribution?.fulfillment_mode || t("receipt.notSpecified")}</span></p>
                   <p className="text-muted-foreground">{t("receipt.source")}: <span className="font-semibold text-foreground">{receipt.attribution?.source || "Promorang commerce"}</span></p>

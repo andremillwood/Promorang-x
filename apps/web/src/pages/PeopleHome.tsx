@@ -4,6 +4,7 @@ import {
   firstGivenName,
   getStakeholderLens,
   homeGreeting,
+  presentWorldRunTitle,
   resolvePromoCardFace,
   resolveStakeholderHomeMove,
 } from "@promorang/shared";
@@ -16,6 +17,7 @@ import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/
 import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { resolveDemandRole } from "@/lib/discovery-demand";
+import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -25,7 +27,8 @@ const money = (value: number) => {
 const PREVIEW_ROLES = ["participant", "creator", "host", "merchant", "brand"] as const;
 
 export default function PeopleHome() {
-  const { user, profile, activeRole } = useAuth();
+  const { user, profile, activeRole, roles } = useAuth();
+  const workspaceRoles = (roles || []).filter((role) => ["host", "creator", "merchant", "brand", "agency", "admin"].includes(role));
   const home = useExperienceHome();
   const to = useExperiencePath();
   const location = useLocation();
@@ -185,6 +188,31 @@ export default function PeopleHome() {
         />
       ) : null}
 
+      {workspaceRoles.length ? (
+        <section className="rounded-[1.75rem] border border-primary/25 bg-primary/10 p-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">You also operate here</p>
+          <h2 className="mt-2 font-serif text-2xl font-bold">This is the member home, not your host desk.</h2>
+          <p className="mt-2 text-sm leading-6 text-white/60">
+            PromoCard, people, and tonight’s rooms live here. Hosting, creator work, merchant demand, and brand activations open in the workspace.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link to="/dashboard?view=studio" className="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 text-sm font-black text-black">
+              Open {activeRole === "admin" ? "studio" : `${activeRole} workspace`}
+            </Link>
+            {workspaceRoles.includes("admin") ? (
+              <Link to="/admin?tab=command" className="inline-flex min-h-11 items-center rounded-xl border border-white/15 px-4 text-sm font-bold text-white">
+                Admin command
+              </Link>
+            ) : null}
+            <Link to="/propose/new?from=home&role=host" className="inline-flex min-h-11 items-center rounded-xl border border-white/15 px-4 text-sm font-bold text-white">
+              Continue an activation
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
+      <LiveLoopActions role={String(activeRole || role)} title="Make it live" />
+
       {!isMemberWorkspace ? (
         <section className="grid gap-3">
           <StakeholderPutInPass role={lensRole} />
@@ -210,6 +238,8 @@ export default function PeopleHome() {
                 }
                 stub="GO"
                 stubLabel="Live"
+                imageUrl={world.currentMove.imageUrl}
+                imageAlt={world.currentMove.imageAlt || world.currentMove.title}
               />
             </Link>
           ) : (
@@ -228,7 +258,7 @@ export default function PeopleHome() {
               <TicketPass
                 kicker="Who you move with"
                 title={world.crew.name}
-                detail={`${world.crew.size} people · ${world.crew.runTitle || "Your run"}`}
+                detail={`${world.crew.size} people · ${presentWorldRunTitle(world.crew.runTitle)}`}
                 stub="CREW"
                 stubLabel="Open"
               />

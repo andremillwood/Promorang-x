@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { isConsumerPostAuthNext } from "@/lib/auth-roles";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
 import { flushMarketingIntent } from "@/lib/marketing-attribution";
+import { consumePostAuthNext, resolvePostAuthPath, roleFromNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 
 /**
@@ -12,7 +13,7 @@ import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
  * Intelligently routes users based on role + completion state
  */
 export function PostLoginRouter() {
-  const { user, activeRole, roles, loading } = useAuth();
+  const { user, activeRole, roles, setActiveRole, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,11 +21,14 @@ export function PostLoginRouter() {
 
     const determineLandingPage = async () => {
       await flushMarketingIntent().catch(() => undefined);
-      const requestedNext = sessionStorage.getItem("promorang_post_auth_next");
-      if (requestedNext?.startsWith("/") && !requestedNext.startsWith("//")) {
-        sessionStorage.removeItem("promorang_post_auth_next");
+      const requestedNext = consumePostAuthNext();
+      if (requestedNext) {
         const aimed = promoCardAimFromNext(requestedNext);
         if (aimed) writePromoCardAim(aimed);
+        const intendedRole = roleFromNext(requestedNext);
+        if (intendedRole && roles.includes(intendedRole) && intendedRole !== activeRole) {
+          setActiveRole(intendedRole);
+        }
         navigate(requestedNext, { replace: true });
         return;
       }
@@ -39,6 +43,7 @@ export function PostLoginRouter() {
         return;
       }
 
+
       // Onboarding is the only prerequisite. First actions belong on the
       // dashboard, not in a chain of forced redirects after every sign-in.
       const { data, error } = await supabase
@@ -47,15 +52,14 @@ export function PostLoginRouter() {
         .eq("user_id", user.id)
         .maybeSingle();
 
-      if (!error && !data?.onboarding_completed) {
-        navigate(activeRole === "brand" ? "/onboarding/brand" : "/onboarding", { replace: true });
-      } else {
-        navigate("/dashboard", { replace: true });
-      }
+      navigate(resolvePostAuthPath({
+        role: activeRole,
+        onboardingCompleted: error ? true : Boolean(data?.onboarding_completed),
+      }), { replace: true });
     };
 
     determineLandingPage();
-  }, [user, activeRole, roles, loading, navigate]);
+  }, [user, activeRole, loading, navigate, roles, setActiveRole]);
 
   // Show loading while determining route
   return (

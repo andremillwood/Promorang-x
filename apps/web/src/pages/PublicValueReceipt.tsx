@@ -37,6 +37,8 @@ const PRESET_RECEIPTS: Record<string, { receipt: ValueReceiptData; causation: Ca
       proofHash: "0x98f4e2b83a00c71e84aa92bc112",
       hostQuote: "Tia brought unmatched energy to Warehouse 9. 3 verified door arrivals logged.",
       hostSigner: "Joyride Friday Curator & Host Team",
+      targetImageUrl: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=1200&q=80",
+      placeName: "Warehouse 9",
       metrics: [
         { label: "Link Visits", value: "12" },
         { label: "Reservations", value: "4" },

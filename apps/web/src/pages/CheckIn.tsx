@@ -236,6 +236,8 @@ const CheckIn = () => {
             pending: payload?.checkin?.verification_status === "pending" || Boolean(payload?.submission?.id),
             momentTitle: moment.title,
             placeName: moment.venue_name || moment.location,
+            momentImageUrl: moment.image_url || moment.banner_image_url || null,
+            placeImageUrl: moment.venue_image_url || null,
             memoryKept: Boolean(payload?.checkin?.memory?.id),
             memoryTitle: payload?.checkin?.memory?.title,
             rewardTitle: payload?.checkin?.reward?.reward_value || moment.reward,
@@ -331,6 +333,13 @@ const CheckIn = () => {
               <p className="mt-2 text-white/70">
                 {moment.title}{moment.venue_name || moment.location ? ` · ${moment.venue_name || moment.location}` : ""}
               </p>
+              {(moment.image_url || moment.banner_image_url) ? (
+                <img
+                  src={moment.image_url || moment.banner_image_url}
+                  alt={moment.title}
+                  className="mx-auto mt-5 h-40 w-full max-w-md rounded-[1.4rem] object-cover"
+                />
+              ) : null}
             </div>
 
             {consequence ? (
@@ -362,7 +371,11 @@ const CheckIn = () => {
         ) : (
           <div className="grid gap-8 lg:grid-cols-[1fr_420px] items-start pt-4">
             {/* Left Cover & Event Info Card */}
-            <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 sm:p-8 space-y-6">
+            <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#121214]">
+              {(moment.image_url || moment.banner_image_url) ? (
+                <img src={moment.image_url || moment.banner_image_url} alt={moment.title} className="h-56 w-full object-cover" />
+              ) : null}
+              <div className="space-y-6 p-6 sm:p-8">
               <Link to={`/moments/${id}`} className="inline-flex items-center text-xs font-semibold text-white/60 hover:text-white">
                 {t("checkIn.returnTo", { title: moment.title })}
               </Link>
@@ -384,6 +397,7 @@ const CheckIn = () => {
                   </div>
                 </div>
               )}
+              </div>
             </div>
 
             {/* Right Check-in Input Form */}

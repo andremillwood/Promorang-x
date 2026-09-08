@@ -1,4 +1,4 @@
-import { KINGSTON_AFTER_DARK_SLICE } from '@promorang/shared';
+import { KINGSTON_AFTER_DARK_SLICE, presentWorldRunTitle } from '@promorang/shared';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Text, TextInput, View } from 'react-native';
@@ -22,7 +22,7 @@ export default function CrewsScreen() {
     return (
       <ExperienceShell eyebrow="Who you move with" title={crew.name}>
         <Text style={{ color: Colors.gray[400] }}>
-          {crew.run?.title || KINGSTON_AFTER_DARK_SLICE.runTitle} · {crew.run?.completed || 0}/{crew.run?.total || 4} counted
+          {presentWorldRunTitle(crew.run?.title)} · {crew.run?.completed || 0}/{crew.run?.total || 4} counted
         </Text>
         {(crew.members || []).map((member: { userId: string; name: string; pathCue?: string | null; runRole?: { title: string } | null }) => (
           <View key={member.userId} style={{ paddingVertical: 10 }}>
@@ -43,7 +43,7 @@ export default function CrewsScreen() {
 
   return (
     <ExperienceShell eyebrow="Crew" title="Form 3–8 people">
-      <Text style={{ color: Colors.gray[400] }}>Not the invite ladder. Mixed-faction Crews are valid.</Text>
+      <Text style={{ color: Colors.gray[400] }}>Not the invite ladder. 3–8 people on one Run.</Text>
       <TextInput value={name} onChangeText={setName} placeholder="Crew name" placeholderTextColor={Colors.gray[600]} style={{ color: Colors.white, borderColor: Colors.gray[700], borderWidth: 1, borderRadius: 16, padding: 14 }} />
       <PrimaryButton
         label={createCrew.isPending ? 'Forming…' : 'Form Crew'}
