@@ -239,7 +239,7 @@ export default function PeopleHome() {
           </div>
           {data?.perks?.length ? (
             <div className="grid gap-3">
-              {data.perks.slice(0, 3).map((perk: any) => (
+              {data.perks.slice(0, 3).map((perk: { id: string; source?: string; title: string; remaining?: number }) => (
                 <Link key={perk.id} to={to("/give")} className="block">
                   <TicketPass
                     kicker={perk.source === "yours" ? "Yours" : "Available"}
@@ -263,7 +263,7 @@ export default function PeopleHome() {
             <h2 className="font-serif text-2xl font-bold">Opportunities</h2>
             <Link to={to("/earn")} className="text-sm text-primary">Earn</Link>
           </div>
-          {data.opportunityItems.slice(0, 2).map((item: any) => (
+          {data.opportunityItems.slice(0, 2).map((item: { id: string; title: string; youEarn?: string }) => (
             <Link key={item.id} to={to("/earn")} className="block">
               <TicketPass kicker="Earn" title={item.title} detail={item.youEarn} stub="TAKE" stubLabel="Open" />
             </Link>

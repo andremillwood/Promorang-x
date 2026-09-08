@@ -42,8 +42,8 @@ export type StakeholderLens = {
   ticker: string;
   putIn: { label: string; href: string; detail: string; stub: string };
   promoCard: { meaning: string };
-  world: { meaning: string; href: string };
-  activity: { meaning: string; href: string };
+  world: { label: string; meaning: string; href: string };
+  activity: { label: string; meaning: string; href: string };
   destinations: StakeholderDestination[];
   extras: StakeholderExtra[];
 };
@@ -121,8 +121,8 @@ function lensParts(
     ticker: config.ticker,
     putIn: config.putIn,
     promoCard: { meaning: config.promoCardMeaning },
-    world: { meaning: config.worldMeaning, href: config.worldHref },
-    activity: { meaning: config.activityMeaning, href: config.activityHref },
+    world: { label: config.worldLabel, meaning: config.worldMeaning, href: config.worldHref },
+    activity: { label: config.activityLabel, meaning: config.activityMeaning, href: config.activityHref },
     destinations: destinations({ world, activity, putIn, promoCard }),
     extras: [...(config.extras || []), ...UTILITY_EXTRAS],
   };
@@ -311,8 +311,8 @@ const ADMIN_LENS: StakeholderLens = {
     stub: "OPS",
   },
   promoCard: { meaning: "Member value the platform must keep honest." },
-  world: { meaning: "Live Scenes, Moments, and venues.", href: "/discover" },
-  activity: { meaning: "System health and market movement.", href: "/admin?tab=overview" },
+  world: { label: "World", meaning: "Live Scenes, Moments, and venues.", href: "/discover" },
+  activity: { label: "Activity", meaning: "System health and market movement.", href: "/admin?tab=overview" },
   destinations: [
     { id: "today", label: "Command", href: "/admin?tab=command", meaning: "Platform-wide operations." },
     { id: "world", label: "World", href: "/discover", meaning: "Live Scenes, Moments, and venues." },
