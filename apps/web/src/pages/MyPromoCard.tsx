@@ -16,6 +16,7 @@ import {
   isPresentablePass,
   ownedBenefitKicker,
   ownedBenefitStatus,
+  fillCardCopy,
   ownedCardCopy,
   PROMOCARD_AIMS,
   resolvePromoCardAim,
@@ -35,6 +36,7 @@ import {
   QuietEmpty,
 } from "@/components/people/ExperienceShell";
 import { PromoCardFace, PromoCardWorldContext } from "@/components/promorang/SignatureObjects";
+import { FillCardMoves } from "@/components/promocard/FillCardMoves";
 import { PromoCardActions } from "@/components/promocard/PromoCardActions";
 import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
 import type { OfferIssuance } from "@/hooks/useOffers";
@@ -195,6 +197,7 @@ export default function MyPromoCard() {
   const selectedExpired = selected ? isExpired(selected) : false;
   const selectedCode = perkCode(selected);
   const copy = ownedCardCopy({ aim, owned: Boolean(useThis), holder });
+  const empty = fillCardCopy(aim);
 
   async function copyCode() {
     if (!selectedCode) return;
@@ -337,14 +340,15 @@ export default function MyPromoCard() {
             ) : (
               <div className="mt-3">
                 <QuietEmpty
-                  title={aim ? `Nothing for ${aim.label} yet` : "Nothing to use yet"}
-                  copy={aim ? `${aim.watchingLine} When it lands, it is yours to show.` : "Unlock a benefit around you. Then it lives here until you use it."}
+                  title={empty.title}
+                  copy={empty.description}
                   action={
                     <Link to={discoverHrefForAim(aim)} className={actionClass}>
                       {aim ? `Find ${aim.label}` : "Find something for your card"} <ArrowRight aria-hidden="true" className="h-4 w-4" />
                     </Link>
                   }
                 />
+                <FillCardMoves aim={aim} authenticated={Boolean(user)} />
               </div>
             )}
           </section>
@@ -368,11 +372,18 @@ export default function MyPromoCard() {
                 ))}
               </div>
             ) : (
-              <Link to={discoverHrefForAim(aim)} className="mt-3 block rounded-[1.4rem] border border-white/10 px-4 py-4 text-sm text-white/60">
-                {aim
-                  ? `Nothing live for ${aim.label} right now. The card is watching.`
-                  : "No participating businesses are sharing a live benefit right now. Discover what’s happening."}
-              </Link>
+              <div className="mt-3 rounded-[1.4rem] border border-white/10 px-4 py-4">
+                <p className="text-sm text-white/60">
+                  {useThis
+                    ? "Nothing else live nearby right now."
+                    : aim
+                      ? `Nothing live for ${aim.label} right now. You can still fill the card.`
+                      : "No participating businesses are sharing a live benefit right now. You can still fill the card."}
+                </p>
+                <Link to={discoverHrefForAim(aim)} className="mt-3 inline-flex min-h-11 items-center text-sm font-bold text-primary">
+                  {aim ? `Find ${aim.label}` : "Open Discover"} <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                </Link>
+              </div>
             )}
           </section>
 
@@ -386,7 +397,11 @@ export default function MyPromoCard() {
                 <Link to={discoverHrefForAim(aim)} className="mt-4 inline-flex min-h-11 items-center text-sm font-black text-primary">Find it nearby</Link>
               </article>
             ) : (
-              <p className="mt-3 text-sm text-white/50">Use a live perk first. The next benefit appears after a merchant records it.</p>
+              <p className="mt-3 text-sm text-white/50">
+                {useThis
+                  ? "Use the one on your card. The next benefit appears after a merchant records it."
+                  : "Nothing to unlock next until something lands on the card. Answer, ask, or host to fill it."}
+              </p>
             )}
           </section>
 

@@ -16,6 +16,9 @@ type PutUpFoundModalProps = {
   cityName: string;
   defaultTitle?: string;
   trigger: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  defaultOpen?: boolean;
   onPutUp: (input: {
     kind: FoundKind;
     title: string;
@@ -29,10 +32,15 @@ export function PutUpFoundModal({
   cityName,
   defaultTitle = "",
   trigger,
+  open: openProp,
+  onOpenChange,
+  defaultOpen = false,
   onPutUp,
 }: PutUpFoundModalProps) {
   const { t } = useI18n();
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
+  const open = openProp ?? uncontrolledOpen;
+  const setOpen = onOpenChange ?? setUncontrolledOpen;
   const [kind, setKind] = useState<FoundKind>("moment");
   const [title, setTitle] = useState(defaultTitle);
   const [whereHint, setWhereHint] = useState("");

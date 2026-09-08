@@ -37,6 +37,7 @@ import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { useAuth } from "@/contexts/AuthContext";
 import { matchPollForAim, writePromoCardAim } from "@/lib/promocard-aim";
 import { promoCardAimPath, promoCardUnlockHref, type PromoCardAim } from "@promorang/shared";
+import { FillCardMoves } from "@/components/promocard/FillCardMoves";
 import { readLocalCardUnlocks, type DiscoveryCardUnlock } from "@/lib/discovery-card";
 
 function whyCopy(
@@ -121,7 +122,9 @@ export function DiscoveryPath({
   const [browseOpen, setBrowseOpen] = useState(false);
   const [intentTick, setIntentTick] = useState(0);
   const [lastUnlock, setLastUnlock] = useState<DiscoveryCardUnlock | null>(null);
+  const [requestOpen, setRequestOpen] = useState(false);
   const found = useDiscoveryFound(cityName);
+  const fillRequest = searchParams.get("fill") === "request";
 
   const syncQueryParam = (nextQuery: string, nextLens: DiscoverLensId | null) => {
     if (!syncUrl) return;
@@ -158,6 +161,10 @@ export function DiscoveryPath({
   useEffect(() => {
     if (aim) writePromoCardAim(aim);
   }, [aim]);
+
+  useEffect(() => {
+    if (fillRequest) setRequestOpen(true);
+  }, [fillRequest]);
 
   useEffect(() => {
     if (lens) {
@@ -284,6 +291,19 @@ export function DiscoveryPath({
 
   const continuePath = () => setJustVotedId(null);
 
+  const putUpFound = async (input: Parameters<typeof found.putUp>[0]) => {
+    await recordDiscoveryNamedIntent(cityName, input.title);
+    await found.putUp(input);
+  };
+
+  const handleRequestOpenChange = (open: boolean) => {
+    setRequestOpen(open);
+    if (open || !syncUrl || !fillRequest) return;
+    const next = new URLSearchParams(searchParams);
+    next.delete("fill");
+    setSearchParams(next, { replace: true });
+  };
+
   return (
     <div className="space-y-8">
       <DiscoveryIntentStage
@@ -301,6 +321,35 @@ export function DiscoveryPath({
         onChooseQuery={chooseQuery}
         onClearQuery={clearQuery}
       />
+
+      {fillRequest && !handoffToDiscover ? (
+        <section className="rounded-[1.6rem] border border-amber-200/20 bg-amber-200/5 p-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">
+            Fill the card
+          </p>
+          <h3 className="mt-1 font-serif text-2xl font-bold text-white">
+            {aim ? `Ask for ${aim.label}` : "Ask for a perk"}
+          </h3>
+          <p className="mt-1 max-w-xl text-sm leading-6 text-white/60">
+            Put the place or night on the table. A house can claim it. That is how something lands when nothing is live.
+          </p>
+          <div className="mt-4">
+            <PutUpFoundModal
+              cityName={cityName}
+              defaultTitle={query || aim?.discoverQuery || ""}
+              open={requestOpen}
+              onOpenChange={handleRequestOpenChange}
+              onPutUp={putUpFound}
+              trigger={
+                <TactileButton variant="primary">
+                  {t("found.putUp")}
+                  <ArrowRight className="h-4 w-4" />
+                </TactileButton>
+              }
+            />
+          </div>
+        </section>
+      ) : null}
 
       {handoffToDiscover ? null : !namedIntent && surface === "page" ? (
         <NightTrail
@@ -465,10 +514,7 @@ export function DiscoveryPath({
                 <PutUpFoundModal
                   cityName={cityName}
                   defaultTitle={query}
-                  onPutUp={async (input) => {
-                    await recordDiscoveryNamedIntent(cityName, input.title);
-                    await found.putUp(input);
-                  }}
+                  onPutUp={putUpFound}
                   trigger={
                     <TactileButton variant="obsidian">
                       {t("found.putUp")}
@@ -515,10 +561,7 @@ export function DiscoveryPath({
                 <PutUpFoundModal
                   cityName={cityName}
                   defaultTitle={query}
-                  onPutUp={async (input) => {
-                    await recordDiscoveryNamedIntent(cityName, input.title);
-                    await found.putUp(input);
-                  }}
+                  onPutUp={putUpFound}
                   trigger={
                     <TactileButton variant="primary">
                       {t("found.putUp")}
@@ -538,6 +581,7 @@ export function DiscoveryPath({
                   {t("discover.pathMissBrowse")}
                 </TactileButton>
               </div>
+              {aim ? <FillCardMoves aim={aim} authenticated={Boolean(user)} /> : null}
             </>
           )}
         </section>

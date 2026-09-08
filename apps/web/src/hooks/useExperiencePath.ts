@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 
-const PREVIEW_PATHS = new Set(["/people", "/give", "/create", "/earn", "/happened", "/card", "/start", "/stock"]);
+const PREVIEW_PATHS = new Set(["/people", "/give", "/create", "/create/moment", "/earn", "/happened", "/card", "/start", "/stock"]);
 
 export function useExperiencePath() {
   const location = useLocation();

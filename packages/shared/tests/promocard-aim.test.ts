@@ -3,6 +3,9 @@ import {
   aimMatchesBenefit,
   aimedEmptyPresentation,
   discoverHrefForAim,
+  fillCardCopy,
+  fillCardHref,
+  fillCardMoves,
   inferPromoCardAim,
   inferPromoCardAimFromText,
   ownedBenefitKicker,
@@ -100,5 +103,23 @@ describe("PromoCard aim", () => {
     expect(ownedCardCopy({ aim: afterDark, owned: true, holder: "Nia" }).title).toContain("Kingston After Dark");
     expect(ownedCardCopy({ aim: afterDark, owned: true }).description).toContain("Show it where it works");
     expect(ownedCardCopy({ owned: false }).description).not.toContain("merchant supplied");
+  });
+
+  it("offers real ways to fill an empty card instead of inventing supply", () => {
+    const food = resolvePromoCardAim("food")!;
+    const moves = fillCardMoves(food);
+    expect(moves.map((move) => move.id)).toEqual(["discover", "request", "ask", "host"]);
+    expect(moves[0].path).toContain("aim=food");
+    expect(moves[1].path).toContain("fill=request");
+    expect(moves[2].path).toBe("/create?intent=answer");
+    expect(moves[3].path).toBe("/create/moment?intent=attend");
+    expect(fillCardHref(moves[3].path)).toContain("next=%2Fcreate%2Fmoment");
+    expect(fillCardHref(moves[0].path)).toContain("/discover");
+    expect(fillCardCopy(food).title).toBe("Nothing for Food yet");
+    expect(fillCardCopy(food).description).toContain("fill the card");
+    expect(fillCardCopy(null).description).toContain("start a poll");
+    expect(fillCardCopy(null).description).toContain("host a moment");
+    expect(fillCardCopy(null).description).not.toContain("$");
+    expect(JSON.stringify(moves)).not.toContain("Available to spend");
   });
 });

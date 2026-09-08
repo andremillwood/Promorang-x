@@ -206,9 +206,79 @@ export function sortBenefitsByAim<T extends Pick<PromoCardBenefit, "title" | "de
   });
 }
 
-export function discoverHrefForAim(aim?: PromoCardAim | null): string {
-  if (!aim) return "/discover";
-  return `/discover?tab=discoveries&lens=${encodeURIComponent(aim.lens)}&q=${encodeURIComponent(aim.discoverQuery)}&aim=${encodeURIComponent(aim.id)}`;
+export function discoverHrefForAim(
+  aim?: PromoCardAim | null,
+  options?: { fill?: "request" | null },
+): string {
+  if (!aim) {
+    return options?.fill === "request" ? "/discover?tab=discoveries&fill=request" : "/discover";
+  }
+  const parts = [
+    `tab=discoveries`,
+    `lens=${encodeURIComponent(aim.lens)}`,
+    `q=${encodeURIComponent(aim.discoverQuery)}`,
+    `aim=${encodeURIComponent(aim.id)}`,
+  ];
+  if (options?.fill === "request") parts.push("fill=request");
+  return `/discover?${parts.join("&")}`;
+}
+
+export type FillCardMove = {
+  id: "discover" | "request" | "ask" | "host";
+  label: string;
+  detail: string;
+  path: string;
+};
+
+export function fillCardHref(path: string, authenticated?: boolean): string {
+  if (authenticated) return path;
+  if (path.startsWith("/discover") || path.startsWith("/auth") || path.startsWith("/app-preview")) {
+    return path;
+  }
+  return `/auth?mode=signup&next=${encodeURIComponent(path)}`;
+}
+
+export function fillCardMoves(aim?: PromoCardAim | null): FillCardMove[] {
+  const scene = aim?.label;
+  return [
+    {
+      id: "discover",
+      label: scene ? `Answer a ${scene} question` : "Answer a live question",
+      detail: "Discover is how the first thing lands when no place has put a perk up.",
+      path: discoverHrefForAim(aim),
+    },
+    {
+      id: "request",
+      label: scene ? `Ask for ${scene}` : "Ask for a perk",
+      detail: "Put the place or night on the table. A house can claim it.",
+      path: discoverHrefForAim(aim, { fill: "request" }),
+    },
+    {
+      id: "ask",
+      label: "Start a poll",
+      detail: "Ask your own question. Answers can unlock onto the card.",
+      path: "/create?intent=answer",
+    },
+    {
+      id: "host",
+      label: "Host a moment",
+      detail: scene ? `Put a ${scene} night on the calendar.` : "Put a night on the calendar.",
+      path: "/create/moment?intent=attend",
+    },
+  ];
+}
+
+export function fillCardCopy(aim?: PromoCardAim | null): { title: string; description: string } {
+  if (aim) {
+    return {
+      title: `Nothing for ${aim.label} yet`,
+      description: `${aim.watchingLine} You can still fill the card — answer, ask, or host.`,
+    };
+  }
+  return {
+    title: "Nothing to use yet",
+    description: "Nothing live is on the card. Answer a question, ask for a perk, start a poll, or host a moment.",
+  };
 }
 
 export function inferPromoCardAimFromText(value?: string | null): PromoCardAim | null {
