@@ -447,64 +447,64 @@ const conceptData: Record<
     ],
     steps: [
       { label: "Buy", title: "Pay $1, receive 1 Gem", text: "Purchased Gems are spendable right away inside Promorang." },
-      { label: "Earn", title: "Do funded work", text: "Missions, Moments, allowances, and funded draws can pay Gems. Holding them still earns nothing." },
+      { label: "Earn", title: "Do funded work", text: "Missions, Moments, allowances, and Save & Win winnings can pay Gems. Holding them still earns nothing." },
       { label: "Spend", title: "Use them for extras", text: "Pieces, tips, boosts, and partner perks. Gem spend can also issue PromoShare tickets." },
       { label: "Park", title: "Or set them aside", text: "Save & Win keeps 100% of parked Gems and adds draw tickets while they sit." },
     ],
     tagline: VALUE_STORY.gemsEarn,
   },
   promoshare: {
-    eyebrow: "Named draws, not mystery prizes",
-    headline: "A ticket is a chance in one draw. That is all it is.",
+    eyebrow: "The draw names the prize",
+    headline: "A ticket is a chance. The named draw says what you can win.",
     subhead:
-      "PromoShare tickets name the pot they belong to. More eligible tickets improve your odds. Funded draws pay from money already set aside. Community Draws pay progression — Points, Keys, or access — not open-ended cash.",
-    inPlainEnglish: VALUE_STORY.ticketsChance,
-    primaryCta: { label: "See live draws", href: "/promoshare" },
-    secondaryCta: { label: "How Gems pay prizes", href: "/economy/gems" },
+      "Every PromoShare ticket belongs to one published draw. Perk draws pay a Key, access, partner perk, product, or Piece. They do not pay cash. Save & Win is the PromoShare family that pays extra Gems.",
+    inPlainEnglish: VALUE_STORY.namedDrawPays,
+    primaryCta: { label: "See perk draws", href: "/promoshare" },
+    secondaryCta: { label: "See money draws", href: "/economy/save-and-win" },
     roles: [
       {
         role: "If you play along",
-        why: "You should know which pot a ticket is for, and that it is not a guarantee.",
-        outcome: "Collect tickets for today's, this week's, or a grand draw. If you win, the prize was already funded.",
+        why: "You should know the prize before you care about the ticket.",
+        outcome: "Read the draw. Perk tickets can win a Key or perk. Save & Win tickets can win extra Gems. Neither is a guarantee.",
         action: "View PromoShare draws",
         href: "/promoshare",
       },
       {
         role: "If you host a night",
         why: "A mid-event draw keeps people in the room.",
-        outcome: "Run a live ticket draw that is already funded, so the prize is real.",
+        outcome: "Run a perk draw with a Key or tasting already set aside, or point people to Save & Win for money winnings.",
         action: "Host a draw",
         href: "/create/moment",
       },
       {
         role: "If you sponsor",
         why: "You want every prize dollar to stay a prize dollar.",
-        outcome: "Deposit the pot first. Get a clear record of what was given out.",
+        outcome: "Fund a perk, or fund extra Gems in Save & Win. Deposit first. Get a record of what was given out.",
         action: "Fund a brand pot",
         href: "/for-brands",
       },
     ],
     steps: [
-      { label: "01", title: "A pot is named", text: "Daily, weekly, or grand. Funded or Community. The ticket says which." },
-      { label: "02", title: "You earn a ticket", text: "A matching check-in, share, mission, or parked Save & Win balance can issue one." },
+      { label: "01", title: "The draw is named", text: "It says perk or Save & Win, and it lists the prize before anyone enters." },
+      { label: "02", title: "You earn a ticket", text: "Show up for perk draws. Park Gems for Save & Win money draws." },
       { label: "03", title: "A fair draw happens", text: "Random among eligible tickets. More tickets, better odds. Not a Points ranking." },
-      { label: "04", title: "The prize was already there", text: "Funded draws pay Gems or perks set aside first. Community Draws pay Keys, Points, or access." },
+      { label: "04", title: "You get what that draw published", text: "Perk: Key, access, or a partner perk. Save & Win: extra Gems. Your parked Gems stay yours." },
     ],
     tagline: VALUE_INSTRUMENTS["promoshare-tickets"].marketKnows,
   },
   "save-and-win": {
-    eyebrow: "No-loss lottery",
-    headline: "Park Gems. Keep them. Stay in the draws.",
+    eyebrow: "PromoShare's money draws",
+    headline: "This is the PromoShare family that pays extra Gems.",
     subhead:
-      "Save & Win is money in a jar that also buys raffle tickets. You keep 100% of what you put in. While it sits, you collect tickets for weekly and monthly pots. Take the Gems out whenever you want.",
+      "Park Gems. Keep 100% of them. While they sit, you hold tickets in weekly and monthly money draws. If you win, extra Gems land on top — 1 Gem = $1. If you do not, take your parked Gems out whenever.",
     inPlainEnglish: VALUE_STORY.saveAndWin,
     primaryCta: { label: "See Save & Win pots", href: "/nodes" },
-    secondaryCta: { label: "Why Gems first", href: "/economy/gems" },
+    secondaryCta: { label: "Perk draws pay Keys, not cash", href: "/economy/promoshare" },
     roles: [
       {
         role: "If you set money aside",
         why: "A lottery should not be a way to lose the money you walked in with.",
-        outcome: "Park Gems, collect tickets, and withdraw the same Gems later. A win is extra.",
+        outcome: "Park Gems, collect money-draw tickets, and keep the same Gems. A win is extra Gems.",
         action: "Open the pots",
         href: "/nodes",
       },
@@ -518,18 +518,18 @@ const conceptData: Record<
       {
         role: "If you sponsor a pot",
         why: "You want a prize people can enter without gambling their principal.",
-        outcome: "Fund the extra prize. Participants park Gems they still own.",
+        outcome: "Fund the extra Gems. Participants park Gems they still own. That is the only PromoShare path that pays money winnings.",
         action: "Fund a pot",
         href: "/for-brands",
       },
     ],
     steps: [
       { label: "Set aside", title: "You park some Gems", text: "They still belong to you. Pull them out whenever you want." },
-      { label: "It works", title: "Shops can use that parked value", text: "It helps power discounts and check-in perks nearby." },
-      { label: "Tickets", title: "You get draw entries", text: "Membership and daily contribution can multiply how many tickets you hold." },
-      { label: "Draw", title: "If you win, it is extra", text: "If you do not, your Gems are still there. That is the no-loss part." },
+      { label: "Tickets", title: "Those Gems collect money-draw tickets", text: "This is PromoShare, not a separate casino. The pot is named. The prize is extra Gems." },
+      { label: "Draw", title: "If you win, extra Gems land", text: "1 Gem = $1. Everyday perk draws do not do this." },
+      { label: "Keep", title: "If you do not win, nothing is lost", text: "Your parked Gems are still there. That is the no-loss part." },
     ],
-    tagline: VALUE_INSTRUMENTS["save-and-win"].isNot,
+    tagline: VALUE_INSTRUMENTS["save-and-win"].is,
   },
   network: {
     eyebrow: "Going out with your people",
@@ -818,9 +818,9 @@ function HeroObject({ concept }: { concept: ConceptKey }) {
     case "promoshare":
       return (
         <TicketPass
-          kicker="Friday 8pm draw"
-          title="Austin weekend pot"
-          detail="Ticket PS-88219. The $500 prize is already funded. This ticket is a chance, not a prize."
+          kicker="Friday 8pm perk draw"
+          title="Austin weekend Key"
+          detail="Ticket PS-88219. Prize already published: one PromoKey. This ticket is a chance, not the Key."
           stub="PS"
           stubLabel="Draw"
         />

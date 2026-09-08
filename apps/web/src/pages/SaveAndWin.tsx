@@ -21,7 +21,7 @@ export default function SaveAndWin() {
           to="/economy/save-and-win"
           className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-amber-200 hover:text-white"
         >
-          How this sits next to Gems and tickets
+          Why this is the PromoShare money draw
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>

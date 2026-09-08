@@ -205,9 +205,9 @@ const en = {
 
 
   // PromoShare
-  "promoshare.heroEyebrow": "Named draws, not mystery prizes",
-  "promoshare.heroTitle": "A ticket is a chance in one draw.",
-  "promoshare.heroSubtitle": "Verified visits, shares, and missions can issue tickets for a named pot. More eligible tickets improve odds. A ticket is not Gems, not Points, and not a guarantee. Prize money is set aside first.",
+  "promoshare.heroEyebrow": "The draw names the prize",
+  "promoshare.heroTitle": "Perk draws pay Keys. Save & Win pays Gems.",
+  "promoshare.heroSubtitle": "A ticket is a chance in one named draw. Perk draws pay a Key, access, or partner perk — not cash. Save & Win is the PromoShare family that pays extra Gems. A ticket is not a guarantee.",
   "promoshare.enterTicketDraw": "Enter Ticket Draw",
   "promoshare.squadSlash": "Group Squad Slash",
   "promoshare.yourStanding": "Your Standing",
@@ -4734,7 +4734,7 @@ const en = {
   "how.faq4Q": "What is a PromoKey and how do I redeem it?",
   "how.faq4A": "A PromoKey is a digital VIP pass funded by brands and venues. Every Wednesday at 6 PM, limited PromoKeys drop for active community voters. You present the pass on your phone upon arrival to unlock complimentary tastings, secret items, or skip-the-line privileges.",
   "how.faq5Q": "How do cash bounties and Gems work?",
-  "how.faq5A": "1 Gem = $1 of platform value. You can buy Gems with a card or earn them from funded missions and draws. Spending Gems on Pieces, perks, or Save & Win opens extras a cash swipe outside the app cannot. Eligible earned Gems can be reviewed for payout after published holds.",
+  "how.faq5A": "1 Gem = $1 of platform value. You can buy Gems with a card or earn them from funded missions and Save & Win winnings. Spending Gems on Pieces, perks, or Save & Win opens extras a cash swipe outside the app cannot. Eligible earned Gems can be reviewed for payout after published holds.",
   "how.faq6Q": "How can my restaurant or bar get listed as a venue?",
   "how.faq6A": "Venue registration takes under 5 minutes. You create your venue profile, upload your countertop QR sticker kit, and set available capacity for Friday/Saturday drops. You only pay when verified guests actually visit.",
   "how.faq7Q": "Can creators collaborate directly with local brands?",
@@ -4772,7 +4772,7 @@ const en = {
   "economy.threeThings": "Three things to know",
   "economy.quickGuide": "A quick guide",
   "economy.eachItemMeans": "What each Promorang item means",
-  "economy.eachItemCopy": "PromoCard is what you use. Points prove you showed up. Gems are the money. Pieces are keepsakes. Keys open doors. Tickets are chances. Save & Win parks Gems without losing them.",
+  "economy.eachItemCopy": "PromoCard is what you use. Points prove you showed up. Gems are the money. Pieces are keepsakes. Keys open doors. PromoShare perk draws pay Keys or access. Save & Win is the PromoShare family that pays extra Gems.",
   "economy.howYouGetIt": "How you get it:",
   "economy.moneyNote": "Money note:",
   "economy.howUsed": "How it is used:",
@@ -5299,9 +5299,9 @@ const es: Record<TranslationKey, string> = {
 
 
   // PromoShare
-  "promoshare.heroEyebrow": "Sorteos con nombre, no premios misteriosos",
-  "promoshare.heroTitle": "Un ticket es una chance en un sorteo.",
-  "promoshare.heroSubtitle": "Visitas, shares y misiones verificadas pueden emitir tickets para una olla con nombre. Más tickets elegibles mejoran las probabilidades. Un ticket no es Gemas, ni Puntos, ni una garantía. El premio se reserva antes.",
+  "promoshare.heroEyebrow": "El sorteo nombra el premio",
+  "promoshare.heroTitle": "Los sorteos de beneficio pagan Llaves. Ahorra y gana paga Gemas.",
+  "promoshare.heroSubtitle": "Un ticket es una chance en un sorteo con nombre. Los sorteos de beneficio pagan una Llave, acceso o perk — no efectivo. Ahorra y gana es la familia PromoShare que paga Gemas extra. Un ticket no es una garantía.",
   "promoshare.enterTicketDraw": "Ingresar al sorteo de entradas",
   "promoshare.squadSlash": "Pool grupal Slash",
   "promoshare.yourStanding": "Tu estado",
@@ -9827,7 +9827,7 @@ const es: Record<TranslationKey, string> = {
   "how.faq4Q": "¿Qué es una PromoKey y cómo la canjeo?",
   "how.faq4A": "Una PromoKey es un pase VIP digital financiado por marcas y locales. Cada miércoles a las 6 PM se liberan PromoKeys limitadas para votantes activos. Presentas el pase en tu teléfono al llegar para desbloquear degustaciones, ítems secretos o acceso sin fila.",
   "how.faq5Q": "¿Cómo funcionan las recompensas en efectivo y las Gemas?",
-  "how.faq5A": "1 Gema = $1 de valor en la plataforma. Puedes comprarlas con tarjeta o ganarlas en misiones y sorteos financiados. Gastar Gemas en Piezas, beneficios o Ahorra y gana abre extras que un pago en efectivo fuera de la app no da.",
+  "how.faq5A": "1 Gema = $1 de valor en la plataforma. Puedes comprarlas con tarjeta o ganarlas en misiones y premios de Ahorra y gana. Gastar Gemas en Piezas, beneficios o Ahorra y gana abre extras que un pago en efectivo fuera de la app no da.",
   "how.faq6Q": "¿Cómo listo mi restaurante o bar como local?",
   "how.faq6A": "El registro toma menos de 5 minutos. Creas el perfil, subes tu kit de stickers QR de barra y defines capacidad para drops de viernes/sábado. Solo pagas cuando personas verificadas visitan.",
   "how.faq7Q": "¿Las personas creadoras pueden colaborar con marcas locales?",
@@ -9865,7 +9865,7 @@ const es: Record<TranslationKey, string> = {
   "economy.threeThings": "Tres cosas que debes saber",
   "economy.quickGuide": "Guía rápida",
   "economy.eachItemMeans": "Qué significa cada elemento de Promorang",
-  "economy.eachItemCopy": "PromoCard es lo que usas. Los Puntos prueban que llegaste. Las Gemas son el dinero. Las Piezas son recuerdos. Las Keys abren puertas. Los tickets son chances. Ahorra y gana guarda Gemas sin perderlas.",
+  "economy.eachItemCopy": "PromoCard es lo que usas. Los Puntos prueban que llegaste. Las Gemas son el dinero. Las Piezas son recuerdos. Las Keys abren puertas. Los sorteos de beneficio pagan Llaves o acceso. Ahorra y gana es la familia PromoShare que paga Gemas extra.",
   "economy.howYouGetIt": "Cómo lo obtienes:",
   "economy.moneyNote": "Nota de dinero:",
   "economy.howUsed": "Cómo se usa:",
@@ -10390,9 +10390,9 @@ const ptBR: Record<TranslationKey, string> = {
 
 
   // PromoShare
-  "promoshare.heroEyebrow": "Sorteios com nome, sem prêmio misterioso",
-  "promoshare.heroTitle": "Um ticket é uma chance em um sorteio.",
-  "promoshare.heroSubtitle": "Visitas, compartilhamentos e missões verificadas podem emitir tickets para um pote com nome. Mais tickets elegíveis melhoram as chances. Um ticket não é Gema, nem Ponto, nem garantia. O prêmio é separado antes.",
+  "promoshare.heroEyebrow": "O sorteio nomeia o prêmio",
+  "promoshare.heroTitle": "Sorteios de benefício pagam Chaves. Guarde e ganhe paga Gemas.",
+  "promoshare.heroSubtitle": "Um ticket é uma chance em um sorteio com nome. Sorteios de benefício pagam uma Chave, acesso ou perk — não dinheiro. Guarde e ganhe é a família PromoShare que paga Gemas extras. Um ticket não é garantia.",
   "promoshare.enterTicketDraw": "Entrar no sorteio de ingressos",
   "promoshare.squadSlash": "Pool em grupo Slash",
   "promoshare.yourStanding": "Seu status",
@@ -14918,7 +14918,7 @@ const ptBR: Record<TranslationKey, string> = {
   "how.faq4Q": "O que é uma PromoKey e como eu resgato?",
   "how.faq4A": "Uma PromoKey é um passe VIP digital financiado por marcas e locais. Toda quarta às 18h, PromoKeys limitadas são liberadas para votantes ativos. Você apresenta o passe no telefone ao chegar para desbloquear degustações, itens secretos ou fila preferencial.",
   "how.faq5Q": "Como funcionam as recompensas em dinheiro e as Gemas?",
-  "how.faq5A": "1 Gema = $1 de valor na plataforma. Você pode comprar Gemas no cartão ou ganhá-las em missões e sorteios financiados. Gastar Gemas em Peças, benefícios ou Guarde e ganhe abre extras que um pagamento em dinheiro fora do app não dá.",
+  "how.faq5A": "1 Gema = $1 de valor na plataforma. Você pode comprar Gemas no cartão ou ganhá-las em missões e prêmios de Guarde e ganhe. Gastar Gemas em Peças, benefícios ou Guarde e ganhe abre extras que um pagamento em dinheiro fora do app não dá.",
   "how.faq6Q": "Como listar meu restaurante ou bar como local?",
   "how.faq6A": "O cadastro leva menos de 5 minutos. Você cria o perfil, envia o kit de adesivos QR do balcão e define capacidade para drops de sexta/sábado. Só paga quando pessoas verificadas visitam.",
   "how.faq7Q": "Criadores podem colaborar diretamente com marcas locais?",
@@ -14956,7 +14956,7 @@ const ptBR: Record<TranslationKey, string> = {
   "economy.threeThings": "Três coisas para saber",
   "economy.quickGuide": "Um guia rápido",
   "economy.eachItemMeans": "O que cada item da Promorang significa",
-  "economy.eachItemCopy": "PromoCard é o que você usa. Pontos provam que você apareceu. Gemas são o dinheiro. Peças são lembranças. Keys abrem portas. Tickets são chances. Guarde e ganhe estaciona Gemas sem perdê-las.",
+  "economy.eachItemCopy": "PromoCard é o que você usa. Pontos provam que você apareceu. Gemas são o dinheiro. Peças são lembranças. Keys abrem portas. Sorteios de benefício pagam Chaves ou acesso. Guarde e ganhe é a família PromoShare que paga Gemas extras.",
   "economy.howYouGetIt": "Como você recebe:",
   "economy.moneyNote": "Nota de dinheiro:",
   "economy.howUsed": "Como é usado:",

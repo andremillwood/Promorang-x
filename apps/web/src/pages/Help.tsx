@@ -53,12 +53,12 @@ const guides: HowToGuide[] = [
     categoryLabel: "Locals & Members",
     icon: BookOpen,
     title: "What PromoCard, Points, Gems, and tickets are",
-    summary: "Eight names, five jobs. PromoCard is what you use. Points prove you showed up. Gems are the money. Keys open doors. Tickets are chances.",
+    summary: "Eight names. The draw names the prize. PromoCard is what you use. Points prove you showed up. Gems are the money. Perk draws pay Keys. Save & Win is the PromoShare family that pays extra Gems.",
     steps: [
       "PromoCard comes off a partner bill. It is not a bank account.",
       "Points are a score. 500 can become 1 PromoKey. They are not money.",
       "1 Gem = $1. Buy Gems or earn them. Spend them for extras cash cannot buy.",
-      "The Master Key is today's free contribution gate. PromoShare tickets are chances in a named draw. Save & Win parks Gems without losing them."
+      "The Master Key is today's free contribution gate. PromoShare perk draws pay Keys or access. Save & Win is the PromoShare family that pays extra Gems."
     ],
     actionLink: { label: "Open the map", href: "/economy" }
   },
@@ -183,7 +183,7 @@ const faqs: FaqItem[] = [
   {
     category: "members",
     q: "What are Gems and how do I get them?",
-    a: "1 Gem = $1 of platform value. Buy Gems with a card or earn them from funded missions, Moments, allowances, and funded draws. Holding Gems earns nothing. Spending them on Pieces, perks, or Save & Win opens extras cash outside the app cannot."
+    a: "1 Gem = $1 of platform value. Buy Gems with a card or earn them from funded missions, Moments, allowances, and Save & Win winnings. Holding Gems earns nothing. Spending them on Pieces, perks, or Save & Win opens extras cash outside the app cannot."
   },
   {
     category: "members",
@@ -243,12 +243,12 @@ const faqs: FaqItem[] = [
   {
     category: "members",
     q: "What is a PromoShare ticket?",
-    a: "A ticket is a chance in a named draw — not Points, not Gems, and not a guaranteed prize. More eligible tickets improve odds. Funded draws pay from money already set aside."
+    a: "A ticket is a chance in a named draw that already says the prize. Perk draws pay a Key, access, partner perk, product, or Piece — not cash. Save & Win is the PromoShare family that pays extra Gems. A ticket is not a guarantee."
   },
   {
     category: "members",
     q: "What is Save & Win?",
-    a: "Save & Win is the no-loss pot. Park Gems, keep 100% of them, and collect draw tickets while they sit. Take the Gems out whenever you want. A win is extra."
+    a: "Save & Win is PromoShare's money draw. Park Gems, keep 100% of them, and compete for extra Gems (1 Gem = $1). Take the parked Gems out whenever. Everyday perk draws do not pay cash."
   }
 ];
 

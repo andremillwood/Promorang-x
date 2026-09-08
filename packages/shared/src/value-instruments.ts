@@ -20,7 +20,17 @@ export type ValueInstrumentId =
   | "promoshare-tickets"
   | "save-and-win";
 
-export type ValueLayerId = "everyday" | "value" | "access" | "chances" | "parked";
+export type ValueLayerId = "everyday" | "value" | "access" | "chances";
+
+export type PromoShareDrawFamilyId = "perk" | "save-and-win";
+
+export type PromoShareDrawFamily = {
+  id: PromoShareDrawFamilyId;
+  name: string;
+  pays: string;
+  doesNotPay: string;
+  howYouEnter: string;
+};
 
 export type ValueInstrument = {
   id: ValueInstrumentId;
@@ -48,20 +58,39 @@ export type ValueLayer = {
  * Canonical public language for what each participant instrument is.
  * Screens should import this instead of inventing a second glossary.
  */
+export const PROMOSHARE_DRAW_FAMILIES: Record<PromoShareDrawFamilyId, PromoShareDrawFamily> = {
+  perk: {
+    id: "perk",
+    name: "Perk draws",
+    pays: "A published Key, access pass, partner perk, product, or Piece. The ticket names the draw, and the draw names that prize.",
+    doesNotPay: "Cash or extra Gems you can withdraw.",
+    howYouEnter: "Show up, share, or finish a mission the draw lists. Those tickets are for perk draws.",
+  },
+  "save-and-win": {
+    id: "save-and-win",
+    name: "Save & Win",
+    pays: "Extra Gems. 1 Gem = $1. That is PromoShare's money draw. A win is more Gems on top of what you parked.",
+    doesNotPay: "A chance to lose the Gems you set aside. Those stay yours until you take them out.",
+    howYouEnter: "Park Gems in a Save & Win pot. While they sit, you collect tickets for that pot's weekly and monthly draws.",
+  },
+};
+
 export const VALUE_STORY = {
   loop:
-    "PromoCard is what you use. Points prove you showed up. Gems are the money. Pieces are keepsakes you buy or earn with Gems. Keys open scarce doors. Tickets are chances. Save & Win parks Gems without losing them.",
+    "PromoCard is what you use. Points prove you showed up. Gems are the money. Pieces are keepsakes. Keys open doors. PromoShare tickets are chances in a named draw that already says the prize. Save & Win is the PromoShare family that pays extra Gems.",
   gemsPay: `1 Gem = ${GEM_USD} USD of platform value. Gems pay. Points do not. Keys do not.`,
   gemsBuyBenefits:
-    "Buying and spending Gems is better than paying cash outside Promorang. Gem spend can unlock Pieces, Save & Win tickets, PromoShare entries, standing, and partner perks that a card swipe outside the app cannot.",
+    "Buying and spending Gems is better than paying cash outside Promorang. Gem spend can unlock Pieces, Save & Win tickets, standing, and partner perks that a card swipe outside the app cannot.",
   gemsEarn:
-    "Gems are not only bought. Funded missions, completed Moments, membership allowances, and funded draws can pay Gems. Holding Gems still earns nothing. Using or parking them is what opens extras.",
+    "Gems are not only bought. Funded missions, completed Moments, membership allowances, and Save & Win winnings can pay Gems. Holding Gems still earns nothing. Using or parking them is what opens extras.",
   keysUnlock:
     `Points convert to PromoKeys (${POINTS_PER_KEY} Points = 1 Key). The daily Master Key is separate: it proves you contributed enough today. You need both to enter funded work.`,
   ticketsChance:
-    "A PromoShare ticket is a chance in a named draw, not a prize and not money. More eligible tickets improve odds. Leaderboard Points stay separate.",
+    "A PromoShare ticket is a chance in one named draw. The draw publishes the prize before anyone enters. Perk draws pay Keys, access, or a partner perk. Save & Win is the family that pays extra Gems. A ticket is not a guarantee.",
+  namedDrawPays:
+    "Read the ticket. Perk draws pay Keys, access, or a perk already set aside. Save & Win pays extra Gems. Everyday PromoShare does not print cash.",
   saveAndWin:
-    "Save & Win is the no-loss pot. Park Gems, keep 100% of them, and collect draw tickets while they sit. Take the Gems out whenever you want.",
+    "Save & Win is PromoShare's money draw. Park Gems, keep 100% of them, and compete for extra Gems. Take your parked Gems out whenever you want. A win is winnings — not a way to lose the pot.",
 } as const;
 
 export const VALUE_LAYERS: ValueLayer[] = [
@@ -85,15 +114,9 @@ export const VALUE_LAYERS: ValueLayer[] = [
   },
   {
     id: "chances",
-    label: "What gives you a shot",
-    meaning: "Tickets are chances in a named draw. They are not Gems and not a guarantee.",
-    instrumentIds: ["promoshare-tickets"],
-  },
-  {
-    id: "parked",
-    label: "What you can park",
-    meaning: "Set Gems aside, keep them, and stay in the draws. That is Save & Win.",
-    instrumentIds: ["save-and-win"],
+    label: "PromoShare — what you can win",
+    meaning: "A ticket is a chance. The named draw says the prize. Perk draws pay Keys and access. Save & Win is the family that pays extra Gems.",
+    instrumentIds: ["promoshare-tickets", "save-and-win"],
   },
 ];
 
@@ -149,7 +172,7 @@ export const VALUE_INSTRUMENTS: Record<ValueInstrumentId, ValueInstrument> = {
     isNot: "Not Points, not tickets, not a crypto token, and not a return just for holding them.",
     getIt: [
       "Buy Gems with a card. $1 becomes 1 Gem.",
-      "Earn Gems from funded missions, completed Moments, membership allowances, or funded draws.",
+      "Earn Gems from funded missions, completed Moments, membership allowances, or Save & Win winnings.",
     ],
     useIt: [
       "Spend Gems on Pieces, access, tips, boosts, and partner perks.",
@@ -187,11 +210,11 @@ export const VALUE_INSTRUMENTS: Record<ValueInstrumentId, ValueInstrument> = {
     layer: "access",
     job: "Ration access to one gated opportunity at a time.",
     like: "A ticket you earn, not buy.",
-    is: "Scarce access. Convert Points, earn a milestone, or win a Community Draw.",
+    is: "Scarce access. Convert Points, earn a milestone, or win a perk draw.",
     isNot: "Not payment. Not the daily Master Key. Not a prize by itself.",
     getIt: [
       `Convert ${POINTS_PER_KEY} Points into 1 PromoKey (up to ${MAX_DAILY_KEYS} a day).`,
-      "Verified milestones, Community Draws, or a disclosed membership allowance.",
+      "Verified milestones, perk draws, or a disclosed membership allowance.",
     ],
     useIt: [
       "Spend one Key to enter a VIP table, tasting, vault, or limited drop.",
@@ -225,41 +248,41 @@ export const VALUE_INSTRUMENTS: Record<ValueInstrumentId, ValueInstrument> = {
     id: "promoshare-tickets",
     name: "PromoShare tickets",
     layer: "chances",
-    job: "Create a chance in a named draw.",
-    like: "A raffle ticket that names the pot it belongs to.",
-    is: "An entry for one named draw. More eligible tickets improve odds.",
-    isNot: "Not Points, not Gems, not weight, and not a guaranteed prize.",
+    job: "Create a chance in a named draw that already says what you can win.",
+    like: "A raffle ticket that names the pot — and the prize — it belongs to.",
+    is: "An entry for one named draw. The draw publishes the prize. More eligible tickets improve odds.",
+    isNot: "Not Points, not Gems, not a guarantee, and not a mystery prize.",
     getIt: [
-      "Do the action the draw lists: check-in, share, mission, or parked Save & Win Gems.",
-      "One action can issue tickets for today's draw, this week's draw, and a grand draw when the rules say so.",
+      "Perk-draw tickets: check in, share, or finish a mission the draw lists.",
+      "Save & Win tickets: park Gems in that pot. One action can also count for today's, this week's, and a grand draw when the rules say so.",
     ],
     useIt: [
-      "Wait for that named draw. Winners are selected at random among eligible tickets.",
-      "Funded draws pay Gems, products, or perks already set aside. Community Draws pay progression — Points, Keys, or access.",
+      "Perk draws pay a Key, access, partner perk, product, or Piece already set aside.",
+      "Save & Win draws pay extra Gems. Everyday tickets do not print cash.",
     ],
-    marketKnows: "Tickets are chances. The prize money is set aside before anyone can win.",
+    marketKnows: VALUE_STORY.namedDrawPays,
     href: "/economy/promoshare",
-    shelfUse: "A chance in a named draw — not a prize yet.",
+    shelfUse: "The ticket names the draw. The draw names the prize.",
   },
   "save-and-win": {
     id: "save-and-win",
     name: "Save & Win",
-    layer: "parked",
-    job: "Park Gems, keep them, and collect draw tickets while they sit.",
-    like: "Money in a jar that also buys raffle tickets. The jar is still yours.",
-    is: "A no-loss pot. You keep 100% of the Gems you park. Tickets are the extra.",
-    isNot: "Not investing, not a way to lose your principal, and not a return for merely holding Gems in your wallet.",
+    layer: "chances",
+    job: "PromoShare's money draw: park Gems, keep them, and compete for extra Gems.",
+    like: "Money in a jar that also buys raffle tickets. The jar is still yours. A win adds more Gems to the jar.",
+    is: "The no-loss PromoShare family that pays money. You keep 100% of parked Gems. Winnings are extra Gems (1 Gem = $1).",
+    isNot: "Not a perk draw, not investing, and not a way to lose what you parked.",
     getIt: [
-      "Move Gems into a community pot. Membership and streaks can multiply tickets.",
-      "Take the Gems back out whenever you want.",
+      "Move Gems into a Save & Win pot. Membership can multiply tickets.",
+      "Take the parked Gems back out whenever you want.",
     ],
     useIt: [
-      "Stay in weekly and monthly draws while the Gems are parked.",
-      "If you win, the prize is extra. If you do not, your Gems are still there.",
+      "Stay in that pot's weekly and monthly money draws.",
+      "If you win, extra Gems land on top. If you do not, your parked Gems are still there.",
     ],
     marketKnows: VALUE_STORY.saveAndWin,
     href: "/economy/save-and-win",
-    shelfUse: "Park Gems. Keep them. Collect tickets.",
+    shelfUse: "The PromoShare family that pays extra Gems.",
   },
 };
 

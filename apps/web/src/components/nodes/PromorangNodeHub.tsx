@@ -106,7 +106,7 @@ export const PromorangNodeHub = ({
           { label: "Set aside", title: "You park some money", text: "It still belongs to you. Pull it out whenever you want." },
           { label: "It works", title: "Shops use that parked money", text: "It helps power discounts and check-in perks nearby." },
           { label: "Tickets", title: "You get draw entries", text: "Membership and streaks can multiply how many tickets you hold." },
-          { label: "Draw", title: "Sunday and month-end", text: "If you win, the prize is extra. If you don't, your money is still there." },
+          { label: "Draw", title: "Sunday and month-end", text: "If you win, extra Gems land — 1 Gem = $1. If you don't, your parked Gems are still there. Perk draws do not pay this." },
         ]}
       />
 
