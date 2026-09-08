@@ -1,14 +1,16 @@
-import { ArrowRight, Compass, CreditCard, Users } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   firstGivenName,
+  getStakeholderLens,
   homeGreeting,
-  resolveHomeNextMove,
+  resolveStakeholderHomeMove,
 } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/people/ExperienceShell";
+import { StakeholderLoopTrail, StakeholderPutInPass } from "@/components/people/StakeholderLoop";
 import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
@@ -34,17 +36,15 @@ export default function PeopleHome() {
     fallback: "there",
   });
   const role = data?.role || (["creator", "host", "promoter", "merchant", "brand"].includes(String(activeRole)) ? "contributor" : "member");
+  const lens = getStakeholderLens(activeRole || role);
   const greeting = homeGreeting(givenName);
-  const description = role === "member"
-    ? "See what’s happening, keep your perks, and join the rooms that feel like yours."
-    : "Build your people. Give them value. Move them to action.";
+  const description = lens.promise;
   const perksGiven = Number(data?.outcomes?.ledger?.perksGiven || 0);
-  const nextMove = resolveHomeNextMove({
-    role,
-    people: Number(data?.people || 0),
+  const nextMove = resolveStakeholderHomeMove(activeRole || role, {
     perksGiven,
     communities: data?.communities?.length || 0,
     cardPerks: Number(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0),
+    hasInventory: Boolean(data?.outcomes?.suppliesInventory),
   });
   const gems = Number(data?.wallet?.gems || 0);
   const points = Number(data?.wallet?.points || 0);
@@ -56,13 +56,11 @@ export default function PeopleHome() {
     perksGiven ||
     Number(data?.outcomes?.ledger?.perksClaimed || 0),
   );
-  const ticker = role === "operator"
+  const ticker = role === "operator" && Number(data?.happening || 0)
     ? `${data?.happening || 0} showed up this week`
     : Number(data?.peopleThisMonth || 0)
       ? `+${data.peopleThisMonth} people this month`
-      : role === "member"
-        ? "Your card is ready"
-        : "Your people are waiting";
+      : lens.ticker;
 
   if (home.isLoading) {
     return (
@@ -123,6 +121,7 @@ export default function PeopleHome() {
               <span className="mt-3 flex min-h-11 items-center justify-between px-1 text-sm font-semibold text-amber-200">
                 Open your PromoCard <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
+              <p className="mt-2 px-1 text-xs leading-5 text-white/45">{lens.promoCard.meaning}</p>
             </Link>
             <Link
               to={to(nextMove.href)}
@@ -134,17 +133,7 @@ export default function PeopleHome() {
         </section>
       )}
     >
-      <nav aria-label="Your next stop" className="grid grid-cols-3 gap-2 sm:gap-3">
-        {[
-          { href: "/discover", label: "Discover", icon: Compass },
-          { href: "/card", label: "My card", icon: CreditCard },
-          { href: "/people", label: "My people", icon: Users },
-        ].map(({ href, label, icon: Icon }) => (
-          <Link key={href} to={to(href)} className="experience-interactive flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-2 text-sm font-semibold text-white/80 hover:border-amber-200/30 hover:bg-white/[0.08] hover:text-white">
-            <Icon aria-hidden="true" className="h-5 w-5 text-amber-200" />{label}
-          </Link>
-        ))}
-      </nav>
+      <StakeholderLoopTrail role={activeRole || role} />
       {hasMovement ? (
         <PaperReceipt
           heading="What’s in play"
@@ -173,15 +162,13 @@ export default function PeopleHome() {
 
       {role !== "member" ? (
         <section className="grid gap-3">
-          {[
-            { href: "/give", label: "Give something", detail: "Put a perk on your people’s PromoCards.", stub: "GIVE", stubLabel: "Perk" },
-            { href: "/demand", label: "Open what they asked", detail: "Named asks and finds from Discover. Claim the one that is yours.", stub: "ASK", stubLabel: "Inbox" },
-            { href: "/create", label: "Create something", detail: "Ask them to go, try, answer or show up.", stub: "MAKE", stubLabel: "Move" },
-          ].map((action) => (
-            <Link key={action.href} to={to(action.href)} className="block">
-              <TicketPass kicker="Next move" title={action.label} detail={action.detail} stub={action.stub} stubLabel={action.stubLabel} />
-            </Link>
-          ))}
+          <StakeholderPutInPass role={activeRole || role} />
+          <Link to={to(lens.world.href)} className="block">
+            <TicketPass kicker="The world" title="See the Scene" detail={lens.world.meaning} stub="WORLD" stubLabel="Open" />
+          </Link>
+          <Link to={to(lens.activity.href)} className="block">
+            <TicketPass kicker="Activity" title={lens.activity.href === "/happened" ? "What happened" : "Recent activity"} detail={lens.activity.meaning} stub="DID" stubLabel="Open" />
+          </Link>
         </section>
       ) : (
         <section className="space-y-3">
@@ -230,7 +217,7 @@ export default function PeopleHome() {
         </section>
       ) : null}
 
-      {role !== "member" && (data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole))) ? (
+      {role !== "member" && lens.putIn.href !== "/stock" && (data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole))) ? (
         <Link to={to("/stock")} className="block">
           <TicketPass
             kicker="Inventory"

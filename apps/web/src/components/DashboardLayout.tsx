@@ -65,7 +65,8 @@ import { DemoCoachmark } from "@/components/demo/DemoCoachmark";
 import { CityQuickSwitcher } from "@/components/location/CityQuickSwitcher";
 import { useI18n } from "@/i18n/I18nContext";
 import { useMarket } from "@/contexts/MarketContext";
-import { firstGivenName } from "@promorang/shared";
+import { firstGivenName, getStakeholderLens } from "@promorang/shared";
+import { stakeholderMobileNav, stakeholderNavItems } from "@/config/stakeholderNav";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "promoter" | "marketing" | "admin";
 
@@ -122,7 +123,25 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/admin", label: "Admin", description: "Platform-wide operations, moderation, and system controls." },
 ];
 
+const isNavItemActive = (pathname: string, href: string, search: string) => {
+  const [itemPath, itemQuery] = href.split("?");
+  if (itemQuery) {
+    return pathname === itemPath && search.includes(itemQuery);
+  }
+  if (itemPath === "/dashboard") {
+    return (pathname === "/dashboard" || pathname === "/home") && !search.includes("view=studio");
+  }
+  return pathname === itemPath || pathname.startsWith(itemPath + "/");
+};
+
 const getPageMeta = (pathname: string, search: string, role: UserRole) => {
+  const lensMatch = getStakeholderLens(role).destinations.find((item) =>
+    isNavItemActive(pathname, item.href, search) && item.id !== "today",
+  );
+  if (lensMatch) {
+    return { label: lensMatch.label, description: lensMatch.meaning };
+  }
+
   if (pathname === "/dashboard" && role === "creator") {
     const params = new URLSearchParams(search);
     const tab = params.get("tab");
@@ -149,56 +168,15 @@ const getPageMeta = (pathname: string, search: string, role: UserRole) => {
   return pageLabels.find((item) => pathname === item.match || pathname.startsWith(item.match + "/")) || pageLabels[pageLabels.length - 2];
 };
 
-const isNavItemActive = (pathname: string, href: string, search: string) => {
-  const [itemPath, itemQuery] = href.split("?");
-  if (itemQuery) {
-    return pathname === itemPath && search.includes(itemQuery);
-  }
-  if (itemPath === "/dashboard") {
-    return (pathname === "/dashboard" || pathname === "/home") && !search.includes("view=studio");
-  }
-  return pathname === itemPath || pathname.startsWith(itemPath + "/");
-};
-
-const peopleExperienceNav: NavItem[] = [
-  { icon: Home, label: "Today", href: "/dashboard", group: "primary" },
-  { icon: Users, label: "People", href: "/people", group: "primary" },
-  { icon: Plus, label: "Create", href: "/create", group: "primary" },
-  { icon: Megaphone, label: "Demand", href: "/demand", group: "primary" },
-  { icon: Sparkles, label: "Earn", href: "/earn", group: "primary" },
-  { icon: CreditCard, label: "Card", href: "/card", group: "primary" },
-  { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
-  { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
-  { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
-];
-
 const roleNavItems: Record<UserRole, NavItem[]> = {
-  participant: peopleExperienceNav,
-  creator: [
-    ...peopleExperienceNav,
-    { icon: Film, label: "Studio", href: "/dashboard?view=studio", group: "manage" },
-  ],
-  host: [
-    ...peopleExperienceNav,
-    { icon: CheckCircle, label: "Door Check-Ins", href: "/organizer/check-ins", group: "manage" },
-  ],
-  merchant: [
-    ...peopleExperienceNav,
-    { icon: Gift, label: "Put something up", href: "/stock", group: "manage" },
-    { icon: Store, label: "Storefront", href: "/dashboard?view=studio&tab=storefront", group: "manage" },
-    { icon: QrCode, label: "Redeem", href: "/dashboard?view=studio&tab=redemptions", group: "manage" },
-  ],
-  brand: [
-    ...peopleExperienceNav,
-    { icon: Gift, label: "Put something up", href: "/stock", group: "manage" },
-    { icon: RadioTower, label: "Campaigns", href: "/dashboard?view=studio", group: "manage" },
-  ],
-  agency: [
-    ...peopleExperienceNav,
-    { icon: Briefcase, label: "Clients", href: "/dashboard?view=studio&tab=clients", group: "manage" },
-  ],
-  promoter: peopleExperienceNav,
-  marketing: peopleExperienceNav,
+  participant: stakeholderNavItems("participant"),
+  creator: stakeholderNavItems("creator"),
+  host: stakeholderNavItems("host"),
+  merchant: stakeholderNavItems("merchant"),
+  brand: stakeholderNavItems("brand"),
+  agency: stakeholderNavItems("agency"),
+  promoter: stakeholderNavItems("promoter"),
+  marketing: stakeholderNavItems("marketing"),
   admin: [
     { icon: Home, label: "Command Center", href: "/admin?tab=command", group: "primary" },
     { icon: Users, label: "Users & KYC", href: "/admin?tab=users", group: "primary" },
@@ -261,7 +239,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const manageNavItems = navItems.filter((item) => item.group === "manage");
   const utilityNavItems = navItems.filter((item) => item.group === "utility");
   const roleInfo = safeRoleInfo(safeRole);
-  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/demand", "/shop", "/wallet", "/admin", "/organizer", "/people", "/give", "/earn", "/happened", "/card", "/start", "/stock", "/drop"];
+  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/demand", "/shop", "/wallet", "/admin", "/organizer", "/people", "/give", "/earn", "/happened", "/activity", "/card", "/start", "/stock", "/drop"];
   const isImmersiveProductRoute = immersiveProductRoutes.some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
@@ -278,33 +256,15 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
     navigate("/");
   };
 
-  const peopleMobileNav: (NavItem & { accent?: boolean })[] = [
-    { icon: Home, label: "Today", href: "/dashboard" },
-    { icon: Users, label: "People", href: "/people" },
-    { icon: Plus, label: "Create", href: "/create", accent: true },
-    { icon: Sparkles, label: "Earn", href: "/earn" },
-    { icon: CreditCard, label: "Card", href: "/card" },
-  ];
-
-  const mobileNavItems: Record<UserRole, (NavItem & { accent?: boolean })[]> = {
-    participant: peopleMobileNav,
-    creator: peopleMobileNav,
-    host: peopleMobileNav,
-    brand: peopleMobileNav,
-    merchant: peopleMobileNav,
-    agency: peopleMobileNav,
-    promoter: peopleMobileNav,
-    marketing: peopleMobileNav,
-    admin: [
-      { icon: Home, label: "Admin", href: "/admin" },
-      { icon: Users, label: "Users", href: "/admin?tab=users" },
-      { icon: Calendar, label: "Moments", href: "/admin?tab=moments", accent: true },
-      { icon: BarChart3, label: "Stats", href: "/admin?tab=overview" },
-      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-    ],
-  };
-
-  const currentMobileNav = safeRole === "admin" ? mobileNavItems.admin : peopleMobileNav;
+  const currentMobileNav = safeRole === "admin"
+    ? [
+        { icon: Home, label: "Admin", href: "/admin" },
+        { icon: Users, label: "Users", href: "/admin?tab=users" },
+        { icon: Calendar, label: "Moments", href: "/admin?tab=moments", accent: true },
+        { icon: BarChart3, label: "Stats", href: "/admin?tab=overview" },
+        { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+      ]
+    : stakeholderMobileNav(safeRole);
 
   return (
     <div className="app-shell-mobile relative flex min-h-screen min-h-dvh overflow-x-clip bg-background transition-colors duration-300">
@@ -375,11 +335,11 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                   <DropdownMenuItem asChild><Link to="/help" className="flex items-center gap-2"><Plus className="h-4 w-4" /> {t("dashboard.howRoleAccessWorks")}</Link></DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <p className="px-3 pt-2 text-[10px] leading-4 text-muted-foreground">{t("dashboard.workspaceHelp")}</p>
+              <p className="px-3 pt-2 text-[10px] leading-4 text-muted-foreground">{getStakeholderLens(safeRole).promise}</p>
             </div>
             <div>
               <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#FF5500] mb-3">
-                {safeRole === "participant" ? t("dashboard.exploreAndDo") : t("dashboard.explore")}
+                Your loop
               </p>
               <nav className="space-y-1">
                 {primaryNavItems.map((item) => (
@@ -412,27 +372,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               </nav>
             </div>
 
-            {safeRole === "creator" && growthNavItems.length > 0 && (
-              <div>
-                <p className="mb-3 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("dashboard.createAndGrow")}</p>
-                <nav className="space-y-1">
-                  {growthNavItems.map((item) => {
-                    const active = isNavItemActive(location.pathname, item.href, location.search);
-                    return (
-                      <Link key={item.href} to={item.href} className={cn(
-                        "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition",
-                        active ? "bg-primary/15 text-primary font-bold" : "text-foreground/75 hover:bg-muted/50 hover:text-foreground",
-                      )}>
-                        <item.icon className="h-4 w-4" />
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </nav>
-              </div>
-            )}
-
-            {safeRole === "host" && manageNavItems.length > 0 && (
+            {manageNavItems.length > 0 && (
               <div>
                 <p className="mb-3 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("dashboard.manage")}</p>
                 <nav className="space-y-1">

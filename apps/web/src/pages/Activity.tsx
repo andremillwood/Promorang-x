@@ -8,11 +8,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { cultureImages } from "@/data/culture-demo";
 import { useI18n } from "@/i18n/I18nContext";
+import { getStakeholderLens } from "@promorang/shared";
 
 const Activity = () => {
     const { t, formatNumber } = useI18n();
-    const { user, roles } = useAuth();
-    const primaryRole = roles[0] || "participant";
+    const { user, roles, activeRole } = useAuth();
+    const primaryRole = activeRole || roles[0] || "participant";
+    const lens = getStakeholderLens(primaryRole);
     const [filter, setFilter] = useState("all");
     const isOperator = ["brand", "merchant", "host", "agency", "admin"].includes(primaryRole);
     const filterOptions = isOperator
@@ -109,10 +111,10 @@ const Activity = () => {
                             <Radio className="h-3.5 w-3.5" /> {t("activity.eyebrow")}
                         </div>
                         <h1 className="text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">
-                            {t("activity.title")}
+                            {lens.activity.label === "Activity" ? t("activity.title") : lens.activity.label}
                         </h1>
                         <p className="mt-5 max-w-xl text-base leading-7 text-white/60">
-                            {t("activity.copy")}
+                            {lens.activity.meaning}
                         </p>
                     </div>
                     <div className="ml-auto hidden gap-8 pb-2 lg:flex">

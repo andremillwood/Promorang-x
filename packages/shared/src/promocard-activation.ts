@@ -107,7 +107,7 @@ const PEOPLE_ACTIONS: FirstAction[] = [
 
 export function firstActionsForRole(role: string | null | undefined): FirstAction[] {
   const key = String(role || '').toLowerCase();
-  if (key === 'merchant') return MERCHANT_ACTIONS;
+  if (key === 'merchant' || key === 'brand' || key === 'marketing') return MERCHANT_ACTIONS;
   if (key === 'host') return HOST_ACTIONS;
   if (key === 'creator') return CREATOR_ACTIONS;
   return PEOPLE_ACTIONS;
