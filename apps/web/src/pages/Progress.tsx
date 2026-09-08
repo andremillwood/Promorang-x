@@ -202,7 +202,7 @@ export default function Progress() {
           {world?.faction ? world.faction.title : "No faction required"}
         </h2>
         <p className="mt-2 text-sm text-white/50">
-          A faction is how you like to strengthen a Scene. It is not a class and not a Crew. The war is Current versus Static.
+          House is earned from verified movement. This leftover philosophy does not change it, and it is not a class or a Crew. The war is Current versus Static.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {WORLD_FACTION_KEYS.map((key) => {

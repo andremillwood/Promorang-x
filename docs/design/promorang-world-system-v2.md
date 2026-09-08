@@ -124,7 +124,7 @@ Surface “Your Throw returned” only when at least one verified downstream mov
 
 ## 10–26. Later systems (architected, not broadly shipped)
 
-Contracts exist in `world-system-v2.ts` for Techniques, Challenges, Convergences, Place Influence, Secrets, Rumours, World Events, Relics, Artifacts, Titles, House Directives, Alliances, discovery nomination, merchant world-building, and player-authored proposals.
+Contracts exist in `world-system-v2.ts` for Techniques, Challenges, Convergences (`scoreConvergence`), Place Influence, Secrets, Rumours, World Events, Relics, Artifacts (`canIssueArtifact`), Titles, House Directives, Alliances, discovery nomination, merchant world-building, and player-authored proposals. Convergence scoring reuses verified Influence and stays quiet with no activity. Artifact issuance is unique by key and reuses Memories/Pieces — no second inventory.
 
 Phase flags:
 

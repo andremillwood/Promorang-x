@@ -15,7 +15,10 @@ const {
   resolveTraits,
   resolveWorldSystemPhases,
   resolveIdentityCard,
+  resolveRumourLifecycle,
   scoreChallenge,
+  scoreConvergence,
+  canIssueArtifact,
   worldScoreIsNotMoney,
 } = require('../../services/worldSystemV2');
 
@@ -153,6 +156,7 @@ describe('return chains', () => {
     expect(chain.heading).toBe('Your Throw returned');
     expect(chain.movements).toBe(2);
     expect(chain.moving).toBe(true);
+    expect(chain.line).not.toMatch(/andre|userId|@/);
   });
 });
 
@@ -237,6 +241,36 @@ describe('techniques, challenges, place influence, secrets', () => {
     expect(resolveElementalModifier('fire', 'water')).toBe(0.05);
     expect(resolveElementalModifier('fire', 'fire')).toBe(0);
   });
+
+  test('does not score a Convergence until competition is on, and stays quiet with no activity', () => {
+    const flaggedOff = scoreConvergence({
+      actions: [{ id: '1', actionType: 'check_in' }],
+      phases: resolveWorldSystemPhases({}),
+    });
+    expect(flaggedOff.eligible).toBe(false);
+    expect(flaggedOff.quiet).toBe(true);
+
+    const empty = scoreConvergence({
+      actions: [],
+      phases: resolveWorldSystemPhases({ WORLD_SYSTEM_COMPETITION: '1' }),
+    });
+    expect(empty.eligible).toBe(true);
+    expect(empty.quiet).toBe(true);
+    expect(empty.score).toBe(0);
+  });
+
+  test('never treats a Rumour as factual until confirmed', () => {
+    expect(resolveRumourLifecycle({ state: 'forming' }).factual).toBe(false);
+    expect(resolveRumourLifecycle({ state: 'forming', evidenceCount: 3 }).label).toBe('Rumour · investigating');
+    expect(resolveRumourLifecycle({ state: 'forming', confirmed: true }).label).toBe('Confirmed');
+    expect(resolveRumourLifecycle({ state: 'forming', confirmed: true }).factual).toBe(true);
+  });
+
+  test('refuses a second issuance of the same Artifact key', () => {
+    expect(canIssueArtifact({ artifactKey: 'first-flame', existingKeys: [] }).allowed).toBe(true);
+    expect(canIssueArtifact({ artifactKey: 'first-flame', existingKeys: ['first-flame'] }).allowed).toBe(false);
+    expect(canIssueArtifact({ artifactKey: 'ember-crown', issuanceCount: 1, maxIssuance: 1 }).allowed).toBe(false);
+  });
 });
 
 describe('identity card', () => {
@@ -253,5 +287,16 @@ describe('identity card', () => {
     });
     expect(card.house).toBeNull();
     expect(card.line).toBe('A Resonance is forming');
+  });
+
+  test('keeps an empty world quiet', () => {
+    const card = resolveIdentityCard({
+      resonance: resolveResonance([]),
+      phases: { foundation: true, identity: true, competition: false, livingWorld: false, distribution: false, endgame: false },
+    });
+    expect(card.line).toBeNull();
+    expect(card.house).toBeNull();
+    expect(card.traits).toEqual([]);
+    expect(card.influenceLine).toBeNull();
   });
 });

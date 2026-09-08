@@ -617,6 +617,25 @@ function scoreChallenge(input) {
   return { score, eligible: true };
 }
 
+function scoreConvergence(input) {
+  const phases = input.phases || resolveWorldSystemPhases();
+  if (!phases.competition) return { score: 0, eligible: false, quiet: true };
+  const influence = resolveInfluence(input.actions);
+  return { score: influence.score, eligible: true, quiet: influence.score === 0 };
+}
+
+function canIssueArtifact(input) {
+  const existing = input.existingKeys || [];
+  if (!input.artifactKey) return { allowed: false, reason: 'Artifact key is required.' };
+  if (existing.includes(input.artifactKey)) {
+    return { allowed: false, reason: 'This Artifact was already issued.' };
+  }
+  if (typeof input.maxIssuance === 'number' && (input.issuanceCount || 0) >= input.maxIssuance) {
+    return { allowed: false, reason: 'Issuance limit reached.' };
+  }
+  return { allowed: true, reason: 'Eligible.' };
+}
+
 const PLACE_INFLUENCE_MIN = 5;
 const PLACE_DECAY_DAYS = { half: 21, gone: 45 };
 
@@ -770,6 +789,8 @@ module.exports = {
   resolveElementalModifier,
   CHALLENGE_TEMPLATES,
   scoreChallenge,
+  scoreConvergence,
+  canIssueArtifact,
   PLACE_INFLUENCE_MIN,
   PLACE_DECAY_DAYS,
   decayWeight,

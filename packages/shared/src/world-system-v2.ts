@@ -815,6 +815,38 @@ export function scoreChallenge(input: {
   return { score, eligible: true };
 }
 
+/** Convergence scoring reuses verified Influence. Empty evidence stays quiet. */
+export function scoreConvergence(input: {
+  actions: WorldActionFact[];
+  phases?: WorldSystemPhases;
+}): { score: number; eligible: boolean; quiet: boolean } {
+  const phases = input.phases || resolveWorldSystemPhases();
+  if (!phases.competition) return { score: 0, eligible: false, quiet: true };
+  const influence = resolveInfluence(input.actions);
+  return { score: influence.score, eligible: true, quiet: influence.score === 0 };
+}
+
+/**
+ * Artifacts reuse Memories/Pieces. Uniqueness is issuance-key based.
+ * Never mints a second inventory row for the same artifact key.
+ */
+export function canIssueArtifact(input: {
+  artifactKey: string;
+  existingKeys?: string[];
+  issuanceCount?: number;
+  maxIssuance?: number;
+}): { allowed: boolean; reason: string } {
+  const existing = input.existingKeys || [];
+  if (!input.artifactKey) return { allowed: false, reason: "Artifact key is required." };
+  if (existing.includes(input.artifactKey)) {
+    return { allowed: false, reason: "This Artifact was already issued." };
+  }
+  if (typeof input.maxIssuance === "number" && (input.issuanceCount || 0) >= input.maxIssuance) {
+    return { allowed: false, reason: "Issuance limit reached." };
+  }
+  return { allowed: true, reason: "Eligible." };
+}
+
 export type PlaceActivityState = "dormant" | "stirring" | "active" | "surging" | "legendary";
 
 export const PLACE_INFLUENCE_MIN = 5;
