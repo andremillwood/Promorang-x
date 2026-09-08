@@ -1,5 +1,5 @@
 import { FormEvent, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
   BadgeCheck,
@@ -30,6 +30,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { seededContentDrops } from "@/data/seeded-content-drops";
 import { OpportunityTerms } from "@/components/economy/OpportunityTerms";
 import { LaunchContentDropModal } from "@/components/content/LaunchContentDropModal";
+import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
 import { useI18n } from "@/i18n/I18nContext";
 
 const defaultDrop = {
@@ -136,7 +137,9 @@ function DropCard({ drop, featured = false }: { drop: ContentDistributionCampaig
 
 export default function ContentDrops() {
   const { t, formatNumber } = useI18n();
-  const { session } = useAuth();
+  const { session, activeRole } = useAuth();
+  const [params] = useSearchParams();
+  const lensRole = params.get("role") || activeRole;
   const dropsQuery = useContentDrops("active");
   const myDropsQuery = useMyContentDrops("all");
   const createDrop = useCreateContentDrop();
@@ -214,6 +217,9 @@ export default function ContentDrops() {
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/35 bg-primary/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary"><RadioTower className="h-3 w-3" /> {t("drops.signal")}</div>
               <h1 className="mt-5 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.065em] sm:text-7xl">{t("drops.hero1")}<br /><span className="text-primary">{t("drops.hero2")}</span></h1>
               <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">{t("drops.heroCopy")}</p>
+              <div className="mt-6 max-w-2xl">
+                <StakeholderHowLead role={lensRole} surface="drops" />
+              </div>
               <div className="mt-6 flex flex-wrap gap-3">
                 <LaunchContentDropModal />
                 <Button asChild variant="outline" className="border-white/20 bg-black/35 text-white hover:bg-white/10 hover:text-white"><a href="#content-drop-feed">{t("drops.browse")} <ArrowRight className="ml-2 h-4 w-4" /></a></Button>

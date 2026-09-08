@@ -23,7 +23,7 @@ vi.mock("@/hooks/usePromoCardAim", () => ({
   useApplyPromoCardAim: () => ({ aim: aimState.current, chooseAim: vi.fn() }),
 }));
 vi.mock("@/contexts/AuthContext", () => ({
-  useAuth: () => ({ user: { id: "test-member" }, profile: {} }),
+  useAuth: () => ({ user: { id: "test-member" }, profile: {}, activeRole: "participant" }),
 }));
 vi.mock("@/components/SEO", () => ({ default: () => null }));
 let root: Root;
@@ -261,5 +261,19 @@ describe("PromoCard journey", () => {
     expect(container).toHaveTextContent("Show it where it works");
     expect(container).not.toHaveTextContent("From Discover");
     expect(container).not.toHaveTextContent("Use what’s on the card");
+  });
+
+  it("shows the merchant put-in when the card is opened as a merchant", async () => {
+    query.data = { perks: [], givenName: "Ada" };
+    await act(async () => {
+      root.render(
+        <MemoryRouter initialEntries={["/card?role=merchant"]}>
+          <MyPromoCard />
+        </MemoryRouter>,
+      );
+    });
+    expect(container).toHaveTextContent("The card people show at your counter");
+    expect(container).toHaveTextContent("Put up");
+    expect(container).toHaveTextContent("Supply one real benefit");
   });
 });

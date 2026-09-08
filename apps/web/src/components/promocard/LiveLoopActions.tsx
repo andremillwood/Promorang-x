@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { firstActionsForRole, type FirstAction } from "@promorang/shared";
+import { firstActionsForRole, getStakeholderLens, type FirstAction } from "@promorang/shared";
 
 export function LiveLoopActions({
   role,
@@ -11,11 +11,12 @@ export function LiveLoopActions({
   title?: string;
 }) {
   const items = actions || firstActionsForRole(role);
+  const lens = getStakeholderLens(role);
   return (
     <section className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-4 sm:p-5">
       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{title}</p>
       <p className="mt-1 text-sm text-white/55">
-        Put a perk up. Share it. Claim it. Validate the code. That is the live platform.
+        {lens.promise}
       </p>
       <div className="mt-3 grid gap-2 sm:grid-cols-3">
         {items.map((action, index) => (

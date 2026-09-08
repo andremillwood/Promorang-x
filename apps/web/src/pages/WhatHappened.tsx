@@ -1,19 +1,22 @@
 import { useSearchParams } from "react-router-dom";
-import { humanActionLabel } from "@promorang/shared";
+import { getStakeholderLens, humanActionLabel } from "@promorang/shared";
+import { useAuth } from "@/contexts/AuthContext";
 import { useWhatHappened } from "@/hooks/usePeopleExperience";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
 
 export default function WhatHappened() {
   const [params] = useSearchParams();
+  const { activeRole } = useAuth();
+  const lens = getStakeholderLens(activeRole);
   const happened = useWhatHappened(params.get("hub") || undefined);
   const data = happened.data;
   const buckets = data?.buckets || {};
 
   return (
     <ExperienceShell
-      eyebrow="What happened"
+      eyebrow={lens.activity.label}
       title="This week"
-      description="Not charts. What your people actually did."
+      description={lens.activity.meaning}
       backTo="/dashboard"
     >
       <StatPile
