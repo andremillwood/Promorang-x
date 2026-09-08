@@ -32,6 +32,7 @@ export function PromoCardWorldContext({
   crew,
   run,
   pathCue,
+  identityLine,
   latestReturn,
   nearestUnlock,
   latestPiece,
@@ -41,6 +42,7 @@ export function PromoCardWorldContext({
   crew?: string | null;
   run?: string | null;
   pathCue?: string | null;
+  identityLine?: string | null;
   latestReturn?: string | null;
   nearestUnlock?: string | null;
   latestPiece?: string | null;
@@ -50,7 +52,8 @@ export function PromoCardWorldContext({
     season ? { label: "Season", value: season } : null,
     crew ? { label: "Crew", value: crew } : null,
     run ? { label: "Run", value: run } : null,
-    pathCue ? { label: "Path", value: pathCue } : null,
+    identityLine ? { label: "How you move", value: identityLine } : null,
+    pathCue && !identityLine ? { label: "Path", value: pathCue } : null,
     latestReturn ? { label: "Latest Return", value: latestReturn } : null,
     latestPiece ? { label: "Kept", value: latestPiece } : null,
     nearestUnlock ? { label: "Closest opening", value: nearestUnlock } : null,
@@ -324,10 +327,13 @@ export function ObjectShelf({
   const marks: Record<string, string> = {
     PromoCard: "from-amber-200 to-amber-500",
     Points: "from-amber-400 to-orange-600",
+    PromoKeys: "from-orange-300 to-orange-600",
     Keys: "from-orange-300 to-orange-600",
-    "Daily streak": "from-amber-300 to-red-500",
+    "Master Key": "from-amber-300 to-red-500",
     Pieces: "from-purple-300 to-fuchsia-600",
     Gems: "from-cyan-300 to-teal-500",
+    "PromoShare tickets": "from-sky-300 to-indigo-500",
+    "Save & Win": "from-emerald-300 to-emerald-600",
   };
 
   return (

@@ -4,6 +4,8 @@ Status: product/UX specification for the first playable Promorang vertical slice
 
 This document extends `DESIGN.md`. It does not replace the canonical navigation, economy, proof, Scene, Moment, Mission, Piece, Vault, or PromoCard systems.
 
+Later cultural strategy (Four Houses, Resonance, Influence, Return Chains) is specified in [`promorang-world-system-v2.md`](promorang-world-system-v2.md). V2 extends this slice. It does not revive XP, a Game tab, or the legacy demo Houses.
+
 ## 1. Product thesis
 
 Promorang is the world. PromoCard is the person's persistent passport through it.
@@ -471,7 +473,10 @@ Configure the real Scene, participating Places/Moments, one collection, and one 
 Track a small set of behavior dimensions and surface `A path is forming` only after evidence exists.
 
 ### Cut 5 — Evaluate
-Do not proceed to factions, trading, territory, companions, guild hierarchies, or elaborate raids unless the measured loop improves acquisition, verified action, PromoCard use, social invitation, or return behavior.
+Measure whether the loop improves acquisition, verified action, PromoCard use, social invitation, or return behavior.
+
+### Cut 6 — Scene coordination
+Guilds as a flat 2–6 Crew federation. Territory as earned standing. Faction contest as Current versus Static.
 
 ## 18. Explicitly deferred
 
@@ -480,9 +485,9 @@ Do not build yet:
 - collectible marketplace
 - AR
 - virtual pets/companions
-- territory control
-- large guild hierarchy
-- global faction war
+- land ownership / attacking other players
+- nested guild hierarchy or /crew upline
+- combat-framed global faction war
 - elaborate NPC/chat system
 - dozens of classes/skill trees
 - random paid loot

@@ -44,6 +44,7 @@ import { Collaborator } from "@/components/moments/MomentLineupBuilder";
 import { PromoShareAction } from "@/components/promoshare/PromoShareAction";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
 import { PromoCardMomentLoop } from "@/components/moments/PromoCardMomentLoop";
+import { MomentNow } from "@/components/moments/MomentNow";
 import { usePromoCard } from "@/hooks/usePromoCard";
 import {
   ArrowLeft,
@@ -254,7 +255,7 @@ const MomentDetail = () => {
           updated_at: new Date().toISOString(),
           is_curated_editorial: true,
         } as unknown as Moment;
-        setParticipantCount(curatedMatch.attendeesCount ?? 0);
+        setParticipantCount(0);
         setHostProfile({
           display_name: curatedMatch.venueName,
           avatar_url: curatedMatch.image,
@@ -1196,6 +1197,14 @@ const MomentDetail = () => {
                     })
                   }
                 />
+
+                {!moment.is_curated_editorial && UUID_PATTERN.test(String(moment.id)) ? (
+                  <MomentNow
+                    momentId={moment.id}
+                    momentTitle={moment.title}
+                    onJoin={isJoined ? undefined : () => void handleJoin()}
+                  />
+                ) : null}
 
                 <PromoCardMomentLoop
                   isJoined={isJoined}

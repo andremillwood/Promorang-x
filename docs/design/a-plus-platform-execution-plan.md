@@ -26,7 +26,7 @@ The canonical participant path is:
 
 `Discover -> Connect -> Choose -> Show up or contribute -> See that it counted -> Unlock value -> Keep the memory/value -> Become known -> Return`
 
-World-layer vertical slice (PromoCard-centered, Kingston After Dark): [`promocard-world-experience-v1.md`](promocard-world-experience-v1.md). First implementation report: [`world-layer-implementation-2026-09-05.md`](world-layer-implementation-2026-09-05.md).
+World-layer vertical slice (PromoCard-centered, Kingston After Dark): [`promocard-world-experience-v1.md`](promocard-world-experience-v1.md). First implementation report: [`world-layer-implementation-2026-09-05.md`](world-layer-implementation-2026-09-05.md). World System V2 (Houses, Resonance, Influence, Return Chains): [`promorang-world-system-v2.md`](promorang-world-system-v2.md).
 
 ## 2. Non-Negotiable Product Laws
 
