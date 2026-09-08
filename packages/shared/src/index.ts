@@ -20,6 +20,7 @@ export * from "./promocard-benefit";
 export * from "./promocard-activation";
 export * from "./offer-fulfillment";
 export * from "./promocard-product";
+export * from "./promocard-face";
 export * from "./people-experience";
 export * from "./world-layer";
 

@@ -1,9 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { PromorangMark } from '@/components/brand/PromorangMark';
 import { BorderRadius, Colors } from '@/constants/DesignTokens';
+import { resolvePromoCardFace, type PromoCardFaceModel } from '@promorang/shared';
 
 type PromoCardFaceProps = {
   holder?: string;
@@ -13,85 +14,153 @@ type PromoCardFaceProps = {
   tier?: string;
   cardNumber?: string;
   compact?: boolean;
+  model?: PromoCardFaceModel;
+  flipped?: boolean;
+  onFlip?: () => void;
   onPress?: () => void;
   onUsePress?: () => void;
 };
 
+function stamps(model: PromoCardFaceModel) {
+  return [model.sceneMark, model.crewMark].filter(Boolean) as string[];
+}
+
 export function PromoCardFace({
   holder = 'Your card',
-  available = '0 pts',
-  limit = '0 keys',
-  places = 'Your perks live here',
+  available,
+  limit,
+  places,
   tier,
-  cardNumber = '',
   compact = false,
+  model,
+  flipped,
+  onFlip,
   onPress,
   onUsePress,
 }: PromoCardFaceProps) {
-  const face = (
+  const [localFlip, setLocalFlip] = useState(false);
+  const face =
+    model ||
+    resolvePromoCardFace({
+      holder,
+      nearbyCount: /nearby/i.test(`${available} ${places}`) ? 1 : 0,
+      nextBenefitTitle: limit,
+    });
+  const isFlipped = flipped ?? localFlip;
+  const canFlip = Boolean(face.canFlip && face.credential);
+  const toggle = () => {
+    if (!canFlip) {
+      onUsePress?.();
+      return;
+    }
+    if (onFlip) onFlip();
+    else setLocalFlip((value) => !value);
+    if (!isFlipped) onUsePress?.();
+  };
+
+  const front = (
     <>
-      <View style={styles.glow} />
+      <View style={[styles.glow, face.state === 'empty' && styles.glowQuiet]} />
       <View style={styles.sheen} />
+      {face.state === 'used' ? <View style={styles.punch} /> : null}
       <View style={styles.top}>
         <View style={styles.brandLockup}>
-          <PromorangMark size={34} />
+          <PromorangMark size={compact ? 28 : 34} />
           <View>
             <Text style={styles.brand}>PROMORANG</Text>
             <Text style={styles.title}>PromoCard</Text>
             {tier ? <Text style={styles.tier}>{tier} tier</Text> : null}
           </View>
         </View>
+        {face.issuerInitial ? (
+          <View style={styles.issuer} accessibilityLabel={`${face.issuer} mark`}>
+            <Text style={styles.issuerText}>{face.issuerInitial}</Text>
+          </View>
+        ) : null}
       </View>
       <View>
-        <Text style={styles.meta}>On this card</Text>
-        <Text style={[styles.available, compact && styles.availableCompact]}>{available}</Text>
-        <Text style={styles.limit}>
-          of {limit} this cycle · {places}
-        </Text>
+        <Text style={styles.meta}>{face.action}</Text>
+        <Text style={[styles.available, compact && styles.availableCompact]}>{face.headline}</Text>
+        <Text style={styles.limit}>{face.detail}</Text>
+        <Text style={styles.places}>{face.places}</Text>
+        {stamps(face).length || face.returnStamp ? (
+          <View style={styles.stampRow}>
+            {stamps(face).map((mark) => (
+              <Text key={mark} style={styles.stamp}>{mark}</Text>
+            ))}
+            {face.returnStamp ? (
+              <Text style={[styles.stamp, styles.returnStamp]}>
+                {face.returnStamp}
+                {face.returnDate ? ` · ${face.returnDate}` : ''}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
+      </View>
+      <View style={styles.foot}>
+        <Text style={styles.holder}>{face.holder}</Text>
+        <Text style={styles.cue}>{face.footerCue}</Text>
       </View>
     </>
   );
 
-  const useControl = onUsePress ? (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="Use PromoCard in store"
-      onPress={onUsePress}
-      style={styles.use}
-    >
-      <Ionicons name="qr-code" size={14} color={Colors.black} />
-      <Text style={styles.useText}>Use</Text>
-    </Pressable>
-  ) : (
-    <View style={styles.accepted}>
-      <Ionicons name="shield-checkmark" size={13} color="#67C587" />
-      <Text style={styles.acceptedText}>Not a loan</Text>
-    </View>
+  const back = (
+    <>
+      <View style={styles.glow} />
+      <PromorangMark size={32} style={styles.backMark} />
+      <Text style={styles.brand}>PROMORANG · HOLD AT THE DOOR</Text>
+      <Text style={styles.backIssuer}>{face.issuer || 'PromoCard'}</Text>
+      <View style={styles.codeBox}>
+        <Text style={styles.meta}>SHOW THIS</Text>
+        <Text selectable style={styles.code}>{face.credential}</Text>
+      </View>
+      <Text style={styles.cue}>{face.footerCue}</Text>
+    </>
   );
 
-  return (
+  const body = (
     <LinearGradient
-      colors={['#1A120C', '#0B0B0C', '#1A0E08']}
+      colors={
+        face.state === 'empty' || face.state === 'expired' || face.state === 'used'
+          ? ['#14110F', '#0B0B0C', '#12100E']
+          : ['#1A120C', '#0B0B0C', '#1A0E08']
+      }
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={[styles.card, compact && styles.cardCompact]}
+      style={[
+        styles.card,
+        compact && styles.cardCompact,
+        face.state === 'ready' && styles.cardReady,
+        (face.state === 'used' || face.state === 'expired') && styles.cardFaded,
+      ]}
       accessibilityLabel="PromoCard"
     >
-      {onPress ? (
-        <Pressable accessibilityRole="button" accessibilityLabel="Open PromoCard" onPress={onPress}>
-          {face}
-        </Pressable>
-      ) : (
-        face
-      )}
-      <View style={styles.foot}>
-        <View>
-          <Text style={styles.holder}>{holder}</Text>
-          <Text style={styles.serial}>{cardNumber}</Text>
-        </View>
-        {useControl}
-      </View>
+      {isFlipped && canFlip ? back : front}
     </LinearGradient>
+  );
+
+  if (onPress && !canFlip) {
+    return (
+      <Pressable accessibilityRole="button" accessibilityLabel="Open PromoCard" onPress={onPress}>
+        {body}
+      </Pressable>
+    );
+  }
+
+  return (
+    <View>
+      {body}
+      {canFlip || onUsePress ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={isFlipped ? 'Hide PromoCard code' : 'Flip PromoCard to show the merchant'}
+          onPress={toggle}
+          style={styles.use}
+        >
+          <Text style={styles.useText}>{isFlipped ? 'Turn it back over' : face.action}</Text>
+        </Pressable>
+      ) : null}
+    </View>
   );
 }
 
@@ -110,10 +179,9 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     elevation: 10,
   },
-  cardCompact: {
-    minHeight: 168,
-    padding: 16,
-  },
+  cardCompact: { minHeight: 168, padding: 16 },
+  cardReady: { borderColor: 'rgba(255,85,0,0.7)' },
+  cardFaded: { opacity: 0.72 },
   glow: {
     position: 'absolute',
     width: 180,
@@ -123,6 +191,7 @@ const styles = StyleSheet.create({
     top: -70,
     backgroundColor: 'rgba(255,85,0,0.28)',
   },
+  glowQuiet: { backgroundColor: 'rgba(255,85,0,0.1)' },
   sheen: {
     position: 'absolute',
     top: 0,
@@ -131,6 +200,16 @@ const styles = StyleSheet.create({
     left: '42%',
     backgroundColor: 'rgba(255,255,255,0.06)',
     transform: [{ skewX: '-18deg' }],
+  },
+  punch: {
+    position: 'absolute',
+    left: '18%',
+    right: '18%',
+    top: '48%',
+    height: 3,
+    backgroundColor: 'rgba(255,85,0,0.55)',
+    transform: [{ rotate: '-8deg' }],
+    zIndex: 2,
   },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   brandLockup: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
@@ -156,23 +235,54 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 999,
   },
-  meta: { color: Colors.gray[400], fontSize: 11, letterSpacing: 0.4 },
-  available: { color: '#FFD4B0', fontSize: 36, fontWeight: '800', letterSpacing: -1, marginTop: 2 },
-  availableCompact: { fontSize: 28 },
-  limit: { color: Colors.gray[400], fontSize: 12, marginTop: 4 },
-  foot: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
-  holder: { color: Colors.gray[300], fontSize: 12 },
-  serial: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 11, letterSpacing: 1.4, marginTop: 2 },
-  use: {
-    flexDirection: 'row',
+  issuer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: 'rgba(255,85,0,0.4)',
+    backgroundColor: 'rgba(255,85,0,0.15)',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    justifyContent: 'center',
   },
-  useText: { color: Colors.black, fontSize: 12, fontWeight: '900' },
-  accepted: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  acceptedText: { color: '#67C587', fontSize: 11, fontWeight: '700' },
+  issuerText: { color: Colors.primary, fontSize: 18, fontWeight: '900' },
+  meta: { color: Colors.gray[400], fontSize: 11, letterSpacing: 0.4 },
+  available: { color: '#FFD4B0', fontSize: 32, fontWeight: '800', letterSpacing: -1, marginTop: 2 },
+  availableCompact: { fontSize: 24 },
+  limit: { color: Colors.gray[400], fontSize: 12, marginTop: 4 },
+  places: { color: Colors.gray[500], fontSize: 12, marginTop: 2 },
+  stampRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
+  stamp: {
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: 'rgba(255,85,0,0.45)',
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    color: '#FFB067',
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 1.1,
+    textTransform: 'uppercase',
+    overflow: 'hidden',
+  },
+  returnStamp: { borderStyle: 'solid', color: '#FFD4B0' },
+  foot: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 8 },
+  holder: { color: Colors.gray[300], fontSize: 12, flexShrink: 0 },
+  cue: { color: Colors.gray[400], fontSize: 10, textAlign: 'right', flex: 1 },
+  backMark: { alignSelf: 'center', marginBottom: 8 },
+  backIssuer: { color: Colors.white, fontSize: 20, fontWeight: '800', textAlign: 'center', marginTop: 6 },
+  codeBox: { alignItems: 'center', marginVertical: 16 },
+  code: { color: '#FFD4B0', fontFamily: 'SpaceMono', fontSize: 26, fontWeight: '900', letterSpacing: 2, marginTop: 6 },
+  use: {
+    marginTop: 12,
+    minHeight: 44,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(255,85,0,0.4)',
+    backgroundColor: 'rgba(255,85,0,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  useText: { color: Colors.primary, fontSize: 13, fontWeight: '900' },
 });

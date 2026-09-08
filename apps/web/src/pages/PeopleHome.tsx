@@ -4,6 +4,7 @@ import {
   firstGivenName,
   homeGreeting,
   resolveHomeNextMove,
+  resolvePromoCardFace,
 } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
@@ -46,9 +47,6 @@ export default function PeopleHome() {
     communities: data?.communities?.length || 0,
     cardPerks: Number(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0),
   });
-  const gems = Number(data?.wallet?.gems || 0);
-  const points = Number(data?.wallet?.points || 0);
-  const keys = Number(data?.wallet?.promokeys || 0);
   const hasMovement = Boolean(
     Number(data?.people || 0) ||
     Number(data?.happening || 0) ||
@@ -110,15 +108,21 @@ export default function PeopleHome() {
             <p className="mt-3 max-w-md text-sm leading-6 text-white/60">{description}</p>
             <Link to={to("/card")} aria-label="Open your PromoCard" className="experience-interactive group mx-auto mt-6 block max-w-md rounded-[22px]">
               <PromoCardFace
-                variant={data?.card?.useThis ? "spending" : "membership"}
                 className="max-w-none"
-                holder={givenName === "there" ? "Your card" : givenName}
-                available={data?.card?.useThis ? "Ready to use" : data?.card?.nearby?.length ? "Available nearby" : gems ? `${gems.toLocaleString()} Gems` : `${points.toLocaleString()} pts`}
-                limit={data?.card?.useThis?.title || data?.card?.nextBenefit?.title || `${keys} keys`}
-                places={data?.card?.useThis?.issuer?.name || world?.promoCard?.places || data?.communities?.[0]?.title || "Your perks live here"}
-                action={data?.card?.useThis ? "Use this" : data?.card?.nearby?.length ? "Available nearby" : "Get your next benefit"}
-                sceneMark={world?.promoCard?.sceneMark}
-                crewMark={world?.promoCard?.crewMark}
+                interactive={false}
+                model={resolvePromoCardFace({
+                  holder: givenName === "there" ? "Your card" : givenName,
+                  useThis: data?.card?.useThis,
+                  nearbyCount: data?.card?.nearby?.length || 0,
+                  nextBenefitTitle: data?.card?.nextBenefit?.title,
+                  latestReturn: world?.latestReturn?.heading,
+                  latestReturnAt: world?.latestMemory?.issuedAt
+                    ? new Date(world.latestMemory.issuedAt).toLocaleDateString()
+                    : undefined,
+                  sceneMark: world?.promoCard?.sceneMark,
+                  crewMark: world?.promoCard?.crewMark,
+                  recordedUse: Boolean(data?.card?.useThis?.redemption?.recorded),
+                })}
               />
               <span className="mt-3 flex min-h-11 items-center justify-between px-1 text-sm font-semibold text-amber-200">
                 Open your PromoCard <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-1" />

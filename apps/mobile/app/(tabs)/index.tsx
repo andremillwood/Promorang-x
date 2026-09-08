@@ -83,12 +83,8 @@ export default function TodayScreen() {
         ) : null}
 
         <PromoCardFace
-          holder={cardView.holder}
-          available={cardView.available}
-          limit={cardView.limit}
-          places={cardView.places}
+          model={cardView.face}
           tier={cardView.tier}
-          cardNumber={cardView.cardNumber}
           compact={role !== 'member'}
           onPress={() => router.push('/card')}
           onUsePress={() => setUsingCard(true)}
@@ -263,7 +259,9 @@ export default function TodayScreen() {
         visible={usingCard}
         onClose={() => setUsingCard(false)}
         holder={cardView.holder}
-        available={cardView.available}
+        headline={cardView.face.headline}
+        detail={cardView.face.detail}
+        issuer={cardView.face.issuer}
         useCode={cardView.useCode}
       />
     </View>

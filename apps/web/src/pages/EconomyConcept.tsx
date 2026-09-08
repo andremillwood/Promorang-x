@@ -19,6 +19,7 @@ import {
   PaperReceipt,
   PlainEnglish,
   PromoCardFace,
+  PromorangValidReceipt,
   RoleLens,
   StatusChip,
   TicketPass,
@@ -54,7 +55,7 @@ const navigationLinks: Array<{ label: TranslationKey; slug: string; path: string
 ];
 
 const objectShelf = [
-  { href: "/economy/promocard", name: "PromoCard", like: "A local gift card you can refill.", use: "Comes off the bill at partner shops." },
+  { href: "/economy/promocard", name: "PromoCard", like: "A door pass, not a bank card.", use: "Claim a perk, show it, the merchant records VALID." },
   { href: "/economy/points", name: "Points", like: "A punch card for showing up.", use: "500 Points can become 1 Key." },
   { href: "/economy/keys", name: "Keys", like: "A ticket you earn, not buy.", use: "Opens a limited prize or VIP table." },
   { href: "/economy/master-key", name: "Daily streak", like: "One real action keeps it on for 24 hours.", use: "Can boost what you earn that day." },
@@ -78,11 +79,11 @@ const conceptData: Record<
 > = {
   overview: {
     eyebrow: "How Promorang works",
-    headline: "Show up. Save at checkout. Get more back.",
+    headline: "Show up. Show the card. Come back.",
     subhead:
-      "Promorang is a local rewards loop. You use a PromoCard at participating shops, then refill it by checking in, bringing friends, or completing a small mission.",
+      "Promorang is a local rewards loop. A merchant puts a perk on your PromoCard. You claim it, show it at the door, and they record VALID. The Return is eligibility for the next one — not a fake refill.",
     inPlainEnglish:
-      "Go to a real place. Save a few dollars on the bill. Earn more savings by coming back — not by decoding a second currency.",
+      "Go to a real place. Show a claimed perk. The merchant records it. The next benefit is a new claim, not money appearing on the plastic.",
     primaryCta: { label: "See one night, step by step", href: "#one-night" },
     secondaryCta: { label: "Get a PromoCard", href: "/auth?mode=signup" },
     roles: [
@@ -109,51 +110,51 @@ const conceptData: Record<
       },
     ],
     steps: [
-      { label: "Tonight", title: "A place puts up an offer", text: "A shop or sponsor decides what you can save, and on which purchases." },
-      { label: "Checkout", title: "You use the card", text: "Available PromoCard value comes off an eligible bill. You pay the rest as usual." },
-      { label: "After", title: "Showing up refills it", text: "A check-in, review, or share can restore value for the next visit." },
+      { label: "Tonight", title: "A place puts up a perk", text: "A shop or sponsor supplies something you can actually claim." },
+      { label: "At the door", title: "You show the card", text: "A claimed perk flips to a code. Nothing is used until staff records VALID." },
+      { label: "After", title: "The Return is eligibility", text: "A verified night is stamped. Value moves when a merchant can honor the next claim." },
       { label: "Later", title: "Extras open up", text: "Points, Keys, streaks, and Gems are the extras — not the starting point." },
     ],
     tagline: "Useful at the register. Earned by being there.",
   },
   promocard: {
-    eyebrow: "Your everyday savings card",
-    headline: "PromoCard is the savings you can see on the bill.",
+    eyebrow: "The object you hold",
+    headline: "PromoCard is the perk you can show at the door.",
     subhead:
-      "Eligible members get a card with a clear dollar amount. At participating shops, that amount comes off. You pay the rest. Showing up can refill it.",
-    inPlainEnglish: "Think of it as a local gift card. The shop decides how much you can save. You pay the rest. Coming back can fill it up again.",
+      "A merchant supplies a benefit. You claim it. You flip the card and show the code. Staff records VALID. Showing up stamps eligibility — it does not invent a refill balance.",
+    inPlainEnglish: "It is a Promorang pass, not a local gift card. Empty cities stay empty until a merchant puts something on it.",
     primaryCta: { label: "Get your PromoCard", href: "/auth?mode=signup" },
     secondaryCta: { label: "Partner with us", href: "/for-merchants" },
     roles: [
       {
         role: "If you go out",
-        why: "You should not need a glossary to spend a reward.",
-        outcome: "Apply the card at checkout, pay the remainder, and see the saving on a normal receipt.",
+        why: "You should not need a glossary to use a reward.",
+        outcome: "Claim a live perk, flip the card at the door, and keep the receipt after they validate it.",
         action: "Get your card",
         href: "/auth?mode=signup",
       },
       {
         role: "If you run a shop",
         why: "Blanket discounts eat margin without proving a new customer walked in.",
-        outcome: "Set the allowance, a minimum basket, and a per-person cap. Then see the visits it actually produced.",
+        outcome: "Supply a real perk, scan the code, and mark VALID. The next benefit is a new claim.",
         action: "Set shop terms",
         href: "/for-merchants",
       },
       {
         role: "If you fund it",
         why: "Reach is not the same as someone buying something nearby.",
-        outcome: "Fund refills or partner offers, then follow the path from check-in to a real purchase.",
+        outcome: "Fund live inventory, then follow the path from claim to a recorded redemption.",
         action: "Explore partner options",
         href: "/for-brands",
       },
     ],
     steps: [
-      { label: "01", title: "Get the card", text: "An eligible account gets a PromoCard with a visible spending limit." },
-      { label: "02", title: "Use it at checkout", text: "Available value lowers an eligible partner bill. You pay the rest." },
-      { label: "03", title: "Refill by showing up", text: "Eligible check-ins, reviews, and shares can restore value for next time." },
-      { label: "04", title: "See it on the receipt", text: "The saving is recorded. It is promotional value, not a bank account." },
+      { label: "01", title: "Get the card", text: "An eligible account gets a PromoCard. Empty is honest until a perk lands." },
+      { label: "02", title: "Show it at the door", text: "A claimed, unexpired code is the only thing staff can validate." },
+      { label: "03", title: "They record VALID", text: "A toast or local balance change is not a redemption." },
+      { label: "04", title: "The Return is eligibility", text: "A verified night is stamped. The next benefit is a new claim." },
     ],
-    tagline: "Useful to you. Controlled by the shop. Measurable for partners.",
+    tagline: "Useful at the door. Controlled by the merchant. Honest when empty.",
   },
   moments: {
     eyebrow: "Real nights, real places",
@@ -189,7 +190,7 @@ const conceptData: Record<
     steps: [
       { label: "01", title: "Someone hosts", text: "A venue or sponsor posts the place, time, and what you get for arriving." },
       { label: "02", title: "You arrive", text: "Scan the live code while you are actually there." },
-      { label: "03", title: "It counts", text: "Points, perks, or a card refill can land once the visit is confirmed." },
+      { label: "03", title: "It counts", text: "Points, perks, or a Return stamp can land once the visit is confirmed." },
       { label: "04", title: "It stays on your profile", text: "The night becomes part of your history — you were there." },
     ],
     tagline: "Moments matter because real life happens offline.",
@@ -512,35 +513,45 @@ function PromoCardDemo() {
   const [applied, setApplied] = useState(false);
   return (
     <div className="space-y-4">
-      <PromoCardFace available={applied ? "$16.00" : "$24.00"} holder="Maya · East Austin" />
-      <PaperReceipt
-        heading={applied ? "Velvet Lounge" : "Ready at checkout"}
-        lines={
-          applied
-            ? [
-                { label: "Tasting flight", value: "$24.00" },
-                { label: "PromoCard", value: "−$8.00", strong: true },
-                { label: "You pay", value: "$16.00", strong: true },
-              ]
-            : [
-                { label: "Tonight's bill", value: "$24.00" },
-                { label: "Card ready", value: "$8.00 off" },
-                { label: "You would pay", value: "$16.00" },
-              ]
-        }
-        footer={applied ? "Saved $8. Check in to refill." : "Not a bank card. Just savings at partners."}
+      <PromoCardFace
+        model={{
+          state: applied ? "used" : "ready",
+          holder: "Maya · East Austin",
+          headline: applied ? "Just used" : "Show this",
+          detail: "Velvet Lounge tasting",
+          places: "Velvet Lounge",
+          action: applied ? "Come back for the next one" : "Flip to show the merchant",
+          footerCue: applied ? "Punched. The next benefit is a new claim." : "Nothing is used until they validate it",
+          issuer: "Velvet Lounge",
+          issuerInitial: "V",
+          credential: applied ? null : "VL-TASTE",
+          canFlip: !applied,
+        }}
       />
+      {applied ? (
+        <PromorangValidReceipt title="Velvet Lounge tasting" reference="VL-TASTE" nextBenefit="Next Friday’s tasting" />
+      ) : (
+        <PaperReceipt
+          heading="Hold at the door"
+          lines={[
+            { label: "Perk", value: "Velvet Lounge tasting" },
+            { label: "Code", value: "VL-TASTE" },
+            { label: "Status", value: "Not used until they validate it", strong: true },
+          ]}
+          footer="Not a prepaid balance. A merchant has to record this."
+        />
+      )}
       <TactileButton variant={applied ? "success" : "vault"} size="lg" fullWidth onClick={() => setApplied((v) => !v)}>
         {applied ? (
           <>
-            <CheckCircle2 className="h-4 w-4" /> Saved on the bill
+            <CheckCircle2 className="h-4 w-4" /> Reset demo
           </>
         ) : (
-          "Apply $8 at checkout"
+          "Merchant records VALID"
         )}
       </TactileButton>
       <p className="sr-only" aria-live="polite">
-        {applied ? "PromoCard applied. You pay 16 dollars." : "PromoCard not yet applied."}
+        {applied ? "Merchant recorded VALID. The perk is used." : "PromoCard ready to show. Not used yet."}
       </p>
     </div>
   );
@@ -822,8 +833,8 @@ export default function EconomyConcept() {
               steps={[
                 { label: "Arrive", title: "She finds a tasting nearby", text: "Velvet Lounge is hosting a Moment. The perk is a drink pass if she checks in." },
                 { label: "Scan", title: "She is actually there", text: "The live code only works in the room, so the pass goes to Maya — not a bot." },
-                { label: "Pay", title: "PromoCard takes $8 off", text: "The flight is $24. Her card covers $8. She pays $16 like anyone else." },
-                { label: "Keep", title: "The night refills the card", text: "The check-in restores value for next time, and 500 Points can become a Key." },
+                { label: "Show", title: "She flips the PromoCard", text: "The tasting is on the face. The code is on the back. Nothing is used until staff records VALID." },
+                { label: "Keep", title: "The Return is eligibility", text: "The visit is stamped. The next benefit is a new claim — not a fake refill." },
               ]}
             />
           </div>

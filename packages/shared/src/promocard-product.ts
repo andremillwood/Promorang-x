@@ -1,3 +1,10 @@
+import {
+  resolvePromoCardFace,
+  type PromoCardFaceModel,
+  type PromoCardFaceSource,
+  type PromoCardFaceState,
+} from "./promocard-face";
+
 export type ExperiencePerk = {
   id: string;
   title: string;
@@ -6,6 +13,9 @@ export type ExperiencePerk = {
   status?: string;
   redemptionCode?: string | null;
   expiresAt?: string | null;
+  issuer?: { name?: string } | null;
+  redemption?: { code?: string | null; recorded?: boolean } | null;
+  fulfillmentState?: string;
 };
 
 export type ExperienceMembership = {
@@ -34,6 +44,10 @@ export type ExperienceCardPayload = {
   card?: LivePromoCardRow | null;
   perks?: ExperiencePerk[];
   memberships?: ExperienceMembership[];
+  useThis?: (ExperiencePerk & PromoCardFaceSource) | null;
+  nearby?: Array<{ title?: string }>;
+  nextBenefit?: { title?: string } | null;
+  latestReturn?: string | { heading?: string } | null;
 };
 
 export type PromoCardView = {
@@ -53,9 +67,9 @@ export type PromoCardView = {
   perkCount: number;
   points: number;
   keys: number;
+  faceState: PromoCardFaceState;
+  face: PromoCardFaceModel;
 };
-
-const money = (value: number) => `$${value.toFixed(2)}`;
 
 export function presentPromoCard(
   data?: ExperienceCardPayload | null,
@@ -64,11 +78,36 @@ export function presentPromoCard(
   const live = data?.card;
   const points = Number(data?.points || 0);
   const keys = Number(data?.keys || 0);
-  const perkCount = data?.perks?.length || 0;
+  const perks = data?.perks || [];
+  const perkCount = perks.length;
+  const readyPerk =
+    data?.useThis ||
+    perks.find((perk) => perk.redemptionCode || perk.redemption?.code);
+  const recordedPerk = perks.find(
+    (perk) => perk.status === "redeemed" || perk.status === "used" || perk.redemption?.recorded,
+  );
+  const expiredOnly = perkCount > 0 && perks.every((perk) => {
+    if (!perk.expiresAt) return false;
+    const expiry = Date.parse(perk.expiresAt);
+    return !Number.isFinite(expiry) || expiry <= Date.now();
+  });
+  const nearbyCount = Array.isArray(data?.nearby) ? data.nearby.length : readyPerk ? 0 : perkCount;
+  const latestReturn =
+    typeof data?.latestReturn === "string"
+      ? data.latestReturn
+      : data?.latestReturn?.heading || null;
   const hasLiveBalance = live?.available_balance != null && Number.isFinite(Number(live.available_balance));
-  const isLive = Boolean(live && (live.card_number || hasLiveBalance));
   const spendable = hasLiveBalance ? Number(live?.available_balance) : null;
-  const monthlyLimit = isLive && live?.monthly_limit != null ? Number(live.monthly_limit) : null;
+  const monthlyLimit = live?.monthly_limit != null ? Number(live.monthly_limit) : null;
+  const face = resolvePromoCardFace({
+    holder: data?.name || fallbackName,
+    useThis: readyPerk || recordedPerk || perks[0] || null,
+    nearbyCount,
+    nextBenefitTitle: data?.nextBenefit?.title || perks[0]?.title,
+    latestReturn,
+    recordedUse: Boolean((recordedPerk && !readyPerk) || readyPerk?.redemption?.recorded),
+    expiredOnly: expiredOnly && !readyPerk,
+  });
 
   let cycleDaysRemaining: number | null = null;
   if (live?.cycle_resets_at) {
@@ -78,30 +117,26 @@ export function presentPromoCard(
     );
   }
 
-  const cardNumber = live?.card_number || "";
-  const firstPerkCode = data?.perks?.find((perk) => perk.redemptionCode)?.redemptionCode || "";
-  const useCode = firstPerkCode || cardNumber.replace(/[•\s]/g, "");
-
   return {
-    holder: data?.name || fallbackName,
-    available: spendable != null ? money(spendable) : `${points.toLocaleString()} pts`,
-    limit: monthlyLimit != null && monthlyLimit > 0 ? money(monthlyLimit) : `${keys} keys`,
-    places: perkCount
-      ? `${perkCount} perk${perkCount === 1 ? "" : "s"} ready`
-      : "Partner places nearby",
+    holder: face.holder,
+    available: face.headline,
+    limit: face.detail,
+    places: face.places,
     tier: live?.tier,
-    cardNumber,
+    cardNumber: live?.card_number || "",
     spendable,
     monthlyLimit,
     cycleDaysRemaining,
     rechargeHealth: live?.recharge_health_score != null ? Number(live.recharge_health_score) : null,
     lifetimeSavings:
       live?.total_savings_lifetime != null ? Number(live.total_savings_lifetime) : null,
-    useCode,
-    isLive,
+    useCode: face.credential || "",
+    isLive: face.state === "ready",
     perkCount,
     points,
     keys,
+    faceState: face.state,
+    face,
   };
 }
 

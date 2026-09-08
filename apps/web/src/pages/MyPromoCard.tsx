@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -9,7 +9,7 @@ import {
   Sparkles,
   Ticket,
 } from "lucide-react";
-import { firstGivenName, issuanceFromPromoCardPerk, isPresentablePass, type PromoCardPerk } from "@promorang/shared";
+import { firstGivenName, issuanceFromPromoCardPerk, isPresentablePass, resolvePromoCardFace, type PromoCardPerk } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome, useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
@@ -149,6 +149,7 @@ export default function MyPromoCard() {
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [selected, setSelected] = useState<CardPerk | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const [flipped, setFlipped] = useState(false);
   const data = card.data;
   const holder = firstGivenName({
     displayName: data?.givenName || data?.name,
@@ -165,8 +166,26 @@ export default function MyPromoCard() {
     .map(issuanceForPerk)
     .find((issuance) => issuance && isPresentablePass(issuance.offers.fulfillment_type, issuance.status) && issuance.offers.fulfillment_type === "qr") || null;
   const expiredPerks = perks.filter(isExpired);
+  const livePerks = perks.filter((perk) => !isExpired(perk));
   const selectedExpired = selected ? isExpired(selected) : false;
   const selectedCode = perkCode(selected);
+  const face = resolvePromoCardFace({
+    holder: holder === "there" ? "Your card" : holder,
+    useThis: useThis,
+    nearbyCount: nearby.length,
+    nextBenefitTitle: nextBenefit?.title,
+    latestReturn: world?.latestReturn?.heading,
+    latestReturnAt: world?.latestMemory?.issuedAt
+      ? new Date(world.latestMemory.issuedAt).toLocaleDateString()
+      : undefined,
+    sceneMark: world?.promoCard?.sceneMark,
+    crewMark: world?.promoCard?.crewMark,
+    recordedUse: Boolean(useThis?.redemption?.recorded),
+    expiredOnly: !useThis && livePerks.length === 0 && expiredPerks.length > 0,
+  });
+  useEffect(() => {
+    if (face.credential) sessionStorage.setItem("promorang.promocard.lastCredential", face.credential);
+  }, [face.credential]);
 
   async function copyCode() {
     if (!selectedCode) return;
@@ -234,14 +253,18 @@ export default function MyPromoCard() {
           ) : null}
 
           <PromoCardFace
-            variant={useThis ? "spending" : "membership"}
-            holder={holder === "there" ? "Your card" : holder}
-            available={useThis ? "Ready to use" : nearby.length ? "Available nearby" : "Get your next benefit"}
-            limit={useThis?.title || nextBenefit?.title || "No live perk yet"}
-            places={useThis?.issuer?.name || world?.promoCard?.places || `${nearby.length || 0} participating places`}
-            action={useThis ? "Use this" : nearby.length ? "Available nearby" : "Get your next benefit"}
-            sceneMark={world?.promoCard?.sceneMark}
-            crewMark={world?.promoCard?.crewMark}
+            model={face}
+            flipped={flipped}
+            onFlip={() => setFlipped((value) => !value)}
+            onCopy={() => {
+              if (!face.credential) return;
+              void navigator.clipboard.writeText(face.credential).then(
+                () => setCopyState("copied"),
+                () => setCopyState("failed"),
+              );
+            }}
+            copyState={copyState}
+            lastLoaded={Boolean(card.isError && face.credential)}
           />
 
           <PromoCardWorldContext
@@ -263,6 +286,7 @@ export default function MyPromoCard() {
             useThis={useThis}
             nearbyCount={nearby.length}
             nextBenefit={nextBenefit}
+            onUseThis={face.canFlip ? () => setFlipped(true) : undefined}
           />
 
           <section id="use-this">

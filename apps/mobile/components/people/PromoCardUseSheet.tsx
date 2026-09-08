@@ -1,13 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { PromorangMark } from '@/components/brand/PromorangMark';
 import { Colors } from '@/constants/DesignTokens';
 
 type PromoCardUseSheetProps = {
   visible: boolean;
   onClose: () => void;
   holder: string;
-  available: string;
+  headline?: string;
+  detail?: string;
+  issuer?: string;
   useCode: string;
 };
 
@@ -25,7 +28,9 @@ export function PromoCardUseSheet({
   visible,
   onClose,
   holder,
-  available,
+  headline = 'Show this',
+  detail,
+  issuer,
   useCode,
 }: PromoCardUseSheetProps) {
   return (
@@ -34,23 +39,32 @@ export function PromoCardUseSheet({
         <View style={styles.sheet}>
           <View style={styles.head}>
             <View>
-              <Text style={styles.kicker}>IN STORE</Text>
-              <Text style={styles.title}>Present to cashier</Text>
+              <Text style={styles.kicker}>PROMORANG · HOLD AT THE DOOR</Text>
+              <Text style={styles.title}>{issuer || 'Show the merchant'}</Text>
             </View>
             <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} style={styles.close}>
               <Ionicons name="close" size={20} color={Colors.white} />
             </Pressable>
           </View>
           <Text style={styles.copy}>
-            Show this code at a participating checkout to apply eligible PromoCard value. Pay any remainder normally.
+            {useCode
+              ? 'Nothing is used until they validate this code. A local balance change is not a redemption.'
+              : 'A claimed, unexpired perk is the only thing a merchant can validate.'}
           </Text>
-          <View style={styles.qr}>
-            <UseMark value={useCode} />
-            <Text style={styles.code}>{useCode}</Text>
-          </View>
-          <Text style={styles.balance}>Available: {available}</Text>
+          {useCode ? (
+            <View style={styles.qr}>
+              <UseMark value={useCode} />
+              <Text style={styles.code}>{useCode}</Text>
+            </View>
+          ) : (
+            <View style={styles.empty}>
+              <PromorangMark size={36} />
+              <Text style={styles.emptyTitle}>Nothing to show at the door</Text>
+            </View>
+          )}
+          <Text style={styles.balance}>{detail || headline}</Text>
           <Text style={styles.holder}>{holder}</Text>
-          <Text style={styles.note}>Not a loan. No cash repayment. Offer and minimum spend are shown before checkout.</Text>
+          <Text style={styles.note}>Not a prepaid card. The next benefit is a new claim after VALID.</Text>
           <Pressable accessibilityRole="button" onPress={onClose} style={styles.done}>
             <Text style={styles.doneText}>Done</Text>
           </Pressable>
@@ -71,11 +85,11 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     backgroundColor: '#121217',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,85,0,0.22)',
     padding: 22,
   },
   head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  kicker: { color: '#F6D48A', fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 1.8, fontWeight: '800' },
+  kicker: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 1.8, fontWeight: '800' },
   title: { color: Colors.white, fontSize: 22, fontWeight: '800', marginTop: 4 },
   close: {
     width: 36,
@@ -93,8 +107,18 @@ const styles = StyleSheet.create({
     padding: 18,
     alignItems: 'center',
   },
+  empty: {
+    marginTop: 18,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    padding: 24,
+    alignItems: 'center',
+    gap: 10,
+  },
+  emptyTitle: { color: Colors.white, fontSize: 16, fontWeight: '800' },
   code: { marginTop: 10, color: '#222', fontFamily: 'SpaceMono', fontSize: 13, fontWeight: '800', letterSpacing: 1.4 },
-  balance: { color: '#F6D48A', fontSize: 16, fontWeight: '800', marginTop: 16, textAlign: 'center' },
+  balance: { color: '#FFD4B0', fontSize: 16, fontWeight: '800', marginTop: 16, textAlign: 'center' },
   holder: { color: Colors.gray[400], fontSize: 12, textAlign: 'center', marginTop: 4 },
   note: { color: Colors.gray[500], fontSize: 11, lineHeight: 16, textAlign: 'center', marginTop: 10 },
   done: {

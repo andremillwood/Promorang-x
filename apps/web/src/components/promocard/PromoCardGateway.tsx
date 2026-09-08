@@ -7,6 +7,7 @@ import {
   Ticket,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { resolvePromoCardFace } from "@promorang/shared";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 
 const steps = [
@@ -71,11 +72,12 @@ export function PromoCardGateway() {
             <div className="absolute -inset-5 rounded-[2.5rem] bg-primary/20 blur-3xl" />
             <PromoCardFace
               className="relative max-w-none"
-              holder="Your card"
-              available="Use this"
-              limit="A live perk"
-              places="Participating businesses"
-              action="Use this"
+              interactive={false}
+              model={resolvePromoCardFace({
+                holder: "Your card",
+                nearbyCount: 1,
+                nextBenefitTitle: "A participating place has something you can claim.",
+              })}
             />
             <div className="relative mt-4 hidden gap-2.5 sm:grid sm:grid-cols-3">
               {steps.map((step) => (

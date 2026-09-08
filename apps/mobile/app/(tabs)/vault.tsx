@@ -82,12 +82,8 @@ export default function VaultScreen() {
 
         <Pressable onPress={() => router.push('/card')} style={styles.cardLink}>
           <PromoCardFace
-            holder={cardView.holder}
-            available={cardView.available}
-            limit={cardView.limit}
-            places={cardView.places}
+            model={cardView.face}
             tier={cardView.tier}
-            cardNumber={cardView.cardNumber}
             compact
           />
         </Pressable>

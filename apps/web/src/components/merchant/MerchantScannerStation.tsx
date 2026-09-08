@@ -1,10 +1,11 @@
 import { FormEvent, useState } from "react";
-import { CheckCircle2, KeyRound, ShieldCheck } from "lucide-react";
+import { KeyRound, ShieldCheck } from "lucide-react";
 import { decodeOfferRedeemPayload } from "@promorang/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { OfferFulfillmentQueue } from "@/components/offers/OfferFulfillmentQueue";
 import { OfferQrScanner } from "@/components/offers/OfferQrScanner";
+import { PromorangValidReceipt } from "@/components/promorang/SignatureObjects";
 import { useToast } from "@/hooks/use-toast";
 import { useRedeemOffer } from "@/hooks/useOffers";
 
@@ -67,15 +68,14 @@ export function MerchantScannerStation({ venueName = "Merchant station" }: { ven
           </form>
         </div>
         {lastRedemption ? (
-          <div className="mt-5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
-            <p className="flex items-center gap-2 font-black text-emerald-300"><CheckCircle2 className="h-5 w-5" /> Redemption recorded</p>
-            <p className="mt-1 text-sm text-zinc-200">{lastRedemption.offers?.title || "PromoCard perk"}</p>
-            <p className="mt-1 text-xs text-zinc-400">Reference {lastRedemption.id}</p>
+          <div className="mt-5 space-y-3">
+            <PromorangValidReceipt
+              title={lastRedemption.offers?.title || "PromoCard perk"}
+              reference={lastRedemption.id}
+              nextBenefit={lastRedemption.nextBenefit?.title}
+            />
             {lastRedemption.contributorReward ? (
-              <p className="mt-2 text-xs text-emerald-200">Ambassador reward updated: {lastRedemption.contributorReward.amount} PromoPoints.</p>
-            ) : null}
-            {lastRedemption.nextBenefit ? (
-              <p className="mt-2 text-xs text-zinc-300">Next benefit for this member: {lastRedemption.nextBenefit.title}.</p>
+              <p className="text-xs text-emerald-200">Ambassador reward updated: {lastRedemption.contributorReward.amount} PromoPoints.</p>
             ) : null}
           </div>
         ) : null}

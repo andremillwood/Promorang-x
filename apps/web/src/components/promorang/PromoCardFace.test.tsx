@@ -42,4 +42,42 @@ describe("PromoCardFace brand lockup", () => {
     expect(wordmark?.className).toContain("text-primary");
     expect(container.querySelector('[aria-hidden="true"]')).toBeNull();
   });
+
+  it("keeps an empty city honest and flips a ready credential", async () => {
+    await act(async () => {
+      root.render(<PromoCardFace holder="Maya" />);
+    });
+    expect(container).toHaveTextContent("Nothing to show at the door");
+    expect(container.querySelector('button[aria-label="Flip PromoCard to show the merchant"]')).toBeNull();
+
+    await act(async () => {
+      root.render(
+        <PromoCardFace
+          model={{
+            state: "ready",
+            holder: "Maya",
+            headline: "Show this",
+            detail: "Coffee on us",
+            places: "Sea Deck",
+            action: "Flip to show the merchant",
+            footerCue: "Nothing is used until they validate it",
+            issuer: "Sea Deck",
+            issuerInitial: "S",
+            credential: "COFFEE-TEST",
+            canFlip: true,
+          }}
+        />,
+      );
+    });
+    expect(container.querySelector('[aria-label="Sea Deck mark"]')?.textContent).toBe("S");
+    const flip = Array.from(container.querySelectorAll("button")).find(
+      (item) => item.getAttribute("aria-label") === "Flip PromoCard to show the merchant",
+    );
+    expect(flip).toBeTruthy();
+    await act(async () => {
+      flip?.click();
+    });
+    expect(container).toHaveTextContent("COFFEE-TEST");
+    expect(container).toHaveTextContent("HOLD AT THE DOOR");
+  });
 });
