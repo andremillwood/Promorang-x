@@ -127,7 +127,7 @@ export function PromoCardFace({
       colors={
         face.state === 'empty' || face.state === 'expired' || face.state === 'used'
           ? ['#141414', '#090909', '#101010']
-          : ['#171717', '#0A0A0A', '#111111']
+          : ['#141414', '#080808', '#0E0E0E']
       }
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     borderRadius: 90,
     right: -50,
     top: -70,
-    backgroundColor: 'rgba(255,85,0,0.22)',
+    backgroundColor: 'rgba(255,85,0,0.14)',
   },
   glowQuiet: { backgroundColor: 'rgba(255,85,0,0.08)' },
   sheen: {

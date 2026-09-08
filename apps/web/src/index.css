@@ -570,9 +570,9 @@
     color: #fff;
     border: 1px solid rgba(214, 178, 90, 0.42);
     background:
-      radial-gradient(circle at 88% 8%, rgba(255, 85, 0, 0.28), transparent 34%),
-      radial-gradient(circle at 8% 92%, rgba(214, 178, 90, 0.16), transparent 38%),
-      linear-gradient(145deg, #171717 0%, #0a0a0a 52%, #111111 100%);
+      radial-gradient(circle at 88% 8%, rgba(255, 85, 0, 0.16), transparent 30%),
+      radial-gradient(circle at 8% 92%, rgba(214, 178, 90, 0.1), transparent 36%),
+      linear-gradient(145deg, #141414 0%, #080808 52%, #0e0e0e 100%);
     box-shadow:
       0 24px 50px -18px rgba(0, 0, 0, 0.78),
       0 0 22px rgba(255, 85, 0, 0.16);
