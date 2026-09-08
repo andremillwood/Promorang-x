@@ -4,6 +4,7 @@ import {
   firstGivenName,
   getStakeholderLens,
   homeGreeting,
+  presentWorldRunTitle,
   resolvePromoCardFace,
   resolveStakeholderHomeMove,
 } from "@promorang/shared";
@@ -210,6 +211,8 @@ export default function PeopleHome() {
                 }
                 stub="GO"
                 stubLabel="Live"
+                imageUrl={world.currentMove.imageUrl}
+                imageAlt={world.currentMove.imageAlt || world.currentMove.title}
               />
             </Link>
           ) : (
@@ -229,11 +232,13 @@ export default function PeopleHome() {
               title={world?.crew?.name || "Form a Crew"}
               detail={
                 world?.crew
-                  ? `${world.crew.size} people · ${world.crew.runTitle || "Kingston After Dark"}`
-                  : "3–8 people. One run. No factions required."
+                  ? `${world.crew.size} people · ${presentWorldRunTitle(world.crew.runTitle)}`
+                  : "3–8 people. One Run."
               }
               stub="CREW"
               stubLabel="Open"
+              imageUrl={world?.currentMove?.imageUrl || world?.slice?.imageUrl}
+              imageAlt={presentWorldRunTitle(world?.crew?.runTitle)}
             />
           </Link>
           {world?.crew ? (
