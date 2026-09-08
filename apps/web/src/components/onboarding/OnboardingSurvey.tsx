@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { DeviceNotificationStep } from "./DeviceNotificationStep";
 import type { TranslationKey } from "@/i18n/translations";
+import { readPromoCardAim } from "@/lib/promocard-aim";
 
 const CATEGORIES = [
   { value: "social", label: "Social Gatherings", emoji: "🎉" },
@@ -53,15 +54,16 @@ interface OnboardingSurveyProps {
 const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   const { t } = useI18n();
   const [step, setStep] = useState(0);
-  const [preferences, setPreferences] = useState<UserPreferencesInput>({
-    preferred_categories: [],
-    lifestyle_tags: [],
+  const storedAim = readPromoCardAim();
+  const [preferences, setPreferences] = useState<UserPreferencesInput>(() => ({
+    preferred_categories: storedAim?.categories ?? [],
+    lifestyle_tags: storedAim?.lifestyleTags ?? [],
     age_range: null,
-    preferred_times: [],
-    city: "",
+    preferred_times: storedAim?.preferredTimes ?? [],
+    city: storedAim?.cityLabel ?? "",
     state: "",
     location_sharing_enabled: false,
-  });
+  }));
   const [persona, setPersona] = useState<"explorer" | "creator" | "mayor" | "merchant" | "brand" | "agency" | null>(null);
 
   const { setActiveRole } = useAuth();

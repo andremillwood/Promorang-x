@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
   Check,
@@ -9,9 +9,25 @@ import {
   Sparkles,
   Ticket,
 } from "lucide-react";
-import { firstGivenName, issuanceFromPromoCardPerk, isPresentablePass, type PromoCardPerk } from "@promorang/shared";
+import {
+  discoverHrefForAim,
+  firstGivenName,
+  issuanceFromPromoCardPerk,
+  isPresentablePass,
+  ownedBenefitKicker,
+  ownedBenefitStatus,
+  ownedCardCopy,
+  PROMOCARD_AIMS,
+  resolvePromoCardAim,
+  selectOwnedUseThis,
+  sortBenefitsByAim,
+  type PromoCardAim,
+  type PromoCardPerk,
+} from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
+import { useApplyPromoCardAim } from "@/hooks/usePromoCardAim";
 import { useExperienceHome, useMyPromoCard } from "@/hooks/usePeopleExperience";
+import { resolveStoredPromoCardAim } from "@/lib/promocard-aim";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import {
   ExperienceShell,
@@ -85,10 +101,12 @@ function journeyIssuance(perk: CardPerk) {
 function BenefitTicket({
   perk,
   action,
+  aim,
   onShowCode,
 }: {
   perk: CardPerk;
   action?: string;
+  aim?: PromoCardAim | null;
   onShowCode?: (perk: CardPerk, trigger: HTMLButtonElement) => void;
 }) {
   const usable = canShowCode(perk);
@@ -97,12 +115,12 @@ function BenefitTicket({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
-            {perk.fromDiscover ? "From Discover" : perk.issuer?.name || "Participating business"}
+            {ownedBenefitKicker(perk, aim)}
           </p>
           <p className="mt-1 font-serif text-xl font-bold">{perk.title}</p>
         </div>
         <span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white/50">
-          {perk.fulfillmentState || perk.status || "Claimed"}
+          {ownedBenefitStatus(perk as PromoCardPerk)}
         </span>
       </div>
       {perk.detail ? <p className="mt-1 text-sm text-white/50">{perk.detail}</p> : null}
@@ -142,7 +160,12 @@ function BenefitTicket({
 
 export default function MyPromoCard() {
   const { user, profile } = useAuth();
-  const card = useMyPromoCard();
+  const [searchParams] = useSearchParams();
+  const previewAim = resolveStoredPromoCardAim(searchParams);
+  const card = useMyPromoCard(previewAim?.id);
+  const applied = useApplyPromoCardAim(card.data?.aim);
+  const aim = resolvePromoCardAim(applied.aim?.id) || applied.aim;
+  const chooseAim = applied.chooseAim;
   const home = useExperienceHome();
   const to = useExperiencePath();
   const world = home.data?.world;
@@ -157,16 +180,21 @@ export default function MyPromoCard() {
     email: user?.email,
     fallback: "there",
   });
-  const useThis = data?.useThis || data?.benefits?.find((item: CardPerk) => canShowCode(item)) || null;
-  const nearby = data?.nearby || [];
-  const nextBenefit = data?.nextBenefit || nearby[0] || null;
   const perks: CardPerk[] = data?.perks || [];
+  const useThis = selectOwnedUseThis({
+    aim,
+    useThis: data?.useThis || null,
+    benefits: (data?.benefits || perks || []) as PromoCardPerk[],
+  }) || [...(data?.benefits || []), ...perks].find((item: CardPerk) => canShowCode(item)) || null;
+  const nearby = sortBenefitsByAim(data?.nearby || [], aim);
+  const nextBenefit = data?.nextBenefit || nearby[0] || null;
   const qrPass = perks
     .map(issuanceForPerk)
     .find((issuance) => issuance && isPresentablePass(issuance.offers.fulfillment_type, issuance.status) && issuance.offers.fulfillment_type === "qr") || null;
   const expiredPerks = perks.filter(isExpired);
   const selectedExpired = selected ? isExpired(selected) : false;
   const selectedCode = perkCode(selected);
+  const copy = ownedCardCopy({ aim, owned: Boolean(useThis), holder });
 
   async function copyCode() {
     if (!selectedCode) return;
@@ -187,8 +215,8 @@ export default function MyPromoCard() {
   return (
     <ExperienceShell
       eyebrow="PromoCard"
-      title="Use what’s on the card"
-      description="A merchant supplied it. An ambassador shared it. You claim it. The merchant validates it. That is the only completion."
+      title={copy.title}
+      description={copy.description}
       backTo="/dashboard"
       actions={
         data ? (
@@ -236,10 +264,10 @@ export default function MyPromoCard() {
           <PromoCardFace
             variant={useThis ? "spending" : "membership"}
             holder={holder === "there" ? "Your card" : holder}
-            available={useThis ? "Ready to use" : nearby.length ? "Available nearby" : "Get your next benefit"}
-            limit={useThis?.title || nextBenefit?.title || "No live perk yet"}
-            places={useThis?.issuer?.name || world?.promoCard?.places || `${nearby.length || 0} participating places`}
-            action={useThis ? "Use this" : nearby.length ? "Available nearby" : "Get your next benefit"}
+            available={useThis ? "Ready to use" : aim ? aim.label : nearby.length ? "Available nearby" : "Unlock your first benefit"}
+            limit={useThis?.title || nextBenefit?.title || aim?.cardLine || "Nothing on the card yet"}
+            places={useThis?.issuer?.name || aim?.label || world?.promoCard?.places || `${nearby.length || 0} participating places`}
+            action={useThis ? "On your card" : aim ? "Watching" : nearby.length ? "Available nearby" : "Get something on it"}
             sceneMark={world?.promoCard?.sceneMark}
             crewMark={world?.promoCard?.crewMark}
           />
@@ -263,13 +291,44 @@ export default function MyPromoCard() {
             useThis={useThis}
             nearbyCount={nearby.length}
             nextBenefit={nextBenefit}
+            aim={aim}
           />
 
+          <section className="rounded-[1.4rem] border border-amber-200/20 bg-amber-200/5 px-4 py-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">
+              {aim ? "On your card" : "What should your card open?"}
+            </p>
+            <p className="mt-1 font-serif text-2xl font-bold">{aim ? aim.cardLine : "Aim this card"}</p>
+            <p className="mt-1 text-sm text-white/60">
+              {aim ? aim.watchingLine : "Pick a scene, a place, or tonight. The card watches that."}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {PROMOCARD_AIMS.map((item) => {
+                const active = aim?.id === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => chooseAim(item)}
+                    className={`min-h-10 rounded-full border px-3.5 text-sm font-bold ${
+                      active
+                        ? "border-amber-300 bg-amber-300 text-black"
+                        : "border-white/15 bg-white/[0.04] text-white"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
           <section id="use-this">
-            <h2 className="flex items-center gap-2 font-serif text-2xl font-bold"><Ticket className="h-5 w-5 text-primary" /> Use this</h2>
+            <h2 className="flex items-center gap-2 font-serif text-2xl font-bold"><Ticket className="h-5 w-5 text-primary" /> {useThis ? "Show this" : "On your card"}</h2>
             {useThis ? (
               <div className="mt-3">
-                <BenefitTicket perk={useThis} action="Show redemption code" onShowCode={openPerk} />
+                <BenefitTicket perk={useThis} aim={aim} action="Show this" onShowCode={openPerk} />
               </div>
             ) : qrPass ? (
               <div className="mt-3">
@@ -278,11 +337,11 @@ export default function MyPromoCard() {
             ) : (
               <div className="mt-3">
                 <QuietEmpty
-                  title="Nothing to use yet"
-                  copy="Claim a benefit an ambassador shared, then show it at the merchant."
+                  title={aim ? `Nothing for ${aim.label} yet` : "Nothing to use yet"}
+                  copy={aim ? `${aim.watchingLine} When it lands, it is yours to show.` : "Unlock a benefit around you. Then it lives here until you use it."}
                   action={
-                    <Link to="/discover?tab=perks" className={actionClass}>
-                      Find your first perk <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                    <Link to={discoverHrefForAim(aim)} className={actionClass}>
+                      {aim ? `Find ${aim.label}` : "Find something for your card"} <ArrowRight aria-hidden="true" className="h-4 w-4" />
                     </Link>
                   }
                 />
@@ -293,7 +352,7 @@ export default function MyPromoCard() {
           <section>
             <div className="flex items-center justify-between gap-3">
               <h2 className="flex items-center gap-2 font-serif text-2xl font-bold"><MapPin className="h-5 w-5 text-primary" /> Available nearby</h2>
-              <Link to="/discover" className="text-sm font-bold text-primary">See more</Link>
+              <Link to={discoverHrefForAim(aim)} className="text-sm font-bold text-primary">See more</Link>
             </div>
             {nearby.length ? (
               <div className="mt-3 space-y-2">
@@ -309,8 +368,10 @@ export default function MyPromoCard() {
                 ))}
               </div>
             ) : (
-              <Link to="/discover" className="mt-3 block rounded-[1.4rem] border border-white/10 px-4 py-4 text-sm text-white/60">
-                No participating businesses are sharing a live benefit right now. Discover what’s happening.
+              <Link to={discoverHrefForAim(aim)} className="mt-3 block rounded-[1.4rem] border border-white/10 px-4 py-4 text-sm text-white/60">
+                {aim
+                  ? `Nothing live for ${aim.label} right now. The card is watching.`
+                  : "No participating businesses are sharing a live benefit right now. Discover what’s happening."}
               </Link>
             )}
           </section>
@@ -321,8 +382,8 @@ export default function MyPromoCard() {
               <article className="mt-3 rounded-[1.4rem] border border-primary/30 bg-primary/10 px-4 py-4">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">{nextBenefit.issuer?.name || "Next visit"}</p>
                 <p className="mt-1 font-serif text-2xl font-bold">{nextBenefit.title}</p>
-                <p className="mt-2 text-sm text-white/60">After this one is validated, come back for this. That is the reason to stay in PROMORANG.</p>
-                <Link to="/discover" className="mt-4 inline-flex min-h-11 items-center text-sm font-black text-primary">Find it nearby</Link>
+                <p className="mt-2 text-sm text-white/60">Use the one on your card. The next one is why you come back.</p>
+                <Link to={discoverHrefForAim(aim)} className="mt-4 inline-flex min-h-11 items-center text-sm font-black text-primary">Find it nearby</Link>
               </article>
             ) : (
               <p className="mt-3 text-sm text-white/50">Use a live perk first. The next benefit appears after a merchant records it.</p>
@@ -352,13 +413,13 @@ export default function MyPromoCard() {
                   return journey ? (
                     <OfferIssuancePass key={perk.id} issuance={journey as OfferIssuance} />
                   ) : (
-                    <BenefitTicket key={perk.id} perk={perk} onShowCode={openPerk} />
+                    <BenefitTicket key={perk.id} perk={perk} aim={aim} onShowCode={openPerk} />
                   );
                 })}
               </div>
             ) : (
               <div className="mt-3">
-                <QuietEmpty title="No perks yet" copy="When someone drops something for you, or Discover opens a claimed perk, it lands here." />
+                <QuietEmpty title="Nothing on the card yet" copy={aim ? `${aim.watchingLine} Unlocking puts it here.` : "When you unlock a benefit, it lands here."} />
               </div>
             )}
           </section>

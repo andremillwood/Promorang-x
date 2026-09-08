@@ -179,4 +179,13 @@ test('history does not resurrect linked community claims as usable perks', async
   assert.ok(!card.perks.some((perk) => perk.id === 'duplicate-claim'));
   assert.equal(card.useThis?.id, 'issuance-1');
   assert.equal(card.givenName, 'Ada');
+  assert.equal(card.aim, null);
+});
+
+test('an aimed card reports the scene without inventing a second unlock', async () => {
+  const db = cardDb({ active: [{ ...issued, expires_at: null, offers: { ...issued.offers, title: '20% tab after dark' } }] });
+  const card = await createPeopleExperienceService(db).getCard('member-1', { fullName: 'Ada Lovelace' }, { aim: 'kingston-after-dark' });
+  assert.equal(card.aim, 'kingston-after-dark');
+  assert.equal(card.useThis?.id, 'issuance-1');
+  assert.equal(card.useThis?.redemption?.code, 'PR-REAL');
 });

@@ -5,7 +5,8 @@ import { useHasCompletedOnboarding } from "@/hooks/useUserPreferences";
 import OnboardingSurvey from "@/components/onboarding/OnboardingSurvey";
 import { getAnonymousId, trackGrowthEvent } from "@/lib/marketing-attribution";
 import { useI18n } from "@/i18n/I18nContext";
-import { landingPathForRole } from "@promorang/shared";
+import { landingPathForRole, promoCardAimPath } from "@promorang/shared";
+import { readPromoCardAim } from "@/lib/promocard-aim";
 
 const Onboarding = () => {
   const { t } = useI18n();
@@ -47,7 +48,8 @@ const Onboarding = () => {
     sessionStorage.setItem('promorang_role_pilot_role', roleId);
     sessionStorage.setItem('promorang_role_pilot_step', '0');
     
-    navigate(landingPathForRole(roleId));
+    const next = landingPathForRole(roleId);
+    navigate(next === "/card" ? promoCardAimPath(readPromoCardAim()) : next);
   };
 
   if (authLoading || prefsLoading) {

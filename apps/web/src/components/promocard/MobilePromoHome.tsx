@@ -122,16 +122,6 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
         </div>
       </section>
 
-      {!user && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-black/10 bg-[#f3efe6]/95 px-4 pb-[max(.65rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-xl">
-          <div className="mx-auto grid max-w-md grid-cols-[1fr_auto] gap-2">
-            <Link to={primaryHref} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#ed5a10] px-4 text-sm font-black text-white shadow-[0_12px_28px_rgba(237,90,16,0.28)] active:scale-[0.98]">
-              <WalletCards className="h-4 w-4" />Get PromoCard
-            </Link>
-            <Link to="/shop" aria-label="Find participating places" className="grid min-h-12 min-w-12 place-items-center rounded-xl border border-black/10 bg-white text-[#171512] active:bg-black/5"><MapPin className="h-5 w-5" /></Link>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

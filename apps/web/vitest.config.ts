@@ -11,6 +11,13 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
   },
   resolve: {
-    alias: { "@": path.resolve(__dirname, "./src") },
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      react: path.resolve(__dirname, "../../node_modules/react"),
+      "react-dom": path.resolve(__dirname, "../../node_modules/react-dom"),
+      "react-router": path.resolve(__dirname, "../../node_modules/react-router/dist/index.js"),
+      "react-router-dom": path.resolve(__dirname, "../../node_modules/react-router-dom/dist/index.js"),
+    },
+    dedupe: ["react", "react-dom", "react-router", "react-router-dom"],
   },
 });
