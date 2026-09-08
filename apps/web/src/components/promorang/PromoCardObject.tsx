@@ -28,11 +28,11 @@ function stamps(model: PromoCardFaceModel) {
 }
 
 export function PromoCardFace({
-  available = "Use this",
-  limit = "A live perk",
-  holder = "Member card",
-  places = "Partner shops nearby",
-  action = "Use this",
+  available,
+  limit,
+  holder = "Your card",
+  places,
+  action,
   sceneMark,
   crewMark,
   className,
@@ -47,33 +47,33 @@ export function PromoCardFace({
   lastLoaded,
 }: PromoCardFaceProps) {
   const [localFlip, setLocalFlip] = useState(false);
-  const looksLikeMoney = /\$|pts|J\$/i.test(`${available} ${limit}`);
+  const looksLikeMoney = /\$|pts|J\$/i.test(`${available || ""} ${limit || ""}`);
   const resolved =
     model ||
     resolvePromoCardFace({
       holder,
       useThis:
         variant === "spending" && available && !looksLikeMoney
-          ? { title: limit, issuer: { name: places }, redemptionCode: undefined }
+          ? { title: limit, issuer: { name: places } }
           : null,
-      nearbyCount: /nearby/i.test(available) || /nearby/i.test(action) ? 1 : 0,
+      nearbyCount: /nearby/i.test(`${available || ""} ${action || ""} ${places || ""}`) ? 1 : 0,
       sceneMark,
       crewMark,
     });
   const face = model
     ? resolved
-    : looksLikeMoney
-      ? resolved
-      : {
+    : available && !looksLikeMoney
+      ? {
           ...resolved,
           headline: available,
-          detail: limit,
-          places,
-          action,
+          detail: limit || resolved.detail,
+          places: places || resolved.places,
+          action: action || resolved.action,
           holder,
           sceneMark: sceneMark || resolved.sceneMark,
           crewMark: crewMark || resolved.crewMark,
-        };
+        }
+      : resolved;
   const isFlipped = flipped ?? localFlip;
   const canFlip = Boolean(interactive && face.canFlip && face.credential);
   const toggle = () => {

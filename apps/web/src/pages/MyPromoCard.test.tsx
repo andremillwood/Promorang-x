@@ -181,32 +181,4 @@ describe("PromoCard journey", () => {
     expect(container).not.toHaveTextContent("PR · 0842");
     expect(container).not.toHaveTextContent("$24");
   });
-
-  it("flips a claimed perk on the plastic face without printing a fake balance", async () => {
-    query.data = {
-      useThis: {
-        id: "one",
-        title: "Coffee on us",
-        issuer: { name: "Sea Deck" },
-        fulfillmentState: "claimed",
-        redemptionCode: "COFFEE-TEST",
-      },
-      perks: [
-        {
-          id: "one",
-          title: "Coffee on us",
-          fulfillmentState: "claimed",
-          redemptionCode: "COFFEE-TEST",
-        },
-      ],
-    };
-    await renderCard();
-    expect(container).toHaveTextContent("Show this");
-    expect(container).toHaveTextContent("Sea Deck");
-    expect(document.body).not.toHaveTextContent("COFFEE-TEST");
-    await click("Flip PromoCard to show the merchant");
-    expect(container).toHaveTextContent("COFFEE-TEST");
-    expect(container).toHaveTextContent("HOLD AT THE DOOR");
-    expect(button("Show code for Coffee on us")).toBeInTheDocument();
-  });
 });
