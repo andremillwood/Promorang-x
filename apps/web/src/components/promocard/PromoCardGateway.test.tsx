@@ -68,6 +68,7 @@ async function renderGateway() {
 beforeEach(() => {
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   auth.user = null;
+  window.localStorage.clear();
   Object.assign(nearbyQuery, { data: undefined, isLoading: false, isError: false });
   Object.assign(cardQuery, { data: undefined, isLoading: false, isError: false });
   container = document.createElement("div");
@@ -93,8 +94,15 @@ describe("PromoCardGateway", () => {
     expect(container).toHaveTextContent("Sea Deck");
     expect(container).toHaveTextContent("Barbican");
     expect(container).toHaveTextContent("23 remaining");
-    expect(container).toHaveTextContent("Claim $500 Off");
-    expect(container).toHaveTextContent("Get My PromoCard");
+    expect(container).toHaveTextContent("Unlock this");
+    expect(container).toHaveTextContent("What should your card open?");
+    expect(container).toHaveTextContent("Kingston After Dark");
+    expect(container).not.toHaveTextContent("Claim $500 Off");
+    expect(
+      Array.from(container.querySelectorAll("a")).some((link) =>
+        (link.getAttribute("href") || "").includes("next=%2Fcard%3Faim%3Dbarbican"),
+      ),
+    ).toBe(true);
     expect(container).toHaveTextContent("See What’s Available in Kingston");
     expect(container).not.toHaveTextContent("Use this");
     expect(container).not.toHaveTextContent("Verified use");
@@ -115,6 +123,7 @@ describe("PromoCardGateway", () => {
     await renderGateway();
     expect(container).toHaveTextContent("NEW BENEFITS ARE LANDING");
     expect(container).toHaveTextContent("Get My PromoCard");
+    expect(container.querySelector('[aria-pressed="true"]')).toBeNull();
     expect(container).not.toHaveTextContent("$500");
     expect(container).not.toHaveTextContent("Use this");
   });
@@ -146,5 +155,24 @@ describe("PromoCardGateway", () => {
     expect(container).toHaveTextContent("Redeem Benefit");
     expect(container).toHaveTextContent("$500 OFF");
     expect(container).not.toHaveTextContent("Use this");
+  });
+
+  it("lets a guest aim the card before signup", async () => {
+    nearbyQuery.data = [];
+    await renderGateway();
+    const food = Array.from(container.querySelectorAll("button")).find((button) => button.textContent === "Food");
+    expect(food).toBeTruthy();
+    await act(async () => {
+      food!.click();
+    });
+    expect(food).toHaveAttribute("aria-pressed", "true");
+    expect(container).toHaveTextContent("SET FOR FOOD");
+    expect(container).toHaveTextContent("Unlock this");
+    expect(container).not.toHaveTextContent("Get My PromoCard");
+    expect(
+      Array.from(container.querySelectorAll("a")).some((link) =>
+        (link.getAttribute("href") || "").includes("next=%2Fcard%3Faim%3Dfood"),
+      ),
+    ).toBe(true);
   });
 });

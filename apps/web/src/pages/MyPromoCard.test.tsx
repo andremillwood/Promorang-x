@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MyPromoCard from "./MyPromoCard";
 
-const { query } = vi.hoisted(() => ({
+const { query, aimState } = vi.hoisted(() => ({
   query: {
     data: undefined as Record<string, unknown> | undefined,
     isLoading: false,
@@ -12,11 +12,15 @@ const { query } = vi.hoisted(() => ({
     isFetching: false,
     refetch: vi.fn(),
   },
+  aimState: { current: null as { id: string; label: string; cardLine: string; watchingLine: string } | null },
 }));
 vi.mock("@/hooks/usePeopleExperience", () => ({
   useMyPromoCard: () => query,
   useExperienceHome: () => ({ data: undefined, isLoading: false, isError: false, isFetching: false, refetch: vi.fn() }),
   useNearbyBenefits: () => ({ data: [], isLoading: false, isError: false }),
+}));
+vi.mock("@/hooks/usePromoCardAim", () => ({
+  useApplyPromoCardAim: () => aimState.current,
 }));
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({ user: { id: "test-member" }, profile: {} }),
@@ -56,6 +60,7 @@ beforeEach(() => {
     isFetching: false,
   });
   vi.clearAllMocks();
+  aimState.current = null;
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -180,5 +185,19 @@ describe("PromoCard journey", () => {
     expect(container).toHaveTextContent("Your rewards");
     expect(container).not.toHaveTextContent("Available to spend");
     expect(container).not.toHaveTextContent("PR · 0842");
+  });
+
+  it("shows the aimed scene when interest unlocked the card", async () => {
+    aimState.current = {
+      id: "kingston-after-dark",
+      label: "Kingston After Dark",
+      cardLine: "Your card is set for Kingston After Dark.",
+      watchingLine: "Watching nightlife, late food, and after-hours tables.",
+    };
+    query.data = { points: 0, keys: 0, perks: [], nearby: [] };
+    await renderCard();
+    expect(container).toHaveTextContent("Your card is set for Kingston After Dark.");
+    expect(container).toHaveTextContent("Nothing for Kingston After Dark yet");
+    expect(container).not.toHaveTextContent("Available to spend");
   });
 });

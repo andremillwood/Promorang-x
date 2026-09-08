@@ -9,8 +9,9 @@ import {
   Sparkles,
   Ticket,
 } from "lucide-react";
-import { firstGivenName, issuanceFromPromoCardPerk, isPresentablePass, type PromoCardPerk } from "@promorang/shared";
+import { firstGivenName, issuanceFromPromoCardPerk, isPresentablePass, sortBenefitsByAim, type PromoCardPerk } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
+import { useApplyPromoCardAim } from "@/hooks/usePromoCardAim";
 import { useExperienceHome, useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import {
@@ -142,6 +143,7 @@ function BenefitTicket({
 
 export default function MyPromoCard() {
   const { user, profile } = useAuth();
+  const aim = useApplyPromoCardAim();
   const card = useMyPromoCard();
   const home = useExperienceHome();
   const to = useExperiencePath();
@@ -158,7 +160,7 @@ export default function MyPromoCard() {
     fallback: "there",
   });
   const useThis = data?.useThis || data?.benefits?.find((item: CardPerk) => canShowCode(item)) || null;
-  const nearby = data?.nearby || [];
+  const nearby = sortBenefitsByAim(data?.nearby || [], aim);
   const nextBenefit = data?.nextBenefit || nearby[0] || null;
   const perks: CardPerk[] = data?.perks || [];
   const qrPass = perks
@@ -236,8 +238,8 @@ export default function MyPromoCard() {
           <PromoCardFace
             variant={useThis ? "spending" : "membership"}
             holder={holder === "there" ? "Your card" : holder}
-            available={useThis ? "Ready to use" : nearby.length ? "Available nearby" : "Get your next benefit"}
-            limit={useThis?.title || nextBenefit?.title || "No live perk yet"}
+            available={useThis ? "Ready to use" : aim ? aim.label : nearby.length ? "Available nearby" : "Get your next benefit"}
+            limit={useThis?.title || nextBenefit?.title || aim?.cardLine || "No live perk yet"}
             places={useThis?.issuer?.name || world?.promoCard?.places || `${nearby.length || 0} participating places`}
             action={useThis ? "Use this" : nearby.length ? "Available nearby" : "Get your next benefit"}
             sceneMark={world?.promoCard?.sceneMark}
@@ -265,6 +267,14 @@ export default function MyPromoCard() {
             nextBenefit={nextBenefit}
           />
 
+          {aim ? (
+            <section className="rounded-[1.4rem] border border-amber-200/20 bg-amber-200/5 px-4 py-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">Aimed</p>
+              <p className="mt-1 font-serif text-2xl font-bold">{aim.cardLine}</p>
+              <p className="mt-1 text-sm text-white/60">{aim.watchingLine}</p>
+            </section>
+          ) : null}
+
           <section id="use-this">
             <h2 className="flex items-center gap-2 font-serif text-2xl font-bold"><Ticket className="h-5 w-5 text-primary" /> Use this</h2>
             {useThis ? (
@@ -278,8 +288,8 @@ export default function MyPromoCard() {
             ) : (
               <div className="mt-3">
                 <QuietEmpty
-                  title="Nothing to use yet"
-                  copy="Claim a benefit an ambassador shared, then show it at the merchant."
+                  title={aim ? `Nothing for ${aim.label} yet` : "Nothing to use yet"}
+                  copy={aim ? `${aim.watchingLine} When it lands, it will be ready to use here.` : "Claim a benefit an ambassador shared, then show it at the merchant."}
                   action={
                     <Link to="/discover?tab=perks" className={actionClass}>
                       Find your first perk <ArrowRight aria-hidden="true" className="h-4 w-4" />

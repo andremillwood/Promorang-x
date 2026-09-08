@@ -147,6 +147,7 @@ describe("PromoCard benefit presentation", () => {
     expect(benefitCtaLabel({ ...nearby, title: "Free Entry" })).toBe("Unlock Entry");
     expect(benefitCtaLabel({ ...nearby, title: "VIP Access" })).toBe("Unlock Access");
     expect(benefitCtaLabel({ ...nearby, title: "2-for-1 rum special" })).toBe("Unlock Offer");
+    expect(benefitCtaLabel({ ...nearby, title: "$500 OFF", valueAmount: 500 }, { unlock: true })).toBe("Unlock this");
     expect(benefitCtaLabel(usable, { claimed: true })).toBe("Redeem Benefit");
   });
 

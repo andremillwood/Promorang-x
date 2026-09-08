@@ -12,6 +12,7 @@ import { DEMO_EMAIL_STORAGE_KEY, DemoRole } from "@/lib/demo-session";
 import { captureGrowthAttribution, markPendingSignup, trackGrowthEvent } from "@/lib/marketing-attribution";
 import { trackMetaEvent } from "@/components/MetaPixel";
 import { useI18n } from "@/i18n/I18nContext";
+import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
 
@@ -70,6 +71,7 @@ const AuthPage = () => {
   const commercialIntent = searchParams.get("intent");
   const selectedPlan = searchParams.get("plan");
   const selectedSku = searchParams.get("sku");
+  const unlockAim = promoCardAimFromNext(searchParams.get("next"));
   const localizedRoleInfo: Record<UserRole, { title: string; description: string }> = {
     participant: { title: t("auth.participant"), description: t("persona.explorerDesc") },
     creator: { title: t("auth.creator"), description: t("persona.creatorDesc") },
@@ -84,6 +86,8 @@ const AuthPage = () => {
     const next = searchParams.get("next");
     if (next?.startsWith("/") && !next.startsWith("//")) {
       sessionStorage.setItem("promorang_post_auth_next", next);
+      const aimed = promoCardAimFromNext(next);
+      if (aimed) writePromoCardAim(aimed);
     }
     if (searchParams.get("mode") === "signup") setMode("signup");
     if (!requestedRole) return;
@@ -267,8 +271,18 @@ const AuthPage = () => {
           <p className="text-[#6d645a] leading-6 mb-7">
             {mode === "login"
               ? t("auth.loginCopy")
-              : t("auth.signupCopy")}
+              : unlockAim
+                ? `Unlock ${unlockAim.label} on your PromoCard.`
+                : t("auth.signupCopy")}
           </p>
+          {unlockAim && (
+            <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Unlock this</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {unlockAim.cardLine} After you join, the card watches that — not a fake balance.
+              </p>
+            </div>
+          )}
           {commercialIntent && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t("auth.saved")}</p>

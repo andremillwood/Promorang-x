@@ -92,6 +92,7 @@ export type PromoBenefitPresentation = {
 export type PresentPromoBenefitOptions = {
   authenticated?: boolean;
   claimed?: boolean;
+  unlock?: boolean;
   now?: number;
 };
 
@@ -406,6 +407,7 @@ export function benefitCtaLabel(
   options: PresentPromoBenefitOptions = {},
 ) {
   if (options.claimed && canUseBenefit(benefit)) return "Redeem Benefit";
+  if (options.unlock && !options.claimed) return "Unlock this";
   const type = classifyBenefitType(benefit);
   const headline = titleFromHeadline(presentBenefitHeadline(benefit));
   if (type === "fixed_discount" || type === "percentage_discount") return `Claim ${headline}`;

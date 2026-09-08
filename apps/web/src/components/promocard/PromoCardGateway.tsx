@@ -1,21 +1,25 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, MapPin, Ticket, WalletCards } from "lucide-react";
 import {
+  aimedEmptyPresentation,
   canUseBenefit,
   emptyPromoBenefitPresentation,
+  inferPromoCardAim,
   presentPromoBenefit,
-  selectFeaturedBenefit,
+  PROMOCARD_AIMS,
+  promoCardAimPath,
+  promoCardUnlockHref,
+  selectAimedBenefit,
+  type PromoCardAim,
   type PromoCardBenefit,
 } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyPromoCard, useNearbyBenefits } from "@/hooks/usePeopleExperience";
 import { useVisitorLocation } from "@/hooks/useVisitorLocation";
 import { ALL_CITY_HUBS } from "@/lib/city-hubs";
+import { resolveStoredPromoCardAim, writePromoCardAim } from "@/lib/promocard-aim";
 import { PromoBenefitCard } from "@/components/promocard/PromoBenefitCard";
-
-function signupHref(next: string) {
-  return `/auth?mode=signup&next=${encodeURIComponent(next)}`;
-}
 
 function nearbyMarketLabel(visitorCity?: string | null) {
   const city = String(visitorCity || "").trim();
@@ -34,34 +38,62 @@ export function PromoCardGateway() {
   const nearby = useNearbyBenefits();
   const card = useMyPromoCard();
   const visitorCity = useVisitorLocation();
+  const [searchParams] = useSearchParams();
+  const [aim, setAim] = useState<PromoCardAim | null>(() => resolveStoredPromoCardAim(searchParams));
 
   const useThis = (card.data?.useThis || null) as PromoCardBenefit | null;
   const nearbyBenefits = ((nearby.data || []) as PromoCardBenefit[]).filter(Boolean);
   const nextBenefit = (card.data?.nextBenefit || nearbyBenefits[0] || null) as PromoCardBenefit | null;
-  const featured = selectFeaturedBenefit({ useThis, nearby: nearbyBenefits, nextBenefit });
+  const featured = selectAimedBenefit({ aim, useThis, nearby: nearbyBenefits, nextBenefit });
   const claimed = Boolean(featured && useThis && featured.id === useThis.id && canUseBenefit(useThis));
   const loading = nearby.isLoading || Boolean(user && card.isLoading && !card.data && !nearby.data);
+  const unlockAim = aim || inferPromoCardAim(featured);
+  const unlockHref = promoCardUnlockHref({
+    authenticated: Boolean(user),
+    aim: unlockAim,
+    next: promoCardAimPath(unlockAim),
+  });
   const presented = featured
     ? {
-        ...presentPromoBenefit(featured, { authenticated: Boolean(user), claimed })!,
-        href: user ? featured.href || "/card" : signupHref(featured.href || "/card"),
+        ...presentPromoBenefit(featured, {
+          authenticated: Boolean(user),
+          claimed,
+          unlock: !user,
+        })!,
+        href: user ? featured.href || promoCardAimPath(unlockAim) : unlockHref,
       }
-    : emptyPromoBenefitPresentation({
-        authenticated: Boolean(user),
-        href: user ? "/card" : signupHref("/card"),
-      });
+    : aim
+      ? aimedEmptyPresentation({
+          aim,
+          authenticated: Boolean(user),
+          href: unlockHref,
+        })
+      : emptyPromoBenefitPresentation({
+          authenticated: Boolean(user),
+          href: user ? "/card" : promoCardUnlockHref({ next: "/card" }),
+        });
 
   const marketLabel = nearbyMarketLabel(visitorCity);
   const nearbyLabel = marketLabel
     ? `See What’s Available in ${marketLabel}`
     : "See What’s Available Nearby";
 
-  const primaryHref = user ? "/card" : signupHref("/card");
+  const canUnlock = Boolean(aim || featured);
+  const primaryHref = user ? (claimed ? "/card" : promoCardAimPath(unlockAim)) : unlockHref;
   const primaryLabel = user
     ? claimed
       ? presented?.ctaLabel || "View My PromoCard"
-      : "View My PromoCard"
-    : "Get My PromoCard";
+      : aim
+        ? "Unlock this"
+        : "View My PromoCard"
+    : canUnlock
+      ? "Unlock this"
+      : "Get My PromoCard";
+
+  function chooseAim(next: PromoCardAim) {
+    writePromoCardAim(next);
+    setAim(next);
+  }
 
   const moreCount = Math.max(0, nearbyBenefits.filter((item) => item.id !== featured?.id).length);
 
@@ -79,6 +111,32 @@ export function PromoCardGateway() {
             <p className="mt-4 max-w-xl text-[15px] leading-6 text-white/68 sm:mt-5 sm:text-lg sm:leading-8">
               Your PromoCard unlocks offers, access and experiences from places around you.
             </p>
+
+            <div className="mt-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40">
+                What should your card open?
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {PROMOCARD_AIMS.map((item) => {
+                  const active = aim?.id === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => chooseAim(item)}
+                      className={`min-h-10 rounded-full border px-3.5 text-sm font-bold transition active:scale-[0.98] ${
+                        active
+                          ? "border-amber-300 bg-amber-300 text-black"
+                          : "border-white/15 bg-white/[0.04] text-white hover:border-amber-300/40 hover:bg-white/[0.08]"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             <div className="mt-5 grid gap-2.5 sm:mt-6 sm:flex sm:gap-3">
               <Link
@@ -154,7 +212,7 @@ export function PromoCardGateway() {
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-black text-white shadow-[0_12px_28px_rgba(255,85,0,0.28)] active:scale-[0.98]"
             >
               <WalletCards className="h-4 w-4" />
-              Get My PromoCard
+              {canUnlock ? "Unlock this" : "Get My PromoCard"}
             </Link>
             <Link
               to="/discover"
