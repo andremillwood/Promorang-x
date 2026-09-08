@@ -16,6 +16,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import SEO from "@/components/SEO";
+import { NightPathJourney } from "@/components/marketing/NightPathJourney";
 import { useI18n } from "@/i18n/I18nContext";
 
 const audiences = [
@@ -30,7 +31,7 @@ const audiences = [
       "Vote on discoveries and polls so the city names the night.",
       "Share it with PromoShare. When your people show up, you keep the credit.",
       "Walk in with PromoCard. Check in. You were there. It counted.",
-      "Keep what comes back — a perk, a memory, or a Crew to go with next time.",
+      "Keep what comes back — and if you keep going, a path forms. That is the skill tree.",
     ],
     cta: "Start Exploring",
     href: "/discover",
@@ -198,6 +199,12 @@ export default function WhatIsPromorang() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 px-5 py-16 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <NightPathJourney />
         </div>
       </section>
 

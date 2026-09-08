@@ -35,6 +35,7 @@ import SEO from "@/components/SEO";
 import { useI18n } from "@/i18n/I18nContext";
 import type { TranslationKey } from "@/i18n/translations";
 import { PromoCardEconomyExplainer } from "@/components/promocard";
+import { NightPathJourney } from "@/components/marketing/NightPathJourney";
 
 type RoleId = "member" | "creator" | "merchant" | "brand" | "promoter";
 
@@ -145,7 +146,7 @@ const rolesData: Record<
       roleStep("member", 1, "/discover?tab=discoveries", "01"),
       roleStep("member", 2, "/promoshare", "02"),
       roleStep("member", 3, "/discover", "03"),
-      roleStep("member", 4, "/card", "04"),
+      roleStep("member", 4, "/progress", "04"),
     ],
   },
   creator: {
@@ -307,6 +308,7 @@ const faqs: Array<{ q: TranslationKey; a: TranslationKey }> = [
   { q: "how.faq5Q", a: "how.faq5A" },
   { q: "how.faq6Q", a: "how.faq6A" },
   { q: "how.faq7Q", a: "how.faq7A" },
+  { q: "how.faq8Q", a: "how.faq8A" },
 ];
 
 export default function HowItWorks() {
@@ -466,12 +468,14 @@ export default function HowItWorks() {
       {/* Complete Journey Interactive Stepper */}
       <section className="px-5 py-16 md:py-24">
         <div className="w-full px-4 sm:px-6 lg:px-8">
+          <NightPathJourney className="mb-12" />
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">{t("how.journeyEyebrow")}</p>
               <h2 className="mt-2 text-4xl font-black tracking-[-0.05em] sm:text-5xl">
                 {t("how.journey")}
               </h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-white/55">{t("how.journeyLead")}</p>
             </div>
 
             {/* Role Tabs */}

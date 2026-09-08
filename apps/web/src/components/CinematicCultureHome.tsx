@@ -40,6 +40,7 @@ import {
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
+import { NightPathJourney } from "@/components/marketing/NightPathJourney";
 import { MobilePromoHome, PromoCardGateway } from "@/components/promocard";
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
 import { SampleContentNotice } from "@/components/content/ContentProvenance";
@@ -681,6 +682,8 @@ export default function CinematicCultureHome() {
               ))}
             </div>
           </div>
+
+          <NightPathJourney className="mb-10" />
 
           <DiscoveriesFeedSection />
 
