@@ -149,7 +149,7 @@ export function aimMatchScore(
   text: string | null | undefined,
 ): number {
   const hay = String(text || "").toLowerCase();
-  if (!hay.trim()) return 0;
+  if (!hay.trim() || !aim?.keywords?.length) return 0;
   return aim.keywords.reduce((score, keyword) => score + (hay.includes(keyword) ? 1 : 0), 0);
 }
 
@@ -204,6 +204,80 @@ export function sortBenefitsByAim<T extends Pick<PromoCardBenefit, "title" | "de
   return [...benefits].sort((left, right) => {
     return aimMatchScore(aim, haystackForBenefit(right)) - aimMatchScore(aim, haystackForBenefit(left));
   });
+}
+
+export function discoverHrefForAim(aim?: PromoCardAim | null): string {
+  if (!aim) return "/discover";
+  return `/discover?tab=discoveries&lens=${encodeURIComponent(aim.lens)}&q=${encodeURIComponent(aim.discoverQuery)}`;
+}
+
+export function inferPromoCardAimFromText(value?: string | null): PromoCardAim | null {
+  const raw = String(value || "");
+  const tagged = raw.match(/aim:([a-z0-9-]+)/i);
+  if (tagged) return resolvePromoCardAim(tagged[1]);
+  return resolvePromoCardAim(raw);
+}
+
+export function selectOwnedUseThis(input: {
+  aim?: PromoCardAim | null;
+  benefits?: PromoCardBenefit[];
+  useThis?: PromoCardBenefit | null;
+}): PromoCardBenefit | null {
+  const usable = (input.benefits || []).filter((benefit) => canUseBenefit(benefit));
+  if (input.useThis && canUseBenefit(input.useThis)) {
+    if (!input.aim || aimMatchesBenefit(input.aim, input.useThis)) return input.useThis;
+  }
+  if (input.aim) {
+    const matched = usable.find((benefit) => aimMatchesBenefit(input.aim!, benefit));
+    if (matched) return matched;
+  }
+  return usable[0] || null;
+}
+
+export function ownedBenefitKicker(
+  benefit?: { fromDiscover?: boolean; issuer?: { name?: string } } | null,
+  aim?: PromoCardAim | null,
+): string {
+  if (aim) return `On your card · ${aim.label}`;
+  if (benefit?.fromDiscover) return "On your card";
+  return benefit?.issuer?.name || "On your card";
+}
+
+export function ownedBenefitStatus(
+  benefit?: Pick<PromoCardBenefit, "fulfillmentState" | "redemption" | "expiresAt"> | null,
+): string {
+  if (!benefit) return "Waiting";
+  if (benefit.redemption?.recorded) return "Used";
+  if (benefit.expiresAt) {
+    const expiry = Date.parse(benefit.expiresAt);
+    if (Number.isFinite(expiry) && expiry <= Date.now()) return "Expired";
+  }
+  if (canUseBenefit(benefit as PromoCardBenefit)) return "Ready to use";
+  return benefit.fulfillmentState || "Claimed";
+}
+
+export function ownedCardCopy(input: {
+  aim?: PromoCardAim | null;
+  owned?: boolean;
+  holder?: string;
+}): { title: string; description: string } {
+  const holder = input.holder && input.holder !== "there" ? input.holder : "Your";
+  if (input.owned) {
+    return {
+      title: input.aim ? `${holder === "Your" ? "Your" : `${holder}'s`} ${input.aim.label}` : "This is on your card",
+      description: "Show it where it works. Using it is what opens the next one.",
+    };
+  }
+  if (input.aim) {
+    return {
+      title: input.aim.cardLine.replace(/\.$/, ""),
+      description: `${input.aim.watchingLine} When it lands, it is yours to show.`,
+    };
+  }
+  return {
+    title: holder === "Your" ? "Your PromoCard" : `${holder}'s PromoCard`,
+    description: "Unlock something around you. Then it lives on this card until you use it.",
+  };
 }
 
 export function aimedEmptyPresentation(input: {

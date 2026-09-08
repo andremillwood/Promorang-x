@@ -124,6 +124,23 @@ test('card actions prefer use this, then nearby, then the next benefit', () => {
   expect(selectNextBenefit(nearby, useThis).offerId).toBe('offer-2');
 });
 
+test('an aimed card prefers the matching claimed perk', () => {
+  const nightlife = toPromoCardBenefit({
+    id: 'iss-night',
+    offer: { id: 'offer-night', title: '20% tab after dark', owner_user_id: 'm3', fulfillment_type: 'code' },
+    issuance: { status: 'claimed', redemption_code: 'PR-NIGHT' },
+    issuerName: 'Tracks',
+  });
+  const food = toPromoCardBenefit({
+    id: 'iss-food',
+    offer: { id: 'offer-food', title: 'Jerk platter', owner_user_id: 'm4', fulfillment_type: 'code' },
+    issuance: { status: 'claimed', redemption_code: 'PR-FOOD' },
+    issuerName: 'Yardbird',
+  });
+  expect(selectUseThis([food, nightlife], { keywords: ['after dark', 'tab'] }).id).toBe('iss-night');
+  expect(selectUseThis([food, nightlife]).id).toBe('iss-food');
+});
+
 test('repeat-use proof counts first redemption, second use, referred redeemers and contributor rewards', () => {
   const proof = summarizeRepeatUse([
     { userId: 'a', merchantId: 'm1', referrerId: 'amb-1', contributorId: 'amb-1', contributorPoints: 25 },

@@ -20,7 +20,7 @@ vi.mock("@/hooks/usePeopleExperience", () => ({
   useNearbyBenefits: () => ({ data: [], isLoading: false, isError: false }),
 }));
 vi.mock("@/hooks/usePromoCardAim", () => ({
-  useApplyPromoCardAim: () => aimState.current,
+  useApplyPromoCardAim: () => ({ aim: aimState.current, chooseAim: vi.fn() }),
 }));
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({ user: { id: "test-member" }, profile: {} }),
@@ -149,7 +149,7 @@ describe("PromoCard journey", () => {
       document.querySelector('button[aria-label="Show code for Past offer"]'),
     ).not.toBeInTheDocument();
     expect(
-      document.querySelector('a[href="/discover?tab=perks"]'),
+      document.querySelector('a[href="/discover"]'),
     ).toBeInTheDocument();
   });
 
@@ -183,6 +183,10 @@ describe("PromoCard journey", () => {
       ),
     ).toHaveAttribute("href", "/app-preview");
     expect(container).toHaveTextContent("Your rewards");
+    expect(container).toHaveTextContent("Aim this card");
+    expect(
+      Array.from(container.querySelectorAll("button")).some((item) => item.textContent === "Tonight"),
+    ).toBe(true);
     expect(container).not.toHaveTextContent("Available to spend");
     expect(container).not.toHaveTextContent("PR · 0842");
   });
@@ -198,6 +202,59 @@ describe("PromoCard journey", () => {
     await renderCard();
     expect(container).toHaveTextContent("Your card is set for Kingston After Dark.");
     expect(container).toHaveTextContent("Nothing for Kingston After Dark yet");
+    expect(container).toHaveTextContent("On your card");
     expect(container).not.toHaveTextContent("Available to spend");
+    expect(container).not.toHaveTextContent("From Discover");
+    expect(container).not.toHaveTextContent("A merchant supplied it");
+    expect(container).not.toHaveTextContent("Aim this card");
+    expect(
+      Array.from(container.querySelectorAll("button")).some((item) => item.textContent === "Food"),
+    ).toBe(true);
+    expect(
+      Array.from(container.querySelectorAll("a")).some((link) =>
+        (link.getAttribute("href") || "").includes("lens=go_out"),
+      ),
+    ).toBe(true);
+  });
+
+  it("presents a claimed aimed perk as owned", async () => {
+    aimState.current = {
+      id: "food",
+      label: "Food",
+      cardLine: "Your card is set for food.",
+      watchingLine: "Watching tastings, tables, and food benefits.",
+    };
+    query.data = {
+      points: 0,
+      keys: 0,
+      useThis: {
+        id: "one",
+        title: "25% Off Jerk Platter",
+        fromDiscover: true,
+        fulfillmentState: "claimed",
+        redemptionCode: "PR-FOOD01",
+        redemption: { recorded: false, code: "PR-FOOD01" },
+        issuer: { name: "Food" },
+      },
+      perks: [
+        {
+          id: "one",
+          title: "25% Off Jerk Platter",
+          fromDiscover: true,
+          fulfillmentState: "claimed",
+          redemptionCode: "PR-FOOD01",
+          redemption: { recorded: false, code: "PR-FOOD01" },
+          issuer: { name: "Food" },
+        },
+      ],
+    };
+    await renderCard();
+    expect(container).toHaveTextContent("On your card · Food");
+    expect(container).toHaveTextContent("Ready to use");
+    expect(container).toHaveTextContent("Show this");
+    expect(container).toHaveTextContent("Your Food");
+    expect(container).toHaveTextContent("Show it where it works");
+    expect(container).not.toHaveTextContent("From Discover");
+    expect(container).not.toHaveTextContent("Use what’s on the card");
   });
 });

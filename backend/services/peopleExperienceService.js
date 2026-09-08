@@ -3,6 +3,7 @@ const { supabase: defaultDb } = require('../lib/supabase');
 const offerService = require('./offerService');
 const worldLayer = require('./worldLayer');
 const worldCrewService = require('./worldCrewService');
+const { inferPromoCardAimFromText, resolvePromoCardAim, sortBenefitsByAim } = require('../lib/promocardAim');
 
 const OPERATOR_ROLES = new Set(['operator', 'steward']);
 const CONTRIBUTOR_ROLES = new Set(['contributor', 'operator', 'steward']);
@@ -337,8 +338,17 @@ function canUseBenefit(benefit) {
   return benefit.fulfillmentState === 'claimed' && Boolean(benefit.redemption?.code);
 }
 
-function selectUseThis(benefits) {
-  return (benefits || []).find((benefit) => canUseBenefit(benefit)) || null;
+function selectUseThis(benefits, aim) {
+  const usable = (benefits || []).filter((benefit) => canUseBenefit(benefit));
+  if (!usable.length) return null;
+  if (aim) {
+    const matched = sortBenefitsByAim(usable, aim).find((benefit) => {
+      const hay = [benefit.title, benefit.detail, benefit.locationLabel, benefit.issuer?.name].filter(Boolean).join(' ').toLowerCase();
+      return aim.keywords.some((keyword) => hay.includes(keyword));
+    });
+    if (matched) return matched;
+  }
+  return usable[0];
 }
 
 function selectNextBenefit(nearby, used) {
@@ -927,8 +937,8 @@ function createPeopleExperienceService(db = defaultDb) {
     return { contributorId, amount };
   }
 
-  async function getCard(userId, identity = {}) {
-    const [wallet, card, issuances, redeemedIssuances, memberships, participating, dropClaims, repeatRows, discoverUnlocks] = await Promise.all([
+  async function getCard(userId, identity = {}, options = {}) {
+    const [wallet, card, issuances, redeemedIssuances, memberships, participating, dropClaims, repeatRows, discoverUnlocks, storedAim] = await Promise.all([
       getWallet(userId),
       maybe(db.from('user_promo_cards').select('*').eq('user_id', userId).maybeSingle()),
       maybe(db.from('offer_issuances').select('*, offers(*)').eq('user_id', userId).in('status', ['issued', 'claimed', 'fulfillment_pending']).order('issued_at', { ascending: false }).limit(20)),
@@ -938,6 +948,7 @@ function createPeopleExperienceService(db = defaultDb) {
       maybe(db.from('community_drop_claims').select('*, community_drops(*)').eq('user_id', userId).in('status', ['claimed', 'redeemed']).order('claimed_at', { ascending: false }).limit(20)),
       getRepeatUseRows(),
       maybe(db.from('discovery_card_unlocks').select('*').eq('user_id', userId).eq('status', 'claimed').order('created_at', { ascending: false }).limit(12)),
+      maybe(db.from('promocard_member_aims').select('aim').eq('user_id', userId).maybeSingle()),
     ]);
     const requireLedger = (result) => {
       if (result?.error) {
@@ -1013,9 +1024,10 @@ function createPeopleExperienceService(db = defaultDb) {
             status: 'claimed',
             redemption_code: row.redemption_code,
           },
-          issuerName: 'Discover',
+          issuerName: inferPromoCardAimFromText(row.query_raw)?.label || 'Your card',
         }),
         fromDiscover: true,
+        queryRaw: row.query_raw || null,
       })),
     ];
     const used = (redeemedIssuances.data || []).map((row) => toPromoCardBenefit({
@@ -1028,21 +1040,26 @@ function createPeopleExperienceService(db = defaultDb) {
         : null,
     }));
 
-    const nearby = participating
-      .filter(({ offer }) => remainingQuantity(offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed) !== 0)
-      .filter(({ offer }) => !claimedOfferIds.has(offer.id))
-      .slice(0, 6)
-      .map(({ offer, drop }) => toPromoCardBenefit({
-        id: offer.id,
-        offer,
-        drop: drop || {},
-        issuerName: profiles.get(offer.owner_user_id) || null,
-        sharedBy: drop?.creator_id
-          ? { id: drop.creator_id, name: profiles.get(drop.creator_id) || 'Ambassador' }
-          : null,
-      }));
+    const inferredAim = resolvePromoCardAim(options.aim)
+      || resolvePromoCardAim(storedAim?.data?.aim)
+      || inferPromoCardAimFromText((discoverUnlocks?.data || []).find((row) => row.query_raw)?.query_raw);
+    const nearby = sortBenefitsByAim(
+      participating
+        .filter(({ offer }) => remainingQuantity(offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed) !== 0)
+        .filter(({ offer }) => !claimedOfferIds.has(offer.id))
+        .map(({ offer, drop }) => toPromoCardBenefit({
+          id: offer.id,
+          offer,
+          drop: drop || {},
+          issuerName: profiles.get(offer.owner_user_id) || null,
+          sharedBy: drop?.creator_id
+            ? { id: drop.creator_id, name: profiles.get(drop.creator_id) || 'Ambassador' }
+            : null,
+        })),
+      inferredAim,
+    ).slice(0, 6);
 
-    const useThis = selectUseThis(benefits);
+    const useThis = selectUseThis(benefits, inferredAim);
     const lastUsed = used[0] || null;
     const nextBenefit = selectNextBenefit(nearby, lastUsed || useThis);
     const repeatUse = summarizeRepeatUse(repeatRows);
@@ -1080,6 +1097,7 @@ function createPeopleExperienceService(db = defaultDb) {
     return {
       name: displayName(person, 'there'),
       givenName: givenName(person),
+      aim: inferredAim?.id || null,
       points: Number(wallet.points || 0),
       keys: Number(wallet.promokeys || 0),
       gems: Number(wallet.gems || 0),
@@ -1643,7 +1661,9 @@ function createPeopleExperienceService(db = defaultDb) {
 
   async function unlockDiscover(userId, payload) {
     if (!payload?.pollId || !payload?.question) throw new Error('Answer a live question first.');
+    const aim = resolvePromoCardAim(payload.aim);
     const perkTitle = String(payload.perkTitle || payload.targetUnlockPerk || 'City perk').replace(/^[^\w]+/, '').trim() || 'City perk';
+    const queryRaw = [aim ? `aim:${aim.id}` : '', payload.query || ''].filter(Boolean).join(' ').trim() || null;
     const existing = await maybe(
       db.from('discovery_card_unlocks').select('*').eq('user_id', userId).eq('poll_id', payload.pollId).maybeSingle(),
     );
@@ -1661,7 +1681,7 @@ function createPeopleExperienceService(db = defaultDb) {
       poll_id: payload.pollId,
       poll_question: payload.question,
       perk_title: perkTitle,
-      query_raw: payload.query || null,
+      query_raw: queryRaw,
       user_id: userId,
       redemption_code: code,
       status: 'claimed',
@@ -1681,12 +1701,31 @@ function createPeopleExperienceService(db = defaultDb) {
       actionType: 'PERK_CLAIM',
       metadata: { kind: 'discover_card_unlock', poll_id: payload.pollId, perk_title: perkTitle },
     });
+    if (aim) {
+      await maybe(db.from('promocard_member_aims').upsert({
+        user_id: userId,
+        aim: aim.id,
+        updated_at: new Date().toISOString(),
+      }));
+    }
     return {
       id: saved.id,
       redemptionCode: saved.redemption_code,
       perkTitle: saved.perk_title,
       alreadyOnCard: Boolean(existing.data),
+      aim: aim?.id || inferPromoCardAimFromText(saved.query_raw)?.id || null,
     };
+  }
+
+  async function setCardAim(userId, value) {
+    const aim = resolvePromoCardAim(value);
+    if (!aim) throw new Error('Pick Kingston After Dark, Barbican, food, or tonight.');
+    const saved = await maybe(db.from('promocard_member_aims').upsert({
+      user_id: userId,
+      aim: aim.id,
+      updated_at: new Date().toISOString(),
+    }).select('aim').maybeSingle());
+    return { aim: saved.data?.aim || aim.id, label: aim.label };
   }
 
   function foundWordsKey(value) {
@@ -1859,6 +1898,7 @@ function createPeopleExperienceService(db = defaultDb) {
     startCommunity,
     createAsk,
     unlockDiscover,
+    setCardAim,
     putUpFound,
     listFound,
     claimFound,

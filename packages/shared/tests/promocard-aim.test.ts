@@ -2,11 +2,17 @@ import { describe, expect, it } from "vitest";
 import {
   aimMatchesBenefit,
   aimedEmptyPresentation,
+  discoverHrefForAim,
   inferPromoCardAim,
+  inferPromoCardAimFromText,
+  ownedBenefitKicker,
+  ownedBenefitStatus,
+  ownedCardCopy,
   promoCardAimPath,
   promoCardUnlockHref,
   resolvePromoCardAim,
   selectAimedBenefit,
+  selectOwnedUseThis,
   sortBenefitsByAim,
 } from "../src/promocard-aim";
 
@@ -80,5 +86,18 @@ describe("PromoCard aim", () => {
     expect(empty.description).toContain("tonight");
     expect(empty.href).toContain("aim%3Dtonight");
     expect(empty.headline).not.toContain("$");
+  });
+
+  it("treats a claimed aimed perk as owned on the card", () => {
+    const afterDark = resolvePromoCardAim("kingston-after-dark")!;
+    const food = resolvePromoCardAim("food")!;
+    expect(inferPromoCardAimFromText("aim:food jerk on friday")?.id).toBe("food");
+    expect(discoverHrefForAim(food)).toContain("lens=eat");
+    expect(selectOwnedUseThis({ aim: afterDark, benefits: [claimed, { ...barbicanOffer, fulfillmentState: "claimed", redemption: claimed.redemption }] })?.id).toBe("iss-1");
+    expect(ownedBenefitKicker({ fromDiscover: true }, afterDark)).toBe("On your card · Kingston After Dark");
+    expect(ownedBenefitStatus(claimed)).toBe("Ready to use");
+    expect(ownedCardCopy({ aim: afterDark, owned: true, holder: "Nia" }).title).toContain("Kingston After Dark");
+    expect(ownedCardCopy({ aim: afterDark, owned: true }).description).toContain("Show it where it works");
+    expect(ownedCardCopy({ owned: false }).description).not.toContain("merchant supplied");
   });
 });

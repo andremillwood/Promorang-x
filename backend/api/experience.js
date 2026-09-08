@@ -68,7 +68,11 @@ router.get('/happened', async (req, res) => {
 });
 
 router.get('/card', async (req, res) => {
-  try { return ok(res, await experience.getCard(req.user.id, identityFrom(req.user))); } catch (error) { return fail(res, error, 500); }
+  try { return ok(res, await experience.getCard(req.user.id, identityFrom(req.user), { aim: req.query.aim })); } catch (error) { return fail(res, error, 500); }
+});
+
+router.post('/card/aim', async (req, res) => {
+  try { return ok(res, await experience.setCardAim(req.user.id, req.body?.aim || req.body?.id)); } catch (error) { return fail(res, error); }
 });
 
 router.post('/drops', async (req, res) => {
