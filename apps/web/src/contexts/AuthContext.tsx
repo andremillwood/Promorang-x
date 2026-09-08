@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
-import { isPlaceholderDisplayName } from "@promorang/shared";
+import { isPlaceholderDisplayName, readIntendedStakeholderRole, rememberIntendedStakeholder } from "@promorang/shared";
 import { supabase } from "@/integrations/supabase/client";
 import { clearDemoSession, DemoRole, readDemoSession, writeDemoSession } from "@/lib/demo-session";
 import { getGrowthSignupMetadata } from "@/lib/marketing-attribution";
@@ -29,7 +29,8 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signInWithGoogle: () => Promise<{ error: Error | null }>;
+  signInWithGoogle: (intent?: { role?: string | null; next?: string | null }) => Promise<{ error: Error | null }>;
+  applyIntendedRole: (userId: string, role?: string | null) => Promise<UserRole | null>;
   signOut: () => Promise<void>;
   demoSignIn: (role: UserRole, demoEmailRecipient?: string) => Promise<{ error: Error | null }>;
   organizations: any[];
@@ -83,7 +84,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const resolvePreferredRole = (availableRoles: UserRole[]) => {
     const demoRole = readDemoSession()?.role;
     const savedRole = localStorage.getItem("promorang_active_role");
-    const preferredCandidates = [demoRole, savedRole]
+    const intendedRole = readIntendedStakeholderRole(typeof sessionStorage === "undefined" ? null : sessionStorage);
+    const preferredCandidates = [intendedRole && intendedRole !== "admin" ? intendedRole : null, demoRole, savedRole]
       .map((role) => (role ? mapRole(role) : null))
       .filter((role): role is UserRole => !!role);
 
@@ -353,6 +355,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!uniqueRoles.includes('participant')) {
         uniqueRoles.push('participant');
       }
+
+      const intendedRole = readIntendedStakeholderRole(typeof sessionStorage === "undefined" ? null : sessionStorage);
+      if (intendedRole && intendedRole !== "admin" && !uniqueRoles.includes(intendedRole as UserRole)) {
+        uniqueRoles.push(intendedRole as UserRole);
+      }
       
       return uniqueRoles;
     } catch (e) {
@@ -437,6 +444,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
+          role,
           referral_code: growth.referral_code,
           anonymous_id: growth.anonymous_id,
           acquisition: growth.first_touch,
@@ -561,9 +569,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signInWithGoogle = async () => {
+  const applyIntendedRole = async (userId: string, role?: string | null) => {
+    const intended = (role || readIntendedStakeholderRole(typeof sessionStorage === "undefined" ? null : sessionStorage)) as UserRole | null;
+    if (!intended || intended === "admin") return null;
+
+    setRoles((current) => (current.includes(intended) ? current : [...current, intended]));
+    setActiveRole(intended);
+
+    const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: intended as any });
+    if (error && !/duplicate|unique/i.test(error.message)) {
+      console.warn("[AuthContext] Could not register intended role:", error.message);
+    }
+
+    return intended;
+  };
+
+  const signInWithGoogle = async (intent?: { role?: string | null; next?: string | null }) => {
     clearDemoSession();
-    const redirectUrl = `${window.location.origin}/auth/callback`;
+    rememberIntendedStakeholder(typeof sessionStorage === "undefined" ? null : sessionStorage, intent || {});
+    const params = new URLSearchParams();
+    if (intent?.role) params.set("role", intent.role);
+    if (intent?.next?.startsWith("/") && !intent.next.startsWith("//")) params.set("next", intent.next);
+    const qs = params.toString();
+    const redirectUrl = `${window.location.origin}/auth/callback${qs ? `?${qs}` : ""}`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -591,6 +619,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signUp,
         signIn,
         signInWithGoogle,
+        applyIntendedRole,
         signOut,
         demoSignIn,
         organizations,

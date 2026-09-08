@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { authEntryHref } from "@promorang/shared";
 
 const venueCategories = [
   { value: "general", label: "General" },
@@ -87,7 +88,7 @@ const AddVenue = () => {
   };
 
   if (!user) {
-    navigate("/auth");
+    navigate(authEntryHref({ mode: "login", role: "merchant", next: "/dashboard/venues/add" }));
     return null;
   }
 

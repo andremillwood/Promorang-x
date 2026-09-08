@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { POST_AUTH_NEXT_KEY, readIntendedStakeholderRole } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
@@ -11,7 +12,7 @@ import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
  * Intelligently routes users based on role + completion state
  */
 export function PostLoginRouter() {
-  const { user, activeRole, loading } = useAuth();
+  const { user, activeRole, loading, applyIntendedRole } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,8 +20,11 @@ export function PostLoginRouter() {
 
     const determineLandingPage = async () => {
       await flushMarketingIntent().catch(() => undefined);
-      const requestedNext = sessionStorage.getItem("promorang_post_auth_next");
+      const intendedRole = readIntendedStakeholderRole(sessionStorage);
+      const appliedRole = intendedRole ? await applyIntendedRole(user.id, intendedRole) : activeRole;
+      const requestedNext = sessionStorage.getItem(POST_AUTH_NEXT_KEY) || sessionStorage.getItem("promorang_post_auth_next");
       if (requestedNext?.startsWith("/") && !requestedNext.startsWith("//")) {
+        sessionStorage.removeItem(POST_AUTH_NEXT_KEY);
         sessionStorage.removeItem("promorang_post_auth_next");
         const aimed = promoCardAimFromNext(requestedNext);
         if (aimed) writePromoCardAim(aimed);
@@ -47,14 +51,14 @@ export function PostLoginRouter() {
         .maybeSingle();
 
       if (!error && !data?.onboarding_completed) {
-        navigate(activeRole === "brand" ? "/onboarding/brand" : "/onboarding", { replace: true });
+        navigate(appliedRole === "brand" ? "/onboarding/brand" : "/onboarding", { replace: true });
       } else {
         navigate("/dashboard", { replace: true });
       }
     };
 
     determineLandingPage();
-  }, [user, activeRole, loading, navigate]);
+  }, [user, activeRole, loading, navigate, applyIntendedRole]);
 
   // Show loading while determining route
   return (

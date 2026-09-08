@@ -9,6 +9,7 @@ import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import { MerchantRoiSimulator } from "@/components/value/MerchantRoiSimulator";
 import { PromoCardEconomyExplainer } from "@/components/promocard";
+import { authEntryHref } from "@promorang/shared";
 
 import {
     Store,
@@ -126,7 +127,7 @@ const ForMerchants = () => {
                                 asChild
                                 className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black shadow-xl shadow-emerald-500/25 px-8 py-6 rounded-2xl text-base"
                             >
-                                <Link to={user ? "/stock" : "/auth?next=/stock"}>
+                                <Link to={user ? "/stock" : authEntryHref({ next: "/stock" })}>
                                     <Plus className="w-5 h-5 mr-2" />
                                     <span>Put a perk up</span>
                                 </Link>

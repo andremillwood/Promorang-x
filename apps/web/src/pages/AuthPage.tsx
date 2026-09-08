@@ -13,6 +13,12 @@ import { captureGrowthAttribution, markPendingSignup, trackGrowthEvent } from "@
 import { trackMetaEvent } from "@/components/MetaPixel";
 import { useI18n } from "@/i18n/I18nContext";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
+import {
+  clearIntendedStakeholder,
+  getStakeholderLens,
+  rememberIntendedStakeholder,
+  resolveIntendedStakeholderRole,
+} from "@promorang/shared";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
 
@@ -71,7 +77,13 @@ const AuthPage = () => {
   const commercialIntent = searchParams.get("intent");
   const selectedPlan = searchParams.get("plan");
   const selectedSku = searchParams.get("sku");
-  const unlockAim = promoCardAimFromNext(searchParams.get("next"));
+  const nextPath = searchParams.get("next");
+  const intendedRole = resolveIntendedStakeholderRole({
+    role: searchParams.get("role"),
+    next: nextPath,
+  });
+  const intendedLens = intendedRole ? getStakeholderLens(intendedRole) : null;
+  const unlockAim = promoCardAimFromNext(nextPath);
   const localizedRoleInfo: Record<UserRole, { title: string; description: string }> = {
     participant: { title: t("auth.participant"), description: t("persona.explorerDesc") },
     creator: { title: t("auth.creator"), description: t("persona.creatorDesc") },
@@ -82,22 +94,28 @@ const AuthPage = () => {
 
   useEffect(() => {
     captureGrowthAttribution();
-    const requestedRole = searchParams.get("role");
     const next = searchParams.get("next");
+    const explicitRole = searchParams.get("role");
+    if (!explicitRole && !next) {
+      clearIntendedStakeholder(sessionStorage);
+    } else {
+      rememberIntendedStakeholder(sessionStorage, {
+        role: explicitRole || intendedRole,
+        next,
+      });
+    }
     if (next?.startsWith("/") && !next.startsWith("//")) {
-      sessionStorage.setItem("promorang_post_auth_next", next);
       const aimed = promoCardAimFromNext(next);
       if (aimed) writePromoCardAim(aimed);
     }
     if (searchParams.get("mode") === "signup") setMode("signup");
-    if (!requestedRole) return;
-
-    if (["participant", "creator", "host", "brand", "merchant"].includes(requestedRole)) {
-      setSelectedRole(requestedRole as UserRole);
-      setShowRolePicker(requestedRole !== "participant");
-      setMode("signup");
+    if (searchParams.get("mode") === "login") setMode("login");
+    if (!intendedRole || intendedRole === "admin") return;
+    if (["participant", "creator", "host", "brand", "merchant"].includes(intendedRole)) {
+      setSelectedRole(intendedRole as UserRole);
+      setShowRolePicker(intendedRole !== "participant");
     }
-  }, [searchParams]);
+  }, [searchParams, intendedRole]);
 
   useEffect(() => {
     const savedDemoEmail = localStorage.getItem(DEMO_EMAIL_STORAGE_KEY);
@@ -153,7 +171,6 @@ const AuthPage = () => {
             variant: "destructive",
           });
         } else {
-          // Use post-login router for intelligent landing
           navigate("/post-login", { replace: true });
         }
       } else {
@@ -190,7 +207,10 @@ const AuthPage = () => {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      const { error } = await signInWithGoogle();
+      const { error } = await signInWithGoogle({
+        role: intendedRole || (mode === "signup" ? selectedRole : null),
+        next: nextPath,
+      });
       if (error) {
         toast({
           title: t("auth.googleError"),
@@ -275,6 +295,16 @@ const AuthPage = () => {
                 ? `Unlock ${unlockAim.label} on your PromoCard.`
                 : t("auth.signupCopy")}
           </p>
+          {intendedLens && intendedRole && intendedRole !== "participant" ? (
+            <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                {intendedLens.workspaceLabel} workspace
+              </p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                You were brought here as a {intendedLens.workspaceLabel.toLowerCase()}. That role is registered on this login and signup — {intendedLens.putIn.detail}
+              </p>
+            </div>
+          ) : null}
           {unlockAim && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Unlock this</p>
