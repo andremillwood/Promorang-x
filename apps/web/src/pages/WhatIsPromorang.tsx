@@ -104,7 +104,7 @@ const coreMechanics = [
   {
     icon: DollarSign,
     title: "Bounties & Gems",
-    description: "Perform valuable community moves (hosting, content creation, check-ins) to earn Gems and cash bounties redeemable in your digital wallet.",
+    description: "1 Gem = $1. Buy Gems or earn them from funded work. Spending Gems — not paying cash outside — is what can unlock Pieces, Save & Win tickets, and PromoShare entries.",
   },
 ];
 

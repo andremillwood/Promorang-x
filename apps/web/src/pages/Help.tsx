@@ -48,6 +48,21 @@ interface FaqItem {
 
 const guides: HowToGuide[] = [
   {
+    id: "what-is-what",
+    category: "members",
+    categoryLabel: "Locals & Members",
+    icon: BookOpen,
+    title: "What PromoCard, Points, Gems, and tickets are",
+    summary: "Eight names, five jobs. PromoCard is what you use. Points prove you showed up. Gems are the money. Keys open doors. Tickets are chances.",
+    steps: [
+      "PromoCard comes off a partner bill. It is not a bank account.",
+      "Points are a score. 500 can become 1 PromoKey. They are not money.",
+      "1 Gem = $1. Buy Gems or earn them. Spend them for extras cash cannot buy.",
+      "The Master Key is today's free contribution gate. PromoShare tickets are chances in a named draw. Save & Win parks Gems without losing them."
+    ],
+    actionLink: { label: "Open the map", href: "/economy" }
+  },
+  {
     id: "vote-discoveries",
     category: "members",
     categoryLabel: "Locals & Members",
@@ -167,8 +182,8 @@ const faqs: FaqItem[] = [
   },
   {
     category: "members",
-    q: "What are Gems and how do I earn them?",
-    a: "Gems are Promorang's community reward points. You earn Gems by voting in Monday debates, checking in at partner venues, attending Moments, and referring friends. Gems can be spent on secret perks, merch, and marketplace discounts."
+    q: "What are Gems and how do I get them?",
+    a: "1 Gem = $1 of platform value. Buy Gems with a card or earn them from funded missions, Moments, allowances, and funded draws. Holding Gems earns nothing. Spending them on Pieces, perks, or Save & Win opens extras cash outside the app cannot."
   },
   {
     category: "members",
@@ -204,6 +219,36 @@ const faqs: FaqItem[] = [
     category: "safety",
     q: "What should I do if a payout, check-in, or PromoKey fails?",
     a: "You can submit a support ticket directly from your account or reach out via our contact page with the venue name, approximate time, and screenshot. Our team responds within 24 hours."
+  },
+  {
+    category: "members",
+    q: "What is a PromoCard?",
+    a: "PromoCard is the everyday card. Eligible value comes off a partner bill and you pay the rest. It is not a bank card, not Points, and not Gems."
+  },
+  {
+    category: "members",
+    q: "What are Points?",
+    a: "Points are a seasonal score for showing up. You cannot buy, sell, or cash them out. 500 Points can become 1 PromoKey."
+  },
+  {
+    category: "members",
+    q: "Why spend Gems instead of paying cash?",
+    a: "Gem spend can unlock Pieces, Save & Win tickets, PromoShare entries, standing, and partner perks. A card swipe outside Promorang does not put you in that loop."
+  },
+  {
+    category: "members",
+    q: "What is the Master Key?",
+    a: "The Master Key is today's contribution gate, not a streak you buy. Finish your tier's verified free Proofs and it turns on until reset. PromoKeys still decide how many doors you may open."
+  },
+  {
+    category: "members",
+    q: "What is a PromoShare ticket?",
+    a: "A ticket is a chance in a named draw — not Points, not Gems, and not a guaranteed prize. More eligible tickets improve odds. Funded draws pay from money already set aside."
+  },
+  {
+    category: "members",
+    q: "What is Save & Win?",
+    a: "Save & Win is the no-loss pot. Park Gems, keep 100% of them, and collect draw tickets while they sit. Take the Gems out whenever you want. A win is extra."
   }
 ];
 
