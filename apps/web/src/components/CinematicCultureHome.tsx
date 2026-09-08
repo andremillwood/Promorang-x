@@ -469,7 +469,13 @@ export default function CinematicCultureHome() {
   return (
     <main className="min-h-screen bg-black text-white">
       {user ? <HomeFeedToggle /> : null}
-      <PromoCardGateway />
+      <PromoCardGateway
+        places={homepageCommerce.slice(0, 3).map((listing) => ({
+          id: listing.id,
+          name: listing.merchant,
+          href: listing.href,
+        }))}
+      />
       <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} />
       <div className="hidden md:block">
       <section ref={heroRef} className="relative overflow-hidden border-b border-white/10 md:min-h-[92svh]">

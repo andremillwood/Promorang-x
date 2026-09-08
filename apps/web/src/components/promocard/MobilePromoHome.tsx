@@ -29,9 +29,9 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
       <section className="px-5 py-12">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#a34a1a]">Use it nearby</p>
-            <h2 className="mt-2 max-w-[15rem] font-serif text-[2rem] font-black leading-[0.96] tracking-[-0.04em]">
-              Your next outing can cost less.
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#a34a1a]">Use it here</p>
+            <h2 className="mt-2 max-w-[16rem] font-serif text-[2rem] font-black leading-[0.96] tracking-[-0.04em]">
+              These places will mark you.
             </h2>
           </div>
           <Link to="/shop" className="mb-1 shrink-0 text-xs font-black text-[#a34a1a]">See all</Link>
@@ -49,24 +49,24 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
                 <p className="line-clamp-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#f6ad72]">{offer.merchant}</p>
                 <h3 className="mt-1 line-clamp-2 text-lg font-black leading-tight">{offer.title}</h3>
                 <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
-                  <span className="text-xs text-white/60">View offer before you go</span>
+                  <span className="text-xs text-white/60">See why you’re wanted there</span>
                   <ArrowRight className="h-4 w-4 text-[#ff6a1a]" />
                 </div>
               </div>
             </Link>
           ))}
         </div>
-        <p className="mt-3 text-xs leading-5 text-[#625a50]">Offers, minimum spend and availability are always shown before checkout.</p>
+        <p className="mt-3 text-xs leading-5 text-[#625a50]">The perk, the place, and the terms stay visible before you go. No surprise at the counter.</p>
       </section>
 
       <section className="bg-[#171512] px-5 py-14 text-white">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f6ad72]">One simple loop</p>
-        <h2 className="mt-2 max-w-xs font-serif text-[2rem] font-black leading-[0.98] tracking-[-0.04em]">Use value. Show up. Earn more.</h2>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f6ad72]">The saving is the excuse</p>
+        <h2 className="mt-2 max-w-xs font-serif text-[2rem] font-black leading-[0.98] tracking-[-0.04em]">Show up. Get marked. Come back wanted.</h2>
         <div className="mt-8 space-y-7">
           {[
-            ["01", ScanLine, "Apply your PromoCard", "See the exact promotional value you can use, then pay any remainder normally."],
-            ["02", MapPin, "Make a verified visit", "Check in, join a Moment or complete an eligible action at a participating place."],
-            ["03", Zap, "Recharge your value", "Qualified actions can restore promotional spending balance for your next move."],
+            ["01", ScanLine, "Carry the perk they already approved", "The card is your alibi for going. The saving is real — the recognition is why it works."],
+            ["02", MapPin, "Let the place mark you", "Walk in, join a Moment, or finish the action they asked for. Being seen is the product."],
+            ["03", Zap, "The next one finds you", "Once a visit counts, the next perk has somewhere to land. That’s the return."],
           ].map(([number, Icon, title, copy]) => {
             const StepIcon = Icon as typeof ScanLine;
             return (
@@ -112,9 +112,9 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
       <section className="px-5 pb-[calc(7rem+env(safe-area-inset-bottom,0px))] pt-4">
         <div className="rounded-[1.5rem] bg-[#e8ddc9] p-5">
           <WalletCards className="h-6 w-6 text-[#a34a1a]" />
-          <h2 className="mt-5 font-serif text-2xl font-black leading-tight">Ready when your next plan is.</h2>
+          <h2 className="mt-5 font-serif text-2xl font-black leading-tight">Ready when you decide to go.</h2>
           <ul className="mt-4 space-y-2 text-sm text-[#51483e]">
-            {["No cash repayment", "Offer shown before checkout", "Merchant terms stay visible"].map((item) => <li key={item} className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-700" />{item}</li>)}
+            {["No cash repayment", "The perk is shown before you go", "The place’s terms stay visible"].map((item) => <li key={item} className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-700" />{item}</li>)}
           </ul>
           <Link to={primaryHref} className="mt-6 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#171512] px-5 text-sm font-black text-white active:scale-[0.98]">
             {user ? "Open my PromoCard" : "Get my PromoCard"}<ArrowRight className="h-4 w-4" />
