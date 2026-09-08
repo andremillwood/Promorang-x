@@ -4,6 +4,7 @@ import {
   WORLD_FACTIONS,
   WORLD_FACTION_KEYS,
   WORLD_PATH_TITLES,
+  presentWorldRunTitle,
   type WorldPathDimension,
 } from "@promorang/shared";
 import { useExperienceActions, useWorldProgress } from "@/hooks/usePeopleExperience";
@@ -180,7 +181,7 @@ export default function Progress() {
         <h2 className="mt-2 font-serif text-2xl font-bold">{world?.crew?.name || "No Crew yet"}</h2>
         <p className="mt-1 text-sm text-white/50">
           {world?.crew
-            ? `${world.crew.runTitle || "Barbican Run"} · ${world.crew.runCompleted || 0}/${world.crew.runTotal || 4}`
+            ? `${presentWorldRunTitle(world.crew.runTitle)} · ${world.crew.runCompleted || 0}/${world.crew.runTotal || 4}`
             : "Form 3–8 people. Run roles are temporary."}
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs text-white/45">

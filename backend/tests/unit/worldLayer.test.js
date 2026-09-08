@@ -67,7 +67,7 @@ describe('world layer presentation', () => {
     expect(forming.title).toBe('Connector');
   });
 
-  test('Barbican Run counts only matching verified actions', () => {
+  test('Crew Run counts only matching verified actions', () => {
     const progress = resolveCrewRunProgress([
       { actionType: 'MOMENT_ATTENDANCE', memoryKept: true },
     ]);

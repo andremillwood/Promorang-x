@@ -4,6 +4,7 @@ import {
   firstGivenName,
   getStakeholderLens,
   homeGreeting,
+  presentWorldRunTitle,
   resolvePromoCardFace,
   resolveStakeholderHomeMove,
 } from "@promorang/shared";
@@ -231,13 +232,13 @@ export default function PeopleHome() {
               title={world?.crew?.name || "Form a Crew"}
               detail={
                 world?.crew
-                  ? `${world.crew.size} people · ${world.crew.runTitle || "Barbican Run"}`
-                  : "3–8 people. One Barbican Run."
+                  ? `${world.crew.size} people · ${presentWorldRunTitle(world.crew.runTitle)}`
+                  : "3–8 people. One Run."
               }
               stub="CREW"
               stubLabel="Open"
               imageUrl={world?.currentMove?.imageUrl || world?.slice?.imageUrl}
-              imageAlt={world?.crew?.runTitle || "Barbican Run"}
+              imageAlt={presentWorldRunTitle(world?.crew?.runTitle)}
             />
           </Link>
           {world?.crew ? (

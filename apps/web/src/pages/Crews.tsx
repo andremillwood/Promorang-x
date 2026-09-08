@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { CREW_RUN_ROLE_KEYS, CREW_RUN_ROLES, KINGSTON_AFTER_DARK_SLICE } from "@promorang/shared";
+import { CREW_RUN_ROLE_KEYS, CREW_RUN_ROLES, KINGSTON_AFTER_DARK_SLICE, presentWorldRunTitle } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceActions, useMyCrew } from "@/hooks/usePeopleExperience";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
@@ -25,7 +25,7 @@ export default function Crews() {
   const handleCreate = async () => {
     try {
       await createCrew.mutateAsync({ name: name.trim() || "Night Owls" });
-      toast({ title: "Crew formed", description: "Invite people. The Barbican Run starts when you move together." });
+      toast({ title: "Crew formed", description: "Invite people. The Run starts when you move together." });
     } catch (error) {
       toast({ title: "Could not form a Crew", description: (error as Error).message, variant: "destructive" });
     }
@@ -60,7 +60,7 @@ export default function Crews() {
     <ExperienceShell
       eyebrow="Who you move with"
       title={crew?.name || "Form a Crew"}
-      description="3–8 people. One Barbican Run. Progress only from verified action."
+      description="3–8 people. One Run. Progress only from verified action."
       backTo="/dashboard"
     >
       {crew ? (
@@ -69,12 +69,12 @@ export default function Crews() {
             {(run?.imageUrl || KINGSTON_AFTER_DARK_SLICE.imageUrl) ? (
               <img
                 src={run?.imageUrl || KINGSTON_AFTER_DARK_SLICE.imageUrl}
-                alt={run?.title || KINGSTON_AFTER_DARK_SLICE.runTitle}
+                alt={presentWorldRunTitle(run?.title)}
                 className="h-44 w-full object-cover sm:h-52"
               />
             ) : null}
             <div className="px-5 py-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{run?.title || KINGSTON_AFTER_DARK_SLICE.runTitle}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{presentWorldRunTitle(run?.title)}</p>
             <p className="mt-2 font-serif text-3xl font-bold">
               {run?.completed || 0}/{run?.total || 4} objectives counted
             </p>
@@ -155,7 +155,7 @@ export default function Crews() {
           </section>
 
           <section>
-            <h2 className="font-serif text-2xl font-bold">Barbican Run</h2>
+            <h2 className="font-serif text-2xl font-bold">{presentWorldRunTitle(run?.title)}</h2>
             <ol className="mt-3 space-y-2">
               {(run?.objectives || KINGSTON_AFTER_DARK_SLICE.objectives).map((objective: { key: string; title: string; proof: string; complete?: boolean; imageUrl?: string | null }) => (
                 <li key={objective.key} className="overflow-hidden rounded-[1.4rem] border border-white/10">
@@ -184,7 +184,7 @@ export default function Crews() {
             />
             <div className="px-5 py-5">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{KINGSTON_AFTER_DARK_SLICE.runTitle}</p>
-              <h2 className="mt-2 font-serif text-2xl font-bold">Move through Barbican together</h2>
+              <h2 className="mt-2 font-serif text-2xl font-bold">Move through Kingston together</h2>
               <p className="mt-2 text-sm text-white/50">Show up at a Moment, support a Place, bring someone, keep a Memory.</p>
             </div>
           </section>

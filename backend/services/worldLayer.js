@@ -23,7 +23,7 @@ const KINGSTON_AFTER_DARK_SLICE = {
   collectionKey: 'first-current',
   collectionTitle: 'First Current',
   runSlug: 'barbican-run',
-  runTitle: 'Barbican Run',
+  runTitle: 'The City Wakes',
   header: 'Tonight in Kingston',
   currentLine: 'The Current is moving through Barbican.',
   signalEyebrow: 'A Signal appeared',
@@ -120,6 +120,12 @@ function resolveCrewRunProgress(actions, slice = KINGSTON_AFTER_DARK_SLICE) {
   };
 }
 
+function presentWorldRunTitle(title, slice = KINGSTON_AFTER_DARK_SLICE) {
+  const raw = String(title || '').trim();
+  if (!raw || /^barbican run$/i.test(raw) || raw === slice.runSlug) return slice.runTitle;
+  return raw;
+}
+
 function firstPictureUrl(...urls) {
   for (const url of urls) {
     if (typeof url === 'string' && url.trim()) return url.trim();
@@ -202,7 +208,7 @@ function resolveWorldConsequence(facts = {}) {
     lines.push({ label: 'What came back', value: facts.promoCardReturnLabel || 'PromoCard · eligible refill', strong: true });
   }
   if (facts.runTitle && facts.runTotal && facts.runCompleted != null) {
-    lines.push({ label: 'Crew Run', value: `${facts.runTitle} · ${facts.runCompleted}/${facts.runTotal} objectives` });
+    lines.push({ label: 'Crew Run', value: `${presentWorldRunTitle(facts.runTitle)} · ${facts.runCompleted}/${facts.runTotal} objectives` });
   }
   if (facts.pathCue) lines.push({ label: 'Your path', value: facts.pathCue });
   if (facts.memoryKept && facts.memoryTitle) lines.push({ label: 'Kept', value: facts.memoryTitle, strong: true });
@@ -562,6 +568,7 @@ module.exports = {
   KINGSTON_AFTER_DARK_SLICE,
   KINGSTON_SLICE_IMAGES,
   firstPictureUrl,
+  presentWorldRunTitle,
   pictureForPlaceName,
   resolveReceiptPictures,
   PATH_EVIDENCE_THRESHOLD,

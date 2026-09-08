@@ -5,7 +5,7 @@
 
 const crypto = require('crypto');
 const { supabase: serviceSupabase } = require('../lib/supabase');
-const { KINGSTON_AFTER_DARK_SLICE, resolveCrewRunProgress, resolvePathEvidence, resolveCrewRunRole, CREW_RUN_ROLES } = require('./worldLayer');
+const { KINGSTON_AFTER_DARK_SLICE, presentWorldRunTitle, resolveCrewRunProgress, resolvePathEvidence, resolveCrewRunRole, CREW_RUN_ROLES } = require('./worldLayer');
 const { resolveHouse, FACTION_TO_HOUSE } = require('./worldSystemV2');
 
 const CREW_MIN = 3;
@@ -121,7 +121,7 @@ async function getCrew(crewId, viewerId, db = serviceSupabase) {
       ? {
           id: run.data.id,
           slug: run.data.slug,
-          title: run.data.title,
+          title: presentWorldRunTitle(run.data.title),
           status: run.data.status,
           imageUrl: KINGSTON_AFTER_DARK_SLICE.imageUrl,
           ...progress,

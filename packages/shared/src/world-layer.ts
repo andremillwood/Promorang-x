@@ -123,7 +123,7 @@ export const KINGSTON_AFTER_DARK_SLICE: WorldSlice = {
   collectionKey: "first-current",
   collectionTitle: "First Current",
   runSlug: "barbican-run",
-  runTitle: "Barbican Run",
+  runTitle: "The City Wakes",
   header: "Tonight in Kingston",
   currentLine: "The Current is moving through Barbican.",
   signalEyebrow: "A Signal appeared",
@@ -215,6 +215,16 @@ export type WorldConsequenceReceipt = {
   kept: { title: string; kind: "memory" | "perk" | "none" } | null;
   pictures: WorldReceiptPicture[];
 };
+
+/** Barbican is the first corridor, not the name of the Crew Run. */
+export function presentWorldRunTitle(
+  title?: string | null,
+  slice: WorldSlice = KINGSTON_AFTER_DARK_SLICE,
+): string {
+  const raw = String(title || "").trim();
+  if (!raw || /^barbican run$/i.test(raw) || raw === slice.runSlug) return slice.runTitle;
+  return raw;
+}
 
 export function firstPictureUrl(...urls: Array<string | null | undefined>): string | null {
   for (const url of urls) {
@@ -313,7 +323,7 @@ export function resolveWorldConsequence(facts: WorldConsequenceFacts): WorldCons
   if (facts.runTitle && facts.runTotal && facts.runCompleted != null) {
     lines.push({
       label: "Crew Run",
-      value: `${facts.runTitle} · ${facts.runCompleted}/${facts.runTotal} objectives`,
+      value: `${presentWorldRunTitle(facts.runTitle)} · ${facts.runCompleted}/${facts.runTotal} objectives`,
     });
   }
   if (facts.pathCue) lines.push({ label: "Your path", value: facts.pathCue });

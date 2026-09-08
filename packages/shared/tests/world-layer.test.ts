@@ -8,6 +8,7 @@ import {
   resolvePathEvidence,
   resolveSceneHealth,
   resolveSeasonDispatch,
+  presentWorldRunTitle,
   resolveWorldConsequence,
   resolveWorldCurrentMove,
   resolveWorldMomentPhase,
@@ -43,7 +44,7 @@ describe("world consequence receipt", () => {
       promoCardEligible: true,
       memoryKept: true,
       memoryTitle: "First Current Memory",
-      runTitle: "Barbican Run",
+      runTitle: "The City Wakes",
       runCompleted: 1,
       runTotal: 4,
       pathCue: "A path is forming · Connector",
@@ -142,7 +143,15 @@ describe("emerging path", () => {
   });
 });
 
-describe("Barbican Run progress", () => {
+describe("Crew Run naming", () => {
+  it("does not brand the Run as Barbican", () => {
+    expect(KINGSTON_AFTER_DARK_SLICE.runTitle).toBe("The City Wakes");
+    expect(presentWorldRunTitle("Barbican Run")).toBe("The City Wakes");
+    expect(presentWorldRunTitle("Night Shift")).toBe("Night Shift");
+  });
+});
+
+describe("Crew Run progress", () => {
   it("counts only objectives that have matching verified actions", () => {
     const progress = resolveCrewRunProgress([
       { actionType: "MOMENT_ATTENDANCE", memoryKept: true },

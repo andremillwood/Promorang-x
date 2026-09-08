@@ -1386,7 +1386,7 @@ function createPeopleExperienceService(db = defaultDb) {
         area: slice.area,
         imageUrl: sceneRow?.image_url || slice.imageUrl,
         currentLine: sceneRow?.metadata?.season_line || slice.currentLine,
-        runTitle: crew?.run?.title || slice.runTitle,
+        runTitle: worldLayer.presentWorldRunTitle(crew?.run?.title || slice.runTitle),
       },
       currentMove,
       context,
@@ -1411,7 +1411,7 @@ function createPeopleExperienceService(db = defaultDb) {
             id: crew.id,
             name: crew.name,
             size: crew.size,
-            runTitle: crew.run?.title || null,
+            runTitle: worldLayer.presentWorldRunTitle(crew.run?.title) || null,
             runCompleted: crew.run?.completed ?? 0,
             runTotal: crew.run?.total ?? 0,
           }
@@ -1435,7 +1435,7 @@ function createPeopleExperienceService(db = defaultDb) {
         crewMark: crew?.name || null,
         pathCue: path.cue,
         nearestUnlock: crew
-          ? `${crew.run?.title || slice.runTitle} · ${crew.run?.completed || 0}/${crew.run?.total || 4}`
+          ? `${worldLayer.presentWorldRunTitle(crew.run?.title || slice.runTitle)} · ${crew.run?.completed || 0}/${crew.run?.total || 4}`
           : latestMemory
             ? 'Keep showing up to open the next Signal'
             : 'Show up once to keep a Memory',
