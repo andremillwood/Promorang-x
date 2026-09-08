@@ -8,24 +8,9 @@ import {
   WalletCards,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { promoCardGatewayCopy as copy } from "./promoCardGatewayCopy";
 
-const steps = [
-  {
-    icon: Ticket,
-    title: "Use this",
-    copy: "Walk in with something they already said yes to.",
-  },
-  {
-    icon: MapPin,
-    title: "Places that want you back",
-    copy: "Only the rooms that actually expect you this week.",
-  },
-  {
-    icon: Sparkles,
-    title: "Come back",
-    copy: "The next perk arrives because the last one counted.",
-  },
-];
+const stepIcons = [Ticket, MapPin, Sparkles];
 
 export function PromoCardGateway() {
   const { user } = useAuth();
@@ -38,14 +23,14 @@ export function PromoCardGateway() {
           <div>
             <div className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.18em] text-amber-200 sm:rounded-full sm:border sm:border-amber-300/25 sm:bg-amber-300/10 sm:px-3 sm:py-1.5 sm:text-[10px]">
               <Sparkles className="h-3.5 w-3.5" />
-              Passed along, not advertised
+              {copy.eyebrow}
             </div>
             <h1 className="mt-4 max-w-2xl font-serif text-[clamp(3.2rem,15vw,6.4rem)] font-black uppercase leading-[0.82] tracking-[-0.065em] sm:mt-5 sm:font-sans sm:leading-[0.86] sm:tracking-[-0.07em]">
-              Use this.<br />
-              <span className="text-primary">Come back.</span>
+              {copy.headlineLead}<br />
+              <span className="text-primary">{copy.headlineReturn}</span>
             </h1>
             <p className="mt-5 max-w-xl text-[15px] leading-6 text-white/68 sm:text-lg sm:leading-8">
-              People don’t come back because it was cheaper. They come back because last time felt like it counted. Someone you follow hands you a real perk. You walk in. They mark it. That’s the only ending that counts.
+              {copy.body}
             </p>
 
             <div className="mt-6 grid gap-2.5 sm:flex sm:gap-3">
@@ -54,7 +39,7 @@ export function PromoCardGateway() {
                 className="inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-black text-white shadow-[0_18px_50px_rgba(255,85,0,0.28)] transition hover:bg-orange-600 active:scale-[0.98]"
               >
                 <Ticket className="h-4 w-4" />
-                {user ? "Use this" : "Get my PromoCard"}
+                {user ? copy.signedInCta : copy.primaryCta}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
@@ -62,7 +47,7 @@ export function PromoCardGateway() {
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-sm font-bold text-white transition hover:border-amber-300/40 hover:bg-white/[0.08] active:scale-[0.98]"
               >
                 <MapPin className="h-4 w-4 text-amber-300" />
-                Places that want you back
+                {copy.nearbyCta}
               </Link>
             </div>
           </div>
@@ -76,32 +61,35 @@ export function PromoCardGateway() {
                     <WalletCards className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-black uppercase tracking-[0.12em]">PromoCard</p>
-                    <p className="text-[11px] text-white/45">It counts when they see you</p>
+                    <p className="text-sm font-black uppercase tracking-[0.12em]">{copy.cardName}</p>
+                    <p className="text-[11px] text-white/45">{copy.cardPromise}</p>
                   </div>
                 </div>
               </div>
 
               <div className="my-6 sm:my-8">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">On the card</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{copy.onTheCard}</p>
                 <div className="mt-1 flex items-end gap-2">
-                  <span className="text-4xl font-black tracking-[-0.05em] text-amber-200">Use this</span>
+                  <span className="text-4xl font-black tracking-[-0.05em] text-amber-200">{copy.faceAction}</span>
                 </div>
               </div>
 
               <div className="hidden gap-2.5 sm:grid sm:grid-cols-3">
-                {steps.map((step) => (
-                  <div key={step.title} className="rounded-xl border border-white/10 bg-black/30 p-3.5">
-                    <step.icon className="h-4 w-4 text-amber-300" />
-                    <p className="mt-2 text-xs font-bold">{step.title}</p>
-                    <p className="mt-1 text-[10px] leading-4 text-white/45">{step.copy}</p>
-                  </div>
-                ))}
+                {copy.steps.map((step, index) => {
+                  const Icon = stepIcons[index];
+                  return (
+                    <div key={step.title} className="rounded-xl border border-white/10 bg-black/30 p-3.5">
+                      <Icon className="h-4 w-4 text-amber-300" />
+                      <p className="mt-2 text-xs font-bold">{step.title}</p>
+                      <p className="mt-1 text-[10px] leading-4 text-white/45">{step.copy}</p>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="mt-4 flex items-start gap-2 text-[10px] leading-4 text-white/45 sm:mt-5 sm:border-t sm:border-white/10 sm:pt-4">
                 <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />
-                Buying it, gifting it, or topping it up doesn’t count. Walking in does.
+                {copy.completion}
               </div>
             </div>
           </div>
