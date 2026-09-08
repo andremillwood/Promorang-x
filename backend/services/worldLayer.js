@@ -126,6 +126,18 @@ function presentWorldRunTitle(title, slice = KINGSTON_AFTER_DARK_SLICE) {
   return raw;
 }
 
+const SCENE_WAITING_CONTEST_LINE =
+  'The Scene is waiting for verified movement. Houses form from how people move — the war is Current versus Static.';
+const STALE_CONTEST_LINE = /no philosophy|philosophy is moving|faction war/i;
+
+function presentContestLine(line, totalCurrent = 0) {
+  const raw = String(line || '').trim();
+  if (totalCurrent <= 0 || !raw || STALE_CONTEST_LINE.test(raw)) {
+    return SCENE_WAITING_CONTEST_LINE;
+  }
+  return raw;
+}
+
 function firstPictureUrl(...urls) {
   for (const url of urls) {
     if (typeof url === 'string' && url.trim()) return url.trim();
@@ -517,7 +529,7 @@ function resolveFactionContest({ factionCurrents = {}, unalignedCurrent = 0, mix
   const unaligned = Math.max(0, Number(unalignedCurrent) || 0);
   const totalCurrent = board.reduce((sum, row) => sum + row.current, 0) + unaligned;
 
-  let contestLine = 'The Scene is waiting for verified movement. Houses form from how people move — the war is Current versus Static.';
+  let contestLine = SCENE_WAITING_CONTEST_LINE;
   if (leadingCurrent) {
     contestLine = `${WORLD_FACTIONS[leadingCurrent].title} lead ${WORLD_FACTIONS[leadingCurrent].verb}. The war is Current versus Static — not people versus people.`;
   } else if (tied && top) {
@@ -569,6 +581,8 @@ module.exports = {
   KINGSTON_SLICE_IMAGES,
   firstPictureUrl,
   presentWorldRunTitle,
+  presentContestLine,
+  SCENE_WAITING_CONTEST_LINE,
   pictureForPlaceName,
   resolveReceiptPictures,
   PATH_EVIDENCE_THRESHOLD,

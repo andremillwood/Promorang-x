@@ -97,6 +97,7 @@ describe('world layer presentation', () => {
     const contest = resolveFactionContest({ factionCurrents: { keepers: 3 } });
     expect(contest.leadingCurrent).toBe('keepers');
     expect(contest.contestLine).toMatch(/Current versus Static/);
+    expect(resolveFactionContest().contestLine).not.toMatch(/philosophy|faction/i);
     expect(resolveCurrentStatic({ currentCount: 0 }).polarity).toBe('static');
   });
 });

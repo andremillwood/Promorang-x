@@ -8,7 +8,9 @@ import {
   resolvePathEvidence,
   resolveSceneHealth,
   resolveSeasonDispatch,
+  presentContestLine,
   presentWorldRunTitle,
+  SCENE_WAITING_CONTEST_LINE,
   resolveWorldConsequence,
   resolveWorldCurrentMove,
   resolveWorldMomentPhase,
@@ -243,7 +245,8 @@ describe("guilds, territory, and faction contest", () => {
   it("calls the war Current versus Static, never people versus people", () => {
     const quiet = resolveFactionContest();
     expect(quiet.leadingCurrent).toBeNull();
-    expect(quiet.contestLine).toContain("Current versus Static");
+    expect(quiet.contestLine).toBe(SCENE_WAITING_CONTEST_LINE);
+    expect(quiet.contestLine).not.toMatch(/philosophy|faction/i);
     const moving = resolveFactionContest({
       factionCurrents: { seekers: 4, weavers: 1 },
       mixedCrew: true,
@@ -254,6 +257,15 @@ describe("guilds, territory, and faction contest", () => {
     const tied = resolveFactionContest({ factionCurrents: { seekers: 2, weavers: 2 } });
     expect(tied.leadingCurrent).toBeNull();
     expect(tied.contestLine).toContain("even");
+  });
+
+  it("remaps leftover V1 contest copy at the UI boundary", () => {
+    expect(presentContestLine("No philosophy is moving the Scene yet. The war is Current versus Static.")).toBe(
+      SCENE_WAITING_CONTEST_LINE,
+    );
+    expect(presentContestLine("Faction war · Current vs Static", 4)).toBe(SCENE_WAITING_CONTEST_LINE);
+    expect(presentContestLine("Seekers lead by showing up. The war is Current versus Static — not people versus people.", 4))
+      .toContain("Seekers");
   });
 
   it("marks a Scene Static when nothing useful has moved", () => {

@@ -226,6 +226,23 @@ export function presentWorldRunTitle(
   return raw;
 }
 
+export const SCENE_WAITING_CONTEST_LINE =
+  "The Scene is waiting for verified movement. Houses form from how people move — the war is Current versus Static.";
+
+const STALE_CONTEST_LINE = /no philosophy|philosophy is moving|faction war/i;
+
+/** Remap leftover V1 faction-war copy so a stale API cannot resurrect it. */
+export function presentContestLine(
+  line?: string | null,
+  totalCurrent = 0,
+): string {
+  const raw = String(line || "").trim();
+  if (totalCurrent <= 0 || !raw || STALE_CONTEST_LINE.test(raw)) {
+    return SCENE_WAITING_CONTEST_LINE;
+  }
+  return raw;
+}
+
 export function firstPictureUrl(...urls: Array<string | null | undefined>): string | null {
   for (const url of urls) {
     if (typeof url === "string" && url.trim()) return url.trim();
@@ -917,7 +934,7 @@ export function resolveFactionContest(input: {
   const unalignedCurrent = Math.max(0, Number(input.unalignedCurrent) || 0);
   const totalCurrent = board.reduce((sum, row) => sum + row.current, 0) + unalignedCurrent;
 
-  let contestLine = "The Scene is waiting for verified movement. Houses form from how people move — the war is Current versus Static.";
+  let contestLine = SCENE_WAITING_CONTEST_LINE;
   if (leadingCurrent) {
     contestLine = `${WORLD_FACTIONS[leadingCurrent].title} lead ${WORLD_FACTIONS[leadingCurrent].verb}. The war is Current versus Static — not people versus people.`;
   } else if (tied && top) {

@@ -1,4 +1,4 @@
-import { WORLD_PATH_TITLES, type WorldPathDimension } from '@promorang/shared';
+import { presentContestLine, WORLD_PATH_TITLES, type WorldPathDimension } from '@promorang/shared';
 import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 
@@ -46,8 +46,10 @@ export default function ProgressScreen() {
       {world?.polarity?.line ? (
         <Text style={{ color: Colors.gray[400] }}>{world.polarity.line}</Text>
       ) : null}
-      {world?.contest?.contestLine ? (
-        <Text style={{ color: Colors.white, fontSize: 18, fontWeight: '700' }}>{world.contest.contestLine}</Text>
+      {(world?.contest?.totalCurrent || 0) > 0 ? (
+        <Text style={{ color: Colors.white, fontSize: 18, fontWeight: '700' }}>
+          {presentContestLine(world.contest.contestLine, world.contest.totalCurrent)}
+        </Text>
       ) : null}
       {(world?.territories || []).map((area: { key: string; title: string; state: string }) => (
         <Text key={area.key} style={{ color: Colors.gray[500] }}>
