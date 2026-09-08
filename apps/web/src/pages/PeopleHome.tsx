@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import {
   firstGivenName,
   getStakeholderLens,
@@ -22,10 +22,15 @@ const money = (value: number) => {
   return `J$${Math.round(value).toLocaleString()}`;
 };
 
+const PREVIEW_ROLES = ["participant", "host", "merchant", "brand"] as const;
+
 export default function PeopleHome() {
   const { user, profile, activeRole } = useAuth();
   const home = useExperienceHome();
   const to = useExperiencePath();
+  const location = useLocation();
+  const [params] = useSearchParams();
+  const previewRole = params.get("role");
   const data = home.data;
   const world = data?.world;
   const givenName = firstGivenName({
@@ -36,11 +41,14 @@ export default function PeopleHome() {
     fallback: "there",
   });
   const role = data?.role || (["creator", "host", "promoter", "merchant", "brand"].includes(String(activeRole)) ? "contributor" : "member");
-  const lens = getStakeholderLens(activeRole || role);
+  const lensRole = previewRole || activeRole || role;
+  const lens = getStakeholderLens(lensRole);
+  const isMemberWorkspace = lens.role === "participant";
+  const isPreview = location.pathname.startsWith("/app-preview");
   const greeting = homeGreeting(givenName);
   const description = lens.promise;
   const perksGiven = Number(data?.outcomes?.ledger?.perksGiven || 0);
-  const nextMove = resolveStakeholderHomeMove(activeRole || role, {
+  const nextMove = resolveStakeholderHomeMove(lensRole, {
     perksGiven,
     communities: data?.communities?.length || 0,
     cardPerks: Number(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0),
@@ -133,12 +141,27 @@ export default function PeopleHome() {
         </section>
       )}
     >
-      <StakeholderLoopTrail role={activeRole || role} />
+      {isPreview ? (
+        <nav aria-label="Preview this home as another role" className="flex flex-wrap gap-2">
+          {PREVIEW_ROLES.map((item) => (
+            <Link
+              key={item}
+              to={`/app-preview?role=${item}`}
+              className={`rounded-full border px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] ${
+                lens.role === item ? "border-primary bg-primary text-black" : "border-white/15 text-white/60"
+              }`}
+            >
+              {item}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
+      <StakeholderLoopTrail role={lensRole} />
       {hasMovement ? (
         <PaperReceipt
           heading="What’s in play"
           lines={
-            role === "member"
+            isMemberWorkspace
               ? [
                   { label: "On your card", value: String(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0) },
                   { label: "Rooms", value: String(data?.communities?.length || 0) },
@@ -158,11 +181,11 @@ export default function PeopleHome() {
         />
       ) : null}
 
-      <LiveLoopActions role={String(activeRole || role)} title="Make it live" />
+      <LiveLoopActions role={String(lensRole)} title="Make it live" />
 
-      {role !== "member" ? (
+      {!isMemberWorkspace ? (
         <section className="grid gap-3">
-          <StakeholderPutInPass role={activeRole || role} />
+          <StakeholderPutInPass role={lensRole} />
           <Link to={to(lens.world.href)} className="block">
             <TicketPass kicker="The world" title="See the Scene" detail={lens.world.meaning} stub="WORLD" stubLabel="Open" />
           </Link>
@@ -210,14 +233,14 @@ export default function PeopleHome() {
         </section>
       )}
 
-      {role === "member" && world?.latestReturn ? (
+      {isMemberWorkspace && world?.latestReturn ? (
         <section className="space-y-3">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Latest Return</p>
           <ConsequenceReceipt receipt={world.latestReturn} />
         </section>
       ) : null}
 
-      {role !== "member" && lens.putIn.href !== "/stock" && (data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole))) ? (
+      {!isMemberWorkspace && lens.putIn.href !== "/stock" && (data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole))) ? (
         <Link to={to("/stock")} className="block">
           <TicketPass
             kicker="Inventory"
@@ -229,7 +252,7 @@ export default function PeopleHome() {
         </Link>
       ) : null}
 
-      {role !== "member" ? (
+      {!isMemberWorkspace ? (
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-bold">What they asked</h2>
           <DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" />
@@ -272,11 +295,11 @@ export default function PeopleHome() {
       ) : null}
 
       {!data?.communities?.length ? (
-        <Link to={role === "member" ? "/scenes" : to("/start")} className="block">
+        <Link to={isMemberWorkspace ? "/scenes" : to("/start")} className="block">
           <TicketPass
             kicker="First room"
-            title={role === "member" ? "Find your people" : "Bring your people together"}
-            detail={role === "member" ? "Join a community around the things you love." : "Start a community and give people a reason to join."}
+            title={isMemberWorkspace ? "Find your people" : "Bring your people together"}
+            detail={isMemberWorkspace ? "Join a community around the things you love." : "Start a community and give people a reason to join."}
             stub="ROOM"
             stubLabel="Open"
           />
@@ -293,7 +316,7 @@ export default function PeopleHome() {
         </Link>
       )}
 
-      {role !== "member" ? (
+      {!isMemberWorkspace ? (
         <Link to="/dashboard?view=studio" className="block text-center text-xs text-white/30">
           Open the older studio tools
         </Link>
