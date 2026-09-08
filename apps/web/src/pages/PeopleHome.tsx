@@ -191,7 +191,11 @@ export default function PeopleHome() {
               <TicketPass
                 kicker={world.currentMove.eyebrow || "Tonight"}
                 title={world.currentMove.title}
-                detail={world.currentMove.why || world.slice?.currentLine || "Show up and the Scene can return something useful."}
+                detail={
+                  [world.identity?.line, world.currentMove.why || world.slice?.currentLine || "Show up and the Scene can return something useful."]
+                    .filter(Boolean)
+                    .join(" · ")
+                }
                 stub="GO"
                 stubLabel="Live"
               />

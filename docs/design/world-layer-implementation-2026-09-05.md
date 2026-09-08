@@ -4,6 +4,8 @@ Status: first playable vertical slice, not the full game world.
 
 Canonical spec: [`promocard-world-experience-v1.md`](promocard-world-experience-v1.md).
 
+World System V2 (Houses / Resonance / Influence) lives in [`promorang-world-system-v2.md`](promorang-world-system-v2.md) and `packages/shared/src/world-system-v2.ts`. It derives from `verified_actions`. It must not replace this slice or auto-increment PromoCard balances.
+
 ## What existed before
 
 Already production-wired and reused:

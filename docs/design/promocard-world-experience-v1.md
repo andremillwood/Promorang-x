@@ -4,6 +4,8 @@ Status: product/UX specification for the first playable Promorang vertical slice
 
 This document extends `DESIGN.md`. It does not replace the canonical navigation, economy, proof, Scene, Moment, Mission, Piece, Vault, or PromoCard systems.
 
+Later cultural strategy (Four Houses, Resonance, Influence, Return Chains) is specified in [`promorang-world-system-v2.md`](promorang-world-system-v2.md). V2 extends this slice. It does not revive XP, a Game tab, or the legacy demo Houses.
+
 ## 1. Product thesis
 
 Promorang is the world. PromoCard is the person's persistent passport through it.

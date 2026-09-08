@@ -46,7 +46,7 @@ export default function Progress() {
     <ExperienceShell
       eyebrow={world?.dispatch?.eyebrow || world?.slice?.seasonTitle || "Progress"}
       title="What happened because of you"
-      description="Verified action only. Factions race to move the Scene. Territory is standing, not ownership."
+      description="Verified action only. House and path form from what counted. Territory is standing, not ownership."
       backTo="/dashboard"
     >
       {world?.polarity?.line || world?.dispatch?.line ? (
@@ -63,6 +63,47 @@ export default function Progress() {
       ) : (
         <QuietEmpty title="Nothing counted yet" copy="Show up, support a Place, or bring someone. Progress starts after proof." />
       )}
+
+      {world?.identity?.line || world?.worldSystem?.resonance?.cue ? (
+        <section>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">How you move</p>
+          <h2 className="mt-2 font-serif text-3xl font-bold">
+            {world?.identity?.line || world?.worldSystem?.resonance?.cue}
+          </h2>
+          <p className="mt-2 text-sm text-white/50">
+            House is how you tend to move. Path is what you have demonstrated. Neither is chosen at signup.
+          </p>
+          {world?.house ? (
+            <p className="mt-3 text-sm text-white/60">{world.house.line}</p>
+          ) : null}
+          {world?.identity?.influenceLine ? (
+            <p className="mt-2 text-sm text-white/50">{world.identity.influenceLine}</p>
+          ) : null}
+          {world?.identity?.reputationLine ? (
+            <p className="mt-2 text-sm text-white/50">{world.identity.reputationLine}</p>
+          ) : null}
+          {world?.identity?.traits?.length ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {world.identity.traits.map((trait: { key: string; title: string; criteria: string }) => (
+                <span key={trait.key} className="rounded-full border border-white/15 px-3 py-1 text-xs text-white/70" title={trait.criteria}>
+                  {trait.title}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
+      {world?.worldSystem?.returnChain ? (
+        <section className="rounded-[1.4rem] border border-white/10 px-5 py-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Your Throw returned</p>
+          <h2 className="mt-2 font-serif text-2xl font-bold">{world.worldSystem.returnChain.heading}</h2>
+          <p className="mt-2 text-sm text-white/50">{world.worldSystem.returnChain.line}</p>
+          {world.worldSystem.returnChain.moving ? (
+            <p className="mt-2 text-xs text-white/35">The chain is still moving.</p>
+          ) : null}
+        </section>
+      ) : null}
 
       <section>
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Becoming good at</p>
@@ -143,7 +184,7 @@ export default function Progress() {
             : "Form 3–8 people. Run roles are temporary."}
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs text-white/45">
-          {Object.values(CREW_RUN_ROLES).map((role) => (
+          {Object.values(CREW_RUN_ROLES).filter((role) => role.key !== "chronicler").map((role) => (
             <span key={role.key}>{role.title}</span>
           ))}
         </div>
