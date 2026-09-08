@@ -560,7 +560,7 @@
     }
   }
 
-  /* Signature Promorang objects — orange plastic, not a gold/luxury credit card. */
+  /* Signature Promorang objects — black card, gold edge, orange brand. */
   .pr-plastic-card {
     position: relative;
     overflow: hidden;
@@ -568,16 +568,21 @@
     border-radius: 22px;
     padding: 1.25rem;
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    background: #ff5500;
-    box-shadow: 0 24px 48px -16px rgba(255, 85, 0, 0.45);
+    border: 1px solid rgba(214, 178, 90, 0.42);
+    background:
+      radial-gradient(circle at 88% 8%, rgba(255, 85, 0, 0.28), transparent 34%),
+      radial-gradient(circle at 8% 92%, rgba(214, 178, 90, 0.16), transparent 38%),
+      linear-gradient(145deg, #171717 0%, #0a0a0a 52%, #111111 100%);
+    box-shadow:
+      0 24px 50px -18px rgba(0, 0, 0, 0.78),
+      0 0 22px rgba(255, 85, 0, 0.16);
   }
 
   .pr-plastic-card::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 36%);
+    background: linear-gradient(115deg, transparent 44%, rgba(246, 212, 138, 0.12) 50%, transparent 56%);
     pointer-events: none;
   }
 
@@ -598,22 +603,26 @@
     transform: rotateY(180deg);
   }
   .pr-plastic-card--empty {
-    border-color: rgba(255, 255, 255, 0.16);
-    box-shadow: 0 18px 36px -18px rgba(0, 0, 0, 0.45);
-    background: #c24600;
+    border-color: rgba(214, 178, 90, 0.22);
+    box-shadow: 0 18px 36px -18px rgba(0, 0, 0, 0.7);
+    background:
+      radial-gradient(circle at 88% 8%, rgba(255, 85, 0, 0.12), transparent 34%),
+      linear-gradient(145deg, #141414 0%, #090909 55%, #101010 100%);
   }
   .pr-plastic-card--nearby,
-  .pr-plastic-card--ready,
   .pr-plastic-card--returned {
-    border-color: rgba(255, 255, 255, 0.24);
+    border-color: rgba(214, 178, 90, 0.38);
   }
   .pr-plastic-card--ready {
-    box-shadow: 0 0 28px rgba(255, 85, 0, 0.35), 0 24px 48px -16px rgba(255, 85, 0, 0.45);
+    border-color: rgba(255, 85, 0, 0.55);
+    box-shadow:
+      0 0 28px rgba(255, 85, 0, 0.28),
+      0 24px 50px -18px rgba(0, 0, 0, 0.78);
   }
   .pr-plastic-card--used,
   .pr-plastic-card--expired {
-    filter: saturate(0.7) brightness(0.86);
-    border-color: rgba(255, 255, 255, 0.16);
+    filter: saturate(0.55);
+    border-color: rgba(255, 255, 255, 0.14);
   }
   .pr-plastic-card--used::before {
     content: "";
@@ -622,25 +631,26 @@
     right: 18%;
     top: 48%;
     height: 3px;
-    background: rgba(11, 11, 12, 0.55);
+    background: rgba(255, 85, 0, 0.55);
     transform: rotate(-8deg);
     z-index: 2;
   }
   .pr-card-stamp {
     display: inline-flex;
     max-width: 100%;
-    border: 1px dashed rgba(255, 255, 255, 0.55);
+    border: 1px dashed rgba(255, 85, 0, 0.45);
     border-radius: 999px;
     padding: 0.2rem 0.55rem;
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #fff;
+    color: #ffb067;
   }
   .pr-card-stamp--return {
     border-style: solid;
-    background: rgba(11, 11, 12, 0.18);
+    border-color: rgba(214, 178, 90, 0.5);
+    color: #f6d48a;
   }
 
   .pr-ticket {

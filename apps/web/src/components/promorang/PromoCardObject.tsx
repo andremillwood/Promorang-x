@@ -92,26 +92,26 @@ export function PromoCardFace({
           <div className="relative z-10 flex h-full flex-col justify-between">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-2.5">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#0b0b0c] shadow-[0_0_0_1px_rgba(0,0,0,0.25)]">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-[#d6b25a]/40 bg-black">
                   <PromorangMark size={40} className="h-10 w-10" />
                 </span>
                 <div>
-                  <p className="text-[10px] font-bold tracking-[0.22em] text-white">PROMORANG</p>
+                  <p className="text-[10px] font-bold tracking-[0.22em] text-primary">PROMORANG</p>
                   <h3 className="mt-1 font-serif text-2xl font-bold tracking-tight text-white">PromoCard</h3>
-                  {tier ? <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/80">{tier} tier</p> : null}
+                  {tier ? <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#f6d48a]">{tier} tier</p> : null}
                 </div>
               </div>
               {face.issuerInitial ? (
-                <span className="grid h-11 w-11 place-items-center rounded-full border border-white/40 bg-black/20 font-serif text-lg font-black text-white" aria-label={`${face.issuer} mark`}>
+                <span className="grid h-11 w-11 place-items-center rounded-full border border-[#d6b25a]/50 bg-[#d6b25a]/10 font-serif text-lg font-black text-[#f6d48a]" aria-label={`${face.issuer} mark`}>
                   {face.issuerInitial}
                 </span>
               ) : null}
             </div>
             <div>
-              <p className="text-[11px] tracking-wide text-white/80">{face.action}</p>
-              <p className="mt-0.5 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">{face.headline}</p>
-              <p className="mt-1 text-xs text-white/75">{face.detail}</p>
-              <p className="mt-1 text-xs text-white/65">{face.places}</p>
+              <p className="text-[11px] tracking-wide text-white/55">{face.action}</p>
+              <p className="mt-0.5 font-serif text-3xl font-bold tracking-tight text-[#f6d48a] sm:text-4xl">{face.headline}</p>
+              <p className="mt-1 text-xs text-white/50">{face.detail}</p>
+              <p className="mt-1 text-xs text-white/40">{face.places}</p>
               {stamps(face).length || face.returnStamp ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {stamps(face).map((mark) => (
@@ -126,7 +126,7 @@ export function PromoCardFace({
                 </div>
               ) : null}
             </div>
-            <div className="flex items-end justify-between gap-3 text-[11px] text-white/80">
+            <div className="flex items-end justify-between gap-3 text-[11px] text-white/60">
               <span>{face.holder}</span>
               <span className="max-w-[58%] text-right text-[10px] leading-4 tracking-wide">{face.footerCue}</span>
             </div>
@@ -139,18 +139,18 @@ export function PromoCardFace({
         >
           <div className="relative z-10 flex h-full flex-col items-center justify-between text-center">
             <div>
-              <span className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-[#0b0b0c]">
+              <span className="mx-auto grid h-10 w-10 place-items-center rounded-xl border border-[#d6b25a]/40 bg-black">
                 <PromorangMark size={32} className="h-8 w-8" />
               </span>
-              <p className="mt-2 text-[10px] font-bold tracking-[0.22em] text-white">PROMORANG · HOLD AT THE DOOR</p>
+              <p className="mt-2 text-[10px] font-bold tracking-[0.22em] text-primary">PROMORANG · HOLD AT THE DOOR</p>
               <p className="mt-1 font-serif text-xl font-bold text-white">{face.issuer || "PromoCard"}</p>
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/70">Show this</p>
-              <code className="mt-2 block select-all font-mono text-3xl font-black tracking-[0.16em] text-white">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/45">Show this</p>
+              <code className="mt-2 block select-all font-mono text-3xl font-black tracking-[0.16em] text-[#f6d48a]">
                 {face.credential}
               </code>
-              {lastLoaded ? <p className="mt-2 text-[11px] text-white/80">Last loaded. The merchant still has to validate it.</p> : null}
+              {lastLoaded ? <p className="mt-2 text-[11px] text-[#f6d48a]">Last loaded. The merchant still has to validate it.</p> : null}
             </div>
             <div className="w-full">
               {onCopy ? (

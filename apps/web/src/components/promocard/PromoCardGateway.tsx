@@ -33,7 +33,7 @@ export function PromoCardGateway() {
 
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-[#070707] text-white">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(255,85,0,0.28),transparent_30%),radial-gradient(circle_at_15%_85%,rgba(255,85,0,0.16),transparent_32%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(255,85,0,0.2),transparent_30%),radial-gradient(circle_at_18%_82%,rgba(214,178,90,0.12),transparent_32%)]" />
       <div className="container relative px-5 pb-10 pt-[5.25rem] sm:px-6 sm:pb-20 sm:pt-28 lg:pt-32">
         <div className="grid items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <div>
@@ -69,7 +69,7 @@ export function PromoCardGateway() {
           </div>
 
           <div className="relative mx-auto w-full max-w-md">
-            <div className="absolute -inset-5 rounded-[2.5rem] bg-primary/20 blur-3xl" />
+            <div className="absolute -inset-5 rounded-[2.5rem] bg-[radial-gradient(circle,rgba(255,85,0,0.22),rgba(214,178,90,0.1),transparent_70%)] blur-3xl" />
             <PromoCardFace
               className="relative max-w-none"
               interactive={false}
