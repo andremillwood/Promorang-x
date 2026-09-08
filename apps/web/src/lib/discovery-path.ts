@@ -1,5 +1,6 @@
 import { DISCOVER_LENSES } from "@promorang/shared";
 import { matchesCityHub, type CityOption } from "@/lib/city-hubs";
+import { pollSignalKind, type DiscoverySignalKind } from "@/lib/discovery-signal";
 
 export type DiscoverLensId = (typeof DISCOVER_LENSES)[number]["id"];
 
@@ -13,6 +14,8 @@ export type PathablePoll = {
   tags?: string[];
   totalVotes?: number;
   thresholdForMoment?: number;
+  signalKind?: DiscoverySignalKind;
+  retired?: boolean;
 };
 
 export type PathWhyKind = "close" | "taste" | "query" | "city";
@@ -24,6 +27,7 @@ export type PathWhy = {
   city: string;
   votesRemaining: number;
   perk: string;
+  signalKind: DiscoverySignalKind;
 };
 
 export type DiscoveryPathItem<T extends PathablePoll = PathablePoll> = {
@@ -180,7 +184,12 @@ export function discoveryPollLocationHint(poll: PathablePoll): {
 }
 
 export function filterDiscoveryPollsForHub<T extends PathablePoll>(polls: T[], city: CityOption): T[] {
-  return polls.filter((poll) => matchesCityHub(discoveryPollLocationHint(poll), city));
+  return polls.filter((poll) => {
+    if (poll.retired || poll.categorySlug === "arla-campaign" || String(poll.id || "").startsWith("disc-arla")) {
+      return false;
+    }
+    return matchesCityHub(discoveryPollLocationHint(poll), city);
+  });
 }
 
 export function mergeDiscoveryPolls<T extends { id: string }>(...groups: T[][]): T[] {
@@ -282,16 +291,17 @@ export function whyForPoll(
   const perk = (poll.targetUnlockPerk || "").replace(/^[^\w]+/, "").trim();
   const matchedLens = lenses.find((lens) => lensHits(poll, lens) > 0) || null;
 
+  const signalKind = pollSignalKind(poll);
   if (queryHits(poll, query) > 0) {
-    return { kind: "query", lens: matchedLens, query, city, votesRemaining: remaining, perk };
+    return { kind: "query", lens: matchedLens, query, city, votesRemaining: remaining, perk, signalKind };
   }
   if (matchedLens && remaining > 0 && remaining <= 12) {
-    return { kind: "close", lens: matchedLens, query, city, votesRemaining: remaining, perk };
+    return { kind: "close", lens: matchedLens, query, city, votesRemaining: remaining, perk, signalKind };
   }
   if (matchedLens) {
-    return { kind: "taste", lens: matchedLens, query, city, votesRemaining: remaining, perk };
+    return { kind: "taste", lens: matchedLens, query, city, votesRemaining: remaining, perk, signalKind };
   }
-  return { kind: "city", lens: null, query, city, votesRemaining: remaining, perk };
+  return { kind: "city", lens: null, query, city, votesRemaining: remaining, perk, signalKind };
 }
 
 export function buildDiscoveryPath<T extends PathablePoll>(input: {

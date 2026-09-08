@@ -65,9 +65,9 @@ export function resolvePromoCardFace(input: PromoCardFaceInput = {}): PromoCardF
 
   const copy: Record<PromoCardFaceState, Pick<PromoCardFaceModel, "headline" | "detail" | "action" | "places" | "footerCue">> = {
     empty: {
-      headline: "Nothing to show at the door",
-      detail: "A merchant has to put a perk up before this card can be used.",
-      action: "Find a night",
+      headline: "Nothing to show at the door yet",
+      detail: "A perk is a real offer a business put up — a free item, a deal, or entry. Until one is on this card, there is nothing to flash at a counter.",
+      action: "Browse live perks",
       places: "No participating place is sharing a live benefit",
       footerCue: "This is your PromoCard",
     },

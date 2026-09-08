@@ -228,5 +228,11 @@ describe("whyForPoll", () => {
     expect(why.lens).toBe("eat");
     expect(why.perk).toContain("Jerk");
     expect(why.query).toBe("");
+    expect(why.signalKind).toBe("demand");
+  });
+
+  it("marks a house-backed poll as a live offer", () => {
+    const why = whyForPoll({ ...eatPoll, signalKind: "live_offer" }, ["eat"], "Kingston");
+    expect(why.signalKind).toBe("live_offer");
   });
 });

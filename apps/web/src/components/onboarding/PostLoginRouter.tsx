@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { isConsumerPostAuthNext } from "@/lib/auth-roles";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
 import { flushMarketingIntent } from "@/lib/marketing-attribution";
 import { consumePostAuthNext, resolvePostAuthPath, roleFromNext } from "@/lib/post-auth-next";
@@ -36,6 +37,12 @@ export function PostLoginRouter() {
         navigate(getDemoLandingPath(demoSession.role), { replace: true });
         return;
       }
+
+      if (activeRole === "admin" || (roles.includes("admin") && !isConsumerPostAuthNext(requestedNext))) {
+        navigate("/admin?tab=command", { replace: true });
+        return;
+      }
+
 
       // Onboarding is the only prerequisite. First actions belong on the
       // dashboard, not in a chain of forced redirects after every sign-in.

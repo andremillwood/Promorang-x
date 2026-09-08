@@ -40,6 +40,7 @@ export interface DiscoveryProps {
   thresholdForMoment?: number;
   userVotedOptionId?: string;
   targetUnlockPerk?: string;
+  signalKind?: "demand" | "live_offer";
   onVote?: (discoveryId: string, optionId: string) => void;
   onAddOption?: (discoveryId: string, text: string) => void;
   landOnCard?: boolean;
@@ -56,6 +57,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
   thresholdForMoment = 100,
   userVotedOptionId: initialUserVotedOptionId,
   targetUnlockPerk,
+  signalKind = "demand",
   onVote,
   onAddOption,
   landOnCard = false,
@@ -170,7 +172,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
           <div className="flex items-center justify-between text-xs mb-2 font-medium">
             <span className="text-white flex items-center font-bold tracking-tight">
               <Zap className="w-4 h-4 text-amber-400 mr-1.5 animate-bounce" />
-              <span>City Unlock Meter</span>
+              <span>{signalKind === "live_offer" ? "City Unlock Meter" : "City vote"}</span>
             </span>
             <span className="text-orange-400 font-black text-xs px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30">
               {totalVotes} / {thresholdForMoment} Votes
@@ -182,15 +184,19 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
-          {progressPercentage >= 100 ? (
+          {signalKind === "live_offer" && progressPercentage >= 100 ? (
             <p className="text-[11px] text-emerald-400 font-bold mt-2 flex items-center">
-              <Sparkles className="w-3.5 h-3.5 mr-1" /> 🎉 UNLOCKED! Exclusive Tasting Pass is Live!
+              <Sparkles className="w-3.5 h-3.5 mr-1" /> A house pass is live for voters.
             </p>
           ) : (
             <div className="flex items-center justify-between text-[11px] text-white/60 mt-1.5">
-              <span>{thresholdForMoment - totalVotes} more votes triggers the drop for everyone</span>
+              <span>
+                {signalKind === "live_offer"
+                  ? `${thresholdForMoment - totalVotes} more votes triggers the drop for everyone`
+                  : `${Math.max(0, thresholdForMoment - totalVotes)} more answers to firm this shortlist — not a discount`}
+              </span>
               <span className="text-orange-400 font-extrabold ml-1 group-hover/meter:translate-x-0.5 transition-transform">
-                Charge Meter →
+                {signalKind === "live_offer" ? "Charge Meter →" : "Vote →"}
               </span>
             </div>
           )}

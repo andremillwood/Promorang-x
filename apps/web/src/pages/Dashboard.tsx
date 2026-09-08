@@ -47,6 +47,10 @@ const Dashboard = () => {
     return <Navigate to="/auth" replace />;
   }
 
+  if (!studioView && activeRole === "admin") {
+    return <Navigate to="/admin?tab=command" replace />;
+  }
+
   const resolvedRole = activeRole || "participant";
   const commercialStudio = ["host", "creator", "merchant", "brand", "agency"].includes(resolvedRole);
   const showStudio = studioView || (!peopleView && commercialStudio);

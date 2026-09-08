@@ -185,7 +185,7 @@ const SAMPLE_MOMENTS: MomentProps[] = [
   },
   {
     id: 'moment-8',
-    title: 'Tracks & Records Game Night & Live Jam',
+    title: 'FAT Wednesdays at Tracks & Records',
     description: 'Premier sports lounge and cultural entertainment hub featuring authentic Jamaican fusion cuisine and live DJ sets.',
     intentType: 'ATTEND',
     ownership: 'EDITORIAL DISCOVERY',
@@ -457,7 +457,7 @@ const SAMPLE_MOMENTS: MomentProps[] = [
   },
   {
     id: 'moment-25',
-    title: 'FAT Wednesdays Live Social & Game Night',
+    title: 'FAT Wednesdays at Tracks & Records',
     description: 'High-energy midweek gathering at Usain Bolt\'s flagship lounge with 45+ HD screens, signature jerk platters, live DJ sets, and Bolt burgers.',
     intentType: 'ATTEND',
     ownership: 'EDITORIAL DISCOVERY',
