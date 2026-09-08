@@ -10,6 +10,7 @@ import {
   type WorldPathDimension,
 } from "@promorang/shared";
 import { useExperienceActions, useWorldProgress } from "@/hooks/usePeopleExperience";
+import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, WorldInvitationCard } from "@/components/people/ExperienceShell";
 import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +19,7 @@ const DIMENSIONS: WorldPathDimension[] = ["discover", "connect", "create", "host
 
 export default function Progress() {
   const query = useWorldProgress();
+  const to = useExperiencePath();
   const { setFaction } = useExperienceActions();
   const { toast } = useToast();
   const data = query.data;
@@ -208,8 +210,8 @@ export default function Progress() {
           ))}
         </div>
         <div className="mt-4 flex flex-wrap gap-4">
-          <Link to="/crews" className="text-sm font-bold text-primary">Open Crew</Link>
-          <Link to="/guilds" className="text-sm font-bold text-primary">
+          <Link to={to("/crews")} className="text-sm font-bold text-primary">Open Crew</Link>
+          <Link to={to("/guilds")} className="text-sm font-bold text-primary">
             {world?.guild?.name || "Open Guild"}
           </Link>
         </div>

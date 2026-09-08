@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SEO from "@/components/SEO";
+import { useExperiencePath } from "@/hooks/useExperiencePath";
 
 type ExperienceShellProps = {
   title: string;
@@ -123,6 +124,7 @@ export type WorldInvitationCopy = {
 
 /** Loud about what to do and why it pays. Quiet about invented scores. */
 export function WorldInvitationCard({ invitation }: { invitation: WorldInvitationCopy }) {
+  const to = useExperiencePath();
   return (
     <section className="rounded-[1.6rem] border border-primary/40 bg-primary/10 px-5 py-6">
       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">This is how Promorang works</p>
@@ -141,10 +143,10 @@ export function WorldInvitationCard({ invitation }: { invitation: WorldInvitatio
         <p className="mt-4 text-sm leading-6 text-white/45">{invitation.formingLine}</p>
       ) : null}
       <div className="mt-5 flex flex-wrap gap-4">
-        <Link to={invitation.nextHref} className="text-sm font-bold text-primary">
+        <Link to={to(invitation.nextHref)} className="text-sm font-bold text-primary">
           {invitation.nextLabel}
         </Link>
-        <Link to="/crews" className="text-sm font-bold text-primary">
+        <Link to={to("/crews")} className="text-sm font-bold text-primary">
           Form a Crew
         </Link>
       </div>

@@ -22,6 +22,14 @@ describe("experiencePathFor", () => {
     );
   });
 
+  it("keeps world invitation hops inside preview", () => {
+    expect(experiencePathFor("/app-preview/progress", "", "/crews")).toBe("/app-preview/crews");
+    expect(experiencePathFor("/app-preview/progress", "", "/guilds")).toBe("/app-preview/guilds");
+    expect(experiencePathFor("/app-preview", "?role=participant", "/progress")).toBe(
+      "/app-preview/progress?role=participant",
+    );
+  });
+
   it("does not rewrite paths outside preview", () => {
     expect(experiencePathFor("/dashboard", "?role=merchant", "/earn")).toBe("/earn");
   });
