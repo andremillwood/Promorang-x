@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { PromorangMark } from '@/components/brand/PromorangMark';
 import { BorderRadius, Colors } from '@/constants/DesignTokens';
-import { resolvePromoCardFace, type PromoCardFaceModel } from '@promorang/shared';
+import { encodeOfferRedeemPayload, resolvePromoCardFace, type PromoCardFaceModel } from '@promorang/shared';
 
 type PromoCardFaceProps = {
   holder?: string;
@@ -23,6 +23,16 @@ type PromoCardFaceProps = {
 
 function stamps(model: PromoCardFaceModel) {
   return [model.sceneMark, model.crewMark].filter(Boolean) as string[];
+}
+
+function ScanQr({ value, size }: { value: string; size: number }) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const QRCode = require('react-native-qrcode-svg').default;
+    return <QRCode value={encodeOfferRedeemPayload(value)} size={size} />;
+  } catch {
+    return <View style={[styles.qrFallback, { width: size, height: size }]} />;
+  }
 }
 
 export function PromoCardFace({
@@ -74,11 +84,20 @@ export function PromoCardFace({
             {tier ? <Text style={styles.tier}>{tier} tier</Text> : null}
           </View>
         </View>
-        {face.issuerInitial ? (
-          <View style={styles.issuer} accessibilityLabel={`${face.issuer} mark`}>
-            <Text style={styles.issuerText}>{face.issuerInitial}</Text>
-          </View>
-        ) : null}
+        <View style={styles.chipCol}>
+          {face.credential ? (
+            <View style={styles.chipLive} accessibilityLabel="PromoCard scan mark">
+              <ScanQr value={face.credential} size={compact ? 36 : 44} />
+            </View>
+          ) : (
+            <View style={styles.chip} accessibilityLabel="No code to scan yet" />
+          )}
+          {face.issuerInitial ? (
+            <View style={styles.issuer} accessibilityLabel={`${face.issuer} mark`}>
+              <Text style={styles.issuerText}>{face.issuerInitial}</Text>
+            </View>
+          ) : null}
+        </View>
       </View>
       <View>
         <Text style={styles.meta}>{face.action}</Text>
@@ -115,7 +134,12 @@ export function PromoCardFace({
       <Text style={styles.brand}>PROMORANG · HOLD AT THE DOOR</Text>
       <Text style={styles.backIssuer}>{face.issuer || 'PromoCard'}</Text>
       <View style={styles.codeBox}>
-        <Text style={styles.meta}>SHOW THIS</Text>
+        <Text style={styles.meta}>SCAN THIS</Text>
+        {face.credential ? (
+          <View style={styles.qrBack} accessibilityLabel="PromoCard scan mark">
+            <ScanQr value={face.credential} size={128} />
+          </View>
+        ) : null}
         <Text selectable style={styles.code}>{face.credential}</Text>
       </View>
       <Text style={styles.cue}>{face.footerCue}</Text>
@@ -224,6 +248,31 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,85,0,0.55)',
     transform: [{ rotate: '-8deg' }],
     zIndex: 2,
+  },
+  chipCol: { alignItems: 'flex-end', gap: 8 },
+  chip: {
+    width: 46,
+    height: 34,
+    borderRadius: 7,
+    backgroundColor: '#D6B25A',
+  },
+  chipLive: {
+    width: 54,
+    height: 54,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#D6B25A',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  qrFallback: { backgroundColor: '#111' },
+  qrBack: {
+    marginTop: 8,
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: '#fff',
   },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   brandLockup: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },

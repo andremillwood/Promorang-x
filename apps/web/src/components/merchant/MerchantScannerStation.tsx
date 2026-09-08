@@ -46,7 +46,7 @@ export function MerchantScannerStation({ venueName = "Merchant station" }: { ven
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">{venueName}</p>
             <h2 className="mt-1 text-xl font-black">Redeem a PromoCard perk</h2>
-            <p className="mt-1 text-sm text-zinc-400">Scan the customer’s pass or type the code. A success message means the redemption was recorded.</p>
+            <p className="mt-1 text-sm text-zinc-400">Scan the gold plate or flipped QR on their PromoCard, or type the code. VALID is the only completion.</p>
           </div>
         </div>
         <div className="mt-6 grid gap-6 lg:grid-cols-[16rem_1fr]">

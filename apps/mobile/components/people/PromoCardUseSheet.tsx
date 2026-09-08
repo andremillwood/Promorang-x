@@ -3,6 +3,7 @@ import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { PromorangMark } from '@/components/brand/PromorangMark';
 import { Colors } from '@/constants/DesignTokens';
+import { encodeOfferRedeemPayload } from '@promorang/shared';
 
 type PromoCardUseSheetProps = {
   visible: boolean;
@@ -18,7 +19,7 @@ function UseMark({ value }: { value: string }) {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const QRCode = require('react-native-qrcode-svg').default;
-    return <QRCode value={value} size={176} />;
+    return <QRCode value={encodeOfferRedeemPayload(value)} size={176} />;
   } catch {
     return <Ionicons name="qr-code" size={176} color="#111" />;
   }

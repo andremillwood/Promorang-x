@@ -51,6 +51,8 @@ describe("PromoCardFace brand lockup", () => {
     });
     expect(container).toHaveTextContent("Nothing to show at the door");
     expect(container.querySelector('button[aria-label="Flip PromoCard to show the merchant"]')).toBeNull();
+    expect(container.querySelector('[aria-label="No code to scan yet"]')).toBeTruthy();
+    expect(container.querySelector('[aria-label="PromoCard scan mark"]')).toBeNull();
 
     await act(async () => {
       root.render(
@@ -61,7 +63,7 @@ describe("PromoCardFace brand lockup", () => {
             headline: "Show this",
             detail: "Coffee on us",
             places: "Sea Deck",
-            action: "Flip to show the merchant",
+            action: "Show the merchant this QR",
             footerCue: "Nothing is used until they validate it",
             issuer: "Sea Deck",
             issuerInitial: "S",
@@ -72,6 +74,8 @@ describe("PromoCardFace brand lockup", () => {
       );
     });
     expect(container.querySelector('[aria-label="Sea Deck mark"]')?.textContent).toBe("S");
+    expect(container.querySelectorAll('[aria-label="PromoCard scan mark"]').length).toBeGreaterThan(0);
+    expect(container.querySelector("svg")).toBeTruthy();
     const flip = Array.from(container.querySelectorAll("button")).find(
       (item) => item.getAttribute("aria-label") === "Flip PromoCard to show the merchant",
     );
@@ -81,5 +85,6 @@ describe("PromoCardFace brand lockup", () => {
     });
     expect(container).toHaveTextContent("COFFEE-TEST");
     expect(container).toHaveTextContent("HOLD AT THE DOOR");
+    expect(container).toHaveTextContent("Scan this");
   });
 });

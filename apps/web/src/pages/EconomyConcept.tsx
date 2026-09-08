@@ -520,7 +520,7 @@ function PromoCardDemo() {
           headline: applied ? "Just used" : "Show this",
           detail: "Velvet Lounge tasting",
           places: "Velvet Lounge",
-          action: applied ? "Come back for the next one" : "Flip to show the merchant",
+          action: applied ? "Come back for the next one" : "Show the merchant this QR",
           footerCue: applied ? "Punched. The next benefit is a new claim." : "Nothing is used until they validate it",
           issuer: "Velvet Lounge",
           issuerInitial: "V",

@@ -81,7 +81,7 @@ export function resolvePromoCardFace(input: PromoCardFaceInput = {}): PromoCardF
     ready: {
       headline: "Show this",
       detail: input.useThis?.title || "A live perk",
-      action: "Flip to show the merchant",
+      action: "Show the merchant this QR",
       places: issuer || "Participating business",
       footerCue: "Nothing is used until they validate it",
     },

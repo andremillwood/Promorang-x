@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { resolvePromoCardFace, type PromoCardFaceModel } from "@promorang/shared";
+import { QRCodeSVG } from "qrcode.react";
+import { encodeOfferRedeemPayload, resolvePromoCardFace, type PromoCardFaceModel } from "@promorang/shared";
 import { PromorangMark } from "@/components/promorang/PromorangMark";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,25 @@ type PromoCardFaceProps = {
 
 function stamps(model: PromoCardFaceModel) {
   return [model.sceneMark, model.crewMark].filter(Boolean) as string[];
+}
+
+function PromoCardScanPlate({ credential, compact }: { credential?: string | null; compact?: boolean }) {
+  if (credential) {
+    return (
+      <span
+        className={cn("pr-card-chip pr-card-chip--live", compact && "h-10 w-10")}
+        aria-label="PromoCard scan mark"
+      >
+        <QRCodeSVG
+          value={encodeOfferRedeemPayload(credential)}
+          size={compact ? 32 : 44}
+          level="M"
+          className="h-full w-full"
+        />
+      </span>
+    );
+  }
+  return <span className="pr-card-chip" aria-label="No code to scan yet" />;
 }
 
 export function PromoCardFace({
@@ -101,11 +121,14 @@ export function PromoCardFace({
                   {tier ? <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#f6d48a]">{tier} tier</p> : null}
                 </div>
               </div>
-              {face.issuerInitial ? (
-                <span className="grid h-11 w-11 place-items-center rounded-full border border-[#d6b25a]/50 bg-[#d6b25a]/10 font-serif text-lg font-black text-[#f6d48a]" aria-label={`${face.issuer} mark`}>
-                  {face.issuerInitial}
-                </span>
-              ) : null}
+              <div className="flex flex-col items-end gap-2">
+                <PromoCardScanPlate credential={face.credential} />
+                {face.issuerInitial ? (
+                  <span className="grid h-9 w-9 place-items-center rounded-full border border-[#d6b25a]/50 bg-[#d6b25a]/10 font-serif text-sm font-black text-[#f6d48a]" aria-label={`${face.issuer} mark`}>
+                    {face.issuerInitial}
+                  </span>
+                ) : null}
+              </div>
             </div>
             <div>
               <p className="text-[11px] tracking-wide text-white/55">{face.action}</p>
@@ -146,8 +169,11 @@ export function PromoCardFace({
               <p className="mt-1 font-serif text-xl font-bold text-white">{face.issuer || "PromoCard"}</p>
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/45">Show this</p>
-              <code className="mt-2 block select-all font-mono text-3xl font-black tracking-[0.16em] text-[#f6d48a]">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/45">Scan this</p>
+              <div className="mx-auto mt-2 w-fit rounded-xl bg-white p-2" aria-label="PromoCard scan mark">
+                <QRCodeSVG value={encodeOfferRedeemPayload(face.credential || "")} size={128} level="M" />
+              </div>
+              <code className="mt-2 block select-all font-mono text-2xl font-black tracking-[0.16em] text-[#f6d48a]">
                 {face.credential}
               </code>
               {lastLoaded ? <p className="mt-2 text-[11px] text-[#f6d48a]">Last loaded. The merchant still has to validate it.</p> : null}
