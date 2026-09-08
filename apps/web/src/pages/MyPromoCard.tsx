@@ -444,7 +444,7 @@ export default function MyPromoCard() {
           }}
           className="max-h-[90dvh] overflow-y-auto rounded-3xl border-white/15 bg-[#141313] text-white sm:max-w-md"
         >
-          <p className="text-xs font-semibold uppercase tracking-widest text-amber-200">
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary">
             On your PromoCard
           </p>
           <DialogTitle className="break-words pr-5 font-serif text-3xl">
@@ -454,8 +454,8 @@ export default function MyPromoCard() {
             {selected?.detail || "Show this to the merchant. Nothing is used until they validate it."}
           </DialogDescription>
           {selectedCode && !selectedExpired && canShowCode(selected) ? (
-            <div className="mt-2 rounded-2xl border border-amber-200/25 bg-amber-200/5 p-5 text-center">
-              <p className="text-sm text-amber-100">Show this code to redeem</p>
+            <div className="mt-2 rounded-2xl border border-primary/30 bg-primary/10 p-5 text-center">
+              <p className="text-sm text-white/80">Show this code to redeem</p>
               <code className="my-5 block select-all break-all font-mono text-3xl font-bold tracking-wider">
                 {selectedCode}
               </code>

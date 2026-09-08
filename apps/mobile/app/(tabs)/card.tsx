@@ -68,7 +68,7 @@ export default function CardTabScreen() {
 
         {!view.isLive ? (
           <View style={styles.preview}>
-            <Ionicons name="information-circle" size={16} color="#F6D48A" />
+            <Ionicons name="information-circle" size={16} color={Colors.primary} />
             <Text style={styles.previewCopy}>
               Points, keys, and claimed drops already live here. A showable code appears only after the server issues one.
             </Text>

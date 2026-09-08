@@ -65,7 +65,9 @@ export function PromoCardFace({
       {face.state === 'used' ? <View style={styles.punch} /> : null}
       <View style={styles.top}>
         <View style={styles.brandLockup}>
-          <PromorangMark size={compact ? 28 : 34} />
+          <View style={styles.markBadge}>
+            <PromorangMark size={compact ? 28 : 34} />
+          </View>
           <View>
             <Text style={styles.brand}>PROMORANG</Text>
             <Text style={styles.title}>PromoCard</Text>
@@ -107,7 +109,9 @@ export function PromoCardFace({
   const back = (
     <>
       <View style={styles.glow} />
-      <PromorangMark size={32} style={styles.backMark} />
+      <View style={[styles.markBadge, styles.backMark]}>
+        <PromorangMark size={32} />
+      </View>
       <Text style={styles.brand}>PROMORANG · HOLD AT THE DOOR</Text>
       <Text style={styles.backIssuer}>{face.issuer || 'PromoCard'}</Text>
       <View style={styles.codeBox}>
@@ -122,8 +126,8 @@ export function PromoCardFace({
     <LinearGradient
       colors={
         face.state === 'empty' || face.state === 'expired' || face.state === 'used'
-          ? ['#14110F', '#0B0B0C', '#12100E']
-          : ['#1A120C', '#0B0B0C', '#1A0E08']
+          ? ['#D45A1A', '#A33D00', '#7A2C00']
+          : ['#FF7A2D', '#FF5500', '#C43D00']
       }
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
@@ -172,7 +176,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,85,0,0.38)',
+    borderColor: 'rgba(255,255,255,0.22)',
     shadowColor: '#FF5500',
     shadowOffset: { width: 0, height: 18 },
     shadowOpacity: 0.45,
@@ -180,26 +184,34 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   cardCompact: { minHeight: 168, padding: 16 },
-  cardReady: { borderColor: 'rgba(255,85,0,0.7)' },
-  cardFaded: { opacity: 0.72 },
+  cardReady: { borderColor: 'rgba(255,255,255,0.28)' },
+  cardFaded: { opacity: 0.78 },
   glow: {
     position: 'absolute',
     width: 180,
     height: 180,
     borderRadius: 90,
-    right: -50,
+    left: -40,
     top: -70,
-    backgroundColor: 'rgba(255,85,0,0.28)',
+    backgroundColor: 'rgba(255,255,255,0.18)',
   },
-  glowQuiet: { backgroundColor: 'rgba(255,85,0,0.1)' },
+  glowQuiet: { backgroundColor: 'rgba(255,85,0,0.22)' },
   sheen: {
     position: 'absolute',
     top: 0,
     bottom: 0,
     width: 70,
     left: '42%',
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'rgba(255,255,255,0.16)',
     transform: [{ skewX: '-18deg' }],
+  },
+  markBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#0B0B0C',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   punch: {
     position: 'absolute',
@@ -214,7 +226,7 @@ const styles = StyleSheet.create({
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   brandLockup: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   brand: {
-    color: Colors.primary,
+    color: Colors.white,
     fontFamily: 'SpaceMono',
     fontSize: 10,
     letterSpacing: 2.2,
@@ -224,13 +236,13 @@ const styles = StyleSheet.create({
   tier: {
     marginTop: 6,
     alignSelf: 'flex-start',
-    color: Colors.primary,
+    color: Colors.white,
     fontFamily: 'SpaceMono',
     fontSize: 9,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
     borderWidth: 1,
-    borderColor: 'rgba(255,85,0,0.4)',
+    borderColor: 'rgba(255,255,255,0.4)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 999,
@@ -240,40 +252,40 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: 'rgba(255,85,0,0.4)',
-    backgroundColor: 'rgba(255,85,0,0.15)',
+    borderColor: 'rgba(255,255,255,0.4)',
+    backgroundColor: 'rgba(11,11,12,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  issuerText: { color: Colors.primary, fontSize: 18, fontWeight: '900' },
-  meta: { color: Colors.gray[400], fontSize: 11, letterSpacing: 0.4 },
-  available: { color: '#FFD4B0', fontSize: 32, fontWeight: '800', letterSpacing: -1, marginTop: 2 },
+  issuerText: { color: Colors.white, fontSize: 18, fontWeight: '900' },
+  meta: { color: 'rgba(255,255,255,0.8)', fontSize: 11, letterSpacing: 0.4 },
+  available: { color: Colors.white, fontSize: 32, fontWeight: '800', letterSpacing: -1, marginTop: 2 },
   availableCompact: { fontSize: 24 },
-  limit: { color: Colors.gray[400], fontSize: 12, marginTop: 4 },
-  places: { color: Colors.gray[500], fontSize: 12, marginTop: 2 },
+  limit: { color: 'rgba(255,255,255,0.75)', fontSize: 12, marginTop: 4 },
+  places: { color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 2 },
   stampRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   stamp: {
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: 'rgba(255,85,0,0.45)',
+    borderColor: 'rgba(255,255,255,0.55)',
     borderRadius: 999,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    color: '#FFB067',
+    color: Colors.white,
     fontSize: 9,
     fontWeight: '800',
     letterSpacing: 1.1,
     textTransform: 'uppercase',
     overflow: 'hidden',
   },
-  returnStamp: { borderStyle: 'solid', color: '#FFD4B0' },
+  returnStamp: { borderStyle: 'solid', backgroundColor: 'rgba(11,11,12,0.18)' },
   foot: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 8 },
-  holder: { color: Colors.gray[300], fontSize: 12, flexShrink: 0 },
-  cue: { color: Colors.gray[400], fontSize: 10, textAlign: 'right', flex: 1 },
+  holder: { color: 'rgba(255,255,255,0.85)', fontSize: 12, flexShrink: 0 },
+  cue: { color: 'rgba(255,255,255,0.75)', fontSize: 10, textAlign: 'right', flex: 1 },
   backMark: { alignSelf: 'center', marginBottom: 8 },
   backIssuer: { color: Colors.white, fontSize: 20, fontWeight: '800', textAlign: 'center', marginTop: 6 },
   codeBox: { alignItems: 'center', marginVertical: 16 },
-  code: { color: '#FFD4B0', fontFamily: 'SpaceMono', fontSize: 26, fontWeight: '900', letterSpacing: 2, marginTop: 6 },
+  code: { color: Colors.white, fontFamily: 'SpaceMono', fontSize: 26, fontWeight: '900', letterSpacing: 2, marginTop: 6 },
   use: {
     marginTop: 12,
     minHeight: 44,

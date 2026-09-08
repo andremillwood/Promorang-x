@@ -44,5 +44,5 @@ const styles = StyleSheet.create({
   title: { color: Colors.white, fontSize: 20, fontWeight: '800', marginTop: 12 },
   copy: { color: Colors.gray[400], fontSize: 13, lineHeight: 19, marginTop: 6 },
   ref: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 11, marginTop: 10 },
-  next: { color: '#FFD4B0', fontSize: 12, marginTop: 8 },
+  next: { color: Colors.white, fontSize: 12, marginTop: 8 },
 });

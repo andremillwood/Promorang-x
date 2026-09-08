@@ -33,11 +33,11 @@ export function PromoCardGateway() {
 
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-[#070707] text-white">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(245,158,11,0.2),transparent_30%),radial-gradient(circle_at_15%_85%,rgba(255,85,0,0.14),transparent_32%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(255,85,0,0.28),transparent_30%),radial-gradient(circle_at_15%_85%,rgba(255,85,0,0.16),transparent_32%)]" />
       <div className="container relative px-5 pb-10 pt-[5.25rem] sm:px-6 sm:pb-20 sm:pt-28 lg:pt-32">
         <div className="grid items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <div>
-            <div className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.18em] text-amber-200 sm:rounded-full sm:border sm:border-amber-300/25 sm:bg-amber-300/10 sm:px-3 sm:py-1.5 sm:text-[10px]">
+            <div className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.18em] text-primary sm:rounded-full sm:border sm:border-primary/30 sm:bg-primary/10 sm:px-3 sm:py-1.5 sm:text-[10px]">
               <Sparkles className="h-3.5 w-3.5" />
               Ambassador audience → verified customers
             </div>
@@ -60,9 +60,9 @@ export function PromoCardGateway() {
               </Link>
               <Link
                 to="/discover"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-sm font-bold text-white transition hover:border-amber-300/40 hover:bg-white/[0.08] active:scale-[0.98]"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-sm font-bold text-white transition hover:border-primary/40 hover:bg-white/[0.08] active:scale-[0.98]"
               >
-                <MapPin className="h-4 w-4 text-amber-300" />
+                <MapPin className="h-4 w-4 text-primary" />
                 Available nearby
               </Link>
             </div>

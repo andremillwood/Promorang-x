@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: { color: Colors.white, fontSize: 16, fontWeight: '800' },
   code: { marginTop: 10, color: '#222', fontFamily: 'SpaceMono', fontSize: 13, fontWeight: '800', letterSpacing: 1.4 },
-  balance: { color: '#FFD4B0', fontSize: 16, fontWeight: '800', marginTop: 16, textAlign: 'center' },
+  balance: { color: Colors.white, fontSize: 16, fontWeight: '800', marginTop: 16, textAlign: 'center' },
   holder: { color: Colors.gray[400], fontSize: 12, textAlign: 'center', marginTop: 4 },
   note: { color: Colors.gray[500], fontSize: 11, lineHeight: 16, textAlign: 'center', marginTop: 10 },
   done: {
