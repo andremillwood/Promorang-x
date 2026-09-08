@@ -10,10 +10,17 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { promoCardGatewayCopy as copy } from "./promoCardGatewayCopy";
 
+export type GatewayPlace = {
+  id: string;
+  name: string;
+  href: string;
+};
+
 const stepIcons = [Ticket, MapPin, Sparkles];
 
-export function PromoCardGateway() {
+export function PromoCardGateway({ places = [] }: { places?: GatewayPlace[] }) {
   const { user } = useAuth();
+  const nearby = places.slice(0, 3);
 
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-[#070707] text-white">
@@ -21,12 +28,13 @@ export function PromoCardGateway() {
       <div className="container relative px-5 pb-10 pt-[5.25rem] sm:px-6 sm:pb-20 sm:pt-28 lg:pt-32">
         <div className="grid items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <div>
-            <div className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.18em] text-amber-200 sm:rounded-full sm:border sm:border-amber-300/25 sm:bg-amber-300/10 sm:px-3 sm:py-1.5 sm:text-[10px]">
+            <div className="inline-flex max-w-full items-center gap-2 text-[9px] font-black uppercase tracking-[0.18em] text-amber-200 sm:rounded-full sm:border sm:border-amber-300/25 sm:bg-amber-300/10 sm:px-3 sm:py-1.5 sm:text-[10px]">
               <Sparkles className="h-3.5 w-3.5" />
               {copy.eyebrow}
             </div>
             <h1 className="mt-4 max-w-2xl font-serif text-[clamp(3.2rem,15vw,6.4rem)] font-black uppercase leading-[0.82] tracking-[-0.065em] sm:mt-5 sm:font-sans sm:leading-[0.86] sm:tracking-[-0.07em]">
               {copy.headlineLead}<br />
+              {copy.headlineWhere}<br />
               <span className="text-primary">{copy.headlineReturn}</span>
             </h1>
             <p className="mt-5 max-w-xl text-[15px] leading-6 text-white/68 sm:text-lg sm:leading-8">
@@ -72,6 +80,24 @@ export function PromoCardGateway() {
                 <div className="mt-1 flex items-end gap-2">
                   <span className="text-4xl font-black tracking-[-0.05em] text-amber-200">{copy.faceAction}</span>
                 </div>
+                <p className="mt-4 text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{copy.placesLabel}</p>
+                {nearby.length ? (
+                  <ul className="mt-2 space-y-1.5">
+                    {nearby.map((place) => (
+                      <li key={place.id}>
+                        <Link
+                          to={place.href}
+                          className="flex items-center justify-between gap-3 text-sm font-bold text-white/85 transition hover:text-amber-200"
+                        >
+                          <span className="truncate">{place.name}</span>
+                          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-amber-300" />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm leading-5 text-white/50">{copy.placesEmpty}</p>
+                )}
               </div>
 
               <div className="hidden gap-2.5 sm:grid sm:grid-cols-3">
