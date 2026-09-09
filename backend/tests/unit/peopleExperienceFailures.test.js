@@ -71,6 +71,63 @@ test('nearby includes merchant inventory even before a drop exists', async () =>
   expect(nearby[0].dropSlug).toBe(null);
 });
 
+test('nearby keeps Kingston locals and anywhere drops, not another city venue', async () => {
+  const offers = [
+    {
+      id: 'offer-kgn',
+      title: 'First drink',
+      status: 'active',
+      fulfillment_type: 'merchant_validation',
+      owner_user_id: 'merchant-1',
+      metadata: { city: 'Kingston', city_slug: 'kingston' },
+      quantity_total: 10,
+      quantity_reserved: 0,
+      quantity_redeemed: 0,
+    },
+    {
+      id: 'offer-mia',
+      title: 'Wynwood pour',
+      status: 'active',
+      fulfillment_type: 'merchant_validation',
+      owner_user_id: 'merchant-2',
+      metadata: { city: 'Miami', city_slug: 'miami' },
+      quantity_total: 10,
+      quantity_reserved: 0,
+      quantity_redeemed: 0,
+    },
+    {
+      id: 'offer-dsp',
+      title: 'Pre-save on Spotify',
+      status: 'active',
+      fulfillment_type: 'automatic',
+      owner_user_id: 'brand-1',
+      metadata: { availability: 'anywhere', surface: 'release' },
+      quantity_total: 50,
+      quantity_reserved: 0,
+      quantity_redeemed: 0,
+    },
+  ];
+  const db = {
+    from(table) {
+      const result = {
+        data: table === 'offers' ? offers : table === 'community_drops' ? [] : null,
+        error: null,
+      };
+      for (const method of ['select', 'eq', 'in', 'not', 'order', 'limit', 'maybeSingle']) {
+        result[method] = () => result;
+      }
+      return result;
+    },
+  };
+  const nearby = await createPeopleExperienceService(db).getNearbyBenefits({
+    city: 'Kingston',
+    citySlug: 'kingston',
+    countryCode: 'JM',
+  });
+  expect(nearby.map((row) => row.offerId)).toEqual(['offer-kgn', 'offer-dsp']);
+  expect(nearby.find((row) => row.offerId === 'offer-dsp').availability).toBe('anywhere');
+});
+
 test('createDrop stores the host moment on drop attribution', async () => {
   const db = database({ id: 'drop-1', slug: 'door-perk', creator_id: 'host-1', title: 'Door perk' });
   await createPeopleExperienceService(db).createDrop('host-1', {

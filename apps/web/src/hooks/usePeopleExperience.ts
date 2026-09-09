@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMarket } from "@/contexts/MarketContext";
 import { peopleExperienceApi } from "@/services/peopleExperience";
+
+function marketPlace(city: { id: string; name: string }, country: { code: string }) {
+  return { city: city.id, cityName: city.name, country: country.code };
+}
 
 export function useExperienceHome() {
   const { user } = useAuth();
@@ -54,9 +59,10 @@ export function useWhatHappened(sceneId?: string) {
 }
 
 export function useNearbyBenefits() {
+  const { city, country } = useMarket();
   return useQuery({
-    queryKey: ["experience-nearby"],
-    queryFn: () => peopleExperienceApi.nearby(),
+    queryKey: ["experience-nearby", city.id, country.code],
+    queryFn: () => peopleExperienceApi.nearby(marketPlace(city, country)),
     retry: 1,
     staleTime: 30_000,
   });
@@ -64,9 +70,10 @@ export function useNearbyBenefits() {
 
 export function useMyPromoCard(aim?: string | null) {
   const { user } = useAuth();
+  const { city, country } = useMarket();
   return useQuery({
-    queryKey: ["experience-card", user?.id, aim || null],
-    queryFn: () => peopleExperienceApi.card(aim),
+    queryKey: ["experience-card", user?.id, aim || null, city.id, country.code],
+    queryFn: () => peopleExperienceApi.card(aim, marketPlace(city, country)),
     enabled: Boolean(user),
     retry: 1,
   });

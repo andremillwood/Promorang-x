@@ -205,6 +205,25 @@ export function getCityHubByCountry(countryCode: string): CityOption | null {
   return ALL_CITY_HUBS.find((hub) => hub.countryCode === code) ?? null;
 }
 
+export function firstCityHubForPlace(place?: {
+  city?: string | null;
+  country?: string | null;
+  countryCode?: string | null;
+} | null): CityOption | null {
+  if (!place) return null;
+  const countryCode = place.countryCode?.trim().toUpperCase() || "";
+  const city = normalizeText(place.city || "");
+  if (city) {
+    const matches = ALL_CITY_HUBS.filter((hub) => {
+      if (countryCode && hub.countryCode !== countryCode) return false;
+      return tokensFor(hub).some((token) => city.includes(token) || token.includes(city));
+    });
+    if (matches[0]) return matches[0];
+  }
+  if (countryCode) return getCityHubByCountry(countryCode);
+  return null;
+}
+
 export function getCityHubCenter(hub: CityOption): { lat: number; lng: number } {
   return CITY_HUB_CENTERS[hub.id] ?? CITY_HUB_CENTERS.kingston;
 }

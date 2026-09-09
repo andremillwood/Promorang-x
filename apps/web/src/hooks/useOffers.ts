@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMarket } from "@/contexts/MarketContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -89,9 +90,16 @@ export function useOwnerOffers() {
 }
 
 export function usePublicOffers() {
+  const { city, country } = useMarket();
+  const params = new URLSearchParams({
+    channel: "direct",
+    city: city.id,
+    cityName: city.name,
+    country: country.code,
+  });
   return useQuery({
-    queryKey: ["offers", "public"],
-    queryFn: () => request<Offer[]>("/public?channel=direct"),
+    queryKey: ["offers", "public", city.id, country.code],
+    queryFn: () => request<Offer[]>(`/public?${params.toString()}`),
   });
 }
 

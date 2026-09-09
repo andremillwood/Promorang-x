@@ -31,11 +31,25 @@ export const peopleExperienceApi = {
   perks: () => request<any[]>("/perks"),
   opportunities: (sceneId?: string) => request<any[]>(`/opportunities${sceneId ? `?sceneId=${sceneId}` : ""}`),
   happened: (sceneId?: string) => request<Record<string, any>>(`/happened${sceneId ? `?sceneId=${sceneId}` : ""}`),
-  card: (aim?: string | null) =>
-    request<Record<string, any>>(`/card${aim ? `?aim=${encodeURIComponent(aim)}` : ""}`),
+  card: (aim?: string | null, place?: { city?: string; cityName?: string; country?: string }) => {
+    const params = new URLSearchParams();
+    if (aim) params.set("aim", aim);
+    if (place?.city) params.set("city", place.city);
+    if (place?.cityName) params.set("cityName", place.cityName);
+    if (place?.country) params.set("country", place.country);
+    const query = params.toString();
+    return request<Record<string, any>>(`/card${query ? `?${query}` : ""}`);
+  },
   aimCard: (aim: string) =>
     request<Record<string, any>>("/card/aim", { method: "POST", body: JSON.stringify({ aim }) }),
-  nearby: () => request<any[]>("/nearby"),
+  nearby: (place?: { city?: string; cityName?: string; country?: string }) => {
+    const params = new URLSearchParams();
+    if (place?.city) params.set("city", place.city);
+    if (place?.cityName) params.set("cityName", place.cityName);
+    if (place?.country) params.set("country", place.country);
+    const query = params.toString();
+    return request<any[]>(`/nearby${query ? `?${query}` : ""}`);
+  },
   drop: (slug: string) => request<Record<string, any>>(`/drops/${slug}`),
   createDrop: (body: Record<string, unknown>) => request<Record<string, any>>("/drops", { method: "POST", body: JSON.stringify(body) }),
   claimDrop: (slug: string) => request<Record<string, any>>(`/drops/${slug}/claim`, { method: "POST", body: "{}" }),

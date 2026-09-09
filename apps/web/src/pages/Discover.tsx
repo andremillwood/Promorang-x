@@ -266,20 +266,20 @@ const Discover = () => {
     () =>
       livePerks.filter((perk) => {
         if (activeCategory !== "all") {
-          const haystack = `${perk.title || ""} ${perk.detail || ""} ${perk.issuer?.type || ""}`.toLowerCase();
+          const haystack = `${perk.title || ""} ${perk.detail || ""} ${perk.issuer?.type || ""} ${perk.surface || ""}`.toLowerCase();
           if (!haystack.includes(activeCategory.toLowerCase())) return false;
         }
-        return matchesCityHub(
-          {
-            title: perk.title,
-            description: perk.detail,
-            location: perk.issuer?.name,
-            venue_name: perk.issuer?.name,
-          },
-          city,
-        ) || livePerks.length <= 8;
+        return true;
       }),
-    [livePerks, city, activeCategory],
+    [livePerks, activeCategory],
+  );
+  const localPerks = useMemo(
+    () => hubPerks.filter((perk) => perk.availability !== "anywhere"),
+    [hubPerks],
+  );
+  const anywherePerks = useMemo(
+    () => hubPerks.filter((perk) => perk.availability === "anywhere"),
+    [hubPerks],
   );
   const filteredMoments = useMemo(() => {
     const matched = hubMoments.filter((m) => {
@@ -560,10 +560,10 @@ const Discover = () => {
                       <span>Businesses → Offer</span>
                     </div>
                     <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">
-                      Live perks you can put on PromoCard
+                      Live perks in {city.name}
                     </h3>
                     <p className="text-xs text-white/60">
-                      A perk is a real offer a shop put on PromoCard — a free item, a deal, or entry. Guests claim one, show the card, and the shop confirms with a PIN. You do not have to answer a poll first.
+                      Place offers follow the city you are in. Shop drops, digital events, and new music releases still show here even if they are not tied to a street.
                     </p>
                   </div>
 
@@ -607,10 +607,34 @@ const Discover = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {hubPerks.map((perk) => (
-                      <LivePerkCard key={perk.id} perk={perk} />
-                    ))}
+                  <div className="space-y-8">
+                    {localPerks.length > 0 && (
+                      <div className="space-y-4">
+                        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/40">
+                          In {city.name}
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {localPerks.map((perk) => (
+                            <LivePerkCard key={perk.id} perk={perk} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {anywherePerks.length > 0 && (
+                      <div className="space-y-4">
+                        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/40">
+                          Anywhere
+                        </p>
+                        <p className="text-xs text-white/50">
+                          E-commerce, digital events, and new music on streaming platforms.
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {anywherePerks.map((perk) => (
+                            <LivePerkCard key={perk.id} perk={perk} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
                 {!perksLoading && hubPerks.length === 0 && (
