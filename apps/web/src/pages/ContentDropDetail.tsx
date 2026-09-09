@@ -242,7 +242,7 @@ export default function ContentDropDetail() {
                 {primary?.target_url && (
                   <Button asChild className="justify-between">
                     <a href={primary.target_url} target="_blank" rel="noreferrer" onClick={() => session?.access_token && record("click")}>
-                      {kindMeta ? `${kindMeta.verb} the original` : t("dropDetail.openOriginal")}
+                      {kindMeta ? kindMeta.openLabel : t("dropDetail.openOriginal")}
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   </Button>

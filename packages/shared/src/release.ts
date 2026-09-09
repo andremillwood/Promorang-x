@@ -10,31 +10,35 @@ export type ReleaseKind = (typeof RELEASE_KINDS)[number];
 
 export const RELEASE_KIND_META: Record<
   ReleaseKind,
-  { label: string; verb: string; move: string; placeholder: string }
+  { label: string; verb: string; move: string; placeholder: string; openLabel: string }
 > = {
   song: {
     label: "Song",
     verb: "Listen",
     move: "First listen",
     placeholder: "https://open.spotify.com/track/…",
+    openLabel: "Listen to the original",
   },
   news: {
     label: "News",
     verb: "Read",
     move: "The story",
     placeholder: "https://…",
+    openLabel: "Read the original",
   },
   episode: {
     label: "Episode",
     verb: "Watch",
     move: "This episode",
     placeholder: "https://youtube.com/…",
+    openLabel: "Watch the original",
   },
   video: {
     label: "Video",
     verb: "Watch",
     move: "The video",
     placeholder: "https://…",
+    openLabel: "Watch the original",
   },
 };
 

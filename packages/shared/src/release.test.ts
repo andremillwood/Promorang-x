@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  RELEASE_KIND_META,
   inferReleaseKind,
   isLiveRelease,
   releaseConsequenceHrefs,
@@ -42,6 +43,7 @@ describe("Release experience", () => {
     expect(isLiveRelease(release)).toBe(true);
     expect(selectLiveReleaseSignal([release])?.id).toBe(drop.id);
     expect(releaseSignalCopy(release).verb).toBe("Listen");
+    expect(RELEASE_KIND_META.song.openLabel).toBe("Listen to the original");
     expect(releaseConsequenceHrefs(release).map((item) => item.id)).toEqual(["room", "perk"]);
     expect(releaseConsequenceHrefs({ id: "x" }).map((item) => item.id)).toEqual(["attach"]);
   });
