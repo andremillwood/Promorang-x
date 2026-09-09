@@ -20,6 +20,7 @@ A Release is origin: song, news, episode, or video. The original stays on Spotif
 
 - Consumer Today and Discover show one live Release signal, not a Media tab next to Eat
 - Opening the original starts the loop
-- Sharing, reposting, and commenting do not pay
+- Sharing, reposting, and commenting do not pay — the API zeros those rewards on Release campaigns
 - Creators land on `/content-drops`, not missions
-- `/watch-unlock` redirects to Releases; `/missions` remains for funded gigs
+- Feed drop cards open `/content-drops/:id`
+- `/give?release=` attaches a perk to a Release; `/watch-unlock` redirects to Releases; `/missions` remains for funded gigs

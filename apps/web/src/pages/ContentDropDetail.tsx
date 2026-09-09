@@ -78,7 +78,7 @@ export default function ContentDropDetail() {
       action_type: actionType,
       asset_id: primary?.id,
       destination_url: primary?.target_url,
-      verified: ["share", "repost"].includes(actionType),
+      verified: releasePaysForAction(actionType),
       metadata: {
         source: "content_drop_detail",
       },

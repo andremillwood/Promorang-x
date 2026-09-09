@@ -16,7 +16,7 @@ describe("presentPromoCard", () => {
   it("does not print points or a fake serial when the card is empty", () => {
     const view = presentPromoCard({ name: "Andi", points: 120, keys: 2, perks: [] });
     expect(view.holder).toBe("Andi");
-    expect(view.available).toMatch(/nothing to show/i);
+    expect(view.available).toMatch(/nothing on this card/i);
     expect(view.isLive).toBe(false);
     expect(view.useCode).toBe("");
     expect(view.cardNumber).toBe("");

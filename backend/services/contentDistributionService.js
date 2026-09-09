@@ -20,12 +20,27 @@ const ACTION_WEIGHTS = {
 const VERIFIED_ACTIONS = new Set(['share', 'repost', 'signup', 'conversion', 'purchase', 'proof_verified']);
 const ORGANIC_POINTS = { view: 0.25, like: 1, save: 1, comment: 2, share: 3 };
 const ORGANIC_DAILY_CAPS = { view: 5, like: 20, save: 10, comment: 10, share: 10 };
+const RELEASE_PAYING_ACTIONS = new Set(['click', 'open', 'proof_verified', 'claim', 'rsvp', 'check_in']);
 
 function isUuid(value) {
   return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
+function isReleaseCampaign(campaign) {
+  const meta = campaign?.metadata && typeof campaign.metadata === 'object' ? campaign.metadata : {};
+  if (meta.release_kind) return true;
+  if (meta.original_url) return true;
+  return campaign?.objective_type === 'content_launch';
+}
+
+function releasePaysForAction(actionType) {
+  const action = String(actionType || '').toLowerCase();
+  return RELEASE_PAYING_ACTIONS.has(action);
+}
+
 function calculatePoints(actionType, campaign, metadata = {}) {
+  if (isReleaseCampaign(campaign) && !releasePaysForAction(actionType)) return 0;
+
   const rewards = campaign?.reward_config || {};
   const explicit = rewards?.points_by_action?.[actionType];
   if (Number.isFinite(Number(explicit))) return Number(explicit);
@@ -37,6 +52,8 @@ function calculatePoints(actionType, campaign, metadata = {}) {
 }
 
 function shouldAwardPromoShare(actionType, campaign) {
+  if (isReleaseCampaign(campaign) && !releasePaysForAction(actionType)) return false;
+
   const config = campaign?.promoshare_config || {};
   if (config.enabled === false) return false;
 
@@ -73,8 +90,32 @@ async function getCampaignDetail(campaignId) {
   return data;
 }
 
+function releaseRewardDefaults(payload) {
+  const rewards = { ...(payload.reward_config || {}) };
+  const pointsByAction = { ...(rewards.points_by_action || {}) };
+  for (const action of Object.keys(pointsByAction)) {
+    if (!releasePaysForAction(action)) delete pointsByAction[action];
+  }
+  rewards.points_by_action = pointsByAction;
+  const promo = { ...(payload.promoshare_config || {}) };
+  if (Array.isArray(promo.actions)) {
+    promo.actions = promo.actions.filter((action) => releasePaysForAction(action));
+  }
+  return { rewards, promo };
+}
+
 async function createCampaign(ownerId, payload) {
   if (!supabase) throw new Error('Database not available');
+
+  const draft = {
+    ...payload,
+    metadata: payload.metadata || {},
+  };
+  const release = isReleaseCampaign(draft);
+  const { rewards, promo } = release ? releaseRewardDefaults(draft) : {
+    rewards: payload.reward_config || {},
+    promo: payload.promoshare_config || {},
+  };
 
   const insertPayload = {
     owner_id: ownerId,
@@ -86,8 +127,8 @@ async function createCampaign(ownerId, payload) {
     status: payload.status || 'draft',
     starts_at: payload.starts_at || null,
     ends_at: payload.ends_at || null,
-    reward_config: payload.reward_config || {},
-    promoshare_config: payload.promoshare_config || {},
+    reward_config: rewards,
+    promoshare_config: promo,
     attribution_config: payload.attribution_config || {},
     budget_amount: Number(payload.budget_amount || 0),
     budget_currency: payload.budget_currency || 'USD',
@@ -160,7 +201,8 @@ async function recordAction(userId, payload) {
   }
 
   const actionType = payload.action_type || 'engage';
-  const verified = Boolean(payload.verified || VERIFIED_ACTIONS.has(actionType));
+  const pays = !isReleaseCampaign(campaign) || releasePaysForAction(actionType);
+  const verified = pays && Boolean(payload.verified || VERIFIED_ACTIONS.has(actionType) || actionType === 'click' || actionType === 'open');
   const pointsAwarded = calculatePoints(actionType, campaign, payload.metadata);
   const promoshareEntries = shouldAwardPromoShare(actionType, campaign)
     ? Number(campaign.promoshare_config?.entries_by_action?.[actionType] || campaign.promoshare_config?.entries_per_action || 1)
@@ -435,5 +477,9 @@ module.exports = {
   listCampaigns,
   recordAction,
   recordOrganicAction,
-  getLeaderboard
+  getLeaderboard,
+  calculatePoints,
+  shouldAwardPromoShare,
+  isReleaseCampaign,
+  releasePaysForAction,
 };

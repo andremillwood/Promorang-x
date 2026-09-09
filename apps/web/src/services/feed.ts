@@ -125,7 +125,7 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
       : objectType === "discovery"
         ? `/discoveries/${item.slug || entityId}`
       : objectType === "drop"
-        ? "/content-drops"
+        ? `/content-drops/${entityId}`
         : objectType === "offer"
           ? item.type === "coupon" ? `/offers/${entityId}` : `/shop/${encodeURIComponent(String(entityId))}`
         : objectType === "product"
@@ -142,7 +142,7 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
       : objectType === "discovery"
         ? "View Discovery"
       : objectType === "drop"
-        ? "Start Proof"
+        ? "Open Release"
         : objectType === "offer"
           ? "See offer"
           : objectType === "product"

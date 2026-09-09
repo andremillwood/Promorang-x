@@ -14,7 +14,7 @@ export function DropFeedCard({ item }: { item: FeedItem }) {
             <Gem className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary/80">Proof Opportunity</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary/80">Live Release</p>
             <h3 className="font-serif text-lg font-bold">{item.title}</h3>
           </div>
         </div>
@@ -29,7 +29,7 @@ export function DropFeedCard({ item }: { item: FeedItem }) {
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ShieldCheck className="h-4 w-4 text-primary" />
-          Submit proof to unlock value and attribution.
+          Open the original. Sharing does not pay — a room, perk, or claim does.
         </div>
         <div className="flex gap-3">
           <Button asChild>

@@ -90,15 +90,14 @@ export function LaunchContentDropModal({ trigger, onSuccess }: LaunchContentDrop
         });
       }
 
-      toast.success("🚀 Creator Content Drop launched! Distribution rewards active 🎉");
+      toast.success("Release published. Opening the original counts. Sharing does not pay.");
       setTitle("");
       setExternalUrl("");
       setDescription("");
       setOpen(false);
       if (onSuccess) onSuccess();
     } catch (err: any) {
-      toast.success("Creator Content Drop published successfully!");
-      setOpen(false);
+      toast.error(err?.message || "Could not publish this Release.");
     } finally {
       setLoading(false);
     }

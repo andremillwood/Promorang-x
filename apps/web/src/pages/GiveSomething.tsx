@@ -41,6 +41,7 @@ export default function GiveSomething() {
   const [offerId, setOfferId] = useState<string | null>(params.get("offer"));
   const [shareUrl, setShareUrl] = useState("");
   const momentId = params.get("moment") || undefined;
+  const releaseId = params.get("release") || undefined;
 
   const selectedPerk = useMemo(() => (perks.data || []).find((item) => item.id === offerId), [perks.data, offerId]);
 
@@ -64,6 +65,8 @@ export default function GiveSomething() {
         audienceLimit: audience === "first_x" ? Number(limit) || 50 : null,
         sceneId: params.get("hub") || undefined,
         momentId,
+        sourceKind: releaseId ? "release" : undefined,
+        sourceId: releaseId || undefined,
       });
       const url = `${window.location.origin}/drop/${drop.slug}`;
       setShareUrl(url);
@@ -86,6 +89,16 @@ export default function GiveSomething() {
       {momentId ? (
         <p className="rounded-[1.3rem] border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-white/70">
           This drop will be attached to tonight’s gathering. Guests claim it, then the merchant validates the code.
+        </p>
+      ) : null}
+      {releaseId ? (
+        <p className="rounded-[1.3rem] border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-white/70">
+          This perk catches a Release. Opening the original is the start. Claiming this is the Promorang consequence.
+          {" "}
+          <Link to="/create/moment" className="font-bold text-primary underline-offset-2 hover:underline">
+            Or make a room for it
+          </Link>
+          .
         </p>
       ) : null}
       {foundListing ? (
