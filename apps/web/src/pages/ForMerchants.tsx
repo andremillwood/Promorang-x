@@ -338,7 +338,7 @@ const ForMerchants = () => {
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button variant="hero" size="xl" asChild>
-                            <Link to={registerHref}>{t("forMerchants.setupSpotCta")}</Link>
+                            <Link to={registerHref}>{t("forMerchants.registerSpotNow")}</Link>
                         </Button>
                         <Link to="/help" className="text-white/40 hover:text-white transition-colors uppercase font-black text-[10px] tracking-widest">
                             {t("forMerchants.howItWorksForSpots")}

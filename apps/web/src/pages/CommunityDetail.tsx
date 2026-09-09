@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, CalendarDays, Compass, Heart, MapPin, Share2, Sparkles, Users } from "lucide-react";
-import { getSceneHumanState, sceneLocation } from "@promorang/shared";
+import { getSceneHumanState, presentContestLine, sceneLocation } from "@promorang/shared";
 import SEO from "@/components/SEO";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { useScene } from "@/hooks/useScenes";
@@ -66,7 +66,9 @@ export default function CommunityDetail() {
       {home.data?.world?.health?.some((item: { count: number }) => item.count > 0) || home.data?.world?.dispatch?.line || hub.data?.polarity?.line || hub.data?.territories?.length ? (
         <section className="container px-6 pt-10">
           {hub.data?.polarity?.line || home.data?.world?.dispatch?.line ? <p className="text-sm text-white/55">{hub.data?.polarity?.line || home.data?.world?.dispatch?.line}</p> : null}
-          {hub.data?.contest?.contestLine ? <p className="mt-2 text-sm text-white/45">{hub.data.contest.contestLine}</p> : null}
+          {hub.data?.contest?.contestLine && (hub.data.contest.totalCurrent || 0) > 0 ? (
+            <p className="mt-2 text-sm text-white/45">{presentContestLine(hub.data.contest.contestLine, hub.data.contest.totalCurrent)}</p>
+          ) : null}
           {home.data?.world?.health?.some((item: { count: number }) => item.count > 0) ? (
             <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
               {home.data.world.health.map((item: { dimension: string; label: string; count: number }) => (

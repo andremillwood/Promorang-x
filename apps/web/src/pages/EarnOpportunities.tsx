@@ -81,11 +81,11 @@ export default function EarnOpportunities() {
         </div>
       ) : (
         <QuietEmpty
-          title="Nothing to earn from right now"
-          copy="When a merchant, brand or venue wants your people, the opportunity will land here."
+          title="No funded work right now"
+          copy="Funded work is a paid gig a brand or house posted. If you just want something to use tonight, browse live perks — that is the card, not this page."
           action={
-            <Link to={to(how.nextHref || "/stock")} className="text-sm font-bold text-primary">
-              {how.nextLabel || "Put something up yourself"}
+            <Link to={to(how.nextHref || "/discover?tab=perks")} className="text-sm font-bold text-primary">
+              {how.nextLabel || "Browse live perks"}
             </Link>
           }
         />

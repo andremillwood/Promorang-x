@@ -350,6 +350,36 @@ const Header = () => {
 
                   <DropdownMenuItem asChild>
                     <Link
+                      to="/for-creators"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-violet-500/15 text-violet-400 flex items-center justify-center shrink-0">
+                        <PlayCircle className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{t("nav.forCreators")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.forCreatorsDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/for-merchants"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
+                        <Store className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{t("nav.forMerchants")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.forMerchantsDesc")}</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link
                       to="/for-brands"
                       className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.08] transition cursor-pointer"
                     >
@@ -357,8 +387,8 @@ const Header = () => {
                         <Building2 className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-white">{t("nav.brandsMerchants")}</p>
-                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.brandsMerchantsDesc")}</p>
+                        <p className="text-xs font-bold text-white">{t("nav.forBrands")}</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{t("nav.forBrandsDesc")}</p>
                       </div>
                     </Link>
                   </DropdownMenuItem>
@@ -778,11 +808,25 @@ const Header = () => {
                     {t("nav.hostMoment")}
                   </Link>
                   <Link
+                    to="/for-creators"
+                    onClick={closeMobileMenu}
+                    className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
+                  >
+                    {t("nav.forCreators")}
+                  </Link>
+                  <Link
+                    to="/for-merchants"
+                    onClick={closeMobileMenu}
+                    className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
+                  >
+                    {t("nav.forMerchants")}
+                  </Link>
+                  <Link
                     to="/for-brands"
                     onClick={closeMobileMenu}
                     className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/80 font-medium transition text-center"
                   >
-                    {t("nav.brandsMerchants")}
+                    {t("nav.forBrands")}
                   </Link>
                   <Link
                     to="/how-it-works"

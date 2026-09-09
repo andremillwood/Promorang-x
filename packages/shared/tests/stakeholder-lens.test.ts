@@ -27,7 +27,7 @@ describe("stakeholder lens", () => {
     const merchant = getStakeholderLens("merchant");
     const brand = getStakeholderLens("brand");
 
-    expect(participant.putIn.href).toBe("/earn");
+    expect(participant.putIn.href).toBe("/discover?tab=perks");
     expect(host.putIn.href).toBe("/create/moment");
     expect(merchant.putIn.href).toBe("/stock");
     expect(brand.putIn.href).toBe("/stock");
@@ -40,7 +40,7 @@ describe("stakeholder lens", () => {
   });
 
   it("does not send hosts or merchants to the same first move as members", () => {
-    expect(resolveStakeholderHomeMove("participant", { cardPerks: 0 }).href).toBe("/discover");
+    expect(resolveStakeholderHomeMove("participant", { cardPerks: 0 }).href).toBe("/discover?tab=perks");
     expect(resolveStakeholderHomeMove("host", { communities: 0 }).href).toBe("/create/moment");
     expect(resolveStakeholderHomeMove("merchant", { hasInventory: false }).href).toBe("/stock");
     expect(resolveStakeholderHomeMove("brand", { perksGiven: 0 }).href).toBe("/stock");

@@ -63,7 +63,8 @@ describe("value instrument language", () => {
     expect(master.isNot).toMatch(/not a streak/i);
     expect(master.isNot).toMatch(/not a point purchase/i);
     expect(master.marketKnows).toMatch(/does not skip/i);
-    expect(VALUE_STORY.keysUnlock).toMatch(/both/i);
+    expect(VALUE_STORY.keysUnlock).toMatch(/Points/i);
+    expect(VALUE_STORY.keysUnlock).toMatch(/Earn/i);
   });
 
   it("treats Save & Win as PromoShare's no-loss money draw", () => {

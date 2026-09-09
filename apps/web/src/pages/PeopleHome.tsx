@@ -4,8 +4,10 @@ import {
   firstGivenName,
   getStakeholderLens,
   homeGreeting,
+  presentWorldRunTitle,
   resolvePromoCardFace,
   resolveStakeholderHomeMove,
+  resolveWorldInvitation,
 } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
@@ -16,6 +18,7 @@ import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/
 import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { resolveDemandRole } from "@/lib/discovery-demand";
+import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -25,7 +28,8 @@ const money = (value: number) => {
 const PREVIEW_ROLES = ["participant", "creator", "host", "merchant", "brand"] as const;
 
 export default function PeopleHome() {
-  const { user, profile, activeRole } = useAuth();
+  const { user, profile, activeRole, roles } = useAuth();
+  const workspaceRoles = (roles || []).filter((role) => ["host", "creator", "merchant", "brand", "agency", "admin"].includes(role));
   const home = useExperienceHome();
   const to = useExperiencePath();
   const location = useLocation();
@@ -33,6 +37,11 @@ export default function PeopleHome() {
   const previewRole = params.get("role");
   const data = home.data;
   const world = data?.world;
+  const invitation = world?.invitation || world?.worldSystem?.invitation || resolveWorldInvitation({
+    identityLine: world?.identity?.line,
+    hasLiveMoment: Boolean(world?.currentMove?.href && String(world.currentMove.href).includes("/moments/")),
+    nextHref: world?.currentMove?.href || "/discover",
+  });
   const givenName = firstGivenName({
     displayName: data?.givenName || data?.name,
     fullName: profile?.full_name || profile?.display_name || user?.user_metadata?.full_name || user?.user_metadata?.name,
@@ -185,6 +194,31 @@ export default function PeopleHome() {
         />
       ) : null}
 
+      {workspaceRoles.length ? (
+        <section className="rounded-[1.75rem] border border-primary/25 bg-primary/10 p-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">You also operate here</p>
+          <h2 className="mt-2 font-serif text-2xl font-bold">This is the member home, not your host desk.</h2>
+          <p className="mt-2 text-sm leading-6 text-white/60">
+            PromoCard, people, and tonight’s rooms live here. Hosting, creator work, merchant demand, and brand activations open in the workspace.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link to="/dashboard?view=studio" className="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 text-sm font-black text-black">
+              Open {activeRole === "admin" ? "studio" : `${activeRole} workspace`}
+            </Link>
+            {workspaceRoles.includes("admin") ? (
+              <Link to="/admin?tab=command" className="inline-flex min-h-11 items-center rounded-xl border border-white/15 px-4 text-sm font-bold text-white">
+                Admin command
+              </Link>
+            ) : null}
+            <Link to="/propose/new?from=home&role=host" className="inline-flex min-h-11 items-center rounded-xl border border-white/15 px-4 text-sm font-bold text-white">
+              Continue an activation
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
+      <LiveLoopActions role={String(activeRole || role)} title="Make it live" />
+
       {!isMemberWorkspace ? (
         <section className="grid gap-3">
           <StakeholderPutInPass role={lensRole} />
@@ -199,53 +233,57 @@ export default function PeopleHome() {
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-bold">For you</h2>
           {world?.currentMove ? (
-            <Link to={to(world.currentMove.href || "/discover")} className="block">
+            <Link to={to(world.currentMove.href || invitation?.nextHref || "/discover")} className="block">
               <TicketPass
                 kicker={world.currentMove.eyebrow || "Tonight"}
                 title={world.currentMove.title}
                 detail={
-                  [world.identity?.line, world.currentMove.why || world.slice?.currentLine || "Show up and the Scene can return something useful."]
-                    .filter(Boolean)
-                    .join(" · ")
+                  world.identity?.line
+                    ? [world.identity.line, world.currentMove.why || world.slice?.currentLine].filter(Boolean).join(" · ")
+                    : [
+                        invitation?.why,
+                        invitation?.benefit,
+                        world.currentMove.why || world.slice?.currentLine,
+                      ].filter(Boolean).join(" ")
                 }
                 stub="GO"
                 stubLabel="Live"
+                imageUrl={world.currentMove.imageUrl}
+                imageAlt={world.currentMove.imageAlt || world.currentMove.title}
               />
             </Link>
           ) : (
-            <Link to="/discover?tab=discoveries" className="block">
+            <Link to="/discover?tab=perks" className="block">
               <TicketPass
                 kicker="What’s happening"
-                title="Find your next good thing"
-                detail="Explore local spots, nights out, and perks worth claiming. What Discover opens lands on your PromoCard."
+                title="Browse live perks"
+                detail={
+                  world?.identity?.line
+                    ? "These are offers businesses already put up. Pick one for your card. You do not have to join a crew or answer a poll first."
+                    : `${invitation.benefit} These are offers businesses already put up. Pick one for your card. You do not have to join a crew or answer a poll first.`
+                }
                 stub="GO"
                 stubLabel="Live"
               />
             </Link>
           )}
-          <Link to={to("/crews")} className="block">
-            <TicketPass
-              kicker="Who you move with"
-              title={world?.crew?.name || "Form a Crew"}
-              detail={
-                world?.crew
-                  ? `${world.crew.size} people · ${world.crew.runTitle || "Kingston After Dark"}`
-                  : "3–8 people. One run. No factions required."
-              }
-              stub="CREW"
-              stubLabel="Open"
-            />
-          </Link>
           {world?.crew ? (
+            <Link to={to("/crews")} className="block">
+              <TicketPass
+                kicker="Who you move with"
+                title={world.crew.name}
+                detail={`${world.crew.size} people · ${presentWorldRunTitle(world.crew.runTitle)}`}
+                stub="CREW"
+                stubLabel="Open"
+              />
+            </Link>
+          ) : null}
+          {world?.crew && world?.guild ? (
             <Link to={to("/guilds")} className="block">
               <TicketPass
                 kicker="Who coordinates the Scene"
-                title={world?.guild?.name || "Form a Guild"}
-                detail={
-                  world?.guild
-                    ? `${world.guild.crewCount} Crews · ${world.guild.line || "Scene federation"}`
-                    : "2–6 Crews. Flat. Not an upline."
-                }
+                title={world.guild.name}
+                detail={`${world.guild.crewCount} Crews · ${world.guild.line || "Scene federation"}`}
                 stub="GUILD"
                 stubLabel="Open"
               />
@@ -316,15 +354,17 @@ export default function PeopleHome() {
       ) : null}
 
       {!data?.communities?.length ? (
-        <Link to={isMemberWorkspace ? "/scenes" : to("/start")} className="block">
+        isMemberWorkspace ? null : (
+        <Link to={to("/start")} className="block">
           <TicketPass
             kicker="First room"
-            title={isMemberWorkspace ? "Find your people" : "Bring your people together"}
-            detail={isMemberWorkspace ? "Join a community around the things you love." : "Start a community and give people a reason to join."}
+            title="Bring your people together"
+            detail="Start a community and give people a reason to join."
             stub="ROOM"
             stubLabel="Open"
           />
         </Link>
+        )
       ) : (
         <Link to={`/scenes/${data.communities[0].slug}`} className="block">
           <TicketPass

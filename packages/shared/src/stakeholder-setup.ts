@@ -195,33 +195,33 @@ const HOST_SETUP: StakeholderSetupPlaybook = {
 
 const PARTICIPANT_SETUP: StakeholderSetupPlaybook = {
   role: "participant",
-  kicker: "How to use it",
-  title: "Claim it, carry it, use it",
-  why: "PromoCard only holds what a merchant or brand already put up.",
+  kicker: "Start here",
+  title: "Three steps",
+  why: "A perk is a real offer a business put up. Your card stays empty until you pick one, or until a business puts one up. Crews, guilds, and scenes are optional later.",
   steps: [
     {
       id: "see-world",
-      label: "See what’s open",
-      href: "/discover",
-      youPutIn: "Pick a Scene, night, or place.",
-      othersDo: "Merchants, hosts, and creators supply the world.",
-      youGet: "A reason to leave home.",
+      label: "Browse live perks",
+      href: "/discover?tab=perks",
+      youPutIn: "Open the list of offers businesses already posted.",
+      othersDo: "A business has to put the offer up. You do not invent it.",
+      youGet: "Something you can actually take to a door.",
     },
     {
       id: "claim",
-      label: "Claim onto PromoCard",
-      href: "/earn",
-      youPutIn: "Take a live benefit.",
-      othersDo: "The merchant still has to honor it.",
-      youGet: "Something you can actually use.",
+      label: "Put one on your card",
+      href: "/discover?tab=perks",
+      youPutIn: "Claim a live perk. Polls are optional city votes, not the only way in.",
+      othersDo: "The business still has to honor it at the counter.",
+      youGet: "A pass you can show.",
     },
     {
       id: "use-card",
-      label: "Use it in the world",
+      label: "Show it at the door",
       href: "/card",
-      youPutIn: "Show the card at the counter or door.",
-      othersDo: "The merchant validates.",
-      youGet: "The benefit, and what comes back.",
+      youPutIn: "Open PromoCard when you arrive.",
+      othersDo: "The business scans or checks the code.",
+      youGet: "The offer, if they confirm it.",
     },
   ],
 };
@@ -394,9 +394,11 @@ const HOW_LEADS: Record<StakeholderHowSurface, (role: StakeholderNavRole) => Sta
       };
     }
     return {
-      eyebrow: "Claim",
-      title: "Take a live benefit onto PromoCard",
-      body: "It only counts if a merchant or brand already put it up.",
+      eyebrow: "Earn",
+      title: "Paid work and live offers",
+      body: "Funded work is a paid gig a brand or house posted. If you only want something to use tonight, browse live perks instead — that is the card, not this page.",
+      nextHref: "/discover?tab=perks",
+      nextLabel: "Browse live perks",
     };
   },
   drops: (role) => ({

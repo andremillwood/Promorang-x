@@ -11,6 +11,7 @@ import { PlayCircle, Link2, MapPin, Sparkles, TrendingUp, ArrowRight, Gem, Users
 import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
 import { PromoCardEconomyExplainer } from "@/components/promocard";
+import { authPathForReturn } from "@/lib/post-auth-next";
 
 const ForCreators = () => {
   const { t } = useI18n();
@@ -151,7 +152,7 @@ const ForCreators = () => {
 
             <div className="flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
               <Button variant="hero" size="xl" asChild>
-                <Link to="/auth?role=creator">
+                <Link to={authPathForReturn("/dashboard?view=studio", { mode: "signup", role: "creator" })}>
                   {t("forCreators.startAsCreator")}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
@@ -276,7 +277,7 @@ const ForCreators = () => {
                   {t("forCreators.attributionCopy")}
                 </p>
                 <Button variant="hero" size="lg" className="mt-8 w-full" asChild>
-                  <Link to="/auth?role=creator">{t("forCreators.openStudio")}</Link>
+                  <Link to={authPathForReturn("/dashboard?view=studio", { mode: "signup", role: "creator" })}>{t("forCreators.openStudio")}</Link>
                 </Button>
               </div>
             </div>
@@ -374,7 +375,7 @@ const ForCreators = () => {
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Button variant="hero" size="xl" asChild>
-                <Link to="/auth?role=creator">
+                <Link to={authPathForReturn("/dashboard?view=studio", { mode: "signup", role: "creator" })}>
                   {t("forCreators.startAsCreator")}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>

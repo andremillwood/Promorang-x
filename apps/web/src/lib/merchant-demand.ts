@@ -1,3 +1,5 @@
+import { authPathForReturn } from "@/lib/post-auth-next";
+
 export type MerchantDemandAnswers = {
   business?: string;
   gap?: string;
@@ -141,5 +143,5 @@ export function readMerchantDemand(searchParams?: URLSearchParams | null): Merch
 }
 
 export function merchantAuthHref(user: unknown, next: string): string {
-  return user ? next : `/auth?mode=signup&role=merchant&next=${encodeURIComponent(next)}`;
+  return user ? next : authPathForReturn(next, { mode: "signup", role: "merchant" });
 }

@@ -11,7 +11,7 @@ export function ConsequenceReceipt({
 }) {
   return (
     <div className="space-y-5">
-      <PaperReceipt heading={receipt.heading} lines={receipt.lines} footer={receipt.footer} />
+      <PaperReceipt heading={receipt.heading} lines={receipt.lines} footer={receipt.footer} pictures={receipt.pictures} />
       {reveal ? (
         <CollectibleRelic
           serial="MEMORY · VERIFIED"

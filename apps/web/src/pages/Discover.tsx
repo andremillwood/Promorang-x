@@ -34,7 +34,7 @@ import { useMarket } from "@/contexts/MarketContext";
 import { getCityHubCenter, getDefaultCityHub, matchesCityHub } from "@/lib/city-hubs";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getMomentStatus } from "@/lib/moment-recurrence";
-import { DISCOVERY_POLLS, type DiscoveryPoll } from "@/data/discoveriesData";
+import { getActiveDiscoveryPolls, isActiveDiscoveryPoll, type DiscoveryPoll } from "@/data/discoveriesData";
 import { AimedDiscoverLead } from "@/components/discovery/AimedDiscoverLead";
 import { StakeholderSurfaceLead } from "@/components/people/StakeholderLoop";
 import { DiscoveryPath } from "@/components/discovery/DiscoveryPath";
@@ -52,6 +52,7 @@ import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBal
 import { useI18n } from "@/i18n/I18nContext";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
+import { merchantAuthHref } from "@/lib/merchant-demand";
 
 const categoryFilters = [
   { id: "all", label: "All Drops", icon: Sparkles },
@@ -141,7 +142,7 @@ const Discover = () => {
   const { data: listingPolls = [] } = useListingDiscoveryPolls(12);
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const activeTab: DiscoverTab = ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam || "") ? tabParam as DiscoverTab : "discoveries";
+  const activeTab: DiscoverTab = ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam || "") ? tabParam as DiscoverTab : "perks";
   const lensParam = searchParams.get("lens");
   const aim = resolveStoredPromoCardAim(searchParams);
 
@@ -152,16 +153,13 @@ const Discover = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
-  const [livePolls, setLivePolls] = useState<DiscoveryPoll[]>(DISCOVERY_POLLS);
-
-  const [wheelOpen, setWheelOpen] = useState(false);
-  const [streakOpen, setStreakOpen] = useState(false);
+  const [livePolls, setLivePolls] = useState<DiscoveryPoll[]>(() => getActiveDiscoveryPolls());
 
   const nearby = useNearbyBenefits();
   const perksLoading = nearby.isLoading;
   const livePerks = nearby.data || [];
   const stake = getStakeholderLens(searchParams.get("role") || activeRole);
-  const putPerkUpHref = user ? "/stock" : "/auth?mode=signup&role=merchant&next=%2Fstock";
+  const putPerkUpHref = merchantAuthHref(user, "/stock");
   const putInHref = user ? stake.putIn.href : `/auth?next=${encodeURIComponent(stake.putIn.href)}`;
 
   const handleTabChange = (tab: DiscoverTab) => {
@@ -237,7 +235,11 @@ const Discover = () => {
       });
 
       const seenTitles = new Set(dbMoments.map((m) => m.title.toLowerCase()));
-      const filteredCurated = curatedAsMoments.filter((cm) => !seenTitles.has(cm.title.toLowerCase()));
+      const filteredCurated = curatedAsMoments.filter((cm) => {
+        if (seenTitles.has(cm.title.toLowerCase())) return false;
+        const hay = `${cm.title} ${cm.description}`.toLowerCase();
+        return !hay.includes("arla");
+      });
 
       return [...filteredCurated, ...dbMoments];
     },
@@ -253,7 +255,7 @@ const Discover = () => {
     [city],
   );
   const catalog = useMemo(
-    () => mergeDiscoveryPolls(livePolls, listingPolls, DISCOVERY_POLLS),
+    () => mergeDiscoveryPolls(livePolls, listingPolls, getActiveDiscoveryPolls()).filter(isActiveDiscoveryPoll),
     [livePolls, listingPolls],
   );
   const hubDiscoveries = useMemo(
@@ -400,7 +402,10 @@ const Discover = () => {
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[46rem] bg-[radial-gradient(circle_at_12%_0%,rgba(255,106,0,.16),transparent_42%),radial-gradient(circle_at_90%_10%,rgba(80,160,140,.08),transparent_34%)]" />
         <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-5 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold text-white/50">{stake.workspaceLabel} · {city.name}</p>
+            <div>
+              <p className="text-xs font-semibold text-white/50">{stake.workspaceLabel} · {city.name}</p>
+              <p className="mt-1 max-w-xl text-[11px] leading-5 text-white/40">{t("discover.pathHonesty")}</p>
+            </div>
             <GlobalTicketBalancePill />
           </div>
           <div className="mt-5">
@@ -409,7 +414,7 @@ const Discover = () => {
 
           <nav aria-label={t("discover.pathPageTitle")} className="mt-6 flex flex-wrap gap-2">
             <p className="w-full text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
-              {t("discover.pathBrowseEyebrow")} · {city.name}
+              {t("discover.pathAlsoInCity")} · {city.name}
             </p>
             <button type="button" onClick={() => handleTabChange("perks")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-emerald-400/50 hover:text-white">
               Perks & Drops
@@ -555,10 +560,10 @@ const Discover = () => {
                       <span>Businesses → Offer</span>
                     </div>
                     <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">
-                      Verified Perks, Discounts & Complimentary Drops
+                      Live perks you can put on PromoCard
                     </h3>
                     <p className="text-xs text-white/60">
-                      Live perks other shops put on PromoCards. Guests claim one, show the card, and you confirm with a PIN.
+                      A perk is a real offer a shop put on PromoCard — a free item, a deal, or entry. Guests claim one, show the card, and the shop confirms with a PIN. You do not have to answer a poll first.
                     </p>
                   </div>
 
@@ -823,8 +828,6 @@ const Discover = () => {
           />
         </div>
 
-        <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
-        <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
       </div>
     </div>
   );

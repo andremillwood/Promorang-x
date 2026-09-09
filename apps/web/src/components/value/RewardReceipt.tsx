@@ -12,6 +12,8 @@ interface RewardReceiptProps {
   coupon?: string;
   keyEarned?: string;
   momentTitle: string;
+  imageUrl?: string | null;
+  placeName?: string | null;
 }
 
 export function RewardReceipt({
@@ -23,18 +25,26 @@ export function RewardReceipt({
   coupon,
   keyEarned,
   momentTitle,
+  imageUrl,
+  placeName,
 }: RewardReceiptProps) {
   const tierMultiplier = tier === 'mover' ? 2 : tier === 'regular' ? 1.5 : 1;
   
   return (
     <Card className="border-green-500/30 bg-gradient-to-br from-green-50 to-emerald-50">
       <CardContent className="p-6">
+        {imageUrl ? (
+          <div className="mb-5 overflow-hidden rounded-2xl">
+            <img src={imageUrl} alt={placeName || momentTitle} className="h-40 w-full object-cover" />
+          </div>
+        ) : null}
         <div className="text-center mb-6">
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
             <CheckCircle2 className="w-8 h-8 text-green-600" />
           </div>
           <h3 className="text-xl font-bold text-green-900">Your Mark is Captured!</h3>
           <p className="text-green-700">{momentTitle}</p>
+          {placeName ? <p className="text-sm text-green-700/80">{placeName}</p> : null}
         </div>
 
         <div className="space-y-3">

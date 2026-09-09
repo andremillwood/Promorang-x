@@ -111,7 +111,7 @@ const conceptData: Record<
     inPlainEnglish:
       "Go to a real place. Show a claimed perk. The merchant records it. The next benefit is a new claim, not money appearing on the plastic.",
     primaryCta: { label: "See one night, step by step", href: "#one-night" },
-    secondaryCta: { label: "Get a PromoCard", href: "/auth?mode=signup" },
+    secondaryCta: { label: "Get a PromoCard", href: "/auth?mode=signup&next=/card" },
     roles: [
       {
         role: "If you go out",
@@ -149,7 +149,7 @@ const conceptData: Record<
     subhead:
       "A merchant supplies a benefit. You claim it. You flip the card and show the code. Staff records VALID. Showing up stamps eligibility — it does not invent a refill balance.",
     inPlainEnglish: "It is a Promorang pass, not a local gift card. Empty cities stay empty until a merchant puts something on it.",
-    primaryCta: { label: "Get your PromoCard", href: "/auth?mode=signup" },
+    primaryCta: { label: "Get your PromoCard", href: "/auth?mode=signup&next=/card" },
     secondaryCta: { label: "Partner with us", href: "/for-merchants" },
     roles: [
       {
@@ -157,7 +157,7 @@ const conceptData: Record<
         why: "You should not need a glossary to use a reward.",
         outcome: "Claim a live perk, flip the card at the door, and keep the receipt after they validate it.",
         action: "Get your card",
-        href: "/auth?mode=signup",
+        href: "/auth?mode=signup&next=/card",
       },
       {
         role: "If you run a shop",

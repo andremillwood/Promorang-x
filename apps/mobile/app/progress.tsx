@@ -1,4 +1,4 @@
-import { WORLD_PATH_TITLES, type WorldPathDimension } from '@promorang/shared';
+import { presentContestLine, resolveWorldInvitation, WORLD_PATH_TITLES, type WorldPathDimension } from '@promorang/shared';
 import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 
@@ -11,6 +11,10 @@ const DIMENSIONS: WorldPathDimension[] = ['discover', 'connect', 'create', 'host
 export default function ProgressScreen() {
   const query = useWorldProgress();
   const world = query.data?.world;
+  const invitation = world?.invitation || world?.worldSystem?.invitation || resolveWorldInvitation({
+    identityLine: world?.identity?.line,
+    nextHref: '/discover',
+  });
   const counts = world?.path?.counts || {};
 
   return (
@@ -20,6 +24,8 @@ export default function ProgressScreen() {
     >
       {world?.identity?.line ? (
         <Text style={{ color: Colors.white, fontSize: 20, fontWeight: '700' }}>{world.identity.line}</Text>
+      ) : invitation?.formingLine ? (
+        <Text style={{ color: Colors.white, fontSize: 20, fontWeight: '700' }}>{invitation.formingLine}</Text>
       ) : null}
       <Text style={{ color: Colors.gray[400] }}>
         {world?.path?.forming ? world.path.cue : 'A path has not formed yet. Three matching verified actions first.'}
@@ -32,9 +38,19 @@ export default function ProgressScreen() {
       ) : null}
       {world?.latestReturn ? (
         <Text style={{ color: Colors.white, fontSize: 22, fontWeight: '700' }}>{world.latestReturn.heading}</Text>
-      ) : (
-        <Text style={{ color: Colors.gray[500] }}>Nothing counted yet. Show up, then come back here.</Text>
-      )}
+      ) : invitation ? (
+        <View style={{ gap: 8 }}>
+          <Text style={{ color: Colors.primary, fontSize: 11, fontWeight: '800', letterSpacing: 2 }}>THIS IS HOW PROMORANG WORKS</Text>
+          <Text style={{ color: Colors.white, fontSize: 22, fontWeight: '700' }}>{invitation.headline}</Text>
+          <Text style={{ color: Colors.gray[400] }}>{invitation.why}</Text>
+          <Text style={{ color: Colors.gray[500] }}>{invitation.benefit}</Text>
+          {(invitation.steps || []).map((step: { title: string; line: string }) => (
+            <Text key={step.title} style={{ color: Colors.gray[400] }}>
+              {step.title} — {step.line}
+            </Text>
+          ))}
+        </View>
+      ) : null}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
         {DIMENSIONS.map((dimension) => (
           <View key={dimension} style={{ width: '30%' }}>
@@ -46,14 +62,20 @@ export default function ProgressScreen() {
       {world?.polarity?.line ? (
         <Text style={{ color: Colors.gray[400] }}>{world.polarity.line}</Text>
       ) : null}
-      {world?.contest?.contestLine ? (
-        <Text style={{ color: Colors.white, fontSize: 18, fontWeight: '700' }}>{world.contest.contestLine}</Text>
+      {(world?.contest?.totalCurrent || 0) > 0 ? (
+        <Text style={{ color: Colors.white, fontSize: 18, fontWeight: '700' }}>
+          {presentContestLine(world.contest.contestLine, world.contest.totalCurrent)}
+        </Text>
       ) : null}
       {(world?.territories || []).map((area: { key: string; title: string; state: string }) => (
         <Text key={area.key} style={{ color: Colors.gray[500] }}>
           {area.title} · {area.state}
         </Text>
       ))}
+      <PrimaryButton
+        label={invitation?.nextLabel || 'Find something worth doing'}
+        onPress={() => router.push((invitation?.nextHref || '/discover') as any)}
+      />
       <PrimaryButton label="Open Crew" onPress={() => router.push('/crews')} />
       <PrimaryButton label="Open Guild" onPress={() => router.push('/guilds')} />
       <PrimaryButton label="Open Vault" onPress={() => router.push('/vault')} />

@@ -79,6 +79,8 @@ const SCENARIOS: Record<ScenarioKey, ScenarioConfig> = {
         ],
         hostQuote: "Tia brought unmatched energy to Warehouse 9. 3 verified door arrivals logged.",
         hostSigner: "Joyride Friday Curator & Host Team",
+        targetImageUrl: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=1200&q=80",
+        placeName: "Warehouse 9",
         rewards: [
           { type: "cash", label: "Direct Cash Payout", value: `$${cashReward}.00 USD` },
           { type: "points", label: "Contributor Points", value: `+${pointsReward} pts` },
@@ -128,6 +130,8 @@ const SCENARIOS: Record<ScenarioKey, ScenarioConfig> = {
         ],
         hostQuote: "Marcus's review brought 14 new brunch tables this weekend. Stellar contributor.",
         hostSigner: "Sunset Cafe General Manager",
+        targetImageUrl: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1200&q=80",
+        placeName: "Sunset Cafe & Lounge",
         rewards: [
           { type: "cash", label: "Bounty Commission", value: `$${cash}.00 USD` },
           { type: "keys", label: "PromoKeys Earned", value: "+3 Master Keys" },
@@ -176,6 +180,8 @@ const SCENARIOS: Record<ScenarioKey, ScenarioConfig> = {
         ],
         hostQuote: "Verified on-site participation at Curator Showcase.",
         hostSigner: "Festival Director",
+        targetImageUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
+        placeName: "Art After Dark",
         rewards: [
           { type: "points", label: "Moment Points", value: `+${points} pts` },
           { type: "keys", label: "Vault Keys", value: "+1 Contributor Key" },
@@ -225,6 +231,8 @@ const SCENARIOS: Record<ScenarioKey, ScenarioConfig> = {
         ],
         hostQuote: "45 verified physical customer arrivals recorded with zero ad waste.",
         hostSigner: "Bodega Operations Escrow",
+        targetImageUrl: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1200&q=80",
+        placeName: "Bodega Lounge",
         rewards: [
           { type: "cash", label: "Merchant Net ROI", value: `+${Math.round((revenue / (spent || 1)) * 100)}% ROI` },
           { type: "badge", label: "Community Stewards", value: "12 Creators Rewarded" },
