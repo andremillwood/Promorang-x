@@ -310,8 +310,8 @@ export default function MyPromoCard() {
           {stake.role !== "participant" ? <StakeholderPutInPass role={stake.role} /> : null}
 
           <PromoCardWorldContext
-            scene={world?.slice?.sceneTitle}
-            season={world?.slice?.seasonTitle}
+            scene={data?.memberships?.[0]?.title || null}
+            season={data?.memberships?.length ? world?.slice?.seasonTitle : null}
             crew={world?.crew?.name}
             run={
               world?.crew?.runTitle
@@ -336,11 +336,13 @@ export default function MyPromoCard() {
 
           <section className="rounded-[1.4rem] border border-amber-200/20 bg-amber-200/5 px-4 py-4">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">
-              {aim ? "On your card" : "What should your card open?"}
+              {aim ? "On your card" : "Optional filter"}
             </p>
             <p className="mt-1 font-serif text-2xl font-bold">{aim ? aim.cardLine : "Aim this card"}</p>
             <p className="mt-1 text-sm text-white/60">
-              {aim ? aim.watchingLine : "Pick a scene, a place, or tonight. The card watches that."}
+              {aim
+                ? aim.watchingLine
+                : "Optional. This only filters Discover toward food, tonight, or a neighbourhood. Skip it and browse live perks."}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {PROMOCARD_AIMS.map((item) => {
@@ -362,6 +364,11 @@ export default function MyPromoCard() {
                 );
               })}
             </div>
+            <p className="mt-3 text-xs leading-5 text-white/45">
+              Kingston After Dark is one nightlife filter, not the only scene.{" "}
+              <Link to="/scenes" className="font-bold text-primary">Browse scenes</Link>
+              {" "}if you want a room — you do not have to join one to use the card.
+            </p>
           </section>
 
           <section id="use-this">
@@ -381,7 +388,7 @@ export default function MyPromoCard() {
                   copy={empty.description}
                   action={
                     <Link to={discoverHrefForAim(aim)} className={actionClass}>
-                      {aim ? `Find ${aim.label}` : "Find something for your card"} <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                      {aim ? `Browse ${aim.label} perks` : "Browse live perks"} <ArrowRight aria-hidden="true" className="h-4 w-4" />
                     </Link>
                   }
                 />

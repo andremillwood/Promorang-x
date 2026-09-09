@@ -82,7 +82,7 @@ const TOP_MOMENTS: LeaderboardItem[] = [
   {
     rank: 4,
     id: 'mom-4',
-    title: 'FAT Wednesdays Live Social & Game Night',
+    title: 'FAT Wednesdays at Tracks & Records',
     subtitle: "Usain Bolt's Tracks & Records",
     stat: '220 Attendees',
     secondaryStat: '15 Keys Active',

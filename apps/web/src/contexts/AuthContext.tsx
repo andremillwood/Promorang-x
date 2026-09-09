@@ -5,8 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { clearDemoSession, DemoRole, readDemoSession, writeDemoSession } from "@/lib/demo-session";
 import { getGrowthSignupMetadata } from "@/lib/marketing-attribution";
 import { ensureAccountProfile, fetchProfileRow, identityFromAuthUser, mergeAccountProfile } from "@/lib/account-profile";
+import {
+  isConsumerPostAuthNext,
+  isFullOperatorIdentity,
+  mapWorkspaceRole,
+  resolvePreferredWorkspaceRole,
+  type WorkspaceRole,
+} from "@/lib/auth-roles";
 
-type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "promoter" | "marketing" | "admin";
+type UserRole = WorkspaceRole;
 
 const MASTER_ADMIN_WORKSPACE_ROLES: UserRole[] = [
   "admin",
@@ -65,36 +72,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // ROLE VERNACULAR MAPPER: Translates legacy DB roles to modern human-centric ones
-  const mapRole = (role: string): UserRole => {
-    if (!role) return 'participant';
-    const r = role.toLowerCase().trim();
-    if (r === 'creator') return 'creator';
-    if (r === 'promoter' || r === 'street_activation_promoter') return 'promoter';
-    if (r === 'marketing') return 'marketing';
-    if (r === 'host') return 'host';
-    if (r === 'agency') return 'agency';
-    if (r === 'advertiser' || r === 'brand') return 'brand';
-    if (r === 'merchant' || r === 'vendor') return 'merchant';
-    if (r === 'admin' || r === 'administrator' || r === 'master_admin' || r === 'moderator') return 'admin';
-    return 'participant';
-  };
+  const mapRole = (role: string): UserRole => mapWorkspaceRole(role);
 
-  const resolvePreferredRole = (availableRoles: UserRole[]) => {
-    const demoRole = readDemoSession()?.role;
-    const savedRole = localStorage.getItem("promorang_active_role");
-    const preferredCandidates = [demoRole, savedRole]
-      .map((role) => (role ? mapRole(role) : null))
-      .filter((role): role is UserRole => !!role);
-
-    for (const candidate of preferredCandidates) {
-      if (availableRoles.includes(candidate)) {
-        return candidate;
-      }
-    }
-
-    return availableRoles[0] ?? null;
-  };
+  const resolvePreferredRole = (availableRoles: UserRole[]) =>
+    resolvePreferredWorkspaceRole(availableRoles, {
+      demoRole: readDemoSession()?.role,
+      savedRole: localStorage.getItem("promorang_active_role"),
+    });
 
   // Sync activeRole with storage-backed preference whenever the available role
   // set changes.
@@ -326,10 +310,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .filter(Boolean);
 
       if (
-        rawRoles.includes("master_admin") ||
-        (sessionUser?.app_metadata as any)?.role === "master_admin" ||
-        (sessionUser?.user_metadata as any)?.role === "master_admin" ||
-        sessionUser?.email?.trim().toLowerCase() === "andremillwood@gmail.com"
+        isFullOperatorIdentity({
+          rawRoles,
+          metadataRole:
+            String((sessionUser?.app_metadata as any)?.role || (sessionUser?.user_metadata as any)?.role || ""),
+          email: sessionUser?.email,
+        })
       ) {
         return MASTER_ADMIN_WORKSPACE_ROLES;
       }
@@ -364,18 +350,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // The auth listener should be registered once; the inner sync function reads
   // the current session user and explicitly reconciles role + org state.
   useEffect(() => {
-    const syncSessionContext = async (sessionUser: User) => {
+    const syncSessionContext = async (sessionUser: User, event?: string) => {
       const [fetchedRoles] = await Promise.all([
         fetchUserRoles(sessionUser.id, sessionUser),
         fetchUserProfile(sessionUser),
       ]);
 
       setRoles(fetchedRoles);
-      // Restore the last role the user explicitly selected when it is still
-      // available. Master-admin role ordering already makes admin the fallback
-      // when no valid preference exists; it must not override a saved choice
-      // on every refresh.
-      const preferredRole = resolvePreferredRole(fetchedRoles);
+      // Fresh login: operators land in admin unless they asked for a consumer
+      // destination such as Get PromoCard → /card. Page refresh still honors
+      // an explicit role switch.
+      const consumerNext = isConsumerPostAuthNext(sessionStorage.getItem("promorang_post_auth_next"));
+      const preferredRole =
+        event === "SIGNED_IN" && fetchedRoles.includes("admin") && !consumerNext
+          ? "admin"
+          : resolvePreferredRole(fetchedRoles);
       if (preferredRole) {
         setActiveRoleState(preferredRole);
         localStorage.setItem("promorang_active_role", preferredRole);
@@ -392,7 +381,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Defer role fetching with setTimeout
         if (session?.user) {
           setTimeout(() => {
-            syncSessionContext(session.user).catch((error) => {
+            syncSessionContext(session.user, event).catch((error) => {
               console.error("[AuthContext] Failed to sync session context:", error);
             });
           }, 0);

@@ -210,16 +210,18 @@ export function discoverHrefForAim(
   aim?: PromoCardAim | null,
   options?: { fill?: "request" | null },
 ): string {
-  if (!aim) {
-    return options?.fill === "request" ? "/discover?tab=discoveries&fill=request" : "/discover";
+  if (options?.fill === "request") {
+    return aim
+      ? `/discover?tab=discoveries&fill=request&lens=${encodeURIComponent(aim.lens)}&aim=${encodeURIComponent(aim.id)}`
+      : "/discover?tab=discoveries&fill=request";
   }
+  if (!aim) return "/discover?tab=perks";
   const parts = [
-    `tab=discoveries`,
+    `tab=perks`,
     `lens=${encodeURIComponent(aim.lens)}`,
     `q=${encodeURIComponent(aim.discoverQuery)}`,
     `aim=${encodeURIComponent(aim.id)}`,
   ];
-  if (options?.fill === "request") parts.push("fill=request");
   return `/discover?${parts.join("&")}`;
 }
 
@@ -243,8 +245,8 @@ export function fillCardMoves(aim?: PromoCardAim | null): FillCardMove[] {
   return [
     {
       id: "discover",
-      label: scene ? `Answer a ${scene} question` : "Answer a live question",
-      detail: "Discover is how the first thing lands when no place has put a perk up.",
+      label: scene ? `Browse ${scene} perks` : "Browse live perks",
+      detail: "See what businesses already put up. You can pick one without answering a poll.",
       path: discoverHrefForAim(aim),
     },
     {
@@ -272,12 +274,12 @@ export function fillCardCopy(aim?: PromoCardAim | null): { title: string; descri
   if (aim) {
     return {
       title: `Nothing for ${aim.label} yet`,
-      description: `${aim.watchingLine} You can still fill the card — answer, ask, or host.`,
+      description: `${aim.watchingLine} Browse live perks first. Polls are optional city votes — they are not the only way onto the card.`,
     };
   }
   return {
     title: "Nothing to use yet",
-    description: "Nothing live is on the card. Answer a question, ask for a perk, start a poll, or host a moment.",
+    description: "Browse live perks a business already put up. You do not have to answer a poll to get something on this card.",
   };
 }
 

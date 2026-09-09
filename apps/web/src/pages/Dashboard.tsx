@@ -33,6 +33,7 @@ const Dashboard = () => {
   const { activeDraft, dismissDraft } = useUserIntentContinuity();
   const [params] = useSearchParams();
   const studioView = params.get("view") === "studio";
+  const peopleView = params.get("view") === "people";
 
   if (loading) {
     return (
@@ -46,12 +47,18 @@ const Dashboard = () => {
     return <Navigate to="/auth" replace />;
   }
 
+  if (!studioView && activeRole === "admin") {
+    return <Navigate to="/admin?tab=command" replace />;
+  }
+
   const resolvedRole = activeRole || "participant";
-  const ResolvedDashboard = studioView
+  const commercialStudio = ["host", "creator", "merchant", "brand", "agency"].includes(resolvedRole);
+  const showStudio = studioView || (!peopleView && commercialStudio);
+  const ResolvedDashboard = showStudio
     ? (dashboardByRole[resolvedRole] || ParticipantDashboardV2)
     : PeopleHome;
 
-  if (!studioView) {
+  if (!showStudio) {
     return (
       <>
         <MobileNotificationBridgeBanner />

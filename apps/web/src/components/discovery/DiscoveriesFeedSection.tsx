@@ -441,21 +441,21 @@ export function DiscoveriesFeedSection() {
 
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 flex flex-col justify-between">
             <div>
-              <h4 className="text-xs font-black uppercase tracking-wider text-primary">Next Unlocks In Your Vault</h4>
+              <h4 className="text-xs font-black uppercase tracking-wider text-primary">What is actually live</h4>
               <div className="mt-4 space-y-3">
                 <div className="rounded-xl border border-white/5 bg-black/40 p-3">
                   <div className="flex items-center gap-2 text-xs font-bold text-white">
                     <Gift className="h-3.5 w-3.5 text-primary" />
-                    <span>J$500 Off Arla Pro Tasting Voucher</span>
+                    <span>House passes only when a merchant puts one up</span>
                   </div>
-                  <p className="text-[10px] text-white/50 mt-1">2 community votes until automatic drop</p>
+                  <p className="text-[10px] text-white/50 mt-1">City votes do not mint a 25% off or a grocer voucher.</p>
                 </div>
                 <div className="rounded-xl border border-white/5 bg-black/40 p-3">
                   <div className="flex items-center gap-2 text-xs font-bold text-white">
                     <Gift className="h-3.5 w-3.5 text-amber-400" />
-                    <span>25% Off Kingston Jerk Platter Pass</span>
+                    <span>Kingston Friday jerk shortlist</span>
                   </div>
-                  <p className="text-[10px] text-white/50 mt-1">8 community votes until automatic drop</p>
+                  <p className="text-[10px] text-white/50 mt-1">Mapped spots only. No invented platter pass.</p>
                 </div>
               </div>
             </div>

@@ -117,11 +117,11 @@ describe("world current move", () => {
     expect(move.imageUrl).toBeTruthy();
   });
 
-  it("falls back to the Scene doorway without inventing live density", () => {
+  it("falls back to browsing nights without forcing one Scene", () => {
     const move = resolveWorldCurrentMove({});
-    expect(move.href).toBe("/scenes/kingston-after-dark");
-    expect(move.why).toContain("PromoCard");
-    expect(move.imageUrl).toBe(KINGSTON_AFTER_DARK_SLICE.imageUrl);
+    expect(move.href).toBe("/discover?tab=moments");
+    expect(move.why).toMatch(/optional/i);
+    expect(move.sceneTitle).toBeNull();
   });
 });
 

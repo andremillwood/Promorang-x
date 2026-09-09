@@ -36,7 +36,7 @@ afterEach(async () => {
 describe("FillCardMoves", () => {
   it("prompts an empty Food card toward Discover, a request, a poll, and a moment", async () => {
     await renderMoves(false);
-    expect(container).toHaveTextContent("Answer a Food question");
+    expect(container).toHaveTextContent("Browse Food perks");
     expect(container).toHaveTextContent("Ask for Food");
     expect(container).toHaveTextContent("Start a poll");
     expect(container).toHaveTextContent("Host a moment");

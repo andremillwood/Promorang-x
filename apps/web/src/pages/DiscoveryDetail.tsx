@@ -54,6 +54,7 @@ import {
   DiscoveryOption,
   DiscoveryComment 
 } from "@/data/discoveriesData";
+import { pollHasRedeemablePerk } from "@/lib/discovery-signal";
 import { useI18n } from "@/i18n/I18nContext";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
 import { PromoShareAction } from "@/components/promoshare/PromoShareAction";
@@ -124,9 +125,12 @@ export default function DiscoveryDetail() {
     const shareUrl = `${window.location.origin}/discoveries/${poll.slug}?ref=${userReferralCode}${userVotedOptionId ? `&pick=${userVotedOptionId}` : ""}`;
     const selectedOptionObj = poll.options.find(o => o.id === userVotedOptionId);
     
+    const redeemable = pollHasRedeemablePerk(poll);
     const whatsappShareText = userVotedOptionId 
-      ? `🔥 I just backed "${selectedOptionObj?.text}" on Promorang's ${poll.category}! Vote with our squad to unlock the ${poll.targetUnlockPerk} for everyone 👉 ${shareUrl}`
-      : `Vote on Promorang: "${poll.question}" - Which option is your pick? Join the community vote 👉 ${shareUrl}`;
+      ? redeemable
+        ? `I just backed "${selectedOptionObj?.text}" on Promorang. Vote with the squad to open ${poll.targetUnlockPerk} 👉 ${shareUrl}`
+        : `I just picked "${selectedOptionObj?.text}" on Promorang. This is a city vote, not a discount. Add yours 👉 ${shareUrl}`
+      : `Vote on Promorang: "${poll.question}" — mapped spots, no invented checkout pass 👉 ${shareUrl}`;
 
     const handleVoteOnPoll = (optionId: string) => {
       if (userVotedOptionId) return;
@@ -384,17 +388,19 @@ export default function DiscoveryDetail() {
                     <div>
                       <span className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-400 flex items-center gap-1.5">
                         <Zap className="w-3.5 h-3.5 text-amber-400" />
-                        COMMUNITY UNLOCK BATTERY
+                        {redeemable ? "COMMUNITY UNLOCK BATTERY" : "CITY VOTE"}
                       </span>
                       <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mt-0.5">
-                        <span>City Hype Meter</span>
+                        <span>{redeemable ? "City Hype Meter" : "Shortlist meter"}</span>
                       </h3>
                     </div>
                     <div className="text-left sm:text-right">
                       <span className="text-xl sm:text-2xl font-black text-orange-400">
-                        {totalVotes} <span className="text-xs sm:text-sm font-normal text-white/50">/ {poll.thresholdForMoment} Units</span>
+                        {totalVotes} <span className="text-xs sm:text-sm font-normal text-white/50">/ {poll.thresholdForMoment} votes</span>
                       </span>
-                      <p className="text-[10px] sm:text-[11px] text-white/50 font-medium">{progressPercentage}% charged toward drop</p>
+                      <p className="text-[10px] sm:text-[11px] text-white/50 font-medium">
+                        {redeemable ? `${progressPercentage}% charged toward drop` : `${progressPercentage}% of the way to a firm shortlist`}
+                      </p>
                     </div>
                   </div>
 
@@ -412,16 +418,23 @@ export default function DiscoveryDetail() {
                       <Gift className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-400">THE BOUNTY TO UNLOCK</p>
+                      <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-400">
+                        {redeemable ? "THE HOUSE PASS TO OPEN" : "WHAT THIS VOTE DOES"}
+                      </p>
                       <p className="text-xs sm:text-sm font-bold text-white mt-0.5 break-words">{poll.targetUnlockPerk}</p>
-                      {isThresholdMet ? (
+                      {redeemable && isThresholdMet ? (
                         <p className="text-[11px] sm:text-xs text-emerald-400 font-bold mt-1 flex items-center gap-1">
-                          <Sparkles className="h-3.5 w-3.5 shrink-0" /> 🎉 UNLOCKED! Tasting Pass codes dropping to voters!
+                          <Sparkles className="h-3.5 w-3.5 shrink-0" /> A house pass is live for voters.
+                        </p>
+                      ) : redeemable ? (
+                        <p className="text-[11px] sm:text-xs text-orange-300/90 font-semibold mt-1 flex items-center gap-1">
+                          <Flame className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+                          <span>Only {votesRemaining} more votes needed to open that house pass.</span>
                         </p>
                       ) : (
                         <p className="text-[11px] sm:text-xs text-orange-300/90 font-semibold mt-1 flex items-center gap-1">
                           <Flame className="w-3.5 h-3.5 text-orange-400 shrink-0" />
-                          <span>Only {votesRemaining} more votes needed to unlock for everyone!</span>
+                          <span>This is a city vote. It does not mint a checkout discount.</span>
                         </p>
                       )}
                     </div>
@@ -438,8 +451,10 @@ export default function DiscoveryDetail() {
                       </h2>
                       <p className="text-[11px] sm:text-xs text-white/60 mt-0.5">
                         {userVotedOptionId 
-                          ? "🎯 Choice locked in! Spot matches & referral perks unlocked below." 
-                          : "Select your pick below to back your candidate and earn reward points."}
+                          ? redeemable
+                            ? "Choice locked in. If a house pass is live, it is below."
+                            : "Choice locked in. This is a city vote — see the mapped place below, not a discount."
+                          : "Pick the mapped spot you stand behind. This is not a checkout pass."}
                       </p>
                     </div>
 
@@ -570,10 +585,10 @@ export default function DiscoveryDetail() {
                         <div>
                           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400 flex items-center gap-1">
                             <Target className="w-3.5 h-3.5" />
-                            DYNAMIC RECOMMENDATIONS
+                            {redeemable ? "DYNAMIC RECOMMENDATIONS" : "MAPPED PLACE"}
                           </span>
                           <h3 className="text-lg sm:text-xl font-bold text-white mt-0.5">
-                            Curated Drops Matched to Your Choice
+                            {redeemable ? "Curated Drops Matched to Your Choice" : "The place you picked — no invented deal"}
                           </h3>
                         </div>
                         <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/40 text-[11px] sm:text-xs w-fit max-w-full truncate">
@@ -663,7 +678,8 @@ export default function DiscoveryDetail() {
                       )}
                     </div>
 
-                    {/* 2. Viral Squad Referral Accelerator Widget */}
+                    {/* 2. Viral Squad Referral Accelerator Widget — only when a house pass is real */}
+                    {redeemable ? (
                     <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/40 via-gray-900 to-gray-950 p-4 sm:p-8 shadow-2xl relative overflow-hidden">
                       <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                         <div className="p-2.5 sm:p-3 rounded-2xl bg-emerald-500/20 text-emerald-400 shrink-0">
@@ -732,6 +748,7 @@ export default function DiscoveryDetail() {
                         </div>
                       </div>
                     </div>
+                    ) : null}
 
                   </div>
                 )}
@@ -749,7 +766,7 @@ export default function DiscoveryDetail() {
                   {poll.contextNotes && (
                     <div className="mt-3 sm:mt-4 p-3 sm:p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20">
                       <p className="text-xs font-bold text-orange-300 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" /> What Unlocks Next
+                        <Sparkles className="w-3.5 h-3.5" /> {redeemable ? "What opens next" : "How to read this"}
                       </p>
                       <p className="text-xs text-white/80 mt-1 leading-relaxed">
                         {poll.contextNotes}
