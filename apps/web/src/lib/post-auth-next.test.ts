@@ -23,6 +23,9 @@ describe("post-auth-next", () => {
     expect(roleFromNext("/for-creators")).toBe("creator");
     expect(roleFromNext("/for-merchants")).toBe("merchant");
     expect(roleFromNext("/for-brands")).toBe("brand");
+    expect(roleFromNext("/stock")).toBe("merchant");
+    expect(roleFromNext("/create/moment")).toBe("host");
+    expect(roleFromNext("/create/campaign")).toBe("brand");
   });
 
   it("returns hosts to the proposal they started, not the member home", () => {

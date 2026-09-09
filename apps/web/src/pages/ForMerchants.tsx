@@ -9,6 +9,7 @@ import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import { MerchantRoiSimulator } from "@/components/value/MerchantRoiSimulator";
 import { PromoCardEconomyExplainer } from "@/components/promocard";
+import { authPathForReturn } from "@/lib/post-auth-next";
 
 import {
     Store,

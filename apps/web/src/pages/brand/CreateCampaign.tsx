@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, ArrowRight, Check, DollarSign, Target, Users } from "lucide-react";
 import { CommercialProofLoop } from "@/components/commercial/CommercialProofLoop";
+import { authEntryHref } from "@promorang/shared";
 
 const CATEGORIES = [
   { value: "social", label: "Social Gathering" },
@@ -524,7 +525,7 @@ const CreateCampaign = () => {
   };
 
   if (!user) {
-    navigate("/auth");
+    navigate(authEntryHref({ mode: "login", role: "brand", next: "/create/campaign" }));
     return null;
   }
 

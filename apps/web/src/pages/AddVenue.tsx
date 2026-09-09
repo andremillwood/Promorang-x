@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCreateVenue } from "@/hooks/useVenues";
 import { useImageUpload } from "@/hooks/useImageUpload";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { authEntryHref } from "@promorang/shared";
 
 const venueCategories = [
   { value: "general", label: "General" },
@@ -87,8 +88,7 @@ const AddVenue = () => {
   };
 
   if (!user) {
-    navigate("/auth");
-    return null;
+    return <Navigate to={authEntryHref({ mode: "login", role: "merchant", next: "/dashboard/venues/add" })} replace />;
   }
 
   return (

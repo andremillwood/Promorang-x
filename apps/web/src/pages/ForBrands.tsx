@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { authPathForReturn } from "@/lib/post-auth-next";
 import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";

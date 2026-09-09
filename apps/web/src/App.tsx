@@ -482,7 +482,7 @@ const App = () => (
                     <Route path="/dashboard/campaigns/:id" element={<CampaignDetail />} />
                     <Route path="/dashboard/bounties/create" element={<Navigate to="/create/bounty" replace />} />
                     <Route path="/dashboard/moments/create" element={<Navigate to="/create/moment" replace />} />
-                    <Route path="/dashboard/venues/add" element={<AddVenue />} />
+                    <Route path="/dashboard/venues/add" element={<ProtectedRoute><AddVenue /></ProtectedRoute>} />
                     <Route path="/dashboard/proposals" element={<ProtectedRoute><ProposalWorkspace /></ProtectedRoute>} />
                     <Route path="/dashboard/proposals/:id" element={<ProtectedRoute><ActivationDetail /></ProtectedRoute>} />
                     <Route path="/dashboard/products/add" element={<AddProduct />} />
