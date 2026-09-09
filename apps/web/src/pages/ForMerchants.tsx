@@ -9,23 +9,25 @@ import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import { MerchantRoiSimulator } from "@/components/value/MerchantRoiSimulator";
 import { PromoCardEconomyExplainer } from "@/components/promocard";
-import { authPathForReturn } from "@/lib/post-auth-next";
+import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import {
+    buildMerchantDemandOpening,
+    merchantAuthHref,
+    readMerchantDemand,
+} from "@/lib/merchant-demand";
 
 import {
     Store,
     Users,
-    Gift,
     TrendingUp,
     ArrowRight,
     MapPin,
-    Clock,
     ShieldCheck,
     Lock,
     Sparkles,
     Plus,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
-import { authPathForReturn } from "@/lib/post-auth-next";
 import { TranslationKey } from "@/i18n/translations";
 
 const ForMerchants = () => {
@@ -33,6 +35,10 @@ const ForMerchants = () => {
     const [searchParams] = useSearchParams();
     const claimVenue = searchParams.get("claimVenue") || searchParams.get("venue");
     const { t } = useI18n();
+    const demandAnswers = readMerchantDemand(searchParams);
+    const demand = demandAnswers ? buildMerchantDemandOpening(demandAnswers) : null;
+    const putPerkHref = merchantAuthHref(user, "/stock");
+    const registerHref = merchantAuthHref(user, "/dashboard/venues/add");
 
     const merchantBenefits: Array<{ icon: typeof MapPin; titleKey: TranslationKey; descKey: TranslationKey }> = [
         {
@@ -122,33 +128,66 @@ const ForMerchants = () => {
                             ]}
                         />
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Button
-                                size="xl"
-                                asChild
-                                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black shadow-xl shadow-emerald-500/25 px-8 py-6 rounded-2xl text-base"
-                            >
-                                <Link to={user ? "/stock" : authPathForReturn("/stock", { mode: "signup", role: "merchant" })}>
-                                    <Plus className="w-5 h-5 mr-2" />
-                                    <span>Put a perk up</span>
-                                </Link>
-                            </Button>
-                            <Button variant="hero" size="xl" asChild>
-                                <Link to={user ? "/dashboard/venues/add" : authPathForReturn("/dashboard/venues/add", { mode: "signup", role: "merchant" })}>
-                                    {t("forMerchants.registerSpot")}
-                                    <ArrowRight className="w-5 h-5 ml-2" />
-                                </Link>
-                            </Button>
-                            <Button variant="outline" className="text-white border-white/20 hover:bg-white/5" size="lg" asChild>
-                                <Link to="/discover?tab=perks">See Live Partner Perks</Link>
-                            </Button>
+                        {demand ? (
+                            <div className="mx-auto mb-10 max-w-3xl rounded-[1.75rem] border border-emerald-400/25 bg-emerald-400/10 p-5 text-left sm:p-6">
+                                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">{t("forMerchants.demandBannerTitle")}</p>
+                                <p className="mt-2 text-lg font-black text-white">{demand.window}</p>
+                                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                    {[
+                                        { label: t("forMerchants.demandWhenLabel"), text: demand.when },
+                                        { label: t("forMerchants.demandWhoLabel"), text: demand.who },
+                                        { label: t("forMerchants.demandOfferLabel"), text: demand.offer },
+                                        { label: t("forMerchants.demandWinLabel"), text: demand.win },
+                                    ].map((item) => (
+                                        <div key={item.label} className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">{item.label}</p>
+                                            <p className="mt-2 text-sm leading-6 text-white/75">{item.text}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="mt-4 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100">
+                                    <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-amber-300">{t("forMerchants.demandPerkLabel")}</span>
+                                    {demand.perkExample}
+                                </p>
+                            </div>
+                        ) : null}
+
+                        <div className="grid gap-3 sm:grid-cols-3">
+                            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-left">
+                                <Button
+                                    size="lg"
+                                    asChild
+                                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black"
+                                >
+                                    <Link to={putPerkHref}>
+                                        <Plus className="w-5 h-5 mr-2" />
+                                        <span>{t("forMerchants.putPerkCta")}</span>
+                                    </Link>
+                                </Button>
+                                <p className="mt-3 text-sm leading-6 text-white/60">{t("forMerchants.putPerkHelp")}</p>
+                            </div>
+                            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-left">
+                                <Button variant="hero" size="lg" className="w-full" asChild>
+                                    <Link to={registerHref}>
+                                        {t("forMerchants.registerSpot")}
+                                        <ArrowRight className="w-5 h-5 ml-2" />
+                                    </Link>
+                                </Button>
+                                <p className="mt-3 text-sm leading-6 text-white/60">{t("forMerchants.registerHelp")}</p>
+                            </div>
+                            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-left">
+                                <Button variant="outline" className="w-full text-white border-white/20 hover:bg-white/5" size="lg" asChild>
+                                    <Link to="/discover?tab=perks">{t("forMerchants.seeLivePerks")}</Link>
+                                </Button>
+                                <p className="mt-3 text-sm leading-6 text-white/60">{t("forMerchants.seePerksHelp")}</p>
+                            </div>
                         </div>
 
                         <div className="mt-10 grid gap-3 text-left sm:grid-cols-3">
                             {[
-                                { titleKey: "forMerchants.stripWelcomeTitle" as const, descKey: "forMerchants.stripWelcomeText" as const },
-                                { titleKey: "forMerchants.stripValidateTitle" as const, descKey: "forMerchants.stripValidateText" as const },
-                                { titleKey: "forMerchants.stripReturnTitle" as const, descKey: "forMerchants.stripReturnText" as const },
+                                { titleKey: "forMerchants.perkWhatTitle" as const, descKey: "forMerchants.perkWhatCopy" as const },
+                                { titleKey: "forMerchants.perkWhyTitle" as const, descKey: "forMerchants.perkWhyCopy" as const },
+                                { titleKey: "forMerchants.perkKeepTitle" as const, descKey: "forMerchants.perkKeepCopy" as const },
                             ].map(({ titleKey, descKey }) => (
                                 <div key={titleKey} className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 backdrop-blur">
                                     <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-400">{t(titleKey)}</p>
@@ -186,11 +225,26 @@ const ForMerchants = () => {
                                 <span className="text-[10px] font-black uppercase tracking-widest text-primary">{t("forMerchants.trustBadge")}</span>
                             </div>
                             <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
-                                {t("forMerchants.checkinTitle1")} <span className="text-emerald-600 italic">{t("forMerchants.checkinTitle2")}</span>
+                                {t("forMerchants.checkinPromoCardTitle")}
                             </h2>
                             <p className="text-lg text-muted-foreground mb-8">
-                                {t("forMerchants.checkinCopy")}
+                                {t("forMerchants.checkinPromoCardCopy")}
                             </p>
+                            <ol className="mb-8 space-y-3">
+                                {[
+                                    t("forMerchants.checkinStep1"),
+                                    t("forMerchants.checkinStep2"),
+                                    t("forMerchants.checkinStep3"),
+                                    t("forMerchants.checkinStep4"),
+                                ].map((step, index) => (
+                                    <li key={step} className="flex gap-3 text-sm leading-6 text-muted-foreground">
+                                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-[11px] font-black text-emerald-700">
+                                            0{index + 1}
+                                        </span>
+                                        {step}
+                                    </li>
+                                ))}
+                            </ol>
                             
                             <div className="grid gap-6">
                                 {merchantBenefits.map((benefit) => (
@@ -224,6 +278,15 @@ const ForMerchants = () => {
                                         <Badge className="bg-primary/20 text-primary border-primary/30">{t("forMerchants.cardSecurePin")}</Badge>
                                     </div>
 
+                                    <PromoCardFace
+                                        holder="Guest card"
+                                        available="Your perk"
+                                        limit={demand?.perkExample || "Welcome drink on a minimum tab"}
+                                        places="Your spot"
+                                        action="Show at the counter"
+                                        className="mb-6"
+                                        interactive={false}
+                                    />
                                     <div className="p-8 bg-black/40 rounded-2xl border border-white/5 text-center space-y-6">
                                         <p className="text-xs text-white/60 font-medium">{t("forMerchants.cardVerifyArrival")}</p>
                                         <div className="flex justify-center gap-2 sm:gap-3">
@@ -275,7 +338,7 @@ const ForMerchants = () => {
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button variant="hero" size="xl" asChild>
-                            <Link to={user ? "/dashboard/venues/add" : authPathForReturn("/dashboard/venues/add", { mode: "signup", role: "merchant" })}>{t("forMerchants.registerSpotNow")}</Link>
+                            <Link to={registerHref}>{t("forMerchants.registerSpotNow")}</Link>
                         </Button>
                         <Link to="/help" className="text-white/40 hover:text-white transition-colors uppercase font-black text-[10px] tracking-widest">
                             {t("forMerchants.howItWorksForSpots")}

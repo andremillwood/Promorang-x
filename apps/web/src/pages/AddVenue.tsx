@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCreateVenue } from "@/hooks/useVenues";
 import { useImageUpload } from "@/hooks/useImageUpload";
@@ -35,6 +35,7 @@ const venueCategories = [
 const AddVenue = () => {
   const { user, roles } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const createVenue = useCreateVenue();
   const { uploadImage, uploading } = useImageUpload();
   const { toast } = useToast();
@@ -88,7 +89,16 @@ const AddVenue = () => {
   };
 
   if (!user) {
-    return <Navigate to={authEntryHref({ mode: "login", role: "merchant", next: "/dashboard/venues/add" })} replace />;
+    return (
+      <Navigate
+        to={authEntryHref({
+          mode: "signup",
+          role: "merchant",
+          next: location.pathname + location.search,
+        })}
+        replace
+      />
+    );
   }
 
   return (

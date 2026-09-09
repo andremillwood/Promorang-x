@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { TactileButton } from "@/components/ui/TactileButton";
 import { cn } from "@/lib/utils";
 export { PromoCardFace, PromorangValidReceipt } from "@/components/promorang/PromoCardObject";
@@ -316,29 +316,89 @@ export function ObjectShelf({
     "PromoShare tickets": "from-sky-300 to-indigo-500",
     "Save & Win": "from-emerald-300 to-emerald-600",
   };
+  const scrollerRef = useRef<HTMLUListElement>(null);
+  const [activeIndex, setActiveIndex] = useState(() => Math.max(0, items.findIndex((item) => item.active)));
+
+  const scrollToIndex = (index: number) => {
+    const next = Math.max(0, Math.min(items.length - 1, index));
+    const scroller = scrollerRef.current;
+    const child = scroller?.children[next] as HTMLElement | undefined;
+    child?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+    setActiveIndex(next);
+  };
+
+  const updateActiveFromScroll = () => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const children = Array.from(scroller.children) as HTMLElement[];
+    const next = children.findIndex((child) => child.offsetLeft + child.offsetWidth / 2 > scroller.scrollLeft);
+    if (next >= 0) setActiveIndex(next);
+  };
 
   return (
-    <ul className="flex gap-4 overflow-x-auto pb-2 pr-scroll-rail">
-      {items.map((item) => (
-        <li key={item.name} className="min-w-[240px] max-w-[260px] shrink-0">
-          <Link
-            to={item.href}
-            aria-current={item.active ? "page" : undefined}
+    <div className="relative">
+      <div className="mb-3 flex items-center justify-end gap-2">
+        <button
+          type="button"
+          aria-label="Previous item"
+          disabled={activeIndex <= 0}
+          onClick={() => scrollToIndex(activeIndex - 1)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-white transition hover:bg-white/10 disabled:opacity-40"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          aria-label="Next item"
+          disabled={activeIndex >= items.length - 1}
+          onClick={() => scrollToIndex(activeIndex + 1)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-white transition hover:bg-white/10 disabled:opacity-40"
+        >
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
+      <ul
+        ref={scrollerRef}
+        onScroll={updateActiveFromScroll}
+        className="flex gap-4 overflow-x-auto pb-2 pr-scroll-rail scrollbar-none"
+      >
+        {items.map((item) => (
+          <li key={item.name} className="min-w-[240px] max-w-[260px] shrink-0">
+            <Link
+              to={item.href}
+              aria-current={item.active ? "page" : undefined}
+              className={cn(
+                "block h-full overflow-hidden rounded-[1.4rem] border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                item.active ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/[0.03] hover:border-white/25",
+              )}
+            >
+              <span className={cn("block h-2 bg-gradient-to-r", marks[item.name] ?? "from-primary to-amber-400")} />
+              <span className="block p-5">
+                <p className="font-serif text-xl font-bold text-white">{item.name}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-300">{item.like}</p>
+                <p className="mt-4 text-xs leading-5 text-amber-200/90">{item.use}</p>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-4 flex justify-center gap-2" role="tablist" aria-label="Economy items">
+        {items.map((item, index) => (
+          <button
+            key={item.name}
+            type="button"
+            role="tab"
+            aria-label={`Go to ${item.name}`}
+            aria-selected={index === activeIndex}
+            onClick={() => scrollToIndex(index)}
             className={cn(
-              "block h-full overflow-hidden rounded-[1.4rem] border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-              item.active ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/[0.03] hover:border-white/25",
+              "h-2.5 rounded-full transition",
+              index === activeIndex ? "w-6 bg-primary" : "w-2.5 bg-white/25 hover:bg-white/45",
             )}
-          >
-            <span className={cn("block h-2 bg-gradient-to-r", marks[item.name] ?? "from-primary to-amber-400")} />
-            <span className="block p-5">
-              <p className="font-serif text-xl font-bold text-white">{item.name}</p>
-              <p className="mt-2 text-sm leading-6 text-zinc-300">{item.like}</p>
-              <p className="mt-4 text-xs leading-5 text-amber-200/90">{item.use}</p>
-            </span>
-          </Link>
-        </li>
-      ))}
-    </ul>
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
