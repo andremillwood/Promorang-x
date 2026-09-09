@@ -7,6 +7,7 @@ const worldPlayerService = require('./worldPlayerService');
 const worldGuildService = require('./worldGuildService');
 const worldSceneBoardService = require('./worldSceneBoardService');
 const { inferPromoCardAimFromText, resolvePromoCardAim, sortBenefitsByAim } = require('../lib/promocardAim');
+const { resolveOfferReach, selectOffersForPlace } = require('./offerAvailability');
 const worldSystemService = require('./worldSystemService');
 
 const OPERATOR_ROLES = new Set(['operator', 'steward']);
@@ -278,6 +279,7 @@ function toPromoCardBenefit({
   sharedBy = null,
 }) {
   const remaining = remainingQuantity(offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed);
+  const reach = resolveOfferReach(offer, drop);
   const status = issuance.status || (drop.status === 'exhausted' ? 'exhausted' : drop.id ? 'claimed' : offer.status);
   const expiresAt = issuance.expires_at || offer.ends_at || null;
   const fulfillmentState = fulfillmentFromStatus(status, expiresAt);
@@ -298,7 +300,9 @@ function toPromoCardBenefit({
     rewardType: offer.reward_type || null,
     valueAmount: offer.value_amount != null ? Number(offer.value_amount) : null,
     valueCurrency: offer.value_currency || null,
-    locationLabel: locationFromOffer(offer, drop),
+    locationLabel: reach.locationLabel || locationFromOffer(offer, drop),
+    availability: reach.availability,
+    surface: reach.surface,
     minSpend: minSpendFromOffer(offer),
     issuer: {
       id: offer.owner_user_id || drop.creator_id || null,
@@ -848,9 +852,9 @@ function createPeopleExperienceService(db = defaultDb) {
       db.from('offers')
         .select('*')
         .eq('status', 'active')
-        .in('fulfillment_type', ['merchant_validation', 'code', 'qr'])
+        .in('fulfillment_type', ['merchant_validation', 'code', 'qr', 'shipping', 'automatic', 'manual'])
         .order('created_at', { ascending: false })
-        .limit(24),
+        .limit(80),
     );
     const seen = new Set();
     const rows = [];
@@ -862,10 +866,15 @@ function createPeopleExperienceService(db = defaultDb) {
     return rows;
   }
 
-  async function getNearbyBenefits() {
+  async function getNearbyBenefits(place) {
     const participating = await getParticipatingOffers();
+    const visible = selectOffersForPlace(
+      participating.filter(({ offer }) => remainingQuantity(offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed) !== 0),
+      ({ offer, drop }) => resolveOfferReach(offer, drop || {}),
+      place,
+    );
     const issuerIds = new Set();
-    for (const item of participating) {
+    for (const item of visible) {
       if (item.offer.owner_user_id) issuerIds.add(item.offer.owner_user_id);
       if (item.drop?.creator_id) issuerIds.add(item.drop.creator_id);
     }
@@ -873,17 +882,15 @@ function createPeopleExperienceService(db = defaultDb) {
     await Promise.all([...issuerIds].map(async (id) => {
       profiles.set(id, displayName(await profileFor(id)));
     }));
-    return participating
-      .filter(({ offer }) => remainingQuantity(offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed) !== 0)
-      .map(({ offer, drop }) => toPromoCardBenefit({
-        id: offer.id,
-        offer,
-        drop: drop || {},
-        issuerName: profiles.get(offer.owner_user_id) || null,
-        sharedBy: drop?.creator_id
-          ? { id: drop.creator_id, name: profiles.get(drop.creator_id) || 'Ambassador' }
-          : null,
-      }));
+    return visible.map(({ offer, drop }) => toPromoCardBenefit({
+      id: offer.id,
+      offer,
+      drop: drop || {},
+      issuerName: profiles.get(offer.owner_user_id) || null,
+      sharedBy: drop?.creator_id
+        ? { id: drop.creator_id, name: profiles.get(drop.creator_id) || 'Ambassador' }
+        : null,
+    }));
   }
 
   async function getRepeatUseRows() {
@@ -1076,18 +1083,21 @@ function createPeopleExperienceService(db = defaultDb) {
       || resolvePromoCardAim(storedAim?.data?.aim)
       || inferPromoCardAimFromText((discoverUnlocks?.data || []).find((row) => row.query_raw)?.query_raw);
     const nearby = sortBenefitsByAim(
-      participating
-        .filter(({ offer }) => remainingQuantity(offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed) !== 0)
-        .filter(({ offer }) => !claimedOfferIds.has(offer.id))
-        .map(({ offer, drop }) => toPromoCardBenefit({
-          id: offer.id,
-          offer,
-          drop: drop || {},
-          issuerName: profiles.get(offer.owner_user_id) || null,
-          sharedBy: drop?.creator_id
-            ? { id: drop.creator_id, name: profiles.get(drop.creator_id) || 'Ambassador' }
-            : null,
-        })),
+      selectOffersForPlace(
+        participating
+          .filter(({ offer }) => remainingQuantity(offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed) !== 0)
+          .filter(({ offer }) => !claimedOfferIds.has(offer.id)),
+        ({ offer, drop }) => resolveOfferReach(offer, drop || {}),
+        options.place,
+      ).map(({ offer, drop }) => toPromoCardBenefit({
+        id: offer.id,
+        offer,
+        drop: drop || {},
+        issuerName: profiles.get(offer.owner_user_id) || null,
+        sharedBy: drop?.creator_id
+          ? { id: drop.creator_id, name: profiles.get(drop.creator_id) || 'Ambassador' }
+          : null,
+      })),
       inferredAim,
     ).slice(0, 6);
 

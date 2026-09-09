@@ -15,7 +15,9 @@ import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
 import { OfferQrScanner } from "@/components/offers/OfferQrScanner";
 import { useCreateOffer, useDirectOfferClaim, useOfferWallet, useOwnerOffers, usePublicOffers, useRedeemOffer, useUpdateOffer } from "@/hooks/useOffers";
 import { decodeOfferRedeemPayload } from "@promorang/shared";
-import { ArrowRight, Banknote, ChevronDown, Gift, MapPin, PackageCheck, Plus, QrCode, Radio, Settings2, Share2, Sparkles, Ticket } from "lucide-react";
+import { ArrowRight, Banknote, ChevronDown, Gift, Globe, MapPin, PackageCheck, Plus, QrCode, Radio, ReceiptText, Settings2, Share2, Sparkles, Ticket, Users } from "lucide-react";
+import { useMarket } from "@/contexts/MarketContext";
+import { ALL_CITY_HUBS } from "@/lib/city-hubs";
 import { toast } from "sonner";
 import { cultureImages } from "@/data/culture-demo";
 import { useI18n } from "@/i18n/I18nContext";
@@ -125,6 +127,32 @@ const activationTemplates = [
       promoshare_rate: "5",
     },
   },
+  {
+    id: "anywhere-drop",
+    roles: ["brand", "creator", "merchant", "host", "admin"],
+    quickTitleKey: "offerStudio.template5Quick" as TranslationKey,
+    titleKey: "offerStudio.template5Title" as TranslationKey,
+    goalKey: "offerStudio.template5Goal" as TranslationKey,
+    bestForKey: "offerStudio.template5BestFor" as TranslationKey,
+    icon: Globe,
+    form: {
+      title: "Anywhere drop",
+      description: "A shop, digital event, or new music release people can take from anywhere — not only if they are in Kingston.",
+      terms: "Available wherever the person can complete the action. Not limited to one city.",
+      reward_type: "product",
+      fulfillment_type: "shipping",
+      value_amount: "25",
+      value_currency: "USD",
+      quantity_total: "100",
+      channel: "direct" as keyof typeof channelDefinitions,
+      trigger_event: "claim",
+      funding_source: "sponsor_budget",
+      proof_required: "purchase_code",
+      promoshare_rate: "3",
+      availability: "anywhere",
+      surface: "commerce",
+    },
+  },
 ] as const;
 
 const fulfillmentHelp: Record<string, string> = {
@@ -155,14 +183,18 @@ const initialForm = {
   committed_value: "",
   proof_required: "qr_gps",
   promoshare_rate: "0",
+  availability: "local",
+  surface: "place",
+  city_slug: "kingston",
 };
 
 const OfferStudio = () => {
   const { t } = useI18n();
+  const { city } = useMarket();
   const { activeRole, activeOrgId } = useAuth();
   const [searchParams] = useSearchParams();
   const canManage = ["brand", "merchant", "host", "creator", "admin"].includes(activeRole || "");
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState({ ...initialForm, city_slug: city.id });
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [redemptionCode, setRedemptionCode] = useState("");
   const ownerOffers = useOwnerOffers();
@@ -179,7 +211,24 @@ const OfferStudio = () => {
     return acc;
   }, { issued: 0, redeemed: 0 }), [ownerOffers.data]);
 
-  const update = (key: keyof typeof form, value: string) => setForm((current) => ({ ...current, [key]: value }));
+  const update = (key: keyof typeof form, value: string) => setForm((current) => {
+    const next = { ...current, [key]: value };
+    if (key === "fulfillment_type" && (value === "shipping" || value === "automatic")) {
+      next.availability = "anywhere";
+      if (value === "shipping") next.surface = "commerce";
+    }
+    if (key === "fulfillment_type" && (value === "merchant_validation" || value === "qr")) {
+      next.availability = "local";
+      next.surface = "place";
+    }
+    if (key === "availability" && value === "anywhere" && current.surface === "place") {
+      next.surface = "commerce";
+    }
+    if (key === "availability" && value === "local") {
+      next.surface = "place";
+    }
+    return next;
+  });
 
   const availableTemplates = useMemo(() => {
     const role = activeRole || "participant";
@@ -202,6 +251,9 @@ const OfferStudio = () => {
     setForm((current) => ({
       ...current,
       ...template.form,
+      availability: "availability" in template.form ? template.form.availability : "local",
+      surface: "surface" in template.form ? template.form.surface : "place",
+      city_slug: current.city_slug || city.id,
       committed_value:
         template.form.funding_source === "merchant_inventory" || template.form.funding_source === "in_kind_perk"
           ? current.committed_value
@@ -238,6 +290,12 @@ const OfferStudio = () => {
         ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
         status: form.status,
         metadata: {
+          availability: form.availability,
+          surface: form.surface,
+          city: ALL_CITY_HUBS.find((hub) => hub.id === form.city_slug)?.name || city.name,
+          city_slug: form.availability === "local" ? form.city_slug : null,
+          country: ALL_CITY_HUBS.find((hub) => hub.id === form.city_slug)?.countryName || city.countryName,
+          country_code: ALL_CITY_HUBS.find((hub) => hub.id === form.city_slug)?.countryCode || city.countryCode,
           activation_safety: {
             funding_source: form.funding_source,
             committed_value: committedValue || null,
@@ -407,6 +465,46 @@ const OfferStudio = () => {
             <div className="grid gap-4 sm:grid-cols-3"><div><Label>{t("offerStudio.rewardValueLabel")}</Label><Input type="number" min="0" value={form.value_amount} onChange={(e) => update("value_amount", e.target.value)} placeholder="20" /></div><div><Label>{t("offerStudio.unitLabel")}</Label><Input value={form.value_currency} onChange={(e) => update("value_currency", e.target.value)} /></div><div><Label>{t("offerStudio.claimsLabel")}</Label><Input type="number" min="1" value={form.quantity_total} onChange={(e) => update("quantity_total", e.target.value)} /></div></div>
             <div className="grid gap-4 sm:grid-cols-2"><div><Label>{t("offerStudio.limitPerPersonLabel")}</Label><Input type="number" min="1" value={form.per_user_limit} onChange={(e) => update("per_user_limit", e.target.value)} /></div><div><Label>{t("offerStudio.endsLabel")}</Label><Input type="datetime-local" value={form.ends_at} onChange={(e) => update("ends_at", e.target.value)} /></div></div>
             <div><Label>{t("offerStudio.termsLabel")}</Label><Textarea value={form.terms} onChange={(e) => update("terms", e.target.value)} placeholder={t("offerStudio.termsPlaceholder")} /></div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label>{t("offerStudio.availabilityLabel")}</Label>
+                <Select value={form.availability} onValueChange={(value) => update("availability", value)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="local">{t("offerStudio.availabilityLocal")}</SelectItem>
+                    <SelectItem value="anywhere">{t("offerStudio.availabilityAnywhere")}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {form.availability === "anywhere" ? t("offerStudio.availabilityAnywhereHelp") : t("offerStudio.availabilityLocalHelp")}
+                </p>
+              </div>
+              {form.availability === "anywhere" ? (
+                <div>
+                  <Label>{t("offerStudio.surfaceLabel")}</Label>
+                  <Select value={form.surface} onValueChange={(value) => update("surface", value)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="commerce">{t("offerStudio.surfaceCommerce")}</SelectItem>
+                      <SelectItem value="digital">{t("offerStudio.surfaceDigital")}</SelectItem>
+                      <SelectItem value="release">{t("offerStudio.surfaceRelease")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <div>
+                  <Label>{t("offerStudio.cityLabel")}</Label>
+                  <Select value={form.city_slug} onValueChange={(value) => update("city_slug", value)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {ALL_CITY_HUBS.map((hub) => (
+                        <SelectItem key={hub.id} value={hub.id}>{hub.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
             <details className="group rounded-2xl border border-border bg-muted/30 p-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-bold text-foreground">
                 <span className="flex items-center gap-2"><Settings2 className="h-4 w-4 text-primary" /> {t("offerStudio.advancedControls")}</span>

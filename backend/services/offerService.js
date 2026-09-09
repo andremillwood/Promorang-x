@@ -6,6 +6,7 @@ const {
   resolveClaimPlan,
   resolveFulfillPlan,
 } = require('./offerFulfillment');
+const { placeFromQuery, resolveOfferReach, selectOffersForPlace } = require('./offerAvailability');
 
 const ACTIVE_ISSUANCE_STATUSES = ['issued', 'claimed', 'fulfillment_pending', 'redeemed'];
 
@@ -110,7 +111,8 @@ async function listPublicOffers(filters = {}) {
   const { data, error } = await query.limit(Math.min(Number(filters.limit) || 50, 100));
   if (error) throw error;
   const now = Date.now();
-  return (data || []).filter((offer) => !offer.ends_at || new Date(offer.ends_at).getTime() > now);
+  const active = (data || []).filter((offer) => !offer.ends_at || new Date(offer.ends_at).getTime() > now);
+  return selectOffersForPlace(active, (offer) => resolveOfferReach(offer), placeFromQuery(filters));
 }
 
 function rulesMatch(rules, context) {
