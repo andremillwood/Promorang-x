@@ -342,8 +342,8 @@ export function aftrHrsDigitalReleaseView(input: { soldOut: boolean; hasPass: bo
 
 export const DEFAULT_AFTRHRS_FAQS = [
   {
-    question: "How many Digital Free Passes are available?",
-    answer: "This edition has a limited digital release. Remaining access is shown as a percentage. Inventory is enforced on the server, not the page reading.",
+    question: "Are Digital Free Passes still available?",
+    answer: "Digital Free Passes are limited and go quickly. Claim yours while they last.",
   },
   {
     question: "What time must I arrive to get in free?",
@@ -351,7 +351,7 @@ export const DEFAULT_AFTRHRS_FAQS = [
   },
   {
     question: "What happens when the Digital Free Passes are claimed?",
-    answer: "The claim button is replaced with the ambassador pathway. The night stays open: physical invitations and paid entry remain available.",
+    answer: "Find an AftrHrs Ambassador for a physical invitation. Paid entry stays open.",
   },
   {
     question: "How do I obtain a physical invitation?",
@@ -379,7 +379,7 @@ export const DEFAULT_AFTRHRS_FAQS = [
   },
   {
     question: "Can I transfer my pass?",
-    answer: "Digital Free Passes are issued one per authenticated person. Transfers require an administrator and are not available from the public page.",
+    answer: "Each Digital Free Pass is for one person and cannot be transferred.",
   },
   {
     question: "What happens if the venue reaches capacity?",

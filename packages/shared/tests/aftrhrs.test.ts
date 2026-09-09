@@ -120,6 +120,7 @@ describe("AftrHrs digital pass inventory", () => {
     expect(AFTRHRS_COPY.confirmation).toContain("11:30 PM");
     expect(AFTRHRS_COPY.metaDescription).not.toMatch(/\b30\b/);
     expect(AFTRHRS_COPY.soldOutBody).not.toMatch(/\b30\b/);
+    expect(JSON.stringify(AFTRHRS_COPY)).not.toMatch(/percentage/i);
   });
 
   it("closes claims after the configured deadline", async () => {
