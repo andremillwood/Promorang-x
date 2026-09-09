@@ -71,6 +71,8 @@ export type PromoCardBenefit = {
   valueCurrency?: string | null;
   locationLabel?: string | null;
   minSpend?: number | null;
+  availability?: "local" | "anywhere" | null;
+  surface?: "place" | "commerce" | "digital" | "release" | null;
 };
 
 export type PromoBenefitPresentation = {

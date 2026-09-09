@@ -109,7 +109,7 @@ export function PromoCardGateway() {
               <span className="text-primary">for you.</span>
             </h1>
             <p className="mt-4 max-w-xl text-[15px] leading-6 text-white/68 sm:mt-5 sm:text-lg sm:leading-8">
-              Your PromoCard unlocks offers, access and experiences from places around you.
+              Your PromoCard unlocks offers around you — plus shop drops, digital events, and new music that work anywhere.
             </p>
 
             <div className="mt-5">

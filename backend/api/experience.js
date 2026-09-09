@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const experience = require('../services/peopleExperienceService');
+const { placeFromQuery } = require('../services/offerAvailability');
 const worldCrewService = require('../services/worldCrewService');
 const worldPlayerService = require('../services/worldPlayerService');
 const worldGuildService = require('../services/worldGuildService');
@@ -33,7 +34,7 @@ router.get('/hubs/:slug', optionalAuth, async (req, res) => {
 });
 
 router.get('/nearby', optionalAuth, async (req, res) => {
-  try { return ok(res, await experience.getNearbyBenefits()); } catch (error) { return fail(res, error, 500); }
+  try { return ok(res, await experience.getNearbyBenefits(placeFromQuery(req.query))); } catch (error) { return fail(res, error, 500); }
 });
 
 router.get('/found', optionalAuth, async (req, res) => {
@@ -82,7 +83,7 @@ router.post('/faction', async (req, res) => {
 });
 
 router.get('/card', async (req, res) => {
-  try { return ok(res, await experience.getCard(req.user.id, identityFrom(req.user), { aim: req.query.aim })); } catch (error) { return fail(res, error, 500); }
+  try { return ok(res, await experience.getCard(req.user.id, identityFrom(req.user), { aim: req.query.aim, place: placeFromQuery(req.query) })); } catch (error) { return fail(res, error, 500); }
 });
 
 router.post('/card/aim', async (req, res) => {

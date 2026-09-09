@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  firstCityHubForPlace,
   getDefaultCityHub,
   matchesCityHub,
   resolveCityHub,
@@ -38,6 +39,11 @@ describe("city hub matching", () => {
   it("does not leak Kingston content into other countries", () => {
     expect(matchesCityHub({ location: "Devon House, Kingston" }, miami)).toBe(false);
     expect(matchesCityHub({ city: "Miami", country_code: "US" }, miami)).toBe(true);
+  });
+
+  it("maps a detected Kingston IP onto the Kingston hub", () => {
+    expect(firstCityHubForPlace({ city: "Kingston", countryCode: "JM" })?.id).toBe("kingston");
+    expect(firstCityHubForPlace({ city: "Miami", countryCode: "US" })?.id).toBe("miami");
   });
 
   it("keeps untagged records in the live Kingston / All Jamaica hubs only", () => {

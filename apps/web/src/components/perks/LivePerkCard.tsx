@@ -27,6 +27,8 @@ export type LivePerkLike = {
   valueAmount?: number | null;
   valueCurrency?: string | null;
   locationLabel?: string | null;
+  availability?: "local" | "anywhere" | null;
+  surface?: "place" | "commerce" | "digital" | "release" | null;
 };
 
 export function livePerkHref(perk: LivePerkLike, intent: "claim" | "share" = "claim") {
@@ -108,7 +110,11 @@ export function LivePerkCard({
       className="block rounded-3xl border border-white/10 bg-white/[0.04] p-5 hover:border-emerald-400/40"
     >
       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">{issuer}</p>
-      {perk.locationLabel ? <p className="mt-1 text-xs text-white/45">{perk.locationLabel}</p> : null}
+      <p className="mt-1 text-xs text-white/45">
+        {perk.availability === "anywhere"
+          ? perk.locationLabel || "Anywhere"
+          : perk.locationLabel || "Near you"}
+      </p>
       <h4 className="mt-2 font-serif text-2xl font-bold uppercase tracking-tight text-white">{headline}</h4>
       {description ? <p className="mt-2 text-sm text-white/55">{description}</p> : null}
       {scarcity || perk.sharedBy?.name ? (

@@ -12,11 +12,13 @@ import {
   ALL_CITY_HUBS,
   CITY_STORAGE_KEY,
   type CityOption,
+  firstCityHubForPlace,
   firstCityHubForSlug,
   getCityHubByCountry,
   getDefaultCityHub,
   resolveCityHub,
 } from "@/lib/city-hubs";
+import { useVisitorPlace } from "@/hooks/useVisitorLocation";
 
 const STORAGE_KEY = "promorang:country";
 
@@ -56,6 +58,21 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
     if (fromRoute) return fromRoute.id;
     return readStoredCityId();
   });
+  const visitorPlace = useVisitorPlace();
+
+  useEffect(() => {
+    if (routeCountry) return;
+    if (typeof window === "undefined") return;
+    if (window.localStorage.getItem(CITY_STORAGE_KEY)) return;
+    const detected = firstCityHubForPlace(visitorPlace);
+    if (!detected) return;
+    setCityId(detected.id);
+    window.localStorage.setItem(CITY_STORAGE_KEY, detected.id);
+    const nextCountry = getCountryMarket(detected.countryCode);
+    window.localStorage.setItem(STORAGE_KEY, nextCountry.code);
+    setCountryCode(nextCountry.code);
+    setLocale(nextCountry.locale, { explicit: false });
+  }, [routeCountry, visitorPlace, setLocale]);
 
   useEffect(() => {
     if (!routeCountry) return;
