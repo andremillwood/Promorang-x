@@ -61,7 +61,7 @@ async function persistHouse(userId, assignment, db) {
   }
 }
 
-async function resolveForUser(userId, { ownActions, attributedActions, pathTitle, memoriesKept }, db = serviceSupabase) {
+async function resolveForUser(userId, { ownActions, attributedActions, pathTitle, memoriesKept, hasLiveMoment, nextHref }, db = serviceSupabase) {
   const phases = worldSystemV2.resolveWorldSystemPhases();
   const ownFacts = toFacts(ownActions);
   const attributedFacts = toFacts(attributedActions);
@@ -109,6 +109,12 @@ async function resolveForUser(userId, { ownActions, attributedActions, pathTitle
   });
 
   const house = assignment.houseKey ? worldSystemV2.resolveHouse(assignment.houseKey) : null;
+  const invitation = worldSystemV2.resolveWorldInvitation({
+    hasProof: ownFacts.some((fact) => fact.actionType && !worldSystemV2.IGNORED_RESONANCE_ACTIONS.has(fact.actionType)),
+    identityLine: identity.line,
+    hasLiveMoment: Boolean(hasLiveMoment),
+    nextHref: nextHref || null,
+  });
 
   return {
     ruleVersion: worldSystemV2.WORLD_SYSTEM_RULE_VERSION,
@@ -133,6 +139,7 @@ async function resolveForUser(userId, { ownActions, attributedActions, pathTitle
     returnChain: phases.identity && returnChain.counted
       ? { heading: returnChain.heading, line: returnChain.line, movements: returnChain.movements, moving: returnChain.moving }
       : null,
+    invitation,
   };
 }
 

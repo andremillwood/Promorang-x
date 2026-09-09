@@ -7,6 +7,7 @@ import {
   presentWorldRunTitle,
   resolvePromoCardFace,
   resolveStakeholderHomeMove,
+  resolveWorldInvitation,
 } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
@@ -36,6 +37,11 @@ export default function PeopleHome() {
   const previewRole = params.get("role");
   const data = home.data;
   const world = data?.world;
+  const invitation = world?.invitation || world?.worldSystem?.invitation || resolveWorldInvitation({
+    identityLine: world?.identity?.line,
+    hasLiveMoment: Boolean(world?.currentMove?.href && String(world.currentMove.href).includes("/moments/")),
+    nextHref: world?.currentMove?.href || "/discover",
+  });
   const givenName = firstGivenName({
     displayName: data?.givenName || data?.name,
     fullName: profile?.full_name || profile?.display_name || user?.user_metadata?.full_name || user?.user_metadata?.name,
@@ -227,14 +233,18 @@ export default function PeopleHome() {
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-bold">For you</h2>
           {world?.currentMove ? (
-            <Link to={to(world.currentMove.href || "/discover")} className="block">
+            <Link to={to(world.currentMove.href || invitation?.nextHref || "/discover")} className="block">
               <TicketPass
                 kicker={world.currentMove.eyebrow || "Tonight"}
                 title={world.currentMove.title}
                 detail={
-                  [world.identity?.line, world.currentMove.why || world.slice?.currentLine || "Show up and the Scene can return something useful."]
-                    .filter(Boolean)
-                    .join(" · ")
+                  world.identity?.line
+                    ? [world.identity.line, world.currentMove.why || world.slice?.currentLine].filter(Boolean).join(" · ")
+                    : [
+                        invitation?.why,
+                        invitation?.benefit,
+                        world.currentMove.why || world.slice?.currentLine,
+                      ].filter(Boolean).join(" ")
                 }
                 stub="GO"
                 stubLabel="Live"
@@ -247,7 +257,11 @@ export default function PeopleHome() {
               <TicketPass
                 kicker="What’s happening"
                 title="Browse live perks"
-                detail="These are offers businesses already put up. Pick one for your card. You do not have to join a crew or answer a poll first."
+                detail={
+                  world?.identity?.line
+                    ? "These are offers businesses already put up. Pick one for your card. You do not have to join a crew or answer a poll first."
+                    : `${invitation.benefit} These are offers businesses already put up. Pick one for your card. You do not have to join a crew or answer a poll first.`
+                }
                 stub="GO"
                 stubLabel="Live"
               />

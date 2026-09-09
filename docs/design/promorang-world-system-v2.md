@@ -143,13 +143,14 @@ Release gates (must move before visual rollout of C–F):
 - Memory-holder return
 - Referral / newcomer activation
 
-No activity = quiet world. That is correct.
+No activity = quiet about fabricated density. That is correct. Invitation stays loud: what this is, what to do, and why it pays. Never invent scores, Houses, or live rooms to fill the silence.
 
 ## 27. UX rules
 
 Today still answers: what is the most valuable thing I can do right now?  
-PromoCard economic usefulness stays visually dominant.  
-Progress is where path, Resonance, Influence, and Return Chains live.  
+When identity has not formed, Today and Progress still say why Promorang exists, what to do next, and why that pays the person — Memory, a useful PromoCard, and a Throw that can return.  
+PromoCard economic usefulness stays visually dominant. A forming “How you move” line may sit around the card; it never invents a House.  
+Progress is where path, Resonance, Influence, and Return Chains live after proof. Until then it is an invitation, not a blank scoreboard.  
 Vault remains what you keep.
 
 ## 28. Anti-patterns
