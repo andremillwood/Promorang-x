@@ -42,6 +42,7 @@ export const seededContentDrops: ContentDistributionCampaign[] = [
       seed: true,
       creator: "Maya Vale",
       sponsor: "Island Signal Co.",
+      release_kind: "song",
       brief: "Drive the first 500 high-intent listeners and route them to the listening-room Moment.",
     },
     content_distribution_assets: [

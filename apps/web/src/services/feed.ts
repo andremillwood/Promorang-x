@@ -125,7 +125,7 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
       : objectType === "discovery"
         ? `/discoveries/${item.slug || entityId}`
       : objectType === "drop"
-        ? "/watch-unlock"
+        ? "/content-drops"
         : objectType === "offer"
           ? item.type === "coupon" ? `/offers/${entityId}` : `/shop/${encodeURIComponent(String(entityId))}`
         : objectType === "product"

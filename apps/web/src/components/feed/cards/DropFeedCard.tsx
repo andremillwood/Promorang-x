@@ -33,10 +33,10 @@ export function DropFeedCard({ item }: { item: FeedItem }) {
         </div>
         <div className="flex gap-3">
           <Button asChild>
-            <Link to={item.primary_cta.href || "/watch-unlock"}>{item.primary_cta.label}</Link>
+            <Link to={item.primary_cta.href || "/content-drops"}>{item.primary_cta.label}</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link to="/watch-unlock">Browse Missions</Link>
+            <Link to="/content-drops">Browse Releases</Link>
           </Button>
         </div>
       </CardContent>

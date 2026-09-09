@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { RadioTower, Plus, Sparkles, Link2, Film } from "lucide-react";
 import { useCreateContentDrop, useAddContentDropAsset } from "@/hooks/useContentDistribution";
+import { RELEASE_KINDS, RELEASE_KIND_META, type ReleaseKind } from "@promorang/shared";
 
 interface LaunchContentDropModalProps {
   trigger?: React.ReactNode;
@@ -33,6 +34,7 @@ export function LaunchContentDropModal({ trigger, onSuccess }: LaunchContentDrop
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
+  const [releaseKind, setReleaseKind] = useState<ReleaseKind>("video");
   const [platform, setPlatform] = useState("tiktok");
   const [externalUrl, setExternalUrl] = useState("");
   const [description, setDescription] = useState("");
@@ -60,16 +62,18 @@ export function LaunchContentDropModal({ trigger, onSuccess }: LaunchContentDrop
           base_points: Number(basePoints || 10),
           points_by_action: {
             click: Number(basePoints || 10),
-            share: Number(basePoints || 10) * 2,
+            proof_verified: Number(basePoints || 10) * 3,
           },
         },
         promoshare_config: {
           enabled: true,
-          actions: ["share", "proof_verified"],
+          actions: ["click", "proof_verified"],
           entries_per_action: Number(ticketEntries || 2),
         },
         metadata: {
           source_platform: platform,
+          release_kind: releaseKind,
+          original_url: externalUrl,
         },
       });
 
@@ -114,10 +118,10 @@ export function LaunchContentDropModal({ trigger, onSuccess }: LaunchContentDrop
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-bold">
             <Sparkles className="h-5 w-5 text-primary" />
-            Launch a Content Drop
+            Publish a Release
           </DialogTitle>
           <DialogDescription className="text-white/60">
-            Anchor your TikTok, Instagram reel, YouTube video, or Spotify track to Promorang missions. Reward fans who share and drive movement!
+            Put the original up. Attach a room or perk next. Opening it counts. Sharing does not pay.
           </DialogDescription>
         </DialogHeader>
 
@@ -137,6 +141,19 @@ export function LaunchContentDropModal({ trigger, onSuccess }: LaunchContentDrop
           </div>
 
           <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-white/80">Kind</Label>
+              <Select value={releaseKind} onValueChange={(value) => setReleaseKind(value as ReleaseKind)}>
+                <SelectTrigger className="border-white/10 bg-white/[0.06] text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {RELEASE_KINDS.map((kind) => (
+                    <SelectItem key={kind} value={kind}>{RELEASE_KIND_META[kind].label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-bold text-white/80">Platform</Label>
               <Select value={platform} onValueChange={setPlatform}>

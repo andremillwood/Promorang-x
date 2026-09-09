@@ -16,6 +16,8 @@ export type ExperiencePerk = {
   issuer?: { name?: string } | null;
   redemption?: { code?: string | null; recorded?: boolean } | null;
   fulfillmentState?: string;
+  fulfillmentType?: string | null;
+  fulfillmentData?: { shipping_stage?: string | null } | null;
 };
 
 export type ExperienceMembership = {
@@ -186,8 +188,8 @@ export const PROMOCARD_LOOP = [
   },
   {
     step: "02",
-    title: "Show it at the place",
-    copy: "Copy a code, present a QR, or complete the fulfillment journey the merchant asked for.",
+    title: "Use it the way it was issued",
+    copy: "Show it at a place, copy a code, add a shipping address, or receive the credit — whatever the issuer funded.",
   },
   {
     step: "03",

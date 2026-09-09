@@ -14,6 +14,7 @@ import {
   type PromoBenefitPresentation,
   type PromoCardBenefit,
 } from "./promocard-benefit";
+import { journeyStatusLabel } from "./promocard-journey";
 
 export type PromoCardAimId = "kingston-after-dark" | "barbican" | "food" | "tonight";
 
@@ -324,8 +325,7 @@ export function ownedBenefitStatus(
     const expiry = Date.parse(benefit.expiresAt);
     if (Number.isFinite(expiry) && expiry <= Date.now()) return "Expired";
   }
-  if (canUseBenefit(benefit as PromoCardBenefit)) return "Ready to use";
-  return benefit.fulfillmentState || "Claimed";
+  return journeyStatusLabel(benefit as PromoCardBenefit);
 }
 
 export function ownedCardCopy(input: {

@@ -75,7 +75,7 @@ const fallbackContentSlides: HeroSlide[] = [
     place: "Creator story to Central Cafe",
     reward: "Watch, visit, check in, unlock Founder Roast",
     marks: "Story-led action",
-    href: "/watch-unlock",
+    href: "/content-drops",
     icon: PlayCircle,
   },
   {
@@ -85,7 +85,7 @@ const fallbackContentSlides: HeroSlide[] = [
     place: "Maya Stone x Fountain Plaza",
     reward: "Unlock the codeword, verify on site, mint the memory",
     marks: "Visit unlock",
-    href: "/watch-unlock",
+    href: "/content-drops",
     icon: PlayCircle,
   },
   {
@@ -95,7 +95,7 @@ const fallbackContentSlides: HeroSlide[] = [
     place: "Creator story to The Glow House",
     reward: "Watch the route, book the service window, earn perks",
     marks: "Content to place",
-    href: "/watch-unlock",
+    href: "/content-drops",
     icon: PlayCircle,
   },
 ];

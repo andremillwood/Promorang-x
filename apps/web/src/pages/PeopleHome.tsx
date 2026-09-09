@@ -19,6 +19,9 @@ import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { resolveDemandRole } from "@/lib/discovery-demand";
 import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
+import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
+import { useContentDrops } from "@/hooks/useContentDistribution";
+import { seededContentDrops } from "@/data/seeded-content-drops";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -31,6 +34,8 @@ export default function PeopleHome() {
   const { user, profile, activeRole, roles } = useAuth();
   const workspaceRoles = (roles || []).filter((role) => ["host", "creator", "merchant", "brand", "agency", "admin"].includes(role));
   const home = useExperienceHome();
+  const contentDrops = useContentDrops("active");
+  const releaseDrops = contentDrops.data?.length ? contentDrops.data : seededContentDrops;
   const to = useExperiencePath();
   const location = useLocation();
   const [params] = useSearchParams();
@@ -218,6 +223,7 @@ export default function PeopleHome() {
       ) : null}
 
       <LiveLoopActions role={String(activeRole || role)} title="Make it live" />
+      {isMemberWorkspace ? <LiveReleaseSignal drops={releaseDrops} /> : null}
 
       {!isMemberWorkspace ? (
         <section className="grid gap-3">

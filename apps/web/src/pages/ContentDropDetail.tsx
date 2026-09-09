@@ -4,11 +4,9 @@ import {
   ArrowLeft,
   ExternalLink,
   Link2,
-  MessageCircle,
   MousePointerClick,
   Play,
   RadioTower,
-  Repeat2,
   Share2,
   Sparkles,
   Ticket,
@@ -41,13 +39,7 @@ import { ProofReceipt, type RewardItem } from "@/components/value/ValueJourney";
 import { useState } from "react";
 import { recordJourneyEvent } from "@/lib/value-journey";
 import { useI18n } from "@/i18n/I18nContext";
-
-const actionButtons = [
-  { action_type: "click", label: "Open", icon: ExternalLink },
-  { action_type: "share", label: "Shared", icon: Share2 },
-  { action_type: "repost", label: "Reposted", icon: Repeat2 },
-  { action_type: "comment", label: "Commented", icon: MessageCircle },
-];
+import { RELEASE_KIND_META, releaseConsequenceHrefs, releaseFromDrop, releasePaysForAction } from "@promorang/shared";
 
 export default function ContentDropDetail() {
   const { t, formatNumber } = useI18n();
@@ -70,6 +62,9 @@ export default function ContentDropDetail() {
     return leaderboardQuery.data || (id ? seededContentDropLeaderboards[id] : []) || [];
   }, [id, leaderboardQuery.data]);
   const context = contextQuery.data;
+  const release = drop ? releaseFromDrop(drop) : null;
+  const kindMeta = release ? RELEASE_KIND_META[release.kind] : null;
+  const consequences = release ? releaseConsequenceHrefs(release) : [];
 
   const totals = useMemo(() => ({
     shares: leaderboard.reduce((sum, row) => sum + Number(row.shares_count || 0), 0),
@@ -90,12 +85,18 @@ export default function ContentDropDetail() {
     }, {
       onSuccess: (payload: unknown) => {
         const action = ((payload as { data?: { points_awarded?: number; promoshare_entries_awarded?: number } })?.data || {});
+        const pays = releasePaysForAction(actionType);
         const items: RewardItem[] = [
-          { label: "Earned value", value: `+${Number(action.points_awarded || pointsPerAction)} contribution value`, kind: "points" },
-          { label: "PromoShare", value: `${Number(action.promoshare_entries_awarded || 0)} entries`, kind: "entry" },
-          { label: "Attribution", value: ["share", "repost"].includes(actionType) ? "Verified movement" : "Contribution recorded", kind: "status" },
+          { label: "Opened", value: "Original opened with attribution", kind: "status" },
+          {
+            label: pays ? "Counts" : "Does not pay",
+            value: pays
+              ? `+${Number(action.points_awarded || pointsPerAction)} after a Promorang consequence`
+              : "Sharing is not the payday",
+            kind: "points",
+          },
         ];
-        if (fundedGems > 0 && ["share", "repost"].includes(actionType)) items.push({ label: "Funded reward", value: `Up to ${fundedGems} Gems`, kind: "gems", pending: true });
+        if (pays && fundedGems > 0) items.push({ label: "Funded reward", value: `Up to ${fundedGems} Gems after claim or RSVP`, kind: "gems", pending: true });
         setReceipt({ action: actionType, items });
         recordJourneyEvent(session?.access_token, {
           event_name: "content_contribution_recorded",
@@ -159,7 +160,7 @@ export default function ContentDropDetail() {
               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/25" />
               <div className="relative flex min-h-[620px] flex-col justify-between p-6 sm:p-8">
                 <div className="flex flex-wrap gap-2">
-                  <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-primary-foreground">{drop.objective_type.replace("_", " ")}</span>
+                  <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-primary-foreground">{kindMeta?.label || drop.objective_type.replace("_", " ")}</span>
                   <span className="rounded-full border border-white/20 bg-black/45 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]">{drop.status}</span>
                 </div>
                 <div>
@@ -227,9 +228,9 @@ export default function ContentDropDetail() {
                 />
                 <div className="mb-2 grid grid-cols-3 gap-2">
                   {[
-                    ["Open", "Original"],
-                    ["Move", "Attributed"],
-                    ["Earn", "Value + rewards"],
+                    [kindMeta?.verb || "Open", "The original"],
+                    ["Catch", "Room or perk"],
+                    ["Earn", "After that consequence"],
                   ].map(([label, detail], index) => (
                     <div key={label} className="rounded-xl bg-black/30 p-3">
                       <p className="text-[9px] font-black text-primary">0{index + 1}</p>
@@ -241,20 +242,25 @@ export default function ContentDropDetail() {
                 {primary?.target_url && (
                   <Button asChild className="justify-between">
                     <a href={primary.target_url} target="_blank" rel="noreferrer" onClick={() => session?.access_token && record("click")}>
-                      {t("dropDetail.openOriginal")}
+                      {kindMeta ? `${kindMeta.verb} the original` : t("dropDetail.openOriginal")}
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   </Button>
                 )}
-                {session?.access_token ? actionButtons.slice(1).map((item) => (
-                  <Button key={item.action_type} variant="outline" className="justify-between border-white/15 bg-black/25 text-white hover:bg-white/10 hover:text-white" onClick={() => record(item.action_type)} disabled={recordAction.isPending}>
-                    {item.label}
-                    <item.icon className="h-4 w-4" />
+                {consequences.map((item) => (
+                  <Button key={item.id} asChild variant="outline" className="justify-between border-white/15 bg-black/25 text-white hover:bg-white/10 hover:text-white">
+                    <Link to={item.href}>
+                      {item.label}
+                      <ArrowLeft className="h-4 w-4 rotate-180" />
+                    </Link>
                   </Button>
-                )) : (
+                ))}
+                {!session?.access_token ? (
                   <p className="rounded-xl border border-white/10 bg-black/25 p-4 text-sm text-white/50">
                     {t("dropDetail.signIn")}
                   </p>
+                ) : (
+                  <p className="text-xs leading-5 text-white/40">Sharing, reposting, or commenting does not pay. Opening the original and finishing a Promorang move does.</p>
                 )}
               </CardContent>
             </Card>

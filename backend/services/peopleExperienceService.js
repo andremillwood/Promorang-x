@@ -364,8 +364,13 @@ function canUseBenefit(benefit) {
     if (!Number.isFinite(expiry) || expiry <= Date.now()) return false;
   }
   const type = benefit.fulfillmentType || 'merchant_validation';
-  if (!['code', 'merchant_validation'].includes(type)) return false;
-  return benefit.fulfillmentState === 'claimed' && Boolean(benefit.redemption?.code);
+  const state = benefit.fulfillmentState;
+  if (type === 'shipping' || type === 'manual') return state === 'claimed' || state === 'pending';
+  if (type === 'automatic' || type === 'qr') return state === 'claimed';
+  if (type === 'code' || type === 'merchant_validation') {
+    return state === 'claimed' && Boolean(benefit.redemption?.code);
+  }
+  return false;
 }
 
 function selectUseThis(benefits, aim) {
@@ -1625,15 +1630,19 @@ function createPeopleExperienceService(db = defaultDb) {
       contributor_earn: youEarn,
     };
 
+    const fulfillmentType = ['merchant_validation', 'code', 'shipping', 'automatic', 'qr', 'manual'].includes(payload.fulfillment_type)
+      ? payload.fulfillment_type
+      : 'merchant_validation';
+    const ownerType = payload.owner_type || (fulfillmentType === 'merchant_validation' ? 'merchant' : 'brand');
     const offer = await offerService.createOffer(userId, {
       title,
       description: payload.description || peopleGet,
       reward_type: rewardType,
-      owner_type: 'merchant',
+      owner_type: ownerType,
       quantity_total: quantity,
       status: 'active',
-      fulfillment_type: 'merchant_validation',
-      metadata,
+      fulfillment_type: fulfillmentType,
+      metadata: { ...metadata, fulfillment_kind: fulfillmentType },
       distributions: [{
         channel: 'direct',
         trigger_event: 'opportunity_take',
@@ -1662,6 +1671,7 @@ function createPeopleExperienceService(db = defaultDb) {
         peopleGet,
         youEarn,
         remaining: quantity,
+        fulfillmentType,
       },
     };
   }

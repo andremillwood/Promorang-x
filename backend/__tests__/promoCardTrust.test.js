@@ -88,7 +88,7 @@ test('live benefits hide the code until a claimed, unexpired code journey is rea
   assert.equal(redeemed.redemption.code, null);
   assert.equal(canUseBenefit(redeemed), false);
   assert.equal(shipping.redemption.code, null);
-  assert.equal(canUseBenefit(shipping), false);
+  assert.equal(canUseBenefit(shipping), true);
   assert.equal(shipping.issuance.redemption_code, 'PR-REAL');
   assert.equal(shipping.issuance.offers.fulfillment_type, 'shipping');
 });
