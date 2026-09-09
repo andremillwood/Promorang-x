@@ -39,6 +39,7 @@ import {
   ShieldCheck,
   Radio,
   FileCheck,
+  Music2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -71,6 +72,7 @@ import { AdminDiscoveryAcquisitionTab } from "@/components/admin/AdminDiscoveryA
 import { PromoPilotCompiler } from "@/components/campaigns/PromoPilotCompiler";
 import { AdminVerificationHub } from "@/components/admin/AdminVerificationHub";
 import { useI18n } from "@/i18n/I18nContext";
+import AftrHrsAdmin from "@/pages/admin/AftrHrsAdmin";
 
 const ADMIN_TABS = new Set([
   "command",
@@ -100,6 +102,7 @@ const ADMIN_TABS = new Set([
   "compiler",
   "create-moment",
   "claimable-pages",
+  "aftrhrs",
 ]);
 
 type AdminNavItem = {
@@ -131,6 +134,7 @@ const ADMIN_NAV_GROUPS: Array<{ label: string; items: AdminNavItem[] }> = [
       { value: "pioneer", label: "Pioneer Audit", icon: Target },
       { value: "enrichment-review", label: "Scout Proof Review", icon: ClipboardCheck },
       { value: "event-review", label: "Event Evidence", icon: Calendar },
+      { value: "aftrhrs", label: "AftrHrs", icon: Music2 },
       { value: "operations", label: "Live Operations", icon: Activity },
     ],
   },
@@ -395,6 +399,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="event-review" className="mt-0">
               <AdminEventVerificationReviewTab />
+            </TabsContent>
+
+            <TabsContent value="aftrhrs" className="mt-0">
+              <AftrHrsAdmin />
             </TabsContent>
 
             <TabsContent value="operations" className="mt-0">

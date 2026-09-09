@@ -40,6 +40,7 @@ interface PublicVenueRow {
   listing_status?: "claimed" | "unclaimed" | null;
   source_url?: string | null;
   attribution_text?: string | null;
+  images?: Array<{ url?: string; alt?: string } | string> | null;
 }
 
 interface PublicMomentDirectoryRow {
@@ -248,6 +249,19 @@ export default function VenueProfile() {
                     <Link to="/progress" className="font-bold text-primary">Season board</Link>
                   </p>
                 ) : null}
+                {slug === "sea-deck" ? (
+                  <div className="rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/10 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-200">Active Moment</p>
+                    <p className="mt-2 text-lg font-black">AftrHrs · September 11 · 10:00 PM until</p>
+                    <p className="mt-1 text-sm text-white/65">Limited Digital Free Passes and Ambassador invitations on Promorang.</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button asChild size="sm"><Link to="/moments/aftrhrs">Join AftrHrs</Link></Button>
+                      <Button asChild size="sm" variant="outline">
+                        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.address || "Sea Deck Orchid Village Kingston")}`}>Directions</a>
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
                 {nextMoment || commerceListings.length ? (
                   <div className="flex flex-wrap gap-2 pt-1">
                     {worldObjectState({
@@ -259,7 +273,7 @@ export default function VenueProfile() {
                       </span>
                     ))}
                     {nextMoment ? (
-                      <Link to={`/moments/${nextMoment.id}`} className="text-[10px] font-black uppercase tracking-wider text-primary">
+                      <Link to={nextMoment.slug === "aftrhrs" || slug === "sea-deck" ? "/moments/aftrhrs" : `/moments/${nextMoment.id}`} className="text-[10px] font-black uppercase tracking-wider text-primary">
                         Next Moment · {nextMoment.title}
                       </Link>
                     ) : null}
@@ -292,9 +306,15 @@ export default function VenueProfile() {
                   ))}
                 </div>
                 <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                  <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
-                    <Link to="/explore/moments">{t("venueProfile.findMoment")}</Link>
-                  </Button>
+                  {slug === "sea-deck" ? (
+                    <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
+                      <Link to="/moments/aftrhrs">Open AftrHrs</Link>
+                    </Button>
+                  ) : (
+                    <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
+                      <Link to="/explore/moments">{t("venueProfile.findMoment")}</Link>
+                    </Button>
+                  )}
                   <Button asChild variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 font-bold">
                     <Link to="/rewards">Claim Perk to Wallet</Link>
                   </Button>
@@ -435,6 +455,19 @@ export default function VenueProfile() {
                 </div>
               )}
             </section>
+
+            {Array.isArray(venue.images) && venue.images.length > 0 ? (
+              <section className="mb-10">
+                <h2 className="mb-5 text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Place</h2>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {venue.images.slice(0, 6).map((image, index) => {
+                    const url = typeof image === "string" ? image : image.url;
+                    const alt = typeof image === "string" ? venue.name : image.alt || venue.name;
+                    return url ? <img key={`${url}-${index}`} src={url} alt={alt} className="h-48 w-full rounded-2xl object-cover" /> : null;
+                  })}
+                </div>
+              </section>
+            ) : null}
 
             <section>
               <div className="mb-5 flex items-center justify-between">
