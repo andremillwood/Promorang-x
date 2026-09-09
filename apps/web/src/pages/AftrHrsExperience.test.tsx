@@ -22,8 +22,10 @@ describe("AftrHrs landing states", () => {
     expect(release.body).not.toMatch(/\b30\b/);
     expect(AFTRHRS_COPY.arrivalRule).toContain("11:30 PM");
     expect(AFTRHRS_COPY.poweredBy).toBe("Powered by PROMORANG");
+    expect(AFTRHRS_COPY.when).toBe("Every Friday");
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/percentage|shown as|page reading|claim button|page counter/i);
     expect(JSON.stringify(AFTRHRS_COPY)).not.toMatch(/percentage|shown as/i);
+    expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/Every Friday/);
   });
 
   it("registers the landing snapshot so crawlers receive AftrHrs artwork", () => {
@@ -33,5 +35,9 @@ describe("AftrHrs landing states", () => {
     expect(source).toContain('path: "/campaigns/aftrhrs"');
     expect(source).toContain(AFTRHRS_OG_IMAGE.path);
     expect(source).toContain(`imageWidth: ${AFTRHRS_OG_IMAGE.width}`);
+    expect(source).toContain("every Friday");
+    expect(source).toContain("https://schema.org/Friday");
+    expect(source).toContain("repeatFrequency");
+    expect(source).not.toContain("September 11");
   });
 });

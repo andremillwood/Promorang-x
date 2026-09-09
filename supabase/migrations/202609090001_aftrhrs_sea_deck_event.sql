@@ -585,7 +585,9 @@ BEGIN
     id, host_id, venue_id, venue_name, title, slug, description, category, location,
     starts_at, ends_at, max_participants, reward, image_url, is_active, visibility,
     latitude, longitude, city, country, music_categories, paid_admission_jmd, paid_patron_benefit,
-    series_key, created_at, updated_at
+    series_key, recurrence_enabled, recurrence_frequency, recurrence_interval,
+    recurrence_by_weekday, recurrence_timezone, recurrence_until, recurrence_count,
+    created_at, updated_at
   ) VALUES (
     v_moment_id, v_host_id, v_venue_id, 'Sea Deck', 'AftrHrs', 'aftrhrs',
     'AftrHrs brings Afro House, Classic House and House Fusion to Sea Deck for a carefully curated night powered by Origin: Alric & Boyd.',
@@ -606,6 +608,13 @@ BEGIN
     2000,
     'Complimentary drink and wings',
     'aftrhrs',
+    true,
+    'weekly',
+    1,
+    ARRAY[5]::smallint[],
+    'America/Jamaica',
+    NULL,
+    NULL,
     now(),
     now()
   )
@@ -622,6 +631,13 @@ BEGIN
     paid_admission_jmd = EXCLUDED.paid_admission_jmd,
     paid_patron_benefit = EXCLUDED.paid_patron_benefit,
     series_key = EXCLUDED.series_key,
+    recurrence_enabled = EXCLUDED.recurrence_enabled,
+    recurrence_frequency = EXCLUDED.recurrence_frequency,
+    recurrence_interval = EXCLUDED.recurrence_interval,
+    recurrence_by_weekday = EXCLUDED.recurrence_by_weekday,
+    recurrence_timezone = EXCLUDED.recurrence_timezone,
+    recurrence_until = EXCLUDED.recurrence_until,
+    recurrence_count = EXCLUDED.recurrence_count,
     is_active = true,
     updated_at = now();
 
@@ -637,12 +653,13 @@ BEGIN
     'Origin — Alric & Boyd',
     ARRAY['Afro House', 'Classic House', 'House Fusion'],
     true, 'live', true, 20, 0,
-    NULL, '2026-09-11 22:00:00-05',
+    NULL, NULL,
     'Admission remains subject to venue capacity and Sea Deck entry policies.',
     2000,
     'Complimentary drink and wings',
     '{"dress_code": null, "entry_policy": "Valid invitation, RSVP, or paid admission. Capacity and door policy remain with Sea Deck."}'::jsonb,
     '[
+      {"question":"When is AftrHrs?","answer":"Every Friday from 10:00 PM at Sea Deck."},
       {"question":"Are Digital Free Passes still available?","answer":"Digital Free Passes are limited and go quickly. Claim yours while they last."},
       {"question":"What time must I arrive to get in free?","answer":"RSVP and Digital Free Pass holders must arrive before 11:30 PM to get in free."},
       {"question":"What happens when the Digital Free Passes are claimed?","answer":"Find an AftrHrs Ambassador for a physical invitation. Paid entry stays open."},
@@ -664,6 +681,8 @@ BEGIN
     powered_by = EXCLUDED.powered_by,
     faqs = EXCLUDED.faqs,
     artwork = EXCLUDED.artwork,
+    claim_closes_at = EXCLUDED.claim_closes_at,
+    claims_open = true,
     updated_at = now();
 
   INSERT INTO public.event_ambassador_allocations (

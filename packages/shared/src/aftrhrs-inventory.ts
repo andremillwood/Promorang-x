@@ -4,7 +4,6 @@ import {
   AFTRHRS_EDITION_ID,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_MOMENT_SLUG,
-  AFTRHRS_START_ISO,
   SEA_DECK_VENUE_ID,
   ambassadorRemaining,
   canDistributeInvitation,
@@ -111,7 +110,7 @@ export function defaultAftrHrsEdition(overrides: Partial<AftrHrsEditionSnapshot>
     digitalAllocation: AFTRHRS_DIGITAL_PASS_LIMIT,
     digitalClaimed: 0,
     claimOpensAt: null,
-    claimClosesAt: AFTRHRS_START_ISO,
+    claimClosesAt: null,
     pageMode: "live",
     ...overrides,
   };

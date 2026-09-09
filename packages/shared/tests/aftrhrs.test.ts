@@ -5,8 +5,11 @@ import {
   AFTRHRS_OG_IMAGE,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_PATHS,
+  AFTRHRS_RECURRENCE,
+  AFTRHRS_WEEKDAY,
   DEFAULT_AFTRHRS_FAQS,
   SEA_DECK_VENUE_ID,
+  hasAftrHrsFridayRecurrence,
   aftrHrsDigitalReleaseView,
   authPathForAftrHrsClaim,
   decodeAftrHrsPassPayload,
@@ -129,6 +132,26 @@ describe("AftrHrs digital pass inventory", () => {
     expect(guestPassStatus("redeemed")).toBe("Used");
     expect(AFTRHRS_OG_IMAGE.path).toBe("/og/aftrhrs.jpg");
     expect(AFTRHRS_OG_IMAGE.alt).toBe("AftrHrs at Sea Deck");
+    expect(AFTRHRS_COPY.when).toBe("Every Friday");
+    expect(AFTRHRS_COPY.whenLine).toContain("Every Friday");
+    expect(AFTRHRS_COPY.metaDescription).toMatch(/every Friday/i);
+    expect(DEFAULT_AFTRHRS_FAQS.some((faq) => /every friday/i.test(`${faq.question} ${faq.answer}`))).toBe(true);
+    expect(hasAftrHrsFridayRecurrence(AFTRHRS_RECURRENCE)).toBe(true);
+    expect(AFTRHRS_WEEKDAY).toBe(5);
+    expect(hasAftrHrsFridayRecurrence({ ...AFTRHRS_RECURRENCE, recurrence_enabled: false })).toBe(false);
+    expect(defaultAftrHrsEdition().claimClosesAt).toBeNull();
+  });
+
+  it("keeps digital claims open after the first Friday when no deadline is set", async () => {
+    const store = createAftrHrsInventory();
+    const result = await store.claimDigitalPass({
+      userId: "week-two",
+      email: "week-two@promorang.co",
+      authenticated: true,
+      termsAccepted: true,
+      now: "2026-09-18T21:00:00-05:00",
+    });
+    expect(result.ok).toBe(true);
   });
 
   it("closes claims after the configured deadline", async () => {
