@@ -43,6 +43,22 @@ export const CURATED_KINGSTON_SCENES: SceneProps[] = [
 ];
 
 export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
+  {
+    id: '00000000-0000-0000-0002-000000000080',
+    title: 'AftrHrs',
+    description: 'AftrHrs brings Afro House, Classic House and House Fusion to Sea Deck for a carefully curated night powered by Origin: Alric & Boyd and PROMORANG. Claim a limited Digital Free Pass or connect with an AftrHrs Ambassador.',
+    intentType: 'ATTEND',
+    ownership: 'PROMORANG PRESENTS',
+    venueName: 'Sea Deck',
+    location: 'Orchid Village, 20 Barbican Road, Kingston',
+    dateDisplay: 'September 11 • 10:00 PM until',
+    image: '/campaigns/aftrhrs/flyer.jpg',
+    promoKeysAvailable: 20,
+    subMomentsCount: 3,
+    attendeesCount: 0,
+    pointsReward: 0,
+    isClaimed: false
+  },
   // --- PRICE SMART & EDITORIAL PROMOTIONS ---
   {
     id: '00000000-0000-0000-0002-000000000060',

@@ -16,8 +16,50 @@ import { ValueExchangeSummary, type ValueOutcome } from "@/components/economy/Va
 import { useClaimVenueEnrichment, useVenueEnrichment } from "@/hooks/useVenueEnrichment";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/I18nContext";
-import { resolveAreaKey, worldObjectState } from "@promorang/shared";
+import { AFTRHRS_COPY, AFTRHRS_MOMENT_ID, AFTRHRS_START_ISO, SEA_DECK_VENUE_ID, resolveAreaKey, worldObjectState } from "@promorang/shared";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
+
+const SEA_DECK_FALLBACK: PublicVenueRow = {
+  id: SEA_DECK_VENUE_ID,
+  slug: "sea-deck",
+  name: "Sea Deck",
+  description: AFTRHRS_COPY.venue,
+  location: "Orchid Village, Kingston",
+  city: "Kingston",
+  city_slug: "kingston",
+  country: "Jamaica",
+  country_slug: "jamaica",
+  address: "Orchid Village, 20 Barbican Road, Kingston",
+  venue_type: "nightlife",
+  avg_rating: null,
+  popularity_score: null,
+  active_moments_count: 1,
+  verification_status: "verified",
+  listing_status: "claimed",
+  images: [
+    { url: "/campaigns/aftrhrs/flyer.jpg", alt: "AftrHrs at Sea Deck" },
+    { url: "/campaigns/aftrhrs/invite.jpg", alt: "AftrHrs invitation" },
+  ],
+};
+
+const SEA_DECK_MOMENT_FALLBACK: PublicMomentDirectoryRow = {
+  id: AFTRHRS_MOMENT_ID,
+  slug: "aftrhrs",
+  title: "AftrHrs",
+  description: AFTRHRS_COPY.supporting,
+  category: "nightlife",
+  city: "Kingston",
+  country: "Jamaica",
+  location: "Orchid Village, 20 Barbican Road, Kingston",
+  venue_name: "Sea Deck",
+  image_url: "/campaigns/aftrhrs/flyer.jpg",
+  starts_at: AFTRHRS_START_ISO,
+  ends_at: null,
+  reward: "Digital Free Pass or Ambassador invitation",
+  host_id: null,
+  is_active: true,
+  participant_count: 0,
+};
 
 type CommerceListing = Tables<"view_public_commerce_directory">;
 
@@ -40,6 +82,7 @@ interface PublicVenueRow {
   listing_status?: "claimed" | "unclaimed" | null;
   source_url?: string | null;
   attribution_text?: string | null;
+  images?: Array<{ url?: string; alt?: string } | string> | null;
 }
 
 interface PublicMomentDirectoryRow {
@@ -69,32 +112,45 @@ export default function VenueProfile() {
   const venueQuery = useQuery({
     queryKey: ["venue-profile", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("view_public_venue_directory")
-        .select("*")
-        .eq("slug", slug)
-        .maybeSingle();
+      try {
+        const { data, error } = await supabase
+          .from("view_public_venue_directory")
+          .select("*")
+          .eq("slug", slug)
+          .maybeSingle();
 
-      if (error) throw error;
-      return data as PublicVenueRow | null;
+        if (error) throw error;
+        return (data as PublicVenueRow | null) ?? (slug === "sea-deck" ? SEA_DECK_FALLBACK : null);
+      } catch (error) {
+        if (slug === "sea-deck") return SEA_DECK_FALLBACK;
+        throw error;
+      }
     },
     enabled: Boolean(slug),
+    retry: slug === "sea-deck" ? 0 : 3,
   });
 
   const momentsQuery = useQuery({
     queryKey: ["venue-moments", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("view_public_moment_directory")
-        .select("*")
-        .eq("venue_slug", slug)
-        .eq("is_active", true)
-        .order("starts_at", { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from("view_public_moment_directory")
+          .select("*")
+          .eq("venue_slug", slug)
+          .eq("is_active", true)
+          .order("starts_at", { ascending: true });
 
-      if (error) throw error;
-      return (data || []) as PublicMomentDirectoryRow[];
+        if (error) throw error;
+        const rows = (data || []) as PublicMomentDirectoryRow[];
+        return rows.length > 0 ? rows : slug === "sea-deck" ? [SEA_DECK_MOMENT_FALLBACK] : rows;
+      } catch (error) {
+        if (slug === "sea-deck") return [SEA_DECK_MOMENT_FALLBACK];
+        throw error;
+      }
     },
     enabled: Boolean(slug),
+    retry: slug === "sea-deck" ? 0 : 3,
   });
 
   const contentQuery = useQuery({
@@ -248,6 +304,19 @@ export default function VenueProfile() {
                     <Link to="/progress" className="font-bold text-primary">Season board</Link>
                   </p>
                 ) : null}
+                {slug === "sea-deck" ? (
+                  <div className="rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/10 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-200">Active Moment</p>
+                    <p className="mt-2 text-lg font-black">AftrHrs · September 11 · 10:00 PM until</p>
+                    <p className="mt-1 text-sm text-white/65">Limited Digital Free Passes and Ambassador invitations on Promorang.</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button asChild size="sm"><Link to="/moments/aftrhrs">Join AftrHrs</Link></Button>
+                      <Button asChild size="sm" variant="outline">
+                        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.address || "Sea Deck Orchid Village Kingston")}`}>Directions</a>
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
                 {nextMoment || commerceListings.length ? (
                   <div className="flex flex-wrap gap-2 pt-1">
                     {worldObjectState({
@@ -259,7 +328,7 @@ export default function VenueProfile() {
                       </span>
                     ))}
                     {nextMoment ? (
-                      <Link to={`/moments/${nextMoment.id}`} className="text-[10px] font-black uppercase tracking-wider text-primary">
+                      <Link to={nextMoment.slug === "aftrhrs" || slug === "sea-deck" ? "/moments/aftrhrs" : `/moments/${nextMoment.id}`} className="text-[10px] font-black uppercase tracking-wider text-primary">
                         Next Moment · {nextMoment.title}
                       </Link>
                     ) : null}
@@ -292,9 +361,15 @@ export default function VenueProfile() {
                   ))}
                 </div>
                 <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                  <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
-                    <Link to="/explore/moments">{t("venueProfile.findMoment")}</Link>
-                  </Button>
+                  {slug === "sea-deck" ? (
+                    <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
+                      <Link to="/moments/aftrhrs">Open AftrHrs</Link>
+                    </Button>
+                  ) : (
+                    <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
+                      <Link to="/explore/moments">{t("venueProfile.findMoment")}</Link>
+                    </Button>
+                  )}
                   <Button asChild variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 font-bold">
                     <Link to="/rewards">Claim Perk to Wallet</Link>
                   </Button>
@@ -435,6 +510,19 @@ export default function VenueProfile() {
                 </div>
               )}
             </section>
+
+            {Array.isArray(venue.images) && venue.images.length > 0 ? (
+              <section className="mb-10">
+                <h2 className="mb-5 text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Place</h2>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {venue.images.slice(0, 6).map((image, index) => {
+                    const url = typeof image === "string" ? image : image.url;
+                    const alt = typeof image === "string" ? venue.name : image.alt || venue.name;
+                    return url ? <img key={`${url}-${index}`} src={url} alt={alt} className="h-48 w-full rounded-2xl object-cover" /> : null;
+                  })}
+                </div>
+              </section>
+            ) : null}
 
             <section>
               <div className="mb-5 flex items-center justify-between">
