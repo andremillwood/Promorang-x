@@ -321,6 +321,7 @@ app.use('/api/coupons', require('./coupons'));
 app.use('/api/offers', require('./offers'));
 app.use('/api/events', require('./events'));
 app.use('/api/guest-rsvp', require('./guest-rsvp'));
+app.use('/api/aftrhrs', require('./aftrhrs'));
 app.use('/api/discovery-acquisition', require('./discovery-acquisition'));
 app.use('/api/d', require('./discovery-acquisition'));
 app.use('/api/notifications', (req, res) => res.json({ success: true, data: [] })); // Placeholder for missing notifications

@@ -212,6 +212,10 @@ const MomentDetail = () => {
     try {
       const cleanId = id.trim().toLowerCase();
       const identifierIsUuid = UUID_PATTERN.test(id.trim());
+      if (cleanId === "aftrhrs" || cleanId === "00000000-0000-0000-0002-000000000080") {
+        navigate("/moments/aftrhrs", { replace: true });
+        return;
+      }
       let momentData: Moment | null = null;
 
       // 0. Smart Redirect: If this is a Discovery ID or slug, automatically redirect to /discoveries/:slug
