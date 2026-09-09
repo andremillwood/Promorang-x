@@ -5,6 +5,7 @@ import SEO from "@/components/SEO";
 import { AFTRHRS_COPY, AFTRHRS_PATHS } from "@promorang/shared";
 import { useAftrHrs } from "@/hooks/useAftrHrs";
 import { getSiteUrl } from "@/lib/discovery";
+import promorangLogo from "@/assets/promorang-logo-full.png";
 
 export default function AftrHrsPass() {
   const { data, user } = useAftrHrs();
@@ -48,6 +49,7 @@ export default function AftrHrsPass() {
                 <QRCodeSVG value={pass.qr_payload} size={200} />
               </div>
               <p className="mt-5 text-sm leading-6 text-white/70">{AFTRHRS_COPY.confirmation}</p>
+              <p className="mt-3 text-sm font-bold uppercase tracking-[0.14em] text-fuchsia-300">{AFTRHRS_COPY.arrivalRule}</p>
               <p className="mt-3 text-xs uppercase tracking-[0.16em] text-white/40">Status · {pass.status}</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <button type="button" onClick={download} className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-black">
@@ -60,9 +62,15 @@ export default function AftrHrsPass() {
             </div>
           </article>
         )}
-        <div className="mt-8 flex gap-3">
-          <Link to={AFTRHRS_PATHS.moment} className="text-sm uppercase tracking-[0.16em] text-white/50">Back to AftrHrs</Link>
-          <Link to="/wallet" className="text-sm uppercase tracking-[0.16em] text-cyan-300">Wallet</Link>
+        <div className="mt-8 flex flex-col items-center gap-4">
+          <div className="flex gap-3">
+            <Link to={AFTRHRS_PATHS.moment} className="text-sm uppercase tracking-[0.16em] text-white/50">Back to AftrHrs</Link>
+            <Link to="/wallet" className="text-sm uppercase tracking-[0.16em] text-cyan-300">Wallet</Link>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <img src={promorangLogo} alt="PROMORANG" className="h-7 w-auto object-contain" />
+            <p className="text-[10px] font-black uppercase tracking-[0.28em] text-white/55">{AFTRHRS_COPY.poweredBy}</p>
+          </div>
         </div>
       </div>
     </main>

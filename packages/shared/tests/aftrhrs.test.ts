@@ -10,8 +10,10 @@ import {
   decodeAftrHrsPassPayload,
   encodeAftrHrsPassPayload,
   evaluateDigitalPassClaim,
+  formatPublicRemainingLabel,
   isAftrHrsClaimReturn,
   nextParticipationState,
+  publicRemainingPercent,
 } from "../src/aftrhrs";
 import { createAftrHrsInventory, defaultAftrHrsEdition } from "../src/aftrhrs-inventory";
 
@@ -32,7 +34,7 @@ describe("AftrHrs digital pass inventory", () => {
       expect(result.pass.passType).toBe("digital-free");
       expect(result.pass.qrPayload).toBe(encodeAftrHrsPassPayload(result.pass.uniqueCode));
     }
-    expect(store.snapshot().remaining).toBe(19);
+    expect(store.snapshot().remaining).toBe(AFTRHRS_DIGITAL_PASS_LIMIT - 1);
   });
 
   it("rejects a second digital claim from the same user", async () => {
@@ -74,10 +76,10 @@ describe("AftrHrs digital pass inventory", () => {
     expect(phoneDup.ok).toBe(false);
   });
 
-  it("issues exactly 20 digital passes and rejects the twenty-first", async () => {
+  it("issues the digital allocation and rejects the next claim", async () => {
     const store = createAftrHrsInventory();
     const claims = await Promise.all(
-      Array.from({ length: 21 }, (_, index) =>
+      Array.from({ length: AFTRHRS_DIGITAL_PASS_LIMIT + 1 }, (_, index) =>
         store.claimDigitalPass({
           userId: `user-${index}`,
           email: `user-${index}@promorang.co`,
@@ -87,14 +89,14 @@ describe("AftrHrs digital pass inventory", () => {
       ),
     );
     expect(claims.filter((item) => item.ok)).toHaveLength(AFTRHRS_DIGITAL_PASS_LIMIT);
-    expect(claims[20]?.ok).toBe(false);
-    if (!claims[20]?.ok) expect(claims[20].code).toBe("sold_out");
+    expect(claims[AFTRHRS_DIGITAL_PASS_LIMIT]?.ok).toBe(false);
+    if (!claims[AFTRHRS_DIGITAL_PASS_LIMIT]?.ok) expect(claims[AFTRHRS_DIGITAL_PASS_LIMIT].code).toBe("sold_out");
     expect(store.snapshot().remaining).toBe(0);
-    expect(store.snapshot().edition.digitalClaimed).toBe(20);
+    expect(store.snapshot().edition.digitalClaimed).toBe(AFTRHRS_DIGITAL_PASS_LIMIT);
   });
 
   it("cannot over-allocate when the last pass is claimed concurrently", async () => {
-    const store = createAftrHrsInventory({ edition: { digitalClaimed: 19 } });
+    const store = createAftrHrsInventory({ edition: { digitalClaimed: AFTRHRS_DIGITAL_PASS_LIMIT - 1 } });
     const [first, second] = await Promise.all([
       store.claimDigitalPass({ userId: "final-a", email: "a@promorang.co", authenticated: true, termsAccepted: true }),
       store.claimDigitalPass({ userId: "final-b", email: "b@promorang.co", authenticated: true, termsAccepted: true }),
@@ -103,7 +105,21 @@ describe("AftrHrs digital pass inventory", () => {
     const losses = [first, second].filter((item) => !item.ok);
     expect(wins).toHaveLength(1);
     expect(losses).toHaveLength(1);
-    expect(store.snapshot().edition.digitalClaimed).toBe(20);
+    expect(store.snapshot().edition.digitalClaimed).toBe(AFTRHRS_DIGITAL_PASS_LIMIT);
+  });
+
+  it("shows a remaining percentage skewed 10 points higher until actual remaining is 70%", () => {
+    expect(publicRemainingPercent(30, 30)).toBe(100);
+    expect(publicRemainingPercent(27, 30)).toBe(100);
+    expect(publicRemainingPercent(24, 30)).toBe(90);
+    expect(publicRemainingPercent(22, 30)).toBe(83);
+    expect(publicRemainingPercent(21, 30)).toBe(70);
+    expect(publicRemainingPercent(15, 30)).toBe(50);
+    expect(formatPublicRemainingLabel(24, 30)).toBe("90% remaining");
+    expect(formatPublicRemainingLabel(0, 30, true)).toBe("Digital release claimed");
+    expect(AFTRHRS_COPY.confirmation).toContain("11:30 PM");
+    expect(AFTRHRS_COPY.metaDescription).not.toMatch(/\b30\b/);
+    expect(AFTRHRS_COPY.soldOutBody).not.toMatch(/\b30\b/);
   });
 
   it("closes claims after the configured deadline", async () => {
@@ -147,7 +163,7 @@ describe("AftrHrs digital pass inventory", () => {
   });
 
   it("lets sold-out visitors request an ambassador", async () => {
-    const store = createAftrHrsInventory({ edition: { digitalClaimed: 20 } });
+    const store = createAftrHrsInventory({ edition: { digitalClaimed: AFTRHRS_DIGITAL_PASS_LIMIT } });
     const claim = await store.claimDigitalPass({
       userId: "sold-out",
       email: "sold@promorang.co",
