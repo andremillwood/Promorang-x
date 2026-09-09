@@ -329,7 +329,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             </div>
             <div>
               <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#FF5500] mb-3">
-                Your loop
+                What you can do
               </p>
               <nav className="space-y-1">
                 {primaryNavItems.map((item) => (

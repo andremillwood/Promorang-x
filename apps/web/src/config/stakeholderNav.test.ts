@@ -6,7 +6,7 @@ describe("stakeholder navigation", () => {
     const putIn = (role: "participant" | "host" | "merchant") =>
       stakeholderMobileNav(role).find((item) => item.accent)?.href;
 
-    expect(putIn("participant")).toBe("/earn");
+    expect(putIn("participant")).toBe("/discover?tab=perks");
     expect(putIn("host")).toBe("/create/moment");
     expect(putIn("merchant")).toBe("/stock");
   });

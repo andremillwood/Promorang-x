@@ -35,8 +35,8 @@ export function livePerkHref(perk: LivePerkLike, intent: "claim" | "share" = "cl
   if (intent === "share" && perk.offerId) return `/give?offer=${encodeURIComponent(perk.offerId)}`;
   if (perk.href) return perk.href;
   if (perk.dropSlug) return `/drop/${perk.dropSlug}`;
-  if (perk.offerId) return intent === "share" ? `/give?offer=${encodeURIComponent(perk.offerId)}` : "/earn";
-  return "/earn";
+  if (perk.offerId) return intent === "share" ? `/give?offer=${encodeURIComponent(perk.offerId)}` : "/discover?tab=perks";
+  return "/discover?tab=perks";
 }
 
 function asBenefit(perk: LivePerkLike): PromoCardBenefit {

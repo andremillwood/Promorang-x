@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { authEntryHref } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
+import { persistPostAuthNext } from "@/lib/post-auth-next";
 import { Loader2 } from "lucide-react";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -16,7 +17,8 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     }
 
     if (!user) {
-        const next = `${location.pathname}${location.search}`;
+        const next = `${location.pathname}${location.search}${location.hash}`;
+        persistPostAuthNext(next);
         return <Navigate to={authEntryHref({ next, mode: "login" })} state={{ from: location }} replace />;
     }
 

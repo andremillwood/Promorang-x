@@ -43,6 +43,17 @@ describe("stakeholder setup playbook", () => {
     expect(setup.steps[2].href).toBe("/staff/scanner");
   });
 
+  it("sends a member to live perks, not polls or Earn jargon", () => {
+    const setup = getStakeholderSetup("participant");
+    expect(setup.steps.map((step) => step.href)).toEqual([
+      "/discover?tab=perks",
+      "/discover?tab=perks",
+      "/card",
+    ]);
+    expect(setup.why).toMatch(/perk is a real offer/i);
+    expect(getStakeholderHowLead("participant", "earn").nextHref).toBe("/discover?tab=perks");
+  });
+
   it("names the how on setup surfaces", () => {
     expect(getStakeholderHowLead("merchant", "stock").nextHref).toBe("/dashboard/venues/add");
     expect(getStakeholderHowLead("brand", "stock").nextHref).toBe("/create/campaign");

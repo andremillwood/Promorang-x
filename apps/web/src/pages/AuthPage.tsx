@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { DEMO_EMAIL_STORAGE_KEY, DemoRole } from "@/lib/demo-session";
 import { captureGrowthAttribution, markPendingSignup, trackGrowthEvent } from "@/lib/marketing-attribution";
 import { trackMetaEvent } from "@/components/MetaPixel";
 import { useI18n } from "@/i18n/I18nContext";
+import { isCommercialNext, persistPostAuthNext, roleFromNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 import {
   clearIntendedStakeholder,
@@ -73,11 +74,15 @@ const AuthPage = () => {
   const { signIn, signUp, demoSignIn, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const commercialIntent = searchParams.get("intent");
+  const fromState = (location.state as { from?: { pathname?: string; search?: string; hash?: string } } | null)?.from;
+  const nextFromState = fromState ? `${fromState.pathname || ""}${fromState.search || ""}${fromState.hash || ""}` : "";
+  const nextPath = searchParams.get("next") || nextFromState;
+  const hostReturn = isCommercialNext(nextPath);
   const selectedPlan = searchParams.get("plan");
   const selectedSku = searchParams.get("sku");
-  const nextPath = searchParams.get("next");
   const intendedRole = resolveIntendedStakeholderRole({
     role: searchParams.get("role"),
     next: nextPath,
@@ -94,28 +99,27 @@ const AuthPage = () => {
 
   useEffect(() => {
     captureGrowthAttribution();
-    const next = searchParams.get("next");
+    persistPostAuthNext(nextPath);
     const explicitRole = searchParams.get("role");
-    if (!explicitRole && !next) {
+    if (!explicitRole && !nextPath) {
       clearIntendedStakeholder(sessionStorage);
     } else {
       rememberIntendedStakeholder(sessionStorage, {
         role: explicitRole || intendedRole,
-        next,
+        next: nextPath,
       });
     }
-    if (next?.startsWith("/") && !next.startsWith("//")) {
-      const aimed = promoCardAimFromNext(next);
-      if (aimed) writePromoCardAim(aimed);
-    }
+    const aimed = promoCardAimFromNext(nextPath);
+    if (aimed) writePromoCardAim(aimed);
     if (searchParams.get("mode") === "signup") setMode("signup");
     if (searchParams.get("mode") === "login") setMode("login");
-    if (!intendedRole || intendedRole === "admin") return;
-    if (["participant", "creator", "host", "brand", "merchant"].includes(intendedRole)) {
-      setSelectedRole(intendedRole as UserRole);
-      setShowRolePicker(intendedRole !== "participant");
+    const requestedRole = intendedRole || roleFromNext(nextPath);
+    if (!requestedRole || requestedRole === "admin") return;
+    if (["participant", "creator", "host", "brand", "merchant"].includes(requestedRole)) {
+      setSelectedRole(requestedRole as UserRole);
+      setShowRolePicker(requestedRole !== "participant");
     }
-  }, [searchParams, intendedRole]);
+  }, [nextPath, searchParams, intendedRole]);
 
   useEffect(() => {
     const savedDemoEmail = localStorage.getItem(DEMO_EMAIL_STORAGE_KEY);
@@ -290,10 +294,12 @@ const AuthPage = () => {
           </h1>
           <p className="text-[#6d645a] leading-6 mb-7">
             {mode === "login"
-              ? t("auth.loginCopy")
+              ? hostReturn ? t("auth.hostReturnLogin") : t("auth.loginCopy")
               : unlockAim
                 ? `Unlock ${unlockAim.label} on your PromoCard.`
-                : t("auth.signupCopy")}
+                : hostReturn
+                  ? t("auth.hostReturnSignup")
+                  : t("auth.signupCopy")}
           </p>
           {intendedLens && intendedRole && intendedRole !== "participant" ? (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
@@ -313,10 +319,14 @@ const AuthPage = () => {
               </p>
             </div>
           )}
-          {commercialIntent && (
+          {(commercialIntent || hostReturn) && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t("auth.saved")}</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in or create an account to continue {selectedPlan ? `with the ${selectedPlan} plan` : selectedSku ? `with Moment package ${selectedSku}` : "with your selected Promorang route"}. You will not need to start over.</p>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{hostReturn ? t("auth.continueActivation") : t("auth.saved")}</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {hostReturn
+                  ? t("auth.hostReturnCopy")
+                  : `Sign in or create an account to continue ${selectedPlan ? `with the ${selectedPlan} plan` : selectedSku ? `with Moment package ${selectedSku}` : "with your selected Promorang route"}. You will not need to start over.`}
+              </p>
             </div>
           )}
 

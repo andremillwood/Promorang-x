@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { POST_AUTH_NEXT_KEY, readIntendedStakeholderRole } from "@promorang/shared";
+import { readIntendedStakeholderRole } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { isConsumerPostAuthNext } from "@/lib/auth-roles";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
 import { flushMarketingIntent } from "@/lib/marketing-attribution";
+import { consumePostAuthNext, resolvePostAuthPath, roleFromNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 
 /**
@@ -12,7 +14,7 @@ import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
  * Intelligently routes users based on role + completion state
  */
 export function PostLoginRouter() {
-  const { user, activeRole, loading, applyIntendedRole } = useAuth();
+  const { user, activeRole, roles, setActiveRole, loading, applyIntendedRole } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,14 +22,17 @@ export function PostLoginRouter() {
 
     const determineLandingPage = async () => {
       await flushMarketingIntent().catch(() => undefined);
-      const intendedRole = readIntendedStakeholderRole(sessionStorage);
+      const requestedNext = consumePostAuthNext();
+      const intendedRole =
+        readIntendedStakeholderRole(sessionStorage) ||
+        roleFromNext(requestedNext);
       const appliedRole = intendedRole ? await applyIntendedRole(user.id, intendedRole) : activeRole;
-      const requestedNext = sessionStorage.getItem(POST_AUTH_NEXT_KEY) || sessionStorage.getItem("promorang_post_auth_next");
-      if (requestedNext?.startsWith("/") && !requestedNext.startsWith("//")) {
-        sessionStorage.removeItem(POST_AUTH_NEXT_KEY);
-        sessionStorage.removeItem("promorang_post_auth_next");
+      if (requestedNext) {
         const aimed = promoCardAimFromNext(requestedNext);
         if (aimed) writePromoCardAim(aimed);
+        if (appliedRole && appliedRole !== activeRole) {
+          setActiveRole(appliedRole);
+        }
         navigate(requestedNext, { replace: true });
         return;
       }
@@ -37,7 +42,7 @@ export function PostLoginRouter() {
         return;
       }
 
-      if (activeRole === "admin") {
+      if (appliedRole === "admin" || (roles.includes("admin") && !isConsumerPostAuthNext(requestedNext))) {
         navigate("/admin?tab=command", { replace: true });
         return;
       }
@@ -50,15 +55,14 @@ export function PostLoginRouter() {
         .eq("user_id", user.id)
         .maybeSingle();
 
-      if (!error && !data?.onboarding_completed) {
-        navigate(appliedRole === "brand" ? "/onboarding/brand" : "/onboarding", { replace: true });
-      } else {
-        navigate("/dashboard", { replace: true });
-      }
+      navigate(resolvePostAuthPath({
+        role: appliedRole || activeRole,
+        onboardingCompleted: error ? true : Boolean(data?.onboarding_completed),
+      }), { replace: true });
     };
 
     determineLandingPage();
-  }, [user, activeRole, loading, navigate, applyIntendedRole]);
+  }, [user, activeRole, loading, navigate, roles, setActiveRole, applyIntendedRole]);
 
   // Show loading while determining route
   return (

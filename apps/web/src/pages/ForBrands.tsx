@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { authEntryHref } from "@promorang/shared";
+import { authPathForReturn } from "@/lib/post-auth-next";
 import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
 import { BrandCaseStudies } from "@/components/brands/BrandCaseStudies";
 import { PromoCardEconomyExplainer } from "@/components/promocard";
+import { authPathForReturn } from "@/lib/post-auth-next";
 
 const ForBrands = () => {
     const { user } = useAuth();
@@ -114,7 +115,7 @@ const ForBrands = () => {
                                 {user ? (
                                     <Link to="/onboarding/brand">{t("forBrands.startAccount")}</Link>
                                 ) : (
-                                    <Link to={authEntryHref({ role: "brand", mode: "signup", next: "/create/campaign" })}>{t("forBrands.startPilot")}</Link>
+                                    <Link to={authPathForReturn("/dashboard?view=studio", { mode: "signup", role: "brand" })}>{t("forBrands.startPilot")}</Link>
                                 )}
                             </Button>
                         </div>
@@ -301,7 +302,7 @@ const ForBrands = () => {
                                 </div>
                             </div>
                             <Button variant="outline" className="w-full" asChild>
-                                <Link to={authEntryHref({ role: "brand", mode: "signup", next: "/create/campaign" })}>{t("forBrands.cardStartFree")}</Link>
+                                <Link to={authPathForReturn("/dashboard?view=studio", { mode: "signup", role: "brand" })}>{t("forBrands.cardStartFree")}</Link>
                             </Button>
                         </div>
 
@@ -628,7 +629,7 @@ const ForBrands = () => {
                                         <ArrowRight className="w-5 h-5 ml-2" />
                                     </Link>
                                 ) : (
-                                    <Link to={authEntryHref({ role: "brand", mode: "signup", next: "/create/campaign" })}>
+                                    <Link to={authPathForReturn("/dashboard?view=studio", { mode: "signup", role: "brand" })}>
                                         {t("forBrands.startPilot")}
                                         <ArrowRight className="w-5 h-5 ml-2" />
                                     </Link>
