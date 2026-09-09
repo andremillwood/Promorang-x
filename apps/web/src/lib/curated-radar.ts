@@ -46,7 +46,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
   {
     id: '00000000-0000-0000-0002-000000000080',
     title: 'AftrHrs',
-    description: 'AftrHrs brings Afro House, Classic House and House Fusion to Sea Deck for a carefully curated night powered by Origin: Alric & Boyd. Claim one of 20 Digital Free Passes or connect with an AftrHrs Ambassador.',
+    description: 'AftrHrs brings Afro House, Classic House and House Fusion to Sea Deck for a carefully curated night powered by Origin: Alric & Boyd and PROMORANG. Claim a limited Digital Free Pass or connect with an AftrHrs Ambassador.',
     intentType: 'ATTEND',
     ownership: 'PROMORANG PRESENTS',
     venueName: 'Sea Deck',

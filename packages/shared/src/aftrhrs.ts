@@ -6,10 +6,15 @@ export const AFTRHRS_MOMENT_ID = "00000000-0000-0000-0002-000000000080";
 export const SEA_DECK_VENUE_ID = "00000000-0000-0000-0003-000000000080";
 export const AFTRHRS_EDITION_ID = "00000000-0000-0000-0004-000000000080";
 
-export const AFTRHRS_DIGITAL_PASS_LIMIT = 20;
+export const AFTRHRS_DIGITAL_PASS_LIMIT = 30;
 export const AFTRHRS_TIMEZONE = "America/Jamaica";
 export const AFTRHRS_START_ISO = "2026-09-11T22:00:00-05:00";
+export const AFTRHRS_FREE_ARRIVAL_CUTOFF = "11:30 PM";
+export const AFTRHRS_PUBLIC_REMAINING_SKEW_POINTS = 10;
+export const AFTRHRS_PUBLIC_REMAINING_TRUTH_AT = 70;
 export const AFTRHRS_PAID_ENTRY_JMD = 2000;
+export const PROMORANG_LOGO_PATH = "/email-assets/promorang-logo.png";
+export const AFTRHRS_LOGO_PATH = "/campaigns/aftrhrs/logo.jpg";
 
 export const AFTRHRS_PATHS = {
   landing: "/aftrhrs",
@@ -59,7 +64,7 @@ export const AFTRHRS_CLAIM_ERRORS = {
   unauthenticated: "Sign in to claim a Digital Free Pass.",
   already_claimed: "This account already holds an AftrHrs Digital Free Pass.",
   identity_claimed: "A Digital Free Pass is already attached to this verified email or telephone number.",
-  sold_out: "The 20 Digital Free Passes have been secured.",
+  sold_out: "The digital free release has been secured.",
   closed: "Digital Free Pass claims are closed.",
   unpublished: "AftrHrs is not currently published.",
   deadline: "Digital Free Pass claims closed at the configured deadline.",
@@ -128,6 +133,25 @@ export function remainingDigitalPasses(edition: Pick<AftrHrsEditionSnapshot, "di
 
 export function isDigitalPassSoldOut(edition: Pick<AftrHrsEditionSnapshot, "digitalAllocation" | "digitalClaimed">): boolean {
   return remainingDigitalPasses(edition) <= 0;
+}
+
+export function actualRemainingPercent(remaining: number, allocation: number): number {
+  const capacity = Number(allocation || 0);
+  if (capacity <= 0) return 0;
+  return (Math.max(0, Number(remaining || 0)) / capacity) * 100;
+}
+
+/** Public remaining % is +10 points until actual remaining is 70% or below. Never name the raw count. */
+export function publicRemainingPercent(remaining: number, allocation: number): number {
+  const actual = actualRemainingPercent(remaining, allocation);
+  if (actual <= 0) return 0;
+  if (actual <= AFTRHRS_PUBLIC_REMAINING_TRUTH_AT) return Math.round(actual);
+  return Math.min(100, Math.round(actual + AFTRHRS_PUBLIC_REMAINING_SKEW_POINTS));
+}
+
+export function formatPublicRemainingLabel(remaining: number, allocation: number, soldOut = false): string {
+  if (soldOut || Number(remaining || 0) <= 0) return "Digital release claimed";
+  return `${publicRemainingPercent(remaining, allocation)}% remaining`;
 }
 
 export function parseAftrHrsTime(value?: Date | string | number | null): Date {
@@ -278,14 +302,17 @@ export const AFTRHRS_COPY = {
     "Sea Deck is an open-air Barbican venue combining dining, drinks and nightlife in a distinctive deck-side setting. Follow Sea Deck on Promorang to discover upcoming experiences, offers and Moments.",
   soldOutHeadline: "Digital Free Passes Claimed",
   soldOutBody:
-    "The 20 Digital Free Passes have been secured. Physical invitations are still available through approved AftrHrs Ambassadors.",
+    "The digital free release has been secured. Physical invitations are still available through approved AftrHrs Ambassadors.",
   ambassador:
     "Missed the digital release? AftrHrs Ambassadors have the remaining physical invitations. Connect with an approved ambassador to secure yours.",
   confirmation:
-    "Your AftrHrs Digital Free Pass is secured. Present this pass at Sea Deck for validation. Admission remains subject to venue capacity, entry policies and successful pass verification.",
+    "Your AftrHrs Digital Free Pass is secured. Arrive at Sea Deck before 11:30 PM to get in free. Present this pass at the door for validation. Admission remains subject to venue capacity, entry policies and successful pass verification.",
+  arrivalRule:
+    "RSVP holders must arrive before 11:30 PM to get in free.",
+  poweredBy: "Powered by PROMORANG",
   metaTitle: "AftrHrs at Sea Deck | Limited Free Passes on Promorang",
   metaDescription:
-    "Join AftrHrs at Sea Deck, powered by Origin: Alric & Boyd. Claim one of 20 Digital Free Passes or connect with an AftrHrs Ambassador for a physical invitation.",
+    "Join AftrHrs at Sea Deck, powered by Origin: Alric & Boyd and PROMORANG. Claim a limited Digital Free Pass or connect with an AftrHrs Ambassador for a physical invitation.",
 } as const;
 
 export function aftrHrsDigitalReleaseView(input: { soldOut: boolean; hasPass: boolean }) {
@@ -316,7 +343,11 @@ export function aftrHrsDigitalReleaseView(input: { soldOut: boolean; hasPass: bo
 export const DEFAULT_AFTRHRS_FAQS = [
   {
     question: "How many Digital Free Passes are available?",
-    answer: "Exactly 20 Digital Free Passes are available for this AftrHrs edition. Inventory is enforced on the server, not the page counter.",
+    answer: "This edition has a limited digital release. Remaining access is shown as a percentage. Inventory is enforced on the server, not the page reading.",
+  },
+  {
+    question: "What time must I arrive to get in free?",
+    answer: "RSVP and Digital Free Pass holders must arrive before 11:30 PM to get in free.",
   },
   {
     question: "What happens when the Digital Free Passes are claimed?",

@@ -7,6 +7,8 @@ jest.mock('../../lib/supabase', () => ({
 
 jest.mock('../../services/resendService', () => ({
   sendTicketPurchaseEmail: jest.fn().mockResolvedValue(null),
+  sendAftrHrsRsvpEmail: jest.fn().mockResolvedValue(null),
+  sendAftrHrsAdminDraftEmail: jest.fn().mockResolvedValue(null),
 }));
 
 const service = require('../../services/aftrHrsService');
@@ -61,6 +63,12 @@ test('claim delegates issuance to the atomic database function', async () => {
     p_terms_accepted: true,
   }));
   expect(result.remaining).toBe(19);
+  const { sendAftrHrsRsvpEmail } = require('../../services/resendService');
+  expect(sendAftrHrsRsvpEmail).toHaveBeenCalledWith(
+    'one@promorang.co',
+    'One',
+    expect.objectContaining({ kind: 'pass', activationCode: 'AH-TEST0001' }),
+  );
 });
 
 test('sold-out RPC errors surface the ambassador pathway code', async () => {

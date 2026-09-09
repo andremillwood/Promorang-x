@@ -16,5 +16,9 @@ describe("AftrHrs landing states", () => {
     expect(release.secondaryCta).toBe("Join the AftrHrs Waitlist");
     expect(release.eventUnavailable).toBe(false);
     expect(release.body).toContain("Physical invitations are still available");
+    expect(release.body).not.toMatch(/\b20\b/);
+    expect(release.body).not.toMatch(/\b30\b/);
+    expect(AFTRHRS_COPY.arrivalRule).toContain("11:30 PM");
+    expect(AFTRHRS_COPY.poweredBy).toBe("Powered by PROMORANG");
   });
 });

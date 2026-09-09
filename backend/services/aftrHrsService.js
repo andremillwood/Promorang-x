@@ -8,6 +8,9 @@ const {
   SEA_DECK_VENUE_SLUG,
   decodeAftrHrsPassPayload,
   remainingDigitalPasses,
+  publicRemainingPercent,
+  AFTRHRS_DIGITAL_PASS_LIMIT,
+  DEFAULT_AFTRHRS_FAQS,
 } = require('../lib/aftrHrsRules');
 
 const ADMIN_ROLES = ['admin', 'administrator', 'master_admin', 'moderator'];
@@ -63,6 +66,33 @@ async function getEdition() {
     err.code = 'not_found';
     throw err;
   }
+  return ensureCurrentRelease(data);
+}
+
+async function ensureCurrentRelease(edition) {
+  const needsAllocation = Number(edition.digital_allocation || 0) < AFTRHRS_DIGITAL_PASS_LIMIT;
+  const faqs = Array.isArray(edition.faqs) ? edition.faqs : [];
+  const needsArrivalFaq = !faqs.some((faq) => String(faq?.answer || '').includes('11:30 PM'));
+  if (!needsAllocation && !needsArrivalFaq) return edition;
+
+  const patch = { updated_at: new Date().toISOString() };
+  if (needsAllocation) patch.digital_allocation = AFTRHRS_DIGITAL_PASS_LIMIT;
+  if (needsArrivalFaq) patch.faqs = DEFAULT_AFTRHRS_FAQS;
+
+  const { data, error } = await supabase
+    .from('event_editions')
+    .update(patch)
+    .eq('id', edition.id)
+    .select('*, moments:moment_id(id, slug, title, description, starts_at, ends_at, venue_id, venue_name, image_url, is_active, visibility), venue_profiles:venue_id(id, slug, name, description, address, city, country, featured_image_url, images, verification_status, latitude, longitude, social_links, contact, opening_information)')
+    .single();
+  if (error) {
+    console.warn('[AftrHrs] release bump skipped:', error.message);
+    return {
+      ...edition,
+      digital_allocation: needsAllocation ? AFTRHRS_DIGITAL_PASS_LIMIT : edition.digital_allocation,
+      faqs: needsArrivalFaq ? DEFAULT_AFTRHRS_FAQS : edition.faqs,
+    };
+  }
   return data;
 }
 
@@ -103,6 +133,7 @@ async function publicSnapshot(userId) {
     edition: {
       ...edition,
       remaining,
+      remainingPercent: publicRemainingPercent(remaining, edition.digital_allocation),
       soldOut: remaining <= 0,
       paths: AFTRHRS_PATHS,
       venueSlug: SEA_DECK_VENUE_SLUG,
@@ -200,20 +231,10 @@ async function claimDigitalPass(user, body = {}) {
     properties: { pass_id: data?.pass?.id, remaining: data?.remaining },
   });
 
-  try {
-    const { sendTicketPurchaseEmail } = require('./resendService');
-    if (user.email) {
-      sendTicketPurchaseEmail(user.email, user.display_name || user.username || 'there', {
-        eventName: 'AftrHrs at Sea Deck',
-        tierName: 'Digital Free Pass',
-        activationCode: data?.pass?.unique_code,
-        eventDate: '2026-09-11T22:00:00-05:00',
-        eventLocation: 'Sea Deck, Orchid Village, 20 Barbican Road, Kingston',
-      }).catch((emailError) => console.warn('[AftrHrs] confirmation email skipped:', emailError.message));
-    }
-  } catch (emailError) {
-    console.warn('[AftrHrs] confirmation email unavailable:', emailError.message);
-  }
+  await sendAftrHrsGuestEmail(user, {
+    kind: 'pass',
+    activationCode: data?.pass?.unique_code,
+  });
 
   return data;
 }
@@ -240,7 +261,27 @@ async function joinMoment(user, body = {}) {
     .single();
   if (error) throw error;
   await track('moment_join', { userId: user.id, source: body.source, referrer: body.referrer });
+  const { data: existingPass } = await supabase
+    .from('event_passes')
+    .select('id')
+    .eq('event_id', AFTRHRS_MOMENT_ID)
+    .eq('user_id', user.id)
+    .in('status', ['active', 'redeemed'])
+    .limit(1);
+  if (!existingPass?.length) {
+    await sendAftrHrsGuestEmail(user, { kind: 'rsvp' });
+  }
   return data;
+}
+
+async function sendAftrHrsGuestEmail(user, payload) {
+  if (!user?.email) return;
+  try {
+    const { sendAftrHrsRsvpEmail } = require('./resendService');
+    await sendAftrHrsRsvpEmail(user.email, user.display_name || user.username || 'there', payload);
+  } catch (emailError) {
+    console.warn('[AftrHrs] confirmation email skipped:', emailError.message);
+  }
 }
 
 async function requestAmbassador(user, body = {}) {

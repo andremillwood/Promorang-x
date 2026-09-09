@@ -10,6 +10,7 @@ import {
   AFTRHRS_START_ISO,
   DEFAULT_AFTRHRS_FAQS,
   SEA_DECK_VENUE_ID,
+  publicRemainingPercent,
   remainingDigitalPasses,
 } from "@promorang/shared";
 
@@ -61,6 +62,7 @@ export type AftrHrsSnapshot = {
     venue_policies: Record<string, string | null>;
     artwork: Record<string, string>;
     remaining: number;
+    remainingPercent?: number;
     soldOut: boolean;
     venueSlug: string;
     moments?: { starts_at?: string | null; image_url?: string | null; venue_name?: string | null } | null;
@@ -116,6 +118,7 @@ export const AFTRHRS_FALLBACK: AftrHrsSnapshot = {
       og: "/og/aftrhrs.jpg",
     },
     remaining: AFTRHRS_DIGITAL_PASS_LIMIT,
+    remainingPercent: publicRemainingPercent(AFTRHRS_DIGITAL_PASS_LIMIT, AFTRHRS_DIGITAL_PASS_LIMIT),
     soldOut: false,
     venueSlug: "sea-deck",
     moments: { starts_at: AFTRHRS_START_ISO, image_url: "/campaigns/aftrhrs/flyer.jpg", venue_name: "Sea Deck" },
@@ -252,11 +255,13 @@ export function useAftrHrs() {
     digitalAllocation: data.edition.digital_allocation,
     digitalClaimed: data.edition.digital_claimed,
   });
+  const remainingPercent = data.edition.remainingPercent ?? publicRemainingPercent(remaining, data.edition.digital_allocation);
 
   return {
     ...snapshot,
     data,
     remaining,
+    remainingPercent,
     soldOut: remaining <= 0 || data.edition.soldOut,
     token,
     user,
