@@ -438,6 +438,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: {
           full_name: fullName,
           role,
+          user_type: role,
           referral_code: growth.referral_code,
           anonymous_id: growth.anonymous_id,
           acquisition: growth.first_touch,
@@ -458,6 +459,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (roleError) {
         console.error("Error adding role:", roleError);
       }
+
+      localStorage.setItem("promorang_active_role", role);
+      setActiveRoleState(role);
 
       fetch(`${import.meta.env.VITE_API_URL || "https://api.promorang.co"}/api/email/welcome`, {
         method: "POST",

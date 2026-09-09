@@ -14,6 +14,7 @@ import { trackMetaEvent } from "@/components/MetaPixel";
 import { useI18n } from "@/i18n/I18nContext";
 import { isCommercialNext, persistPostAuthNext, roleFromNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
+import { persistPreferredRole } from "@/lib/commercial-intent";
 import {
   clearIntendedStakeholder,
   getStakeholderLens,
@@ -116,6 +117,7 @@ const AuthPage = () => {
     const requestedRole = intendedRole || roleFromNext(nextPath);
     if (!requestedRole || requestedRole === "admin") return;
     if (["participant", "creator", "host", "brand", "merchant"].includes(requestedRole)) {
+      persistPreferredRole(requestedRole as UserRole);
       setSelectedRole(requestedRole as UserRole);
       setShowRolePicker(requestedRole !== "participant");
     }
@@ -178,7 +180,13 @@ const AuthPage = () => {
           navigate("/post-login", { replace: true });
         }
       } else {
-        void trackGrowthEvent({ eventName: "signup_started", journey: "participant", stage: "captured", properties: { role: selectedRole } });
+        persistPreferredRole(selectedRole);
+        void trackGrowthEvent({
+          eventName: "signup_started",
+          journey: selectedRole === "participant" || selectedRole === "creator" ? "participant" : "commercial",
+          stage: "captured",
+          properties: { role: selectedRole },
+        });
         const { error } = await signUp(email, password, fullName, selectedRole);
         if (error) {
           toast({
@@ -294,12 +302,16 @@ const AuthPage = () => {
           </h1>
           <p className="text-[#6d645a] leading-6 mb-7">
             {mode === "login"
-              ? hostReturn ? t("auth.hostReturnLogin") : t("auth.loginCopy")
+              ? selectedRole === "brand"
+                ? t("auth.brandContinueCopy")
+                : hostReturn ? t("auth.hostReturnLogin") : t("auth.loginCopy")
               : unlockAim
                 ? `Unlock ${unlockAim.label} on your PromoCard.`
-                : hostReturn
-                  ? t("auth.hostReturnSignup")
-                  : t("auth.signupCopy")}
+                : selectedRole === "brand"
+                  ? t("auth.brandContinueCopy")
+                  : hostReturn
+                    ? t("auth.hostReturnSignup")
+                    : t("auth.signupCopy")}
           </p>
           {intendedLens && intendedRole && intendedRole !== "participant" ? (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
@@ -319,13 +331,19 @@ const AuthPage = () => {
               </p>
             </div>
           )}
-          {(commercialIntent || hostReturn) && (
+          {(commercialIntent || hostReturn || selectedRole === "brand") && !(intendedLens && intendedRole && intendedRole !== "participant") && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{hostReturn ? t("auth.continueActivation") : t("auth.saved")}</p>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                {selectedRole === "brand"
+                  ? t("auth.brandContinueBadge")
+                  : hostReturn ? t("auth.continueActivation") : t("auth.saved")}
+              </p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {hostReturn
-                  ? t("auth.hostReturnCopy")
-                  : `Sign in or create an account to continue ${selectedPlan ? `with the ${selectedPlan} plan` : selectedSku ? `with Moment package ${selectedSku}` : "with your selected Promorang route"}. You will not need to start over.`}
+                {selectedRole === "brand"
+                  ? t("auth.brandContinueCopy")
+                  : hostReturn
+                    ? t("auth.hostReturnCopy")
+                    : `Sign in or create an account to continue ${selectedPlan ? `with the ${selectedPlan} plan` : selectedSku ? `with Moment package ${selectedSku}` : "with your selected Promorang route"}. You will not need to start over.`}
               </p>
             </div>
           )}

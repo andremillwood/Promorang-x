@@ -64,11 +64,12 @@ export function roleFromNext(next?: string | null): Exclude<PostAuthRole, null |
     return inferred;
   }
   const params = new URLSearchParams(value.split("?")[1] || "");
-  const requested = params.get("role");
+  const requested = params.get("role") || params.get("audience");
   if (requested === "creator" || requested === "host" || requested === "brand" || requested === "merchant") {
     return requested;
   }
   const path = value.split("?")[0];
+  if (params.get("from") === "sponsor") return "brand";
   if (path.startsWith("/for-creators")) return "creator";
   if (path.startsWith("/for-merchants")) return "merchant";
   if (path.startsWith("/for-brands")) return "brand";

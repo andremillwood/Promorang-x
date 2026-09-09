@@ -20,6 +20,8 @@ describe("post-auth-next", () => {
     expect(isCommercialNext("/propose/new?from=moment")).toBe(true);
     expect(isCommercialNext("/discover/moments")).toBe(false);
     expect(roleFromNext("/propose/new?from=moment")).toBe("host");
+    expect(roleFromNext("/propose?audience=brand")).toBe("brand");
+    expect(roleFromNext("/propose/new?from=sponsor")).toBe("brand");
     expect(roleFromNext("/for-creators")).toBe("creator");
     expect(roleFromNext("/for-merchants")).toBe("merchant");
     expect(roleFromNext("/for-brands")).toBe("brand");
@@ -47,6 +49,12 @@ describe("post-auth-next", () => {
   it("builds an auth URL that keeps the host return path", () => {
     expect(authPathForReturn("/propose/new?from=moment")).toBe(
       "/auth?next=%2Fpropose%2Fnew%3Ffrom%3Dmoment&role=host",
+    );
+  });
+
+  it("builds an auth URL that keeps a brand on the sponsor brief path", () => {
+    expect(authPathForReturn("/propose/new?from=sponsor&audience=brand")).toBe(
+      "/auth?next=%2Fpropose%2Fnew%3Ffrom%3Dsponsor%26audience%3Dbrand&role=brand",
     );
   });
 });
