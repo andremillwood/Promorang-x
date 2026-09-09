@@ -32,9 +32,12 @@ const DEFAULT_WEIGHT_CONFIG = {
 
 // Subscription tier multipliers for PromoShare Boost
 const SUBSCRIPTION_TIERS = {
-    free: { multiplier: 1.0, name: 'Free', early_access: false },
-    pro: { multiplier: 1.5, name: 'Pro', price: 9.99, early_access: true, early_hours: 24 },
-    power: { multiplier: 2.0, name: 'Power', price: 29.99, early_access: true, early_hours: 48, exclusive_pools: true }
+    starter: { multiplier: 1.0, name: 'Starter', early_access: false },
+    free: { multiplier: 1.0, name: 'Starter', early_access: false },
+    professional: { multiplier: 1.5, name: 'Professional', price: 10, early_access: true, early_hours: 24 },
+    pro: { multiplier: 1.5, name: 'Professional', price: 10, early_access: true, early_hours: 24 },
+    power_user: { multiplier: 2.0, name: 'Power User', price: 30, early_access: true, early_hours: 48, exclusive_pools: true },
+    power: { multiplier: 2.0, name: 'Power User', price: 30, early_access: true, early_hours: 48, exclusive_pools: true }
 };
 
 const DEFAULT_DISTRIBUTION_BUCKETS = {

@@ -100,6 +100,7 @@ export interface TierDefinition {
   capabilities: string[];
 }
 
+// Social reputation only. These labels never unlock withdrawals, Gem ceilings, or paid multipliers.
 export const userTiers: Record<UserTier, TierDefinition> = {
   guest: {
     level: 1,

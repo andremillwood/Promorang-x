@@ -52,9 +52,9 @@ In product copy, use this distinction:
 - PromoShare is the recurring reward layer that turns verified contribution into cycle-based eligibility.
 - PromoShare should be described as a qualified reward system, not guaranteed income.
 - Eligibility can expand based on standing, contribution quality, referrals, repeat participation, and campaign rules.
-- Gem/cash PromoShare should require active Plus standing or higher.
-- Active standing can be paid or earned: free users can unlock temporary higher standing by earning enough Keys through verified activity in a monthly period.
-- Paid participant tiers should contribute a configured percentage of subscription revenue into PromoShare reward pools, liquidity reserves, and optional local impact pools.
+- Gem/cash PromoShare should require an active paid Professional membership or higher.
+- Earned Marks, Keys, and social standing stay reputation only. They must not unlock withdrawals or copy a paid membership.
+- Paid participant memberships keep 95% as platform revenue. A disclosed 5% may fund PromoShare prize administration.
 
 ### Gems
 

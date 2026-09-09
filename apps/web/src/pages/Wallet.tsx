@@ -42,6 +42,7 @@ import { CouponWalletRail } from "@/components/commerce/CouponWalletRail";
 import { PersonalValueNav } from "@/components/value/PersonalValueNav";
 import { DigitalWalletPass3D } from "@/components/wallet/DigitalWalletPass3D";
 import { PARTICIPANT_ECONOMY } from "@promorang/shared";
+import { useParticipantMembership } from "@/hooks/useParticipantMembership";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { ValueInstrumentCard } from "@/components/value/ValueInstrumentCard";
@@ -114,6 +115,8 @@ const Wallet = () => {
   const { country, isFeatureEnabled } = useMarket();
   const canBuyGems = isFeatureEnabled("gemPurchases");
   const canWithdrawGems = isFeatureEnabled("gemWithdrawals");
+  const { membership } = useParticipantMembership();
+  const cashOutLocked = canWithdrawGems && !membership.withdrawalsEnabled;
   const { data: walletBalance, isLoading: walletLoading, refetch: refetchWalletBalance } = useUserBalance();
   const { refetch: refetchEconomyHistory } = useEconomyHistory();
   const { data: gemWithdrawals = [], isLoading: withdrawalsLoading, refetch: refetchGemWithdrawals } = useGemWithdrawals();
@@ -394,7 +397,7 @@ const Wallet = () => {
             <ValueInstrumentCard icon={Coins} label="Points" value={formatNumber(points)} meaning={VALUE_INSTRUMENTS.points.job} status="Not money" tone="amber" loading={walletLoading} progress={nextKeyProgress} progressLabel={`${Math.max(0, pointsPerKey - (points % pointsPerKey))} to next PromoKey`} actionLabel="Convert to PromoKeys" onAction={() => setConvertDialogOpen(true)} disabled={availableConversions < 1} disabledReason={`Need ${Math.max(0, pointsPerKey - points)} more Points`} />
             <ValueInstrumentCard icon={KeyRound} label="PromoKeys" value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning={VALUE_INSTRUMENTS.promokeys.job} status="Unlocks doors" tone="orange" loading={walletLoading} actionLabel="See funded work" onAction={() => window.location.assign("/earn")} />
             <ValueInstrumentCard icon={Gem} label="Gems" value={formatNumber(gemsSnapshot.balance || gems)} meaning={VALUE_INSTRUMENTS.gems.is} status={Number(gemsSnapshot.pending_purchase_redemption_balance || 0) > 0 ? "Partly pending" : "Buy or earn"} tone="violet" loading={gemsLoading} actionLabel={canBuyGems ? "Buy or manage Gems" : "View Gem details"} onAction={() => { setCheckoutActive(false); setBuyDialogOpen(true); }} />
-            <ValueInstrumentCard icon={DollarSign} label="Withdrawable" value={formatCurrency(Number(gemsSnapshot.withdrawable_balance || 0))} meaning={pendingWithdrawalGems > 0 ? `${formatNumber(pendingWithdrawalGems)} Gems are already under review.` : "The portion currently eligible to request as a payout."} status={pendingWithdrawalGems > 0 ? "Request pending" : "Eligible now"} tone="emerald" loading={gemsLoading || withdrawalsLoading} actionLabel="Request withdrawal" onAction={() => setWithdrawDialogOpen(true)} disabled={!canWithdrawGems || Number(gemsSnapshot.withdrawable_balance || 0) <= 0} disabledReason={!canWithdrawGems ? `Unavailable in ${country.name}` : "Nothing eligible yet"} />
+            <ValueInstrumentCard icon={DollarSign} label="Withdrawable" value={formatCurrency(Number(gemsSnapshot.withdrawable_balance || 0))} meaning={cashOutLocked ? "Starter can earn this value. Professional is what unlocks cash-out." : pendingWithdrawalGems > 0 ? `${formatNumber(pendingWithdrawalGems)} Gems are already under review.` : "The portion currently eligible to request as a payout."} status={cashOutLocked ? "Upgrade to cash out" : pendingWithdrawalGems > 0 ? "Request pending" : "Eligible now"} tone="emerald" loading={gemsLoading || withdrawalsLoading} actionLabel={cashOutLocked ? "Unlock Professional" : "Request withdrawal"} onAction={() => { if (cashOutLocked) window.location.assign("/membership/checkout?plan=professional"); else setWithdrawDialogOpen(true); }} disabled={!canWithdrawGems || (!cashOutLocked && Number(gemsSnapshot.withdrawable_balance || 0) <= 0)} disabledReason={!canWithdrawGems ? `Unavailable in ${country.name}` : cashOutLocked ? "Professional unlocks withdrawals" : "Nothing eligible yet"} />
           </div>
           <GemSpendBenefits />
         </section>

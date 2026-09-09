@@ -47,8 +47,8 @@ Canonical participant levels are Starter (1x Points, 5 daily verified free Proof
 
 ## Growth Hub products
 
-- Paid membership periods issue disclosed Gem allowances: Plus 5, Pro 15, Elite 30. Allowances are benefits, not returns.
-- Subscription revenue continues to allocate disclosed percentages to PromoShare, liquidity, local impact, allowance reserves, and platform operations.
+- Paid membership periods issue disclosed Gem allowances: Professional 5, Power User 15. Allowances are benefits, not returns.
+- Participant membership revenue keeps 95% as platform operations. A disclosed 5% may fund PromoShare prize administration. Liquidity and local-impact pools are not funded from participant subscriptions.
 - Holding Gems alone earns no return.
 - Funded reward programs must predeclare their reserve, reward rate, lock period, commitment limits, capacity, and dates. Enrollment cannot exceed the reward reserve.
 - Creator Resilience is a capped assistance fund. Claims require evidence and review; it is not insurance and does not guarantee replacement income.

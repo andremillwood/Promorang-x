@@ -17,8 +17,8 @@ export const revenueLines = [
     key: "memberships",
     title: "Participant memberships",
     payer: "Optional paid members",
-    capture: "$9.99–$49.99 / month",
-    description: "Paid standing and higher service limits create subscription revenue; free contribution remains a complete route through the economy.",
+    capture: "$10–$30 / month",
+    description: "Professional unlocks cash-out. Power User adds speed and high-value access. Free contribution remains a complete earning route.",
   },
   {
     key: "commerce",

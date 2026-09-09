@@ -175,7 +175,7 @@ export function useUserTier() {
     return getRelationshipDescription(tier, entityType, context);
   };
 
-  // Check if user qualifies for tier upgrade
+  // Social reputation only. Never grants Professional/Power User cash-out or paid multipliers.
   const checkTierUpgrade = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('Not authenticated');
