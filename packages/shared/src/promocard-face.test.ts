@@ -5,7 +5,7 @@ describe("resolvePromoCardFace", () => {
   it("keeps an empty city honest instead of looking like a funded wallet", () => {
     const face = resolvePromoCardFace({ holder: "Maya" });
     expect(face.state).toBe("empty");
-    expect(face.headline).toMatch(/nothing to show/i);
+    expect(face.headline).toMatch(/nothing on this card/i);
     expect(face.canFlip).toBe(false);
     expect(face.credential).toBeNull();
     expect(face.footerCue).toMatch(/your PromoCard/i);
@@ -28,6 +28,7 @@ describe("resolvePromoCardFace", () => {
     expect(face.credential).toBe("COFFEE-TEST");
     expect(face.canFlip).toBe(true);
     expect(face.headline).toBe("Show this");
+    expect(face.action).toMatch(/merchant/i);
     expect(face.sceneMark).toBe("Kingston After Dark");
   });
 
@@ -52,5 +53,25 @@ describe("resolvePromoCardFace", () => {
       useThis: { title: "Coffee on us", redemptionCode: "LIVE" },
     });
     expect(face.state).toBe("ready");
+  });
+
+  it("speaks shipping and credit instead of a door scan", () => {
+    const ship = resolvePromoCardFace({
+      useThis: {
+        title: "Sample pack",
+        issuer: { name: "Island Signal" },
+        fulfillmentType: "shipping",
+        fulfillmentData: { shipping_stage: "shipped" },
+      },
+    });
+    expect(ship.state).toBe("ready");
+    expect(ship.headline).toBe("On the way");
+    expect(ship.canFlip).toBe(false);
+
+    const credit = resolvePromoCardFace({
+      useThis: { title: "50 Gems", issuer: { name: "Promorang" }, fulfillmentType: "automatic" },
+    });
+    expect(credit.headline).toBe("Credited");
+    expect(credit.action).toMatch(/on the card/i);
   });
 });

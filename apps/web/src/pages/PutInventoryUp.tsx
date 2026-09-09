@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { PERK_KIND_LABELS, getStakeholderHowLead, inventoryOpenCopy, merchantPerkPostedNext, type PerkKind } from "@promorang/shared";
+import {
+  PERK_KIND_LABELS,
+  STOCK_FULFILLMENT_OPTIONS,
+  getStakeholderHowLead,
+  inventoryOpenCopy,
+  inventoryOpenFollowCopy,
+  inventoryPostedNext,
+  type PerkKind,
+  type PromoCardJourneyKind,
+} from "@promorang/shared";
 import { useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell } from "@/components/people/ExperienceShell";
@@ -21,10 +30,12 @@ export default function PutInventoryUp() {
   const { toast } = useToast();
   const merchantName = profile?.full_name?.split(" ")[0] || user?.user_metadata?.full_name?.split(" ")[0] || "A place";
   const [kind, setKind] = useState<PerkKind>("merchant");
+  const [journey, setJourney] = useState<PromoCardJourneyKind>("place");
+  const fulfillment = STOCK_FULFILLMENT_OPTIONS.find((item) => item.id === journey) || STOCK_FULFILLMENT_OPTIONS[0];
   const [title, setTitle] = useState(params.get("title") || "");
   const [quantity, setQuantity] = useState("50");
   const [youEarn, setYouEarn] = useState("");
-  const [opened, setOpened] = useState<{ title: string; remaining: number | null; offerId?: string } | null>(null);
+  const [opened, setOpened] = useState<{ title: string; remaining: number | null; offerId?: string; fulfillmentType?: string } | null>(null);
 
   const submit = async () => {
     try {
@@ -34,11 +45,14 @@ export default function PutInventoryUp() {
         quantity: quantity ? Number(quantity) : null,
         peopleGet: title,
         youEarn: youEarn || undefined,
+        fulfillment_type: fulfillment.fulfillmentType,
+        owner_type: lensRole === "brand" || lensRole === "agency" || lensRole === "marketing" ? "brand" : "merchant",
       });
       setOpened({
         title: result.opportunity.title,
         remaining: result.opportunity.remaining,
         offerId: result.offer?.id || result.opportunity?.sourceId,
+        fulfillmentType: result.opportunity.fulfillmentType || fulfillment.fulfillmentType,
       });
       toast({ title: "It’s up", description: inventoryOpenCopy(merchantName, title) });
     } catch (error) {
@@ -50,12 +64,12 @@ export default function PutInventoryUp() {
     return (
       <ExperienceShell eyebrow="It’s up" title={inventoryOpenCopy(merchantName, opened.title)} backTo="/dashboard">
         <p className="text-sm text-white/55">
-          Contributors will see this under Earn. The loop finishes only when you validate the code at the counter.
+          {inventoryOpenFollowCopy(opened.fulfillmentType)}
         </p>
         {opened.remaining != null ? (
           <p className="text-sm text-white/45">{opened.remaining} available.</p>
         ) : null}
-        {merchantPerkPostedNext(opened.offerId).map((action) => (
+        {inventoryPostedNext(opened.fulfillmentType, opened.offerId).map((action) => (
           <Link
             key={action.id}
             to={to(action.href)}
@@ -84,6 +98,22 @@ export default function PutInventoryUp() {
       backTo="/dashboard"
     >
       <StakeholderHowLead role={lensRole} surface="stock" />
+      <section>
+        <p className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40">How do they receive it?</p>
+        <div className="grid grid-cols-2 gap-2">
+          {STOCK_FULFILLMENT_OPTIONS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => setJourney(option.id)}
+              className={`min-h-16 rounded-[1.3rem] border px-3 py-3 text-left ${journey === option.id ? "border-primary bg-primary text-black" : "border-white/10 bg-white/[0.04]"}`}
+            >
+              <p className="text-sm font-bold">{option.label}</p>
+              <p className={`mt-1 text-[11px] leading-4 ${journey === option.id ? "text-black/70" : "text-white/45"}`}>{option.detail}</p>
+            </button>
+          ))}
+        </div>
+      </section>
       <section>
         <div className="grid grid-cols-2 gap-2">
           {KINDS.map(([id, label]) => (

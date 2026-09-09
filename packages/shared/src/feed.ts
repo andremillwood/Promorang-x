@@ -123,7 +123,7 @@ export const feedObjectHref = (objectType: FeedObjectType, entityId: string, pla
     : {
         moment: `/moments/${entityId}`,
         discovery: `/discoveries/${entityId}`,
-        drop: "/watch-unlock",
+        drop: "/content-drops",
         content: `/content-drops/${entityId}`,
         product: `/shop/${entityId}`,
         offer: `/offers/${entityId}`,

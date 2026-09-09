@@ -145,7 +145,7 @@ function BenefitTicket({
         </div>
         <div>
           <dt className="uppercase tracking-widest">Redemption</dt>
-          <dd className="mt-0.5 text-white/70">{perk.redemption?.recorded ? "Recorded" : "Waiting on the merchant"}</dd>
+          <dd className="mt-0.5 text-white/70">{ownedBenefitStatus(perk as PromoCardPerk)}</dd>
         </div>
       </dl>
       {usable ? (

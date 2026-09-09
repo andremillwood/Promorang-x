@@ -53,7 +53,7 @@ describe("PromoCardFace brand lockup", () => {
     await act(async () => {
       root.render(<PromoCardFace holder="Maya" />);
     });
-    expect(container).toHaveTextContent("Nothing to show at the door");
+    expect(container).toHaveTextContent("Nothing on this card yet");
     expect(container.querySelector('button[aria-label="Flip PromoCard to show the merchant"]')).toBeNull();
     expect(container.querySelector('[aria-label="No code to scan yet"]')).toBeTruthy();
     expect(container.querySelector('[aria-label="PromoCard scan mark"]')).toBeNull();

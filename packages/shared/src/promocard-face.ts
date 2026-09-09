@@ -1,3 +1,6 @@
+import { journeyReadyCopy } from "./promocard-journey";
+import { isPresentablePass } from "./offer-fulfillment";
+
 export type PromoCardFaceState = "empty" | "nearby" | "ready" | "returned" | "used" | "expired";
 
 export type PromoCardFaceSource = {
@@ -6,6 +9,9 @@ export type PromoCardFaceSource = {
   redemptionCode?: string | null;
   redemption?: { code?: string | null; recorded?: boolean } | null;
   expiresAt?: string | null;
+  fulfillmentType?: string | null;
+  fulfillmentState?: string | null;
+  fulfillmentData?: { shipping_stage?: string | null } | null;
 };
 
 export type PromoCardFaceInput = {
@@ -55,20 +61,35 @@ export function resolvePromoCardFace(input: PromoCardFaceInput = {}): PromoCardF
   const recorded = Boolean(input.useThis?.redemption?.recorded || input.recordedUse);
   const expired = Boolean(input.expiredOnly);
   const nearbyCount = Number(input.nearbyCount || 0);
+  const fulfillmentType = input.useThis?.fulfillmentType;
+  const journeyReady = Boolean(
+    input.useThis &&
+    !recorded &&
+    !expired &&
+    (code || ["shipping", "automatic", "manual", "qr"].includes(String(fulfillmentType || ""))),
+  );
 
   let state: PromoCardFaceState = "empty";
-  if (code && !recorded && !expired) state = "ready";
+  if (journeyReady) state = "ready";
   else if (recorded) state = "used";
   else if (expired) state = "expired";
   else if (nearbyCount > 0) state = "nearby";
   else if (input.latestReturn) state = "returned";
 
+  const readyCopy = journeyReadyCopy({
+    title: input.useThis?.title,
+    issuer,
+    fulfillmentType,
+    fulfillmentState: input.useThis?.fulfillmentState,
+    shippingStage: input.useThis?.fulfillmentData?.shipping_stage || null,
+  });
+
   const copy: Record<PromoCardFaceState, Pick<PromoCardFaceModel, "headline" | "detail" | "action" | "places" | "footerCue">> = {
     empty: {
-      headline: "Nothing to show at the door yet",
-      detail: "A perk is a real offer a business put up — a free item, a deal, or entry. Until one is on this card, there is nothing to flash at a counter.",
+      headline: "Nothing on this card yet",
+      detail: "A perk is a real offer someone funded — a door pass, a code, a shipment, or a credit. Until one is on this card, there is nothing to use.",
       action: "Browse live perks",
-      places: "No participating place is sharing a live benefit",
+      places: "No live benefit is on this card",
       footerCue: "This is your PromoCard",
     },
     nearby: {
@@ -76,15 +97,9 @@ export function resolvePromoCardFace(input: PromoCardFaceInput = {}): PromoCardF
       detail: input.nextBenefitTitle || "A participating place has something you can claim.",
       action: "Claim it first",
       places: `${nearbyCount} participating ${nearbyCount === 1 ? "place" : "places"}`,
-      footerCue: "Claim, then show",
+      footerCue: "Claim, then use",
     },
-    ready: {
-      headline: "Show this",
-      detail: input.useThis?.title || "A live perk",
-      action: "Show the merchant this QR",
-      places: issuer || "Participating business",
-      footerCue: "Nothing is used until they validate it",
-    },
+    ready: readyCopy,
     returned: {
       headline: "You came back",
       detail: input.latestReturn || "Eligible after a verified night.",
@@ -114,11 +129,11 @@ export function resolvePromoCardFace(input: PromoCardFaceInput = {}): PromoCardF
     ...copy[state],
     issuer: issuer || undefined,
     issuerInitial: issuerInitial(issuer) || undefined,
-    credential: state === "ready" ? code : null,
+    credential: state === "ready" && isPresentablePass(fulfillmentType || "code", "claimed") ? code : null,
     sceneMark: input.sceneMark || undefined,
     crewMark: input.crewMark || undefined,
     returnStamp: input.latestReturn || undefined,
     returnDate: input.latestReturnAt || undefined,
-    canFlip: state === "ready" && Boolean(code),
+    canFlip: state === "ready" && Boolean(code) && isPresentablePass(fulfillmentType || "code", "claimed"),
   };
 }

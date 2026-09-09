@@ -1,3 +1,5 @@
+import { inventoryPostedNext } from "./promocard-journey";
+
 /**
  * First-hour landings that make PROMORANG active.
  *
@@ -75,22 +77,22 @@ const HOST_ACTIONS: FirstAction[] = [
 
 const CREATOR_ACTIONS: FirstAction[] = [
   {
-    id: 'take-perk',
-    label: 'Take a perk to share',
-    href: LIVE_PATHS.takePerk,
-    why: 'Creators share inventory that already exists — they do not invent it.',
-  },
-  {
     id: 'publish-drop',
-    label: 'Publish a content drop',
+    label: 'Publish a Release',
     href: LIVE_PATHS.contentDrops,
-    why: 'A story brands can sponsor and participants can distribute.',
+    why: 'A song, story, or episode is origin. The original stays where it lives.',
   },
   {
-    id: 'share-perk',
-    label: 'Share the drop',
+    id: 'attach-perk',
+    label: 'Attach a room or perk',
     href: LIVE_PATHS.sharePerk,
-    why: 'The audience claims a live drop, then uses it at the merchant.',
+    why: 'Hosts, merchants, and brands catch the release here. Sharing is not the payday.',
+  },
+  {
+    id: 'take-perk',
+    label: 'Or take a live perk to move',
+    href: LIVE_PATHS.takePerk,
+    why: 'If you are distributing someone else’s inventory, take it first.',
   },
 ];
 
@@ -143,26 +145,10 @@ export function landingPathForRole(role: string | null | undefined): string {
   const key = String(role || '').toLowerCase();
   if (key === 'merchant' || key === 'brand') return LIVE_PATHS.putPerkUp;
   if (key === 'host') return LIVE_PATHS.createMoment;
-  if (key === 'creator') return LIVE_PATHS.takePerk;
+  if (key === 'creator') return LIVE_PATHS.contentDrops;
   return LIVE_PATHS.card;
 }
 
-export function merchantPerkPostedNext(offerId?: string | null): FirstAction[] {
-  const shareHref = offerId
-    ? `${LIVE_PATHS.sharePerk}?offer=${encodeURIComponent(offerId)}`
-    : LIVE_PATHS.sharePerk;
-  return [
-    {
-      id: 'share-perk',
-      label: 'Share this perk',
-      href: shareHref,
-      why: 'Hand the live drop to a host, creator, or the room.',
-    },
-    {
-      id: 'validate',
-      label: 'Validate at the counter',
-      href: LIVE_PATHS.validate,
-      why: 'When someone uses it, record the code. That is the completion.',
-    },
-  ];
+export function merchantPerkPostedNext(offerId?: string | null, fulfillmentType?: string | null): FirstAction[] {
+  return inventoryPostedNext(fulfillmentType || "merchant_validation", offerId);
 }

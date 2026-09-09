@@ -224,7 +224,7 @@ const ROLE_LENSES: Record<Exclude<StakeholderNavRole, "admin">, StakeholderLens>
     putIn: {
       label: "Fund",
       href: "/stock",
-      detail: "Put inventory a merchant can validate. Creators share it; members use it.",
+      detail: "Fund a place pass, a shipment, a code, or a credit. Creators share it; members use it.",
       stub: "FUND",
     },
     promoCardMeaning: "The member face of the benefit you funded.",

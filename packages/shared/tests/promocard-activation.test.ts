@@ -24,12 +24,12 @@ describe('promocard activation landings', () => {
     ]);
   });
 
-  it('sends creators to take a live perk or publish a drop before sharing', () => {
-    expect(landingPathForRole('creator')).toBe('/earn');
+  it('sends creators to publish a Release, then attach a room or perk', () => {
+    expect(landingPathForRole('creator')).toBe('/content-drops');
     expect(firstActionsForRole('creator').map((a) => a.id)).toEqual([
-      'take-perk',
       'publish-drop',
-      'share-perk',
+      'attach-perk',
+      'take-perk',
     ]);
   });
 

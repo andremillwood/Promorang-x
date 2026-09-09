@@ -78,24 +78,24 @@ export const ROLE_PILOT_CONFIGS: Record<PilotRoleId, RoleTourConfig> = {
     name: 'Creator',
     icon: Sparkles,
     themeColor: '#a855f7',
-    tagline: 'Take a merchant perk, share the drop, and get paid only after the merchant validates.',
+    tagline: 'Publish a Release, attach a room or perk, and get paid after a Promorang consequence — not a share tap.',
     steps: [
       {
         step: 1,
-        stage: 'STAGE 01 · TAKE',
-        title: 'Take a perk to share',
-        path: '/earn?pilot=creator&step=1',
-        insight: 'Creators share inventory that already exists. They do not invent perks or get paid for a copied link.',
-        actionLabel: 'Next: Share the drop ➔',
+        stage: 'STAGE 01 · RELEASE',
+        title: 'Publish a Release',
+        path: '/content-drops?pilot=creator&step=1',
+        insight: 'A song or story is origin. The original stays where it lives. Sharing is not the payday.',
+        actionLabel: 'Next: Attach a room or perk ➔',
         icon: Gift,
         badgeColor: 'text-[#a855f7] bg-[#a855f715] border-[#a855f733]'
       },
       {
         step: 2,
-        stage: 'STAGE 02 · SHARE',
-        title: 'Share the live drop',
+        stage: 'STAGE 02 · CATCH',
+        title: 'Attach a room or perk',
         path: '/give?pilot=creator&step=2',
-        insight: 'Your audience claims the drop onto PromoCard. The merchant still has to record the redemption.',
+        insight: 'Hosts, merchants, and brands catch the Release. Claim, RSVP, or delivery is the payday — not Shared.',
         actionLabel: 'Next: See the card ➔',
         icon: Share2,
         badgeColor: 'text-[#ec4899] bg-[#ec489915] border-[#ec489933]'

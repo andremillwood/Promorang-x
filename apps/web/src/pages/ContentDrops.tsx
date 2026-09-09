@@ -31,15 +31,20 @@ import { seededContentDrops } from "@/data/seeded-content-drops";
 import { OpportunityTerms } from "@/components/economy/OpportunityTerms";
 import { LaunchContentDropModal } from "@/components/content/LaunchContentDropModal";
 import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
+import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
+import { RELEASE_KINDS, RELEASE_KIND_META, type ReleaseKind } from "@promorang/shared";
 import { useI18n } from "@/i18n/I18nContext";
 
 const defaultDrop = {
   title: "",
   description: "",
   objective_type: "content_launch",
+  release_kind: "video" as ReleaseKind,
   external_url: "",
   asset_title: "",
   platform: "external",
+  linked_moment_id: "",
+  linked_offer_id: "",
   base_points: "3",
   entries_per_action: "1",
 };
@@ -172,21 +177,24 @@ export default function ContentDrops() {
       description: draft.description,
       objective_type: draft.objective_type,
       status: "active",
+      linked_moment_id: draft.linked_moment_id || null,
       reward_config: {
         base_points: Number(draft.base_points || 0),
         points_by_action: {
           click: Number(draft.base_points || 0),
-          share: Number(draft.base_points || 0) * 2,
-          repost: Number(draft.base_points || 0) * 2,
+          proof_verified: Number(draft.base_points || 0) * 3,
         },
       },
       promoshare_config: {
         enabled: true,
-        actions: ["share", "repost", "signup", "conversion", "proof_verified"],
+        actions: ["click", "proof_verified", "conversion"],
         entries_per_action: Number(draft.entries_per_action || 1),
       },
       metadata: {
         source_platform: draft.platform,
+        release_kind: draft.release_kind,
+        original_url: draft.external_url,
+        linked_offer_id: draft.linked_offer_id || null,
       },
     });
 
@@ -219,6 +227,9 @@ export default function ContentDrops() {
               <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">{t("drops.heroCopy")}</p>
               <div className="mt-6 max-w-2xl">
                 <StakeholderHowLead role={lensRole} surface="drops" />
+              </div>
+              <div className="mt-4 max-w-xl">
+                <LiveReleaseSignal drops={drops} />
               </div>
               <div className="mt-6 flex flex-wrap gap-3">
                 <LaunchContentDropModal />
@@ -279,6 +290,19 @@ export default function ContentDrops() {
                       <Input id="drop-title" required value={draft.title} onChange={(e) => updateDraft("title", e.target.value)} className="mt-2" placeholder={t("drops.dropPlaceholder")} />
                     </div>
                     <div>
+                      <Label>What is this?</Label>
+                      <Select value={draft.release_kind} onValueChange={(value) => updateDraft("release_kind", value)}>
+                        <SelectTrigger className="mt-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {RELEASE_KINDS.map((kind) => (
+                            <SelectItem key={kind} value={kind}>{RELEASE_KIND_META[kind].label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
                       <Label>{t("drops.platform")}</Label>
                       <Select value={draft.platform} onValueChange={(value) => updateDraft("platform", value)}>
                         <SelectTrigger className="mt-2">
@@ -298,6 +322,14 @@ export default function ContentDrops() {
                     <div className="lg:col-span-2">
                       <Label htmlFor="asset-title">{t("drops.assetLabel")}</Label>
                       <Input id="asset-title" value={draft.asset_title} onChange={(e) => updateDraft("asset_title", e.target.value)} className="mt-2" placeholder={t("drops.assetPlaceholder")} />
+                    </div>
+                    <div>
+                      <Label htmlFor="linked-moment">Attach a room (Moment ID)</Label>
+                      <Input id="linked-moment" value={draft.linked_moment_id} onChange={(e) => updateDraft("linked_moment_id", e.target.value)} className="mt-2" placeholder="Optional" />
+                    </div>
+                    <div>
+                      <Label htmlFor="linked-offer">Attach a perk (Offer ID)</Label>
+                      <Input id="linked-offer" value={draft.linked_offer_id} onChange={(e) => updateDraft("linked_offer_id", e.target.value)} className="mt-2" placeholder="Optional" />
                     </div>
                     <div className="lg:col-span-2">
                       <Label htmlFor="drop-description">{t("drops.why")}</Label>

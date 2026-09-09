@@ -76,7 +76,7 @@ describe("stakeholder setup playbook", () => {
     expect(container.querySelector('a[href="/create/campaign"]')).toBeTruthy();
   });
 
-  it("names the creator take-or-publish path", async () => {
+  it("names the creator Release-then-attach path", async () => {
     await act(async () => {
       root.render(
         <MemoryRouter>
@@ -84,8 +84,8 @@ describe("stakeholder setup playbook", () => {
         </MemoryRouter>,
       );
     });
-    expect(container).toHaveTextContent("Take a live perk");
-    expect(container).toHaveTextContent("Publish a content drop");
+    expect(container).toHaveTextContent("Publish a Release");
+    expect(container).toHaveTextContent("Attach a room or perk");
     expect(container.querySelector('a[href="/content-drops"]')).toBeTruthy();
   });
 });

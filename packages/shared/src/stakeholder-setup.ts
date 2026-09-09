@@ -3,7 +3,8 @@
  *
  * Role changes tone and supply. The live loop is still:
  * someone puts a real benefit up → someone shares it →
- * a person claims it on PromoCard → a merchant validates.
+ * a person claims it on PromoCard → use is recorded
+ * (scan, code, delivery, or credit).
  *
  * Drafts, flash toasts, and unfunded campaigns do not count.
  */
@@ -82,14 +83,14 @@ const BRAND_SETUP: StakeholderSetupPlaybook = {
   role: "brand",
   kicker: "How to deploy",
   title: "Fund a real perk, then fly the campaign",
-  why: "A campaign without inventory is a draft. Pay on recorded use, not impressions.",
+  why: "A campaign without inventory is a draft. Pay on recorded use — a scan, a code, a delivery, or a credit — not impressions.",
   steps: [
     {
       id: "fund-perk",
       label: "Fund a real benefit",
       href: "/stock",
-      youPutIn: "Inventory a merchant can validate at the counter.",
-      othersDo: "Merchants fulfill. Creators share. Members claim.",
+      youPutIn: "A place pass, a shippable drop, a code, or a credit. Not only a counter scan.",
+      othersDo: "Creators share. Members claim. Fulfillment follows the journey you chose.",
       youGet: "A live perk, not a slogan.",
     },
     {
@@ -122,40 +123,40 @@ const BRAND_SETUP: StakeholderSetupPlaybook = {
 const CREATOR_SETUP: StakeholderSetupPlaybook = {
   role: "creator",
   kicker: "How to put content up",
-  title: "Move a live perk, or publish a drop brands can fund",
-  why: "Do not invent inventory. Take what a merchant or brand already opened, or publish a drop they can sponsor.",
+  title: "Publish a Release, then attach a room or perk",
+  why: "A song or story is origin. Other people catch it. A share tap is not the payday.",
   steps: [
     {
-      id: "take-perk",
-      label: "Take a live perk",
-      href: "/earn",
-      youPutIn: "Pick an opportunity a merchant or brand already opened.",
-      othersDo: "Your people claim it on PromoCard.",
-      youGet: "Pay after the merchant validates — not when the link is copied.",
-    },
-    {
       id: "publish-drop",
-      label: "Publish a content drop",
+      label: "Publish a Release",
       href: "/content-drops",
-      youPutIn: "A story, link, or asset brands can sponsor and participants can share.",
-      othersDo: "Brands fund. Participants distribute.",
-      youGet: "Attribution when the drop leads to a claim or use.",
+      youPutIn: "The original — song, news, episode, video — plus a Promorang title.",
+      othersDo: "People open the original. Hosts and brands can attach.",
+      youGet: "A live Release, not a mission gig.",
     },
     {
-      id: "share-drop",
-      label: "Share the live drop",
+      id: "attach-perk",
+      label: "Attach a room or perk",
       href: "/give",
-      youPutIn: "The live link into the room.",
-      othersDo: "Members claim. The merchant validates.",
-      youGet: "The share is not the payday.",
+      youPutIn: "A gathering or a funded benefit the Release opens.",
+      othersDo: "Members claim or RSVP. That is the consequence.",
+      youGet: "Pay after claim, RSVP, check-in, or delivery — not after Shared.",
+    },
+    {
+      id: "take-perk",
+      label: "Or take a live perk to move",
+      href: "/earn",
+      youPutIn: "Inventory a merchant or brand already opened.",
+      othersDo: "Your people claim it on PromoCard.",
+      youGet: "Distribution labor, if that is the job tonight.",
     },
     {
       id: "see-card",
       label: "See what they carry",
       href: "/card",
-      youPutIn: "Confirm the drop landed on PromoCard.",
-      othersDo: "They use it in the world.",
-      youGet: "Proof the content reached a person.",
+      youPutIn: "Confirm the perk or pass landed on PromoCard.",
+      othersDo: "They use it the way it was issued.",
+      youGet: "Proof the Release reached a person.",
     },
   ],
 };
@@ -345,7 +346,7 @@ const HOW_LEADS: Record<StakeholderHowSurface, (role: StakeholderNavRole) => Sta
       return {
         eyebrow: "Fund",
         title: "This is the benefit the campaign will fly",
-        body: "A campaign without this is a draft. A merchant still validates when someone uses it.",
+        body: "A campaign without this is a draft. Choose place, ship, code, or credit — then pay when that journey finishes.",
         nextHref: "/create/campaign",
         nextLabel: "Then launch the campaign",
       };
@@ -379,9 +380,9 @@ const HOW_LEADS: Record<StakeholderHowSurface, (role: StakeholderNavRole) => Sta
       return {
         eyebrow: "Take, don’t invent",
         title: "Share a perk that already exists",
-        body: "You earn after the merchant validates. To put your own story up for brands to sponsor, publish a content drop.",
+        body: "If you are moving someone else’s inventory, take it here. To put your own song or story up, publish a Release first.",
         nextHref: "/content-drops",
-        nextLabel: "Or publish a content drop",
+        nextLabel: "Publish a Release",
       };
     }
     if (role === "brand" || role === "marketing" || role === "agency") {
@@ -405,11 +406,11 @@ const HOW_LEADS: Record<StakeholderHowSurface, (role: StakeholderNavRole) => Sta
     eyebrow: role === "brand" || role === "agency" ? "Sponsor" : "Content drop",
     title:
       role === "brand" || role === "agency"
-        ? "Sponsor a drop participants can distribute"
-        : "Put a story up brands can fund and people can share",
-    body: "A drop is not inventory. Pair it with a live perk so someone can claim and a merchant can validate.",
-    nextHref: "/earn",
-    nextLabel: "See live perks to attach",
+        ? "Sponsor a Release people can open, then catch"
+        : "Put the original up, then attach a room or perk",
+    body: "A Release is origin. Pair it with a live perk or a gathering. Opening the original starts the loop. Sharing is not the payday.",
+    nextHref: "/give",
+    nextLabel: "Attach a room or perk",
   }),
   give: (role) => {
     if (role === "host") {
