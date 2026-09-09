@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { mapSponsorActionToOutcome, readSponsorBrief, rememberBrandEntry } from "@/lib/commercial-intent";
 import { useCreateCampaign } from "@/hooks/useCampaigns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,6 +61,8 @@ interface CampaignFormData {
 const CreateCampaign = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const fromSponsor = searchParams.get("from") === "sponsor";
   const createCampaign = useCreateCampaign();
   const [currentStep, setCurrentStep] = useState(1);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -84,6 +87,23 @@ const CreateCampaign = () => {
     payoutPerVerifiedPostJmd: 50,
     payoutPerPurchaseProofJmd: 100,
   });
+
+  useEffect(() => {
+    const brief = readSponsorBrief();
+    if (fromSponsor || brief) rememberBrandEntry();
+    if (!brief) return;
+    setFormData((prev) => {
+      if (prev.title && prev.description) return prev;
+      const outcome = mapSponsorActionToOutcome(brief.action);
+      const goal = outcome === "content" ? "content" : outcome === "visits" ? "purchase" : outcome === "gather" ? "attendance" : prev.goals[0] || "attendance";
+      return {
+        ...prev,
+        title: prev.title || brief.name || "Activation brief",
+        description: prev.description || brief.insight || prev.description,
+        goals: prev.goals.length ? prev.goals : [goal],
+      };
+    });
+  }, []);
 
   const updateField = <K extends keyof CampaignFormData>(field: K, value: CampaignFormData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -525,7 +545,11 @@ const CreateCampaign = () => {
   };
 
   if (!user) {
-    navigate(authEntryHref({ mode: "login", role: "brand", next: "/create/campaign" }));
+    navigate(authEntryHref({
+      mode: fromSponsor ? "signup" : "login",
+      role: "brand",
+      next: fromSponsor ? "/create/campaign?from=sponsor" : "/create/campaign",
+    }));
     return null;
   }
 

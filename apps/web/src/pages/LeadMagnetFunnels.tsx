@@ -4,7 +4,7 @@ import { ArrowRight, Check, ChevronLeft, Clock3, Lightbulb, LockKeyhole, Sparkle
 import SEO from "@/components/SEO";
 import { API_BASE_URL } from "@/lib/api";
 import { rememberMarketingIntent, captureGrowthAttribution, getAnonymousId, trackGrowthEvent } from "@/lib/marketing-attribution";
-import { writeSponsorBrief } from "@/lib/commercial-intent";
+import { BRAND_LANDING_PATH, rememberBrandEntry, writeSponsorBrief } from "@/lib/commercial-intent";
 import {
   buildMerchantDemandOpening,
   merchantDemandRoute,
@@ -162,7 +162,7 @@ const funnels: Record<FunnelKey, Funnel> = {
       { q: "Does Promorang replace our agency?", a: "No. Promorang can equip agencies with participation infrastructure, partner coordination and outcome records." },
       { q: "Can this work with an existing campaign?", a: "Yes. The brief can add a real-world participation and measurement layer to an existing platform or media idea." },
     ],
-    result: (a) => ({ score: 86, name: "Your Activation Direction", insight: `Position the brand as the one that helps people ${a.human?.toLowerCase() || "participate"}. Let the experience, product and story lead; let ${a.proof?.toLowerCase() || "verified action"} justify the investment.`, moves: ["Write the human promise before the media line", `Design for ${a.action?.toLowerCase() || "one qualified action"}`, "Fund a small, measurable Moment before scaling"], route: "/propose?from=sponsor&audience=brand", cta: "Develop the campaign brief" }),
+    result: (a) => ({ score: 86, name: "Your Activation Direction", insight: `Position the brand as the one that helps people ${a.human?.toLowerCase() || "participate"}. Let the experience, product and story lead; let ${a.proof?.toLowerCase() || "verified action"} justify the investment.`, moves: ["Write the human promise before the media line", `Design for ${a.action?.toLowerCase() || "one qualified action"}`, "Fund a small, measurable Moment before scaling"], route: BRAND_LANDING_PATH, cta: "Continue as a brand" }),
   },
 };
 
@@ -190,6 +190,7 @@ export default function LeadMagnetFunnels() {
   useEffect(() => {
     if (config.key !== "sponsor") return;
     rememberMarketingIntent("sponsor_diagnostic", "/free/sponsor", "brand");
+    rememberBrandEntry();
   }, [config.key]);
 
   useEffect(() => {
@@ -209,7 +210,10 @@ export default function LeadMagnetFunnels() {
   }, [complete, config.key, answers]);
 
   const begin = () => {
-    if (config.key === "sponsor") rememberMarketingIntent("sponsor_diagnostic_start", "/free/sponsor", "brand");
+    if (config.key === "sponsor") {
+      rememberMarketingIntent("sponsor_diagnostic_start", "/free/sponsor", "brand");
+      rememberBrandEntry();
+    }
     setStarted(true);
     requestAnimationFrame(() => document.getElementById("diagnostic")?.scrollIntoView({ behavior: "smooth" }));
   };
@@ -328,6 +332,7 @@ export default function LeadMagnetFunnels() {
                   onClick={() => {
                     if (config.key === "sponsor") {
                       rememberMarketingIntent("develop_campaign_brief", result.route, "brand");
+                      rememberBrandEntry();
                     }
                   }}
                 >{result.cta} <ArrowRight /></Link>
