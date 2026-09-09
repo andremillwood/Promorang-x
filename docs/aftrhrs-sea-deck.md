@@ -77,6 +77,8 @@ Operating hours, telephone, and social handles are admin-optional. They are not 
 
 ```bash
 npm run test:shared
-npm test --workspace backend -- tests/unit/aftrHrsService.test.js
+npm test --workspace backend
 npm test --workspace apps/web -- src/pages/AftrHrsExperience.test.tsx
 ```
+
+AftrHrs backend coverage lives in `backend/tests/unit/aftrHrsService.test.js` and is picked up by Jest (`testMatch: **/tests/**/*.test.js`). Do not append that path to `npm test --workspace backend` — extra arguments leak into the follow-on `node --test` command.

@@ -238,6 +238,8 @@ BEGIN
   v_phone := NULLIF(regexp_replace(COALESCE(p_phone, ''), '\D', '', 'g'), '');
   IF v_phone IS NOT NULL AND length(v_phone) < 7 THEN
     v_phone := NULL;
+  ELSIF v_phone IS NOT NULL AND length(v_phone) = 11 AND left(v_phone, 1) = '1' THEN
+    v_phone := substr(v_phone, 2);
   END IF;
 
   SELECT * INTO v_edition
@@ -420,6 +422,11 @@ BEGIN
   END IF;
 
   v_phone := NULLIF(regexp_replace(COALESCE(p_phone, ''), '\D', '', 'g'), '');
+  IF v_phone IS NOT NULL AND length(v_phone) < 7 THEN
+    v_phone := NULL;
+  ELSIF v_phone IS NOT NULL AND length(v_phone) = 11 AND left(v_phone, 1) = '1' THEN
+    v_phone := substr(v_phone, 2);
+  END IF;
   v_code := COALESCE(NULLIF(upper(trim(p_unique_code)), ''), 'AH-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8)));
 
   INSERT INTO public.event_passes (

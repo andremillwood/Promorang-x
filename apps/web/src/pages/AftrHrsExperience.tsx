@@ -15,7 +15,7 @@ import {
 import SEO from "@/components/SEO";
 import { generateEventSchema } from "@/lib/seo-schemas";
 import { getSiteUrl } from "@/lib/discovery";
-import { authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_PATHS, isAftrHrsClaimReturn } from "@promorang/shared";
+import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_PATHS, isAftrHrsClaimReturn } from "@promorang/shared";
 import { useAftrHrs } from "@/hooks/useAftrHrs";
 import { captureGrowthAttribution } from "@/lib/marketing-attribution";
 import { persistPostAuthNext } from "@/lib/post-auth-next";
@@ -47,11 +47,14 @@ export default function AftrHrsExperience() {
   const edition = data.edition;
   const venue = edition.venue_profiles;
   const postEvent = edition.page_mode === "post-event";
+  const release = aftrHrsDigitalReleaseView({ soldOut, hasPass: Boolean(data.pass) });
   const shouldAutoClaim = Boolean(user) && (searchParams.get("claim") === "1" || isAftrHrsClaimReturn(`${AFTRHRS_PATHS.moment}?${searchParams.toString()}`));
 
   useEffect(() => {
     captureGrowthAttribution();
     track.mutate("landing_view");
+    // Fire once on first paint; the mutation identity is not part of the funnel contract.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -179,17 +182,17 @@ export default function AftrHrsExperience() {
             <span className="rounded-full border border-white/15 px-3 py-1.5">Afro House • Classic House • House Fusion</span>
           </div>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            {data.pass ? (
+            {release.kind === "pass" ? (
               <Link to={AFTRHRS_PATHS.pass} className="rounded-full bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">
-                Open my pass
+                {release.primaryCta}
               </Link>
-            ) : soldOut ? (
+            ) : release.kind === "sold_out" ? (
               <a href="#ambassadors" className="rounded-full bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">
-                Find an AftrHrs Ambassador
+                {release.primaryCta}
               </a>
             ) : (
               <a href="#digital-pass" className="rounded-full bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">
-                Claim My Free Pass
+                {release.primaryCta}
               </a>
             )}
             <Link to={AFTRHRS_PATHS.venue} className="rounded-full border border-white/20 px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-white">
@@ -232,18 +235,18 @@ export default function AftrHrsExperience() {
               <p className="mt-4 text-center font-mono text-lg font-black tracking-[0.18em]">{data.pass.unique_code}</p>
             </article>
           </div>
-        ) : soldOut ? (
+        ) : release.kind === "sold_out" ? (
           <div className="rounded-[2rem] border border-cyan-300/30 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_50%)] p-6 sm:p-10">
-            <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">{AFTRHRS_COPY.soldOutHeadline}</h2>
-            <p className="mt-4 max-w-2xl text-white/70">{AFTRHRS_COPY.soldOutBody}</p>
+            <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">{release.headline}</h2>
+            <p className="mt-4 max-w-2xl text-white/70">{release.body}</p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a href="#ambassadors" className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">Find an AftrHrs Ambassador</a>
+              <a href="#ambassadors" className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">{release.primaryCta}</a>
               <button
                 type="button"
                 onClick={() => ambassadorRequest.mutate({ waitlist: true })}
                 className="rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]"
               >
-                Join the AftrHrs Waitlist
+                {release.secondaryCta}
               </button>
             </div>
           </div>

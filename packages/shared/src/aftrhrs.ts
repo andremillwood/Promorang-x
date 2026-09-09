@@ -115,7 +115,10 @@ export function normalizeAftrHrsIdentity(value?: string | null): string | null {
 export function normalizeAftrHrsPhone(value?: string | null): string | null {
   if (!value) return null;
   const digits = String(value).replace(/\D/g, "");
-  return digits.length >= 7 ? digits : null;
+  if (digits.length < 7) return null;
+  // Jamaica / NANP: +1 876 … and local 876-… must collide on the same key.
+  if (digits.length === 11 && digits.startsWith("1")) return digits.slice(1);
+  return digits;
 }
 
 export function remainingDigitalPasses(edition: Pick<AftrHrsEditionSnapshot, "digitalAllocation" | "digitalClaimed">): number {
@@ -283,6 +286,31 @@ export const AFTRHRS_COPY = {
   metaDescription:
     "Join AftrHrs at Sea Deck, powered by Origin: Alric & Boyd. Claim one of 20 Digital Free Passes or connect with an AftrHrs Ambassador for a physical invitation.",
 } as const;
+
+export function aftrHrsDigitalReleaseView(input: { soldOut: boolean; hasPass: boolean }) {
+  if (input.hasPass) {
+    return {
+      kind: "pass" as const,
+      primaryCta: "Open my pass",
+      eventUnavailable: false,
+    };
+  }
+  if (input.soldOut) {
+    return {
+      kind: "sold_out" as const,
+      headline: AFTRHRS_COPY.soldOutHeadline,
+      body: AFTRHRS_COPY.soldOutBody,
+      primaryCta: "Find an AftrHrs Ambassador",
+      secondaryCta: "Join the AftrHrs Waitlist",
+      eventUnavailable: false,
+    };
+  }
+  return {
+    kind: "claim" as const,
+    primaryCta: "Claim My Free Pass",
+    eventUnavailable: false,
+  };
+}
 
 export const DEFAULT_AFTRHRS_FAQS = [
   {

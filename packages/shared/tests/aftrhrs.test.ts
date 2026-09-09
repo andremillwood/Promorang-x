@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  AFTRHRS_COPY,
   AFTRHRS_DIGITAL_PASS_LIMIT,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_PATHS,
   SEA_DECK_VENUE_ID,
+  aftrHrsDigitalReleaseView,
   authPathForAftrHrsClaim,
   decodeAftrHrsPassPayload,
   encodeAftrHrsPassPayload,
@@ -115,6 +117,17 @@ describe("AftrHrs digital pass inventory", () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.code).toBe("deadline");
+  });
+
+  it("moves sold-out visitors onto the ambassador pathway without closing the night", () => {
+    const release = aftrHrsDigitalReleaseView({ soldOut: true, hasPass: false });
+    expect(release.kind).toBe("sold_out");
+    if (release.kind === "sold_out") {
+      expect(release.headline).toBe(AFTRHRS_COPY.soldOutHeadline);
+      expect(release.primaryCta).toBe("Find an AftrHrs Ambassador");
+      expect(release.secondaryCta).toBe("Join the AftrHrs Waitlist");
+      expect(release.eventUnavailable).toBe(false);
+    }
   });
 
   it("builds an authenticated return into the claim flow", () => {
