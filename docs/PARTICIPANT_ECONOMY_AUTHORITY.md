@@ -30,15 +30,17 @@ Owning PromoKeys does not bypass the Master Key. The two locks answer different 
 
 ## Participant subscription levels
 
-| Canonical level | Accepted legacy aliases | Point multiplier | Verified free Proofs required daily |
-|---|---|---:|---:|
-| Starter | free | 1x | 5 |
-| Professional | premium, plus, pro | 1.5x | 2 |
-| Power User | super, elite, power | 2x | 1 |
+| Canonical level | Accepted legacy aliases | Price | Point multiplier | Daily Proofs | Cash-out | Monthly Gem ceiling |
+|---|---|---:|---:|---:|---|---|
+| Starter | free | $0 | 1x | 5 | Locked | 300 |
+| Professional | premium, plus, pro | $10 / month | 1.5x | 2 | Unlocked | None |
+| Power User | super, elite, power | $30 / month | 2x | 1 | Unlocked | None |
 
 The daily Master Key lasts until the daily reset. Implementations may represent this as a maximum 24-hour expiry, but must not carry activation into a second platform day.
 
-Upgrading provides two connected benefits: faster Point accumulation and less free work required to activate daily funded access. Every level still makes a verified contribution.
+Paid upgrade is one ladder. Professional exists to cash out and move faster. Power User exists to reach high-value campaigns with less daily grind. Every level still makes a verified contribution.
+
+Earned Marks, monthly Keys, and social labels (Guest / Regular / Mover) are reputation only. They must not grant withdrawals, remove the Gem ceiling, or copy a paid membership.
 
 ## Point and PromoKey rules
 
@@ -92,6 +94,7 @@ This is one action producing several transparent receipts, not one currency bein
 - Gems and other committed-value rewards require an identifiable funded pool, sponsor commitment, platform budget, or revenue-backed allocation.
 - Subscription multipliers apply to Points unless a funded campaign explicitly publishes another eligible boost.
 - A multiplier must never mint unfunded Gems.
+- Paid membership keeps 95% as platform revenue. A disclosed 5% may fund PromoShare prize administration. Membership is not a community subsidy and does not mint unfunded Gems.
 
 ## Required user-facing daily state
 

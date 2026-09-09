@@ -6,11 +6,52 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import SEO from "@/components/SEO";
 import { trackMetaEvent } from "@/components/MetaPixel";
+import { resolveParticipantEconomyTier } from "@promorang/shared";
+
+const professional = resolveParticipantEconomyTier("professional");
+const powerUser = resolveParticipantEconomyTier("power_user");
 
 const plans = {
-  plus: { name: "Plus", value: 9.99, price: "$9.99 / month", benefits: ["1.25× disclosed Points multiplier", "90% of standard PromoKey cost", "Cash/Gem PromoShare eligibility"] },
-  pro: { name: "Pro", value: 24.99, price: "$24.99 / month", benefits: ["1.5× disclosed Points multiplier", "75% of standard PromoKey cost", "Higher caps and priority access"] },
-  elite: { name: "Elite", value: 49.99, price: "$49.99 / month", benefits: ["2× disclosed Points multiplier", "60% of standard PromoKey cost", "Premium pools and local impact funding"] },
+  professional: {
+    name: professional.label,
+    value: professional.price,
+    price: professional.priceLabel,
+    benefits: [
+      "Withdraw eligible earnings",
+      "No monthly Gem ceiling",
+      `${professional.pointsMultiplier}× disclosed Points multiplier`,
+      `${professional.dailyMasterKeyProofs} daily Proofs for the Master Key`,
+    ],
+  },
+  power_user: {
+    name: powerUser.label,
+    value: powerUser.price,
+    price: powerUser.priceLabel,
+    benefits: [
+      "Withdraw eligible earnings",
+      `${powerUser.pointsMultiplier}× disclosed Points multiplier`,
+      `${powerUser.dailyMasterKeyProofs} daily Proof for the Master Key`,
+      "Priority access to high-value campaigns",
+    ],
+  },
+  plus: {
+    name: professional.label,
+    value: professional.price,
+    price: professional.priceLabel,
+    benefits: ["Withdraw eligible earnings", "Maps to Professional"],
+  },
+  pro: {
+    name: professional.label,
+    value: professional.price,
+    price: professional.priceLabel,
+    benefits: ["Withdraw eligible earnings", "Maps to Professional"],
+  },
+  elite: {
+    name: powerUser.label,
+    value: powerUser.price,
+    price: powerUser.priceLabel,
+    benefits: ["Withdraw eligible earnings", "Maps to Power User"],
+  },
   host_pro: { name: "Host Pro", value: 49, price: "$49 / month", benefits: ["Advanced host operations", "Reusable Moment templates", "Priority brand and sponsor matching"] },
   merchant_growth: { name: "Merchant Growth", value: 499, price: "$499 / month", benefits: ["8 Merchant Moments per month", "Featured venue placement", "Loyalty integrations and priority support"] },
   brand_studio: { name: "Brand Studio", value: 999, price: "$999 / month", benefits: ["Brand workspace and reusable templates", "Priority matching and reporting", "Moment funding is billed separately"] },
@@ -18,8 +59,8 @@ const plans = {
 
 export default function MembershipCheckout() {
   const [params] = useSearchParams();
-  const requested = (params.get("plan") || "plus").toLowerCase();
-  const planId = requested in plans ? requested as keyof typeof plans : "plus";
+  const requested = (params.get("plan") || "professional").toLowerCase();
+  const planId = requested in plans ? requested as keyof typeof plans : "professional";
   const plan = plans[planId];
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

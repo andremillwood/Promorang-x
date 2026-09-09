@@ -22,18 +22,18 @@ Generic `/moments/:id` still works. The AftrHrs UUID (`00000000-0000-0000-0002-0
 - `public.moments` + `public.venue_profiles` / `public.venues` (same pattern as Plantation Cove / Midas)
 - `view_public_venue_directory` for `/venues/:slug`
 - Auth `next` + `persistPostAuthNext` for claim resume after login
-- Existing ticket confirmation email (`sendTicketPurchaseEmail`)
+- Branded AftrHrs RSVP email (`sendAftrHrsRsvpEmail`) with the AftrHrs mark and Powered by PROMORANG
 - `telemetry` / `event_analytics_events` rather than a new analytics vendor
 - Admin `requireAdmin` / `user_roles`
 - Promorang object language (pass, receipt, Moment — not a generic ticket grid)
 
 ## Data
 
-Migration: `supabase/migrations/202609090001_aftrhrs_sea_deck_event.sql`
+Migrations: `supabase/migrations/202609090001_aftrhrs_sea_deck_event.sql`, then `202609090002_aftrhrs_rsvp_release.sql` (allocation 30, arrival FAQ).
 
 New tables (only where no equivalent existed):
 
-- `event_editions` — campaign settings, 20-pass allocation, FAQs, policies, artwork
+- `event_editions` — campaign settings, 30-pass allocation (public page shows a remaining percentage, not the count), FAQs, policies, artwork
 - `event_passes` — digital-free / physical-invitation / paid / guest-list
 - `event_ambassador_allocations` + `event_ambassador_requests`
 - `event_moment_participations` — lifecycle states

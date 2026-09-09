@@ -1140,36 +1140,16 @@ export function describeGemAmount(amount: number): string {
   return `${safeAmount.toLocaleString()} ${label}`;
 }
 
-export const PARTICIPANT_ECONOMY = {
-  pointsPerPromoKey: 500,
-  maxDailyPromoKeyConversions: 3,
-  masterKeyDurationHours: 24,
-  tiers: {
-    starter: { label: "Starter", pointsMultiplier: 1, dailyMasterKeyProofs: 5 },
-    professional: { label: "Professional", pointsMultiplier: 1.5, dailyMasterKeyProofs: 2 },
-    power_user: { label: "Power User", pointsMultiplier: 2, dailyMasterKeyProofs: 1 },
-  },
-} as const;
-
-export type ParticipantEconomyTierId = keyof typeof PARTICIPANT_ECONOMY.tiers;
-
-export const PARTICIPANT_TIER_ALIASES: Record<string, ParticipantEconomyTierId> = {
-  free: "starter",
-  starter: "starter",
-  plus: "professional",
-  premium: "professional",
-  pro: "professional",
-  professional: "professional",
-  elite: "power_user",
-  super: "power_user",
-  power: "power_user",
-  power_user: "power_user",
-};
-
-export function resolveParticipantEconomyTier(tier?: string | null) {
-  const id = PARTICIPANT_TIER_ALIASES[String(tier || "").toLowerCase()] || "starter";
-  return { id, ...PARTICIPANT_ECONOMY.tiers[id] };
-}
+export {
+  PARTICIPANT_ECONOMY,
+  PARTICIPANT_MEMBERSHIP_POOL,
+  PARTICIPANT_TIER_ALIASES,
+  listPaidParticipantTiers,
+  normalizeParticipantTierKey,
+  participantWithdrawalsEnabled,
+  resolveParticipantEconomyTier,
+} from "./participant-membership";
+export type { ParticipantEconomyTierId } from "./participant-membership";
 
 export * from "./context/Web3VaultContext";
 export * from "./markets";

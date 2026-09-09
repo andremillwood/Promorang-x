@@ -7,23 +7,15 @@ const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
 const promoShareService = require('./promoShareService');
 
+const { normalizeCreatorTier, getCreatorTier } = require('../constants/pricing');
+
 const PROMOSHARE_PERCENTAGE = 0.05; // 5%
-const PARTICIPANT_TIER_ALIASES = {
-    plus: 'plus',
-    promorang_plus: 'plus',
-    participant_plus: 'plus',
-    pro: 'pro',
-    promorang_pro: 'pro',
-    participant_pro: 'pro',
-    elite: 'elite',
-    promorang_elite: 'elite',
-    participant_elite: 'elite',
-};
 
 function normalizeParticipantTier(tier) {
     if (!tier) return null;
-    const normalized = String(tier).trim().toLowerCase().replace(/[^a-z0-9]+/g, '_');
-    return PARTICIPANT_TIER_ALIASES[normalized] || null;
+    const normalized = normalizeCreatorTier(tier);
+    const paid = getCreatorTier(normalized);
+    return paid?.price > 0 ? paid.id : null;
 }
 
 const revenueService = {

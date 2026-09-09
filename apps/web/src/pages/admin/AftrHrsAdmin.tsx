@@ -71,7 +71,7 @@ export default function AftrHrsAdmin() {
         <form onSubmit={save} className="space-y-3 rounded-3xl border border-white/10 p-5">
           <h2 className="text-lg font-black uppercase">Edition</h2>
           <label className="block text-sm">Digital allocation
-            <input value={allocation} onChange={(event) => setAllocation(event.target.value)} placeholder={String(edition.digital_allocation || 20)} className="mt-1 h-11 w-full rounded-xl border border-white/15 bg-black px-3" />
+            <input value={allocation} onChange={(event) => setAllocation(event.target.value)} placeholder={String(edition.digital_allocation || 30)} className="mt-1 h-11 w-full rounded-xl border border-white/15 bg-black px-3" />
           </label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={claimsOpen} onChange={(event) => setClaimsOpen(event.target.checked)} /> Claims open</label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={published} onChange={(event) => setPublished(event.target.checked)} /> Published</label>

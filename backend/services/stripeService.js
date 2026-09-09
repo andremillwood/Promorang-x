@@ -936,8 +936,10 @@ async function createSubscriptionCheckout(userId, tier) {
     }
 
     const tierPrices = {
-        pro: process.env.STRIPE_PRICE_PRO || 'price_placeholder_pro',
-        power: process.env.STRIPE_PRICE_POWER || 'price_placeholder_power',
+        professional: process.env.STRIPE_PRICE_PROFESSIONAL || process.env.STRIPE_PRICE_PRO || 'price_placeholder_pro',
+        pro: process.env.STRIPE_PRICE_PRO || process.env.STRIPE_PRICE_PROFESSIONAL || 'price_placeholder_pro',
+        power_user: process.env.STRIPE_PRICE_POWER_USER || process.env.STRIPE_PRICE_ELITE || process.env.STRIPE_PRICE_POWER || 'price_placeholder_power',
+        power: process.env.STRIPE_PRICE_POWER || process.env.STRIPE_PRICE_POWER_USER || process.env.STRIPE_PRICE_ELITE || 'price_placeholder_power',
     };
 
     const priceId = tierPrices[tier.toLowerCase()];
@@ -980,7 +982,7 @@ async function createSubscriptionCheckout(userId, tier) {
             .insert({
                 user_id: userId,
                 stripe_session_id: session.id,
-                amount: tier === 'pro' ? 9.99 : 29.99,
+                amount: ['pro', 'professional'].includes(String(tier).toLowerCase()) ? 10 : 30,
                 status: session.status,
                 metadata: {
                     tier,
@@ -997,7 +999,7 @@ async function createSubscriptionCheckout(userId, tier) {
             entityId: tier,
             provider: 'stripe',
             providerEventId: session.id,
-            amount: tier === 'pro' ? 9.99 : 29.99,
+            amount: ['pro', 'professional'].includes(String(tier).toLowerCase()) ? 10 : 30,
             currency: 'USD',
             idempotencyKey: `stripe:${session.id}:checkout_started`,
         });

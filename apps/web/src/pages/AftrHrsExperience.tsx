@@ -15,11 +15,12 @@ import {
 import SEO from "@/components/SEO";
 import { generateEventSchema } from "@/lib/seo-schemas";
 import { getSiteUrl } from "@/lib/discovery";
-import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_PATHS, isAftrHrsClaimReturn } from "@promorang/shared";
+import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_PATHS, formatPublicRemainingLabel, isAftrHrsClaimReturn } from "@promorang/shared";
 import { useAftrHrs } from "@/hooks/useAftrHrs";
 import { captureGrowthAttribution } from "@/lib/marketing-attribution";
 import { persistPostAuthNext } from "@/lib/post-auth-next";
 import { toast } from "sonner";
+import promorangLogo from "@/assets/promorang-logo-full.png";
 
 function GradientText({ children }: { children: string }) {
   return (
@@ -38,7 +39,7 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
 }
 
 export default function AftrHrsExperience() {
-  const { data, remaining, soldOut, user, claim, join, ambassadorRequest, follow, track } = useAftrHrs();
+  const { data, remaining, remainingPercent, soldOut, user, claim, join, ambassadorRequest, follow, track } = useAftrHrs();
   const [searchParams] = useSearchParams();
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [claiming, setClaiming] = useState(false);
@@ -146,6 +147,8 @@ export default function AftrHrsExperience() {
     }
   };
 
+  const remainingLabel = formatPublicRemainingLabel(remaining, edition.digital_allocation, soldOut);
+
   const mapsUrl = venue?.latitude && venue?.longitude
     ? `https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}`
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue?.address || "Sea Deck Orchid Village Kingston")}`;
@@ -183,6 +186,10 @@ export default function AftrHrsExperience() {
             <span className="hidden text-[10px] font-bold uppercase tracking-[0.32em] text-white/55 sm:block">House Music</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
+            <a href="https://promorang.co" className="hidden items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 sm:flex" aria-label="Powered by PROMORANG">
+              <img src={promorangLogo} alt="" className="h-4 w-auto object-contain" />
+              <span className="text-[10px] font-black uppercase tracking-[0.16em] text-white/80">Powered by PROMORANG</span>
+            </a>
             <Link to={AFTRHRS_PATHS.venue} className="rounded-full border border-white/15 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white/80">
               Sea Deck
             </Link>
@@ -222,7 +229,7 @@ export default function AftrHrsExperience() {
                   View Sea Deck
                 </Link>
                 <p className="text-xs uppercase tracking-[0.18em] text-cyan-300">
-                  {soldOut ? "20 / 20 claimed" : `${remaining} of ${edition.digital_allocation} digital passes left`}
+                  {remainingLabel}
                 </p>
               </div>
             </div>
@@ -259,6 +266,7 @@ export default function AftrHrsExperience() {
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">Pass secured</p>
               <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">Your Digital Free Pass</h2>
               <p className="mt-4 max-w-xl text-white/68">{AFTRHRS_COPY.confirmation}</p>
+              <p className="mt-3 text-sm font-bold uppercase tracking-[0.14em] text-fuchsia-300">{AFTRHRS_COPY.arrivalRule}</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link to={AFTRHRS_PATHS.pass} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">Present pass</Link>
                 <Link to="/wallet" className="rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">Wallet</Link>
@@ -290,15 +298,15 @@ export default function AftrHrsExperience() {
           <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-fuchsia-300">Limited Digital Free Pass</p>
-              <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">Only 20 available</h2>
+              <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">A limited digital release</h2>
               <p className="mt-4 text-white/68">
-                This pass is free admission to this AftrHrs edition. One pass per authenticated person. Inventory is held on the server — the counter here is only a live reading.
+                This pass is free admission to AftrHrs. One pass per person.
               </p>
-              <p className="mt-3 text-sm text-white/50">Claims close at event start unless an administrator opens a different window.</p>
+              <p className="mt-3 text-sm font-bold text-fuchsia-200">{AFTRHRS_COPY.arrivalRule}</p>
               <form onSubmit={startClaim} className="mt-6 space-y-4">
                 <label className="flex items-start gap-3 text-sm text-white/75">
                   <input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} className="mt-1" />
-                  I understand admission is subject to Sea Deck capacity, entry policies, and successful pass verification.
+                  I understand I must arrive before 11:30 PM to get in free, and that admission is subject to Sea Deck capacity, entry policies, and successful pass verification.
                 </label>
                 <button
                   type="submit"
@@ -310,11 +318,11 @@ export default function AftrHrsExperience() {
               </form>
             </div>
             <aside className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">Live inventory</p>
-              <p className="mt-4 text-6xl font-black tracking-[-0.06em]">{remaining}</p>
-              <p className="text-sm text-white/55">Digital Free Passes remaining</p>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">Still available</p>
+              <p className="mt-4 text-6xl font-black tracking-[-0.06em]">{remainingPercent}%</p>
+              <p className="text-sm text-white/55">remaining</p>
               <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
-                <div className="h-full bg-gradient-to-r from-fuchsia-400 to-cyan-300" style={{ width: `${(remaining / edition.digital_allocation) * 100}%` }} />
+                <div className="h-full bg-gradient-to-r from-fuchsia-400 to-cyan-300" style={{ width: `${remainingPercent}%` }} />
               </div>
             </aside>
           </div>
@@ -481,7 +489,7 @@ export default function AftrHrsExperience() {
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <figure className="overflow-hidden rounded-3xl border border-white/10">
             <img src={edition.artwork.flyer} alt="AftrHrs flyer" className="h-64 w-full object-cover" />
-            <figcaption className="p-4 text-sm text-white/60">AftrHrs promotional artwork. Video can be added by an administrator when supplied.</figcaption>
+            <figcaption className="p-4 text-sm text-white/60">AftrHrs at Sea Deck.</figcaption>
           </figure>
           <figure className="overflow-hidden rounded-3xl border border-white/10">
             <img src={edition.artwork.invite} alt="AftrHrs invitation" className="h-64 w-full object-cover" />
@@ -506,15 +514,21 @@ export default function AftrHrsExperience() {
         </div>
       </Section>
 
-      <footer className="border-t border-white/10 px-4 py-10 pb-28 text-center text-xs uppercase tracking-[0.18em] text-white/40 sm:pb-10">
-        Sea Deck, Orchid Village · 20 Barbican Road · A Promorang Moment
+      <footer className="border-t border-white/10 px-4 py-10 pb-28 text-center sm:pb-10">
+        <a href="https://promorang.co" className="inline-flex flex-col items-center gap-3">
+          <img src={promorangLogo} alt="PROMORANG" className="h-9 w-auto object-contain" />
+          <span className="text-[11px] font-black uppercase tracking-[0.32em] text-white">{AFTRHRS_COPY.poweredBy}</span>
+        </a>
+        <p className="mt-5 text-xs uppercase tracking-[0.18em] text-white/40">
+          Sea Deck, Orchid Village · 20 Barbican Road · A Promorang Moment
+        </p>
       </footer>
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/90 p-3 backdrop-blur-md sm:hidden">
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">
-              {soldOut ? "Digital passes claimed" : `${remaining} digital passes left`}
+              {remainingLabel}
             </p>
             <p className="truncate text-xs text-white/55">September 11 · Sea Deck</p>
           </div>
