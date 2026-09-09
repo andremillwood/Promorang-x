@@ -39,7 +39,7 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
 }
 
 export default function AftrHrsExperience() {
-  const { data, remaining, remainingPercent, soldOut, user, claim, join, ambassadorRequest, follow, track } = useAftrHrs();
+  const { data, remainingPercent, soldOut, user, claim, join, ambassadorRequest, follow, track } = useAftrHrs();
   const [searchParams] = useSearchParams();
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [claiming, setClaiming] = useState(false);
@@ -147,7 +147,7 @@ export default function AftrHrsExperience() {
     }
   };
 
-  const remainingLabel = formatPublicRemainingLabel(remaining, edition.digital_allocation, soldOut);
+  const remainingLabel = formatPublicRemainingLabel(remainingPercent, soldOut);
 
   const mapsUrl = venue?.latitude && venue?.longitude
     ? `https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}`
@@ -318,9 +318,8 @@ export default function AftrHrsExperience() {
               </form>
             </div>
             <aside className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">Still available</p>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">Free passes</p>
               <p className="mt-4 text-6xl font-black tracking-[-0.06em]">{remainingPercent}%</p>
-              <p className="text-sm text-white/55">remaining</p>
               <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
                 <div className="h-full bg-gradient-to-r from-fuchsia-400 to-cyan-300" style={{ width: `${remainingPercent}%` }} />
               </div>
@@ -344,7 +343,7 @@ export default function AftrHrsExperience() {
                   <img src={ambassador.profileImage || edition.artwork.logo} alt="" className="h-14 w-14 rounded-full object-cover" />
                   <div>
                     <h3 className="text-lg font-black">{ambassador.name}</h3>
-                    <p className="text-xs uppercase tracking-[0.16em] text-white/45">Approved · {ambassador.remaining} remaining</p>
+                    <p className="text-xs uppercase tracking-[0.16em] text-white/45">AftrHrs Ambassador</p>
                   </div>
                 </div>
                 <ul className="mt-4 space-y-2 text-sm text-white/65">
@@ -409,20 +408,20 @@ export default function AftrHrsExperience() {
             <p className="mt-4 max-w-xl text-white/68">{AFTRHRS_COPY.moment}</p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <button type="button" onClick={joinMoment} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">
-                {data.participation ? `You're ${data.participation.state.replaceAll("_", " ")}` : "I'm interested"}
+                {data.participation ? "You're in" : "I'm interested"}
               </button>
               <button type="button" onClick={share} className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">
                 <Share2 className="h-4 w-4" /> Invite friends
               </button>
               <span className="inline-flex items-center gap-2 text-sm text-white/55">
-                <Users className="h-4 w-4 text-cyan-300" /> {data.communityCount} in the Moment
+                <Users className="h-4 w-4 text-cyan-300" /> {data.communityCount} going
               </span>
             </div>
           </div>
           <div className="rounded-[2rem] border border-white/10 p-6">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40">Lifecycle</p>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40">The night</p>
             <ol className="mt-4 space-y-2 text-sm text-white/70">
-              {["Discovered", "Interested", "Pass requested", "Digital pass claimed", "Ambassador request", "Physical invitation", "Checked in", "Attended"].map((step) => (
+              {["Claim a Digital Free Pass", "Arrive before 11:30 PM", "Present your pass at Sea Deck"].map((step) => (
                 <li key={step} className="flex items-center gap-2"><Sparkles className="h-3.5 w-3.5 text-fuchsia-300" /> {step}</li>
               ))}
             </ol>
@@ -485,19 +484,19 @@ export default function AftrHrsExperience() {
       </Section>
 
       <Section id="proof" className="border-y border-white/10 bg-white/[0.02]">
-        <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">{postEvent ? "What the night kept" : "Proof before the room fills"}</h2>
+        <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">{postEvent ? "What the night kept" : "AftrHrs at Sea Deck"}</h2>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <figure className="overflow-hidden rounded-3xl border border-white/10">
             <img src={edition.artwork.flyer} alt="AftrHrs flyer" className="h-64 w-full object-cover" />
-            <figcaption className="p-4 text-sm text-white/60">AftrHrs at Sea Deck.</figcaption>
+            <figcaption className="p-4 text-sm text-white/60">September 11 · Sea Deck</figcaption>
           </figure>
           <figure className="overflow-hidden rounded-3xl border border-white/10">
             <img src={edition.artwork.invite} alt="AftrHrs invitation" className="h-64 w-full object-cover" />
-            <figcaption className="p-4 text-sm text-white/60">Physical invitation language. Ambassadors carry the remaining free access.</figcaption>
+            <figcaption className="p-4 text-sm text-white/60">You are invited.</figcaption>
           </figure>
           <figure className="overflow-hidden rounded-3xl border border-white/10 bg-black p-6">
             <img src={edition.artwork.logo} alt="AftrHrs logo" className="mx-auto h-40 object-contain" />
-            <figcaption className="mt-4 text-sm text-white/60">Origin: Alric & Boyd. Partner acknowledgements stay here without inventing extra credits.</figcaption>
+            <figcaption className="mt-4 text-sm text-white/60">Origin: Alric & Boyd</figcaption>
           </figure>
         </div>
       </Section>

@@ -33,7 +33,7 @@ Migrations: `supabase/migrations/202609090001_aftrhrs_sea_deck_event.sql`, then 
 
 New tables (only where no equivalent existed):
 
-- `event_editions` — campaign settings, 30-pass allocation (public page shows a remaining percentage, not the count), FAQs, policies, artwork
+- `event_editions` — campaign settings, 30-pass allocation (public guests see remaining as a figure, never the count or how it is calculated), FAQs, policies, artwork
 - `event_passes` — digital-free / physical-invitation / paid / guest-list
 - `event_ambassador_allocations` + `event_ambassador_requests`
 - `event_moment_participations` — lifecycle states

@@ -41,7 +41,7 @@ import { CommerceReceiptRail } from "@/components/commerce/CommerceReceiptRail";
 import { CouponWalletRail } from "@/components/commerce/CouponWalletRail";
 import { PersonalValueNav } from "@/components/value/PersonalValueNav";
 import { DigitalWalletPass3D } from "@/components/wallet/DigitalWalletPass3D";
-import { PARTICIPANT_ECONOMY } from "@promorang/shared";
+import { guestPassStatus, PARTICIPANT_ECONOMY } from "@promorang/shared";
 import { useParticipantMembership } from "@/hooks/useParticipantMembership";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
@@ -93,7 +93,7 @@ function AftrHrsWalletRail() {
     <Link to="/moments/aftrhrs/pass" className="w-full max-w-[420px] rounded-2xl border border-cyan-300/30 bg-cyan-300/10 px-4 py-3 text-left text-white">
       <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">AftrHrs Digital Free Pass</p>
       <p className="mt-1 font-mono text-lg font-black tracking-[0.14em]">{data.pass.unique_code}</p>
-      <p className="text-xs text-white/60">Arrive before 11:30 PM to get in free · {data.pass.status}</p>
+      <p className="text-xs text-white/60">Arrive before 11:30 PM to get in free · {guestPassStatus(data.pass.status)}</p>
     </Link>
   );
 }
