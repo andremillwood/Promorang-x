@@ -1,5 +1,7 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { AFTRHRS_COPY, DEFAULT_AFTRHRS_FAQS, aftrHrsDigitalReleaseView, authPathForAftrHrsClaim } from "@promorang/shared";
+import { AFTRHRS_COPY, AFTRHRS_OG_IMAGE, DEFAULT_AFTRHRS_FAQS, aftrHrsDigitalReleaseView, authPathForAftrHrsClaim } from "@promorang/shared";
 
 describe("AftrHrs landing states", () => {
   it("sends unauthenticated claimers back to the claim flow after login", () => {
@@ -22,5 +24,14 @@ describe("AftrHrs landing states", () => {
     expect(AFTRHRS_COPY.poweredBy).toBe("Powered by PROMORANG");
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/percentage|shown as|page reading|claim button|page counter/i);
     expect(JSON.stringify(AFTRHRS_COPY)).not.toMatch(/percentage|shown as/i);
+  });
+
+  it("registers the landing snapshot so crawlers receive AftrHrs artwork", () => {
+    const source = readFileSync(resolve(__dirname, "../../scripts/generate-public-seo.mjs"), "utf8");
+    expect(source).toContain('path: "/aftrhrs"');
+    expect(source).toContain('path: "/moments/aftrhrs"');
+    expect(source).toContain('path: "/campaigns/aftrhrs"');
+    expect(source).toContain(AFTRHRS_OG_IMAGE.path);
+    expect(source).toContain(`imageWidth: ${AFTRHRS_OG_IMAGE.width}`);
   });
 });

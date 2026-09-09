@@ -15,6 +15,14 @@ export const AFTRHRS_PUBLIC_REMAINING_TRUTH_AT = 70;
 export const AFTRHRS_PAID_ENTRY_JMD = 2000;
 export const PROMORANG_LOGO_PATH = "/email-assets/promorang-logo.png";
 export const AFTRHRS_LOGO_PATH = "/campaigns/aftrhrs/logo.jpg";
+export const AFTRHRS_OG_IMAGE_PATH = "/og/aftrhrs.jpg";
+export const AFTRHRS_OG_IMAGE = {
+  path: AFTRHRS_OG_IMAGE_PATH,
+  alt: "AftrHrs at Sea Deck",
+  type: "image/jpeg",
+  width: 941,
+  height: 1672,
+} as const;
 
 export const AFTRHRS_PATHS = {
   landing: "/aftrhrs",

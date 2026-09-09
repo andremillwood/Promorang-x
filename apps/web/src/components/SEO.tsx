@@ -9,6 +9,10 @@ interface SEOProps {
     name?: string;
     type?: string;
     image?: string;
+    imageAlt?: string;
+    imageType?: string;
+    imageWidth?: number;
+    imageHeight?: number;
     url?: string;
     schema?: Record<string, any>;
     noindex?: boolean;
@@ -20,6 +24,10 @@ export default function SEO({
     name = 'Promorang',
     type = 'website',
     image,
+    imageAlt,
+    imageType,
+    imageWidth,
+    imageHeight,
     url,
     schema,
     noindex = false,
@@ -55,6 +63,11 @@ export default function SEO({
             <meta property="og:title" content={title} />
             <meta property="og:description" content={description} />
             {image && <meta property="og:image" content={image} />}
+            {image && <meta property="og:image:secure_url" content={image} />}
+            {image && imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+            {image && imageType && <meta property="og:image:type" content={imageType} />}
+            {image && imageWidth ? <meta property="og:image:width" content={String(imageWidth)} /> : null}
+            {image && imageHeight ? <meta property="og:image:height" content={String(imageHeight)} /> : null}
             {localizedUrl && <meta property="og:url" content={localizedUrl} />}
 
             {/* Twitter tags */}
@@ -64,6 +77,7 @@ export default function SEO({
             <meta name="twitter:title" content={title} />
             <meta name="twitter:description" content={description} />
             {image && <meta name="twitter:image" content={image} />}
+            {image && imageAlt && <meta name="twitter:image:alt" content={imageAlt} />}
 
             {/* Structured Data (JSON-LD) */}
             {schema && (

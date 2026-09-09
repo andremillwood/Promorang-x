@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   AFTRHRS_COPY,
   AFTRHRS_DIGITAL_PASS_LIMIT,
+  AFTRHRS_OG_IMAGE,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_PATHS,
   DEFAULT_AFTRHRS_FAQS,
@@ -126,6 +127,8 @@ describe("AftrHrs digital pass inventory", () => {
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/percentage|shown as|page reading|claim button|page counter/i);
     expect(guestPassStatus("active")).toBe("Ready");
     expect(guestPassStatus("redeemed")).toBe("Used");
+    expect(AFTRHRS_OG_IMAGE.path).toBe("/og/aftrhrs.jpg");
+    expect(AFTRHRS_OG_IMAGE.alt).toBe("AftrHrs at Sea Deck");
   });
 
   it("closes claims after the configured deadline", async () => {
