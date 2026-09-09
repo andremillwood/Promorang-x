@@ -149,9 +149,15 @@ export function publicRemainingPercent(remaining: number, allocation: number): n
   return Math.min(100, Math.round(actual + AFTRHRS_PUBLIC_REMAINING_SKEW_POINTS));
 }
 
-export function formatPublicRemainingLabel(remaining: number, allocation: number, soldOut = false): string {
-  if (soldOut || Number(remaining || 0) <= 0) return "Digital release claimed";
-  return `${publicRemainingPercent(remaining, allocation)}% remaining`;
+export function formatPublicRemainingLabel(percent: number, soldOut = false): string {
+  if (soldOut || Number(percent || 0) <= 0) return "Digital release claimed";
+  return `${Math.max(0, Math.min(100, Math.round(Number(percent))))}%`;
+}
+
+export function guestPassStatus(status?: string | null): string {
+  if (status === "redeemed") return "Used";
+  if (status === "cancelled" || status === "expired") return "No longer valid";
+  return "Ready";
 }
 
 export function parseAftrHrsTime(value?: Date | string | number | null): Date {

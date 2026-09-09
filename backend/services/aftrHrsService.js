@@ -72,7 +72,8 @@ async function getEdition() {
 async function ensureCurrentRelease(edition) {
   const needsAllocation = Number(edition.digital_allocation || 0) < AFTRHRS_DIGITAL_PASS_LIMIT;
   const faqs = Array.isArray(edition.faqs) ? edition.faqs : [];
-  const needsConsumerFaqs = faqs.some((faq) => /percentage|page reading|claim button/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
+  const needsConsumerFaqs = faqs.some((faq) => /percentage|shown as|page reading|claim button|page counter|exactly \d+/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
+    || faqs.some((faq) => /\b(20|30) Digital Free Passes\b/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
     || !faqs.some((faq) => String(faq?.answer || '').includes('11:30 PM'));
   if (!needsAllocation && !needsConsumerFaqs) return edition;
 
@@ -130,11 +131,21 @@ async function publicSnapshot(userId) {
     .select('id', { count: 'exact', head: true })
     .eq('event_id', edition.moment_id);
 
+  const publicEdition = { ...edition };
+  const allocation = Number(edition.digital_allocation || 0);
+  delete publicEdition.digital_allocation;
+  delete publicEdition.digital_claimed;
+  delete publicEdition.metadata;
+  if (publicEdition.venue_policies && typeof publicEdition.venue_policies === 'object') {
+    const policies = { ...publicEdition.venue_policies };
+    delete policies.notes;
+    publicEdition.venue_policies = policies;
+  }
+
   return {
     edition: {
-      ...edition,
-      remaining,
-      remainingPercent: publicRemainingPercent(remaining, edition.digital_allocation),
+      ...publicEdition,
+      remainingPercent: publicRemainingPercent(remaining, allocation),
       soldOut: remaining <= 0,
       paths: AFTRHRS_PATHS,
       venueSlug: SEA_DECK_VENUE_SLUG,
@@ -146,11 +157,6 @@ async function publicSnapshot(userId) {
       profileImage: row.profile_image_url,
       profilePath: `/u/${row.ambassador_user_id}`,
       approved: row.approved,
-      allocation: row.allocation,
-      distributed: row.distributed,
-      remaining: Math.max(0, row.allocation - row.distributed),
-      trackingCode: row.tracking_code,
-      contactPreference: row.contact_preference,
       publicContactHandle: row.contact_consent ? row.public_contact_handle : null,
       distributionLocations: row.distribution_locations || [],
     })),

@@ -4,6 +4,7 @@ import {
   AFTRHRS_DIGITAL_PASS_LIMIT,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_PATHS,
+  DEFAULT_AFTRHRS_FAQS,
   SEA_DECK_VENUE_ID,
   aftrHrsDigitalReleaseView,
   authPathForAftrHrsClaim,
@@ -11,6 +12,7 @@ import {
   encodeAftrHrsPassPayload,
   evaluateDigitalPassClaim,
   formatPublicRemainingLabel,
+  guestPassStatus,
   isAftrHrsClaimReturn,
   nextParticipationState,
   publicRemainingPercent,
@@ -115,12 +117,15 @@ describe("AftrHrs digital pass inventory", () => {
     expect(publicRemainingPercent(22, 30)).toBe(83);
     expect(publicRemainingPercent(21, 30)).toBe(70);
     expect(publicRemainingPercent(15, 30)).toBe(50);
-    expect(formatPublicRemainingLabel(24, 30)).toBe("90% remaining");
-    expect(formatPublicRemainingLabel(0, 30, true)).toBe("Digital release claimed");
+    expect(formatPublicRemainingLabel(90)).toBe("90%");
+    expect(formatPublicRemainingLabel(0, true)).toBe("Digital release claimed");
     expect(AFTRHRS_COPY.confirmation).toContain("11:30 PM");
     expect(AFTRHRS_COPY.metaDescription).not.toMatch(/\b30\b/);
     expect(AFTRHRS_COPY.soldOutBody).not.toMatch(/\b30\b/);
     expect(JSON.stringify(AFTRHRS_COPY)).not.toMatch(/percentage/i);
+    expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/percentage|shown as|page reading|claim button|page counter/i);
+    expect(guestPassStatus("active")).toBe("Ready");
+    expect(guestPassStatus("redeemed")).toBe("Used");
   });
 
   it("closes claims after the configured deadline", async () => {

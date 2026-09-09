@@ -251,18 +251,19 @@ export function useAftrHrs() {
   });
 
   const data = snapshot.data || AFTRHRS_FALLBACK;
-  const remaining = remainingDigitalPasses({
-    digitalAllocation: data.edition.digital_allocation,
-    digitalClaimed: data.edition.digital_claimed,
-  });
-  const remainingPercent = data.edition.remainingPercent ?? publicRemainingPercent(remaining, data.edition.digital_allocation);
+  const remainingPercent = data.edition.remainingPercent ?? publicRemainingPercent(
+    remainingDigitalPasses({
+      digitalAllocation: data.edition.digital_allocation,
+      digitalClaimed: data.edition.digital_claimed,
+    }),
+    data.edition.digital_allocation,
+  );
 
   return {
     ...snapshot,
     data,
-    remaining,
     remainingPercent,
-    soldOut: remaining <= 0 || data.edition.soldOut,
+    soldOut: remainingPercent <= 0 || data.edition.soldOut,
     token,
     user,
     track,
