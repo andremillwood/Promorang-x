@@ -1598,7 +1598,7 @@ function buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode }) {
           <tr>
             <td style="padding:32px 28px 16px;text-align:center;background:radial-gradient(circle at top,rgba(192,38,211,0.28),transparent 55%),#000;">
               <img src="${aftrHrsLogo}" alt="AftrHrs" width="180" style="display:block;margin:0 auto 16px;max-width:180px;height:auto;border:0;">
-              <p style="margin:0;letter-spacing:0.28em;text-transform:uppercase;font-size:11px;color:#67e8f9;">House Music · Sea Deck · September 11</p>
+              <p style="margin:0;letter-spacing:0.28em;text-transform:uppercase;font-size:11px;color:#67e8f9;">House Music · Sea Deck · Every Friday</p>
               <h1 style="margin:16px 0 0;font-size:28px;line-height:1.1;letter-spacing:-0.03em;color:#ffffff;">${headline}</h1>
             </td>
           </tr>
@@ -1642,7 +1642,7 @@ function buildAftrHrsRsvpEmailText({ userName, kind, activationCode }) {
     `Hi ${userName || 'there'},`,
     isPass ? 'Your AftrHrs Digital Free Pass is secured.' : 'You are on the AftrHrs list.',
     'Arrive before 11:30 PM to get in free.',
-    'Sea Deck, Orchid Village, 20 Barbican Road, Kingston. September 11 from 10:00 PM.',
+    'Sea Deck, Orchid Village, 20 Barbican Road, Kingston. Every Friday from 10:00 PM.',
     activationCode ? `Pass code: ${activationCode}` : null,
     'Powered by PROMORANG',
     `${EMAIL_CONFIG.frontendUrl}/aftrhrs`,

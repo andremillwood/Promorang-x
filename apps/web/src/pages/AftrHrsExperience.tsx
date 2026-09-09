@@ -15,7 +15,7 @@ import {
 import SEO from "@/components/SEO";
 import { generateEventSchema } from "@/lib/seo-schemas";
 import { getSiteUrl } from "@/lib/discovery";
-import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, formatPublicRemainingLabel, isAftrHrsClaimReturn } from "@promorang/shared";
+import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_EVENT_SCHEDULE, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, AFTRHRS_START_ISO, formatPublicRemainingLabel, isAftrHrsClaimReturn } from "@promorang/shared";
 import { useAftrHrs } from "@/hooks/useAftrHrs";
 import { captureGrowthAttribution } from "@/lib/marketing-attribution";
 import { persistPostAuthNext } from "@/lib/post-auth-next";
@@ -68,25 +68,31 @@ export default function AftrHrsExperience() {
     }
   }, [shouldAutoClaim, data.pass, soldOut]);
 
-  const schema = useMemo(
-    () =>
-      generateEventSchema({
-        id: edition.moment_id,
-        title: "AftrHrs at Sea Deck",
-        description: AFTRHRS_COPY.metaDescription,
-        location: venue?.address,
-        venue_name: "Sea Deck",
-        starts_at: edition.moments?.starts_at || "2026-09-11T22:00:00-05:00",
-        image_url: getSiteUrl(edition.artwork.og || edition.artwork.flyer || AFTRHRS_OG_IMAGE.path),
-        latitude: venue?.latitude,
-        longitude: venue?.longitude,
-        entry_fee_jmd: 0,
-        city: "Kingston",
-        country: "Jamaica",
-        slug: "aftrhrs",
-      }),
-    [edition, venue],
-  );
+  const schema = useMemo(() => {
+    const base = generateEventSchema({
+      id: edition.moment_id,
+      title: "AftrHrs at Sea Deck",
+      description: AFTRHRS_COPY.metaDescription,
+      location: venue?.address,
+      venue_name: "Sea Deck",
+      starts_at: edition.moments?.starts_at || AFTRHRS_START_ISO,
+      image_url: getSiteUrl(edition.artwork.og || edition.artwork.flyer || AFTRHRS_OG_IMAGE.path),
+      latitude: venue?.latitude,
+      longitude: venue?.longitude,
+      entry_fee_jmd: 0,
+      city: "Kingston",
+      country: "Jamaica",
+      slug: "aftrhrs",
+    });
+    const { offers, ...rest } = base;
+    const offer = offers && typeof offers === "object" ? { ...offers } : null;
+    if (offer && "validThrough" in offer) delete offer.validThrough;
+    return {
+      ...rest,
+      eventSchedule: AFTRHRS_EVENT_SCHEDULE,
+      ...(offer ? { offers: offer } : {}),
+    };
+  }, [edition, venue]);
 
   const share = async () => {
     const url = getSiteUrl(AFTRHRS_PATHS.landing);
@@ -223,8 +229,8 @@ export default function AftrHrsExperience() {
               <p className="mt-6 max-w-2xl text-base leading-7 text-white/70">{edition.supporting_copy}</p>
               <div className="mt-8 flex flex-wrap gap-3 text-xs font-bold uppercase tracking-[0.18em] text-white/80">
                 <span className="rounded-full border border-white/15 px-3 py-1.5">Sea Deck</span>
-                <span className="rounded-full border border-white/15 px-3 py-1.5">September 11</span>
-                <span className="rounded-full border border-white/15 px-3 py-1.5">10:00 PM until</span>
+                <span className="rounded-full border border-white/15 px-3 py-1.5">{AFTRHRS_COPY.when}</span>
+                <span className="rounded-full border border-white/15 px-3 py-1.5">{AFTRHRS_COPY.doors}</span>
                 <span className="rounded-full border border-white/15 px-3 py-1.5">Afro House • Classic House • House Fusion</span>
               </div>
               <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -339,7 +345,7 @@ export default function AftrHrsExperience() {
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {data.ambassadors.map((ambassador) => {
             const whatsapp = ambassador.publicContactHandle
-              ? `https://wa.me/?text=${encodeURIComponent(`Hello ${ambassador.name}, I would like a physical AftrHrs invitation for September 11 at Sea Deck.`)}`
+              ? `https://wa.me/?text=${encodeURIComponent(`Hello ${ambassador.name}, I would like a physical AftrHrs invitation for Friday at Sea Deck.`)}`
               : null;
             return (
               <article key={ambassador.id} className="rounded-3xl border border-white/10 bg-black/40 p-5">
@@ -458,8 +464,8 @@ export default function AftrHrsExperience() {
             <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">Sea Deck</h2>
             <p className="mt-4 text-white/68">{venue?.description}</p>
             <p className="mt-4 flex items-center gap-2 text-sm text-white/70"><MapPin className="h-4 w-4" /> {venue?.address}</p>
-            <p className="mt-2 flex items-center gap-2 text-sm text-white/70"><Calendar className="h-4 w-4" /> September 11</p>
-            <p className="mt-2 flex items-center gap-2 text-sm text-white/70"><Clock className="h-4 w-4" /> 10:00 PM until</p>
+            <p className="mt-2 flex items-center gap-2 text-sm text-white/70"><Calendar className="h-4 w-4" /> {AFTRHRS_COPY.when}</p>
+            <p className="mt-2 flex items-center gap-2 text-sm text-white/70"><Clock className="h-4 w-4" /> {AFTRHRS_COPY.doors}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link to={AFTRHRS_PATHS.venue} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">Open venue profile</Link>
               <a href={mapsUrl} target="_blank" rel="noreferrer" className="rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">Directions</a>
@@ -492,7 +498,7 @@ export default function AftrHrsExperience() {
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <figure className="overflow-hidden rounded-3xl border border-white/10">
             <img src={edition.artwork.flyer} alt="AftrHrs flyer" className="h-64 w-full object-cover" />
-            <figcaption className="p-4 text-sm text-white/60">September 11 · Sea Deck</figcaption>
+            <figcaption className="p-4 text-sm text-white/60">{AFTRHRS_COPY.when} · Sea Deck</figcaption>
           </figure>
           <figure className="overflow-hidden rounded-3xl border border-white/10">
             <img src={edition.artwork.invite} alt="AftrHrs invitation" className="h-64 w-full object-cover" />
@@ -533,7 +539,7 @@ export default function AftrHrsExperience() {
             <p className="truncate text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">
               {remainingLabel}
             </p>
-            <p className="truncate text-xs text-white/55">September 11 · Sea Deck</p>
+            <p className="truncate text-xs text-white/55">{AFTRHRS_COPY.whenLine} · Sea Deck</p>
           </div>
           {heroCta}
         </div>

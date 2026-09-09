@@ -51,7 +51,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     ownership: 'PROMORANG PRESENTS',
     venueName: 'Sea Deck',
     location: 'Orchid Village, 20 Barbican Road, Kingston',
-    dateDisplay: 'September 11 • 10:00 PM until',
+    dateDisplay: 'Every Friday • 10:00 PM until',
     image: '/campaigns/aftrhrs/flyer.jpg',
     promoKeysAvailable: 20,
     subMomentsCount: 3,

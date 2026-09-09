@@ -9,6 +9,27 @@ export const AFTRHRS_EDITION_ID = "00000000-0000-0000-0004-000000000080";
 export const AFTRHRS_DIGITAL_PASS_LIMIT = 30;
 export const AFTRHRS_TIMEZONE = "America/Jamaica";
 export const AFTRHRS_START_ISO = "2026-09-11T22:00:00-05:00";
+/** JS weekday: Sunday = 0 … Friday = 5. */
+export const AFTRHRS_WEEKDAY = 5;
+export const AFTRHRS_DOORS = "10:00 PM until";
+export const AFTRHRS_CADENCE = "Every Friday";
+export const AFTRHRS_WHEN_LINE = "Every Friday · 10:00 PM until";
+export const AFTRHRS_RECURRENCE = {
+  recurrence_enabled: true,
+  recurrence_frequency: "weekly" as const,
+  recurrence_interval: 1,
+  recurrence_by_weekday: [AFTRHRS_WEEKDAY],
+  recurrence_timezone: AFTRHRS_TIMEZONE,
+  recurrence_until: null,
+  recurrence_count: null,
+};
+export const AFTRHRS_EVENT_SCHEDULE = {
+  "@type": "Schedule",
+  repeatFrequency: "P1W",
+  byDay: "https://schema.org/Friday",
+  startTime: "22:00",
+  scheduleTimezone: AFTRHRS_TIMEZONE,
+} as const;
 export const AFTRHRS_FREE_ARRIVAL_CUTOFF = "11:30 PM";
 export const AFTRHRS_PUBLIC_REMAINING_SKEW_POINTS = 10;
 export const AFTRHRS_PUBLIC_REMAINING_TRUTH_AT = 70;
@@ -168,6 +189,32 @@ export function guestPassStatus(status?: string | null): string {
   return "Ready";
 }
 
+export type AftrHrsRecurrenceLike = {
+  recurrence_enabled?: boolean | null;
+  recurrence_frequency?: string | null;
+  recurrence_interval?: number | null;
+  recurrence_by_weekday?: Array<number | string> | null;
+  recurrence_timezone?: string | null;
+};
+
+export function hasAftrHrsFridayRecurrence(moment?: AftrHrsRecurrenceLike | null): boolean {
+  if (!moment?.recurrence_enabled) return false;
+  if (String(moment.recurrence_frequency || "").toLowerCase() !== "weekly") return false;
+  if (Number(moment.recurrence_interval || 1) !== 1) return false;
+  const weekdays = Array.isArray(moment.recurrence_by_weekday)
+    ? moment.recurrence_by_weekday.map((day) => Number(day))
+    : [];
+  if (!weekdays.includes(AFTRHRS_WEEKDAY)) return false;
+  return (moment.recurrence_timezone || AFTRHRS_TIMEZONE) === AFTRHRS_TIMEZONE;
+}
+
+export function isAftrHrsFirstNightClaimClose(value?: string | null): boolean {
+  if (!value) return false;
+  const close = new Date(value).getTime();
+  const firstNight = new Date(AFTRHRS_START_ISO).getTime();
+  return Number.isFinite(close) && close === firstNight;
+}
+
 export function parseAftrHrsTime(value?: Date | string | number | null): Date {
   if (value instanceof Date) return value;
   if (value == null) return new Date();
@@ -324,9 +371,12 @@ export const AFTRHRS_COPY = {
   arrivalRule:
     "RSVP holders must arrive before 11:30 PM to get in free.",
   poweredBy: "Powered by PROMORANG",
+  when: AFTRHRS_CADENCE,
+  doors: AFTRHRS_DOORS,
+  whenLine: AFTRHRS_WHEN_LINE,
   metaTitle: "AftrHrs at Sea Deck | Limited Free Passes on Promorang",
   metaDescription:
-    "Join AftrHrs at Sea Deck, powered by Origin: Alric & Boyd and PROMORANG. Claim a limited Digital Free Pass or connect with an AftrHrs Ambassador for a physical invitation.",
+    "Join AftrHrs every Friday at Sea Deck, powered by Origin: Alric & Boyd and PROMORANG. Claim a limited Digital Free Pass or connect with an AftrHrs Ambassador for a physical invitation.",
 } as const;
 
 export function aftrHrsDigitalReleaseView(input: { soldOut: boolean; hasPass: boolean }) {
@@ -355,6 +405,10 @@ export function aftrHrsDigitalReleaseView(input: { soldOut: boolean; hasPass: bo
 }
 
 export const DEFAULT_AFTRHRS_FAQS = [
+  {
+    question: "When is AftrHrs?",
+    answer: "Every Friday from 10:00 PM at Sea Deck.",
+  },
   {
     question: "Are Digital Free Passes still available?",
     answer: "Digital Free Passes are limited and go quickly. Claim yours while they last.",

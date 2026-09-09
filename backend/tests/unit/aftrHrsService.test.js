@@ -86,6 +86,73 @@ test('QR redemption cannot be applied twice', async () => {
   }));
 });
 
+test('public read enables weekly Friday recurrence and keeps claims open', async () => {
+  const editionRow = {
+    id: 'ed-1',
+    slug: 'aftrhrs',
+    moment_id: '00000000-0000-0000-0002-000000000080',
+    venue_id: '00000000-0000-0000-0003-000000000080',
+    digital_allocation: 30,
+    digital_claimed: 2,
+    claim_closes_at: '2026-09-11T22:00:00-05:00',
+    claims_open: true,
+    faqs: [{ question: 'Where is Sea Deck?', answer: 'Orchid Village, 20 Barbican Road, Kingston.' }],
+    venue_policies: {},
+    moments: {
+      id: '00000000-0000-0000-0002-000000000080',
+      starts_at: '2026-09-11T22:00:00-05:00',
+      recurrence_enabled: false,
+    },
+  };
+  const updates = [];
+  mockFrom.mockImplementation((name) => {
+    const chain = {
+      select: () => chain,
+      eq: () => chain,
+      in: () => chain,
+      or: () => chain,
+      order: () => chain,
+      limit: () => chain,
+      maybeSingle: () => Promise.resolve({
+        data: name === 'event_editions' ? editionRow : null,
+        error: null,
+      }),
+      single: () => {
+        if (name === 'event_editions') {
+          const patch = [...updates].reverse().find((item) => item.name === 'event_editions')?.patch || {};
+          return Promise.resolve({ data: { ...editionRow, ...patch, moments: editionRow.moments }, error: null });
+        }
+        if (name === 'moments') {
+          const patch = [...updates].reverse().find((item) => item.name === 'moments')?.patch || {};
+          return Promise.resolve({ data: { ...editionRow.moments, ...patch }, error: null });
+        }
+        return Promise.resolve({ data: null, error: null });
+      },
+      insert: () => chain,
+      update: (patch) => {
+        updates.push({ name, patch });
+        return chain;
+      },
+      upsert: () => chain,
+      delete: () => chain,
+    };
+    return chain;
+  });
+
+  const snap = await service.publicSnapshot(null);
+  const momentPatch = updates.find((item) => item.name === 'moments')?.patch;
+  const editionPatch = updates.find((item) => item.name === 'event_editions')?.patch;
+  expect(momentPatch).toMatchObject({
+    recurrence_enabled: true,
+    recurrence_frequency: 'weekly',
+    recurrence_by_weekday: [5],
+    recurrence_timezone: 'America/Jamaica',
+  });
+  expect(editionPatch.claim_closes_at).toBeNull();
+  expect(editionPatch.faqs.some((faq) => /every friday/i.test(`${faq.question} ${faq.answer}`))).toBe(true);
+  expect(snap.edition.claim_closes_at).toBeNull();
+});
+
 test('unauthenticated claimers are rejected before any write', async () => {
   await expect(service.claimDigitalPass(null, { termsAccepted: true }))
     .rejects.toMatchObject({ status: 401, code: 'unauthenticated' });

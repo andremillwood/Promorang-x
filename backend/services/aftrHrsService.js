@@ -4,6 +4,8 @@ const {
   AFTRHRS_MOMENT_ID,
   AFTRHRS_MOMENT_SLUG,
   AFTRHRS_PATHS,
+  AFTRHRS_RECURRENCE,
+  AFTRHRS_START_ISO,
   SEA_DECK_VENUE_ID,
   SEA_DECK_VENUE_SLUG,
   decodeAftrHrsPassPayload,
@@ -11,7 +13,12 @@ const {
   publicRemainingPercent,
   AFTRHRS_DIGITAL_PASS_LIMIT,
   DEFAULT_AFTRHRS_FAQS,
+  hasAftrHrsFridayRecurrence,
+  isAftrHrsFirstNightClaimClose,
 } = require('../lib/aftrHrsRules');
+
+const AFTRHRS_MOMENT_SELECT = 'id, slug, title, description, starts_at, ends_at, venue_id, venue_name, image_url, is_active, visibility, recurrence_enabled, recurrence_frequency, recurrence_interval, recurrence_by_weekday, recurrence_timezone, recurrence_until, recurrence_count';
+const AFTRHRS_EDITION_SELECT = `*, moments:moment_id(${AFTRHRS_MOMENT_SELECT}), venue_profiles:venue_id(id, slug, name, description, address, city, country, featured_image_url, images, verification_status, latitude, longitude, social_links, contact, opening_information)`;
 
 const ADMIN_ROLES = ['admin', 'administrator', 'master_admin', 'moderator'];
 
@@ -56,7 +63,7 @@ function isAdmin(user = {}) {
 async function getEdition() {
   const { data, error } = await supabase
     .from('event_editions')
-    .select('*, moments:moment_id(id, slug, title, description, starts_at, ends_at, venue_id, venue_name, image_url, is_active, visibility), venue_profiles:venue_id(id, slug, name, description, address, city, country, featured_image_url, images, verification_status, latitude, longitude, social_links, contact, opening_information)')
+    .select(AFTRHRS_EDITION_SELECT)
     .eq('slug', AFTRHRS_MOMENT_SLUG)
     .maybeSingle();
   if (error) throw error;
@@ -69,33 +76,72 @@ async function getEdition() {
   return ensureCurrentRelease(data);
 }
 
+function needsAftrHrsFridayFaqs(faqs) {
+  return faqs.some((faq) => /percentage|shown as|page reading|claim button|page counter|exactly \d+/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
+    || faqs.some((faq) => /\b(20|30) Digital Free Passes\b/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
+    || !faqs.some((faq) => String(faq?.answer || '').includes('11:30 PM'))
+    || !faqs.some((faq) => /every friday/i.test(`${faq?.question || ''} ${faq?.answer || ''}`));
+}
+
+async function ensureAftrHrsMomentSchedule(edition) {
+  const moment = edition.moments || {};
+  if (hasAftrHrsFridayRecurrence(moment)) return edition;
+
+  const patch = {
+    ...AFTRHRS_RECURRENCE,
+    starts_at: moment.starts_at || AFTRHRS_START_ISO,
+    updated_at: new Date().toISOString(),
+  };
+  const { data, error } = await supabase
+    .from('moments')
+    .update(patch)
+    .eq('id', AFTRHRS_MOMENT_ID)
+    .select(AFTRHRS_MOMENT_SELECT)
+    .single();
+  if (error) {
+    console.warn('[AftrHrs] Friday recurrence skipped:', error.message);
+    return { ...edition, moments: { ...moment, ...patch } };
+  }
+  return { ...edition, moments: data };
+}
+
 async function ensureCurrentRelease(edition) {
   const needsAllocation = Number(edition.digital_allocation || 0) < AFTRHRS_DIGITAL_PASS_LIMIT;
   const faqs = Array.isArray(edition.faqs) ? edition.faqs : [];
-  const needsConsumerFaqs = faqs.some((faq) => /percentage|shown as|page reading|claim button|page counter|exactly \d+/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
-    || faqs.some((faq) => /\b(20|30) Digital Free Passes\b/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
-    || !faqs.some((faq) => String(faq?.answer || '').includes('11:30 PM'));
-  if (!needsAllocation && !needsConsumerFaqs) return edition;
+  const needsConsumerFaqs = needsAftrHrsFridayFaqs(faqs);
+  const needsOpenClaimWindow = isAftrHrsFirstNightClaimClose(edition.claim_closes_at);
+  let next = edition;
 
-  const patch = { updated_at: new Date().toISOString() };
-  if (needsAllocation) patch.digital_allocation = AFTRHRS_DIGITAL_PASS_LIMIT;
-  if (needsConsumerFaqs) patch.faqs = DEFAULT_AFTRHRS_FAQS;
+  if (needsAllocation || needsConsumerFaqs || needsOpenClaimWindow) {
+    const patch = { updated_at: new Date().toISOString() };
+    if (needsAllocation) patch.digital_allocation = AFTRHRS_DIGITAL_PASS_LIMIT;
+    if (needsConsumerFaqs) patch.faqs = DEFAULT_AFTRHRS_FAQS;
+    if (needsOpenClaimWindow) {
+      patch.claim_closes_at = null;
+      patch.claims_open = true;
+    }
 
-  const { data, error } = await supabase
-    .from('event_editions')
-    .update(patch)
-    .eq('id', edition.id)
-    .select('*, moments:moment_id(id, slug, title, description, starts_at, ends_at, venue_id, venue_name, image_url, is_active, visibility), venue_profiles:venue_id(id, slug, name, description, address, city, country, featured_image_url, images, verification_status, latitude, longitude, social_links, contact, opening_information)')
-    .single();
-  if (error) {
-    console.warn('[AftrHrs] release bump skipped:', error.message);
-    return {
-      ...edition,
-      digital_allocation: needsAllocation ? AFTRHRS_DIGITAL_PASS_LIMIT : edition.digital_allocation,
-      faqs: needsConsumerFaqs ? DEFAULT_AFTRHRS_FAQS : edition.faqs,
-    };
+    const { data, error } = await supabase
+      .from('event_editions')
+      .update(patch)
+      .eq('id', edition.id)
+      .select(AFTRHRS_EDITION_SELECT)
+      .single();
+    if (error) {
+      console.warn('[AftrHrs] release bump skipped:', error.message);
+      next = {
+        ...edition,
+        digital_allocation: needsAllocation ? AFTRHRS_DIGITAL_PASS_LIMIT : edition.digital_allocation,
+        faqs: needsConsumerFaqs ? DEFAULT_AFTRHRS_FAQS : edition.faqs,
+        claim_closes_at: needsOpenClaimWindow ? null : edition.claim_closes_at,
+        claims_open: needsOpenClaimWindow ? true : edition.claims_open,
+      };
+    } else {
+      next = data;
+    }
   }
-  return data;
+
+  return ensureAftrHrsMomentSchedule(next);
 }
 
 async function publicSnapshot(userId) {

@@ -16,7 +16,7 @@ import { ValueExchangeSummary, type ValueOutcome } from "@/components/economy/Va
 import { useClaimVenueEnrichment, useVenueEnrichment } from "@/hooks/useVenueEnrichment";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/I18nContext";
-import { AFTRHRS_COPY, AFTRHRS_MOMENT_ID, AFTRHRS_START_ISO, SEA_DECK_VENUE_ID, resolveAreaKey, worldObjectState } from "@promorang/shared";
+import { AFTRHRS_COPY, AFTRHRS_MOMENT_ID, AFTRHRS_RECURRENCE, AFTRHRS_START_ISO, SEA_DECK_VENUE_ID, resolveAreaKey, worldObjectState } from "@promorang/shared";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 
 const SEA_DECK_FALLBACK: PublicVenueRow = {
@@ -59,6 +59,7 @@ const SEA_DECK_MOMENT_FALLBACK: PublicMomentDirectoryRow = {
   host_id: null,
   is_active: true,
   participant_count: 0,
+  ...AFTRHRS_RECURRENCE,
 };
 
 type CommerceListing = Tables<"view_public_commerce_directory">;
@@ -102,6 +103,13 @@ interface PublicMomentDirectoryRow {
   host_id: string | null;
   is_active: boolean;
   participant_count: number;
+  recurrence_enabled?: boolean | null;
+  recurrence_frequency?: "daily" | "weekly" | "monthly" | null;
+  recurrence_interval?: number | null;
+  recurrence_by_weekday?: number[] | null;
+  recurrence_timezone?: string | null;
+  recurrence_until?: string | null;
+  recurrence_count?: number | null;
 }
 
 export default function VenueProfile() {
@@ -307,7 +315,7 @@ export default function VenueProfile() {
                 {slug === "sea-deck" ? (
                   <div className="rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/10 p-4">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-200">Active Moment</p>
-                    <p className="mt-2 text-lg font-black">AftrHrs · September 11 · 10:00 PM until</p>
+                    <p className="mt-2 text-lg font-black">AftrHrs · {AFTRHRS_COPY.whenLine}</p>
                     <p className="mt-1 text-sm text-white/65">Limited Digital Free Passes and Ambassador invitations on Promorang.</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Button asChild size="sm"><Link to="/moments/aftrhrs">Join AftrHrs</Link></Button>

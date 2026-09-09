@@ -27,9 +27,13 @@ Generic `/moments/:id` still works. The AftrHrs UUID (`00000000-0000-0000-0002-0
 - Admin `requireAdmin` / `user_roles`
 - Promorang object language (pass, receipt, Moment — not a generic ticket grid)
 
+## Schedule
+
+AftrHrs is a weekly Friday series at Sea Deck from 10:00 PM. The Moment uses Promorang recurrence (`weekly`, weekday Friday / `5`, timezone `America/Jamaica`). Guest copy says **Every Friday** — never a single September 11 date as the only night. Digital pass claims stay open across Fridays; RSVP holders must still arrive before 11:30 PM **that night** to get in free.
+
 ## Data
 
-Migrations: `supabase/migrations/202609090001_aftrhrs_sea_deck_event.sql`, then `202609090002_aftrhrs_rsvp_release.sql` (allocation 30, arrival FAQ).
+Migrations: `supabase/migrations/202609090001_aftrhrs_sea_deck_event.sql`, then `202609090002_aftrhrs_rsvp_release.sql` (allocation 30, arrival FAQ), `202609090003_aftrhrs_consumer_copy.sql`, and `202609090004_aftrhrs_friday_recurrence.sql`. Production also self-heals Friday recurrence and an open claim window on the first public `/api/aftrhrs/public` read.
 
 New tables (only where no equivalent existed):
 
