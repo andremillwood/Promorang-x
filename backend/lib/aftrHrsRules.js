@@ -3,13 +3,14 @@ const SEA_DECK_VENUE_SLUG = 'sea-deck';
 const AFTRHRS_MOMENT_ID = '00000000-0000-0000-0002-000000000080';
 const SEA_DECK_VENUE_ID = '00000000-0000-0000-0003-000000000080';
 const AFTRHRS_PATHS = {
+  landing: '/aftrhrs',
   moment: '/moments/aftrhrs',
   venue: '/venues/sea-deck',
   pass: '/moments/aftrhrs/pass',
   ambassador: '/moments/aftrhrs/ambassador',
   door: '/moments/aftrhrs/door',
   admin: '/admin/aftrhrs',
-  claimReturn: '/moments/aftrhrs?claim=1',
+  claimReturn: '/aftrhrs?claim=1',
 };
 
 const AFTRHRS_CLAIM_ERRORS = {

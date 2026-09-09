@@ -3,7 +3,7 @@ import { AFTRHRS_COPY, aftrHrsDigitalReleaseView, authPathForAftrHrsClaim } from
 
 describe("AftrHrs landing states", () => {
   it("sends unauthenticated claimers back to the claim flow after login", () => {
-    expect(authPathForAftrHrsClaim()).toContain("next=%2Fmoments%2Faftrhrs%3Fclaim%3D1");
+    expect(authPathForAftrHrsClaim()).toContain("next=%2Faftrhrs%3Fclaim%3D1");
     expect(authPathForAftrHrsClaim()).toContain("intent=aftrhrs_claim");
   });
 

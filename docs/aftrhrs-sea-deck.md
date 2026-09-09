@@ -6,8 +6,9 @@ Dedicated Promorang Moment + venue campaign. This is not a microsite: it reuses 
 
 | Surface | Path |
 | --- | --- |
-| AftrHrs landing / Moment | `/moments/aftrhrs` |
-| Alias | `/aftrhrs` → `/moments/aftrhrs` |
+| AftrHrs dedicated landing | `/aftrhrs` |
+| Campaign alias | `/campaigns/aftrhrs` → `/aftrhrs` |
+| Moment-canonical URL | `/moments/aftrhrs` (same landing, no Promorang chrome) |
 | Pass / wallet presentation | `/moments/aftrhrs/pass` |
 | Ambassador desk | `/moments/aftrhrs/ambassador` |
 | Door validation | `/moments/aftrhrs/door` |

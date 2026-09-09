@@ -48,7 +48,11 @@ export default function AftrHrsExperience() {
   const venue = edition.venue_profiles;
   const postEvent = edition.page_mode === "post-event";
   const release = aftrHrsDigitalReleaseView({ soldOut, hasPass: Boolean(data.pass) });
-  const shouldAutoClaim = Boolean(user) && (searchParams.get("claim") === "1" || isAftrHrsClaimReturn(`${AFTRHRS_PATHS.moment}?${searchParams.toString()}`));
+  const shouldAutoClaim = Boolean(user) && (
+    searchParams.get("claim") === "1" ||
+    isAftrHrsClaimReturn(`${AFTRHRS_PATHS.landing}?${searchParams.toString()}`) ||
+    isAftrHrsClaimReturn(`${AFTRHRS_PATHS.moment}?${searchParams.toString()}`)
+  );
 
   useEffect(() => {
     captureGrowthAttribution();
@@ -84,7 +88,7 @@ export default function AftrHrsExperience() {
   );
 
   const share = async () => {
-    const url = getSiteUrl(AFTRHRS_PATHS.moment);
+    const url = getSiteUrl(AFTRHRS_PATHS.landing);
     const text = `${AFTRHRS_COPY.headline} ${AFTRHRS_COPY.metaDescription}`;
     try {
       if (navigator.share) {
@@ -130,8 +134,8 @@ export default function AftrHrsExperience() {
 
   const joinMoment = async () => {
     if (!user) {
-      persistPostAuthNext(AFTRHRS_PATHS.moment);
-      window.location.assign(authPathForAftrHrsClaim(AFTRHRS_PATHS.moment));
+      persistPostAuthNext(AFTRHRS_PATHS.landing);
+      window.location.assign(authPathForAftrHrsClaim(AFTRHRS_PATHS.landing));
       return;
     }
     try {
@@ -146,61 +150,93 @@ export default function AftrHrsExperience() {
     ? `https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}`
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue?.address || "Sea Deck Orchid Village Kingston")}`;
 
+  const heroCta =
+    release.kind === "pass" ? (
+      <Link to={AFTRHRS_PATHS.pass} className="rounded-full bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-[0.16em] text-black">
+        {release.primaryCta}
+      </Link>
+    ) : release.kind === "sold_out" ? (
+      <a href="#ambassadors" className="rounded-full bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-[0.16em] text-black">
+        {release.primaryCta}
+      </a>
+    ) : (
+      <a href="#digital-pass" className="rounded-full bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-[0.16em] text-black">
+        {release.primaryCta}
+      </a>
+    );
+
   return (
     <main className="min-h-screen bg-black text-white">
       <SEO
         title={AFTRHRS_COPY.metaTitle}
         description={AFTRHRS_COPY.metaDescription}
         image={getSiteUrl(edition.artwork.og || edition.artwork.flyer)}
-        url={getSiteUrl(AFTRHRS_PATHS.moment)}
+        url={getSiteUrl(AFTRHRS_PATHS.landing)}
         type="website"
         schema={schema}
       />
 
-      <div className="relative overflow-hidden border-b border-white/10">
-        <img src={edition.artwork.flyer} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(192,38,211,0.28),transparent_42%),radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.18),transparent_30%),linear-gradient(180deg,rgba(0,0,0,0.2),#000)]" />
-        <div className="absolute left-1/2 top-[42%] h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20 shadow-[0_0_80px_rgba(255,255,255,0.08)]" />
-        <Section className="relative z-10 pb-16 pt-24 sm:pt-28">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <img src={edition.artwork.logo} alt="AftrHrs House Music" className="h-16 w-auto object-contain sm:h-20" />
-            <p className="text-right text-[10px] font-bold uppercase tracking-[0.28em] text-white/70">
-              Good music<br />Good people<br />After hours
-            </p>
-          </div>
-          <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.28em] text-white/55">
-            Powered by Origin: Alric & Boyd
-          </p>
-          <h1 className="mt-4 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.07em] sm:text-7xl">
-            After hours is where <GradientText>house</GradientText> lives.
-          </h1>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-white/70">{edition.supporting_copy}</p>
-          <div className="mt-8 flex flex-wrap gap-3 text-xs font-bold uppercase tracking-[0.18em] text-white/80">
-            <span className="rounded-full border border-white/15 px-3 py-1.5">Sea Deck</span>
-            <span className="rounded-full border border-white/15 px-3 py-1.5">September 11</span>
-            <span className="rounded-full border border-white/15 px-3 py-1.5">10:00 PM until</span>
-            <span className="rounded-full border border-white/15 px-3 py-1.5">Afro House • Classic House • House Fusion</span>
-          </div>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            {release.kind === "pass" ? (
-              <Link to={AFTRHRS_PATHS.pass} className="rounded-full bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">
-                {release.primaryCta}
-              </Link>
-            ) : release.kind === "sold_out" ? (
-              <a href="#ambassadors" className="rounded-full bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">
-                {release.primaryCta}
-              </a>
-            ) : (
-              <a href="#digital-pass" className="rounded-full bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">
-                {release.primaryCta}
-              </a>
-            )}
-            <Link to={AFTRHRS_PATHS.venue} className="rounded-full border border-white/20 px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-white">
-              View Sea Deck
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <Link to={AFTRHRS_PATHS.landing} className="flex items-center gap-3">
+            <img src={edition.artwork.logo} alt="AftrHrs House Music" className="h-10 w-auto object-contain sm:h-12" />
+            <span className="hidden text-[10px] font-bold uppercase tracking-[0.32em] text-white/55 sm:block">House Music</span>
+          </Link>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link to={AFTRHRS_PATHS.venue} className="rounded-full border border-white/15 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white/80">
+              Sea Deck
             </Link>
-            <p className="text-xs uppercase tracking-[0.18em] text-cyan-300">
-              {soldOut ? "20 / 20 claimed" : `${remaining} of ${edition.digital_allocation} digital passes left`}
-            </p>
+            <button type="button" onClick={share} className="rounded-full border border-white/15 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white/80">
+              Share
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="relative overflow-hidden border-b border-white/10">
+        <img src={edition.artwork.flyer} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(192,38,211,0.32),transparent_42%),radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.2),transparent_30%),linear-gradient(180deg,rgba(0,0,0,0.15),#000)]" />
+        <div className="absolute left-1/2 top-[46%] h-[22rem] w-[22rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/25 shadow-[0_0_120px_rgba(255,255,255,0.12)] sm:h-[34rem] sm:w-[34rem]" />
+        <Section className="relative z-10 pb-20 pt-12 sm:pb-24 sm:pt-16">
+          <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-white/70">
+                Good music · Good people · After hours
+              </p>
+              <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.28em] text-white/55">
+                Powered by Origin: Alric & Boyd
+              </p>
+              <h1 className="mt-4 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.07em] sm:text-7xl">
+                After hours is where <GradientText>house</GradientText> lives.
+              </h1>
+              <p className="mt-6 max-w-2xl text-base leading-7 text-white/70">{edition.supporting_copy}</p>
+              <div className="mt-8 flex flex-wrap gap-3 text-xs font-bold uppercase tracking-[0.18em] text-white/80">
+                <span className="rounded-full border border-white/15 px-3 py-1.5">Sea Deck</span>
+                <span className="rounded-full border border-white/15 px-3 py-1.5">September 11</span>
+                <span className="rounded-full border border-white/15 px-3 py-1.5">10:00 PM until</span>
+                <span className="rounded-full border border-white/15 px-3 py-1.5">Afro House • Classic House • House Fusion</span>
+              </div>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                {heroCta}
+                <Link to={AFTRHRS_PATHS.venue} className="rounded-full border border-white/20 px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-white">
+                  View Sea Deck
+                </Link>
+                <p className="text-xs uppercase tracking-[0.18em] text-cyan-300">
+                  {soldOut ? "20 / 20 claimed" : `${remaining} of ${edition.digital_allocation} digital passes left`}
+                </p>
+              </div>
+            </div>
+            <figure className="relative mx-auto w-full max-w-sm">
+              <div className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-fuchsia-500/25 via-transparent to-cyan-400/20 blur-2xl" />
+              <img
+                src={edition.artwork.invite}
+                alt="You are invited to AftrHrs at Sea Deck"
+                className="relative z-10 w-full rounded-[1.75rem] border border-white/15 object-cover shadow-[0_30px_80px_rgba(0,0,0,0.55)]"
+              />
+              <figcaption className="relative z-10 mt-4 text-center text-[10px] font-bold uppercase tracking-[0.28em] text-white/50">
+                Invitation only · Limited digital release
+              </figcaption>
+            </figure>
           </div>
         </Section>
       </div>
@@ -420,8 +456,8 @@ export default function AftrHrsExperience() {
                 type="button"
                 onClick={() => {
                   if (!user) {
-                    persistPostAuthNext(AFTRHRS_PATHS.moment);
-                    window.location.assign(authPathForAftrHrsClaim(AFTRHRS_PATHS.moment));
+                    persistPostAuthNext(AFTRHRS_PATHS.landing);
+                    window.location.assign(authPathForAftrHrsClaim(AFTRHRS_PATHS.landing));
                     return;
                   }
                   follow.mutate(!data.followingVenue);
@@ -470,9 +506,21 @@ export default function AftrHrsExperience() {
         </div>
       </Section>
 
-      <footer className="border-t border-white/10 px-4 py-8 text-center text-xs uppercase tracking-[0.18em] text-white/40">
-        Sea Deck, Orchid Village · 20 Barbican Road · Promorang Moment
+      <footer className="border-t border-white/10 px-4 py-10 pb-28 text-center text-xs uppercase tracking-[0.18em] text-white/40 sm:pb-10">
+        Sea Deck, Orchid Village · 20 Barbican Road · A Promorang Moment
       </footer>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/90 p-3 backdrop-blur-md sm:hidden">
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">
+              {soldOut ? "Digital passes claimed" : `${remaining} digital passes left`}
+            </p>
+            <p className="truncate text-xs text-white/55">September 11 · Sea Deck</p>
+          </div>
+          {heroCta}
+        </div>
+      </div>
     </main>
   );
 }

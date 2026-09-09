@@ -133,8 +133,10 @@ describe("AftrHrs digital pass inventory", () => {
   it("builds an authenticated return into the claim flow", () => {
     const path = authPathForAftrHrsClaim();
     expect(path).toContain("/auth?");
-    expect(path).toContain("next=%2Fmoments%2Faftrhrs%3Fclaim%3D1");
+    expect(path).toContain("next=%2Faftrhrs%3Fclaim%3D1");
     expect(path).toContain("intent=aftrhrs_claim");
+    expect(AFTRHRS_PATHS.landing).toBe("/aftrhrs");
+    expect(isAftrHrsClaimReturn("/aftrhrs?claim=1")).toBe(true);
     expect(isAftrHrsClaimReturn("/moments/aftrhrs?claim=1")).toBe(true);
     expect(evaluateDigitalPassClaim({
       edition,

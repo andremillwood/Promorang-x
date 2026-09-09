@@ -54,10 +54,15 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     const isOrganizerWorkspace = location.pathname.startsWith("/organizer/");
     const isDropLanding = location.pathname.startsWith("/drop/");
-    const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname) || isDropLanding;
+    const isAftrHrsLanding =
+        location.pathname === "/aftrhrs" ||
+        location.pathname.startsWith("/aftrhrs/") ||
+        location.pathname === "/moments/aftrhrs" ||
+        location.pathname.startsWith("/moments/aftrhrs/");
+    const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname) || isDropLanding || isAftrHrsLanding;
     const showFooterCta = !["/live", "/pulse"].includes(location.pathname);
 
-    if (isConsumerPreview || isOrganizerWorkspace || isDropLanding) {
+    if (isConsumerPreview || isOrganizerWorkspace || isDropLanding || isAftrHrsLanding) {
         return <>{children || <Outlet />}</>;
     }
 

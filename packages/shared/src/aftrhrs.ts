@@ -12,13 +12,14 @@ export const AFTRHRS_START_ISO = "2026-09-11T22:00:00-05:00";
 export const AFTRHRS_PAID_ENTRY_JMD = 2000;
 
 export const AFTRHRS_PATHS = {
+  landing: "/aftrhrs",
   moment: "/moments/aftrhrs",
   venue: "/venues/sea-deck",
   pass: "/moments/aftrhrs/pass",
   ambassador: "/moments/aftrhrs/ambassador",
   door: "/moments/aftrhrs/door",
   admin: "/admin/aftrhrs",
-  claimReturn: "/moments/aftrhrs?claim=1",
+  claimReturn: "/aftrhrs?claim=1",
 } as const;
 
 export const PASS_TYPES = ["digital-free", "physical-invitation", "paid", "guest-list"] as const;
@@ -221,7 +222,7 @@ export function authPathForAftrHrsClaim(returnTo = AFTRHRS_PATHS.claimReturn): s
 export function isAftrHrsClaimReturn(path?: string | null): boolean {
   if (!path) return false;
   const [pathname, query = ""] = path.split("?");
-  if (pathname !== AFTRHRS_PATHS.moment && pathname !== "/aftrhrs") return false;
+  if (pathname !== AFTRHRS_PATHS.moment && pathname !== AFTRHRS_PATHS.landing) return false;
   const params = new URLSearchParams(query);
   return params.get("claim") === "1" || params.get("intent") === "aftrhrs_claim";
 }
