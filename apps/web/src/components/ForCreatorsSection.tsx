@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Gem, MapPin, PlayCircle, TrendingUp } from "lucide-react";
+import { authEntryHref } from "@promorang/shared";
 
 const creatorSignals = [
   {
@@ -53,7 +54,7 @@ const ForCreatorsSection = () => {
                 </Link>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <Link to="/auth?role=creator">Start as a Creator</Link>
+                <Link to={authEntryHref({ role: "creator", mode: "signup", next: "/content-drops" })}>Start as a Creator</Link>
               </Button>
             </div>
           </div>

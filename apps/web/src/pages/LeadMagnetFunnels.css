@@ -4,3 +4,11 @@
 @media(max-width:540px){.lm-field-row{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.lm-page *{scroll-behavior:auto!important;transition:none!important}}
 @media(max-width:540px){.lm-page{overflow:clip}.lm-shell{width:min(100% - 32px,1180px)}.lm-hero{min-height:100svh;padding:5.5rem 0 6.5rem;display:flex;align-items:center}.lm-hero-grid{gap:0}.lm-hero h1{font-size:clamp(3.35rem,17vw,4.25rem);margin:1.25rem 0;line-height:.82}.lm-hero h1 em{font-size:.27em;margin-top:1.15rem;line-height:1.15}.lm-promise{font-size:1rem;line-height:1.55}.lm-actions{align-items:stretch;flex-direction:column;margin-top:1.75rem}.lm-primary{width:100%;min-height:54px;border-radius:12px;box-shadow:none}.lm-actions>span{justify-content:center}.lm-fine{font-size:.72rem}.lm-report-card,.lm-trustbar{display:none}.lm-diagnostic{padding:4rem 0 5rem}.lm-intro{text-align:left}.lm-intro h2{font-size:2.35rem}.lm-intro .lm-primary{margin-top:.5rem}.lm-question-card,.lm-result{padding:1.15rem;border-radius:18px;box-shadow:none}.lm-question-card h2,.lm-result h2{font-size:2rem}.lm-progress{margin-bottom:1.4rem}.lm-options{margin-top:1.5rem}.lm-options button{grid-template-columns:28px 1fr 18px;min-height:58px;border-radius:12px;padding:.85rem}.lm-options button:hover,.lm-options button:focus-visible,.lm-options .selected{transform:none}.lm-result-score{width:112px;height:112px}.lm-result-score b{font-size:3rem}.lm-email{flex-direction:column}.lm-email input,.lm-email button{min-height:50px}.lm-capture{margin-inline:-1.15rem}.lm-value,.lm-logic,.lm-faq,.lm-final,.lm-more{display:none}}
+.lm-demand-board{margin:2rem 0 0;padding-top:2rem;border-top:1px solid var(--lm-line)}
+.lm-demand-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+.lm-demand-grid article{padding:1rem 1.1rem;border:1px solid var(--lm-line);background:#fff}
+.lm-demand-grid span,.lm-demand-perk span{display:block;text-transform:uppercase;letter-spacing:.12em;font-size:.62rem;font-weight:900;color:var(--lm-hot);margin-bottom:.45rem}
+.lm-demand-grid p,.lm-demand-perk p{margin:0;font-weight:750;line-height:1.45}
+.lm-demand-perk{margin-top:1rem;padding:1.1rem 1.2rem;background:var(--lm-ink);color:#fff}
+.lm-demand-perk span{color:var(--lm-acid)}
+@media(max-width:540px){.lm-demand-grid{grid-template-columns:1fr}}

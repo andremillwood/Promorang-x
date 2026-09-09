@@ -303,6 +303,7 @@ Promorang can learn from Duolingo's clarity, progression, small wins, feedback, 
 Use:
 
 - one obvious next action
+- an invitation that names what this is, what to do, and why it pays — even before proof exists
 - visible paths
 - meaningful intermediate milestones
 - immediate state feedback

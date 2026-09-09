@@ -27,7 +27,7 @@ import {
 import { getSiteUrl } from "@/lib/discovery";
 import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModal";
 import { PromorangMap, MapMarkerItem } from "@/components/PromorangMap";
-import { getStakeholderLens, worldObjectState } from "@promorang/shared";
+import { authEntryHref, getStakeholderLens, worldObjectState } from "@promorang/shared";
 import { DiscoverRightRail } from "@/components/discovery/DiscoverRightRail";
 import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
 import { useMarket } from "@/contexts/MarketContext";
@@ -50,6 +50,9 @@ import { LivePerkCard } from "@/components/perks/LivePerkCard";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 import { useI18n } from "@/i18n/I18nContext";
+import { SpinWheelModal } from "@/components/SpinWheelModal";
+import { DailyRewardsModal } from "@/components/DailyRewardsModal";
+import { merchantAuthHref } from "@/lib/merchant-demand";
 
 const categoryFilters = [
   { id: "all", label: "All Drops", icon: Sparkles },
@@ -156,8 +159,8 @@ const Discover = () => {
   const perksLoading = nearby.isLoading;
   const livePerks = nearby.data || [];
   const stake = getStakeholderLens(searchParams.get("role") || activeRole);
-  const putPerkUpHref = user ? "/stock" : "/auth?next=/stock";
-  const putInHref = user ? stake.putIn.href : `/auth?next=${encodeURIComponent(stake.putIn.href)}`;
+  const putPerkUpHref = merchantAuthHref(user, "/stock");
+  const putInHref = user ? stake.putIn.href : authEntryHref({ next: stake.putIn.href });
 
   const handleTabChange = (tab: DiscoverTab) => {
     const next = new URLSearchParams(searchParams);
@@ -560,7 +563,7 @@ const Discover = () => {
                       Live perks you can put on PromoCard
                     </h3>
                     <p className="text-xs text-white/60">
-                      A perk is a real offer a business put up — a free item, a deal, or entry. Pick one here. You do not have to answer a poll first. The business still has to honor the code at the door.
+                      A perk is a real offer a shop put on PromoCard — a free item, a deal, or entry. Guests claim one, show the card, and the shop confirms with a PIN. You do not have to answer a poll first.
                     </p>
                   </div>
 

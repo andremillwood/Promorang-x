@@ -15,6 +15,12 @@ import { useI18n } from "@/i18n/I18nContext";
 import { isCommercialNext, persistPostAuthNext, roleFromNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 import { persistPreferredRole } from "@/lib/commercial-intent";
+import {
+  clearIntendedStakeholder,
+  getStakeholderLens,
+  rememberIntendedStakeholder,
+  resolveIntendedStakeholderRole,
+} from "@promorang/shared";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
 
@@ -78,6 +84,11 @@ const AuthPage = () => {
   const hostReturn = isCommercialNext(nextPath);
   const selectedPlan = searchParams.get("plan");
   const selectedSku = searchParams.get("sku");
+  const intendedRole = resolveIntendedStakeholderRole({
+    role: searchParams.get("role"),
+    next: nextPath,
+  });
+  const intendedLens = intendedRole ? getStakeholderLens(intendedRole) : null;
   const unlockAim = promoCardAimFromNext(nextPath);
   const localizedRoleInfo: Record<UserRole, { title: string; description: string }> = {
     participant: { title: t("auth.participant"), description: t("persona.explorerDesc") },
@@ -90,18 +101,27 @@ const AuthPage = () => {
   useEffect(() => {
     captureGrowthAttribution();
     persistPostAuthNext(nextPath);
+    const explicitRole = searchParams.get("role");
+    if (!explicitRole && !nextPath) {
+      clearIntendedStakeholder(sessionStorage);
+    } else {
+      rememberIntendedStakeholder(sessionStorage, {
+        role: explicitRole || intendedRole,
+        next: nextPath,
+      });
+    }
     const aimed = promoCardAimFromNext(nextPath);
     if (aimed) writePromoCardAim(aimed);
     if (searchParams.get("mode") === "signup") setMode("signup");
-    const requestedRole = searchParams.get("role") || roleFromNext(nextPath);
-    if (!requestedRole) return;
+    if (searchParams.get("mode") === "login") setMode("login");
+    const requestedRole = intendedRole || roleFromNext(nextPath);
+    if (!requestedRole || requestedRole === "admin") return;
     if (["participant", "creator", "host", "brand", "merchant"].includes(requestedRole)) {
       persistPreferredRole(requestedRole as UserRole);
       setSelectedRole(requestedRole as UserRole);
       setShowRolePicker(requestedRole !== "participant");
-      if (searchParams.get("mode") !== "login") setMode("signup");
     }
-  }, [nextPath, searchParams]);
+  }, [nextPath, searchParams, intendedRole]);
 
   useEffect(() => {
     const savedDemoEmail = localStorage.getItem(DEMO_EMAIL_STORAGE_KEY);
@@ -157,7 +177,6 @@ const AuthPage = () => {
             variant: "destructive",
           });
         } else {
-          // Use post-login router for intelligent landing
           navigate("/post-login", { replace: true });
         }
       } else {
@@ -200,7 +219,10 @@ const AuthPage = () => {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      const { error } = await signInWithGoogle();
+      const { error } = await signInWithGoogle({
+        role: intendedRole || (mode === "signup" ? selectedRole : null),
+        next: nextPath,
+      });
       if (error) {
         toast({
           title: t("auth.googleError"),
@@ -291,6 +313,16 @@ const AuthPage = () => {
                     ? t("auth.hostReturnSignup")
                     : t("auth.signupCopy")}
           </p>
+          {intendedLens && intendedRole && intendedRole !== "participant" ? (
+            <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                {intendedLens.workspaceLabel} workspace
+              </p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                You were brought here as a {intendedLens.workspaceLabel.toLowerCase()}. That role is registered on this login and signup — {intendedLens.putIn.detail}
+              </p>
+            </div>
+          ) : null}
           {unlockAim && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Unlock this</p>
@@ -299,7 +331,7 @@ const AuthPage = () => {
               </p>
             </div>
           )}
-          {(commercialIntent || hostReturn || selectedRole === "brand") && (
+          {(commercialIntent || hostReturn || selectedRole === "brand") && !(intendedLens && intendedRole && intendedRole !== "participant") && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
                 {selectedRole === "brand"

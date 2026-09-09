@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, BadgeCheck, CreditCard, RefreshCw, Store, WalletCards } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import type { TranslationKey } from "@/i18n/translations";
+import { merchantAuthHref } from "@/lib/merchant-demand";
 
 type Audience = "member" | "merchant" | "brand" | "creator" | "community" | "agency";
 
@@ -51,9 +53,21 @@ const stepMeta = [
   { icon: RefreshCw, number: "04", title: "promoCardExplainer.step4Title" as const, text: "promoCardExplainer.step4Text" as const },
 ];
 
+const merchantSteps = [
+  { icon: Store, number: "01", title: "promoCardExplainer.merchantStep1Title" as const, text: "promoCardExplainer.merchantStep1Text" as const },
+  { icon: CreditCard, number: "02", title: "promoCardExplainer.merchantStep2Title" as const, text: "promoCardExplainer.merchantStep2Text" as const },
+  { icon: BadgeCheck, number: "03", title: "promoCardExplainer.merchantStep3Title" as const, text: "promoCardExplainer.merchantStep3Text" as const },
+  { icon: WalletCards, number: "04", title: "promoCardExplainer.merchantStep4Title" as const, text: "promoCardExplainer.merchantStep4Text" as const },
+];
+
 export function PromoCardEconomyExplainer({ audience = "member", compact = false }: { audience?: Audience; compact?: boolean }) {
   const { t } = useI18n();
+  const { user } = useAuth();
   const content = audienceKeys[audience];
+  const steps = audience === "merchant" ? merchantSteps : stepMeta;
+  const primaryHref = audience === "merchant" ? merchantAuthHref(user, "/stock") : "/auth?mode=signup";
+  const primaryLabel = audience === "merchant" ? t("promoCardExplainer.merchantGetCard") : t("promoCardExplainer.getCard");
+  const moneyHref = audience === "merchant" ? "/economy/promocard?role=merchant" : "/economy/promocard";
 
   return (
     <section className="relative overflow-hidden border-y border-white/10 bg-[#090909] py-16 text-white md:py-24" aria-labelledby={`promocard-${audience}-title`}>
@@ -72,17 +86,17 @@ export function PromoCardEconomyExplainer({ audience = "member", compact = false
               {t(content.outcome)}
             </div>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Link to="/auth?mode=signup" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-black text-primary-foreground transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#090909]">
-                {t("promoCardExplainer.getCard")} <ArrowRight className="h-4 w-4" />
+              <Link to={primaryHref} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-black text-primary-foreground transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#090909]">
+                {primaryLabel} <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link to="/economy/promocard" className="inline-flex min-h-11 items-center rounded-full border border-white/15 px-5 py-3 text-sm font-black text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+              <Link to={moneyHref} className="inline-flex min-h-11 items-center rounded-full border border-white/15 px-5 py-3 text-sm font-black text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
                 {t("promoCardExplainer.seeMoneyFlow")}
               </Link>
             </div>
           </div>
 
           <div className={`grid gap-px overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 ${compact ? "sm:grid-cols-2" : "md:grid-cols-2"}`}>
-            {stepMeta.map((step) => (
+            {steps.map((step) => (
               <article key={step.number} className="group min-h-56 bg-[#111] p-6 transition-colors hover:bg-[#151515] md:p-8">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs font-bold text-primary">{step.number}</span>

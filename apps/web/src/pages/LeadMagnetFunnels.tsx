@@ -5,10 +5,26 @@ import SEO from "@/components/SEO";
 import { API_BASE_URL } from "@/lib/api";
 import { rememberMarketingIntent, captureGrowthAttribution, getAnonymousId, trackGrowthEvent } from "@/lib/marketing-attribution";
 import { writeSponsorBrief } from "@/lib/commercial-intent";
+import {
+  buildMerchantDemandOpening,
+  merchantDemandRoute,
+  persistMerchantDemand,
+  type MerchantDemandOpening,
+} from "@/lib/merchant-demand";
 import "./LeadMagnetFunnels.css";
 
 type FunnelKey = "scene" | "moment" | "demand" | "creator" | "sponsor";
 type AnswerMap = Record<string, string>;
+
+type FunnelResult = {
+  score: number;
+  name: string;
+  insight: string;
+  moves: string[];
+  route: string;
+  cta: string;
+  demand?: MerchantDemandOpening;
+};
 
 type Funnel = {
   key: FunnelKey;
@@ -23,7 +39,7 @@ type Funnel = {
   questions: { id: string; prompt: string; note: string; options: string[] }[];
   pillars: { label: string; description: string }[];
   objections: { q: string; a: string }[];
-  result: (answers: AnswerMap) => { score: number; name: string; insight: string; moves: string[]; route: string; cta: string };
+  result: (answers: AnswerMap) => FunnelResult;
 };
 
 const funnels: Record<FunnelKey, Funnel> = {
@@ -91,7 +107,18 @@ const funnels: Record<FunnelKey, Funnel> = {
       { q: "Do I need sophisticated systems?", a: "No. A pilot can begin with one time window, one offer and a trackable Promorang action." },
       { q: "Is this only for Kingston?", a: "The diagnostic works anywhere. Recommendations become richer where Promorang has active Scenes and partners." },
     ],
-    result: (a) => ({ score: 73 + Object.keys(a).length * 4, name: "Your Demand Opening", insight: `${a.gap || "Your quieter window"} can become a recognisable ritual when the invitation leads with ${a.strength?.toLowerCase() || "what your place already does well"}, not a generic promotion.`, moves: ["Choose one two-hour demand window", "Package a reason to visit, not just a price", "Pair it with one trusted host or creator"], route: "/for-merchants", cta: "Build my first pilot" }),
+    result: (a) => {
+      const demand = buildMerchantDemandOpening(a);
+      return {
+        score: demand.score,
+        name: demand.name,
+        insight: demand.insight,
+        moves: demand.moves,
+        route: merchantDemandRoute(a),
+        cta: demand.cta,
+        demand,
+      };
+    },
   },
   creator: {
     key: "creator", index: "04", eyebrow: "An influence-to-action audit", title: "Measure what your taste can move.", accent: "Reach is rented. Movement is a reputation.",
@@ -177,6 +204,10 @@ export default function LeadMagnetFunnels() {
     });
   }, [answers, complete, config.key, result.insight, result.name]);
 
+  useEffect(() => {
+    if (complete && config.key === "demand") persistMerchantDemand(answers);
+  }, [complete, config.key, answers]);
+
   const begin = () => {
     if (config.key === "sponsor") rememberMarketingIntent("sponsor_diagnostic_start", "/free/sponsor", "brand");
     setStarted(true);
@@ -261,8 +292,23 @@ export default function LeadMagnetFunnels() {
                   <div className="lm-result-score"><b>{Math.min(result.score, 97)}</b><span>/100<br/>signal</span></div>
                   <div><p className="lm-section-label">Your result</p><h2>{result.name}</h2><p>{result.insight}</p></div>
                 </div>
+                {result.demand ? (
+                  <div className="lm-demand-board" aria-label="What the nearby demand is">
+                    <p className="lm-section-label">What the demand actually is</p>
+                    <div className="lm-demand-grid">
+                      <article><span>When</span><p>{result.demand.when}</p></article>
+                      <article><span>Who is looking</span><p>{result.demand.who}</p></article>
+                      <article><span>What to put up</span><p>{result.demand.offer}</p></article>
+                      <article><span>Why you win</span><p>{result.demand.win}</p></article>
+                    </div>
+                    <aside className="lm-demand-perk">
+                      <span>Example perk</span>
+                      <p>{result.demand.perkExample}</p>
+                    </aside>
+                  </div>
+                ) : null}
                 <div className="lm-moves">
-                  <h3>Your three highest-leverage moves</h3>
+                  <h3>{result.demand ? "How to capture it" : "Your three highest-leverage moves"}</h3>
                   {result.moves.map((move, i) => <div key={move}><span>0{i + 1}</span><p>{move}</p></div>)}
                 </div>
                 <form className="lm-capture" onSubmit={capture}>

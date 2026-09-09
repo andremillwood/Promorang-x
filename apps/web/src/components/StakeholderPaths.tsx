@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { authEntryHref } from "@promorang/shared";
 
 const paths = [
   {
@@ -21,7 +22,7 @@ const paths = [
     copy: "Discover nearby experiences, check in when you arrive, and build a record of the places and communities you support. Showing up can lead to perks, invitations, recognition, and earning opportunities.",
     cta: "Find Moments",
     href: "/explore/moments",
-    signupHref: "/auth?role=participant",
+    signupHref: authEntryHref({ role: "participant", mode: "signup" }),
     icon: Ticket,
     metric: "Mark",
     metricLabel: "a verified check-in",
@@ -37,7 +38,7 @@ const paths = [
     copy: "Create experiences for your community, manage attendance, and show venues or sponsors that people genuinely turn up and return.",
     cta: "Start Hosting",
     href: "/host",
-    signupHref: "/auth?role=host",
+    signupHref: authEntryHref({ role: "host", mode: "signup", next: "/create/moment" }),
     icon: CalendarPlus,
     metric: "Room",
     metricLabel: "a community you grow",
@@ -53,7 +54,7 @@ const paths = [
     copy: "Create tastings, drops, special events, and repeat-visit rewards that bring people through the door and give them a reason to come back.",
     cta: "Register Your Spot",
     href: "/for-merchants",
-    signupHref: "/auth?role=merchant",
+    signupHref: authEntryHref({ role: "merchant", mode: "signup", next: "/stock" }),
     icon: Store,
     metric: "Visit",
     metricLabel: "a real customer visit",
@@ -69,7 +70,7 @@ const paths = [
     copy: "Support experiences and rewards people actually want, then measure who attended, redeemed, created content, and stayed engaged after the campaign.",
     cta: "Sponsor a Moment",
     href: "/for-brands",
-    signupHref: "/auth?role=brand",
+    signupHref: authEntryHref({ role: "brand", mode: "signup", next: "/create/campaign" }),
     icon: Building2,
     metric: "Proof",
     metricLabel: "of real-world action",
@@ -85,7 +86,7 @@ const paths = [
     copy: "Connect your content to real places and experiences so your audience can watch, join, unlock rewards, and turn attention into measurable action.",
     cta: "Create a Prompt",
     href: "/for-creators",
-    signupHref: "/auth?role=creator",
+    signupHref: authEntryHref({ role: "creator", mode: "signup", next: "/content-drops" }),
     icon: PlayCircle,
     metric: "Action",
     metricLabel: "when content moves people",

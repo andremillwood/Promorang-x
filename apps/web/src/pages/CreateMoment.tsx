@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { resolveCreateIntent } from "@promorang/shared";
+import { authEntryHref, resolveCreateIntent } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -184,7 +184,7 @@ export function CreateMoment() {
               ? createIntent.prompt
               : "You need a verified Promorang account to create moments, publish tickets, and configure collaborator revenue splits."}
           </p>
-          <Button onClick={() => navigate("/auth")} className="rounded-full bg-primary text-white hover:bg-primary/90 font-bold px-8 py-6">
+          <Button onClick={() => navigate(authEntryHref({ mode: "login", role: "host", next: "/create/moment" }))} className="rounded-full bg-primary text-white hover:bg-primary/90 font-bold px-8 py-6">
             Sign In / Register
           </Button>
         </div>
@@ -250,7 +250,7 @@ export function CreateMoment() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      navigate("/auth");
+      navigate(authEntryHref({ mode: "login", role: "host", next: "/create/moment" }));
       return;
     }
     if (!title || !startsAt || !location) {
