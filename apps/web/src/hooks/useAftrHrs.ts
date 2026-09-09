@@ -5,6 +5,7 @@ import { getGrowthAttribution, getGrowthSessionId } from "@/lib/marketing-attrib
 import {
   AFTRHRS_COPY,
   AFTRHRS_DIGITAL_PASS_LIMIT,
+  AFTRHRS_OG_IMAGE_PATH,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_PATHS,
   AFTRHRS_START_ISO,
@@ -115,7 +116,7 @@ export const AFTRHRS_FALLBACK: AftrHrsSnapshot = {
       logo: "/campaigns/aftrhrs/logo.jpg",
       flyer: "/campaigns/aftrhrs/flyer.jpg",
       invite: "/campaigns/aftrhrs/invite.jpg",
-      og: "/og/aftrhrs.jpg",
+      og: AFTRHRS_OG_IMAGE_PATH,
     },
     remaining: AFTRHRS_DIGITAL_PASS_LIMIT,
     remainingPercent: publicRemainingPercent(AFTRHRS_DIGITAL_PASS_LIMIT, AFTRHRS_DIGITAL_PASS_LIMIT),

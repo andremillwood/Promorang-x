@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { Download, Share2 } from "lucide-react";
 import SEO from "@/components/SEO";
-import { AFTRHRS_COPY, AFTRHRS_PATHS, guestPassStatus } from "@promorang/shared";
+import { AFTRHRS_COPY, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, guestPassStatus } from "@promorang/shared";
 import { useAftrHrs } from "@/hooks/useAftrHrs";
 import { getSiteUrl } from "@/lib/discovery";
 import promorangLogo from "@/assets/promorang-logo-full.png";
@@ -31,7 +31,15 @@ export default function AftrHrsPass() {
 
   return (
     <main className="min-h-screen bg-black px-4 py-16 text-white">
-      <SEO title="Your AftrHrs Digital Free Pass" description={AFTRHRS_COPY.confirmation} image={getSiteUrl("/og/aftrhrs.jpg")} />
+      <SEO
+        title="Your AftrHrs Digital Free Pass"
+        description={AFTRHRS_COPY.confirmation}
+        image={getSiteUrl(AFTRHRS_OG_IMAGE.path)}
+        imageAlt={AFTRHRS_OG_IMAGE.alt}
+        imageType={AFTRHRS_OG_IMAGE.type}
+        imageWidth={AFTRHRS_OG_IMAGE.width}
+        imageHeight={AFTRHRS_OG_IMAGE.height}
+      />
       <div className="mx-auto max-w-md">
         <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">Promorang wallet</p>
         <h1 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">AftrHrs pass</h1>

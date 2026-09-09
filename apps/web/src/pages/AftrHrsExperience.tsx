@@ -15,7 +15,7 @@ import {
 import SEO from "@/components/SEO";
 import { generateEventSchema } from "@/lib/seo-schemas";
 import { getSiteUrl } from "@/lib/discovery";
-import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_PATHS, formatPublicRemainingLabel, isAftrHrsClaimReturn } from "@promorang/shared";
+import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, formatPublicRemainingLabel, isAftrHrsClaimReturn } from "@promorang/shared";
 import { useAftrHrs } from "@/hooks/useAftrHrs";
 import { captureGrowthAttribution } from "@/lib/marketing-attribution";
 import { persistPostAuthNext } from "@/lib/post-auth-next";
@@ -77,7 +77,7 @@ export default function AftrHrsExperience() {
         location: venue?.address,
         venue_name: "Sea Deck",
         starts_at: edition.moments?.starts_at || "2026-09-11T22:00:00-05:00",
-        image_url: edition.artwork.flyer,
+        image_url: getSiteUrl(edition.artwork.og || edition.artwork.flyer || AFTRHRS_OG_IMAGE.path),
         latitude: venue?.latitude,
         longitude: venue?.longitude,
         entry_fee_jmd: 0,
@@ -173,7 +173,11 @@ export default function AftrHrsExperience() {
       <SEO
         title={AFTRHRS_COPY.metaTitle}
         description={AFTRHRS_COPY.metaDescription}
-        image={getSiteUrl(edition.artwork.og || edition.artwork.flyer)}
+        image={getSiteUrl(edition.artwork.og || edition.artwork.flyer || AFTRHRS_OG_IMAGE.path)}
+        imageAlt={AFTRHRS_OG_IMAGE.alt}
+        imageType={AFTRHRS_OG_IMAGE.type}
+        imageWidth={AFTRHRS_OG_IMAGE.width}
+        imageHeight={AFTRHRS_OG_IMAGE.height}
         url={getSiteUrl(AFTRHRS_PATHS.landing)}
         type="website"
         schema={schema}
