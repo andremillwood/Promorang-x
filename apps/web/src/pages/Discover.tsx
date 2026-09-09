@@ -27,7 +27,7 @@ import {
 import { getSiteUrl } from "@/lib/discovery";
 import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModal";
 import { PromorangMap, MapMarkerItem } from "@/components/PromorangMap";
-import { getStakeholderLens, worldObjectState } from "@promorang/shared";
+import { authEntryHref, getStakeholderLens, worldObjectState } from "@promorang/shared";
 import { DiscoverRightRail } from "@/components/discovery/DiscoverRightRail";
 import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
 import { useMarket } from "@/contexts/MarketContext";
@@ -160,7 +160,7 @@ const Discover = () => {
   const livePerks = nearby.data || [];
   const stake = getStakeholderLens(searchParams.get("role") || activeRole);
   const putPerkUpHref = merchantAuthHref(user, "/stock");
-  const putInHref = user ? stake.putIn.href : `/auth?next=${encodeURIComponent(stake.putIn.href)}`;
+  const putInHref = user ? stake.putIn.href : authEntryHref({ next: stake.putIn.href });
 
   const handleTabChange = (tab: DiscoverTab) => {
     const next = new URLSearchParams(searchParams);

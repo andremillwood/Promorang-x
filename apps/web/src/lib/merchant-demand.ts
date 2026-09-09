@@ -1,4 +1,4 @@
-import { authPathForReturn } from "@/lib/post-auth-next";
+import { authEntryHref } from "@promorang/shared";
 
 export type MerchantDemandAnswers = {
   business?: string;
@@ -143,5 +143,5 @@ export function readMerchantDemand(searchParams?: URLSearchParams | null): Merch
 }
 
 export function merchantAuthHref(user: unknown, next: string): string {
-  return user ? next : authPathForReturn(next, { mode: "signup", role: "merchant" });
+  return user ? next : authEntryHref({ mode: "signup", role: "merchant", next });
 }

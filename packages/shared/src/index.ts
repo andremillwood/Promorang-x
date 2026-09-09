@@ -25,6 +25,7 @@ export * from "./promocard-face";
 export * from "./people-experience";
 export * from "./stakeholder-lens";
 export * from "./stakeholder-setup";
+export * from "./stakeholder-auth";
 export * from "./world-layer";
 export * from "./world-system-v2";
 export * from "./value-instruments";

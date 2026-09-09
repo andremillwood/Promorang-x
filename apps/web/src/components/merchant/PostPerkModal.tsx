@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { merchantPerkPostedNext } from "@promorang/shared";
+import { authEntryHref, merchantPerkPostedNext } from "@promorang/shared";
 
 type PerkKind = "discount" | "complimentary" | "merchant";
 
@@ -43,7 +43,7 @@ export const PostPerkModal: React.FC<PostPerkModalProps> = ({
     }
     if (!user) {
       onOpenChange(false);
-      navigate(`/auth?next=${encodeURIComponent("/stock")}`);
+      navigate(authEntryHref({ next: "/stock" }));
       return;
     }
 

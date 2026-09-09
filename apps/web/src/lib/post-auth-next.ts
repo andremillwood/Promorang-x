@@ -1,3 +1,5 @@
+import { inferStakeholderRoleFromPath } from "@promorang/shared";
+
 export const POST_AUTH_NEXT_KEY = "promorang_post_auth_next";
 
 const COMMERCIAL_PREFIXES = [
@@ -57,6 +59,10 @@ export function isCommercialNext(next?: string | null): boolean {
 export function roleFromNext(next?: string | null): Exclude<PostAuthRole, null | undefined> | null {
   const value = sanitizePostAuthNext(next);
   if (!value) return null;
+  const inferred = inferStakeholderRoleFromPath(value);
+  if (inferred && inferred !== "admin" && inferred !== "agency" && inferred !== "promoter" && inferred !== "marketing") {
+    return inferred;
+  }
   const params = new URLSearchParams(value.split("?")[1] || "");
   const requested = params.get("role");
   if (requested === "creator" || requested === "host" || requested === "brand" || requested === "merchant") {
@@ -64,8 +70,8 @@ export function roleFromNext(next?: string | null): Exclude<PostAuthRole, null |
   }
   const path = value.split("?")[0];
   if (path.startsWith("/for-creators")) return "creator";
-  if (path.startsWith("/for-merchants") || path.startsWith("/create/moment")) return "merchant";
-  if (path.startsWith("/for-brands") || path.startsWith("/offers")) return "brand";
+  if (path.startsWith("/for-merchants")) return "merchant";
+  if (path.startsWith("/for-brands")) return "brand";
   if (path.startsWith("/propose") || path.startsWith("/hosting") || path.startsWith("/for-communities")) return "host";
   return null;
 }
@@ -96,7 +102,7 @@ export function resolvePostAuthPath({
 export function authPathForReturn(returnTo: string, extras?: Record<string, string>) {
   const params = new URLSearchParams(extras);
   params.set("next", returnTo);
-  if (isCommercialNext(returnTo) && !params.get("role")) {
+  if (!params.get("role")) {
     const inferred = roleFromNext(returnTo);
     if (inferred) params.set("role", inferred);
   }
