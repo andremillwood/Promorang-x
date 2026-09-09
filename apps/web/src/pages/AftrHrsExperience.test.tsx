@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AFTRHRS_COPY, aftrHrsDigitalReleaseView, authPathForAftrHrsClaim } from "@promorang/shared";
+import { AFTRHRS_COPY, DEFAULT_AFTRHRS_FAQS, aftrHrsDigitalReleaseView, authPathForAftrHrsClaim } from "@promorang/shared";
 
 describe("AftrHrs landing states", () => {
   it("sends unauthenticated claimers back to the claim flow after login", () => {
@@ -20,5 +20,6 @@ describe("AftrHrs landing states", () => {
     expect(release.body).not.toMatch(/\b30\b/);
     expect(AFTRHRS_COPY.arrivalRule).toContain("11:30 PM");
     expect(AFTRHRS_COPY.poweredBy).toBe("Powered by PROMORANG");
+    expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/percentage|page reading|claim button/i);
   });
 });

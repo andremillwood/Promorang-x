@@ -300,10 +300,9 @@ export default function AftrHrsExperience() {
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-fuchsia-300">Limited Digital Free Pass</p>
               <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">A limited digital release</h2>
               <p className="mt-4 text-white/68">
-                This pass is free admission to this AftrHrs edition. One pass per authenticated person. Remaining access is shown as a live percentage.
+                This pass is free admission to AftrHrs. One pass per person.
               </p>
               <p className="mt-3 text-sm font-bold text-fuchsia-200">{AFTRHRS_COPY.arrivalRule}</p>
-              <p className="mt-3 text-sm text-white/50">Claims close at event start unless an administrator opens a different window.</p>
               <form onSubmit={startClaim} className="mt-6 space-y-4">
                 <label className="flex items-start gap-3 text-sm text-white/75">
                   <input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} className="mt-1" />
@@ -319,9 +318,9 @@ export default function AftrHrsExperience() {
               </form>
             </div>
             <aside className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">Live release</p>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">Still available</p>
               <p className="mt-4 text-6xl font-black tracking-[-0.06em]">{remainingPercent}%</p>
-              <p className="text-sm text-white/55">of the digital release remaining</p>
+              <p className="text-sm text-white/55">remaining</p>
               <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
                 <div className="h-full bg-gradient-to-r from-fuchsia-400 to-cyan-300" style={{ width: `${remainingPercent}%` }} />
               </div>
@@ -490,7 +489,7 @@ export default function AftrHrsExperience() {
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <figure className="overflow-hidden rounded-3xl border border-white/10">
             <img src={edition.artwork.flyer} alt="AftrHrs flyer" className="h-64 w-full object-cover" />
-            <figcaption className="p-4 text-sm text-white/60">AftrHrs promotional artwork. Video can be added by an administrator when supplied.</figcaption>
+            <figcaption className="p-4 text-sm text-white/60">AftrHrs at Sea Deck.</figcaption>
           </figure>
           <figure className="overflow-hidden rounded-3xl border border-white/10">
             <img src={edition.artwork.invite} alt="AftrHrs invitation" className="h-64 w-full object-cover" />

@@ -72,12 +72,13 @@ async function getEdition() {
 async function ensureCurrentRelease(edition) {
   const needsAllocation = Number(edition.digital_allocation || 0) < AFTRHRS_DIGITAL_PASS_LIMIT;
   const faqs = Array.isArray(edition.faqs) ? edition.faqs : [];
-  const needsArrivalFaq = !faqs.some((faq) => String(faq?.answer || '').includes('11:30 PM'));
-  if (!needsAllocation && !needsArrivalFaq) return edition;
+  const needsConsumerFaqs = faqs.some((faq) => /percentage|page reading|claim button/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
+    || !faqs.some((faq) => String(faq?.answer || '').includes('11:30 PM'));
+  if (!needsAllocation && !needsConsumerFaqs) return edition;
 
   const patch = { updated_at: new Date().toISOString() };
   if (needsAllocation) patch.digital_allocation = AFTRHRS_DIGITAL_PASS_LIMIT;
-  if (needsArrivalFaq) patch.faqs = DEFAULT_AFTRHRS_FAQS;
+  if (needsConsumerFaqs) patch.faqs = DEFAULT_AFTRHRS_FAQS;
 
   const { data, error } = await supabase
     .from('event_editions')
@@ -90,7 +91,7 @@ async function ensureCurrentRelease(edition) {
     return {
       ...edition,
       digital_allocation: needsAllocation ? AFTRHRS_DIGITAL_PASS_LIMIT : edition.digital_allocation,
-      faqs: needsArrivalFaq ? DEFAULT_AFTRHRS_FAQS : edition.faqs,
+      faqs: needsConsumerFaqs ? DEFAULT_AFTRHRS_FAQS : edition.faqs,
     };
   }
   return data;
