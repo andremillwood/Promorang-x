@@ -129,6 +129,18 @@ const VERTICAL_PRESETS: Record<string, Partial<BuilderForm>> = {
     socialReturn: "District exploration stories and neighborhood pride.",
     commercialReturn: "Retained local economic circulation and merchant revenue growth.",
   },
+  moment: {
+    outcome: "gather",
+    outcomeDetail: "Turn a scored gathering idea into a Moment people understand in one sentence, can reach today, and have a reason to return to.",
+    title: "Hosted Moment from score",
+    description: "A host-led gathering with a clear human payoff, a first 25 people, and a return invitation designed before launch.",
+    contentNeeds: ["before", "live", "after"],
+    collaborators: ["host", "creator", "venue"],
+    whatCounts: "Confirmed attendance and a named next invitation",
+    participantReturns: ["access", "memory"],
+    socialReturn: "People leave knowing who to come back with.",
+    commercialReturn: "A proof loop venues and sponsors can repeat.",
+  },
 };
 
 export default function CreateProposal() {
@@ -168,7 +180,7 @@ export default function CreateProposal() {
   };
 
   useEffect(() => {
-    const vertical = searchParams.get("vertical");
+    const vertical = searchParams.get("vertical") || (searchParams.get("from") === "moment" ? "moment" : "");
     if (vertical && VERTICAL_PRESETS[vertical]) {
       applyPreset(vertical);
       return;

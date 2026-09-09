@@ -336,16 +336,16 @@ const Wallet = () => {
           id="wallet:economy-path"
           eyebrow="Wallet path"
           title="How participation becomes usable value"
-          summary={`${VALUE_STORY.gemsPay} ${pointsPerKey} Points becomes 1 PromoKey. Gems can be bought or earned.`}
+          summary={`Points come from showing up, answering, or using a perk. ${pointsPerKey} Points become 1 PromoKey for a limited funded night. Gems are platform money (1 Gem = $1). Funded work is on Earn.`}
           className="mt-0"
         >
           <section className="overflow-hidden rounded-2xl border border-border bg-card">
             <div className="grid md:grid-cols-4">
               {[
-                ["01", "Show up", "Join a Moment or useful action"],
-                ["02", "Verify", "Proof turns activity into standing"],
-                ["03", "Unlock", `${pointsPerKey} Points becomes 1 PromoKey`],
-                ["04", "Earn", "Funded work settles as Gems"],
+                ["01", "Show up", "Check in, use a perk, or answer a real question"],
+                ["02", "Earn Points", "Points are a score, not money. You cannot cash them out."],
+                ["03", "Unlock", `${pointsPerKey} Points become 1 PromoKey for a limited night or drop`],
+                ["04", "Funded work", "Paid gigs from brands live on Earn, not on this wallet page"],
               ].map(([number, title, text], index) => (
                 <div key={number} className={`relative p-5 ${index < 3 ? "border-b border-border md:border-b-0 md:border-r" : ""}`}>
                   <div className="text-[10px] font-black tracking-[0.25em] text-primary">{number}</div>
@@ -371,7 +371,7 @@ const Wallet = () => {
           </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             <ValueInstrumentCard icon={Coins} label="Points" value={formatNumber(points)} meaning={VALUE_INSTRUMENTS.points.job} status="Not money" tone="amber" loading={walletLoading} progress={nextKeyProgress} progressLabel={`${Math.max(0, pointsPerKey - (points % pointsPerKey))} to next PromoKey`} actionLabel="Convert to PromoKeys" onAction={() => setConvertDialogOpen(true)} disabled={availableConversions < 1} disabledReason={`Need ${Math.max(0, pointsPerKey - points)} more Points`} />
-            <ValueInstrumentCard icon={KeyRound} label="PromoKeys" value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning={VALUE_INSTRUMENTS.promokeys.job} status="Unlocks doors" tone="orange" loading={walletLoading} actionLabel="Find something to unlock" onAction={() => window.location.assign("/discover")} />
+            <ValueInstrumentCard icon={KeyRound} label="PromoKeys" value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning={VALUE_INSTRUMENTS.promokeys.job} status="Unlocks doors" tone="orange" loading={walletLoading} actionLabel="See funded work" onAction={() => window.location.assign("/earn")} />
             <ValueInstrumentCard icon={Gem} label="Gems" value={formatNumber(gemsSnapshot.balance || gems)} meaning={VALUE_INSTRUMENTS.gems.is} status={Number(gemsSnapshot.pending_purchase_redemption_balance || 0) > 0 ? "Partly pending" : "Buy or earn"} tone="violet" loading={gemsLoading} actionLabel={canBuyGems ? "Buy or manage Gems" : "View Gem details"} onAction={() => { setCheckoutActive(false); setBuyDialogOpen(true); }} />
             <ValueInstrumentCard icon={DollarSign} label="Withdrawable" value={formatCurrency(Number(gemsSnapshot.withdrawable_balance || 0))} meaning={pendingWithdrawalGems > 0 ? `${formatNumber(pendingWithdrawalGems)} Gems are already under review.` : "The portion currently eligible to request as a payout."} status={pendingWithdrawalGems > 0 ? "Request pending" : "Eligible now"} tone="emerald" loading={gemsLoading || withdrawalsLoading} actionLabel="Request withdrawal" onAction={() => setWithdrawDialogOpen(true)} disabled={!canWithdrawGems || Number(gemsSnapshot.withdrawable_balance || 0) <= 0} disabledReason={!canWithdrawGems ? `Unavailable in ${country.name}` : "Nothing eligible yet"} />
           </div>

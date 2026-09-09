@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { buildAuthHref, inferAuthRole, readStoredCommercialAudience } from "@/lib/commercial-intent";
+import { authPathForReturn, persistPostAuthNext } from "@/lib/post-auth-next";
 import { Loader2 } from "lucide-react";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -16,9 +16,9 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     }
 
     if (!user) {
-        const next = `${location.pathname}${location.search}`;
-        const role = inferAuthRole(location.pathname, location.search, readStoredCommercialAudience());
-        return <Navigate to={buildAuthHref(next, role)} state={{ from: location }} replace />;
+        const returnTo = `${location.pathname}${location.search}${location.hash}`;
+        persistPostAuthNext(returnTo);
+        return <Navigate to={authPathForReturn(returnTo)} state={{ from: location }} replace />;
     }
 
     return <>{children}</>;

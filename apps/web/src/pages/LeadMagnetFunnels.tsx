@@ -69,7 +69,7 @@ const funnels: Record<FunnelKey, Funnel> = {
       { q: "Is this only for ticketed events?", a: "No. It works for community gatherings, launches, workshops, in-store activations and recurring rituals." },
       { q: "What happens to my concept?", a: "It remains yours. Your answers are used to create your report and, if you choose, a draft Promorang activation." },
     ],
-    result: (a) => ({ score: 61 + Object.values(a).filter(v => /one sentence|proven|confirmed|clear next/.test(v)).length * 9, name: "Your Moment Readiness", insight: "The idea has energy. Its biggest opportunity is making the social payoff obvious enough that the right person can decide in seconds.", moves: ["Rewrite the promise as one human outcome", "Name the first 25 people, not the total audience", "Design the return invitation before launch"], route: "/propose", cta: "Turn this into an activation" }),
+    result: (a) => ({ score: 61 + Object.values(a).filter(v => /one sentence|proven|confirmed|clear next/.test(v)).length * 9, name: "Your Moment Readiness", insight: "The idea has energy. Its biggest opportunity is making the social payoff obvious enough that the right person can decide in seconds.", moves: ["Rewrite the promise as one human outcome", "Name the first 25 people, not the total audience", "Design the return invitation before launch"], route: "/propose?from=moment", cta: "Turn this into an activation" }),
   },
   demand: {
     key: "demand", index: "03", eyebrow: "A local growth opportunity scan", title: "Reveal nearby demand.", accent: "Your slow hours may be someone else’s perfect ritual.",
@@ -135,7 +135,7 @@ const funnels: Record<FunnelKey, Funnel> = {
       { q: "Does Promorang replace our agency?", a: "No. Promorang can equip agencies with participation infrastructure, partner coordination and outcome records." },
       { q: "Can this work with an existing campaign?", a: "Yes. The brief can add a real-world participation and measurement layer to an existing platform or media idea." },
     ],
-    result: (a) => ({ score: 86, name: "Your Activation Direction", insight: `Position the brand as the one that helps people ${a.human?.toLowerCase() || "participate"}. Let the experience, product and story lead; let ${a.proof?.toLowerCase() || "verified action"} justify the investment.`, moves: ["Write the human promise before the media line", `Design for ${a.action?.toLowerCase() || "one qualified action"}`, "Fund a small, measurable Moment before scaling"], route: "/propose?audience=brand", cta: "Develop the campaign brief" }),
+    result: (a) => ({ score: 86, name: "Your Activation Direction", insight: `Position the brand as the one that helps people ${a.human?.toLowerCase() || "participate"}. Let the experience, product and story lead; let ${a.proof?.toLowerCase() || "verified action"} justify the investment.`, moves: ["Write the human promise before the media line", `Design for ${a.action?.toLowerCase() || "one qualified action"}`, "Fund a small, measurable Moment before scaling"], route: "/propose?from=sponsor&audience=brand", cta: "Develop the campaign brief" }),
   },
 };
 

@@ -376,6 +376,15 @@ async function performCheckIn({
     console.warn('[Participation API] world context skipped:', worldError.message);
   }
 
+  if (moment?.venue_id && !moment.venue_image_url) {
+    try {
+      const { data: venue } = await supabase.from('venues').select('id, name, image_url').eq('id', moment.venue_id).maybeSingle();
+      if (venue?.image_url) moment.venue_image_url = venue.image_url;
+    } catch (venueError) {
+      console.warn('[Participation API] venue picture skipped:', venueError.message);
+    }
+  }
+
   const consequence = worldLayer.consequenceFromCheckIn({
     moment,
     memory,

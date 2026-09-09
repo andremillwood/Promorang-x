@@ -39,6 +39,7 @@ import { matchPollForAim, writePromoCardAim } from "@/lib/promocard-aim";
 import { promoCardAimPath, promoCardUnlockHref, type PromoCardAim } from "@promorang/shared";
 import { FillCardMoves } from "@/components/promocard/FillCardMoves";
 import { readLocalCardUnlocks, type DiscoveryCardUnlock } from "@/lib/discovery-card";
+import { pollHasRedeemablePerk } from "@/lib/discovery-signal";
 
 function whyCopy(
   why: PathWhy,
@@ -49,12 +50,18 @@ function whyCopy(
     : t("discover.pathLensTry");
   const perk = why.perk || t("discover.pathFallbackPerk");
   if (why.kind === "close") {
-    return t("discover.pathWhyClose", {
-      lens: lensLabel,
-      city: why.city,
-      votes: why.votesRemaining,
-      perk,
-    });
+    return why.signalKind === "live_offer"
+      ? t("discover.pathWhyClose", {
+          lens: lensLabel,
+          city: why.city,
+          votes: why.votesRemaining,
+          perk,
+        })
+      : t("discover.pathWhyCloseDemand", {
+          lens: lensLabel,
+          city: why.city,
+          votes: why.votesRemaining,
+        });
   }
   if (why.kind === "taste") {
     return t("discover.pathWhyTaste", { lens: lensLabel, city: why.city });
@@ -62,7 +69,9 @@ function whyCopy(
   if (why.kind === "query") {
     return t("discover.pathWhyQuery", { query: why.query, city: why.city });
   }
-  return t("discover.pathWhyCity", { city: why.city, perk });
+  return why.signalKind === "live_offer"
+    ? t("discover.pathWhyCity", { city: why.city, perk })
+    : t("discover.pathWhyCityDemand", { city: why.city });
 }
 
 type DiscoveryPathProps = {
@@ -122,6 +131,7 @@ export function DiscoveryPath({
   const [browseOpen, setBrowseOpen] = useState(false);
   const [intentTick, setIntentTick] = useState(0);
   const [lastUnlock, setLastUnlock] = useState<DiscoveryCardUnlock | null>(null);
+  const [lastPick, setLastPick] = useState<string | null>(null);
   const [requestOpen, setRequestOpen] = useState(false);
   const found = useDiscoveryFound(cityName);
   const fillRequest = searchParams.get("fill") === "request";
@@ -382,10 +392,12 @@ export function DiscoveryPath({
               </h3>
               <p className="mt-1 max-w-xl text-sm leading-6 text-white/55">
                 {otherActive && votedIds.includes(current.poll.id)
-                  ? t("discover.pathUsedCopy", {
-                      query,
-                      perk: current.poll.targetUnlockPerk || t("discover.pathFallbackPerk"),
-                    })
+                  ? pollHasRedeemablePerk(current.poll)
+                    ? t("discover.pathUsedCopy", {
+                        query,
+                        perk: current.poll.targetUnlockPerk || t("discover.pathFallbackPerk"),
+                      })
+                    : t("discover.pathUsedCopyDemand", { query, city: cityName })
                   : whyCopy(current.why, t)}
               </p>
             </div>
@@ -399,13 +411,18 @@ export function DiscoveryPath({
             </button>
           </div>
 
+          <p className="text-xs leading-5 text-white/50">{t("discover.pathHonesty")}</p>
+
           <DiscoveryWidget
             key={current.poll.id}
             {...current.poll}
             landOnCard
             onVote={(pollId, optionId) => {
+              const picked = current.poll.options.find((option) => option.id === optionId)?.text || null;
+              setLastPick(picked);
               void onCastVote?.(current.poll, optionId);
               markVoted(pollId);
+              if (!pollHasRedeemablePerk(current.poll)) return;
               void unlockDiscoveryOntoCard({
                 city: cityName,
                 poll: current.poll,
@@ -417,40 +434,70 @@ export function DiscoveryPath({
 
           {votedIds.includes(current.poll.id) ? (
             <div className="grid gap-4 lg:grid-cols-[minmax(0,280px)_1fr] lg:items-center">
-              <PaperReceipt
-                heading={aim ? "On your card" : t("discover.pathReceiptHeading")}
-                lines={[
-                  { label: t("discover.pathReceiptChose"), value: current.poll.question, strong: true },
-                  {
-                    label: t("discover.pathReceiptCard"),
-                    value: lastUnlock?.perkTitle || current.poll.targetUnlockPerk || t("discover.pathFallbackPerk"),
-                    strong: true,
-                  },
-                  {
-                    label: t("discover.pathReceiptCode"),
-                    value: lastUnlock?.redemptionCode || t("discover.pathOnCard"),
-                    strong: true,
-                  },
-                  {
-                    label: t("discover.pathReceiptNext"),
-                    value: upcoming[0]?.poll.question || t("discover.pathReceiptBrowse"),
-                  },
-                ]}
-                footer={t("discover.pathReceiptFooter", { city: cityName })}
-              />
+              {pollHasRedeemablePerk(current.poll) ? (
+                <PaperReceipt
+                  heading={aim ? "On your card" : t("discover.pathReceiptHeading")}
+                  lines={[
+                    { label: t("discover.pathReceiptChose"), value: current.poll.question, strong: true },
+                    {
+                      label: t("discover.pathReceiptCard"),
+                      value: lastUnlock?.perkTitle || current.poll.targetUnlockPerk || t("discover.pathFallbackPerk"),
+                      strong: true,
+                    },
+                    {
+                      label: t("discover.pathReceiptCode"),
+                      value: lastUnlock?.redemptionCode || t("discover.pathOnCard"),
+                      strong: true,
+                    },
+                    {
+                      label: t("discover.pathReceiptNext"),
+                      value: upcoming[0]?.poll.question || t("discover.pathReceiptBrowse"),
+                    },
+                  ]}
+                  footer={t("discover.pathReceiptFooter", { city: cityName })}
+                />
+              ) : (
+                <PaperReceipt
+                  heading={t("discover.pathVoteHeading")}
+                  lines={[
+                    { label: t("discover.pathReceiptChose"), value: current.poll.question, strong: true },
+                    {
+                      label: t("discover.pathReceiptPick"),
+                      value: lastPick || t("discover.pathVoteRecorded"),
+                      strong: true,
+                    },
+                    {
+                      label: t("discover.pathReceiptNext"),
+                      value: upcoming[0]?.poll.question || t("discover.pathReceiptBrowse"),
+                    },
+                  ]}
+                  footer={t("discover.pathVoteFooter", { city: cityName })}
+                />
+              )}
               <div className="space-y-3">
                 <p className="text-sm leading-6 text-white/60">
-                  {aim
-                    ? "It's on your card now. Show it where it works."
-                    : t("discover.pathOnCardCopy")}
+                  {pollHasRedeemablePerk(current.poll)
+                    ? aim
+                      ? "It's on your card now. Show it where it works."
+                      : t("discover.pathOnCardCopy")
+                    : t("discover.pathVoteCopy")}
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <TactileButton variant="primary" asChild>
-                    <Link to={cardHref}>
-                      {aim ? (user ? "Show this on your card" : "Unlock this") : t("discover.pathOpenCard")}
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </TactileButton>
+                  {pollHasRedeemablePerk(current.poll) ? (
+                    <TactileButton variant="primary" asChild>
+                      <Link to={cardHref}>
+                        {aim ? (user ? "Show this on your card" : "Unlock this") : t("discover.pathOpenCard")}
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </TactileButton>
+                  ) : (
+                    <TactileButton variant="primary" asChild>
+                      <Link to="/discover?tab=places">
+                        {t("discover.pathSeePlaces")}
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </TactileButton>
+                  )}
                   {upcoming[0] ? (
                     <TactileButton variant="obsidian" onClick={continuePath}>
                       {t("discover.pathContinue")}
@@ -463,7 +510,7 @@ export function DiscoveryPath({
                     </TactileButton>
                   ) : (
                     <TactileButton variant="obsidian" asChild>
-                      <Link to="/discover?tab=perks">{t("discover.pathDonePerks")}</Link>
+                      <Link to="/discover?tab=moments">{t("discover.pathSeeMoments")}</Link>
                     </TactileButton>
                   )}
                 </div>

@@ -7,12 +7,13 @@ import {
     DollarSign,
     CheckCircle,
     Rocket,
+    Users,
+    Store,
     Building2,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
-import { useAuth } from "@/contexts/AuthContext";
 import { CASE_STUDIES } from "@/components/brands/BrandCaseStudies";
-import { buildAuthHref, inferAuthRole, readSponsorBrief, readStoredCommercialAudience } from "@/lib/commercial-intent";
+import { readSponsorBrief } from "@/lib/commercial-intent";
 
 const SAMPLE_BRIEFS = [
     { title: "Off-peak dining ritual", lever: "Product + place", proof: "Table check-ins and weekday covers" },
@@ -20,17 +21,40 @@ const SAMPLE_BRIEFS = [
     { title: "District passport", lever: "Brand + access", proof: "Multi-merchant scans and return visits" },
 ];
 
+const examples = [
+    {
+        icon: Users,
+        role: "Host",
+        title: "Thursday Listening Room",
+        detail: "A 40-person seated set with a clear promise, a returning guest list, and a reason to come back next week.",
+        result: "Attendance + a sponsor-ready proof loop",
+    },
+    {
+        icon: Store,
+        role: "Merchant",
+        title: "Quiet-hour tasting table",
+        detail: "Turn an empty 4–6pm window into a visit people can invite a friend to, without leading with a discount.",
+        result: "First visits in a slow window",
+    },
+    {
+        icon: Building2,
+        role: "Brand",
+        title: "Creator-led neighbourhood drop",
+        detail: "One human outcome, one creator format, one place, and a receipt of who actually showed up.",
+        result: "Verified action instead of impressions",
+    },
+];
+
 export default function ProposeLanding() {
     const { t } = useI18n();
-    const { user } = useAuth();
-    const [searchParams] = useSearchParams();
-    const storedAudience = readStoredCommercialAudience();
-    const audience = inferAuthRole("/propose", searchParams.toString() ? `?${searchParams.toString()}` : "", storedAudience);
-    const isBrand = audience === "brand";
+    const [params] = useSearchParams();
+    const from = params.get("from");
+    const isBrand = params.get("audience") === "brand" || from === "sponsor";
+    const fromHostQuiz = from === "moment";
     const brief = isBrand ? readSponsorBrief() : null;
     const startHref = isBrand
-        ? (user ? "/propose/new?audience=brand" : buildAuthHref("/propose/new?audience=brand", "brand", "signup"))
-        : (user ? "/propose/new" : buildAuthHref("/propose/new", "host", "signup"));
+        ? "/propose/new?from=sponsor&audience=brand"
+        : `/propose/new?from=${from || "host"}&role=host`;
 
     const steps = isBrand
         ? [
@@ -55,17 +79,34 @@ export default function ProposeLanding() {
                 <div className="container px-6 relative z-10 text-center">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary border border-border/50 text-foreground mb-8 animate-fade-in">
                         {isBrand ? <Building2 className="w-3 h-3 text-primary" /> : <Sparkles className="w-3 h-3 text-primary" />}
-                        <span className="text-xs font-bold uppercase tracking-widest">{isBrand ? t("proposeLandingPage.brandBadge") : t("proposeLandingPage.badge")}</span>
+                        <span className="text-xs font-bold uppercase tracking-widest">
+                            {isBrand
+                                ? t("proposeLandingPage.brandBadge")
+                                : fromHostQuiz ? t("proposeLandingPage.quizBadge") : t("proposeLandingPage.badge")}
+                        </span>
                     </div>
 
                     <h1 className="font-serif text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight max-w-4xl mx-auto">
-                        {isBrand ? t("proposeLandingPage.brandHeroTitle1") : t("proposeLandingPage.heroTitle1")} <br />
-                        <span className="text-gradient-primary">{isBrand ? t("proposeLandingPage.brandHeroTitle2") : t("proposeLandingPage.heroTitle2")}</span>
+                        {isBrand
+                            ? t("proposeLandingPage.brandHeroTitle1")
+                            : fromHostQuiz ? t("proposeLandingPage.quizTitle1") : t("proposeLandingPage.heroTitle1")} <br />
+                        <span className="text-gradient-primary">
+                            {isBrand
+                                ? t("proposeLandingPage.brandHeroTitle2")
+                                : fromHostQuiz ? t("proposeLandingPage.quizTitle2") : t("proposeLandingPage.heroTitle2")}
+                        </span>
                     </h1>
 
-                    <p className="text-xl text-muted-foreground/80 max-w-2xl mx-auto mb-8 leading-relaxed">
-                        {isBrand ? t("proposeLandingPage.brandHeroSubtitle") : t("proposeLandingPage.heroSubtitle")}
+                    <p className="text-xl text-muted-foreground/80 max-w-2xl mx-auto mb-6 leading-relaxed">
+                        {isBrand
+                            ? t("proposeLandingPage.brandHeroSubtitle")
+                            : fromHostQuiz ? t("proposeLandingPage.quizSubtitle") : t("proposeLandingPage.heroSubtitle")}
                     </p>
+                    {!isBrand && (
+                        <p className="mx-auto mb-12 max-w-xl text-sm leading-6 text-muted-foreground">
+                            {t("proposeLandingPage.momentDefinition")}
+                        </p>
+                    )}
 
                     {brief?.insight && (
                         <div className="mx-auto mb-10 max-w-2xl rounded-[1.5rem] border border-primary/20 bg-primary/[0.06] px-6 py-5 text-left">
@@ -82,17 +123,43 @@ export default function ProposeLanding() {
                             </Link>
                         </Button>
                         <Button size="xl" variant="outline" asChild>
-                            {isBrand ? (
-                                <a href="#activation-examples">{t("proposeLandingPage.brandSeeExamples")}</a>
-                            ) : (
-                                <Link to="/explore/moments">{t("proposeLandingPage.seeExamples")}</Link>
-                            )}
+                            <a href={isBrand ? "#activation-examples" : "#examples"}>
+                                {isBrand ? t("proposeLandingPage.brandSeeExamples") : t("proposeLandingPage.seeExamples")}
+                            </a>
                         </Button>
                     </div>
                 </div>
             </section>
 
-            <section className="py-20 border-y border-border/40 bg-secondary/20">
+            {!isBrand && (
+                <section id="examples" className="scroll-mt-28 border-y border-border/40 bg-secondary/20 py-20">
+                    <div className="container px-6">
+                        <div className="mx-auto max-w-3xl text-center">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("proposeLandingPage.examplesEyebrow")}</p>
+                            <h2 className="mt-3 font-serif text-3xl font-bold md:text-4xl">{t("proposeLandingPage.examplesTitle")}</h2>
+                            <p className="mt-3 text-sm leading-6 text-muted-foreground">{t("proposeLandingPage.examplesCopy")}</p>
+                        </div>
+                        <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-3">
+                            {examples.map((example) => (
+                                <article key={example.title} className="rounded-[2rem] border border-border bg-background p-6 text-left">
+                                    <example.icon className="h-6 w-6 text-primary" />
+                                    <p className="mt-4 text-[10px] font-black uppercase tracking-[0.18em] text-primary">{example.role}</p>
+                                    <h3 className="mt-2 font-serif text-xl font-bold">{example.title}</h3>
+                                    <p className="mt-3 text-sm leading-6 text-muted-foreground">{example.detail}</p>
+                                    <p className="mt-5 text-xs font-bold text-foreground">{example.result}</p>
+                                </article>
+                            ))}
+                        </div>
+                        <div className="mt-10 text-center">
+                            <Button variant="outline" asChild>
+                                <Link to="/discover/moments">{t("proposeLandingPage.seeLiveMoments")}</Link>
+                            </Button>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            <section className="py-20 border-b border-border/40">
                 <div className="container px-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-5xl mx-auto">
                         {steps.map((step, i) => (
@@ -117,9 +184,9 @@ export default function ProposeLanding() {
                 <section id="activation-examples" className="py-24">
                     <div className="container px-6">
                         <div className="mx-auto max-w-3xl text-center">
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("proposeLandingPage.examplesEyebrow")}</p>
-                            <h2 className="mt-3 font-serif text-3xl font-bold md:text-5xl">{t("proposeLandingPage.examplesTitle")}</h2>
-                            <p className="mt-4 text-muted-foreground leading-7">{t("proposeLandingPage.examplesCopy")}</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("proposeLandingPage.brandExamplesEyebrow")}</p>
+                            <h2 className="mt-3 font-serif text-3xl font-bold md:text-5xl">{t("proposeLandingPage.brandExamplesTitle")}</h2>
+                            <p className="mt-4 text-muted-foreground leading-7">{t("proposeLandingPage.brandExamplesCopy")}</p>
                         </div>
 
                         <div className="mx-auto mt-12 grid max-w-5xl gap-4 md:grid-cols-3">

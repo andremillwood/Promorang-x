@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   getStakeholderHowLead,
@@ -8,6 +9,8 @@ import {
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { TicketPass } from "@/components/promorang/SignatureObjects";
 
+const SETUP_SEEN_KEY = "promorang.setup-seen";
+
 export function StakeholderLoopTrail({ role }: { role?: string | null }) {
   const lens = getStakeholderLens(role);
   const to = useExperiencePath();
@@ -15,7 +18,7 @@ export function StakeholderLoopTrail({ role }: { role?: string | null }) {
 
   return (
     <section aria-labelledby="stakeholder-loop-heading">
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Your loop</p>
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">What you can do</p>
       <h2 id="stakeholder-loop-heading" className="mt-2 font-serif text-2xl font-bold">
         {lens.workspaceLabel}
       </h2>
@@ -88,10 +91,40 @@ export function StakeholderSurfaceLead({
 export function StakeholderSetupPlaybook({ role }: { role?: string | null }) {
   const playbook = getStakeholderSetup(role);
   const to = useExperiencePath();
+  const storageKey = `${SETUP_SEEN_KEY}.${playbook.role}`;
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    try {
+      setHidden(localStorage.getItem(storageKey) === "1");
+    } catch {
+      setHidden(false);
+    }
+  }, [storageKey]);
+
+  if (hidden) return null;
+
+  const dismiss = () => {
+    try {
+      localStorage.setItem(storageKey, "1");
+    } catch {
+      /* ignore */
+    }
+    setHidden(true);
+  };
 
   return (
     <section aria-labelledby="stakeholder-setup-heading">
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{playbook.kicker}</p>
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{playbook.kicker}</p>
+        <button
+          type="button"
+          onClick={dismiss}
+          className="text-[11px] font-bold text-white/40 hover:text-white/70"
+        >
+          Hide this
+        </button>
+      </div>
       <h2 id="stakeholder-setup-heading" className="mt-2 font-serif text-2xl font-bold">
         {playbook.title}
       </h2>

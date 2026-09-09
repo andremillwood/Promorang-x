@@ -19,6 +19,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
+import { authPathForReturn } from "@/lib/post-auth-next";
 
 const Hosting = () => {
   const { t } = useI18n();
@@ -131,7 +132,7 @@ const Hosting = () => {
             </p>
             <div className="mt-10 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
               <Button variant="hero" size="xl" asChild>
-                <Link to="/auth?role=host">
+                <Link to={authPathForReturn("/propose/new?from=hosting&role=host", { mode: "signup", role: "host" })}>
                   {t("hostingPage.startHosting")}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
@@ -289,7 +290,7 @@ const Hosting = () => {
           </p>
           <div className="mt-10 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
             <Button variant="hero" size="xl" asChild>
-              <Link to="/auth?role=host">
+              <Link to={authPathForReturn("/propose/new?from=hosting&role=host", { mode: "signup", role: "host" })}>
                 {t("hostingPage.startHosting")}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>

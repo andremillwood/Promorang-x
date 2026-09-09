@@ -1,3 +1,21 @@
+import type { DiscoverySignalKind } from "@/lib/discovery-signal";
+
+export interface DiscoveryOption {
+  id: string;
+  text: string;
+  votes: number;
+}
+
+export interface DiscoveryComment {
+  id: string;
+  author: string;
+  badge?: string;
+  optionSupported?: string;
+  text: string;
+  likes: number;
+  timeAgo: string;
+}
+
 export interface OptionRecommendation {
   id: string;
   title: string;
@@ -34,6 +52,8 @@ export interface DiscoveryPoll {
   contextNotes: string;
   totalVotes: number;
   thresholdForMoment: number;
+  /** Demand is a city vote. live_offer is a house-backed pass you can actually show. */
+  signalKind?: DiscoverySignalKind;
   targetUnlockPerk: string;
   pointsReward: number;
   options: DiscoveryOption[];
@@ -54,11 +74,14 @@ export interface DiscoveryPoll {
     type: string;
     url: string;
   }>;
+  /** Hidden from Discover. Ended campaigns stay in the file for history. */
+  retired?: boolean;
 }
 
 export const DISCOVERY_POLLS: DiscoveryPoll[] = [
   {
     id: 'disc-arla-price-003',
+    retired: true,
     slug: 'arla-price-perception-1l-cream',
     question: 'What would you pay for a 1L cream that cooks savory AND whips sweet without curdling?',
     category: 'Price-Drop Quest 💡',
@@ -345,93 +368,88 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
     authorHandle: '@KingstonFoodies',
     authorAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
     authorRole: 'Kingston Food Scout & Culinary Storyteller',
-    description: 'The legendary Kingston Friday Jerk debate. Vote to back your spot. When the meter hits 120, Promorang drops a secret 25% Off Jerk & Craft Beer Tasting Key at the winning venue for all voters.',
-    contextNotes: 'Reaching 120 votes unlocks an exclusive 25% Off Platter & Drink Pass at the winning jerk center!',
+    description: 'Help Kingston shortlist Friday jerk. These are mapped spots — Sweetwood in New Kingston, Scotchies on Constant Spring, Jo Jo\'s on Waterloo, Andy\'s on Mannings Hill. Your vote is a city signal. It is not a discount, and no house has put a platter pass up yet.',
+    contextNotes: 'Votes rank mapped Kingston jerk spots. A pass only appears if a house actually puts one up — we will not invent a 25% off at the counter.',
     totalVotes: 112,
     thresholdForMoment: 120,
-    targetUnlockPerk: '🍗 25% Off Jerk Platter & Craft Beer Tasting Pass (Winning Spot)',
+    signalKind: 'demand',
+    targetUnlockPerk: 'Kingston Friday jerk shortlist',
     pointsReward: 35,
-    squadGoal: {
-      targetInvites: 2,
-      bonusPointsPerInvite: 25,
-      instantPerkUnlockTitle: 'Instant Friday Jerk Fast-Pass',
-      squadRewardBadge: 'Jerk Connoisseur Badge'
-    },
     options: [
-      { id: 'opt-j1', text: '🔥 Sweetwood Jerk Joint (Liguanea)', votes: 48 },
-      { id: 'opt-j2', text: '🌿 Scotchies Jerk Center (Chelsea Ave)', votes: 39 },
-      { id: 'opt-j3', text: '🌊 Boston Jerk Table (Downtown Waterfront)', votes: 16 },
-      { id: 'opt-j4', text: '🍖 Pepperwood Jerk Center (New Kingston)', votes: 9 }
+      { id: 'opt-j1', text: 'Sweetwood (New Kingston)', votes: 48 },
+      { id: 'opt-j2', text: 'Scotchies (152 Constant Spring Rd)', votes: 39 },
+      { id: 'opt-j3', text: 'Jo Jo\'s Jerk Pit (12 Waterloo Rd)', votes: 16 },
+      { id: 'opt-j4', text: 'Andy\'s Jerk Centre (49 Mannings Hill Rd)', votes: 9 }
     ],
     optionRecommendations: {
       'opt-j1': [
         {
           id: 'rec-sweetwood',
-          title: 'Sweetwood Jerk Joint',
-          subtitle: 'Liguanea • Pimento Wood Fire Pit',
-          category: 'Kingston Classic',
-          badge: 'Friday Peak Lyme',
+          title: 'Sweetwood',
+          subtitle: 'New Kingston • mapped chicken spot',
+          category: 'Mapped place',
+          badge: 'On the map',
           image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&auto=format&fit=crop&q=80',
-          location: 'Liguanea (opp Emancipation Park side), Kingston',
-          dealOrPerk: 'Complimentary Festival & Roast Breadfruit with 1lb Jerk Order',
-          actionText: 'View Spot Card',
-          actionUrl: '/scenes/food-taste',
-          matchReason: 'Your selected champion. Unlocks local crowd radar & Friday specials.'
+          location: 'New Kingston, near Oxford Rd / Emancipation Park',
+          dealOrPerk: 'No house pass is live here yet. This is the mapped place, not a checkout discount.',
+          actionText: 'See this place',
+          actionUrl: '/venues/venue-sweetwood',
+          matchReason: 'OpenStreetMap lists Sweetwood in New Kingston — not Liguanea, and not a Promorang deal.'
         }
       ],
       'opt-j2': [
         {
           id: 'rec-scotchies',
-          title: 'Scotchies Jerk Center',
-          subtitle: 'Chelsea Ave, New Kingston',
-          category: 'Garden Lyme',
-          badge: 'Signature Sauce',
+          title: 'Scotchies',
+          subtitle: '152 Constant Spring Road',
+          category: 'Mapped place',
+          badge: 'On the map',
           image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&auto=format&fit=crop&q=80',
-          location: 'Chelsea Ave, Kingston 5',
-          dealOrPerk: '10% Off Platter & Secret Sauce Tasting Key',
-          actionText: 'Claim Scotchies Key',
-          actionUrl: '/scenes/food-taste',
-          matchReason: 'Classic open-air thatched roof experience with legendary pepper blend.'
+          location: '152 Constant Spring Road, St. Andrew',
+          dealOrPerk: 'No house pass is live here yet. Chelsea Avenue is Kingston Jerk, not this Scotchies.',
+          actionText: 'See this place',
+          actionUrl: '/venues/venue-scotchies',
+          matchReason: 'Mapped at 152 Constant Spring Road with a public phone listing.'
         }
       ],
       'opt-j3': [
         {
-          id: 'rec-boston-downtown',
-          title: 'Boston Jerk Table Downtown',
-          subtitle: 'Kingston Waterfront',
-          category: 'Waterfront Street Food',
-          badge: 'Authentic Portland Style',
+          id: 'rec-jojos',
+          title: "Jo Jo's Jerk Pit",
+          subtitle: '12 Waterloo Road',
+          category: 'Mapped place',
+          badge: 'On the map',
           image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&auto=format&fit=crop&q=80',
-          location: 'Ocean Blvd Waterfront, Downtown Kingston',
-          dealOrPerk: 'BOGO Coconut Water with any 1/2lb Pork or Chicken',
-          actionText: 'Explore Downtown Spot',
-          actionUrl: '/scenes/food-taste',
-          matchReason: 'Waterfront ocean breeze matched with authentic Portland pimento pit flavors.'
+          location: '12 Waterloo Road, Kingston',
+          dealOrPerk: 'No house pass is live here yet. jojosjerkpit.com is the public listing.',
+          actionText: 'See this place',
+          actionUrl: '/venues/venue-jojos',
+          matchReason: 'Waterloo Road pit — not a downtown waterfront stand-in for Boston Bay.'
         }
       ],
       'opt-j4': [
         {
-          id: 'rec-pepperwood',
-          title: 'Pepperwood Jerk Center',
-          subtitle: 'Chelsea Ave / New Kingston',
-          category: 'After-Work Lyme',
-          badge: 'Live Sports & Grill',
+          id: 'rec-andys',
+          title: "Andy's Jerk Centre",
+          subtitle: '49 Mannings Hill Road',
+          category: 'Mapped place',
+          badge: 'On the map',
           image: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=500&auto=format&fit=crop&q=80',
-          location: 'New Kingston Business District',
-          dealOrPerk: 'Double Points on Friday Happy Hour orders',
-          actionText: 'View Happy Hour Deal',
-          actionUrl: '/scenes/food-taste',
-          matchReason: 'Prime Friday spot for business district professionals and post-work lymes.'
+          location: '49 Mannings Hill Road, Kingston',
+          dealOrPerk: 'No house pass is live here yet. This replaces the invented Pepperwood name.',
+          actionText: 'See this place',
+          actionUrl: '/venues/venue-andys',
+          matchReason: 'Mapped takeaway on Mannings Hill Road — a real Kingston jerk centre.'
         }
       ]
     },
     recommendedMissions: [
       {
         id: 'ms-jerk-crawl',
-        title: 'Kingston Jerk Crawl: Review 2 Pit Spots',
-        reward: '+200 PromoPoints',
-        type: 'Foodie Trail',
-        url: '/missions'
+        title: 'Walk two mapped Kingston jerk spots and say what is true',
+        reward: 'Scout note',
+        type: 'Food trail',
+        url: '/discover?tab=places'
       }
     ],
     connectedScene: {
@@ -445,8 +463,8 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
         id: 'c1',
         author: 'Andre M.',
         badge: 'Jerk Connoisseur',
-        optionSupported: 'Sweetwood Jerk Joint (Liguanea)',
-        text: 'Sweetwood jerk pork with festival and roasted breadfruit on a Friday afternoon around 5 PM is unmatched anywhere in St. Andrew.',
+        optionSupported: 'Sweetwood (New Kingston)',
+        text: 'Sweetwood sits in New Kingston near Oxford Road, not Liguanea. Friday smoke there is the real argument.',
         likes: 42,
         timeAgo: '45 mins ago'
       },
@@ -454,8 +472,8 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
         id: 'c2',
         author: 'Leanne B.',
         badge: 'Local Scout',
-        optionSupported: 'Scotchies Jerk Center (Chelsea Ave)',
-        text: 'Scotchies sauce recipe and sweet potato pudding keeps me coming back every single week. Atmosphere with thatched roof is classic.',
+        optionSupported: 'Scotchies (152 Constant Spring Rd)',
+        text: 'The Kingston Scotchies people mean is on Constant Spring Road. Chelsea Avenue is Kingston Jerk.',
         likes: 27,
         timeAgo: '1 hour ago'
       },
@@ -463,8 +481,8 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
         id: 'c3',
         author: 'Dwayne R.',
         badge: 'Downtown Explorer',
-        optionSupported: 'Boston Jerk Table (Downtown Waterfront)',
-        text: 'Downtown ocean breeze with genuine Boston style pimento wood jerk is heavily slept on! Give them their flowers.',
+        optionSupported: "Jo Jo's Jerk Pit (12 Waterloo Rd)",
+        text: "Jo Jo's on Waterloo is the Kingston pit. Boston Jerk Centre is Boston Bay, Portland — not the waterfront.",
         likes: 16,
         timeAgo: '3 hours ago'
       }
@@ -472,6 +490,7 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
   },
   {
     id: 'disc-arla-tasteoff-001',
+    retired: true,
     slug: 'arla-tasteoff-rasta-pasta-vs-mousse',
     question: 'Rasta Pasta or Chocolate Chip Mousse: Which one wins the PriceSmart Taste-Off?',
     category: 'Arla Taste-Off 🍝🍫',
@@ -519,6 +538,7 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
   },
   {
     id: 'disc-arla-mode-002',
+    retired: true,
     slug: 'arla-whip-cook-drink-mode',
     question: 'Whip It, Cook It, or Drink It: If you get one carton of Arla Whip & Cook right now, what happens first?',
     category: 'Product Mode 🍳🍰🥤',
@@ -636,6 +656,16 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
     ]
   }
 ];
+
+export function isActiveDiscoveryPoll(poll: { retired?: boolean; id?: string; categorySlug?: string }): boolean {
+  if (poll.retired) return false;
+  if (poll.categorySlug === "arla-campaign") return false;
+  return !String(poll.id || "").startsWith("disc-arla");
+}
+
+export function getActiveDiscoveryPolls(): DiscoveryPoll[] {
+  return DISCOVERY_POLLS.filter(isActiveDiscoveryPoll);
+}
 
 export function getDiscoveryPollByIdOrSlug(idOrSlug: string): DiscoveryPoll | undefined {
   const clean = (idOrSlug || '').toLowerCase().trim();
@@ -766,31 +796,31 @@ export const CURATED_DISCOVERIES: Discovery[] = [
   },
   {
     id: "disc-boston-jerk-04",
-    slug: "boston-jerk-waterfront-station",
-    title: "Boston Jerk Table & Waterfront Lyme",
+    slug: "boston-jerk-center-boston-bay",
+    title: "Boston Jerk Center, Boston Bay",
     category: "restaurant",
-    description: "Authentic Portland-style pimento wood pit jerk set against the Kingston Harbour breeze. Smoky jerk chicken, roast breadfruit, and cold Red Stripe.",
+    description: "The Portland pit that named the style — pimento wood, Boston Bay surf, and jerk chicken and pork. This is not a Kingston Harbour stand.",
     cover_image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&auto=format&fit=crop&q=80",
     gallery: [
       "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&auto=format&fit=crop&q=80"
     ],
-    location_address: "Ocean Boulevard, Downtown Waterfront",
-    latitude: 17.9678,
-    longitude: -76.7915,
-    city: "Kingston",
+    location_address: "Boston Bay Main Rd, Portland",
+    latitude: 18.1565,
+    longitude: -76.3532,
+    city: "Port Antonio",
     country: "Jamaica",
-    venue_id: "venue-boston-jerk-waterfront",
+    venue_id: "venue-bostonjerk",
     creator_id: "creator-dwayne",
     verification_status: "approved",
     checkin_count: 195,
     save_count: 310,
     average_rating: 4.8,
     metadata: {
-      vibe: ["Authentic Pit Jerk", "Harbour Breeze", "Friday Lyme", "Street Food"],
+      vibe: ["Authentic Pit Jerk", "Boston Bay", "Pimento Wood", "Portland"],
       best_time: "Friday & Saturday 12:00 PM – 9:00 PM",
       price_range: "$",
-      highlights: ["Pimento Wood Smoke", "Festival & Roast Breadfruit", "Ocean Walkway"],
-      tips: ["Ask for the homemade scotch bonnet pepper sauce on the side."]
+      highlights: ["Pimento Wood Smoke", "Festival & Roast Breadfruit", "Boston Bay surf"],
+      tips: ["This is Portland, not Kingston Harbour. Ask for the homemade scotch bonnet on the side."]
     },
     creator_profile: {
       id: "scout-dwayne",

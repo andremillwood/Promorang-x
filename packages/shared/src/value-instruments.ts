@@ -84,7 +84,7 @@ export const VALUE_STORY = {
   gemsEarn:
     "Gems are not only bought. Funded missions, completed Moments, membership allowances, and Save & Win winnings can pay Gems. Holding Gems still earns nothing. Using or parking them is what opens extras.",
   keysUnlock:
-    `Points convert to PromoKeys (${POINTS_PER_KEY} Points = 1 Key). The daily Master Key is separate: it proves you contributed enough today. You need both to enter funded work.`,
+    `Points come from showing up, answering, or using a perk. ${POINTS_PER_KEY} Points become 1 PromoKey — a pass for a limited funded night or drop. Funded work itself lives on Earn.`,
   ticketsChance:
     "A PromoShare ticket is a chance in one named draw. The draw publishes the prize before anyone enters. Perk draws pay Keys, access, or a partner perk. Save & Win is the family that pays extra Gems. A ticket is not a guarantee.",
   namedDrawPays:
