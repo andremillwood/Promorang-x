@@ -14,11 +14,11 @@ export type AccessQuote = {
   fallback_applied?: boolean;
 };
 
-export type AccessStateKey = "available" | "needs_keys" | "requires_plus" | "full" | "unlocked" | "blocked";
+export type AccessStateKey = "available" | "needs_keys" | "requires_plus" | "requires_professional" | "full" | "unlocked" | "blocked";
 
 export type AccessState = {
   key: AccessStateKey;
-  label: "Available" | "Needs Keys" | "Requires Plus" | "Full" | "Unlocked" | "Unavailable";
+  label: "Available" | "Needs Keys" | "Requires Plus" | "Requires Professional" | "Full" | "Unlocked" | "Unavailable";
   description: string;
   ctaLabel: string;
   canAttempt: boolean;
@@ -58,10 +58,10 @@ export function getAccessState(quote: AccessQuote | null | undefined): AccessSta
 
     if (quote.denial_reason === "tier_required" || quote.denial_reason === "cash_gem_eligible_tier_required") {
       return {
-        key: "requires_plus",
-        label: "Requires Plus",
-        description: "This opportunity is reserved for people with Plus or earned Plus standing.",
-        ctaLabel: "Requires Plus",
+        key: "requires_professional",
+        label: "Requires Professional",
+        description: "This opportunity is reserved for people with a $10/month Professional membership.",
+        ctaLabel: "Requires Professional",
         canAttempt: false,
       };
     }

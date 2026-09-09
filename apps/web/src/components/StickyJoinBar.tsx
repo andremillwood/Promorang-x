@@ -101,7 +101,7 @@ export function StickyJoinBar({
     const getButtonVariant = () => {
         if (isPast || isFull) return "secondary" as const;
         if (isJoined) return "outline" as const;
-        if (accessState?.key === "requires_plus" || accessState?.key === "blocked") return "secondary" as const;
+        if (accessState?.key === "requires_plus" || accessState?.key === "requires_professional" || accessState?.key === "blocked") return "secondary" as const;
         if (accessState?.key === "needs_keys") return "default" as const;
         return "hero" as const;
     };
