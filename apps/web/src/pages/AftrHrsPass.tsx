@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { Download, Share2 } from "lucide-react";
 import SEO from "@/components/SEO";
-import { AFTRHRS_COPY, AFTRHRS_PATHS } from "@promorang/shared";
+import { AFTRHRS_COPY, AFTRHRS_PATHS, guestPassStatus } from "@promorang/shared";
 import { useAftrHrs } from "@/hooks/useAftrHrs";
 import { getSiteUrl } from "@/lib/discovery";
 import promorangLogo from "@/assets/promorang-logo-full.png";
@@ -50,7 +50,7 @@ export default function AftrHrsPass() {
               </div>
               <p className="mt-5 text-sm leading-6 text-white/70">{AFTRHRS_COPY.confirmation}</p>
               <p className="mt-3 text-sm font-bold uppercase tracking-[0.14em] text-fuchsia-300">{AFTRHRS_COPY.arrivalRule}</p>
-              <p className="mt-3 text-xs uppercase tracking-[0.16em] text-white/40">Status · {pass.status}</p>
+              <p className="mt-3 text-xs uppercase tracking-[0.16em] text-white/40">{guestPassStatus(pass.status)}</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <button type="button" onClick={download} className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-black">
                   <Download className="h-3.5 w-3.5" /> Download
