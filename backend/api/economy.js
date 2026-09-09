@@ -45,6 +45,20 @@ router.get('/wallet', async (req, res) => {
   }
 });
 
+router.get('/membership', async (req, res) => {
+  try {
+    const {
+      resolveUserParticipantTier,
+      serializeParticipantMembership,
+    } = require('../lib/participantMembership');
+    const tier = await resolveUserParticipantTier(supabase, req.user.id);
+    res.json({ success: true, membership: serializeParticipantMembership(tier) });
+  } catch (error) {
+    console.error('[Economy API] Membership error:', error);
+    res.status(500).json({ success: false, error: 'Failed to load membership' });
+  }
+});
+
 router.get('/receipts', async (req, res) => {
   try {
     const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 100);

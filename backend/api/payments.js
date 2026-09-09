@@ -2,7 +2,7 @@ const express = require('express');
 const Stripe = require('stripe');
 const { createClient } = require('@supabase/supabase-js');
 const { requireAuth } = require('../middleware/auth');
-const { getSubscriptionPlan } = require('../config/subscriptionPlans');
+const { getSubscriptionPlan, getSubscriptionPriceId } = require('../config/subscriptionPlans');
 let commerce = null;
 
 try {
@@ -258,7 +258,7 @@ router.post('/checkout', requireAuth, async (req, res) => {
 
   const normalisedPlanId = String(plan_id).toUpperCase();
   const plan = getSubscriptionPlan(normalisedPlanId);
-  const priceId = plan ? process.env[plan.priceEnv] : null;
+  const priceId = getSubscriptionPriceId(plan);
 
   if (!priceId) {
     return res.status(400).json({ status: 'error', message: 'Invalid plan_id' });

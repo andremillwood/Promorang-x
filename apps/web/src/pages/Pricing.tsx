@@ -6,6 +6,7 @@ import { MomentPricingCalculator } from '@/components/MomentPricingCalculator';
 import MarketingPromiseStrip from '@/components/MarketingPromiseStrip';
 import { CommercialCTA } from '@/components/commercial/CommercialCTA';
 import { commercialJourney, moneyBoundaries, revenueLines } from '@/lib/revenue-model';
+import { PARTICIPANT_ECONOMY } from '@promorang/shared';
 import {
     Users,
     Building2,
@@ -483,34 +484,41 @@ const PricingPage = () => {
                             </div>
 
                             <div className="max-w-4xl mx-auto">
-                                <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
-                                    {[
-                                        { tier: 'Free', name: t('pricing.tierFree'), price: '$0', points: '1.0x', keyCost: '100%', description: t('pricing.tierFreeDesc') },
-                                        { tier: 'Plus', name: t('pricing.tierPlus'), price: '$9.99/mo', points: '1.25x', keyCost: '90%', description: t('pricing.tierPlusDesc') },
-                                        { tier: 'Pro', name: t('pricing.tierPro'), price: '$24.99/mo', points: '1.5x', keyCost: '75%', description: t('pricing.tierProDesc') },
-                                        { tier: 'Elite', name: t('pricing.tierElite'), price: '$49.99/mo', points: '2.0x', keyCost: '60%', description: t('pricing.tierEliteDesc') },
-                                    ].map((plan) => (
-                                        <div key={plan.tier} className="rounded-xl border border-border bg-card p-6">
-                                            <h3 className="text-xl font-bold">{plan.name}</h3>
-                                            <div className="mt-2 text-3xl font-bold text-foreground">{plan.price}</div>
+                                <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+                                    {([
+                                        { id: 'starter' as const, description: t('pricing.tierStarterDesc') },
+                                        { id: 'professional' as const, description: t('pricing.tierProfessionalDesc') },
+                                        { id: 'power_user' as const, description: t('pricing.tierPowerUserDesc') },
+                                    ]).map((plan) => {
+                                        const tier = PARTICIPANT_ECONOMY.tiers[plan.id];
+                                        return (
+                                        <div key={plan.id} className={`rounded-xl border bg-card p-6 ${tier.featured ? 'border-2 border-primary shadow-xl' : 'border-border'}`}>
+                                            {tier.featured ? <p className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("pricing.mostPopular")}</p> : null}
+                                            <h3 className="text-xl font-bold">{tier.label}</h3>
+                                            <div className="mt-2 text-3xl font-bold text-foreground">{tier.priceLabel}</div>
                                             <p className="mt-3 text-sm leading-6 text-muted-foreground">{plan.description}</p>
                                             <div className="mt-5 space-y-2 text-sm">
                                                 <div className="flex justify-between gap-4">
                                                     <span className="text-muted-foreground">{t("pricing.points")}</span>
-                                                    <span className="font-medium">{plan.points}</span>
+                                                    <span className="font-medium">{tier.pointsMultiplier}x</span>
                                                 </div>
                                                 <div className="flex justify-between gap-4">
-                                                    <span className="text-muted-foreground">{t("pricing.keyCost")}</span>
-                                                    <span className="font-medium">{plan.keyCost}</span>
+                                                    <span className="text-muted-foreground">{t("pricing.dailyProofs")}</span>
+                                                    <span className="font-medium">{tier.dailyMasterKeyProofs}</span>
+                                                </div>
+                                                <div className="flex justify-between gap-4">
+                                                    <span className="text-muted-foreground">{t("pricing.cashOut")}</span>
+                                                    <span className="font-medium">{tier.withdrawalsEnabled ? t("pricing.cashOutOn") : t("pricing.cashOutOff")}</span>
                                                 </div>
                                             </div>
-                                            {plan.tier === 'Free' ? (
-                                                <CommercialCTA variant="outline" className="mt-6 w-full" to="/auth?mode=signup&role=participant&intent=free_membership&next=/wallet" action="select_free_membership" audience="participant" metadata={{ plan: 'free' }}>{t("pricing.joinFree")}</CommercialCTA>
+                                            {plan.id === 'starter' ? (
+                                                <CommercialCTA variant="outline" className="mt-6 w-full" to="/auth?mode=signup&role=participant&intent=free_membership&next=/wallet" action="select_free_membership" audience="participant" metadata={{ plan: 'starter' }}>{t("pricing.joinFree")}</CommercialCTA>
                                             ) : (
-                                                <CommercialCTA variant={plan.tier === 'Pro' ? 'hero' : 'outline'} className="mt-6 w-full" to={`/auth?mode=signup&role=participant&intent=membership&plan=${plan.tier.toLowerCase()}&next=/membership/checkout?plan=${plan.tier.toLowerCase()}`} action="select_paid_membership" audience="participant" metadata={{ plan: plan.tier.toLowerCase(), price: plan.price }}>{t("pricing.chooseTier", { tier: plan.name })}</CommercialCTA>
+                                                <CommercialCTA variant={tier.featured ? 'hero' : 'outline'} className="mt-6 w-full" to={`/auth?mode=signup&role=participant&intent=membership&plan=${tier.checkoutPlanId}&next=/membership/checkout?plan=${tier.checkoutPlanId}`} action="select_paid_membership" audience="participant" metadata={{ plan: tier.checkoutPlanId, price: tier.price }}>{t("pricing.chooseTier", { tier: tier.label })}</CommercialCTA>
                                             )}
                                         </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
 
                                 <div className="mt-8 grid gap-6 rounded-xl bg-muted/30 p-8 md:grid-cols-2">

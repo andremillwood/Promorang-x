@@ -88,7 +88,9 @@ async function getGemsBalance(userId) {
 async function creditGems(userId, amount, source, metadata = {}) {
   if (!supabase) return { success: true };
 
-  const amountRounded = roundGems(amount);
+  const { applyMonthlyGemCeiling } = require('../lib/participantMembership');
+  const allowedAmount = await applyMonthlyGemCeiling(supabase, userId, amount, source);
+  const amountRounded = roundGems(allowedAmount);
 
   const { data: existing, error: checkError } = await supabase
     .from('user_balances')
@@ -441,6 +443,10 @@ async function handleStripeWebhook(event) {
  * Request Gems withdrawal
  */
 async function requestWithdrawal(userId, gemsAmount, withdrawalMethod = 'bank_transfer') {
+  const { assertWithdrawalsEnabled, resolveUserParticipantTier } = require('../lib/participantMembership');
+  const membership = await resolveUserParticipantTier(supabase, userId);
+  assertWithdrawalsEnabled(membership);
+
   if (!supabase) {
     return {
       success: true,

@@ -70,6 +70,9 @@ async function getPayoutMethods(userId) {
 async function requestWithdrawal(userId, amount, payoutMethodId) {
     if (!supabase) throw new Error('Database not available');
 
+    const { assertWithdrawalsEnabled, resolveUserParticipantTier } = require('../lib/participantMembership');
+    assertWithdrawalsEnabled(await resolveUserParticipantTier(supabase, userId));
+
     // 1. Validate Threshold
     if (amount < MIN_WITHDRAWAL_AMOUNT) {
         throw new Error(`Minimum withdrawal amount is $${MIN_WITHDRAWAL_AMOUNT.toFixed(2)}`);

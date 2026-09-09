@@ -20,6 +20,7 @@ const CREATOR_TIERS = {
             'Access to public Drops',
             'Limited daily Move participation',
             'Earn Gems via interactions, Proof Drops, challenges, PromoShare',
+            'Cash-out locked until Professional',
             'Basic analytics',
         ],
         constraints: {
@@ -28,6 +29,7 @@ const CREATOR_TIERS = {
             promoKeysLimited: true,
             monthlyGemCeiling: 300,
             withdrawalsEnabled: false,
+            gemAllowance: 0,
         },
     },
     professional: {
@@ -36,13 +38,13 @@ const CREATOR_TIERS = {
         price: 10,
         billingInterval: 'monthly',
         purpose: 'Higher participation velocity',
-        externalLabel: 'Pro: Get priority access and withdraw earnings',
+        externalLabel: 'Professional: Cash out earnings and skip the daily grind',
         features: [
-            'Increased daily participation',
-            'Weekly PromoKeys',
-            'Priority Drop access',
-            'Improved Proof weight',
-            'Advanced analytics',
+            'Withdraw eligible earnings',
+            'No monthly Gem ceiling',
+            '2 daily Proofs for the Master Key',
+            'Weekly PromoKeys and priority Drop access',
+            '1.5x Points',
         ],
         constraints: {
             pointsMultiplier: 1.5,
@@ -50,6 +52,7 @@ const CREATOR_TIERS = {
             promoKeysLimited: false,
             monthlyGemCeiling: null,
             withdrawalsEnabled: true,
+            gemAllowance: 5,
         },
     },
     power_user: {
@@ -58,13 +61,13 @@ const CREATOR_TIERS = {
         price: 30,
         billingInterval: 'monthly',
         purpose: 'System drivers',
-        externalLabel: 'Power User: Maximize earnings and access high-value campaigns',
+        externalLabel: 'Power User: Fastest access to high-value campaigns',
         features: [
-            'Maximum participation limits',
+            'Withdraw eligible earnings',
+            '1 daily Proof for the Master Key',
             'Full PromoKey access',
-            'Master Key eligibility after Proof thresholds',
-            'Leaderboard multipliers',
-            'Highest PromoShare yield',
+            'Highest disclosed Point multiplier',
+            'Priority matching on high-value campaigns',
         ],
         constraints: {
             pointsMultiplier: 2,
@@ -73,6 +76,7 @@ const CREATOR_TIERS = {
             monthlyGemCeiling: null,
             withdrawalsEnabled: true,
             masterKeyEligible: true,
+            gemAllowance: 15,
         },
     },
 };
@@ -85,10 +89,22 @@ const CREATOR_TIER_ALIASES = Object.freeze({
     premium: 'professional',
     pro: 'professional',
     professional: 'professional',
+    promorang_plus: 'professional',
+    participant_plus: 'professional',
+    promorang_pro: 'professional',
+    participant_pro: 'professional',
     elite: 'power_user',
     super: 'power_user',
     power: 'power_user',
     power_user: 'power_user',
+    promorang_elite: 'power_user',
+    participant_elite: 'power_user',
+});
+
+const PARTICIPANT_MEMBERSHIP_POOL = Object.freeze({
+    promosharePercent: 0.05,
+    liquidityPercent: 0,
+    localImpactPercent: 0,
 });
 
 // ============================================================================
@@ -301,7 +317,10 @@ const MOVE_RULES = {
 // HELPERS
 // ============================================================================
 
-const normalizeCreatorTier = (tierId) => CREATOR_TIER_ALIASES[String(tierId || '').toLowerCase()] || 'starter';
+const normalizeCreatorTier = (tierId) => {
+    const raw = String(tierId || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_');
+    return CREATOR_TIER_ALIASES[raw] || 'starter';
+};
 const getCreatorTier = (tierId) => CREATOR_TIERS[normalizeCreatorTier(tierId)];
 const getAdvertiserTier = (tierId) => ADVERTISER_TIERS[tierId] || ADVERTISER_TIERS.free;
 
@@ -315,6 +334,7 @@ const getAdvertiserTierList = () => Object.values(ADVERTISER_TIERS);
 module.exports = {
     CREATOR_TIERS,
     CREATOR_TIER_ALIASES,
+    PARTICIPANT_MEMBERSHIP_POOL,
     ADVERTISER_TIERS,
     ESCROW_RULES,
     MOVE_RULES,
