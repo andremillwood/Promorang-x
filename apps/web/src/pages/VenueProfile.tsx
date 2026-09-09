@@ -16,8 +16,50 @@ import { ValueExchangeSummary, type ValueOutcome } from "@/components/economy/Va
 import { useClaimVenueEnrichment, useVenueEnrichment } from "@/hooks/useVenueEnrichment";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/I18nContext";
-import { resolveAreaKey, worldObjectState } from "@promorang/shared";
+import { AFTRHRS_COPY, AFTRHRS_MOMENT_ID, AFTRHRS_START_ISO, SEA_DECK_VENUE_ID, resolveAreaKey, worldObjectState } from "@promorang/shared";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
+
+const SEA_DECK_FALLBACK: PublicVenueRow = {
+  id: SEA_DECK_VENUE_ID,
+  slug: "sea-deck",
+  name: "Sea Deck",
+  description: AFTRHRS_COPY.venue,
+  location: "Orchid Village, Kingston",
+  city: "Kingston",
+  city_slug: "kingston",
+  country: "Jamaica",
+  country_slug: "jamaica",
+  address: "Orchid Village, 20 Barbican Road, Kingston",
+  venue_type: "nightlife",
+  avg_rating: null,
+  popularity_score: null,
+  active_moments_count: 1,
+  verification_status: "verified",
+  listing_status: "claimed",
+  images: [
+    { url: "/campaigns/aftrhrs/flyer.jpg", alt: "AftrHrs at Sea Deck" },
+    { url: "/campaigns/aftrhrs/invite.jpg", alt: "AftrHrs invitation" },
+  ],
+};
+
+const SEA_DECK_MOMENT_FALLBACK: PublicMomentDirectoryRow = {
+  id: AFTRHRS_MOMENT_ID,
+  slug: "aftrhrs",
+  title: "AftrHrs",
+  description: AFTRHRS_COPY.supporting,
+  category: "nightlife",
+  city: "Kingston",
+  country: "Jamaica",
+  location: "Orchid Village, 20 Barbican Road, Kingston",
+  venue_name: "Sea Deck",
+  image_url: "/campaigns/aftrhrs/flyer.jpg",
+  starts_at: AFTRHRS_START_ISO,
+  ends_at: null,
+  reward: "Digital Free Pass or Ambassador invitation",
+  host_id: null,
+  is_active: true,
+  participant_count: 0,
+};
 
 type CommerceListing = Tables<"view_public_commerce_directory">;
 
@@ -70,32 +112,45 @@ export default function VenueProfile() {
   const venueQuery = useQuery({
     queryKey: ["venue-profile", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("view_public_venue_directory")
-        .select("*")
-        .eq("slug", slug)
-        .maybeSingle();
+      try {
+        const { data, error } = await supabase
+          .from("view_public_venue_directory")
+          .select("*")
+          .eq("slug", slug)
+          .maybeSingle();
 
-      if (error) throw error;
-      return data as PublicVenueRow | null;
+        if (error) throw error;
+        return (data as PublicVenueRow | null) ?? (slug === "sea-deck" ? SEA_DECK_FALLBACK : null);
+      } catch (error) {
+        if (slug === "sea-deck") return SEA_DECK_FALLBACK;
+        throw error;
+      }
     },
     enabled: Boolean(slug),
+    retry: slug === "sea-deck" ? 0 : 3,
   });
 
   const momentsQuery = useQuery({
     queryKey: ["venue-moments", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("view_public_moment_directory")
-        .select("*")
-        .eq("venue_slug", slug)
-        .eq("is_active", true)
-        .order("starts_at", { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from("view_public_moment_directory")
+          .select("*")
+          .eq("venue_slug", slug)
+          .eq("is_active", true)
+          .order("starts_at", { ascending: true });
 
-      if (error) throw error;
-      return (data || []) as PublicMomentDirectoryRow[];
+        if (error) throw error;
+        const rows = (data || []) as PublicMomentDirectoryRow[];
+        return rows.length > 0 ? rows : slug === "sea-deck" ? [SEA_DECK_MOMENT_FALLBACK] : rows;
+      } catch (error) {
+        if (slug === "sea-deck") return [SEA_DECK_MOMENT_FALLBACK];
+        throw error;
+      }
     },
     enabled: Boolean(slug),
+    retry: slug === "sea-deck" ? 0 : 3,
   });
 
   const contentQuery = useQuery({
