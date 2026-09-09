@@ -747,6 +747,31 @@ function resolveIdentityCard(input) {
   };
 }
 
+function resolveWorldInvitation(input) {
+  input = input || {};
+  const named = Boolean(input.identityLine);
+  const nextHref = input.nextHref || '/discover';
+  return {
+    headline: named ? String(input.identityLine) : 'The night writes who you are',
+    why: named
+      ? 'This came from nights that counted — not from opening the app.'
+      : 'Promorang remembers what you actually do. Show up, bring someone, or use PromoCard. That becomes your path, your House, and what comes back.',
+    benefit: named
+      ? 'Keep the same kind of night. PromoCard gets more useful. Places can remember you.'
+      : 'First show-up can keep a Memory and put something live on your PromoCard. Bring someone and a Throw can return.',
+    nextLabel: input.hasLiveMoment ? 'Show up tonight' : 'Find something worth doing',
+    nextHref,
+    formingLine: named
+      ? null
+      : 'A path can be named after three matching nights. A House is named only when a pattern is clear.',
+    steps: [
+      { title: 'Show up', line: 'Be in the room. It counts. You can keep a Memory.' },
+      { title: 'Use PromoCard', line: 'Claim or redeem. The merchant sees you. The card becomes useful.' },
+      { title: 'Bring someone', line: 'If they show up, your Throw can return.' },
+    ],
+  };
+}
+
 /** Guard: world math must never be treated as PromoCard or Gem value. */
 function worldScoreIsNotMoney(score) {
   void score;
@@ -801,6 +826,7 @@ module.exports = {
   EXTENDED_CREW_RUN_ROLES,
   resolveExtendedRunRole,
   resolveIdentityCard,
+  resolveWorldInvitation,
   worldScoreIsNotMoney,
   WORLD_SYSTEM_EVENTS,
 };

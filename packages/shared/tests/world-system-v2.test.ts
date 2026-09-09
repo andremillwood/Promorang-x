@@ -17,6 +17,7 @@ import {
   resolveTraits,
   resolveWorldSystemPhases,
   resolveIdentityCard,
+  resolveWorldInvitation,
   resolveRumourLifecycle,
   scoreChallenge,
   scoreConvergence,
@@ -300,5 +301,29 @@ describe("identity card", () => {
     expect(card.house).toBeNull();
     expect(card.traits).toEqual([]);
     expect(card.influenceLine).toBeNull();
+  });
+});
+
+describe("world invitation", () => {
+  it("invites action without inventing House or scores", () => {
+    const invitation = resolveWorldInvitation({});
+    expect(invitation.headline).toBe("The night writes who you are");
+    expect(invitation.steps.map((step) => step.title)).toEqual(["Show up", "Use PromoCard", "Bring someone"]);
+    expect(invitation.formingLine).toMatch(/House is named only when a pattern is clear/);
+    expect(invitation.nextHref).toBe("/discover");
+    expect(invitation.nextLabel).toBe("Find something worth doing");
+    expect(JSON.stringify(invitation)).not.toMatch(/"score"|Ember|Grove ·|Tide ·|Radiant ·/);
+  });
+
+  it("uses the named identity line and points at a live Moment", () => {
+    const invitation = resolveWorldInvitation({
+      identityLine: "Grove · Patron",
+      hasLiveMoment: true,
+      nextHref: "/moments/live-1",
+    });
+    expect(invitation.headline).toBe("Grove · Patron");
+    expect(invitation.formingLine).toBeNull();
+    expect(invitation.nextLabel).toBe("Show up tonight");
+    expect(invitation.nextHref).toBe("/moments/live-1");
   });
 });

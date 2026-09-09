@@ -1,6 +1,19 @@
 import { useLocation } from "react-router-dom";
 
-const PREVIEW_PATHS = new Set(["/people", "/give", "/create", "/create/moment", "/earn", "/happened", "/card", "/start", "/stock"]);
+const PREVIEW_PATHS = new Set([
+  "/people",
+  "/give",
+  "/create",
+  "/create/moment",
+  "/earn",
+  "/happened",
+  "/progress",
+  "/card",
+  "/crews",
+  "/guilds",
+  "/start",
+  "/stock",
+]);
 
 export function experiencePathFor(currentPathname: string, currentSearch: string, path: string): string {
   const preview = currentPathname.startsWith("/app-preview");

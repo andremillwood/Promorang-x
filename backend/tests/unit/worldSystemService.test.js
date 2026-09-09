@@ -47,6 +47,22 @@ describe('world system service', () => {
     expect(db.writes.some((write) => write.table === 'user_promo_cards' || write.table === 'gems_transactions')).toBe(false);
   });
 
+  test('empty world still returns an invitation without inventing identity', async () => {
+    const db = database();
+    const result = await resolveForUser('user-empty', {
+      ownActions: [],
+      attributedActions: [],
+      hasLiveMoment: false,
+      nextHref: '/discover',
+    }, db);
+    expect(result.house).toBeNull();
+    expect(result.identity.line).toBeNull();
+    expect(result.invitation.headline).toBe('The night writes who you are');
+    expect(result.invitation.steps).toHaveLength(3);
+    expect(result.invitation.formingLine).toMatch(/path can be named/);
+    expect(result.influence?.score || 0).toBe(0);
+  });
+
   test('maps verified_actions columns without inventing money', () => {
     const facts = toFacts([{ id: '1', action_type: 'check_in', user_id: 'u', available_balance: 99 }]);
     expect(facts[0].actionType).toBe('check_in');

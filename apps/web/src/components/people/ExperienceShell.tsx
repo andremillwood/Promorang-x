@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SEO from "@/components/SEO";
+import { useExperiencePath } from "@/hooks/useExperiencePath";
 
 type ExperienceShellProps = {
   title: string;
@@ -108,5 +109,47 @@ export function QuietEmpty({ title, copy, action }: { title: string; copy: strin
       <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-white/50">{copy}</p>
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
+  );
+}
+
+export type WorldInvitationCopy = {
+  headline: string;
+  why: string;
+  benefit: string;
+  nextLabel: string;
+  nextHref: string;
+  formingLine: string | null;
+  steps: Array<{ title: string; line: string }>;
+};
+
+/** Loud about what to do and why it pays. Quiet about invented scores. */
+export function WorldInvitationCard({ invitation }: { invitation: WorldInvitationCopy }) {
+  const to = useExperiencePath();
+  return (
+    <section className="rounded-[1.6rem] border border-primary/40 bg-primary/10 px-5 py-6">
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">This is how Promorang works</p>
+      <h2 className="mt-2 font-serif text-3xl font-bold">{invitation.headline}</h2>
+      <p className="mt-3 text-sm leading-6 text-white/70">{invitation.why}</p>
+      <p className="mt-2 text-sm leading-6 text-white/55">{invitation.benefit}</p>
+      <ol className="mt-5 space-y-3">
+        {invitation.steps.map((step) => (
+          <li key={step.title} className="rounded-[1.2rem] border border-white/10 bg-black/20 px-4 py-3">
+            <p className="text-sm font-bold">{step.title}</p>
+            <p className="mt-1 text-xs leading-5 text-white/50">{step.line}</p>
+          </li>
+        ))}
+      </ol>
+      {invitation.formingLine ? (
+        <p className="mt-4 text-sm leading-6 text-white/45">{invitation.formingLine}</p>
+      ) : null}
+      <div className="mt-5 flex flex-wrap gap-4">
+        <Link to={to(invitation.nextHref)} className="text-sm font-bold text-primary">
+          {invitation.nextLabel}
+        </Link>
+        <Link to={to("/crews")} className="text-sm font-bold text-primary">
+          Form a Crew
+        </Link>
+      </div>
+    </section>
   );
 }
