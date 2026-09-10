@@ -1,5 +1,5 @@
-import type { StakeholderLens, StakeholderNavRole } from "@promorang/shared";
-import { isPlaceholderDisplayName } from "@promorang/shared";
+import type { InventoryNextAction, StakeholderLens, StakeholderNavRole } from "@promorang/shared";
+import { isPlaceholderDisplayName, journeyKindForFulfillment } from "@promorang/shared";
 import type { TranslationKey } from "./translations";
 
 type Translate = (key: TranslationKey, variables?: Record<string, string | number>) => string;
@@ -93,4 +93,45 @@ export function localizedCreateIntent(intent: string, t: Translate): { label: st
 
 export function localizedCommunityTheme(themeId: string, t: Translate): string {
   return t(`start.theme.${themeId}` as TranslationKey);
+}
+
+export function localizedFulfillment(id: string, t: Translate): { label: string; detail: string } {
+  return {
+    label: t(`stock.fulfill.${id}.label` as TranslationKey),
+    detail: t(`stock.fulfill.${id}.detail` as TranslationKey),
+  };
+}
+
+export function localizedInventoryFollow(fulfillmentType: string | null | undefined, t: Translate): string {
+  const kind = journeyKindForFulfillment(fulfillmentType);
+  if (kind === "ship") return t("stock.followShip");
+  if (kind === "credit") return t("stock.followCredit");
+  if (kind === "code") return t("stock.followCode");
+  return t("stock.followPlace");
+}
+
+export function localizedInventoryNext(
+  actions: InventoryNextAction[],
+  fulfillmentType: string | null | undefined,
+  t: Translate,
+): InventoryNextAction[] {
+  const kind = journeyKindForFulfillment(fulfillmentType);
+  return actions.map((action) => {
+    if (action.id === "share-perk") {
+      return { ...action, label: t("stock.next.share.label"), why: t("stock.next.share.why") };
+    }
+    if (action.id === "validate") {
+      return { ...action, label: t("stock.next.validate.label"), why: t("stock.next.validate.why") };
+    }
+    if (kind === "ship") {
+      return { ...action, label: t("stock.next.watchShip.label"), why: t("stock.next.watchShip.why") };
+    }
+    if (kind === "credit") {
+      return { ...action, label: t("stock.next.watchCredit.label"), why: t("stock.next.watchCredit.why") };
+    }
+    if (kind === "code") {
+      return { ...action, label: t("stock.next.watchCode.label"), why: t("stock.next.watchCode.why") };
+    }
+    return action;
+  });
 }

@@ -18,6 +18,12 @@ const REQUIRED_TEMPLATES = [
   'supportTicket',
   'aftrHrsPass',
   'aftrHrsRsvp',
+  'referralSignup',
+  'referralActivation',
+  'referralCommission',
+  'withdrawalRequested',
+  'withdrawalCompleted',
+  'weeklyDigest',
 ];
 
 test('every email locale has the same templates and keys', () => {

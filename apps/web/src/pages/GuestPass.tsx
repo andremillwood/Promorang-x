@@ -11,10 +11,10 @@ import { useI18n } from "@/i18n/I18nContext";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-async function request(path: string, options?: RequestInit) {
+async function request(path: string, options?: RequestInit, fallbackError?: string) {
   const response = await fetch(`${API}${path}`, options);
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error || "This action could not be completed");
+  if (!response.ok) throw new Error(data.error || fallbackError || "This action could not be completed");
   return data;
 }
 
@@ -30,7 +30,7 @@ export default function GuestPass() {
   const [form, setForm] = useState({ full_name: "", mobile: "", email: "", consent_whatsapp: true, consent_sms: false, consent_email: false });
   const query = useQuery({
     queryKey: ["guest-pass", token, manage],
-    queryFn: () => request(`/api/guest-rsvp/${encodeURIComponent(token)}${manage ? `?manage_token=${encodeURIComponent(manage)}` : ""}`),
+    queryFn: () => request(`/api/guest-rsvp/${encodeURIComponent(token)}${manage ? `?manage_token=${encodeURIComponent(manage)}` : ""}`, undefined, t("guestPassPage.actionFailed")),
   });
   if (query.isLoading) return <main className="grid min-h-screen place-items-center bg-black text-white">{t("guestPassPage.loading")}</main>;
   if (!query.data?.rsvp) return <main className="grid min-h-screen place-items-center bg-black text-white">{t("guestPassPage.unavailable")}</main>;
@@ -42,24 +42,24 @@ export default function GuestPass() {
     setBusy(true); setError("");
     try {
       if (action === "join") {
-        const data = await request(`/api/guest-rsvp/${token}/join`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+        const data = await request(`/api/guest-rsvp/${token}/join`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) }, t("guestPassPage.actionFailed"));
         navigate(`/guest-pass/${data.rsvp.invite_token}?manage=${data.rsvp.manage_token}`, { replace: true });
       } else if (action === "cancel") {
-        await request(`/api/guest-rsvp/${token}/cancel`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ manage_token: manage }) });
+        await request(`/api/guest-rsvp/${token}/cancel`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ manage_token: manage }) }, t("guestPassPage.actionFailed"));
         await query.refetch();
       } else {
         const { data: auth } = await supabase.auth.getSession();
         if (!auth.session) { navigate(`/auth?redirect=${encodeURIComponent(location.pathname + location.search)}`); return; }
-        const data = await request(`/api/guest-rsvp/${token}/claim`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth.session.access_token}` }, body: JSON.stringify({ manage_token: manage }) });
+        const data = await request(`/api/guest-rsvp/${token}/claim`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth.session.access_token}` }, body: JSON.stringify({ manage_token: manage }) }, t("guestPassPage.actionFailed"));
         navigate(data.destination);
       }
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Please try again"); }
+    } catch (cause) { setError(cause instanceof Error ? cause.message : t("guestPassPage.tryAgain")); }
     finally { setBusy(false); }
   };
   const updatePreference = async (field: "consent_whatsapp" | "consent_sms" | "consent_email", value: boolean) => {
     setBusy(true); setError("");
-    try { await request(`/api/guest-rsvp/${token}/preferences`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ manage_token: manage, [field]: value }) }); await query.refetch(); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Preferences could not be saved"); }
+    try { await request(`/api/guest-rsvp/${token}/preferences`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ manage_token: manage, [field]: value }) }, t("guestPassPage.prefsFailed")); await query.refetch(); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : t("guestPassPage.prefsFailed")); }
     finally { setBusy(false); }
   };
 

@@ -987,32 +987,39 @@ async function sendDropCompletedEmail(userEmail, userName, dropData) {
 /**
  * New referral signup notification (to referrer)
  */
-async function sendReferralSignupEmail(referrerEmail, referrerName, referredUserName) {
+async function sendReferralSignupEmail(referrerEmail, referrerName, referredUserName, options = {}) {
+  const locale = options.locale || 'en';
+  const content = getEmailContent('referralSignup', locale, {
+    name: referrerName || 'there',
+    referredName: referredUserName,
+  });
+  const referralsUrl = getLocalizedEmailUrl('/referrals', locale, EMAIL_CONFIG.frontendUrl);
+
   const html = getBaseTemplate({
-    title: 'New Referral! 👥',
-    preheader: `${referredUserName} just joined using your referral link!`,
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${referrerName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>Great news! Someone just joined Promorang using your referral link:</p>
+      <p>${content.intro}</p>
       
       <div class="highlight-box">
         <p style="margin: 0; font-weight: 600;">👤 ${referredUserName}</p>
-        <p style="margin: 8px 0 0; font-size: 14px;">When they become active, you'll earn a bonus!</p>
+        <p style="margin: 8px 0 0; font-size: 14px;">${content.whenActive}</p>
       </div>
       
-      <p>Keep sharing your referral link to grow your network and earnings.</p>
+      <p>${content.keepSharing}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/referrals`,
-    ctaText: 'View Referral Stats',
+    ctaUrl: referralsUrl,
+    ctaText: content.ctaText,
   });
 
   return sendEmail({
     to: referrerEmail,
-    subject: `👥 ${referredUserName} joined via your referral!`,
+    subject: content.subject,
     html,
-    text: `${referredUserName} just joined Promorang using your referral link! View your stats at ${EMAIL_CONFIG.frontendUrl}/referrals`,
-    tags: [{ name: 'type', value: 'referral-signup' }],
+    text: `${content.preheader} ${referralsUrl}`,
+    tags: [{ name: 'type', value: 'referral-signup' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -1020,34 +1027,41 @@ async function sendReferralSignupEmail(referrerEmail, referrerName, referredUser
  * Referral activation bonus earned
  */
 async function sendReferralActivationEmail(referrerEmail, referrerName, bonusData) {
-  const { referredUserName, gemsEarned, pointsEarned } = bonusData;
+  const { referredUserName, gemsEarned, pointsEarned, locale } = bonusData;
+  const content = getEmailContent('referralActivation', locale, {
+    name: referrerName || 'there',
+    referredName: referredUserName,
+    gems: gemsEarned,
+    points: pointsEarned,
+  });
+  const referralsUrl = getLocalizedEmailUrl('/referrals', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Referral Bonus Earned! 🎁',
-    preheader: `You earned a bonus because ${referredUserName} became active!`,
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${referrerName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>Your referral <strong>${referredUserName}</strong> has become an active user on Promorang!</p>
+      <p>${content.intro}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">🎁 Activation Bonus</p>
+        <p style="margin: 0; font-weight: 600;">🎁 ${content.bonusLabel}</p>
         <div class="value">+${gemsEarned} Gems</div>
-        ${pointsEarned ? `<p style="margin: 0; font-size: 14px;">+${pointsEarned} Points</p>` : ''}
+        ${pointsEarned ? `<p style="margin: 0; font-size: 14px;">${content.pointsLine}</p>` : ''}
       </div>
       
-      <p>You'll continue earning commissions from their activity. Keep sharing!</p>
+      <p>${content.keepSharing}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/referrals`,
-    ctaText: 'View Earnings',
+    ctaUrl: referralsUrl,
+    ctaText: content.ctaText,
   });
 
   return sendEmail({
     to: referrerEmail,
-    subject: `🎁 You earned ${gemsEarned} Gems from your referral!`,
+    subject: content.subject,
     html,
-    text: `${referredUserName} became active and you earned ${gemsEarned} Gems!`,
-    tags: [{ name: 'type', value: 'referral-activation' }],
+    text: content.preheader,
+    tags: [{ name: 'type', value: 'referral-activation' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -1055,31 +1069,38 @@ async function sendReferralActivationEmail(referrerEmail, referrerName, bonusDat
  * Referral commission earned
  */
 async function sendReferralCommissionEmail(referrerEmail, referrerName, commissionData) {
-  const { amount, referredUserName, activityType } = commissionData;
+  const { amount, referredUserName, activityType, locale } = commissionData;
+  const content = getEmailContent('referralCommission', locale, {
+    name: referrerName || 'there',
+    referredName: referredUserName,
+    amount,
+  });
+  const walletUrl = getLocalizedEmailUrl('/wallet', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Commission Earned! 💰',
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${referrerName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>You just earned a commission from your referral's activity:</p>
+      <p>${content.intro}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0;">From: <strong>${referredUserName}</strong></p>
-        <p style="margin: 4px 0;">Activity: ${activityType}</p>
+        <p style="margin: 0;">${content.fromLabel}: <strong>${referredUserName}</strong></p>
+        <p style="margin: 4px 0;">${content.activityLabel}: ${activityType}</p>
         <div class="value">+${amount} Gems</div>
       </div>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/wallet`,
-    ctaText: 'View Wallet',
+    ctaUrl: walletUrl,
+    ctaText: content.ctaText,
   });
 
   return sendEmail({
     to: referrerEmail,
-    subject: `💰 Commission: +${amount} Gems from ${referredUserName}`,
+    subject: content.subject,
     html,
-    text: `You earned ${amount} Gems in commission from ${referredUserName}'s ${activityType}.`,
-    tags: [{ name: 'type', value: 'referral-commission' }],
+    text: content.preheader,
+    tags: [{ name: 'type', value: 'referral-commission' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -1091,53 +1112,61 @@ async function sendReferralCommissionEmail(referrerEmail, referrerName, commissi
  * Withdrawal request confirmation - Premium financial experience
  */
 async function sendWithdrawalRequestedEmail(userEmail, userName, withdrawalData) {
-  const { amount, paymentMethod, estimatedTime } = withdrawalData;
+  const { amount, paymentMethod, estimatedTime, locale } = withdrawalData;
+  const formattedAmount = Number(amount).toFixed(2);
+  const content = getEmailContent('withdrawalRequested', locale, {
+    name: userName || 'there',
+    amount: formattedAmount,
+    method: paymentMethod,
+  });
+  const walletUrl = getLocalizedEmailUrl('/wallet', locale, EMAIL_CONFIG.frontendUrl);
+  const when = formatEmailDate(new Date(), locale, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
   const html = getBaseTemplate({
-    title: 'Withdrawal Request Received',
-    preheader: `Your withdrawal of $${amount.toFixed(2)} is being processed.`,
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>We've received your withdrawal request and are processing it through our secure payment system.</p>
+      <p>${content.intro}</p>
       
       <div class="highlight-card">
-        <div class="label">Withdrawal Amount</div>
-        <div class="value" style="color: ${BRAND.text};">$${amount.toFixed(2)}</div>
-        <div class="sublabel">via ${paymentMethod}</div>
+        <div class="label">${content.amountLabel}</div>
+        <div class="value" style="color: ${BRAND.text};">$${formattedAmount}</div>
+        <div class="sublabel">${content.via}</div>
       </div>
       
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">Requested</span>
-          <span class="info-card-value">${new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+          <span class="info-card-label">${content.requestedLabel}</span>
+          <span class="info-card-value">${when}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Method</span>
+          <span class="info-card-label">${content.methodLabel}</span>
           <span class="info-card-value">${paymentMethod}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Processing Time</span>
-          <span class="info-card-value">${estimatedTime || '1-3 business days'}</span>
+          <span class="info-card-label">${content.processingLabel}</span>
+          <span class="info-card-value">${estimatedTime || content.defaultEta}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Status</span>
-          <span class="info-card-value" style="color: ${BRAND.accent};">Pending Review</span>
+          <span class="info-card-label">${content.statusLabel}</span>
+          <span class="info-card-value" style="color: ${BRAND.accent};">${content.pendingStatus}</span>
         </div>
       </div>
       
-      <p style="font-size: 14px; color: ${BRAND.textMuted};">You'll receive a confirmation email once the transfer has been initiated. For security, all withdrawals are reviewed by our team.</p>
+      <p style="font-size: 14px; color: ${BRAND.textMuted};">${content.reviewNote}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/wallet`,
-    ctaText: 'View Withdrawal Status',
+    ctaUrl: walletUrl,
+    ctaText: content.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Withdrawal request received: $${amount.toFixed(2)}`,
+    subject: content.subject,
     html,
-    text: `Your withdrawal of $${amount.toFixed(2)} via ${paymentMethod} is being processed. Estimated time: ${estimatedTime || '1-3 business days'}.`,
-    tags: [{ name: 'type', value: 'withdrawal-requested' }],
+    text: `${content.preheader} ${estimatedTime || content.defaultEta}.`,
+    tags: [{ name: 'type', value: 'withdrawal-requested' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -1145,50 +1174,58 @@ async function sendWithdrawalRequestedEmail(userEmail, userName, withdrawalData)
  * Withdrawal completed - Premium confirmation experience
  */
 async function sendWithdrawalCompletedEmail(userEmail, userName, withdrawalData) {
-  const { amount, paymentMethod, transactionId } = withdrawalData;
+  const { amount, paymentMethod, transactionId, locale } = withdrawalData;
+  const formattedAmount = Number(amount).toFixed(2);
+  const content = getEmailContent('withdrawalCompleted', locale, {
+    name: userName || 'there',
+    amount: formattedAmount,
+    method: paymentMethod,
+  });
+  const walletUrl = getLocalizedEmailUrl('/wallet', locale, EMAIL_CONFIG.frontendUrl);
+  const when = formatEmailDate(new Date(), locale, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
   const html = getBaseTemplate({
-    title: 'Withdrawal Complete',
-    preheader: `Your $${amount.toFixed(2)} has been sent.`,
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>Your withdrawal has been processed and funds have been sent. The transfer is now complete.</p>
+      <p>${content.intro}</p>
       
       <div class="highlight-card success">
-        <div class="label">Transfer Complete</div>
-        <div class="value">$${amount.toFixed(2)}</div>
-        <div class="sublabel">Sent via ${paymentMethod}</div>
+        <div class="label">${content.completeLabel}</div>
+        <div class="value">$${formattedAmount}</div>
+        <div class="sublabel">${content.sentVia}</div>
       </div>
       
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">Transaction ID</span>
-          <span class="info-card-value" style="font-family: monospace; font-size: 13px;">${transactionId || 'N/A'}</span>
+          <span class="info-card-label">${content.txLabel}</span>
+          <span class="info-card-value" style="font-family: monospace; font-size: 13px;">${transactionId || content.na}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Completed</span>
-          <span class="info-card-value">${new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+          <span class="info-card-label">${content.completedLabel}</span>
+          <span class="info-card-value">${when}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Status</span>
-          <span class="info-card-value" style="color: ${BRAND.success};">Completed</span>
+          <span class="info-card-label">${content.statusLabel}</span>
+          <span class="info-card-value" style="color: ${BRAND.success};">${content.completedStatus}</span>
         </div>
       </div>
       
-      <p style="text-align: center;">Thank you for using Promorang. Your funds should appear in your account within the processing time for your selected payment method.</p>
+      <p style="text-align: center;">${content.thanks}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/wallet`,
-    ctaText: 'View Transaction History',
-    footerNote: 'Keep this email for your records. Contact support if you have any questions about this transaction.',
+    ctaUrl: walletUrl,
+    ctaText: content.ctaText,
+    footerNote: content.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Withdrawal complete: $${amount.toFixed(2)}`,
+    subject: content.subject,
     html,
-    text: `Your withdrawal of $${amount.toFixed(2)} via ${paymentMethod} is complete. Transaction ID: ${transactionId}. Thank you for using Promorang.`,
-    tags: [{ name: 'type', value: 'withdrawal-completed' }],
+    text: `${content.preheader} ${content.txLabel}: ${transactionId || content.na}.`,
+    tags: [{ name: 'type', value: 'withdrawal-completed' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -1492,50 +1529,59 @@ async function sendCouponEarnedEmail(userEmail, userName, couponData) {
  * Weekly rewards digest
  */
 async function sendWeeklyDigestEmail(userEmail, userName, stats) {
-  const { earned_this_week, available_count, expiring_soon, total_gems, streak_days } = stats;
+  const { earned_this_week, available_count, expiring_soon, total_gems, streak_days, locale } = stats;
+  const content = getEmailContent('weeklyDigest', locale, {
+    name: userName || 'there',
+    earned: earned_this_week || 0,
+    gems: total_gems || 0,
+    streak: streak_days || 0,
+    count: expiring_soon || 0,
+  });
+  const dashboardUrl = getLocalizedEmailUrl('/dashboard', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Your Weekly Summary 📊',
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>Here's your Promorang activity for this week:</p>
+      <p>${content.intro}</p>
       
       <table style="width: 100%; margin: 20px 0; border-collapse: collapse;">
         <tr>
           <td style="text-align: center; padding: 15px; background: #f8f9ff; border-radius: 8px 0 0 8px;">
             <div style="font-size: 24px; font-weight: 700; color: ${BRAND.primary};">${earned_this_week || 0}</div>
-            <div style="font-size: 12px; color: #666;">Rewards Earned</div>
+            <div style="font-size: 12px; color: #666;">${content.rewardsLabel}</div>
           </td>
           <td style="text-align: center; padding: 15px; background: #f8f9ff;">
             <div style="font-size: 24px; font-weight: 700; color: ${BRAND.primary};">${total_gems || 0}</div>
-            <div style="font-size: 12px; color: #666;">Total Gems</div>
+            <div style="font-size: 12px; color: #666;">${content.gemsLabel}</div>
           </td>
           <td style="text-align: center; padding: 15px; background: #f8f9ff; border-radius: 0 8px 8px 0;">
             <div style="font-size: 24px; font-weight: 700; color: ${BRAND.primary};">${streak_days || 0}</div>
-            <div style="font-size: 12px; color: #666;">Day Streak</div>
+            <div style="font-size: 12px; color: #666;">${content.streakLabel}</div>
           </td>
         </tr>
       </table>
       
       ${expiring_soon > 0 ? `
       <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
-        ⚠️ <strong>Action Required:</strong> You have ${expiring_soon} reward${expiring_soon > 1 ? 's' : ''} expiring soon!
+        ⚠️ <strong>${content.expiringLead}</strong>
       </div>
       ` : ''}
       
-      <p>Keep up the great work and keep earning!</p>
+      <p>${content.keepUp}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/dashboard`,
-    ctaText: 'View Dashboard',
+    ctaUrl: dashboardUrl,
+    ctaText: content.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `📊 Weekly Summary: ${earned_this_week} Rewards Earned`,
+    subject: content.subject,
     html,
-    text: `This week: ${earned_this_week} rewards earned, ${total_gems} total gems, ${streak_days}-day streak.`,
-    tags: [{ name: 'type', value: 'weekly-digest' }],
+    text: content.preheader,
+    tags: [{ name: 'type', value: 'weekly-digest' }, { name: 'locale', value: content.locale }],
   });
 }
 
