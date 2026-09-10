@@ -203,8 +203,8 @@ const Marketplace = () => {
             <div className="overflow-x-clip rounded-[1.5rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_32%),linear-gradient(135deg,rgba(10,10,10,0.98),rgba(20,20,20,0.94))] p-4 shadow-2xl sm:rounded-[2rem] sm:p-5 md:p-8">
                 <div className="flex min-w-0 flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-5">
                     <div className="min-w-0">
-                        <p className="mb-3 max-w-full text-[11px] font-black uppercase leading-5 tracking-[0.14em] text-orange-400">
-                            <Store className="mb-0.5 mr-1.5 inline-block h-3.5 w-3.5 align-text-bottom" />
+                        <p className="mb-3 max-w-full text-[10px] font-black uppercase leading-5 tracking-wide text-orange-400">
+                            <Store className="mb-0.5 mr-1 inline-block h-3.5 w-3.5 align-text-bottom" />
                             {t("market.eyebrow")}
                         </p>
                         <h1 className="max-w-3xl font-sans text-[1.85rem] font-black uppercase leading-[1.12] tracking-[-0.02em] text-white sm:text-4xl sm:leading-[0.95] sm:tracking-[-0.04em] md:text-6xl md:leading-[0.9] md:tracking-[-0.055em]">
@@ -215,11 +215,11 @@ const Marketplace = () => {
                         </p>
                     </div>
 
-                    <div className="grid min-w-0 grid-cols-3 gap-1.5 text-[11px] text-white/70 sm:gap-2 sm:text-xs md:w-[34rem]">
+                    <div className="flex min-w-0 flex-wrap gap-2 text-white/70 md:w-[34rem]">
                         {[[t("market.buy"), t("market.buyCopy")], [t("market.earn"), t("market.earnCopy")], [t("market.unlock"), t("market.unlockCopy")]].map(([label, copy]) => (
-                            <div key={label} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 sm:p-3">
-                                <div className="text-pretty font-black uppercase leading-tight tracking-wide text-primary">{label}</div>
-                                <p className="mt-1 hidden text-pretty leading-5 sm:block">{copy}</p>
+                            <div key={label} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 sm:min-w-[9rem] sm:flex-1 sm:rounded-2xl sm:p-3">
+                                <div className="text-[10px] font-black uppercase leading-tight tracking-wide text-primary sm:text-xs">{label}</div>
+                                <p className="mt-1 hidden text-xs leading-5 sm:block">{copy}</p>
                             </div>
                         ))}
                     </div>
