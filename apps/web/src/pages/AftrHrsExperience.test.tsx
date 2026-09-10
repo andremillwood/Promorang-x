@@ -1,12 +1,14 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { AFTRHRS_COPY, AFTRHRS_OG_IMAGE, DEFAULT_AFTRHRS_FAQS, aftrHrsDigitalReleaseView, authPathForAftrHrsClaim } from "@promorang/shared";
+import { AFTRHRS_COPY, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, DEFAULT_AFTRHRS_FAQS, aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, authPathForAftrHrsPass } from "@promorang/shared";
 
 describe("AftrHrs landing states", () => {
   it("sends unauthenticated claimers back to the claim flow after login", () => {
     expect(authPathForAftrHrsClaim()).toContain("next=%2Faftrhrs%3Fclaim%3D1");
     expect(authPathForAftrHrsClaim()).toContain("intent=aftrhrs_claim");
+    expect(authPathForAftrHrsPass()).toContain("next=%2Faftrhrs%2Fpass");
+    expect(AFTRHRS_PATHS.passAlias).toBe("/aftrhrs/pass");
   });
 
   it("keeps the night open after digital inventory is gone", () => {

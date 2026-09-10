@@ -161,7 +161,7 @@ export default function AftrHrsExperience() {
 
   const heroCta =
     release.kind === "pass" ? (
-      <Link to={AFTRHRS_PATHS.pass} className="rounded-full bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-[0.16em] text-black">
+      <Link to={AFTRHRS_PATHS.passAlias} className="rounded-full bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-[0.16em] text-black">
         {release.primaryCta}
       </Link>
     ) : release.kind === "sold_out" ? (
@@ -278,7 +278,7 @@ export default function AftrHrsExperience() {
               <p className="mt-4 max-w-xl text-white/68">{AFTRHRS_COPY.confirmation}</p>
               <p className="mt-3 text-sm font-bold uppercase tracking-[0.14em] text-fuchsia-300">{AFTRHRS_COPY.arrivalRule}</p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link to={AFTRHRS_PATHS.pass} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">Present pass</Link>
+                <Link to={AFTRHRS_PATHS.passAlias} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">Present pass</Link>
                 <Link to="/wallet" className="rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">Wallet</Link>
               </div>
             </div>

@@ -50,6 +50,7 @@ export const AFTRHRS_PATHS = {
   moment: "/moments/aftrhrs",
   venue: "/venues/sea-deck",
   pass: "/moments/aftrhrs/pass",
+  passAlias: "/aftrhrs/pass",
   ambassador: "/moments/aftrhrs/ambassador",
   door: "/moments/aftrhrs/door",
   admin: "/admin/aftrhrs",
@@ -302,6 +303,22 @@ export function authPathForAftrHrsClaim(returnTo = AFTRHRS_PATHS.claimReturn): s
     role: "participant",
   });
   return `/auth?${params.toString()}`;
+}
+
+export function authPathForAftrHrsPass(returnTo = AFTRHRS_PATHS.passAlias): string {
+  const params = new URLSearchParams({
+    mode: "login",
+    next: returnTo,
+    intent: "aftrhrs_pass",
+    role: "participant",
+  });
+  return `/auth?${params.toString()}`;
+}
+
+export function isAftrHrsPassPath(path?: string | null): boolean {
+  if (!path) return false;
+  const pathname = path.split("?")[0];
+  return pathname === AFTRHRS_PATHS.pass || pathname === AFTRHRS_PATHS.passAlias;
 }
 
 export function isAftrHrsClaimReturn(path?: string | null): boolean {

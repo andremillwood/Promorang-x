@@ -31,6 +31,7 @@ const CONSUMER_NEXT_PREFIXES = [
   "/scenes",
   "/home",
   "/moments",
+  "/aftrhrs",
   "/drop",
 ];
 

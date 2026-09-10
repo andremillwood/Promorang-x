@@ -9,7 +9,7 @@ Dedicated Promorang Moment + venue campaign. This is not a microsite: it reuses 
 | AftrHrs dedicated landing | `/aftrhrs` |
 | Campaign alias | `/campaigns/aftrhrs` → `/aftrhrs` |
 | Moment-canonical URL | `/moments/aftrhrs` (same landing, no Promorang chrome) |
-| Pass / wallet presentation | `/moments/aftrhrs/pass` |
+| Pass | `/aftrhrs/pass` (`/moments/aftrhrs/pass` still works) |
 | Ambassador desk | `/moments/aftrhrs/ambassador` |
 | Door validation | `/moments/aftrhrs/door` |
 | Admin | `/admin/aftrhrs` and Admin → AftrHrs |

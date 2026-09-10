@@ -12,6 +12,8 @@ import {
   hasAftrHrsFridayRecurrence,
   aftrHrsDigitalReleaseView,
   authPathForAftrHrsClaim,
+  authPathForAftrHrsPass,
+  isAftrHrsPassPath,
   decodeAftrHrsPassPayload,
   encodeAftrHrsPassPayload,
   evaluateDigitalPassClaim,
@@ -186,6 +188,11 @@ describe("AftrHrs digital pass inventory", () => {
     expect(AFTRHRS_PATHS.landing).toBe("/aftrhrs");
     expect(isAftrHrsClaimReturn("/aftrhrs?claim=1")).toBe(true);
     expect(isAftrHrsClaimReturn("/moments/aftrhrs?claim=1")).toBe(true);
+    expect(AFTRHRS_PATHS.passAlias).toBe("/aftrhrs/pass");
+    expect(authPathForAftrHrsPass()).toContain("next=%2Faftrhrs%2Fpass");
+    expect(authPathForAftrHrsPass()).toContain("intent=aftrhrs_pass");
+    expect(isAftrHrsPassPath("/aftrhrs/pass")).toBe(true);
+    expect(isAftrHrsPassPath("/moments/aftrhrs/pass")).toBe(true);
     expect(evaluateDigitalPassClaim({
       edition,
       identity: {},

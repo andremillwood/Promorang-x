@@ -2,14 +2,21 @@ import { Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { Download, Share2 } from "lucide-react";
 import SEO from "@/components/SEO";
-import { AFTRHRS_COPY, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, guestPassStatus } from "@promorang/shared";
+import { AFTRHRS_COPY, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, authPathForAftrHrsPass, guestPassStatus } from "@promorang/shared";
 import { useAftrHrs } from "@/hooks/useAftrHrs";
 import { getSiteUrl } from "@/lib/discovery";
+import { persistPostAuthNext } from "@/lib/post-auth-next";
 import promorangLogo from "@/assets/promorang-logo-full.png";
 
 export default function AftrHrsPass() {
   const { data, user } = useAftrHrs();
   const pass = data.pass;
+  const signInHref = authPathForAftrHrsPass();
+
+  const openSignIn = () => {
+    persistPostAuthNext(AFTRHRS_PATHS.passAlias);
+    window.location.assign(signInHref);
+  };
 
   const download = () => {
     const svg = document.querySelector("#aftrhrs-pass-qr svg");
@@ -24,7 +31,7 @@ export default function AftrHrsPass() {
   };
 
   const share = async () => {
-    const url = getSiteUrl(AFTRHRS_PATHS.pass);
+    const url = getSiteUrl(AFTRHRS_PATHS.passAlias);
     if (navigator.share) await navigator.share({ title: "AftrHrs Digital Free Pass", url });
     else await navigator.clipboard.writeText(url);
   };
@@ -39,19 +46,46 @@ export default function AftrHrsPass() {
         imageType={AFTRHRS_OG_IMAGE.type}
         imageWidth={AFTRHRS_OG_IMAGE.width}
         imageHeight={AFTRHRS_OG_IMAGE.height}
+        url={getSiteUrl(AFTRHRS_PATHS.passAlias)}
       />
       <div className="mx-auto max-w-md">
-        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">Promorang wallet</p>
-        <h1 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">AftrHrs pass</h1>
+        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">AftrHrs · {AFTRHRS_COPY.when}</p>
+        <h1 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">Your pass</h1>
         {!user ? (
-          <p className="mt-6 text-white/65">Sign in to open the pass stored on your Promorang profile.</p>
+          <div className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
+            <p className="text-white/70">
+              Sign in with the same Promorang account you used to claim. Your QR stays on that profile.
+            </p>
+            <p className="mt-4 text-sm font-bold uppercase tracking-[0.14em] text-fuchsia-300">{AFTRHRS_COPY.arrivalRule}</p>
+            <button
+              type="button"
+              onClick={openSignIn}
+              className="mt-6 w-full rounded-full bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-black"
+            >
+              Sign in to open my pass
+            </button>
+            <Link
+              to={AFTRHRS_PATHS.landing}
+              className="mt-4 block text-center text-sm uppercase tracking-[0.16em] text-white/50"
+            >
+              Back to AftrHrs
+            </Link>
+          </div>
         ) : !pass ? (
-          <p className="mt-6 text-white/65">No AftrHrs pass is attached to this account yet.</p>
+          <div className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
+            <p className="text-white/70">No AftrHrs pass is attached to this account yet.</p>
+            <Link
+              to={AFTRHRS_PATHS.claimReturn}
+              className="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-black"
+            >
+              Claim a free pass
+            </Link>
+          </div>
         ) : (
           <article className="mt-8 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04]">
             <img src="/campaigns/aftrhrs/logo.jpg" alt="AftrHrs" className="h-40 w-full object-cover" />
             <div className="p-6">
-              <p className="text-xs uppercase tracking-[0.2em] text-white/45">Digital Free Pass</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-white/45">Digital Free Pass · {AFTRHRS_COPY.when}</p>
               <p className="mt-2 font-mono text-2xl font-black tracking-[0.16em]">{pass.unique_code}</p>
               <div id="aftrhrs-pass-qr" className="mt-6 flex justify-center rounded-2xl bg-white p-4">
                 <QRCodeSVG value={pass.qr_payload} size={200} />
@@ -71,9 +105,11 @@ export default function AftrHrsPass() {
           </article>
         )}
         <div className="mt-8 flex flex-col items-center gap-4">
-          <div className="flex gap-3">
-            <Link to={AFTRHRS_PATHS.moment} className="text-sm uppercase tracking-[0.16em] text-white/50">Back to AftrHrs</Link>
-            <Link to="/wallet" className="text-sm uppercase tracking-[0.16em] text-cyan-300">Wallet</Link>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to={AFTRHRS_PATHS.landing} className="text-sm uppercase tracking-[0.16em] text-white/50">Back to AftrHrs</Link>
+            {user ? (
+              <Link to="/wallet" className="text-sm uppercase tracking-[0.16em] text-cyan-300">Promorang wallet</Link>
+            ) : null}
           </div>
           <div className="flex flex-col items-center gap-2">
             <img src={promorangLogo} alt="PROMORANG" className="h-7 w-auto object-contain" />
