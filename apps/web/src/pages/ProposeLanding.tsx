@@ -53,7 +53,7 @@ export default function ProposeLanding() {
     const fromHostQuiz = from === "moment";
     const brief = isBrand ? readSponsorBrief() : null;
     const startHref = isBrand
-        ? "/propose/new?from=sponsor&audience=brand"
+        ? "/create/campaign?from=sponsor"
         : `/propose/new?from=${from || "host"}&role=host`;
 
     const steps = isBrand

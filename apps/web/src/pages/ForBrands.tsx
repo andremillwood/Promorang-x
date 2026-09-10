@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { authPathForReturn } from "@/lib/post-auth-next";
+import { brandAuthHref, readSponsorBrief, rememberBrandEntry } from "@/lib/commercial-intent";
 import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -24,11 +25,21 @@ import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
 import { BrandCaseStudies } from "@/components/brands/BrandCaseStudies";
 import { PromoCardEconomyExplainer } from "@/components/promocard";
-import { authPathForReturn } from "@/lib/post-auth-next";
+import { useEffect } from "react";
 
 const ForBrands = () => {
     const { user } = useAuth();
     const { t } = useI18n();
+    const [searchParams] = useSearchParams();
+    const fromSponsor = searchParams.get("from") === "sponsor" || searchParams.get("audience") === "brand";
+    const brief = readSponsorBrief();
+    const showSponsorContinue = fromSponsor || Boolean(brief);
+    const campaignHref = brandAuthHref(user);
+
+    useEffect(() => {
+        if (!showSponsorContinue) return;
+        rememberBrandEntry();
+    }, [showSponsorContinue]);
 
     const sponsorshipBenefits: Array<{ icon: typeof Target; titleKey: TranslationKey; descKey: TranslationKey }> = [
         {
@@ -93,6 +104,21 @@ const ForBrands = () => {
                         <p className="mb-10 max-w-2xl text-base leading-8 text-zinc-200 sm:text-lg md:text-xl">
                             {t("forBrands.heroCopy")}
                         </p>
+
+                        {showSponsorContinue ? (
+                            <div className="mb-10 max-w-2xl rounded-[1.75rem] border border-primary/25 bg-primary/10 p-5 text-left sm:p-6">
+                                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{t("forBrands.sponsorBannerTitle")}</p>
+                                <p className="mt-2 text-lg font-black text-white">{brief?.name || t("forBrands.sponsorBannerFallback")}</p>
+                                <p className="mt-3 text-sm leading-6 text-white/75">{brief?.insight || t("forBrands.sponsorBannerCopy")}</p>
+                                <Button variant="hero" size="lg" className="mt-5" asChild>
+                                    <Link to={campaignHref}>
+                                        {t("forBrands.sponsorContinue")}
+                                        <ArrowRight className="w-5 h-5 ml-2" />
+                                    </Link>
+                                </Button>
+                                <p className="mt-3 text-sm leading-6 text-white/60">{t("forBrands.sponsorContinueHelp")}</p>
+                            </div>
+                        ) : null}
 
                         <MarketingPromiseStrip
                             variant="dark"

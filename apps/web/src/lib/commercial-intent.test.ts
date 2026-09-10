@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  BRAND_CAMPAIGN_PATH,
+  BRAND_LANDING_PATH,
+  brandAuthHref,
   buildAuthHref,
   inferAuthRole,
   mapSponsorActionToOutcome,
@@ -21,8 +24,21 @@ describe("inferAuthRole", () => {
   it("infers brand and host destinations from their working surfaces", () => {
     expect(inferAuthRole("/onboarding/brand")).toBe("brand");
     expect(inferAuthRole("/create/campaign")).toBe("brand");
+    expect(inferAuthRole("/free/sponsor")).toBe("brand");
+    expect(inferAuthRole("/for-brands")).toBe("brand");
     expect(inferAuthRole("/create/moment")).toBe("host");
     expect(inferAuthRole("/stock")).toBe("merchant");
+  });
+});
+
+describe("brandAuthHref", () => {
+  it("sends a guest into the brand campaign workspace, not a host proposal", () => {
+    expect(BRAND_LANDING_PATH).toBe("/for-brands?from=sponsor");
+    expect(BRAND_CAMPAIGN_PATH).toBe("/create/campaign?from=sponsor");
+    expect(brandAuthHref(null)).toBe(
+      "/auth?mode=signup&role=brand&next=%2Fcreate%2Fcampaign%3Ffrom%3Dsponsor",
+    );
+    expect(brandAuthHref({ id: "user-1" })).toBe("/create/campaign?from=sponsor");
   });
 });
 
