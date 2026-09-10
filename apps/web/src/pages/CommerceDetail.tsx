@@ -184,7 +184,7 @@ export default function CommerceDetail() {
       {x.category ? <Link to={`/shop/category/${commerceCategorySlug(x.category)}`} className="ml-3 text-sm text-primary">{x.category}</Link> : null}
       {isSample ? <div className="mt-5 rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] px-5 py-4 text-sm text-amber-100"><strong>{t("commerce.sampleTitle")}</strong> {t("commerce.sampleCopy")}</div> : null}
       <div className="mt-5 overflow-hidden rounded-[2rem] border border-white/10 bg-[#0c0c0c] text-white lg:grid lg:grid-cols-2">
-        <div className="relative min-h-[420px] bg-white/5">
+        <div className="relative min-h-[240px] bg-white/5 sm:min-h-[420px]">
           {x.image_url ? <img src={x.image_url} alt={x.name || ''} className="absolute inset-0 h-full w-full object-cover" /> : <ShoppingBag className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 text-white/20" />}
           <button
             aria-label={t("commerce.save")}
@@ -205,8 +205,8 @@ export default function CommerceDetail() {
               <Badge variant="secondary" className="capitalize">{x.fulfillment_mode || 'merchant fulfillment'}</Badge>
               {x.service_duration_minutes ? <Badge variant="outline" className="border-white/15 text-white"><CalendarClock className="mr-1 h-3 w-3" />{x.service_duration_minutes} min</Badge> : null}
             </div>
-            <h1 className="mt-5 text-5xl font-black tracking-[-.055em]">{x.name}</h1>
-            <p className="mt-5 text-base leading-7 text-white/60">{x.description || t("commerce.fallback")}</p>
+            <h1 className="mt-5 text-balance font-sans text-3xl font-black leading-tight tracking-[-0.03em] sm:text-5xl sm:tracking-[-.055em]">{x.name}</h1>
+            <p className="mt-5 text-pretty text-base leading-7 text-white/60">{x.description || t("commerce.fallback")}</p>
             {x.venue_name ? <p className="mt-5 flex items-center gap-2 text-sm text-white/50"><MapPin className="h-4 w-4 text-primary" />{x.venue_name}{x.location ? ` · ${x.location}` : ''}</p> : null}
           </div>
           <div className="mt-10">

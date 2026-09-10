@@ -198,35 +198,35 @@ const Marketplace = () => {
     };
 
     return (
-        <main className="mx-auto max-w-[1440px] space-y-8 px-4 pb-16 pt-4 animate-in fade-in duration-700 sm:px-6 lg:px-8">
+        <main className="mx-auto max-w-[1440px] space-y-6 px-4 pb-16 pt-4 animate-in fade-in duration-700 sm:space-y-8 sm:px-6 lg:px-8">
             {/* Search & Filter Header */}
-            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_32%),linear-gradient(135deg,rgba(10,10,10,0.98),rgba(20,20,20,0.94))] p-5 shadow-2xl md:p-8">
-                <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-                    <div>
-                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary">
-                            <Store className="h-3.5 w-3.5" />
-                            {t("market.eyebrow")}
+            <div className="overflow-x-clip rounded-[1.5rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_32%),linear-gradient(135deg,rgba(10,10,10,0.98),rgba(20,20,20,0.94))] p-4 shadow-2xl sm:rounded-[2rem] sm:p-5 md:p-8">
+                <div className="flex min-w-0 flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-5">
+                    <div className="min-w-0">
+                        <div className="mb-3 flex max-w-full flex-wrap items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-primary sm:inline-flex sm:text-[11px] sm:tracking-[0.18em]">
+                            <Store className="h-3.5 w-3.5 shrink-0" />
+                            <span className="min-w-0 text-pretty">{t("market.eyebrow")}</span>
                         </div>
-                        <h1 className="max-w-3xl text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white md:text-6xl">
+                        <h1 className="max-w-3xl text-balance font-sans text-[1.85rem] font-black uppercase leading-[1.08] tracking-[-0.03em] text-white sm:text-4xl sm:leading-[0.95] sm:tracking-[-0.04em] md:text-6xl md:leading-[0.9] md:tracking-[-0.055em]">
                             {t("market.title")}
                         </h1>
-                        <p className="mt-4 max-w-2xl text-sm leading-7 text-white/68 md:text-base">
+                        <p className="mt-3 max-w-2xl text-pretty text-sm leading-6 text-white/68 sm:mt-4 sm:leading-7 md:text-base">
                             {t("market.copy")}
                         </p>
                     </div>
 
-                    <div className="grid gap-2 text-xs text-white/70 sm:grid-cols-3 md:w-[34rem]">
+                    <div className="grid min-w-0 grid-cols-3 gap-1.5 text-[11px] text-white/70 sm:gap-2 sm:text-xs md:w-[34rem]">
                         {[[t("market.buy"), t("market.buyCopy")], [t("market.earn"), t("market.earnCopy")], [t("market.unlock"), t("market.unlockCopy")]].map(([label, copy]) => (
-                            <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                                <div className="font-black uppercase tracking-[0.18em] text-primary">{label}</div>
-                                <p className="mt-1 leading-5">{copy}</p>
+                            <div key={label} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 sm:p-3">
+                                <div className="text-pretty font-black uppercase leading-tight tracking-wide text-primary">{label}</div>
+                                <p className="mt-1 hidden text-pretty leading-5 sm:block">{copy}</p>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div className="mt-6 flex w-full gap-3 md:max-w-xl">
-                    <div className="relative flex-1 md:w-80">
+                <div className="mt-5 flex w-full min-w-0 gap-3 sm:mt-6 md:max-w-xl">
+                    <div className="relative min-w-0 flex-1 md:w-80">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                             placeholder={t("market.search")}
@@ -235,7 +235,7 @@ const Marketplace = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <Button variant="outline" size="icon" className="rounded-xl border-border/40">
+                    <Button variant="outline" size="icon" className="shrink-0 rounded-xl border-border/40">
                         <Filter className="w-4 h-4" />
                     </Button>
                 </div>
@@ -337,10 +337,10 @@ const Marketplace = () => {
             </div>
 
             {/* Value Prop Banner */}
-            <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-3xl p-8 border border-white/10 relative overflow-hidden">
-                <div className="relative z-10 max-w-2xl">
-                    <h2 className="text-3xl font-black uppercase leading-none tracking-[-0.04em] mb-2">{t("market.valueTitle")}</h2>
-                    <p className="text-muted-foreground text-sm">{t("market.valueCopy")}</p>
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-r from-primary/10 to-accent/10 p-5 sm:p-8">
+                <div className="relative z-10 max-w-2xl min-w-0">
+                    <h2 className="mb-2 text-balance font-sans text-2xl font-black uppercase leading-tight tracking-[-0.03em] sm:text-3xl sm:leading-none sm:tracking-[-0.04em]">{t("market.valueTitle")}</h2>
+                    <p className="text-pretty text-sm text-muted-foreground">{t("market.valueCopy")}</p>
                     <Button variant="link" className="p-0 text-primary mt-4 h-auto">
                         {t("market.learnRanks")} <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
