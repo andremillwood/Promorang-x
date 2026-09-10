@@ -277,7 +277,7 @@ const MomentDetail = () => {
           const { data, error } = await supabase.from("moments").select("*").eq("id", id.trim()).maybeSingle();
           if (!error && data) momentData = data;
         } else {
-          const slugs = isEncoreSlug(cleanId) ? ["encore", "encore-wednesday-social-vip"] : [cleanId];
+          const slugs = isEncoreSlug(cleanId) ? ["encore", "encore-90s-fridays", "encore-wednesday-social-vip"] : [cleanId];
           const { data, error } = await supabase.from("moments").select("*").in("slug", slugs).maybeSingle();
           if (!error && data) {
             momentData = data;

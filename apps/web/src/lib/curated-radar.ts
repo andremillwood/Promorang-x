@@ -303,7 +303,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
   {
     id: ENCORE_MOMENT_ID,
     title: ENCORE_TITLE,
-    description: 'A room built for crews and tastemakers. Unlock priority entry, secret table dividends, signature bottle service perks, and meet the people worth knowing.',
+    description: 'Encore 90s Fridays is the biweekly 90s night at Fiction. Unlock priority entry, secret table dividends, signature bottle service perks, and meet the people worth knowing.',
     intentType: 'ATTEND',
     ownership: 'PROMORANG PRESENTS',
     venueName: ENCORE_VENUE_NAME,

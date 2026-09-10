@@ -39,11 +39,11 @@ export default function PromorangPresents() {
   const editions = [
     {
       id: "encore",
-      eyebrow: "FRIDAY / SOCIAL + VIP",
-      title: "Encore",
+      eyebrow: "FRIDAY / 90S",
+      title: "Encore 90s Fridays",
       date: ENCORE_CADENCE,
       location: "Kingston",
-      description: "A room built for crews. Unlock priority entry, secret tables and the people worth knowing.",
+      description: "The biweekly 90s night. Unlock priority entry, secret tables and the people worth knowing.",
       unlock: "Secret table",
       requirement: "Bring 3 verified friends",
       tone: "amber",
@@ -145,7 +145,7 @@ export default function PromorangPresents() {
               <span>{t("promorangPresentsPage.privateDrops")}</span>
             </div>
             <div className="presents-ticket-meta">
-              <div><span>{t("promorangPresentsPage.ticketFri")}</span><strong>ENCORE</strong></div>
+              <div><span>{t("promorangPresentsPage.ticketFri")}</span><strong>ENCORE 90S</strong></div>
               <div><span>{t("promorangPresentsPage.ticketThu")}</span><strong>I LUV HIP HOP</strong></div>
             </div>
             <p className="presents-ticket-foot"><LockKeyhole size={14} /> {t("promorangPresentsPage.detailsUnlock")}</p>

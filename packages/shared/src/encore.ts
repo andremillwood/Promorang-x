@@ -1,7 +1,8 @@
 export const ENCORE_MOMENT_ID = "00000000-0000-0000-0002-000000000002";
 export const ENCORE_MOMENT_SLUG = "encore";
+export const ENCORE_PUBLIC_SLUG = "encore-90s-fridays";
 export const ENCORE_LEGACY_SLUG = "encore-wednesday-social-vip";
-export const ENCORE_TITLE = "Encore";
+export const ENCORE_TITLE = "Encore 90s Fridays";
 export const ENCORE_VENUE_NAME = "Fiction Nightclub";
 export const ENCORE_TIMEZONE = "America/Jamaica";
 /** First biweekly Friday: 11 Sep 2026, 8:00 PM Jamaica. */
@@ -41,7 +42,7 @@ export type EncoreRecurrenceLike = {
 
 export function isEncoreSlug(value?: string | null): boolean {
   const slug = String(value || "").trim().toLowerCase();
-  return slug === ENCORE_MOMENT_SLUG || slug === ENCORE_LEGACY_SLUG;
+  return slug === ENCORE_MOMENT_SLUG || slug === ENCORE_PUBLIC_SLUG || slug === ENCORE_LEGACY_SLUG;
 }
 
 export function isEncoreMomentRef(value?: string | null): boolean {

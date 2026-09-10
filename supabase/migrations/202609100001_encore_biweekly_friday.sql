@@ -1,9 +1,9 @@
--- Encore is a biweekly Friday series at Fiction, starting 11 Sep 2026.
--- Keep the old Wednesday slug resolvable via title/id; the public slug is now `encore`.
+-- Encore 90s Fridays is a biweekly Friday series at Fiction, starting 11 Sep 2026.
+-- Keep the old Wednesday slug resolvable via title/id; the public slug is `encore`.
 
 UPDATE public.moments
 SET
-  title = 'Encore',
+  title = 'Encore 90s Fridays',
   slug = CASE
     WHEN NOT EXISTS (
       SELECT 1 FROM public.moments other
@@ -11,7 +11,7 @@ SET
     ) THEN 'encore'
     ELSE slug
   END,
-  description = 'A room built for crews and tastemakers. Unlock priority entry, secret table dividends, signature bottle service perks, and meet the people worth knowing. Every other Friday at Fiction.',
+  description = 'Encore 90s Fridays is the biweekly 90s night at Fiction. Unlock priority entry, secret table dividends, signature bottle service perks, and meet the people worth knowing.',
   starts_at = '2026-09-11 20:00:00-05',
   ends_at = '2026-09-12 02:00:00-05',
   recurrence_enabled = true,
@@ -24,7 +24,7 @@ SET
   series_key = COALESCE(series_key, 'encore'),
   updated_at = now()
 WHERE id = '00000000-0000-0000-0002-000000000002'
-   OR slug IN ('encore', 'encore-wednesday-social-vip')
+   OR slug IN ('encore', 'encore-90s-fridays', 'encore-wednesday-social-vip')
    OR (
      title ILIKE '%Encore%'
      AND title NOT ILIKE '%Capleton%'
@@ -35,7 +35,8 @@ WHERE id = '00000000-0000-0000-0002-000000000002'
 
 UPDATE public.presents_experiences
 SET
+  event_name = 'Encore 90s Fridays',
   metadata = jsonb_set(COALESCE(metadata, '{}'::jsonb), '{day}', '"Friday"'),
   updated_at = now()
-WHERE event_name = 'Encore'
+WHERE event_name IN ('Encore', 'Encore 90s Fridays')
    OR slug IN ('encore-secret-table', 'encore-fast-lane');
