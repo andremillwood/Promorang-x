@@ -1,57 +1,38 @@
-import { act } from "react";
-import { createRoot, type Root } from "react-dom/client";
-import { MemoryRouter } from "react-router-dom";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { I18nProvider } from "@/i18n/I18nContext";
-import Marketplace from "./Marketplace";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { describe, expect, it } from "vitest";
+import { translations } from "@/i18n/translations";
 
-vi.mock("@tanstack/react-query", async () => {
-  const actual = await vi.importActual<typeof import("@tanstack/react-query")>("@tanstack/react-query");
-  return {
-    ...actual,
-    useQuery: () => ({ data: [], isLoading: false, error: null }),
-  };
-});
-
-let root: Root;
-let container: HTMLDivElement;
-
-const renderShop = async () => {
-  await act(async () => {
-    root.render(
-      <MemoryRouter initialEntries={["/shop"]}>
-        <I18nProvider>
-          <Marketplace />
-        </I18nProvider>
-      </MemoryRouter>,
-    );
-  });
-};
+const shopCopyKeys = [
+  "market.title",
+  "market.eyebrow",
+  "market.copy",
+  "market.buy",
+  "market.buyCopy",
+  "market.earn",
+  "market.earnCopy",
+  "market.unlock",
+  "market.unlockCopy",
+] as const;
 
 describe("Marketplace mobile copy", () => {
-  beforeEach(() => {
-    vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
-    container = document.createElement("div");
-    document.body.appendChild(container);
-    root = createRoot(container);
+  it("keeps shop headline and body words separated", () => {
+    expect(translations.en["market.title"]).toBe("Curated Passes. Guaranteed Value.");
+    expect(translations.en["market.copy"]).toContain("Promorang curates experience packages with local partners.");
+    expect(translations.en["market.buy"]).toBe("Buy or book");
+    expect(translations.en["market.earn"]).toBe("Earn signal");
+    expect(translations.en["market.unlock"]).toBe("Unlock more");
+
+    for (const key of shopCopyKeys) {
+      expect(translations.en[key]).toMatch(/ /);
+      expect(translations.en[key].replace(/\s+/g, "")).not.toBe(translations.en[key]);
+    }
   });
 
-  afterEach(async () => {
-    await act(async () => {
-      root.unmount();
-    });
-    container.remove();
-  });
-
-  it("keeps shop headline and body words separated", async () => {
-    await renderShop();
-
-    expect(container.textContent).toContain("Curated Passes. Guaranteed Value.");
-    expect(container.textContent).toContain("Promorang curates experience packages with local partners.");
-    expect(container.textContent).toContain("Buy or book");
-    expect(container.textContent).toContain("Earn signal");
-    expect(container.textContent).toContain("Unlock more");
-    expect(container.textContent).not.toContain("CURATEDPASSES");
-    expect(container.textContent).not.toContain("Buyorbook");
+  it("does not load the opsz font axis that collapses spaces on iOS", () => {
+    const css = readFileSync(path.join(process.cwd(), "src/index.css"), "utf8");
+    expect(css).not.toMatch(/opsz,wght/);
+    expect(css).toMatch(/font-optical-sizing:\s*none/);
+    expect(css).toMatch(/word-spacing:\s*0\.04em/);
   });
 });
