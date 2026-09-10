@@ -38,7 +38,7 @@ export const CREATE_INTENTS: CreateIntentTarget[] = [
   { intent: "buy", label: "Buy something", prompt: "Move people toward a purchase.", mapsTo: "Merchant perk", href: "/give?kind=merchant" },
   { intent: "try", label: "Try something", prompt: "Let people sample a place, drink or brand.", mapsTo: "Moment + perk", href: "/create/moment?intent=try" },
   { intent: "answer", label: "Answer something", prompt: "Ask your people what they want.", mapsTo: "Discovery", href: "/create?intent=answer" },
-  { intent: "post", label: "Post something", prompt: "Get people to share a story or clip.", mapsTo: "Mission", href: "/missions" },
+  { intent: "post", label: "Post something", prompt: "Put a song, story, or clip up as a Release.", mapsTo: "Release", href: "/content-drops" },
   { intent: "bring", label: "Bring friends", prompt: "Grow the network through people they already trust.", mapsTo: "Invite", href: "/people?action=invite" },
   { intent: "claim", label: "Claim something", prompt: "Put a perk on their PromoCard.", mapsTo: "Drop", href: "/give" },
   { intent: "other", label: "Something else", prompt: "Make something happen your own way.", mapsTo: "Moment", href: "/create/moment?intent=other" },

@@ -484,7 +484,7 @@ const buildReasonLabels = (item, intent, scoreBreakdown = null) => {
     if ((scoreBreakdown?.relevance || 0) >= 18) labels.push('Matches your interests');
     if ((scoreBreakdown?.behavior || 0) >= 4 && item.behavior_reason) labels.push(item.behavior_reason);
     if (item.type === 'coupon') labels.push('Brand-funded');
-    if (item.type === 'drop') labels.push('Proof-based');
+    if (item.type === 'drop') labels.push('Release');
     if ((item.score || 0) >= 70) labels.push('High match');
 
     return Array.from(new Set(labels)).slice(0, 3);
@@ -501,9 +501,9 @@ const buildPrimaryAction = (item, objectType) => {
 
     if (objectType === 'drop') {
         return {
-            label: 'Start Proof',
-            action: 'start_proof',
-            href: '/watch-unlock',
+            label: 'Open Release',
+            action: 'open_release',
+            href: `/content-drops/${item.entity_id || item.id}`,
         };
     }
 

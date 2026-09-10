@@ -57,7 +57,7 @@ function inject(page, locale) {
   const title = `${pageTitle} | Promorang`;
   const description = (localized?.[1] || page.description || "Discover real-world Moments, Scenes, places, and local culture on Promorang.").slice(0, 200);
   const image = absolute(page.image);
-  const canonical = `${site}${localizedPath(page.path, locale)}`;
+  const canonical = `${site}${localizedPath(page.canonicalPath || page.path, locale)}`;
   const alternates = Object.values(locales).map((entry) => `    <link rel="alternate" hreflang="${entry.hreflang}" href="${escapeHtml(`${site}${entry.prefix}${page.path === "/" ? "/" : page.path}`)}">`).join("\n");
   const meta = `
     <!-- public-seo:start -->
@@ -73,17 +73,23 @@ ${alternates}
     <meta property="og:title" content="${escapeHtml(pageTitle)}">
     <meta property="og:description" content="${escapeHtml(description)}">
     <meta property="og:image" content="${escapeHtml(image)}">
+    <meta property="og:image:secure_url" content="${escapeHtml(image)}">
+    <meta property="og:image:alt" content="${escapeHtml(page.imageAlt || pageTitle)}">
+    ${page.imageType ? `<meta property="og:image:type" content="${escapeHtml(page.imageType)}">` : ""}
+    ${page.imageWidth ? `<meta property="og:image:width" content="${escapeHtml(String(page.imageWidth))}">` : ""}
+    ${page.imageHeight ? `<meta property="og:image:height" content="${escapeHtml(String(page.imageHeight))}">` : ""}
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escapeHtml(pageTitle)}">
     <meta name="twitter:description" content="${escapeHtml(description)}">
     <meta name="twitter:image" content="${escapeHtml(image)}">
+    <meta name="twitter:image:alt" content="${escapeHtml(page.imageAlt || pageTitle)}">
     <script type="application/ld+json">${JSON.stringify(page.schema).replace(/</g, "\\u003c")}</script>
     <!-- public-seo:end -->`;
   const cleaned = shell
     .replace(/<title>[\s\S]*?<\/title>/i, "")
     .replace(/\s*<meta name="description"[^>]*>/i, "")
     .replace(/\s*<link rel="canonical"[^>]*>/i, "")
-    .replace(/\s*<meta property="og:(?:type|site_name|url|title|description|image|image:alt)"[^>]*>/gi, "")
+    .replace(/\s*<meta property="og:(?:type|site_name|url|title|description|image|image:alt|image:secure_url|image:type|image:width|image:height)"[^>]*>/gi, "")
     .replace(/\s*<meta name="twitter:(?:card|site|title|description|image|image:alt)"[^>]*>/gi, "")
     .replace("</head>", `${meta}\n</head>`);
   const visible = `<main data-public-seo-snapshot><article><h1>${escapeHtml(pageTitle)}</h1><p>${escapeHtml(description)}</p>${page.location ? `<p>${escapeHtml(page.location)}</p>` : ""}<p><a href="${escapeHtml(canonical)}">${locales[locale].view}</a></p></article></main>`;
@@ -97,7 +103,54 @@ async function emit(page, locale) {
   await writeFile(destination, inject(page, locale));
 }
 
-const staticUrls = ["/", "/discover", "/discover/moments", "/discover/venues", "/discover/content", "/scenes", "/brands", "/creators", "/merchants", "/for-communities", "/for-brands", "/for-creators", "/how-it-works", "/campaigns/arla-whip-and-cook", "/proposals/arla-pro"];
+const AFTRHRS_OG = "/og/aftrhrs.jpg";
+const aftrHrsShare = {
+  title: "AftrHrs at Sea Deck",
+  description: "Join AftrHrs every Friday at Sea Deck, powered by Origin: Alric & Boyd and PROMORANG. Claim a limited Digital Free Pass or connect with an AftrHrs Ambassador for a physical invitation.",
+  image: AFTRHRS_OG,
+  imageAlt: "AftrHrs at Sea Deck",
+  imageType: "image/jpeg",
+  imageWidth: 941,
+  imageHeight: 1672,
+  type: "Event",
+  location: "Sea Deck, Orchid Village, 20 Barbican Road, Kingston",
+};
+const aftrHrsSchema = (path) => ({
+  "@context": "https://schema.org",
+  "@type": "Event",
+  name: "AftrHrs at Sea Deck",
+  description: aftrHrsShare.description,
+  image: [absolute(AFTRHRS_OG)],
+  startDate: "2026-09-11T22:00:00-05:00",
+  eventSchedule: {
+    "@type": "Schedule",
+    repeatFrequency: "P1W",
+    byDay: "https://schema.org/Friday",
+    startTime: "22:00",
+    scheduleTimezone: "America/Jamaica",
+  },
+  eventStatus: "https://schema.org/EventScheduled",
+  eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+  location: {
+    "@type": "Place",
+    name: "Sea Deck",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Orchid Village, 20 Barbican Road",
+      addressLocality: "Kingston",
+      addressCountry: "JM",
+    },
+  },
+  url: `${site}${path}`,
+  organizer: { "@type": "Organization", name: "PROMORANG", url: site },
+});
+const aftrHrsPages = [
+  { path: "/aftrhrs", ...aftrHrsShare, schema: aftrHrsSchema("/aftrhrs") },
+  { path: "/campaigns/aftrhrs", ...aftrHrsShare, canonicalPath: "/aftrhrs", schema: aftrHrsSchema("/aftrhrs") },
+  { path: "/moments/aftrhrs", ...aftrHrsShare, schema: aftrHrsSchema("/moments/aftrhrs") },
+];
+
+const staticUrls = ["/", "/discover", "/discover/moments", "/discover/venues", "/discover/content", "/scenes", "/brands", "/creators", "/merchants", "/for-communities", "/for-brands", "/for-creators", "/how-it-works", "/campaigns/arla-whip-and-cook", "/proposals/arla-pro", "/aftrhrs", "/campaigns/aftrhrs", "/moments/aftrhrs"];
 const pages = [
   { path: "/discover", title: "Discover what is happening around you", description: "Explore local Moments, Scenes, trusted Discoveries, venues, and creator stories on Promorang.", schema: { "@context": "https://schema.org", "@type": "CollectionPage", name: "Discover on Promorang", url: `${site}/discover` } },
   { path: "/discover/moments", title: "Discover local Moments", description: "Find upcoming events and real-world experiences on Promorang.", schema: { "@context": "https://schema.org", "@type": "CollectionPage", name: "Promorang Moments", url: `${site}/discover/moments` } },
@@ -144,6 +197,12 @@ try {
   for (const [path, name] of locations) pages.push({ path, title: `Discover ${name}`, description: `Find Scenes, Moments, trusted Discoveries, venues, and local stories in ${name}.`, location: name, schema: { "@context": "https://schema.org", "@type": "CollectionPage", name: `Discover ${name}`, url: `${site}${path}` } });
 } catch (error) {
   console.warn(`[public-seo] Dynamic pages were skipped: ${error.message}`);
+}
+
+for (const page of aftrHrsPages) {
+  const index = pages.findIndex((entry) => entry.path === page.path);
+  if (index >= 0) pages[index] = page;
+  else pages.push(page);
 }
 
 await Promise.all(pages.flatMap((page) => Object.keys(locales).map((locale) => emit(page, locale))));

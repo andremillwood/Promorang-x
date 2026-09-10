@@ -72,7 +72,7 @@ const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { signIn, signUp, demoSignIn, signInWithGoogle } = useAuth();
+  const { signIn, signUp, demoSignIn, signInWithGoogle, user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -97,6 +97,12 @@ const AuthPage = () => {
     brand: { title: t("auth.brand"), description: t("persona.brandDesc") },
     merchant: { title: t("auth.merchant"), description: t("persona.merchantDesc") },
   };
+
+  useEffect(() => {
+    if (authLoading || !user) return;
+    persistPostAuthNext(nextPath);
+    navigate(nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//") ? nextPath : "/post-login", { replace: true });
+  }, [authLoading, user, nextPath, navigate]);
 
   useEffect(() => {
     captureGrowthAttribution();
@@ -286,11 +292,11 @@ const AuthPage = () => {
         <div className="w-full max-w-md">
           {/* Back to Home */}
           <Link
-            to="/"
+            to={nextPath?.startsWith("/aftrhrs") || nextPath?.startsWith("/moments/aftrhrs") ? "/aftrhrs" : "/"}
             className="inline-flex min-h-11 items-center gap-2 text-sm text-[#6d645a] transition-colors mb-4 sm:mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
-            {t("auth.back")}
+            {nextPath?.startsWith("/aftrhrs") || nextPath?.startsWith("/moments/aftrhrs") ? "Back to AftrHrs" : t("auth.back")}
           </Link>
 
           {/* Logo */}

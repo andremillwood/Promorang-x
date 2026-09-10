@@ -23,6 +23,8 @@ export * from "./offer-fulfillment";
 export * from "./offer-availability";
 export * from "./promocard-product";
 export * from "./promocard-face";
+export * from "./promocard-journey";
+export * from "./release";
 export * from "./people-experience";
 export * from "./stakeholder-lens";
 export * from "./stakeholder-setup";

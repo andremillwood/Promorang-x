@@ -15,7 +15,7 @@ import {
 import SEO from "@/components/SEO";
 import { generateEventSchema } from "@/lib/seo-schemas";
 import { getSiteUrl } from "@/lib/discovery";
-import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_PATHS, formatPublicRemainingLabel, isAftrHrsClaimReturn } from "@promorang/shared";
+import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_EVENT_SCHEDULE, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, AFTRHRS_START_ISO, formatPublicRemainingLabel, isAftrHrsClaimReturn } from "@promorang/shared";
 import { useAftrHrs } from "@/hooks/useAftrHrs";
 import { captureGrowthAttribution } from "@/lib/marketing-attribution";
 import { persistPostAuthNext } from "@/lib/post-auth-next";
@@ -39,7 +39,7 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
 }
 
 export default function AftrHrsExperience() {
-  const { data, remaining, remainingPercent, soldOut, user, claim, join, ambassadorRequest, follow, track } = useAftrHrs();
+  const { data, remainingPercent, soldOut, user, claim, join, ambassadorRequest, follow, track } = useAftrHrs();
   const [searchParams] = useSearchParams();
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [claiming, setClaiming] = useState(false);
@@ -68,25 +68,31 @@ export default function AftrHrsExperience() {
     }
   }, [shouldAutoClaim, data.pass, soldOut]);
 
-  const schema = useMemo(
-    () =>
-      generateEventSchema({
-        id: edition.moment_id,
-        title: "AftrHrs at Sea Deck",
-        description: AFTRHRS_COPY.metaDescription,
-        location: venue?.address,
-        venue_name: "Sea Deck",
-        starts_at: edition.moments?.starts_at || "2026-09-11T22:00:00-05:00",
-        image_url: edition.artwork.flyer,
-        latitude: venue?.latitude,
-        longitude: venue?.longitude,
-        entry_fee_jmd: 0,
-        city: "Kingston",
-        country: "Jamaica",
-        slug: "aftrhrs",
-      }),
-    [edition, venue],
-  );
+  const schema = useMemo(() => {
+    const base = generateEventSchema({
+      id: edition.moment_id,
+      title: "AftrHrs at Sea Deck",
+      description: AFTRHRS_COPY.metaDescription,
+      location: venue?.address,
+      venue_name: "Sea Deck",
+      starts_at: edition.moments?.starts_at || AFTRHRS_START_ISO,
+      image_url: getSiteUrl(edition.artwork.og || edition.artwork.flyer || AFTRHRS_OG_IMAGE.path),
+      latitude: venue?.latitude,
+      longitude: venue?.longitude,
+      entry_fee_jmd: 0,
+      city: "Kingston",
+      country: "Jamaica",
+      slug: "aftrhrs",
+    });
+    const { offers, ...rest } = base;
+    const offer = offers && typeof offers === "object" ? { ...offers } : null;
+    if (offer && "validThrough" in offer) delete offer.validThrough;
+    return {
+      ...rest,
+      eventSchedule: AFTRHRS_EVENT_SCHEDULE,
+      ...(offer ? { offers: offer } : {}),
+    };
+  }, [edition, venue]);
 
   const share = async () => {
     const url = getSiteUrl(AFTRHRS_PATHS.landing);
@@ -147,7 +153,7 @@ export default function AftrHrsExperience() {
     }
   };
 
-  const remainingLabel = formatPublicRemainingLabel(remaining, edition.digital_allocation, soldOut);
+  const remainingLabel = formatPublicRemainingLabel(remainingPercent, soldOut);
 
   const mapsUrl = venue?.latitude && venue?.longitude
     ? `https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}`
@@ -155,7 +161,7 @@ export default function AftrHrsExperience() {
 
   const heroCta =
     release.kind === "pass" ? (
-      <Link to={AFTRHRS_PATHS.pass} className="rounded-full bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-[0.16em] text-black">
+      <Link to={AFTRHRS_PATHS.passAlias} className="rounded-full bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-[0.16em] text-black">
         {release.primaryCta}
       </Link>
     ) : release.kind === "sold_out" ? (
@@ -173,7 +179,11 @@ export default function AftrHrsExperience() {
       <SEO
         title={AFTRHRS_COPY.metaTitle}
         description={AFTRHRS_COPY.metaDescription}
-        image={getSiteUrl(edition.artwork.og || edition.artwork.flyer)}
+        image={getSiteUrl(edition.artwork.og || edition.artwork.flyer || AFTRHRS_OG_IMAGE.path)}
+        imageAlt={AFTRHRS_OG_IMAGE.alt}
+        imageType={AFTRHRS_OG_IMAGE.type}
+        imageWidth={AFTRHRS_OG_IMAGE.width}
+        imageHeight={AFTRHRS_OG_IMAGE.height}
         url={getSiteUrl(AFTRHRS_PATHS.landing)}
         type="website"
         schema={schema}
@@ -219,8 +229,8 @@ export default function AftrHrsExperience() {
               <p className="mt-6 max-w-2xl text-base leading-7 text-white/70">{edition.supporting_copy}</p>
               <div className="mt-8 flex flex-wrap gap-3 text-xs font-bold uppercase tracking-[0.18em] text-white/80">
                 <span className="rounded-full border border-white/15 px-3 py-1.5">Sea Deck</span>
-                <span className="rounded-full border border-white/15 px-3 py-1.5">September 11</span>
-                <span className="rounded-full border border-white/15 px-3 py-1.5">10:00 PM until</span>
+                <span className="rounded-full border border-white/15 px-3 py-1.5">{AFTRHRS_COPY.when}</span>
+                <span className="rounded-full border border-white/15 px-3 py-1.5">{AFTRHRS_COPY.doors}</span>
                 <span className="rounded-full border border-white/15 px-3 py-1.5">Afro House • Classic House • House Fusion</span>
               </div>
               <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -268,7 +278,7 @@ export default function AftrHrsExperience() {
               <p className="mt-4 max-w-xl text-white/68">{AFTRHRS_COPY.confirmation}</p>
               <p className="mt-3 text-sm font-bold uppercase tracking-[0.14em] text-fuchsia-300">{AFTRHRS_COPY.arrivalRule}</p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link to={AFTRHRS_PATHS.pass} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">Present pass</Link>
+                <Link to={AFTRHRS_PATHS.passAlias} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">Present pass</Link>
                 <Link to="/wallet" className="rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">Wallet</Link>
               </div>
             </div>
@@ -318,9 +328,8 @@ export default function AftrHrsExperience() {
               </form>
             </div>
             <aside className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">Still available</p>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">Free passes</p>
               <p className="mt-4 text-6xl font-black tracking-[-0.06em]">{remainingPercent}%</p>
-              <p className="text-sm text-white/55">remaining</p>
               <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
                 <div className="h-full bg-gradient-to-r from-fuchsia-400 to-cyan-300" style={{ width: `${remainingPercent}%` }} />
               </div>
@@ -336,7 +345,7 @@ export default function AftrHrsExperience() {
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {data.ambassadors.map((ambassador) => {
             const whatsapp = ambassador.publicContactHandle
-              ? `https://wa.me/?text=${encodeURIComponent(`Hello ${ambassador.name}, I would like a physical AftrHrs invitation for September 11 at Sea Deck.`)}`
+              ? `https://wa.me/?text=${encodeURIComponent(`Hello ${ambassador.name}, I would like a physical AftrHrs invitation for Friday at Sea Deck.`)}`
               : null;
             return (
               <article key={ambassador.id} className="rounded-3xl border border-white/10 bg-black/40 p-5">
@@ -344,7 +353,7 @@ export default function AftrHrsExperience() {
                   <img src={ambassador.profileImage || edition.artwork.logo} alt="" className="h-14 w-14 rounded-full object-cover" />
                   <div>
                     <h3 className="text-lg font-black">{ambassador.name}</h3>
-                    <p className="text-xs uppercase tracking-[0.16em] text-white/45">Approved · {ambassador.remaining} remaining</p>
+                    <p className="text-xs uppercase tracking-[0.16em] text-white/45">AftrHrs Ambassador</p>
                   </div>
                 </div>
                 <ul className="mt-4 space-y-2 text-sm text-white/65">
@@ -409,20 +418,20 @@ export default function AftrHrsExperience() {
             <p className="mt-4 max-w-xl text-white/68">{AFTRHRS_COPY.moment}</p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <button type="button" onClick={joinMoment} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">
-                {data.participation ? `You're ${data.participation.state.replaceAll("_", " ")}` : "I'm interested"}
+                {data.participation ? "You're in" : "I'm interested"}
               </button>
               <button type="button" onClick={share} className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">
                 <Share2 className="h-4 w-4" /> Invite friends
               </button>
               <span className="inline-flex items-center gap-2 text-sm text-white/55">
-                <Users className="h-4 w-4 text-cyan-300" /> {data.communityCount} in the Moment
+                <Users className="h-4 w-4 text-cyan-300" /> {data.communityCount} going
               </span>
             </div>
           </div>
           <div className="rounded-[2rem] border border-white/10 p-6">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40">Lifecycle</p>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40">The night</p>
             <ol className="mt-4 space-y-2 text-sm text-white/70">
-              {["Discovered", "Interested", "Pass requested", "Digital pass claimed", "Ambassador request", "Physical invitation", "Checked in", "Attended"].map((step) => (
+              {["Claim a Digital Free Pass", "Arrive before 11:30 PM", "Present your pass at Sea Deck"].map((step) => (
                 <li key={step} className="flex items-center gap-2"><Sparkles className="h-3.5 w-3.5 text-fuchsia-300" /> {step}</li>
               ))}
             </ol>
@@ -455,8 +464,8 @@ export default function AftrHrsExperience() {
             <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">Sea Deck</h2>
             <p className="mt-4 text-white/68">{venue?.description}</p>
             <p className="mt-4 flex items-center gap-2 text-sm text-white/70"><MapPin className="h-4 w-4" /> {venue?.address}</p>
-            <p className="mt-2 flex items-center gap-2 text-sm text-white/70"><Calendar className="h-4 w-4" /> September 11</p>
-            <p className="mt-2 flex items-center gap-2 text-sm text-white/70"><Clock className="h-4 w-4" /> 10:00 PM until</p>
+            <p className="mt-2 flex items-center gap-2 text-sm text-white/70"><Calendar className="h-4 w-4" /> {AFTRHRS_COPY.when}</p>
+            <p className="mt-2 flex items-center gap-2 text-sm text-white/70"><Clock className="h-4 w-4" /> {AFTRHRS_COPY.doors}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link to={AFTRHRS_PATHS.venue} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">Open venue profile</Link>
               <a href={mapsUrl} target="_blank" rel="noreferrer" className="rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">Directions</a>
@@ -485,19 +494,19 @@ export default function AftrHrsExperience() {
       </Section>
 
       <Section id="proof" className="border-y border-white/10 bg-white/[0.02]">
-        <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">{postEvent ? "What the night kept" : "Proof before the room fills"}</h2>
+        <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">{postEvent ? "What the night kept" : "AftrHrs at Sea Deck"}</h2>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <figure className="overflow-hidden rounded-3xl border border-white/10">
             <img src={edition.artwork.flyer} alt="AftrHrs flyer" className="h-64 w-full object-cover" />
-            <figcaption className="p-4 text-sm text-white/60">AftrHrs at Sea Deck.</figcaption>
+            <figcaption className="p-4 text-sm text-white/60">{AFTRHRS_COPY.when} · Sea Deck</figcaption>
           </figure>
           <figure className="overflow-hidden rounded-3xl border border-white/10">
             <img src={edition.artwork.invite} alt="AftrHrs invitation" className="h-64 w-full object-cover" />
-            <figcaption className="p-4 text-sm text-white/60">Physical invitation language. Ambassadors carry the remaining free access.</figcaption>
+            <figcaption className="p-4 text-sm text-white/60">You are invited.</figcaption>
           </figure>
           <figure className="overflow-hidden rounded-3xl border border-white/10 bg-black p-6">
             <img src={edition.artwork.logo} alt="AftrHrs logo" className="mx-auto h-40 object-contain" />
-            <figcaption className="mt-4 text-sm text-white/60">Origin: Alric & Boyd. Partner acknowledgements stay here without inventing extra credits.</figcaption>
+            <figcaption className="mt-4 text-sm text-white/60">Origin: Alric & Boyd</figcaption>
           </figure>
         </div>
       </Section>
@@ -530,7 +539,7 @@ export default function AftrHrsExperience() {
             <p className="truncate text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">
               {remainingLabel}
             </p>
-            <p className="truncate text-xs text-white/55">September 11 · Sea Deck</p>
+            <p className="truncate text-xs text-white/55">{AFTRHRS_COPY.whenLine} · Sea Deck</p>
           </div>
           {heroCta}
         </div>

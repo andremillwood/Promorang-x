@@ -53,6 +53,9 @@ import { useI18n } from "@/i18n/I18nContext";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { merchantAuthHref } from "@/lib/merchant-demand";
+import { useContentDrops } from "@/hooks/useContentDistribution";
+import { seededContentDrops } from "@/data/seeded-content-drops";
+import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
 
 const categoryFilters = [
   { id: "all", label: "All Drops", icon: Sparkles },
@@ -156,6 +159,8 @@ const Discover = () => {
   const [livePolls, setLivePolls] = useState<DiscoveryPoll[]>(() => getActiveDiscoveryPolls());
 
   const nearby = useNearbyBenefits();
+  const contentDrops = useContentDrops("active");
+  const releaseDrops = contentDrops.data?.length ? contentDrops.data : seededContentDrops;
   const perksLoading = nearby.isLoading;
   const livePerks = nearby.data || [];
   const stake = getStakeholderLens(searchParams.get("role") || activeRole);
@@ -411,6 +416,9 @@ const Discover = () => {
           <div className="mt-5">
             <StakeholderSurfaceLead role={stake.role} surface="world" />
           </div>
+          <div className="mt-4">
+            <LiveReleaseSignal drops={releaseDrops} />
+          </div>
 
           <nav aria-label={t("discover.pathPageTitle")} className="mt-6 flex flex-wrap gap-2">
             <p className="w-full text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
@@ -476,6 +484,8 @@ const Discover = () => {
             </Button>
           </div>
         </div>
+
+        <LiveReleaseSignal drops={releaseDrops} />
 
         <div className="flex items-center gap-2 border-b border-white/10 pb-4 overflow-x-auto scrollbar-none">
           <button

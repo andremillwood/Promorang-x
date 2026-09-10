@@ -1,12 +1,25 @@
--- Raise AftrHrs digital RSVP allocation to 30 without publishing the raw count.
+-- AftrHrs is a weekly Friday series at Sea Deck. Keep claims open across nights.
 
-ALTER TABLE public.event_editions
-  ALTER COLUMN digital_allocation SET DEFAULT 30;
+UPDATE public.moments
+SET
+  recurrence_enabled = true,
+  recurrence_frequency = 'weekly',
+  recurrence_interval = 1,
+  recurrence_by_weekday = ARRAY[5]::smallint[],
+  recurrence_timezone = 'America/Jamaica',
+  recurrence_until = NULL,
+  recurrence_count = NULL,
+  starts_at = COALESCE(starts_at, '2026-09-11 22:00:00-05'),
+  updated_at = now()
+WHERE id = '00000000-0000-0000-0002-000000000080'
+   OR slug = 'aftrhrs';
 
 UPDATE public.event_editions
 SET
-  digital_allocation = 30,
+  claim_closes_at = NULL,
+  claims_open = true,
   faqs = '[
+    {"question":"When is AftrHrs?","answer":"Every Friday from 10:00 PM at Sea Deck."},
     {"question":"Are Digital Free Passes still available?","answer":"Digital Free Passes are limited and go quickly. Claim yours while they last."},
     {"question":"What time must I arrive to get in free?","answer":"RSVP and Digital Free Pass holders must arrive before 11:30 PM to get in free."},
     {"question":"What happens when the Digital Free Passes are claimed?","answer":"Find an AftrHrs Ambassador for a physical invitation. Paid entry stays open."},
@@ -20,5 +33,4 @@ SET
     {"question":"What happens if the venue reaches capacity?","answer":"Admission remains subject to venue capacity and Sea Deck entry policies even with a valid pass or invitation."}
   ]'::jsonb,
   updated_at = now()
-WHERE slug = 'aftrhrs'
-  AND digital_allocation < 30;
+WHERE slug = 'aftrhrs';

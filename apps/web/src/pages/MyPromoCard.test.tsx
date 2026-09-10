@@ -153,7 +153,7 @@ describe("PromoCard journey", () => {
       document.querySelector('button[aria-label="Show code for Past offer"]'),
     ).not.toBeInTheDocument();
     expect(
-      document.querySelector('a[href="/discover"]'),
+      document.querySelector('a[href*="/discover"]'),
     ).toBeInTheDocument();
   });
 
@@ -213,7 +213,8 @@ describe("PromoCard journey", () => {
     expect(container).not.toHaveTextContent("A merchant supplied it");
     expect(container).not.toHaveTextContent("Aim this card");
     expect(container).toHaveTextContent("You can still fill the card");
-    expect(container).toHaveTextContent("Answer a Kingston After Dark question");
+    expect(container).toHaveTextContent("Browse Kingston After Dark perks");
+    expect(container).toHaveTextContent("Ask for Kingston After Dark");
     expect(container).toHaveTextContent("Start a poll");
     expect(container).toHaveTextContent("Host a moment");
     expect(
@@ -263,7 +264,8 @@ describe("PromoCard journey", () => {
     expect(container).toHaveTextContent("Ready to use");
     expect(container).toHaveTextContent("Show this");
     expect(container).toHaveTextContent("Your Food");
-    expect(container).toHaveTextContent("Show it where it works");
+    expect(container).toHaveTextContent("HOLD AT THE DOOR");
+    expect(container).toHaveTextContent("Show the merchant this code");
     expect(container).not.toHaveTextContent("From Discover");
     expect(container).not.toHaveTextContent("Use what’s on the card");
   });

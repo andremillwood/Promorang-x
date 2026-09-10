@@ -59,7 +59,7 @@ test('every card benefit carries issuer, eligibility, quantity, expiry, fulfillm
   expect(canUseBenefit(benefit)).toBe(true);
 });
 
-test('issued and shipping journeys do not present a use-this credential', () => {
+test('issued journeys hide the door code; shipping is still an actionable card perk', () => {
   const issued = toPromoCardBenefit({
     id: 'iss-issued',
     offer: { id: 'offer-2', owner_user_id: 'm1', fulfillment_type: 'merchant_validation' },
@@ -73,7 +73,7 @@ test('issued and shipping journeys do not present a use-this credential', () => 
   expect(issued.redemption.code).toBe(null);
   expect(canUseBenefit(issued)).toBe(false);
   expect(shipping.redemption.code).toBe(null);
-  expect(canUseBenefit(shipping)).toBe(false);
+  expect(canUseBenefit(shipping)).toBe(true);
   expect(issued.issuance.redemption_code).toBe('PR-HIDDEN');
   expect(shipping.issuance).toMatchObject({
     id: 'iss-ship',
@@ -82,14 +82,14 @@ test('issued and shipping journeys do not present a use-this credential', () => 
   });
 });
 
-test('QR stays off the copy-code path but keeps a presentable issuance on the card', () => {
+test('QR stays off the copy-code path but is still the card’s use-this pass', () => {
   const qr = toPromoCardBenefit({
     id: 'iss-qr',
     offer: { id: 'offer-qr', title: 'Slow-hour coffee', owner_user_id: 'm1', fulfillment_type: 'qr' },
     issuance: { id: 'iss-qr', status: 'claimed', redemption_code: 'PR-QR01' },
   });
   expect(qr.redemption.code).toBe(null);
-  expect(canUseBenefit(qr)).toBe(false);
+  expect(canUseBenefit(qr)).toBe(true);
   expect(qr.issuance.redemption_code).toBe('PR-QR01');
   expect(qr.issuance.offers.fulfillment_type).toBe('qr');
 });

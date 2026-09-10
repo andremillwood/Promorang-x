@@ -107,7 +107,7 @@ const BrandsDirectory = () => {
                         <Button variant="link" className="rounded-full border border-border px-4 py-2" onClick={() => window.location.assign("/explore/moments")}>
                             {t("brandsPage.browseMoments")}
                         </Button>
-                        <Button variant="link" className="rounded-full border border-border px-4 py-2" onClick={() => window.location.assign("/watch-unlock")}>
+                        <Button variant="link" className="rounded-full border border-border px-4 py-2" onClick={() => window.location.assign("/content-drops")}>
                             {t("brandsPage.watchUnlock")}
                         </Button>
                     </div>

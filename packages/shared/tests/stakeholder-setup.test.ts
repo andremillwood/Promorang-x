@@ -22,18 +22,18 @@ describe("stakeholder setup playbook", () => {
       "/earn",
       "/happened",
     ]);
-    expect(setup.why).toMatch(/inventory/i);
+    expect(setup.why).toMatch(/recorded use/i);
   });
 
-  it("lets a creator take a live perk or publish a drop brands can sponsor", () => {
+  it("lets a creator publish a Release, then attach a room or perk", () => {
     const setup = getStakeholderSetup("creator");
     expect(setup.steps.map((step) => step.href)).toEqual([
-      "/earn",
       "/content-drops",
       "/give",
+      "/earn",
       "/card",
     ]);
-    expect(setup.why).toMatch(/do not invent inventory/i);
+    expect(setup.why).toMatch(/origin/i);
   });
 
   it("keeps host gatherings attached to a merchant-validated perk", () => {
@@ -59,6 +59,6 @@ describe("stakeholder setup playbook", () => {
     expect(getStakeholderHowLead("brand", "stock").nextHref).toBe("/create/campaign");
     expect(getStakeholderHowLead("brand", "campaign").nextHref).toBe("/stock");
     expect(getStakeholderHowLead("creator", "earn").nextHref).toBe("/content-drops");
-    expect(getStakeholderHowLead("creator", "drops").body).toMatch(/live perk/i);
+    expect(getStakeholderHowLead("creator", "drops").body).toMatch(/release/i);
   });
 });

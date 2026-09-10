@@ -22,6 +22,7 @@ describe("people experience mapping", () => {
     expect(resolveCreateIntent("attend").mapsTo).toBe("Moment");
     expect(resolveCreateIntent("bring").href).toContain("/people");
     expect(resolveCreateIntent("claim").mapsTo).toBe("Drop");
+    expect(resolveCreateIntent("post")).toMatchObject({ mapsTo: "Release", href: "/content-drops" });
   });
 
   it("keeps hub ownership earned, not assumed", () => {

@@ -1,3 +1,5 @@
+import { canActOnBenefit } from "./promocard-journey";
+
 export const PROMOCARD_DISTRIBUTION_LOOP = [
   "merchant_supplied",
   "ambassador_shared",
@@ -165,15 +167,10 @@ export function isCompleteBenefit(benefit: Partial<PromoCardBenefit> | null | un
   return true;
 }
 
-export function canUseBenefit(benefit: Pick<PromoCardBenefit, "fulfillmentState" | "fulfillmentType" | "redemption" | "expiresAt">) {
-  if (benefit.redemption?.recorded) return false;
-  if (benefit.expiresAt) {
-    const expiry = Date.parse(benefit.expiresAt);
-    if (!Number.isFinite(expiry) || expiry <= Date.now()) return false;
-  }
-  const type = benefit.fulfillmentType || "merchant_validation";
-  if (!["code", "merchant_validation"].includes(type)) return false;
-  return benefit.fulfillmentState === "claimed" && Boolean(benefit.redemption?.code);
+export function canUseBenefit(benefit: Pick<PromoCardBenefit, "fulfillmentState" | "fulfillmentType" | "redemption" | "expiresAt"> & {
+  fulfillmentData?: { shipping_stage?: string | null } | null;
+}) {
+  return canActOnBenefit(benefit);
 }
 
 export function selectUseThis(benefits: PromoCardBenefit[]) {

@@ -5,8 +5,10 @@ import { getGrowthAttribution, getGrowthSessionId } from "@/lib/marketing-attrib
 import {
   AFTRHRS_COPY,
   AFTRHRS_DIGITAL_PASS_LIMIT,
+  AFTRHRS_OG_IMAGE_PATH,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_PATHS,
+  AFTRHRS_RECURRENCE,
   AFTRHRS_START_ISO,
   DEFAULT_AFTRHRS_FAQS,
   SEA_DECK_VENUE_ID,
@@ -104,7 +106,7 @@ export const AFTRHRS_FALLBACK: AftrHrsSnapshot = {
     claims_open: true,
     digital_allocation: AFTRHRS_DIGITAL_PASS_LIMIT,
     digital_claimed: 0,
-    claim_closes_at: AFTRHRS_START_ISO,
+    claim_closes_at: null,
     paid_admission_jmd: 2000,
     paid_patron_benefit: "Complimentary drink and wings",
     faqs: [...DEFAULT_AFTRHRS_FAQS],
@@ -115,13 +117,13 @@ export const AFTRHRS_FALLBACK: AftrHrsSnapshot = {
       logo: "/campaigns/aftrhrs/logo.jpg",
       flyer: "/campaigns/aftrhrs/flyer.jpg",
       invite: "/campaigns/aftrhrs/invite.jpg",
-      og: "/og/aftrhrs.jpg",
+      og: AFTRHRS_OG_IMAGE_PATH,
     },
     remaining: AFTRHRS_DIGITAL_PASS_LIMIT,
     remainingPercent: publicRemainingPercent(AFTRHRS_DIGITAL_PASS_LIMIT, AFTRHRS_DIGITAL_PASS_LIMIT),
     soldOut: false,
     venueSlug: "sea-deck",
-    moments: { starts_at: AFTRHRS_START_ISO, image_url: "/campaigns/aftrhrs/flyer.jpg", venue_name: "Sea Deck" },
+    moments: { starts_at: AFTRHRS_START_ISO, image_url: "/campaigns/aftrhrs/flyer.jpg", venue_name: "Sea Deck", ...AFTRHRS_RECURRENCE },
     venue_profiles: {
       name: "Sea Deck",
       address: "Orchid Village, 20 Barbican Road, Kingston",
@@ -251,18 +253,19 @@ export function useAftrHrs() {
   });
 
   const data = snapshot.data || AFTRHRS_FALLBACK;
-  const remaining = remainingDigitalPasses({
-    digitalAllocation: data.edition.digital_allocation,
-    digitalClaimed: data.edition.digital_claimed,
-  });
-  const remainingPercent = data.edition.remainingPercent ?? publicRemainingPercent(remaining, data.edition.digital_allocation);
+  const remainingPercent = data.edition.remainingPercent ?? publicRemainingPercent(
+    remainingDigitalPasses({
+      digitalAllocation: data.edition.digital_allocation,
+      digitalClaimed: data.edition.digital_claimed,
+    }),
+    data.edition.digital_allocation,
+  );
 
   return {
     ...snapshot,
     data,
-    remaining,
     remainingPercent,
-    soldOut: remaining <= 0 || data.edition.soldOut,
+    soldOut: remainingPercent <= 0 || data.edition.soldOut,
     token,
     user,
     track,

@@ -381,7 +381,7 @@ const App = () => (
                     <Route path="/pulse-feed" element={<Navigate to="/live" replace />} />
                     <Route path="/missions" element={<WatchUnlock />} />
                     <Route path="/missions/:id" element={<ContentMissionDetail />} />
-                    <Route path="/watch-unlock" element={<Navigate to="/missions" replace />} />
+                    <Route path="/watch-unlock" element={<Navigate to="/content-drops" replace />} />
                     <Route path="/watch-unlock/:id" element={<ContentMissionDetail />} />
                     <Route path="/search" element={<Search />} />
                     <Route path="/notifications" element={<Activity />} />
@@ -414,6 +414,7 @@ const App = () => (
                     <Route path="/scout/enrichment" element={<ProtectedRoute><ScoutEnrichment /></ProtectedRoute>} />
                     <Route path="/scout/events" element={<ProtectedRoute><EventScout /></ProtectedRoute>} />
                     <Route path="/aftrhrs" element={<AftrHrsExperience />} />
+                    <Route path="/aftrhrs/pass" element={<AftrHrsPass />} />
                     <Route path="/campaigns/aftrhrs" element={<Navigate to="/aftrhrs" replace />} />
                     <Route path="/moments/aftrhrs" element={<AftrHrsExperience />} />
                     <Route path="/moments/aftrhrs/pass" element={<AftrHrsPass />} />

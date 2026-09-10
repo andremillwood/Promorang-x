@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Alert, Text, TextInput, View } from 'react-native';
-import { PERK_KIND_LABELS, inventoryOpenCopy, type PerkKind } from '@promorang/shared';
+import { PERK_KIND_LABELS, STOCK_FULFILLMENT_OPTIONS, inventoryOpenCopy, inventoryOpenFollowCopy, type PerkKind, type PromoCardJourneyKind } from '@promorang/shared';
 import { router } from 'expo-router';
 
 import { ChoiceChip, ExperienceShell, PrimaryButton } from '@/components/people/ExperienceShell';
@@ -17,6 +17,8 @@ export default function StockScreen() {
   const { provideInventory } = useExperienceActions();
   const merchantName = user?.user_metadata?.full_name?.split(' ')[0] || 'A place';
   const [kind, setKind] = useState<PerkKind>('merchant');
+  const [journey, setJourney] = useState<PromoCardJourneyKind>('place');
+  const fulfillment = STOCK_FULFILLMENT_OPTIONS.find((item) => item.id === journey) || STOCK_FULFILLMENT_OPTIONS[0];
   const [title, setTitle] = useState('');
   const [quantity, setQuantity] = useState('50');
   const [youEarn, setYouEarn] = useState('');
@@ -30,6 +32,7 @@ export default function StockScreen() {
         quantity: quantity ? Number(quantity) : null,
         peopleGet: title,
         youEarn: youEarn || undefined,
+        fulfillment_type: fulfillment.fulfillmentType,
       });
       setOpened({ title: result.opportunity.title, remaining: result.opportunity.remaining });
     } catch (error) {
@@ -40,7 +43,7 @@ export default function StockScreen() {
   if (opened) {
     return (
       <ExperienceShell eyebrow="It’s up" title={inventoryOpenCopy(merchantName, opened.title)} backTo="/">
-        <Text style={{ color: Colors.gray[400] }}>Contributors will see this under Earn. You will see claimed and used — not a funding dashboard.</Text>
+        <Text style={{ color: Colors.gray[400] }}>{inventoryOpenFollowCopy(fulfillment.fulfillmentType)}</Text>
         {opened.remaining != null ? <Text style={{ color: Colors.gray[500] }}>{opened.remaining} available.</Text> : null}
         <PrimaryButton label="See it as an opportunity" onPress={() => router.push('/earn')} />
         <PrimaryButton label="Drop it on your own people too" onPress={() => router.push('/give')} />
@@ -55,6 +58,11 @@ export default function StockScreen() {
       description="This becomes an opportunity. Other people move it. You see claimed and used."
       backTo="/"
     >
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        {STOCK_FULFILLMENT_OPTIONS.map((option) => (
+          <ChoiceChip key={option.id} label={option.label} active={journey === option.id} onPress={() => setJourney(option.id)} />
+        ))}
+      </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
         {KINDS.map(([id, label]) => (
           <ChoiceChip key={id} label={label} active={kind === id} onPress={() => setKind(id)} />

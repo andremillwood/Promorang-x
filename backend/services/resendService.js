@@ -32,17 +32,32 @@ if (resendApiKey) {
   };
 }
 
-const DEFAULT_FRONTEND_URL = 'https://promorang.co';
+const DEFAULT_FRONTEND_URL = 'https://www.promorang.co';
+
+function canonicalizePromorangFrontendUrl(raw) {
+  const base = String(raw || DEFAULT_FRONTEND_URL).replace(/\/+$/, '');
+  try {
+    const url = new URL(base);
+    if (url.hostname === 'promorang.co' || url.hostname === 'www.promorang.co') {
+      url.protocol = 'https:';
+      url.hostname = 'www.promorang.co';
+      return url.origin;
+    }
+    return `${url.protocol}//${url.host}`;
+  } catch {
+    return DEFAULT_FRONTEND_URL;
+  }
+}
 
 function buildPublicAssetUrl(path) {
-  const baseUrl = (process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL).replace(/\/+$/, '');
+  const baseUrl = canonicalizePromorangFrontendUrl(process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL);
   return `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
 // Email configuration
 const EMAIL_CONFIG = {
   fromAddress: process.env.EMAIL_FROM_ADDRESS || 'Promorang <onboarding@resend.dev>',
-  frontendUrl: process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL,
+  frontendUrl: canonicalizePromorangFrontendUrl(process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL),
   supportEmail: 'support@promorang.co',
   logoUrl: process.env.EMAIL_LOGO_URL || buildPublicAssetUrl('/email-assets/promorang-logo.png'),
 };
@@ -1575,13 +1590,16 @@ function aftrHrsAssetUrl(path) {
 function buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode }) {
   const aftrHrsLogo = aftrHrsAssetUrl('/campaigns/aftrhrs/logo.jpg');
   const promorangLogo = EMAIL_CONFIG.logoUrl;
-  const passUrl = `${EMAIL_CONFIG.frontendUrl}/moments/aftrhrs/pass`;
-  const landingUrl = `${EMAIL_CONFIG.frontendUrl}/aftrhrs`;
+  const site = EMAIL_CONFIG.frontendUrl;
+  const passUrl = `${site}/aftrhrs/pass`;
+  const landingUrl = `${site}/aftrhrs`;
   const isPass = kind === 'pass';
-  const headline = isPass ? 'Your AftrHrs RSVP is locked' : 'You are on the AftrHrs list';
+  const headline = isPass ? 'Your AftrHrs pass is ready' : 'You are on the AftrHrs list';
   const lead = isPass
-    ? 'Your Digital Free Pass is secured. Present the QR in your Promorang wallet at Sea Deck.'
-    : 'Thanks for signing up for AftrHrs at Sea Deck. Keep this note — free entry is time-bound.';
+    ? 'Open your pass, then show the QR at Sea Deck. Use the same Promorang account you claimed with.'
+    : 'Thanks for joining AftrHrs at Sea Deck. Keep this note — free entry is time-bound.';
+  const ctaUrl = isPass ? passUrl : landingUrl;
+  const ctaLabel = isPass ? 'Open my pass' : 'Open AftrHrs';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -1591,40 +1609,55 @@ function buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode }) {
   <title>${headline}</title>
 </head>
 <body style="margin:0;padding:0;background:#050505;color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#050505;padding:28px 16px;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#050505;padding:24px 12px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.12);border-radius:24px;overflow:hidden;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.12);border-radius:28px;overflow:hidden;">
           <tr>
-            <td style="padding:32px 28px 16px;text-align:center;background:radial-gradient(circle at top,rgba(192,38,211,0.28),transparent 55%),#000;">
-              <img src="${aftrHrsLogo}" alt="AftrHrs" width="180" style="display:block;margin:0 auto 16px;max-width:180px;height:auto;border:0;">
-              <p style="margin:0;letter-spacing:0.28em;text-transform:uppercase;font-size:11px;color:#67e8f9;">House Music · Sea Deck · September 11</p>
-              <h1 style="margin:16px 0 0;font-size:28px;line-height:1.1;letter-spacing:-0.03em;color:#ffffff;">${headline}</h1>
+            <td style="padding:36px 28px 20px;text-align:center;background:radial-gradient(circle at top,rgba(192,38,211,0.32),transparent 58%),#000;">
+              <img src="${aftrHrsLogo}" alt="AftrHrs" width="168" style="display:block;margin:0 auto 18px;max-width:168px;height:auto;border:0;">
+              <p style="margin:0;letter-spacing:0.26em;text-transform:uppercase;font-size:11px;color:#67e8f9;">Every Friday · 10:00 PM until · Sea Deck</p>
+              <h1 style="margin:14px 0 0;font-size:30px;line-height:1.08;letter-spacing:-0.04em;color:#ffffff;">${headline}</h1>
             </td>
           </tr>
           <tr>
-            <td style="padding:8px 28px 28px;">
-              <p style="margin:0 0 16px;color:#d4d4d4;font-size:16px;line-height:1.6;">Hi ${userName || 'there'},</p>
-              <p style="margin:0 0 20px;color:#a3a3a3;font-size:15px;line-height:1.7;">${lead}</p>
-              <div style="margin:0 0 20px;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(232,121,249,0.16),rgba(34,211,238,0.12));border:1px solid rgba(232,121,249,0.35);">
-                <p style="margin:0 0 6px;letter-spacing:0.18em;text-transform:uppercase;font-size:11px;color:#f0abfc;font-weight:700;">Free entry rule</p>
-                <p style="margin:0;color:#ffffff;font-size:18px;line-height:1.45;font-weight:700;">Arrive before 11:30 PM to get in free.</p>
-                <p style="margin:8px 0 0;color:#d4d4d4;font-size:14px;line-height:1.5;">Doors from 10:00 PM at Sea Deck, Orchid Village, 20 Barbican Road, Kingston. After 11:30 PM, free RSVP entry no longer applies.</p>
-              </div>
+            <td style="padding:8px 28px 32px;">
+              <p style="margin:0 0 12px;color:#f5f5f5;font-size:16px;line-height:1.6;">Hi ${userName || 'there'},</p>
+              <p style="margin:0 0 22px;color:#a3a3a3;font-size:15px;line-height:1.7;">${lead}</p>
               ${isPass && activationCode ? `
-              <div style="margin:0 0 20px;padding:18px 20px;border-radius:16px;background:#111;border:1px solid rgba(255,255,255,0.12);text-align:center;">
-                <p style="margin:0 0 8px;letter-spacing:0.18em;text-transform:uppercase;font-size:11px;color:#67e8f9;">Digital Free Pass</p>
-                <p style="margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:22px;letter-spacing:0.16em;color:#ffffff;font-weight:800;">${activationCode}</p>
-                <p style="margin:10px 0 0;color:#a3a3a3;font-size:13px;">Show this code or the QR in your Promorang pass at the door.</p>
-              </div>` : ''}
-              <p style="margin:0 0 24px;color:#a3a3a3;font-size:14px;line-height:1.6;">Powered by Origin: Alric & Boyd. Afro House, Classic House, House Fusion.</p>
-              <p style="margin:0 0 28px;text-align:center;">
-                <a href="${isPass ? passUrl : landingUrl}" style="display:inline-block;background:#ffffff;color:#000000;text-decoration:none;padding:14px 28px;border-radius:999px;font-size:13px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;">${isPass ? 'Open my pass' : 'Open AftrHrs'}</a>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 18px;background:#111;border:1px solid rgba(255,255,255,0.12);border-radius:20px;">
+                <tr>
+                  <td style="padding:22px 20px;text-align:center;">
+                    <p style="margin:0 0 8px;letter-spacing:0.2em;text-transform:uppercase;font-size:11px;color:#67e8f9;">Digital Free Pass</p>
+                    <p style="margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:26px;letter-spacing:0.14em;color:#ffffff;font-weight:800;">${activationCode}</p>
+                    <p style="margin:12px 0 0;color:#d4d4d4;font-size:13px;line-height:1.5;">Show this code or the QR from your pass at the door.</p>
+                  </td>
+                </tr>
+              </table>` : ''}
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 22px;background:linear-gradient(135deg,rgba(232,121,249,0.16),rgba(34,211,238,0.12));border:1px solid rgba(232,121,249,0.35);border-radius:20px;">
+                <tr>
+                  <td style="padding:20px;">
+                    <p style="margin:0 0 6px;letter-spacing:0.18em;text-transform:uppercase;font-size:11px;color:#f0abfc;font-weight:700;">Free entry</p>
+                    <p style="margin:0;color:#ffffff;font-size:18px;line-height:1.4;font-weight:700;">Arrive before 11:30 PM to get in free.</p>
+                    <p style="margin:10px 0 0;color:#d4d4d4;font-size:14px;line-height:1.55;">Every Friday from 10:00 PM at Sea Deck, Orchid Village, 20 Barbican Road, Kingston.</p>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:0 0 22px;color:#a3a3a3;font-size:14px;line-height:1.6;">Origin: Alric & Boyd · Afro House, Classic House, House Fusion.</p>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td align="center" style="padding:0 0 10px;">
+                    <a href="${ctaUrl}" style="display:inline-block;background:#ffffff;color:#000000;text-decoration:none;padding:15px 32px;border-radius:999px;font-size:13px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;">${ctaLabel}</a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:8px 0 0;text-align:center;color:#737373;font-size:12px;line-height:1.6;">
+                ${isPass ? `If you are asked to sign in, use the same account. <a href="${landingUrl}" style="color:#a3a3a3;text-decoration:underline;">View AftrHrs</a>` : `<a href="${landingUrl}" style="color:#a3a3a3;text-decoration:underline;">www.promorang.co/aftrhrs</a>`}
               </p>
-              <div style="padding-top:22px;border-top:1px solid rgba(255,255,255,0.1);text-align:center;">
+              <div style="margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.1);text-align:center;">
                 <img src="${promorangLogo}" alt="PROMORANG" width="36" height="36" style="display:block;margin:0 auto 10px;border:0;">
                 <p style="margin:0;letter-spacing:0.28em;text-transform:uppercase;font-size:11px;color:#f5f5f5;font-weight:800;">Powered by PROMORANG</p>
-                <p style="margin:8px 0 0;color:#737373;font-size:12px;"><a href="${EMAIL_CONFIG.frontendUrl}" style="color:#a3a3a3;text-decoration:none;">promorang.co</a></p>
+                <p style="margin:8px 0 0;color:#737373;font-size:12px;"><a href="${site}" style="color:#a3a3a3;text-decoration:none;">promorang.co</a></p>
               </div>
             </td>
           </tr>
@@ -1638,14 +1671,15 @@ function buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode }) {
 
 function buildAftrHrsRsvpEmailText({ userName, kind, activationCode }) {
   const isPass = kind === 'pass';
+  const site = EMAIL_CONFIG.frontendUrl;
   return [
     `Hi ${userName || 'there'},`,
-    isPass ? 'Your AftrHrs Digital Free Pass is secured.' : 'You are on the AftrHrs list.',
+    isPass ? 'Your AftrHrs Digital Free Pass is ready.' : 'You are on the AftrHrs list.',
     'Arrive before 11:30 PM to get in free.',
-    'Sea Deck, Orchid Village, 20 Barbican Road, Kingston. September 11 from 10:00 PM.',
+    'Sea Deck, Orchid Village, 20 Barbican Road, Kingston. Every Friday from 10:00 PM.',
     activationCode ? `Pass code: ${activationCode}` : null,
+    isPass ? `Open your pass: ${site}/aftrhrs/pass` : `Open AftrHrs: ${site}/aftrhrs`,
     'Powered by PROMORANG',
-    `${EMAIL_CONFIG.frontendUrl}/aftrhrs`,
   ].filter(Boolean).join('\n\n');
 }
 
@@ -1654,8 +1688,8 @@ async function sendAftrHrsRsvpEmail(userEmail, userName, rsvpData = {}) {
   const html = buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode });
   const text = buildAftrHrsRsvpEmailText({ userName, kind, activationCode });
   const subject = kind === 'pass'
-    ? 'AftrHrs RSVP confirmed — arrive before 11:30 PM to get in free'
-    : 'You are on the AftrHrs list — arrive before 11:30 PM to get in free';
+    ? 'Your AftrHrs pass is ready — every Friday at Sea Deck'
+    : 'You are on the AftrHrs list — every Friday at Sea Deck';
 
   return sendEmail({
     to: userEmail,
@@ -1684,7 +1718,7 @@ async function sendAftrHrsAdminDraftEmail(adminEmails, preview = {}) {
 
   return sendEmail({
     to: recipients,
-    subject: 'DRAFT: AftrHrs RSVP email — arrive before 11:30 PM to get in free',
+    subject: 'DRAFT: AftrHrs pass email — every Friday at Sea Deck',
     html,
     text,
     tags: [{ name: 'type', value: 'aftrhrs-admin-draft' }],
@@ -2337,6 +2371,8 @@ module.exports = {
   sendTicketPurchaseEmail,
   sendAftrHrsRsvpEmail,
   sendAftrHrsAdminDraftEmail,
+  buildAftrHrsRsvpEmailHtml,
+  canonicalizePromorangFrontendUrl,
   sendEventReminderEmail,
 
   // Support

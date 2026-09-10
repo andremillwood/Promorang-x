@@ -2,15 +2,23 @@ import { describe, expect, it } from "vitest";
 import {
   AFTRHRS_COPY,
   AFTRHRS_DIGITAL_PASS_LIMIT,
+  AFTRHRS_OG_IMAGE,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_PATHS,
+  AFTRHRS_RECURRENCE,
+  AFTRHRS_WEEKDAY,
+  DEFAULT_AFTRHRS_FAQS,
   SEA_DECK_VENUE_ID,
+  hasAftrHrsFridayRecurrence,
   aftrHrsDigitalReleaseView,
   authPathForAftrHrsClaim,
+  authPathForAftrHrsPass,
+  isAftrHrsPassPath,
   decodeAftrHrsPassPayload,
   encodeAftrHrsPassPayload,
   evaluateDigitalPassClaim,
   formatPublicRemainingLabel,
+  guestPassStatus,
   isAftrHrsClaimReturn,
   nextParticipationState,
   publicRemainingPercent,
@@ -115,12 +123,37 @@ describe("AftrHrs digital pass inventory", () => {
     expect(publicRemainingPercent(22, 30)).toBe(83);
     expect(publicRemainingPercent(21, 30)).toBe(70);
     expect(publicRemainingPercent(15, 30)).toBe(50);
-    expect(formatPublicRemainingLabel(24, 30)).toBe("90% remaining");
-    expect(formatPublicRemainingLabel(0, 30, true)).toBe("Digital release claimed");
+    expect(formatPublicRemainingLabel(90)).toBe("90%");
+    expect(formatPublicRemainingLabel(0, true)).toBe("Digital release claimed");
     expect(AFTRHRS_COPY.confirmation).toContain("11:30 PM");
     expect(AFTRHRS_COPY.metaDescription).not.toMatch(/\b30\b/);
     expect(AFTRHRS_COPY.soldOutBody).not.toMatch(/\b30\b/);
     expect(JSON.stringify(AFTRHRS_COPY)).not.toMatch(/percentage/i);
+    expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/percentage|shown as|page reading|claim button|page counter/i);
+    expect(guestPassStatus("active")).toBe("Ready");
+    expect(guestPassStatus("redeemed")).toBe("Used");
+    expect(AFTRHRS_OG_IMAGE.path).toBe("/og/aftrhrs.jpg");
+    expect(AFTRHRS_OG_IMAGE.alt).toBe("AftrHrs at Sea Deck");
+    expect(AFTRHRS_COPY.when).toBe("Every Friday");
+    expect(AFTRHRS_COPY.whenLine).toContain("Every Friday");
+    expect(AFTRHRS_COPY.metaDescription).toMatch(/every Friday/i);
+    expect(DEFAULT_AFTRHRS_FAQS.some((faq) => /every friday/i.test(`${faq.question} ${faq.answer}`))).toBe(true);
+    expect(hasAftrHrsFridayRecurrence(AFTRHRS_RECURRENCE)).toBe(true);
+    expect(AFTRHRS_WEEKDAY).toBe(5);
+    expect(hasAftrHrsFridayRecurrence({ ...AFTRHRS_RECURRENCE, recurrence_enabled: false })).toBe(false);
+    expect(defaultAftrHrsEdition().claimClosesAt).toBeNull();
+  });
+
+  it("keeps digital claims open after the first Friday when no deadline is set", async () => {
+    const store = createAftrHrsInventory();
+    const result = await store.claimDigitalPass({
+      userId: "week-two",
+      email: "week-two@promorang.co",
+      authenticated: true,
+      termsAccepted: true,
+      now: "2026-09-18T21:00:00-05:00",
+    });
+    expect(result.ok).toBe(true);
   });
 
   it("closes claims after the configured deadline", async () => {
@@ -155,6 +188,11 @@ describe("AftrHrs digital pass inventory", () => {
     expect(AFTRHRS_PATHS.landing).toBe("/aftrhrs");
     expect(isAftrHrsClaimReturn("/aftrhrs?claim=1")).toBe(true);
     expect(isAftrHrsClaimReturn("/moments/aftrhrs?claim=1")).toBe(true);
+    expect(AFTRHRS_PATHS.passAlias).toBe("/aftrhrs/pass");
+    expect(authPathForAftrHrsPass()).toContain("next=%2Faftrhrs%2Fpass");
+    expect(authPathForAftrHrsPass()).toContain("intent=aftrhrs_pass");
+    expect(isAftrHrsPassPath("/aftrhrs/pass")).toBe(true);
+    expect(isAftrHrsPassPath("/moments/aftrhrs/pass")).toBe(true);
     expect(evaluateDigitalPassClaim({
       edition,
       identity: {},

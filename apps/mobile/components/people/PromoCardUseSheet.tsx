@@ -60,7 +60,7 @@ export function PromoCardUseSheet({
           ) : (
             <View style={styles.empty}>
               <PromorangMark size={36} />
-              <Text style={styles.emptyTitle}>Nothing to show at the door</Text>
+              <Text style={styles.emptyTitle}>Nothing on this card yet</Text>
             </View>
           )}
           <Text style={styles.balance}>{detail || headline}</Text>
