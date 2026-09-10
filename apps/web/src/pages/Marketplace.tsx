@@ -203,14 +203,14 @@ const Marketplace = () => {
             <div className="overflow-x-clip rounded-[1.5rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_32%),linear-gradient(135deg,rgba(10,10,10,0.98),rgba(20,20,20,0.94))] p-4 shadow-2xl sm:rounded-[2rem] sm:p-5 md:p-8">
                 <div className="flex min-w-0 flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-5">
                     <div className="min-w-0">
-                        <div className="mb-3 flex max-w-full flex-wrap items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-primary sm:inline-flex sm:text-[11px] sm:tracking-[0.18em]">
+                        <p className="mb-3 flex max-w-full flex-wrap items-center gap-2 text-[10px] font-black uppercase leading-5 tracking-[0.12em] text-primary sm:text-[11px] sm:tracking-[0.16em]">
                             <Store className="h-3.5 w-3.5 shrink-0" />
-                            <span className="min-w-0 text-pretty">{t("market.eyebrow")}</span>
-                        </div>
-                        <h1 className="max-w-3xl text-balance font-sans text-[1.85rem] font-black uppercase leading-[1.08] tracking-[-0.03em] text-white sm:text-4xl sm:leading-[0.95] sm:tracking-[-0.04em] md:text-6xl md:leading-[0.9] md:tracking-[-0.055em]">
+                            <span className="min-w-0">{t("market.eyebrow")}</span>
+                        </p>
+                        <h1 className="max-w-3xl font-sans text-[1.85rem] font-black uppercase leading-[1.12] tracking-[-0.02em] text-white sm:text-4xl sm:leading-[0.95] sm:tracking-[-0.04em] md:text-6xl md:leading-[0.9] md:tracking-[-0.055em]">
                             {t("market.title")}
                         </h1>
-                        <p className="mt-3 max-w-2xl text-pretty text-sm leading-6 text-white/68 sm:mt-4 sm:leading-7 md:text-base">
+                        <p className="mt-3 max-w-2xl text-sm leading-6 text-white/80 sm:mt-4 sm:leading-7 md:text-base">
                             {t("market.copy")}
                         </p>
                     </div>

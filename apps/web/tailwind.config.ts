@@ -23,8 +23,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["DM Sans", "system-ui", "sans-serif"],
-        serif: ["Fraunces", "Georgia", "serif"],
+        sans: ["Promorang Space", "DM Sans", "system-ui", "sans-serif"],
+        serif: ["Promorang Space", "Fraunces", "Georgia", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",

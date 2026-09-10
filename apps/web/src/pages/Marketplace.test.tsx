@@ -33,6 +33,7 @@ describe("Marketplace mobile copy", () => {
     const css = readFileSync(path.join(process.cwd(), "src/index.css"), "utf8");
     expect(css).not.toMatch(/opsz,wght/);
     expect(css).toMatch(/font-optical-sizing:\s*none/);
-    expect(css).toMatch(/word-spacing:\s*0\.04em/);
+    expect(css).toMatch(/font-family: "Promorang Space"/);
+    expect(css).toMatch(/unicode-range: U\+0020/);
   });
 });
