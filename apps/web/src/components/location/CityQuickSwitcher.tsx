@@ -70,7 +70,7 @@ export function CityQuickSwitcher({
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all outline-none cursor-pointer shadow-sm shrink-0",
+          "inline-flex min-w-0 items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all outline-none cursor-pointer shadow-sm",
           tone === "marketing"
             ? "border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/80 hover:text-white"
             : "border-border bg-muted/50 hover:bg-muted text-foreground",

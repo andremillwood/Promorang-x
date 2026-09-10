@@ -1,4 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&display=swap');
+/* Static weights only — the opsz variable axis collapses word spaces on iOS WebKit. */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+/* DM Sans / Fraunces webfonts sometimes ship a zero-width U+0020, which makes
+   every sentence run together on mobile WebKit. Cover only the space glyph. */
+@font-face {
+  font-family: "Promorang Space";
+  src: local("Arial"), local("Helvetica Neue"), local("Helvetica");
+  unicode-range: U+0020;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
@@ -149,11 +159,15 @@
     scroll-behavior: smooth;
     background: hsl(var(--background));
     -webkit-tap-highlight-color: transparent;
+    font-optical-sizing: none;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'DM Sans', system-ui, sans-serif;
+    font-family: "Promorang Space", "DM Sans", system-ui, sans-serif;
+    font-optical-sizing: none;
+    font-kerning: normal;
+    word-spacing: 0.06em;
     min-height: 100vh;
     min-height: 100dvh;
     overscroll-behavior-y: none;
@@ -189,7 +203,7 @@
   h4,
   h5,
   h6 {
-    font-family: 'Fraunces', Georgia, serif;
+    font-family: "Promorang Space", "Fraunces", Georgia, serif;
     @apply font-semibold tracking-tight;
   }
 }
@@ -243,11 +257,11 @@
   }
 
   .font-display {
-    font-family: 'Fraunces', Georgia, serif;
+    font-family: "Promorang Space", "Fraunces", Georgia, serif;
   }
 
   .font-body {
-    font-family: 'DM Sans', system-ui, sans-serif;
+    font-family: "Promorang Space", "DM Sans", system-ui, sans-serif;
   }
 
   .smooth-ring {
@@ -478,6 +492,12 @@
     select,
     textarea {
       min-height: 44px;
+    }
+
+    /* Tab labels are already inside a 44px+ hit target; extra min-height on the
+       anchor makes 5-up mobile nav text overflow into neighboring items. */
+    nav[aria-label="Primary navigation"] a {
+      min-height: 0;
     }
   }
 

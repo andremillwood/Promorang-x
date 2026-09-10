@@ -659,15 +659,11 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               )}
             </Link>
           </div>
-          {safeRole !== "participant" ? <div className="mt-3 rounded-2xl border border-border/70 bg-muted/40 px-4 py-3 shadow-soft">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">{roleInfo.label}</p>
-                <p className="mt-1 text-sm font-semibold text-foreground">{pageMeta.label}</p>
-                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{pageMeta.description}</p>
-              </div>
-              <div className={cn("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", roleInfo.color)} />
-            </div>
+          {safeRole !== "participant" ? <div className="mt-2 flex items-center justify-between gap-2 rounded-full border border-border/70 bg-muted/40 px-3 py-1.5 shadow-soft">
+            <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.12em] text-primary">
+              {roleInfo.label} · {pageMeta.label}
+            </p>
+            <div className={cn("h-2 w-2 shrink-0 rounded-full", roleInfo.color)} />
           </div> : null}
         </div>
 
@@ -927,7 +923,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
       <DemoCoachmark />
 
       <nav aria-label="Primary navigation" className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/95 text-foreground backdrop-blur-xl lg:hidden">
-        <div className="mx-auto grid max-w-xl grid-cols-5 gap-1 px-2 pb-2 pt-2">
+        <div className="mx-auto grid max-w-xl grid-cols-5 gap-0.5 px-1.5 pb-1.5 pt-1.5">
           {currentMobileNav.map((item) => {
             const isActive = isNavItemActive(location.pathname, item.href, location.search);
             return (
@@ -936,7 +932,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                 to={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[10px] font-bold uppercase tracking-widest transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
+                  "flex min-h-[52px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-2xl px-0.5 py-1.5 text-[9px] font-bold uppercase leading-none tracking-wide transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
                   "accent" in item && item.accent
                     ? "bg-gradient-primary text-primary-foreground shadow-glow"
                     : isActive
@@ -944,8 +940,8 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                       : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                 )}
               >
-                <item.icon className={cn("h-4 w-4", "accent" in item && item.accent && "fill-current")} />
-                <span>{item.label}</span>
+                <item.icon className={cn("h-4 w-4 shrink-0", "accent" in item && item.accent && "fill-current")} />
+                <span className="max-w-full truncate text-center">{item.label}</span>
               </Link>
             );
           })}
