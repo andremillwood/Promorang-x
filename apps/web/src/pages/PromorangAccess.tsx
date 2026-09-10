@@ -32,7 +32,7 @@ export default function PromorangAccess() {
       }).catch((error) => toast.error(error.message)).finally(() => setLoading(false));
   }, [user]);
 
-  const visible = useMemo(() => experiences.filter((item) => filter === "All" || item.category.toLowerCase() === filter.toLowerCase() || (filter === "Tonight" && ["Wednesday","Thursday"].includes(item.metadata?.day || ""))), [experiences, filter]);
+  const visible = useMemo(() => experiences.filter((item) => filter === "All" || item.category.toLowerCase() === filter.toLowerCase() || (filter === "Tonight" && ["Friday","Thursday"].includes(item.metadata?.day || ""))), [experiences, filter]);
 
   const claim = async (experience: PresentsExperience) => {
     if (!user) { location.href = `/auth?mode=signup&destination=${encodeURIComponent('/access')}`; return; }

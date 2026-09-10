@@ -110,6 +110,15 @@ export function resolveMomentOccurrence(moment: RecurringMomentLike, referenceDa
   };
 }
 
+export function getRecurrenceBadge(moment: RecurringMomentLike) {
+  if (!moment.recurrence_enabled || !moment.recurrence_frequency) return "Upcoming Pass";
+  const interval = Math.max(1, Number(moment.recurrence_interval || 1));
+  if (moment.recurrence_frequency === "weekly" && interval === 2) return "Biweekly Series";
+  if (moment.recurrence_frequency === "weekly") return interval > 1 ? `Every ${interval} weeks` : "Weekly Series";
+  if (moment.recurrence_frequency === "daily") return interval > 1 ? `Every ${interval} days` : "Daily Series";
+  return interval > 1 ? `Every ${interval} months` : "Monthly Series";
+}
+
 export function getMomentStatus(moment: RecurringMomentLike, referenceDate = new Date()) {
   const occurrence = resolveMomentOccurrence(moment, referenceDate);
   const isPast = !occurrence.hasFutureOccurrence && new Date(moment.starts_at).getTime() < referenceDate.getTime();
@@ -121,7 +130,7 @@ export function getMomentStatus(moment: RecurringMomentLike, referenceDate = new
     occurrence,
     displayStartsAt: occurrence.startsAt,
     displayEndsAt: occurrence.endsAt,
-    statusBadge: isPast ? "Concluded" : isRecurring ? "Weekly Series" : "Upcoming Pass",
+    statusBadge: isPast ? "Concluded" : getRecurrenceBadge(moment),
     actionLabel: isPast ? "View Recap & Proof" : "View Event & RSVP",
   };
 }

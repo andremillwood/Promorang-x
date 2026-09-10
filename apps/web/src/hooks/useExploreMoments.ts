@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { applyEncoreSchedule } from "@promorang/shared";
 
 export interface ExploreMoment {
   id: string;
@@ -92,11 +93,11 @@ export function useExploreMoments(filters?: ExploreMomentFilters) {
             .select("*", { count: "exact", head: true })
             .eq("moment_id", moment.id);
 
-          return {
+          return applyEncoreSchedule({
             ...moment,
             participant_count: count || 0,
             host_profile: profileMap[moment.host_id] || null,
-          };
+          });
         })
       );
 

@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, BookOpen, Clock, Compass, MapPin, Repeat2, Search, Sparkles, TrendingUp } from "lucide-react";
 import { getSiteUrl, slugifySegment } from "@/lib/discovery";
 import { useI18n } from "@/i18n/I18nContext";
+import { applyEncoreSchedule } from "@promorang/shared";
 
 type PublicMoment = Tables<"view_public_moment_directory">;
 
@@ -64,7 +65,7 @@ const ExploreMoments = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return (data || []) as PublicMoment[];
+      return (data || []).map((moment) => applyEncoreSchedule(moment)) as PublicMoment[];
     },
   });
 
