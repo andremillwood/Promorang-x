@@ -3,8 +3,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePublicDrop, useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useToast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function DropClaim() {
+  const { t, formatNumber } = useI18n();
   const { slug } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -20,10 +22,10 @@ export default function DropClaim() {
     }
     try {
       await claimDrop.mutateAsync(slug!);
-      toast({ title: "It’s on your PromoCard", description: "Show it when you get there." });
+      toast({ title: t("dropClaim.onCard"), description: t("dropClaim.onCardCopy") });
       navigate("/card");
     } catch (error) {
-      toast({ title: "Could not claim this", description: (error as Error).message, variant: "destructive" });
+      toast({ title: t("dropClaim.couldNot"), description: (error as Error).message, variant: "destructive" });
     }
   };
 
@@ -35,8 +37,8 @@ export default function DropClaim() {
     return (
       <main className="grid min-h-screen place-items-center bg-black px-6 text-center text-white">
         <div>
-          <h1 className="font-serif text-4xl font-bold">This drop is gone</h1>
-          <Link to="/discover" className="mt-6 inline-block text-primary">See what’s happening</Link>
+          <h1 className="font-serif text-4xl font-bold">{t("dropClaim.gone")}</h1>
+          <Link to="/discover" className="mt-6 inline-block text-primary">{t("dropClaim.seeWhatsHappening")}</Link>
         </div>
       </main>
     );
@@ -48,17 +50,17 @@ export default function DropClaim() {
 
   return (
     <main className="min-h-screen bg-black px-4 py-10 text-white">
-      <SEO title={`${data.creatorName} has something for you`} description={data.title} />
+      <SEO title={t("dropClaim.seoTitle", { name: data.creatorName })} description={data.title} />
       <div className="mx-auto flex min-h-[80vh] w-full max-w-md flex-col justify-center">
         <p className="text-[10px] font-black uppercase tracking-[0.28em] text-primary">{data.creatorName}</p>
-        <h1 className="mt-3 font-serif text-5xl font-bold leading-[0.9]">has something for you.</h1>
+        <h1 className="mt-3 font-serif text-5xl font-bold leading-[0.9]">{t("dropClaim.hasSomething")}</h1>
         <article className="mt-8 overflow-hidden rounded-[2rem] border border-white/10">
           {data.image_url ? <img src={data.image_url} alt="" className="h-52 w-full object-cover" /> : <div className="h-24 bg-gradient-to-r from-primary/40 to-transparent" />}
           <div className="p-5">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/40">{data.perk_kind?.replace("_", " ")}</p>
             <h2 className="mt-2 font-serif text-3xl font-bold">{data.title}</h2>
             {data.description ? <p className="mt-2 text-sm text-white/55">{data.description}</p> : null}
-            {total != null ? <p className="mt-4 text-sm text-primary">{remaining} / {total} remaining</p> : null}
+            {total != null ? <p className="mt-4 text-sm text-primary">{t("dropClaim.remaining", { remaining: formatNumber(remaining ?? 0), total: formatNumber(total) })}</p> : null}
           </div>
         </article>
         <button
@@ -67,9 +69,9 @@ export default function DropClaim() {
           onClick={claim}
           className="mt-6 min-h-14 rounded-full bg-primary text-sm font-black text-black disabled:opacity-60"
         >
-          {user ? "Claim" : "Join the network to claim"}
+          {user ? t("dropClaim.claim") : t("dropClaim.joinToClaim")}
         </button>
-        <p className="mt-4 text-center text-xs text-white/35">Powered by PROMORANG</p>
+        <p className="mt-4 text-center text-xs text-white/35">{t("dropClaim.powered")}</p>
       </div>
     </main>
   );
