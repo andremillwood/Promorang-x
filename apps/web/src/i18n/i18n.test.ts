@@ -34,7 +34,9 @@ describe("localization", () => {
   });
 
   it.each(["es-419", "pt-BR"] as const)("keeps %s Help editorial content complete", (locale) => {
-    expect(Object.keys(helpGuideTranslations[locale] || {})).toHaveLength(7);
+    const spanishGuides = Object.keys(helpGuideTranslations["es-419"] || {}).sort();
+    expect(Object.keys(helpGuideTranslations[locale] || {}).sort()).toEqual(spanishGuides);
+    expect(spanishGuides.length).toBeGreaterThanOrEqual(7);
     expect(helpFaqTranslations[locale].length).toBeGreaterThanOrEqual(10);
   });
 });
