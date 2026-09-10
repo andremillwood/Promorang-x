@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { optionalAuth, requireAuth, requireAdmin } = require('../middleware/auth');
 const service = require('../services/aftrHrsService');
+const { localeFromRequest } = require('../services/emailI18n');
 
 const ok = (res, data, status = 200) => res.status(status).json({ success: true, data });
 const fail = (res, error) => {
@@ -39,7 +40,7 @@ router.post('/track', optionalAuth, async (req, res) => {
 
 router.post('/claim', requireAuth, async (req, res) => {
   try {
-    return ok(res, await service.claimDigitalPass(req.user, req.body || {}), 201);
+    return ok(res, await service.claimDigitalPass(req.user, { ...(req.body || {}), locale: localeFromRequest(req) }), 201);
   } catch (error) {
     return fail(res, error);
   }
@@ -47,7 +48,7 @@ router.post('/claim', requireAuth, async (req, res) => {
 
 router.post('/join', requireAuth, async (req, res) => {
   try {
-    return ok(res, await service.joinMoment(req.user, req.body || {}));
+    return ok(res, await service.joinMoment(req.user, { ...(req.body || {}), locale: localeFromRequest(req) }));
   } catch (error) {
     return fail(res, error);
   }

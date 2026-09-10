@@ -6,8 +6,10 @@ import { useAftrHrsAmbassador } from "@/hooks/useAftrHrs";
 import { useAuth } from "@/contexts/AuthContext";
 import { persistPostAuthNext } from "@/lib/post-auth-next";
 import { toast } from "sonner";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function AftrHrsAmbassador() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const { data, isError, fulfill, isLoading } = useAftrHrsAmbassador();
   const [userId, setUserId] = useState("");
@@ -18,7 +20,7 @@ export default function AftrHrsAmbassador() {
   if (!user) {
     return (
       <main className="min-h-screen bg-black px-4 py-20 text-center text-white">
-        <h1 className="text-3xl font-black uppercase">Ambassador desk</h1>
+        <h1 className="text-3xl font-black uppercase">{t("aftrhrs.ambDesk")}</h1>
         <button
           type="button"
           className="mt-6 rounded-full bg-white px-5 py-3 text-sm font-black uppercase text-black"
@@ -27,7 +29,7 @@ export default function AftrHrsAmbassador() {
             window.location.assign(authPathForAftrHrsClaim(AFTRHRS_PATHS.ambassador));
           }}
         >
-          Sign in
+          {t("common.signIn")}
         </button>
       </main>
     );
@@ -36,9 +38,9 @@ export default function AftrHrsAmbassador() {
   if (isError) {
     return (
       <main className="min-h-screen bg-black px-4 py-20 text-center text-white">
-        <h1 className="text-3xl font-black uppercase">Not an approved ambassador</h1>
-        <p className="mt-4 text-white/60">Ask an administrator to allocate physical invitations to this account.</p>
-        <Link to={AFTRHRS_PATHS.moment} className="mt-6 inline-block text-sm uppercase tracking-[0.16em] text-cyan-300">Back to AftrHrs</Link>
+        <h1 className="text-3xl font-black uppercase">{t("aftrhrs.ambNotApproved")}</h1>
+        <p className="mt-4 text-white/60">{t("aftrhrs.ambNotApprovedCopy")}</p>
+        <Link to={AFTRHRS_PATHS.moment} className="mt-6 inline-block text-sm uppercase tracking-[0.16em] text-cyan-300">{t("aftrhrs.backEvent")}</Link>
       </main>
     );
   }
@@ -63,21 +65,21 @@ export default function AftrHrsAmbassador() {
         requestId: requestId || undefined,
         uniqueCode: uniqueCode || undefined,
       });
-      toast.success("Physical invitation recorded.");
+      toast.success(t("aftrhrs.ambRecorded"));
       setUserId("");
       setPhone("");
       setUniqueCode("");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not record this handoff.");
+      toast.error(error instanceof Error ? error.message : t("aftrhrs.ambRecordFail"));
     }
   };
 
   return (
     <main className="min-h-screen bg-black px-4 py-12 text-white">
-      <SEO title="AftrHrs Ambassador desk" description="Record physical invitation handoffs for AftrHrs." />
+      <SEO title={t("aftrhrs.ambSeo")} description={t("aftrhrs.ambSeoCopy")} />
       <div className="mx-auto max-w-4xl">
-        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">Ambassador</p>
-        <h1 className="mt-3 text-4xl font-black uppercase">{allocation.name || "AftrHrs desk"}</h1>
+        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">{t("aftrhrs.ambEyebrow")}</p>
+        <h1 className="mt-3 text-4xl font-black uppercase">{allocation.name || t("aftrhrs.ambDefault")}</h1>
         {isLoading ? <p className="mt-6 text-white/50">Loading allocation…</p> : null}
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           {[

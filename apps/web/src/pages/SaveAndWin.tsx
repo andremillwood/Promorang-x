@@ -4,8 +4,10 @@ import { VALUE_INSTRUMENTS, VALUE_STORY } from "@promorang/shared";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { PlainEnglish } from "@/components/promorang/SignatureObjects";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function SaveAndWin() {
+  const { t } = useI18n();
   const pot = VALUE_INSTRUMENTS["save-and-win"];
 
   return (
@@ -21,7 +23,7 @@ export default function SaveAndWin() {
           to="/economy/save-and-win"
           className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-amber-200 hover:text-white"
         >
-          Why this is the PromoShare money draw
+          {t("saveWin.whyLink")}
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>

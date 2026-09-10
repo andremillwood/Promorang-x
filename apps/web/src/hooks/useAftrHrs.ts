@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { API_BASE_URL } from "@/lib/api";
+import { localeRequestHeaders } from "@/i18n/geo-locale";
 import { getGrowthAttribution, getGrowthSessionId } from "@/lib/marketing-attribution";
 import {
   AFTRHRS_COPY,
@@ -178,6 +179,7 @@ async function request<T>(path: string, token?: string, options: RequestInit = {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      ...localeRequestHeaders(),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },

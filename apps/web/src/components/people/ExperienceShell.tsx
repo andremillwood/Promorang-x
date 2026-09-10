@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SEO from "@/components/SEO";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
+import { useI18n } from "@/i18n/I18nContext";
 
 type ExperienceShellProps = {
   title: string;
@@ -24,13 +25,15 @@ export function ExperienceShell({
   eyebrow,
   description,
   backTo,
-  backLabel = "Back",
+  backLabel,
   actions,
   hero,
   children,
   className,
 }: ExperienceShellProps) {
+  const { t } = useI18n();
   const location = useLocation();
+  const resolvedBackLabel = backLabel || t("common.back");
   const resolvedBack = location.pathname.startsWith("/app-preview") && location.pathname !== "/app-preview"
     ? "/app-preview"
     : backTo;
@@ -43,7 +46,7 @@ export function ExperienceShell({
           {resolvedBack ? (
             <Link to={resolvedBack} className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-white/50 hover:text-white">
               <ArrowLeft className="h-4 w-4" />
-              {backLabel}
+              {resolvedBackLabel}
             </Link>
           ) : null}
           {hero}
@@ -53,7 +56,7 @@ export function ExperienceShell({
           {resolvedBack ? (
             <Link to={resolvedBack} className="inline-flex min-h-11 items-center gap-2 text-sm text-white/50 hover:text-white">
               <ArrowLeft className="h-4 w-4" />
-              {backLabel}
+              {resolvedBackLabel}
             </Link>
           ) : null}
           {eyebrow ? <p className="mt-5 text-[10px] font-black uppercase tracking-[0.28em] text-primary">{eyebrow}</p> : null}
@@ -71,10 +74,12 @@ export function ExperienceShell({
   );
 }
 
-export function ExperienceLoading({ label = "Loading your experience…" }: { label?: string }) {
+export function ExperienceLoading({ label }: { label?: string }) {
+  const { t } = useI18n();
+  const resolved = label || t("experience.loading");
   return (
     <div role="status" aria-live="polite" className="space-y-5">
-      <p className="text-sm text-white/70">{label}</p>
+      <p className="text-sm text-white/70">{resolved}</p>
       <div aria-hidden="true" className="space-y-5 motion-safe:animate-pulse">
         <div className="h-56 rounded-3xl border border-white/10 bg-white/[0.06]" />
         <div className="h-24 rounded-2xl bg-white/[0.04]" />

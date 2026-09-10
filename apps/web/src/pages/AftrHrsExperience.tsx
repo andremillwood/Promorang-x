@@ -15,8 +15,11 @@ import {
 import SEO from "@/components/SEO";
 import { generateEventSchema } from "@/lib/seo-schemas";
 import { getSiteUrl } from "@/lib/discovery";
-import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_EVENT_SCHEDULE, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, AFTRHRS_START_ISO, formatPublicRemainingLabel, isAftrHrsClaimReturn } from "@promorang/shared";
+import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_EVENT_SCHEDULE, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, AFTRHRS_START_ISO, isAftrHrsClaimReturn } from "@promorang/shared";
 import { useAftrHrs } from "@/hooks/useAftrHrs";
+import { useI18n } from "@/i18n/I18nContext";
+import { localizedRemainingLabel } from "@/i18n/localize";
+import type { TranslationKey } from "@/i18n/translations";
 import { captureGrowthAttribution } from "@/lib/marketing-attribution";
 import { persistPostAuthNext } from "@/lib/post-auth-next";
 import { toast } from "sonner";
@@ -39,6 +42,7 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
 }
 
 export default function AftrHrsExperience() {
+  const { t } = useI18n();
   const { data, remainingPercent, soldOut, user, claim, join, ambassadorRequest, follow, track } = useAftrHrs();
   const [searchParams] = useSearchParams();
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -72,7 +76,7 @@ export default function AftrHrsExperience() {
     const base = generateEventSchema({
       id: edition.moment_id,
       title: "AftrHrs at Sea Deck",
-      description: AFTRHRS_COPY.metaDescription,
+      description: t("aftrhrs.metaDescription"),
       location: venue?.address,
       venue_name: "Sea Deck",
       starts_at: edition.moments?.starts_at || AFTRHRS_START_ISO,
@@ -102,12 +106,12 @@ export default function AftrHrsExperience() {
         await navigator.share({ title: AFTRHRS_COPY.metaTitle, text, url });
       } else {
         await navigator.clipboard.writeText(url);
-        toast.success("Link copied for Instagram or WhatsApp.");
+        toast.success(t("aftrhrs.linkCopied"));
       }
       track.mutate("share");
     } catch {
       await navigator.clipboard.writeText(url);
-      toast.success("Link copied.");
+        toast.success(t("aftrhrs.linkCopiedShort"));
     }
   };
 
@@ -119,20 +123,20 @@ export default function AftrHrsExperience() {
       return;
     }
     if (!termsAccepted) {
-      toast.error("Confirm the event terms to claim a pass.");
+      toast.error(t("aftrhrs.confirmTerms"));
       return;
     }
     setClaiming(true);
     try {
       await claim.mutateAsync(true);
-      toast.success("Your AftrHrs Digital Free Pass is secured.");
+      toast.success(t("aftrhrs.passSecuredToast"));
     } catch (error) {
       const code = (error as { code?: string }).code;
       if (code === "sold_out") {
-        toast.message("The last Digital Free Pass was just claimed.");
+        toast.message(t("aftrhrs.lastClaimed"));
         document.getElementById("ambassadors")?.scrollIntoView({ behavior: "smooth" });
       } else {
-        toast.error(error instanceof Error ? error.message : "Could not claim this pass.");
+        toast.error(error instanceof Error ? error.message : t("aftrhrs.claimFailed"));
       }
     } finally {
       setClaiming(false);
@@ -147,13 +151,19 @@ export default function AftrHrsExperience() {
     }
     try {
       await join.mutateAsync();
-      toast.success("You joined the AftrHrs Moment.");
+      toast.success(t("aftrhrs.joinedToast"));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not join the Moment.");
+      toast.error(error instanceof Error ? error.message : t("aftrhrs.joinFailed"));
     }
   };
 
-  const remainingLabel = formatPublicRemainingLabel(remainingPercent, soldOut);
+  const remainingLabel = localizedRemainingLabel(remainingPercent, soldOut, t);
+  const releaseCta =
+    release.kind === "pass"
+      ? t("aftrhrs.ctaPass")
+      : release.kind === "sold_out"
+        ? t("aftrhrs.ctaAmbassador")
+        : t("aftrhrs.ctaClaim");
 
   const mapsUrl = venue?.latitude && venue?.longitude
     ? `https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}`
@@ -162,23 +172,23 @@ export default function AftrHrsExperience() {
   const heroCta =
     release.kind === "pass" ? (
       <Link to={AFTRHRS_PATHS.passAlias} className="rounded-full bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-[0.16em] text-black">
-        {release.primaryCta}
+        {releaseCta}
       </Link>
     ) : release.kind === "sold_out" ? (
       <a href="#ambassadors" className="rounded-full bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-[0.16em] text-black">
-        {release.primaryCta}
+        {releaseCta}
       </a>
     ) : (
       <a href="#digital-pass" className="rounded-full bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-[0.16em] text-black">
-        {release.primaryCta}
+        {releaseCta}
       </a>
     );
 
   return (
     <main className="min-h-screen bg-black text-white">
       <SEO
-        title={AFTRHRS_COPY.metaTitle}
-        description={AFTRHRS_COPY.metaDescription}
+        title={t("aftrhrs.metaTitle")}
+        description={t("aftrhrs.metaDescription")}
         image={getSiteUrl(edition.artwork.og || edition.artwork.flyer || AFTRHRS_OG_IMAGE.path)}
         imageAlt={AFTRHRS_OG_IMAGE.alt}
         imageType={AFTRHRS_OG_IMAGE.type}
@@ -193,18 +203,18 @@ export default function AftrHrsExperience() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <Link to={AFTRHRS_PATHS.landing} className="flex items-center gap-3">
             <img src={edition.artwork.logo} alt="AftrHrs House Music" className="h-10 w-auto object-contain sm:h-12" />
-            <span className="hidden text-[10px] font-bold uppercase tracking-[0.32em] text-white/55 sm:block">House Music</span>
+            <span className="hidden text-[10px] font-bold uppercase tracking-[0.32em] text-white/55 sm:block">{t("aftrhrs.houseMusic")}</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
             <a href="https://promorang.co" className="hidden items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 sm:flex" aria-label="Powered by PROMORANG">
               <img src={promorangLogo} alt="" className="h-4 w-auto object-contain" />
-              <span className="text-[10px] font-black uppercase tracking-[0.16em] text-white/80">Powered by PROMORANG</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.16em] text-white/80">{t("aftrhrs.powered")}</span>
             </a>
             <Link to={AFTRHRS_PATHS.venue} className="rounded-full border border-white/15 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white/80">
-              Sea Deck
+              {t("aftrhrs.seaDeck")}
             </Link>
             <button type="button" onClick={share} className="rounded-full border border-white/15 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white/80">
-              Share
+              {t("aftrhrs.share")}
             </button>
           </div>
         </div>
@@ -218,25 +228,28 @@ export default function AftrHrsExperience() {
           <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-white/70">
-                Good music · Good people · After hours
+                {t("aftrhrs.tagline")}
               </p>
               <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.28em] text-white/55">
-                Powered by Origin: Alric & Boyd
+                {t("aftrhrs.poweredByOrigin")}
               </p>
               <h1 className="mt-4 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.07em] sm:text-7xl">
-                After hours is where <GradientText>house</GradientText> lives.
+                {(() => {
+                  const [before, after] = t("aftrhrs.headline", { house: "|||HOUSE|||" }).split("|||HOUSE|||");
+                  return <>{before}<GradientText>{t("aftrhrs.house")}</GradientText>{after}</>;
+                })()}
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-7 text-white/70">{edition.supporting_copy}</p>
               <div className="mt-8 flex flex-wrap gap-3 text-xs font-bold uppercase tracking-[0.18em] text-white/80">
-                <span className="rounded-full border border-white/15 px-3 py-1.5">Sea Deck</span>
-                <span className="rounded-full border border-white/15 px-3 py-1.5">{AFTRHRS_COPY.when}</span>
-                <span className="rounded-full border border-white/15 px-3 py-1.5">{AFTRHRS_COPY.doors}</span>
-                <span className="rounded-full border border-white/15 px-3 py-1.5">Afro House • Classic House • House Fusion</span>
+                <span className="rounded-full border border-white/15 px-3 py-1.5">{t("aftrhrs.seaDeck")}</span>
+                <span className="rounded-full border border-white/15 px-3 py-1.5">{t("aftrhrs.when")}</span>
+                <span className="rounded-full border border-white/15 px-3 py-1.5">{t("aftrhrs.doors")}</span>
+                <span className="rounded-full border border-white/15 px-3 py-1.5">{t("aftrhrs.genres")}</span>
               </div>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 {heroCta}
                 <Link to={AFTRHRS_PATHS.venue} className="rounded-full border border-white/20 px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-white">
-                  View Sea Deck
+                  {t("aftrhrs.viewVenue")}
                 </Link>
                 <p className="text-xs uppercase tracking-[0.18em] text-cyan-300">
                   {remainingLabel}
@@ -247,11 +260,11 @@ export default function AftrHrsExperience() {
               <div className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-fuchsia-500/25 via-transparent to-cyan-400/20 blur-2xl" />
               <img
                 src={edition.artwork.invite}
-                alt="You are invited to AftrHrs at Sea Deck"
+                alt={t("aftrhrs.inviteAlt")}
                 className="relative z-10 w-full rounded-[1.75rem] border border-white/15 object-cover shadow-[0_30px_80px_rgba(0,0,0,0.55)]"
               />
               <figcaption className="relative z-10 mt-4 text-center text-[10px] font-bold uppercase tracking-[0.28em] text-white/50">
-                Invitation only · Limited digital release
+                {t("aftrhrs.inviteOnly")}
               </figcaption>
             </figure>
           </div>
@@ -260,11 +273,11 @@ export default function AftrHrsExperience() {
 
       {postEvent ? (
         <Section>
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-fuchsia-300">After the night</p>
-          <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">The recap stays. The next edition opens.</h2>
-          <p className="mt-4 max-w-2xl text-white/65">Historical event details remain. Register interest for the next AftrHrs so Promorang can bring you back first.</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-fuchsia-300">{t("aftrhrs.afterNight")}</p>
+          <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">{t("aftrhrs.recapTitle")}</h2>
+          <p className="mt-4 max-w-2xl text-white/65">{t("aftrhrs.recapCopy")}</p>
           <button type="button" onClick={joinMoment} className="mt-6 rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">
-            Stay in the AftrHrs Moment
+            {t("aftrhrs.stayIn")}
           </button>
         </Section>
       ) : null}
@@ -273,13 +286,13 @@ export default function AftrHrsExperience() {
         {data.pass ? (
           <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">Pass secured</p>
-              <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">Your Digital Free Pass</h2>
-              <p className="mt-4 max-w-xl text-white/68">{AFTRHRS_COPY.confirmation}</p>
-              <p className="mt-3 text-sm font-bold uppercase tracking-[0.14em] text-fuchsia-300">{AFTRHRS_COPY.arrivalRule}</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">{t("aftrhrs.passSecured")}</p>
+              <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">{t("aftrhrs.yourPass")}</h2>
+              <p className="mt-4 max-w-xl text-white/68">{t("aftrhrs.confirmation")}</p>
+              <p className="mt-3 text-sm font-bold uppercase tracking-[0.14em] text-fuchsia-300">{t("aftrhrs.arrivalRule")}</p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link to={AFTRHRS_PATHS.passAlias} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">Present pass</Link>
-                <Link to="/wallet" className="rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">Wallet</Link>
+                <Link to={AFTRHRS_PATHS.passAlias} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">{t("aftrhrs.presentPass")}</Link>
+                <Link to="/wallet" className="rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">{t("common.wallet")}</Link>
               </div>
             </div>
             <article className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
@@ -291,44 +304,44 @@ export default function AftrHrsExperience() {
           </div>
         ) : release.kind === "sold_out" ? (
           <div className="rounded-[2rem] border border-cyan-300/30 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_50%)] p-6 sm:p-10">
-            <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">{release.headline}</h2>
-            <p className="mt-4 max-w-2xl text-white/70">{release.body}</p>
+            <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">{t("aftrhrs.soldOutHeadline")}</h2>
+            <p className="mt-4 max-w-2xl text-white/70">{t("aftrhrs.soldOutBody")}</p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a href="#ambassadors" className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">{release.primaryCta}</a>
+              <a href="#ambassadors" className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">{t("aftrhrs.ctaAmbassador")}</a>
               <button
                 type="button"
                 onClick={() => ambassadorRequest.mutate({ waitlist: true })}
                 className="rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]"
               >
-                {release.secondaryCta}
+                {t("aftrhrs.ctaWaitlist")}
               </button>
             </div>
           </div>
         ) : (
           <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-fuchsia-300">Limited Digital Free Pass</p>
-              <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">A limited digital release</h2>
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-fuchsia-300">{t("aftrhrs.limitedPass")}</p>
+              <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">{t("aftrhrs.limitedTitle")}</h2>
               <p className="mt-4 text-white/68">
-                This pass is free admission to AftrHrs. One pass per person.
+                {t("aftrhrs.limitedCopy")}
               </p>
-              <p className="mt-3 text-sm font-bold text-fuchsia-200">{AFTRHRS_COPY.arrivalRule}</p>
+              <p className="mt-3 text-sm font-bold text-fuchsia-200">{t("aftrhrs.arrivalRule")}</p>
               <form onSubmit={startClaim} className="mt-6 space-y-4">
                 <label className="flex items-start gap-3 text-sm text-white/75">
                   <input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} className="mt-1" />
-                  I understand I must arrive before 11:30 PM to get in free, and that admission is subject to Sea Deck capacity, entry policies, and successful pass verification.
+                  {t("aftrhrs.terms")}
                 </label>
                 <button
                   type="submit"
                   disabled={claiming}
                   className="rounded-full bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-black disabled:opacity-60"
                 >
-                  {claiming ? "Securing…" : user ? "Claim My Free Pass" : "Sign in to claim"}
+                  {claiming ? t("aftrhrs.securing") : user ? t("aftrhrs.claimCta") : t("aftrhrs.signInClaim")}
                 </button>
               </form>
             </div>
             <aside className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">Free passes</p>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">{t("aftrhrs.freePasses")}</p>
               <p className="mt-4 text-6xl font-black tracking-[-0.06em]">{remainingPercent}%</p>
               <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
                 <div className="h-full bg-gradient-to-r from-fuchsia-400 to-cyan-300" style={{ width: `${remainingPercent}%` }} />
@@ -339,13 +352,13 @@ export default function AftrHrsExperience() {
       </Section>
 
       <Section id="ambassadors" className="border-y border-white/10 bg-white/[0.02]">
-        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">Physical invitations</p>
-        <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">AftrHrs Ambassadors</h2>
-        <p className="mt-4 max-w-2xl text-white/68">{AFTRHRS_COPY.ambassador}</p>
+        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">{t("aftrhrs.physical")}</p>
+        <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">{t("aftrhrs.ambassadors")}</h2>
+        <p className="mt-4 max-w-2xl text-white/68">{t("aftrhrs.ambassadorCopy")}</p>
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {data.ambassadors.map((ambassador) => {
             const whatsapp = ambassador.publicContactHandle
-              ? `https://wa.me/?text=${encodeURIComponent(`Hello ${ambassador.name}, I would like a physical AftrHrs invitation for Friday at Sea Deck.`)}`
+              ? `https://wa.me/?text=${encodeURIComponent(t("aftrhrs.whatsappText", { name: ambassador.name }))}`
               : null;
             return (
               <article key={ambassador.id} className="rounded-3xl border border-white/10 bg-black/40 p-5">
@@ -353,7 +366,7 @@ export default function AftrHrsExperience() {
                   <img src={ambassador.profileImage || edition.artwork.logo} alt="" className="h-14 w-14 rounded-full object-cover" />
                   <div>
                     <h3 className="text-lg font-black">{ambassador.name}</h3>
-                    <p className="text-xs uppercase tracking-[0.16em] text-white/45">AftrHrs Ambassador</p>
+                    <p className="text-xs uppercase tracking-[0.16em] text-white/45">{t("aftrhrs.ambassadorRole")}</p>
                   </div>
                 </div>
                 <ul className="mt-4 space-y-2 text-sm text-white/65">
@@ -367,11 +380,11 @@ export default function AftrHrsExperience() {
                     onClick={() => {
                       setSelectedAmbassador(ambassador.id);
                       ambassadorRequest.mutate({ ambassadorId: ambassador.id, note: requestNote });
-                      toast.success("Request sent to this ambassador.");
+                      toast.success(t("aftrhrs.requestSent"));
                     }}
                     className="rounded-full bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-black"
                   >
-                    Request invitation
+                    {t("aftrhrs.requestInvite")}
                   </button>
                   {whatsapp ? (
                     <a href={whatsapp} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-black uppercase tracking-[0.16em]">
@@ -379,7 +392,7 @@ export default function AftrHrsExperience() {
                     </a>
                   ) : (
                     <Link to={ambassador.profilePath} className="rounded-full border border-white/20 px-4 py-2 text-xs font-black uppercase tracking-[0.16em]">
-                      Promorang profile
+                      {t("aftrhrs.profile")}
                     </Link>
                   )}
                 </div>
@@ -392,19 +405,19 @@ export default function AftrHrsExperience() {
           onSubmit={(event) => {
             event.preventDefault();
             ambassadorRequest.mutate({ ambassadorId: selectedAmbassador || undefined, note: requestNote, waitlist: !selectedAmbassador });
-            toast.success(selectedAmbassador ? "Ambassador request submitted." : "You are on the request list.");
+            toast.success(selectedAmbassador ? t("aftrhrs.requestSubmitted") : t("aftrhrs.onRequestList"));
           }}
         >
-          <label className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">If no ambassador is free, join the request list</label>
+          <label className="text-xs font-bold uppercase tracking-[0.16em] text-white/45">{t("aftrhrs.requestListLabel")}</label>
           <div className="mt-2 flex flex-col gap-3 sm:flex-row">
             <input
               value={requestNote}
               onChange={(event) => setRequestNote(event.target.value)}
-              placeholder="Name or how we can find you at Sea Deck"
+              placeholder={t("aftrhrs.requestPh")}
               className="h-12 flex-1 rounded-2xl border border-white/15 bg-black px-4 text-sm"
             />
             <button type="submit" className="h-12 rounded-2xl border border-white/20 px-5 text-xs font-black uppercase tracking-[0.16em]">
-              Join request list
+              {t("aftrhrs.joinList")}
             </button>
           </div>
         </form>
@@ -413,25 +426,25 @@ export default function AftrHrsExperience() {
       <Section id="moment">
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-fuchsia-300">Promorang Moment</p>
-            <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">Join the AftrHrs Moment</h2>
-            <p className="mt-4 max-w-xl text-white/68">{AFTRHRS_COPY.moment}</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-fuchsia-300">{t("aftrhrs.momentEyebrow")}</p>
+            <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">{t("aftrhrs.joinMoment")}</h2>
+            <p className="mt-4 max-w-xl text-white/68">{t("aftrhrs.momentCopy")}</p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <button type="button" onClick={joinMoment} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">
-                {data.participation ? "You're in" : "I'm interested"}
+                {data.participation ? t("aftrhrs.youreIn") : t("aftrhrs.interested")}
               </button>
               <button type="button" onClick={share} className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">
-                <Share2 className="h-4 w-4" /> Invite friends
+                <Share2 className="h-4 w-4" /> {t("aftrhrs.inviteFriends")}
               </button>
               <span className="inline-flex items-center gap-2 text-sm text-white/55">
-                <Users className="h-4 w-4 text-cyan-300" /> {data.communityCount} going
+                <Users className="h-4 w-4 text-cyan-300" /> {t("aftrhrs.going", { count: data.communityCount })}
               </span>
             </div>
           </div>
           <div className="rounded-[2rem] border border-white/10 p-6">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40">The night</p>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40">{t("aftrhrs.theNight")}</p>
             <ol className="mt-4 space-y-2 text-sm text-white/70">
-              {["Claim a Digital Free Pass", "Arrive before 11:30 PM", "Present your pass at Sea Deck"].map((step) => (
+              {[t("aftrhrs.stepClaim"), t("aftrhrs.stepArrive"), t("aftrhrs.stepPresent")].map((step) => (
                 <li key={step} className="flex items-center gap-2"><Sparkles className="h-3.5 w-3.5 text-fuchsia-300" /> {step}</li>
               ))}
             </ol>
@@ -440,12 +453,12 @@ export default function AftrHrsExperience() {
       </Section>
 
       <Section id="experience" className="border-y border-white/10">
-        <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">The night</h2>
+        <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">{t("aftrhrs.theNight")}</h2>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {[
-            { icon: Music2, title: "House direction", body: "Afro House, Classic House and House Fusion, selected by Origin: Alric & Boyd." },
-            { icon: MapPin, title: "Sea Deck", body: venue?.description || AFTRHRS_COPY.venue },
-            { icon: Ticket, title: "How you get in", body: `Free with a valid invitation or RSVP. Without one, JMD $${edition.paid_admission_jmd}. Paid patrons receive ${edition.paid_patron_benefit}.` },
+            { icon: Music2, title: t("aftrhrs.houseDirection"), body: t("aftrhrs.houseDirectionCopy") },
+            { icon: MapPin, title: t("aftrhrs.seaDeck"), body: venue?.description || t("aftrhrs.venueCopy") },
+            { icon: Ticket, title: t("aftrhrs.howIn"), body: t("aftrhrs.howInCopy", { price: edition.paid_admission_jmd, benefit: edition.paid_patron_benefit }) },
           ].map((card) => (
             <article key={card.title} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
               <card.icon className="h-5 w-5 text-cyan-300" />
@@ -460,15 +473,15 @@ export default function AftrHrsExperience() {
       <Section id="sea-deck">
         <div className="grid gap-8 lg:grid-cols-2">
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">Venue</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">{t("aftrhrs.venue")}</p>
             <h2 className="mt-3 text-4xl font-black uppercase tracking-[-0.05em]">Sea Deck</h2>
             <p className="mt-4 text-white/68">{venue?.description}</p>
             <p className="mt-4 flex items-center gap-2 text-sm text-white/70"><MapPin className="h-4 w-4" /> {venue?.address}</p>
-            <p className="mt-2 flex items-center gap-2 text-sm text-white/70"><Calendar className="h-4 w-4" /> {AFTRHRS_COPY.when}</p>
-            <p className="mt-2 flex items-center gap-2 text-sm text-white/70"><Clock className="h-4 w-4" /> {AFTRHRS_COPY.doors}</p>
+            <p className="mt-2 flex items-center gap-2 text-sm text-white/70"><Calendar className="h-4 w-4" /> {t("aftrhrs.when")}</p>
+            <p className="mt-2 flex items-center gap-2 text-sm text-white/70"><Clock className="h-4 w-4" /> {t("aftrhrs.doors")}</p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link to={AFTRHRS_PATHS.venue} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">Open venue profile</Link>
-              <a href={mapsUrl} target="_blank" rel="noreferrer" className="rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">Directions</a>
+              <Link to={AFTRHRS_PATHS.venue} className="rounded-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-black">{t("aftrhrs.openVenue")}</Link>
+              <a href={mapsUrl} target="_blank" rel="noreferrer" className="rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">{t("common.directions")}</a>
               <button
                 type="button"
                 onClick={() => {
@@ -481,7 +494,7 @@ export default function AftrHrsExperience() {
                 }}
                 className="rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]"
               >
-                {data.followingVenue ? "Following Sea Deck" : "Follow Sea Deck"}
+                {data.followingVenue ? t("aftrhrs.following") : t("aftrhrs.follow")}
               </button>
             </div>
           </div>
@@ -494,15 +507,15 @@ export default function AftrHrsExperience() {
       </Section>
 
       <Section id="proof" className="border-y border-white/10 bg-white/[0.02]">
-        <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">{postEvent ? "What the night kept" : "AftrHrs at Sea Deck"}</h2>
+        <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">{postEvent ? t("aftrhrs.whatKept") : t("aftrhrs.atSeaDeck")}</h2>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <figure className="overflow-hidden rounded-3xl border border-white/10">
             <img src={edition.artwork.flyer} alt="AftrHrs flyer" className="h-64 w-full object-cover" />
-            <figcaption className="p-4 text-sm text-white/60">{AFTRHRS_COPY.when} · Sea Deck</figcaption>
+            <figcaption className="p-4 text-sm text-white/60">{t("aftrhrs.when")} · {t("aftrhrs.seaDeck")}</figcaption>
           </figure>
           <figure className="overflow-hidden rounded-3xl border border-white/10">
             <img src={edition.artwork.invite} alt="AftrHrs invitation" className="h-64 w-full object-cover" />
-            <figcaption className="p-4 text-sm text-white/60">You are invited.</figcaption>
+            <figcaption className="p-4 text-sm text-white/60">{t("aftrhrs.youInvited")}</figcaption>
           </figure>
           <figure className="overflow-hidden rounded-3xl border border-white/10 bg-black p-6">
             <img src={edition.artwork.logo} alt="AftrHrs logo" className="mx-auto h-40 object-contain" />
@@ -512,24 +525,27 @@ export default function AftrHrsExperience() {
       </Section>
 
       <Section id="faq">
-        <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">Questions</h2>
+        <h2 className="text-4xl font-black uppercase tracking-[-0.05em]">{t("common.questions")}</h2>
         <div className="mt-8 space-y-3">
-          {edition.faqs.map((faq) => (
+          {edition.faqs.map((faq, index) => {
+            const localized = index <= 5;
+            return (
             <details key={faq.question} className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4">
-              <summary className="cursor-pointer text-sm font-black uppercase tracking-[0.08em]">{faq.question}</summary>
-              <p className="mt-3 text-sm leading-6 text-white/65">{faq.answer}</p>
+              <summary className="cursor-pointer text-sm font-black uppercase tracking-[0.08em]">{localized ? t(`aftrhrs.faq${index}q` as TranslationKey) : faq.question}</summary>
+              <p className="mt-3 text-sm leading-6 text-white/65">{localized ? t(`aftrhrs.faq${index}a` as TranslationKey) : faq.answer}</p>
             </details>
-          ))}
+            );
+          })}
         </div>
       </Section>
 
       <footer className="border-t border-white/10 px-4 py-10 pb-28 text-center sm:pb-10">
         <a href="https://promorang.co" className="inline-flex flex-col items-center gap-3">
           <img src={promorangLogo} alt="PROMORANG" className="h-9 w-auto object-contain" />
-          <span className="text-[11px] font-black uppercase tracking-[0.32em] text-white">{AFTRHRS_COPY.poweredBy}</span>
+          <span className="text-[11px] font-black uppercase tracking-[0.32em] text-white">{t("aftrhrs.powered")}</span>
         </a>
         <p className="mt-5 text-xs uppercase tracking-[0.18em] text-white/40">
-          Sea Deck, Orchid Village · 20 Barbican Road · A Promorang Moment
+          {t("aftrhrs.footerPlace")}
         </p>
       </footer>
 
@@ -539,7 +555,7 @@ export default function AftrHrsExperience() {
             <p className="truncate text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">
               {remainingLabel}
             </p>
-            <p className="truncate text-xs text-white/55">{AFTRHRS_COPY.whenLine} · Sea Deck</p>
+            <p className="truncate text-xs text-white/55">{t("aftrhrs.when")} · {t("aftrhrs.doors")} · {t("aftrhrs.seaDeck")}</p>
           </div>
           {heroCta}
         </div>

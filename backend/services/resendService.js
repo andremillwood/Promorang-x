@@ -6,7 +6,12 @@
 
 const { Resend } = require('resend');
 const { resolveEmailRecipient } = require('./demoEmailRouting');
-const { getEmailContent, getLocalizedEmailUrl, normalizeEmailLocale } = require('./emailI18n');
+const {
+  getEmailContent,
+  getLocalizedEmailUrl,
+  htmlLangForLocale,
+  formatEmailDate,
+} = require('./emailI18n');
 
 // Initialize Resend client
 // Initialize Resend client
@@ -745,87 +750,95 @@ ${contentData.footerNote}
 /**
  * Password reset email - Premium security experience
  */
-async function sendPasswordResetEmail(userEmail, resetUrl, userName) {
+async function sendPasswordResetEmail(userEmail, resetUrl, userName, options = {}) {
+  const locale = options.locale || 'en';
+  const content = getEmailContent('passwordReset', locale, { name: userName || 'there' });
+  const requestTime = formatEmailDate(new Date(), locale, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+
   const html = getBaseTemplate({
-    title: 'Reset Your Password',
-    preheader: 'Secure your account with a new password.',
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>We received a request to reset the password for your Promorang account. Click the button below to securely create a new password.</p>
+      <p>${content.intro}</p>
       
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">Request Time</span>
-          <span class="info-card-value">${new Date().toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}</span>
+          <span class="info-card-label">${content.requestTime}</span>
+          <span class="info-card-value">${requestTime}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Expires</span>
-          <span class="info-card-value">1 hour</span>
+          <span class="info-card-label">${content.expiresLabel}</span>
+          <span class="info-card-value">${content.expiresValue}</span>
         </div>
       </div>
       
-      <p style="font-size: 14px; color: ${BRAND.textMuted};">If you didn't request this reset, you can safely ignore this email. Your account remains secure and your password will not be changed.</p>
+      <p style="font-size: 14px; color: ${BRAND.textMuted};">${content.securityNote}</p>
     `,
     ctaUrl: resetUrl,
-    ctaText: 'Reset Password',
+    ctaText: content.ctaText,
+    footerNote: content.footerNote,
   });
 
   const text = `
-Reset Your Password
+${content.title}
 
-Hi ${userName || 'there'},
+${content.greeting}
 
-We received a request to reset the password for your Promorang account.
+${content.intro}
 
-Reset Link: ${resetUrl}
-This link expires in 1 hour.
+${resetUrl}
+${content.expiresLabel}: ${content.expiresValue}
 
-If you didn't request this reset, you can safely ignore this email. Your account remains secure.
+${content.securityNote}
   `.trim();
 
   return sendEmail({
     to: userEmail,
-    subject: 'Reset your Promorang password',
+    subject: content.subject,
     html,
     text,
-    tags: [{ name: 'type', value: 'password-reset' }],
+    tags: [{ name: 'type', value: 'password-reset' }, { name: 'locale', value: content.locale }],
   });
 }
 
 /**
  * Security alert email (new login)
  */
-async function sendSecurityAlertEmail(userEmail, userName, alertData) {
-  const { alertType, device, location, timestamp } = alertData;
+async function sendSecurityAlertEmail(userEmail, userName, alertData = {}) {
+  const { device, location, timestamp, locale } = alertData;
+  const content = getEmailContent('securityAlert', locale, { name: userName || 'there' });
+  const securityUrl = getLocalizedEmailUrl('/settings/security', locale, EMAIL_CONFIG.frontendUrl);
+  const when = formatEmailDate(timestamp || Date.now(), locale);
 
   const html = getBaseTemplate({
-    title: 'Security Alert',
-    preheader: 'We noticed a new login to your account.',
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>We noticed a new sign-in to your Promorang account:</p>
+      <p>${content.intro}</p>
       
       <div class="meta-info">
-        <strong>Device:</strong> ${device || 'Unknown device'}<br>
-        <strong>Location:</strong> ${location || 'Unknown location'}<br>
-        <strong>Time:</strong> ${new Date(timestamp || Date.now()).toLocaleString()}
+        <strong>${content.deviceLabel}:</strong> ${device || content.unknownDevice}<br>
+        <strong>${content.locationLabel}:</strong> ${location || content.unknownLocation}<br>
+        <strong>${content.timeLabel}:</strong> ${when}
       </div>
       
-      <p>If this was you, no action is needed.</p>
-      <p>If you don't recognize this activity, please secure your account immediately.</p>
+      <p>${content.ifYou}</p>
+      <p>${content.ifNot}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/settings/security`,
-    ctaText: 'Review Account Security',
+    ctaUrl: securityUrl,
+    ctaText: content.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: '⚠️ New login to your Promorang account',
+    subject: content.subject,
     html,
-    text: `Security Alert: New login detected. Device: ${device}, Location: ${location}, Time: ${timestamp}. If this wasn't you, please secure your account at ${EMAIL_CONFIG.frontendUrl}/settings/security`,
-    tags: [{ name: 'type', value: 'security-alert' }],
+    text: `${content.title}: ${content.intro} ${content.deviceLabel}: ${device || content.unknownDevice}. ${content.ifNot} ${securityUrl}`,
+    tags: [{ name: 'type', value: 'security-alert' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -837,25 +850,30 @@ async function sendSecurityAlertEmail(userEmail, userName, alertData) {
  * Drop application approved
  */
 async function sendDropApprovedEmail(userEmail, userName, dropData) {
-  const { title, gemReward, deadline } = dropData;
+  const { title, gemReward, deadline, locale } = dropData;
+  const content = getEmailContent('dropApproved', locale, {
+    name: userName || 'there',
+    dropTitle: title,
+  });
+  const dropsUrl = getLocalizedEmailUrl('/drops', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Application Approved! ✅',
-    preheader: `Your application for "${title}" has been approved.`,
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>Great news! Your application for the following Drop has been approved:</p>
+      <p>${content.intro}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">📋 ${title}</p>
+        <p style="margin: 0; font-weight: 600;">${title}</p>
         <div class="value">+${gemReward} Gems</div>
-        <p style="margin: 0; font-size: 14px;">Potential reward upon completion</p>
+        <p style="margin: 0; font-size: 14px;">${content.payoutLabel}</p>
       </div>
       
       ${deadline ? `
       <div class="meta-info">
-        ⏰ <strong>Deadline:</strong> ${new Date(deadline).toLocaleDateString('en-US', {
+        <strong>${content.deadlineLabel}:</strong> ${formatEmailDate(deadline, locale, {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -864,17 +882,17 @@ async function sendDropApprovedEmail(userEmail, userName, dropData) {
       </div>
       ` : ''}
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/drops`,
-    ctaText: 'View Drop Details',
-    footerNote: "Complete the drop requirements to earn your rewards!",
+    ctaUrl: dropsUrl,
+    ctaText: content.ctaText,
+    footerNote: content.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `✅ Approved: ${title}`,
+    subject: content.subject,
     html,
-    text: `Your application for "${title}" has been approved! Complete it to earn ${gemReward} Gems.`,
-    tags: [{ name: 'type', value: 'drop-approved' }],
+    text: `${content.preheader} ${gemReward} Gems. ${dropsUrl}`,
+    tags: [{ name: 'type', value: 'drop-approved' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -882,34 +900,40 @@ async function sendDropApprovedEmail(userEmail, userName, dropData) {
  * Drop application rejected
  */
 async function sendDropRejectedEmail(userEmail, userName, dropData) {
-  const { title, reason } = dropData;
+  const { title, reason, locale } = dropData;
+  const content = getEmailContent('dropRejected', locale, {
+    name: userName || 'there',
+    dropTitle: title,
+  });
+  const dropsUrl = getLocalizedEmailUrl('/drops', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Application Update',
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>Unfortunately, your application for "<strong>${title}</strong>" was not approved this time.</p>
+      <p>${content.intro}</p>
       
       ${reason ? `
       <div class="meta-info">
-        <strong>Feedback:</strong> ${reason}
+        <strong>${content.feedbackLabel}:</strong> ${reason}
       </div>
       ` : ''}
       
-      <p>Don't worry – there are plenty more opportunities! Check out other available Drops and try again.</p>
+      <p>${content.moreDrops}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/drops`,
-    ctaText: 'Browse More Drops',
-    footerNote: 'Each rejection is a step closer to your next approval!',
+    ctaUrl: dropsUrl,
+    ctaText: content.ctaText,
+    footerNote: content.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Application Update: ${title}`,
+    subject: content.subject,
     html,
-    text: `Your application for "${title}" was not approved. ${reason ? `Feedback: ${reason}` : ''} Browse more drops at ${EMAIL_CONFIG.frontendUrl}/drops`,
-    tags: [{ name: 'type', value: 'drop-rejected' }],
+    text: `${content.preheader} ${reason ? `${content.feedbackLabel}: ${reason}` : ''} ${dropsUrl}`,
+    tags: [{ name: 'type', value: 'drop-rejected' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -917,7 +941,12 @@ async function sendDropRejectedEmail(userEmail, userName, dropData) {
  * Drop completed - reward earned - Premium achievement experience
  */
 async function sendDropCompletedEmail(userEmail, userName, dropData) {
-  const { title, gemsEarned, keysEarned, pointsEarned } = dropData;
+  const { title, gemsEarned, keysEarned, pointsEarned, locale } = dropData;
+  const content = getEmailContent('dropCompleted', locale, {
+    name: userName || 'there',
+    dropTitle: title,
+  });
+  const walletUrl = getLocalizedEmailUrl('/wallet', locale, EMAIL_CONFIG.frontendUrl);
 
   const rewards = [];
   if (gemsEarned) rewards.push(`${gemsEarned} Gems`);
@@ -925,43 +954,29 @@ async function sendDropCompletedEmail(userEmail, userName, dropData) {
   if (pointsEarned) rewards.push(`${pointsEarned} Points`);
 
   const html = getBaseTemplate({
-    title: 'Mission Accomplished',
-    preheader: `You earned ${rewards.join(' + ')} for completing ${title}`,
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>Excellent work. You've successfully completed <strong>${title}</strong> and earned rewards for your engagement.</p>
+      <p>${content.intro}</p>
       
       <div class="highlight-card success">
-        <div class="label">Rewards Earned</div>
+        <div class="label">${content.earnedLabel}</div>
         <div class="value">${rewards.join(' + ')}</div>
-        <div class="sublabel">Credited to your account</div>
       </div>
-      
-      <div class="info-card">
-        <div class="info-card-row">
-          <span class="info-card-label">Completed</span>
-          <span class="info-card-value">${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-        </div>
-        <div class="info-card-row">
-          <span class="info-card-label">Status</span>
-          <span class="info-card-value" style="color: ${BRAND.success};">Verified & Paid</span>
-        </div>
-      </div>
-      
-      <p style="text-align: center;">Your contributions are valued. Keep up the momentum.</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/wallet`,
-    ctaText: 'View Wallet',
-    footerNote: 'Maintain your daily streak for compounding bonus rewards on every completion.',
+    ctaUrl: walletUrl,
+    ctaText: content.ctaText,
+    footerNote: content.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Mission accomplished: ${rewards.join(' + ')} earned`,
+    subject: content.subject,
     html,
-    text: `Congratulations! You completed "${title}" and earned ${rewards.join(' + ')}. View your wallet: ${EMAIL_CONFIG.frontendUrl}/wallet`,
-    tags: [{ name: 'type', value: 'drop-completed' }],
+    text: `${content.preheader} ${rewards.join(' + ')}. ${walletUrl}`,
+    tags: [{ name: 'type', value: 'drop-completed' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -1209,48 +1224,40 @@ async function sendKycRequiredEmail(userEmail, userName, reason) {
 }
 
 async function sendKycApprovedEmail(userEmail, userName, approvalData = {}) {
-  const { level = 'intermediate', limits } = approvalData;
+  const { level = 'intermediate', limits, locale } = approvalData;
+  const content = getEmailContent('kycApproved', locale, { name: userName || 'there' });
+  const kycUrl = getLocalizedEmailUrl('/kyc', locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Verification Approved',
-    preheader: 'Your account is now verified for trading and withdrawals.',
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${content.greeting}</p>
 
-      <p>Your identity verification has been approved. Your account now has <strong>${level}</strong> verification access.</p>
+      <p>${content.intro}</p>
 
       <div class="info-card">
         <div class="info-card-row">
-          <span class="info-card-label">KYC Level</span>
+          <span class="info-card-label">KYC</span>
           <span class="info-card-value">${level}</span>
         </div>
         <div class="info-card-row">
-          <span class="info-card-label">Daily Deposit Limit</span>
-          <span class="info-card-value">$${limits?.daily_deposit_limit || limits?.daily_deposit || 0}</span>
-        </div>
-        <div class="info-card-row">
-          <span class="info-card-label">Daily Withdrawal Limit</span>
-          <span class="info-card-value">$${limits?.daily_withdrawal_limit || limits?.daily_withdrawal || 0}</span>
-        </div>
-        <div class="info-card-row">
-          <span class="info-card-label">Max Single Trade</span>
-          <span class="info-card-value">$${limits?.max_single_trade || limits?.max_single_trade_amount || 0}</span>
+          <span class="info-card-label">$</span>
+          <span class="info-card-value">${limits?.daily_deposit_limit || limits?.daily_deposit || 0}</span>
         </div>
       </div>
-
-      <p>You can now continue with trading, withdrawals, and higher account limits.</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/kyc`,
-    ctaText: 'View Verification',
-    footerNote: 'If anything on your profile looks incorrect, reply to this email and support will review it.',
+    ctaUrl: kycUrl,
+    ctaText: content.ctaText,
+    footerNote: content.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: 'Your Promorang verification was approved',
+    subject: content.subject,
     html,
-    text: `Your verification was approved at level ${level}. View your status at ${EMAIL_CONFIG.frontendUrl}/kyc`,
-    tags: [{ name: 'type', value: 'kyc-approved' }],
+    text: `${content.preheader} ${kycUrl}`,
+    tags: [{ name: 'type', value: 'kyc-approved' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -1540,46 +1547,54 @@ async function sendWeeklyDigestEmail(userEmail, userName, stats) {
  * Event ticket purchase confirmation
  */
 async function sendTicketPurchaseEmail(userEmail, userName, ticketData) {
-  const { eventName, tierName, activationCode, eventDate, eventLocation } = ticketData;
-
-  const html = getBaseTemplate({
-    title: 'Ticket Confirmed! 🎟️',
-    preheader: `Your ticket for ${eventName} is ready!`,
-    content: `
-      <p>Hi ${userName || 'there'},</p>
-      
-      <p>Your ticket has been confirmed!</p>
-      
-      <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">🎟️ ${eventName}</p>
-        <p style="margin: 8px 0;">Tier: <strong>${tierName}</strong></p>
-        <div class="value" style="font-family: monospace;">${activationCode}</div>
-        <p style="margin: 8px 0 0; font-size: 12px;">Your activation code (show at entry)</p>
-      </div>
-      
-      <div class="meta-info">
-        📅 <strong>Date:</strong> ${new Date(eventDate).toLocaleDateString('en-US', {
+  const { eventName, tierName, activationCode, eventDate, eventLocation, locale } = ticketData;
+  const content = getEmailContent('ticketPurchase', locale, {
+    name: userName || 'there',
+    momentTitle: eventName,
+  });
+  const ticketsUrl = getLocalizedEmailUrl('/tickets', locale, EMAIL_CONFIG.frontendUrl);
+  const when = eventDate
+    ? formatEmailDate(eventDate, locale, {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    })}<br>
-        📍 <strong>Location:</strong> ${eventLocation}
+    })
+    : '';
+
+  const html = getBaseTemplate({
+    title: content.title,
+    preheader: content.preheader,
+    content: `
+      <p>${content.greeting}</p>
+      
+      <p>${content.confirmedLead}</p>
+      
+      <div class="highlight-box">
+        <p style="margin: 0; font-weight: 600;">${eventName}</p>
+        <p style="margin: 8px 0;">${content.tierLabel}: <strong>${tierName}</strong></p>
+        <div class="value" style="font-family: monospace;">${activationCode}</div>
+        <p style="margin: 8px 0 0; font-size: 12px;">${content.codeLabel}</p>
+      </div>
+      
+      <div class="meta-info">
+        <strong>${content.dateLabel}:</strong> ${when}<br>
+        <strong>${content.locationLabel}:</strong> ${eventLocation}
       </div>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/tickets`,
-    ctaText: 'View My Tickets',
-    footerNote: 'Save this email or take a screenshot of your activation code.',
+    ctaUrl: ticketsUrl,
+    ctaText: content.ctaText,
+    footerNote: content.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `🎟️ Ticket Confirmed: ${eventName}`,
+    subject: content.subject,
     html,
-    text: `Your ticket for ${eventName} is confirmed! Activation Code: ${activationCode}. Date: ${eventDate}. Location: ${eventLocation}.`,
-    tags: [{ name: 'type', value: 'ticket-purchase' }],
+    text: `${content.preheader} ${activationCode}. ${when}. ${eventLocation}.`,
+    tags: [{ name: 'type', value: 'ticket-purchase' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -1587,26 +1602,26 @@ function aftrHrsAssetUrl(path) {
   return buildPublicAssetUrl(path);
 }
 
-function buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode }) {
+function buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode, locale }) {
   const aftrHrsLogo = aftrHrsAssetUrl('/campaigns/aftrhrs/logo.jpg');
   const promorangLogo = EMAIL_CONFIG.logoUrl;
   const site = EMAIL_CONFIG.frontendUrl;
-  const passUrl = `${site}/aftrhrs/pass`;
-  const landingUrl = `${site}/aftrhrs`;
   const isPass = kind === 'pass';
-  const headline = isPass ? 'Your AftrHrs pass is ready' : 'You are on the AftrHrs list';
-  const lead = isPass
-    ? 'Open your pass, then show the QR at Sea Deck. Use the same Promorang account you claimed with.'
-    : 'Thanks for joining AftrHrs at Sea Deck. Keep this note — free entry is time-bound.';
+  const content = getEmailContent(isPass ? 'aftrHrsPass' : 'aftrHrsRsvp', locale, {
+    name: userName || 'there',
+    activationCode: activationCode || '',
+  });
+  const passUrl = getLocalizedEmailUrl('/aftrhrs/pass', locale, site);
+  const landingUrl = getLocalizedEmailUrl('/aftrhrs', locale, site);
   const ctaUrl = isPass ? passUrl : landingUrl;
-  const ctaLabel = isPass ? 'Open my pass' : 'Open AftrHrs';
+  const lang = htmlLangForLocale(locale);
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${lang}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${headline}</title>
+  <title>${content.title}</title>
 </head>
 <body style="margin:0;padding:0;background:#050505;color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#050505;padding:24px 12px;">
@@ -1616,47 +1631,47 @@ function buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode }) {
           <tr>
             <td style="padding:36px 28px 20px;text-align:center;background:radial-gradient(circle at top,rgba(192,38,211,0.32),transparent 58%),#000;">
               <img src="${aftrHrsLogo}" alt="AftrHrs" width="168" style="display:block;margin:0 auto 18px;max-width:168px;height:auto;border:0;">
-              <p style="margin:0;letter-spacing:0.26em;text-transform:uppercase;font-size:11px;color:#67e8f9;">Every Friday · 10:00 PM until · Sea Deck</p>
-              <h1 style="margin:14px 0 0;font-size:30px;line-height:1.08;letter-spacing:-0.04em;color:#ffffff;">${headline}</h1>
+              <p style="margin:0;letter-spacing:0.26em;text-transform:uppercase;font-size:11px;color:#67e8f9;">${content.cadence}</p>
+              <h1 style="margin:14px 0 0;font-size:30px;line-height:1.08;letter-spacing:-0.04em;color:#ffffff;">${content.title}</h1>
             </td>
           </tr>
           <tr>
             <td style="padding:8px 28px 32px;">
-              <p style="margin:0 0 12px;color:#f5f5f5;font-size:16px;line-height:1.6;">Hi ${userName || 'there'},</p>
-              <p style="margin:0 0 22px;color:#a3a3a3;font-size:15px;line-height:1.7;">${lead}</p>
+              <p style="margin:0 0 12px;color:#f5f5f5;font-size:16px;line-height:1.6;">${content.greeting}</p>
+              <p style="margin:0 0 22px;color:#a3a3a3;font-size:15px;line-height:1.7;">${content.lead}</p>
               ${isPass && activationCode ? `
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 18px;background:#111;border:1px solid rgba(255,255,255,0.12);border-radius:20px;">
                 <tr>
                   <td style="padding:22px 20px;text-align:center;">
-                    <p style="margin:0 0 8px;letter-spacing:0.2em;text-transform:uppercase;font-size:11px;color:#67e8f9;">Digital Free Pass</p>
+                    <p style="margin:0 0 8px;letter-spacing:0.2em;text-transform:uppercase;font-size:11px;color:#67e8f9;">${content.passLabel}</p>
                     <p style="margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:26px;letter-spacing:0.14em;color:#ffffff;font-weight:800;">${activationCode}</p>
-                    <p style="margin:12px 0 0;color:#d4d4d4;font-size:13px;line-height:1.5;">Show this code or the QR from your pass at the door.</p>
+                    <p style="margin:12px 0 0;color:#d4d4d4;font-size:13px;line-height:1.5;">${content.showCode}</p>
                   </td>
                 </tr>
               </table>` : ''}
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 22px;background:linear-gradient(135deg,rgba(232,121,249,0.16),rgba(34,211,238,0.12));border:1px solid rgba(232,121,249,0.35);border-radius:20px;">
                 <tr>
                   <td style="padding:20px;">
-                    <p style="margin:0 0 6px;letter-spacing:0.18em;text-transform:uppercase;font-size:11px;color:#f0abfc;font-weight:700;">Free entry</p>
-                    <p style="margin:0;color:#ffffff;font-size:18px;line-height:1.4;font-weight:700;">Arrive before 11:30 PM to get in free.</p>
-                    <p style="margin:10px 0 0;color:#d4d4d4;font-size:14px;line-height:1.55;">Every Friday from 10:00 PM at Sea Deck, Orchid Village, 20 Barbican Road, Kingston.</p>
+                    <p style="margin:0 0 6px;letter-spacing:0.18em;text-transform:uppercase;font-size:11px;color:#f0abfc;font-weight:700;">${content.freeEntry}</p>
+                    <p style="margin:0;color:#ffffff;font-size:18px;line-height:1.4;font-weight:700;">${content.arrive}</p>
+                    <p style="margin:10px 0 0;color:#d4d4d4;font-size:14px;line-height:1.55;">${content.venue}</p>
                   </td>
                 </tr>
               </table>
-              <p style="margin:0 0 22px;color:#a3a3a3;font-size:14px;line-height:1.6;">Origin: Alric & Boyd · Afro House, Classic House, House Fusion.</p>
+              <p style="margin:0 0 22px;color:#a3a3a3;font-size:14px;line-height:1.6;">${content.origin}</p>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                 <tr>
                   <td align="center" style="padding:0 0 10px;">
-                    <a href="${ctaUrl}" style="display:inline-block;background:#ffffff;color:#000000;text-decoration:none;padding:15px 32px;border-radius:999px;font-size:13px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;">${ctaLabel}</a>
+                    <a href="${ctaUrl}" style="display:inline-block;background:#ffffff;color:#000000;text-decoration:none;padding:15px 32px;border-radius:999px;font-size:13px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;">${content.ctaText}</a>
                   </td>
                 </tr>
               </table>
               <p style="margin:8px 0 0;text-align:center;color:#737373;font-size:12px;line-height:1.6;">
-                ${isPass ? `If you are asked to sign in, use the same account. <a href="${landingUrl}" style="color:#a3a3a3;text-decoration:underline;">View AftrHrs</a>` : `<a href="${landingUrl}" style="color:#a3a3a3;text-decoration:underline;">www.promorang.co/aftrhrs</a>`}
+                ${isPass ? `${content.signInNote} <a href="${landingUrl}" style="color:#a3a3a3;text-decoration:underline;">${content.viewAftrHrs}</a>` : `<a href="${landingUrl}" style="color:#a3a3a3;text-decoration:underline;">www.promorang.co/aftrhrs</a>`}
               </p>
               <div style="margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.1);text-align:center;">
                 <img src="${promorangLogo}" alt="PROMORANG" width="36" height="36" style="display:block;margin:0 auto 10px;border:0;">
-                <p style="margin:0;letter-spacing:0.28em;text-transform:uppercase;font-size:11px;color:#f5f5f5;font-weight:800;">Powered by PROMORANG</p>
+                <p style="margin:0;letter-spacing:0.28em;text-transform:uppercase;font-size:11px;color:#f5f5f5;font-weight:800;">${content.powered}</p>
                 <p style="margin:8px 0 0;color:#737373;font-size:12px;"><a href="${site}" style="color:#a3a3a3;text-decoration:none;">promorang.co</a></p>
               </div>
             </td>
@@ -1669,34 +1684,39 @@ function buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode }) {
 </html>`;
 }
 
-function buildAftrHrsRsvpEmailText({ userName, kind, activationCode }) {
+function buildAftrHrsRsvpEmailText({ userName, kind, activationCode, locale }) {
   const isPass = kind === 'pass';
   const site = EMAIL_CONFIG.frontendUrl;
+  const content = getEmailContent(isPass ? 'aftrHrsPass' : 'aftrHrsRsvp', locale, {
+    name: userName || 'there',
+  });
+  const passUrl = getLocalizedEmailUrl('/aftrhrs/pass', locale, site);
+  const landingUrl = getLocalizedEmailUrl('/aftrhrs', locale, site);
   return [
-    `Hi ${userName || 'there'},`,
-    isPass ? 'Your AftrHrs Digital Free Pass is ready.' : 'You are on the AftrHrs list.',
-    'Arrive before 11:30 PM to get in free.',
-    'Sea Deck, Orchid Village, 20 Barbican Road, Kingston. Every Friday from 10:00 PM.',
-    activationCode ? `Pass code: ${activationCode}` : null,
-    isPass ? `Open your pass: ${site}/aftrhrs/pass` : `Open AftrHrs: ${site}/aftrhrs`,
-    'Powered by PROMORANG',
+    content.greeting,
+    content.preheader,
+    content.arrive,
+    content.venue,
+    activationCode ? activationCode : null,
+    isPass ? passUrl : landingUrl,
+    content.powered,
   ].filter(Boolean).join('\n\n');
 }
 
 async function sendAftrHrsRsvpEmail(userEmail, userName, rsvpData = {}) {
-  const { kind = 'pass', activationCode } = rsvpData;
-  const html = buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode });
-  const text = buildAftrHrsRsvpEmailText({ userName, kind, activationCode });
-  const subject = kind === 'pass'
-    ? 'Your AftrHrs pass is ready — every Friday at Sea Deck'
-    : 'You are on the AftrHrs list — every Friday at Sea Deck';
+  const { kind = 'pass', activationCode, locale } = rsvpData;
+  const html = buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode, locale });
+  const text = buildAftrHrsRsvpEmailText({ userName, kind, activationCode, locale });
+  const content = getEmailContent(kind === 'pass' ? 'aftrHrsPass' : 'aftrHrsRsvp', locale, {
+    name: userName || 'there',
+  });
 
   return sendEmail({
     to: userEmail,
-    subject,
+    subject: content.subject,
     html,
     text,
-    tags: [{ name: 'type', value: kind === 'pass' ? 'aftrhrs-pass' : 'aftrhrs-rsvp' }],
+    tags: [{ name: 'type', value: kind === 'pass' ? 'aftrhrs-pass' : 'aftrhrs-rsvp' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -1729,35 +1749,42 @@ async function sendAftrHrsAdminDraftEmail(adminEmails, preview = {}) {
  * Event reminder (24h before)
  */
 async function sendEventReminderEmail(userEmail, userName, eventData) {
-  const { eventName, activationCode, eventDate, eventLocation } = eventData;
+  const { eventName, activationCode, eventDate, eventLocation, locale } = eventData;
+  const content = getEmailContent('eventReminder', locale, {
+    name: userName || 'there',
+    momentTitle: eventName,
+  });
+  const ticketsUrl = getLocalizedEmailUrl('/tickets', locale, EMAIL_CONFIG.frontendUrl);
+  const when = eventDate ? formatEmailDate(eventDate, locale) : '';
 
   const html = getBaseTemplate({
-    title: 'Event Tomorrow! ⏰',
-    preheader: `${eventName} is happening tomorrow!`,
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>Just a reminder – your event is <strong>tomorrow</strong>!</p>
+      <p>${content.tomorrowLead}</p>
       
       <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">📅 ${eventName}</p>
-        <p style="margin: 8px 0;">📍 ${eventLocation}</p>
-        <p style="margin: 8px 0;">🕐 ${new Date(eventDate).toLocaleString()}</p>
+        <p style="margin: 0; font-weight: 600;">${eventName}</p>
+        <p style="margin: 8px 0;">${eventLocation}</p>
+        <p style="margin: 8px 0;">${when}</p>
         <div class="value" style="font-family: monospace; font-size: 20px;">${activationCode}</div>
       </div>
       
-      <p>Make sure to bring your activation code for entry!</p>
+      <p>${content.bringCode}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/tickets`,
-    ctaText: 'View Ticket',
+    ctaUrl: ticketsUrl,
+    ctaText: content.ctaText,
+    footerNote: content.footerNote,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `⏰ Reminder: ${eventName} is tomorrow!`,
+    subject: content.subject,
     html,
-    text: `Reminder: ${eventName} is tomorrow at ${eventLocation}. Your code: ${activationCode}`,
-    tags: [{ name: 'type', value: 'event-reminder' }],
+    text: `${content.preheader} ${eventLocation}. ${activationCode}`,
+    tags: [{ name: 'type', value: 'event-reminder' }, { name: 'locale', value: content.locale }],
   });
 }
 
@@ -1769,34 +1796,41 @@ async function sendEventReminderEmail(userEmail, userName, eventData) {
  * Support ticket created
  */
 async function sendSupportTicketCreatedEmail(userEmail, userName, ticketData) {
-  const { ticketId, subject, category } = ticketData;
+  const { ticketId, subject, category, locale } = ticketData;
+  const content = getEmailContent('supportTicket', locale, {
+    name: userName || 'there',
+    ticketId,
+    ticketSubject: subject,
+  });
+  const ticketUrl = getLocalizedEmailUrl(`/support/tickets/${ticketId}`, locale, EMAIL_CONFIG.frontendUrl);
 
   const html = getBaseTemplate({
-    title: 'Support Ticket Created',
+    title: content.title,
+    preheader: content.preheader,
     content: `
-      <p>Hi ${userName || 'there'},</p>
+      <p>${content.greeting}</p>
       
-      <p>We've received your support request:</p>
+      <p>${content.intro}</p>
       
       <div class="meta-info">
-        <strong>Ticket ID:</strong> #${ticketId}<br>
-        <strong>Category:</strong> ${category}<br>
-        <strong>Subject:</strong> ${subject}
+        <strong>${content.ticketLabel}:</strong> #${ticketId}<br>
+        <strong>${content.categoryLabel}:</strong> ${category}<br>
+        <strong>${content.subjectLabel}:</strong> ${subject}
       </div>
       
-      <p>Our team will review your request and get back to you soon. Most tickets are resolved within 24-48 hours.</p>
+      <p>${content.sla}</p>
     `,
-    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/support/tickets/${ticketId}`,
-    ctaText: 'View Ticket',
+    ctaUrl: ticketUrl,
+    ctaText: content.ctaText,
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `Support Ticket #${ticketId}: ${subject}`,
+    subject: content.subject,
     html,
-    text: `Support ticket created. ID: #${ticketId}. Subject: ${subject}. We'll respond within 24-48 hours.`,
+    text: `${content.title}. #${ticketId}. ${subject}. ${content.textSla}`,
     replyTo: EMAIL_CONFIG.supportEmail,
-    tags: [{ name: 'type', value: 'support-ticket' }],
+    tags: [{ name: 'type', value: 'support-ticket' }, { name: 'locale', value: content.locale }],
   });
 }
 

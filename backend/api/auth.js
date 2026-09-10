@@ -5,6 +5,7 @@ const { createClient } = require('@supabase/supabase-js');
 const jwt = require('jsonwebtoken');
 const { Readable } = require('stream');
 const { sendWelcomeEmail } = require('../services/resendService');
+const { localeFromRequest } = require('../services/emailI18n');
 const { normalizeEmail } = require('../services/demoEmailRouting');
 const demoExperienceEmailService = require('../services/demoExperienceEmailService');
 
@@ -577,7 +578,7 @@ router.post('/register', async (req, res) => {
       const token = generateToken(data.user);
 
       // Send welcome email (async, don't block response)
-      sendWelcomeEmail(email, display_name || username).catch(err => {
+      sendWelcomeEmail(email, display_name || username, { locale: localeFromRequest(req) }).catch(err => {
         console.error('Failed to send welcome email:', err);
       });
 

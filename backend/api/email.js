@@ -3,6 +3,7 @@ const router = express.Router();
 
 const { supabase } = require('../lib/supabase');
 const { normalizeEmail } = require('../services/demoEmailRouting');
+const { localeFromRequest } = require('../services/emailI18n');
 const emailCampaignService = require('../services/emailCampaignService');
 
 function getResendService() {
@@ -55,7 +56,7 @@ router.post('/welcome', async (req, res) => {
     }
 
     const { sendWelcomeEmail } = getResendService();
-    const result = await sendWelcomeEmail(email, userName);
+    const result = await sendWelcomeEmail(email, userName, { locale: localeFromRequest(req) });
     return res.status(result.success ? 200 : 500).json({ success: result.success, result });
   } catch (error) {
     console.error('[Email API] Failed to send welcome email:', error);

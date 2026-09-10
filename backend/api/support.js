@@ -3,6 +3,7 @@ const router = express.Router();
 const { supabase } = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
 const { sendSupportTicketCreatedEmail } = require('../services/resendService');
+const { localeFromRequest } = require('../services/emailI18n');
 
 router.use(requireAuth);
 
@@ -135,6 +136,7 @@ router.post('/', async (req, res) => {
                     ticketId: ticket.id,
                     subject: subject,
                     category: category || 'General',
+                    locale: localeFromRequest(req),
                 }).catch(err => console.error('Failed to send support ticket email:', err));
             }
         } catch (emailErr) {

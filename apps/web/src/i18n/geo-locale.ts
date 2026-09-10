@@ -73,6 +73,14 @@ export function detectBrowserLocale(): Locale {
   return "en";
 }
 
+export function currentUiLocale(): Locale {
+  return getSavedLocalePreference() || detectBrowserLocale();
+}
+
+export function localeRequestHeaders(): Record<string, string> {
+  return { "X-Promorang-Locale": currentUiLocale() };
+}
+
 export async function detectGeoIpLocale(signal?: AbortSignal): Promise<{ countryCode?: string; locale: Locale }> {
   if (typeof window === "undefined") return { locale: "en" };
 

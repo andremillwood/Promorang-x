@@ -5,8 +5,11 @@ import { useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell } from "@/components/people/ExperienceShell";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
+import { localizedCommunityTheme } from "@/i18n/localize";
 
 export default function StartCommunity() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const to = useExperiencePath();
   const { start } = useExperienceActions();
@@ -26,30 +29,30 @@ export default function StartCommunity() {
       const result = await start.mutateAsync({ name, theme, location, city: location, reach });
       setCreated(result);
     } catch (error) {
-      toast({ title: "Could not create that community", description: (error as Error).message, variant: "destructive" });
+      toast({ title: t("start.createFailed"), description: (error as Error).message, variant: "destructive" });
     }
   };
 
   if (created?.scene) {
     return (
-      <ExperienceShell eyebrow="You’re in" title="Here’s something you can give your people.">
-        <p className="text-sm text-white/55">{created.scene.title} is live. Don’t stop at the name.</p>
+      <ExperienceShell eyebrow={t("start.youreIn")} title={t("start.givePeople")}>
+        <p className="text-sm text-white/55">{t("start.liveDontStop", { title: created.scene.title })}</p>
         <Link to={to("/give")} className="block rounded-[1.6rem] bg-primary px-5 py-5 text-black">
-          <p className="font-serif text-2xl font-bold">Give the first 50 a perk</p>
-          <p className="mt-1 text-sm">A 2-for-1, free entry, or whatever you already have.</p>
+          <p className="font-serif text-2xl font-bold">{t("start.firstPerk")}</p>
+          <p className="mt-1 text-sm">{t("start.firstPerkCopy")}</p>
         </Link>
         <Link to={to("/people")} className="block rounded-[1.6rem] border border-white/10 px-5 py-5">
-          <p className="font-serif text-2xl font-bold">Invite your people</p>
-          <p className="mt-1 text-sm text-white/50">{created.firstValue?.invite?.shareUrl || "Copy your invite from My People."}</p>
+          <p className="font-serif text-2xl font-bold">{t("start.invitePeople")}</p>
+          <p className="mt-1 text-sm text-white/50">{created.firstValue?.invite?.shareUrl || t("start.copyInvite")}</p>
         </Link>
         {created.firstValue?.opportunity ? (
           <Link to={to("/earn")} className="block rounded-[1.6rem] border border-white/10 px-5 py-5">
-            <p className="font-serif text-2xl font-bold">Take an opportunity</p>
+            <p className="font-serif text-2xl font-bold">{t("start.takeOpportunity")}</p>
             <p className="mt-1 text-sm text-white/50">{created.firstValue.opportunity.title}</p>
           </Link>
         ) : null}
         <button type="button" onClick={() => navigate(`/scenes/${created.scene.slug}`)} className="text-sm text-white/40">
-          See the community
+          {t("start.seeCommunity")}
         </button>
       </ExperienceShell>
     );
@@ -57,9 +60,9 @@ export default function StartCommunity() {
 
   return (
     <ExperienceShell
-      eyebrow="Start"
-      title="What is your community about?"
-      description="Keep it short. You can give people something immediately after this."
+      eyebrow={t("start.eyebrow")}
+      title={t("start.title")}
+      description={t("start.copy")}
       backTo="/dashboard"
     >
       <div className="grid grid-cols-2 gap-2">
@@ -70,23 +73,23 @@ export default function StartCommunity() {
             onClick={() => setTheme(item.id)}
             className={`min-h-12 rounded-full border text-sm font-bold ${theme === item.id ? "border-primary bg-primary text-black" : "border-white/10"}`}
           >
-            {item.label}
+            {localizedCommunityTheme(item.id, t)}
           </button>
         ))}
       </div>
 
       <label className="block">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Where is your community?</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{t("start.where")}</span>
         <input value={location} onChange={(event) => setLocation(event.target.value)} className="mt-2 min-h-14 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4" />
       </label>
 
       <label className="block">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">What should we call it?</span>
-        <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Kingston Food Club" className="mt-2 min-h-14 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4" />
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{t("start.nameLabel")}</span>
+        <input value={name} onChange={(event) => setName(event.target.value)} placeholder={t("start.namePh")} className="mt-2 min-h-14 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4" />
       </label>
 
       <section>
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">How do you reach your people?</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{t("start.reach")}</p>
         <div className="mt-2 grid grid-cols-2 gap-2">
           {REACH_CHANNELS.map((item) => (
             <button
@@ -107,7 +110,7 @@ export default function StartCommunity() {
         onClick={submit}
         className="min-h-14 w-full rounded-full bg-primary text-sm font-black text-black disabled:opacity-60"
       >
-        {start.isPending ? "Creating…" : "Create"}
+        {start.isPending ? t("start.creating") : t("start.createCta")}
       </button>
     </ExperienceShell>
   );

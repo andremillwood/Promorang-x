@@ -50,6 +50,8 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useI18n } from "@/i18n/I18nContext";
+import { localizeLens } from "@/i18n/localize";
 
 type CardPerk = {
   id: string;
@@ -115,6 +117,7 @@ function BenefitTicket({
   aim?: PromoCardAim | null;
   onShowCode?: (perk: CardPerk, trigger: HTMLButtonElement) => void;
 }) {
+  const { t } = useI18n();
   const usable = canShowCode(perk);
   return (
     <article className="rounded-[1.4rem] border border-white/10 px-4 py-4">
@@ -132,19 +135,19 @@ function BenefitTicket({
       {perk.detail ? <p className="mt-1 text-sm text-white/50">{perk.detail}</p> : null}
       <dl className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-white/45">
         <div>
-          <dt className="uppercase tracking-widest">Eligibility</dt>
-          <dd className="mt-0.5 text-white/70">{perk.eligibility?.who || "Claimed members"}</dd>
+          <dt className="uppercase tracking-widest">{t("card.eligibility")}</dt>
+          <dd className="mt-0.5 text-white/70">{perk.eligibility?.who || t("card.claimedMembers")}</dd>
         </div>
         <div>
-          <dt className="uppercase tracking-widest">Remaining</dt>
-          <dd className="mt-0.5 text-white/70">{perk.availableQuantity == null ? "Open" : perk.availableQuantity}</dd>
+          <dt className="uppercase tracking-widest">{t("card.remaining")}</dt>
+          <dd className="mt-0.5 text-white/70">{perk.availableQuantity == null ? t("card.openQty") : perk.availableQuantity}</dd>
         </div>
         <div>
-          <dt className="uppercase tracking-widest">Expires</dt>
-          <dd className="mt-0.5 text-white/70">{perk.expiresAt ? new Date(perk.expiresAt).toLocaleDateString() : "While supplies last"}</dd>
+          <dt className="uppercase tracking-widest">{t("card.expires")}</dt>
+          <dd className="mt-0.5 text-white/70">{perk.expiresAt ? new Date(perk.expiresAt).toLocaleDateString() : t("card.whileSupplies")}</dd>
         </div>
         <div>
-          <dt className="uppercase tracking-widest">Redemption</dt>
+          <dt className="uppercase tracking-widest">{t("card.redemption")}</dt>
           <dd className="mt-0.5 text-white/70">{ownedBenefitStatus(perk as PromoCardPerk)}</dd>
         </div>
       </dl>
@@ -155,19 +158,20 @@ function BenefitTicket({
           className="experience-interactive mt-4 flex min-h-12 w-full items-center justify-between gap-2 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-100"
           aria-label={`${perkCode(perk) ? "Show code for" : "View"} ${perk.title}`}
         >
-          {action || "Show redemption code"}
+          {action || t("card.showCode")}
           <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0" />
         </button>
       ) : null}
-      {perk.sharedBy?.name ? <p className="mt-2 text-xs text-white/40">Shared by {perk.sharedBy.name}</p> : null}
+      {perk.sharedBy?.name ? <p className="mt-2 text-xs text-white/40">{t("card.sharedBy", { name: perk.sharedBy.name })}</p> : null}
     </article>
   );
 }
 
 export default function MyPromoCard() {
+  const { t } = useI18n();
   const { user, profile, activeRole } = useAuth();
   const [searchParams] = useSearchParams();
-  const stake = getStakeholderLens(searchParams.get("role") || activeRole);
+  const stake = localizeLens(getStakeholderLens(searchParams.get("role") || activeRole), t);
   const previewAim = resolveStoredPromoCardAim(searchParams);
   const card = useMyPromoCard(previewAim?.id);
   const applied = useApplyPromoCardAim(card.data?.aim);
@@ -208,7 +212,7 @@ export default function MyPromoCard() {
   const selectedExpired = selected ? isExpired(selected) : false;
   const selectedCode = perkCode(selected);
   const face = resolvePromoCardFace({
-    holder: holder === "there" ? "Your card" : holder,
+    holder: holder === "there" ? t("people.yourCard") : holder,
     useThis: useThis,
     nearbyCount: nearby.length,
     nextBenefitTitle: nextBenefit?.title,
@@ -245,7 +249,7 @@ export default function MyPromoCard() {
 
   return (
     <ExperienceShell
-      eyebrow="PromoCard"
+      eyebrow={t("card.eyebrow")}
       title={copy.title}
       description={stake.promoCard.meaning}
       backTo="/dashboard"
@@ -253,7 +257,7 @@ export default function MyPromoCard() {
         data ? (
           <button
             type="button"
-            aria-label="Refresh your card"
+            aria-label={t("card.refreshAria")}
             disabled={card.isFetching}
             onClick={() => void card.refetch()}
             className="inline-flex min-h-11 items-center gap-2 self-start rounded-full border border-white/15 px-4 text-sm text-white/70 disabled:opacity-50"
@@ -262,17 +266,17 @@ export default function MyPromoCard() {
               aria-hidden="true"
               className={`h-4 w-4 ${card.isFetching ? "motion-safe:animate-spin" : ""}`}
             />
-            Refresh
+            {t("common.refresh")}
           </button>
         ) : undefined
       }
     >
       {card.isLoading ? (
-        <ExperienceLoading label="Getting your card ready…" />
+        <ExperienceLoading label={t("card.loading")} />
       ) : !data && card.isError ? (
         <QuietEmpty
-          title="Your card couldn’t load"
-          copy="Try again to see your live perks and claimed benefits."
+          title={t("card.errorTitle")}
+          copy={t("card.errorCopy")}
           action={
             <button
               type="button"

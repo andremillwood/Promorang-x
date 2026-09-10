@@ -8,8 +8,11 @@ import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbo
 import { resolveDemandRole } from "@/lib/discovery-demand";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
+import { localizedCreateIntent } from "@/i18n/localize";
 
 export default function CreateSomething() {
+  const { t } = useI18n();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { ask } = useExperienceActions();
@@ -26,18 +29,18 @@ export default function CreateSomething() {
         sceneId: params.get("hub") || undefined,
         category: "community",
       });
-      toast({ title: "Asked", description: "Your people can answer this now." });
+      toast({ title: t("create.asked"), description: t("create.askedCopy") });
       navigate(to("/happened"));
     } catch (error) {
-      toast({ title: "Could not ask that yet", description: (error as Error).message, variant: "destructive" });
+      toast({ title: t("create.askFailed"), description: (error as Error).message, variant: "destructive" });
     }
   };
 
   return (
     <ExperienceShell
-      eyebrow="Create something"
-      title="What do you want your people to do?"
-      description="You choose the behaviour. PROMORANG picks the right tool underneath."
+      eyebrow={t("create.eyebrow")}
+      title={t("create.title")}
+      description={t("create.copy")}
     >
       <DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" />
 
@@ -56,20 +59,20 @@ export default function CreateSomething() {
             })()}
             className={`rounded-[1.5rem] border px-4 py-4 ${selected.intent === item.intent ? "border-primary bg-primary/15" : "border-white/10 bg-white/[0.04]"}`}
           >
-            <p className="font-serif text-2xl font-bold">{item.label}</p>
-            <p className="mt-1 text-sm text-white/50">{item.prompt}</p>
+            <p className="font-serif text-2xl font-bold">{localizedCreateIntent(item.intent, t).label}</p>
+            <p className="mt-1 text-sm text-white/50">{localizedCreateIntent(item.intent, t).prompt}</p>
           </Link>
         ))}
       </div>
 
       {selected.intent === "answer" ? (
         <section className="space-y-3 rounded-[1.6rem] border border-white/10 bg-white/[0.04] p-4">
-          <h2 className="font-serif text-2xl font-bold">Ask your people</h2>
+          <h2 className="font-serif text-2xl font-bold">{t("create.askTitle")}</h2>
           <textarea
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             rows={4}
-            placeholder="Where should we eat in Kingston this weekend?"
+            placeholder={t("create.askPh")}
             className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none"
           />
           <button
@@ -78,7 +81,7 @@ export default function CreateSomething() {
             onClick={submitAsk}
             className="min-h-12 w-full rounded-full bg-primary text-sm font-black text-black disabled:opacity-60"
           >
-            Ask them
+            {t("create.askThem")}
           </button>
         </section>
       ) : null}
