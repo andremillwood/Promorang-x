@@ -50,15 +50,12 @@ import { GuidanceDensity, useGuidancePreferences } from "@/hooks/useGuidancePref
 import { cultureImages } from "@/data/culture-demo";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/i18n/I18nContext";
+import type { TranslationKey } from "@/i18n/translations";
 import { AppearancePreferences } from "@/components/AppearancePreferences";
 
 const discoveryCategories = ["Music", "Food", "Nightlife", "Fitness", "Arts", "Fashion", "Wellness", "Community"];
 const preferredTimes = ["Weekday mornings", "Weekday evenings", "Friday nights", "Weekends"];
-const guidanceDensityOptions: Array<{ value: GuidanceDensity; label: string; description: string }> = [
-  { value: "guided", label: "Guided", description: "Open guides the first time you visit a feature." },
-  { value: "compact", label: "Compact", description: "Collapse guides by default, with short context visible." },
-  { value: "minimal", label: "Minimal", description: "Keep guidance behind a small guide button." },
-];
+const guidanceDensityOptions: GuidanceDensity[] = ["guided", "compact", "minimal"];
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -267,7 +264,7 @@ const Settings = () => {
 
       if (error) {
         toast({
-          title: "Photo uploaded, but not saved",
+          title: t("settings.photoNotSaved"),
           description: error.message,
           variant: "destructive",
         });
@@ -276,8 +273,8 @@ const Settings = () => {
 
       setAvatarUrl(url);
       toast({
-        title: "Avatar updated! 📸",
-        description: "Your profile photo has been saved.",
+        title: t("settings.avatarUpdated"),
+        description: t("settings.avatarUpdatedCopy"),
       });
     }
   };
@@ -579,7 +576,7 @@ const Settings = () => {
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">{t("settings.standing")}</p>
                 <h2 className="mt-3 text-3xl font-black">{t("settings.statusTitle")}</h2>
                 <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">{t("settings.statusCopy")}</p>
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">{[["Explorer", "Current level"], ["Contributor", "Next unlock"], ["Host", "Mastery path"]].map(([title, copy], index) => <div key={title} className={`rounded-lg border p-4 ${index === 0 ? "border-orange-500/50 bg-orange-500/10" : "border-border bg-muted/30"}`}><p className="text-xs text-muted-foreground">0{index + 1}</p><p className="mt-5 font-bold">{title}</p><p className="mt-1 text-xs text-muted-foreground">{copy}</p></div>)}</div>
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">{[[t("settings.rankExplorer"), t("settings.rankCurrent")], [t("settings.rankContributor"), t("settings.rankNext")], [t("settings.rankHost"), t("settings.rankMastery")]].map(([title, copy], index) => <div key={title} className={`rounded-lg border p-4 ${index === 0 ? "border-orange-500/50 bg-orange-500/10" : "border-border bg-muted/30"}`}><p className="text-xs text-muted-foreground">0{index + 1}</p><p className="mt-5 font-bold">{title}</p><p className="mt-1 text-xs text-muted-foreground">{copy}</p></div>)}</div>
               </div>
               <div className="rounded-lg border border-border bg-card p-6"><LockKeyhole className="h-6 w-6 text-orange-400" /><h3 className="mt-6 text-xl font-black">{t("settings.proofVisibility")}</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">{t("settings.proofVisibilityCopy")}</p><Button asChild variant="outline" className="mt-7 w-full"><Link to="/profile">{t("settings.viewProfile")}</Link></Button></div>
             </div>
@@ -604,7 +601,7 @@ const Settings = () => {
                       id="payoutInfo"
                       value={payoutInfo}
                       onChange={(e) => setPayoutInfo(e.target.value)}
-                      placeholder="Examples:&#10;Zelle: myemail@gmail.com&#10;PayPal: @myhandle&#10;Bank: Routing X, Account Y"
+                      placeholder={t("settings.payoutPlaceholder")}
                       rows={6}
                       className="font-mono text-sm"
                     />
@@ -635,7 +632,7 @@ const Settings = () => {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="font-bold text-foreground">Phone & Lock Screen Notifications</h2>
+                        <h2 className="font-bold text-foreground">{t("settings.pushTitle")}</h2>
                         <span
                           className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
                             pushState.isSubscribed
@@ -643,11 +640,11 @@ const Settings = () => {
                               : "bg-white/10 text-white/50"
                           }`}
                         >
-                          {pushState.isSubscribed ? "Active on this device" : "Disabled"}
+                          {pushState.isSubscribed ? t("settings.pushActive") : t("settings.pushDisabled")}
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        Receive real-time alerts for RSVP countdowns, Moment start times, and Gem payouts.
+                        {t("settings.pushCopy")}
                       </p>
                     </div>
                   </div>
@@ -661,7 +658,7 @@ const Settings = () => {
 
                 {pushState.isSubscribed && (
                   <div className="mt-4 pt-4 border-t border-border/60 flex items-center justify-between">
-                    <p className="text-xs text-muted-foreground">Verify your phone lock screen delivery:</p>
+                    <p className="text-xs text-muted-foreground">{t("settings.pushVerify")}</p>
                     <Button
                       size="sm"
                       variant="outline"
@@ -669,7 +666,7 @@ const Settings = () => {
                       className="rounded-xl text-xs font-bold gap-1.5 border-primary/40 hover:bg-primary/10 text-primary"
                     >
                       <Send className="w-3.5 h-3.5" />
-                      Send Test Alert
+                      {t("settings.pushTest")}
                     </Button>
                   </div>
                 )}
@@ -768,18 +765,18 @@ const Settings = () => {
                   {t("settings.guidanceCopy")}
                 </p>
                 <div className="grid gap-3 sm:grid-cols-3">
-                  {guidanceDensityOptions.map((option) => {
-                    const active = guidanceDensity === option.value;
+                  {guidanceDensityOptions.map((value) => {
+                    const active = guidanceDensity === value;
                     return (
                       <button
-                        key={option.value}
+                        key={value}
                         type="button"
-                        onClick={() => setGuidanceDensity(option.value)}
+                        onClick={() => setGuidanceDensity(value)}
                         className={`rounded-xl border p-4 text-left transition ${active ? "border-primary bg-primary/10 text-foreground" : "border-border bg-background text-muted-foreground hover:border-primary/40"}`}
                         aria-pressed={active}
                       >
-                        <span className="text-sm font-bold">{option.label}</span>
-                        <span className="mt-2 block text-xs leading-5">{option.description}</span>
+                        <span className="text-sm font-bold">{t(`settings.${value}` as TranslationKey)}</span>
+                        <span className="mt-2 block text-xs leading-5">{t(`settings.${value}Copy` as TranslationKey)}</span>
                       </button>
                     );
                   })}

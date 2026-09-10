@@ -5,14 +5,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { PieceHoldingCard, type PieceHoldingView } from "@/components/pieces/PieceHoldingCard";
+import { useI18n } from "@/i18n/I18nContext";
 
 type PieceType = "content" | "moment" | "host" | "venue";
 interface PortfolioPosition { id: string; piece_type: PieceType; asset_id: string; pieces_owned: number; market_value: number; pnl: number; unclaimed_dividends?: number; lifetime_dividends?: number; is_owner?: boolean; asset?: { title?: string; name?: string; description?: string; image_url?: string }; piece?: { title?: string; name?: string }; }
-const money = (value: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+const money = (value: number, locale = "en") => new Intl.NumberFormat(locale === "es-419" ? "es-419" : locale === "pt-BR" ? "pt-BR" : "en-US", { style: "currency", currency: "USD" }).format(value);
 const piecesApiBase = (import.meta.env.VITE_API_URL || "https://api.promorang.co").replace(/\/$/, "");
 const piecesApiUrl = (path: string) => `${piecesApiBase}${piecesApiBase.endsWith("/api") ? "" : "/api"}${path}`;
 
 export function PiecePortfolio() {
+  const { t, locale, formatNumber } = useI18n();
   const { session } = useAuth();
   const { toast } = useToast();
   const [positions, setPositions] = useState<PortfolioPosition[]>([]);
@@ -25,20 +27,20 @@ export function PiecePortfolio() {
     try {
       const response = await fetch(piecesApiUrl("/pieces/portfolio/me"), { headers: { Authorization: `Bearer ${session.access_token}` } });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || "Your Pieces could not be loaded.");
+      if (!response.ok) throw new Error(data.error || t("portfolio.loadFailed"));
       setPositions(Array.isArray(data.positions) ? data.positions : []);
-    } catch (error) { setPositions([]); setLoadError(error instanceof Error ? error.message : "Your Pieces could not be loaded."); }
+    } catch (error) { setPositions([]); setLoadError(error instanceof Error ? error.message : t("portfolio.loadFailed")); }
     finally { setLoading(false); }
-  }, [session?.access_token]);
+  }, [session?.access_token, t]);
   useEffect(() => { fetchPortfolio(); }, [fetchPortfolio]);
 
   const holdings = useMemo<PieceHoldingView[]>(() => positions.map((position) => ({
     id: position.id, type: position.piece_type, assetId: position.asset_id,
-    title: position.asset?.title || position.asset?.name || position.piece?.title || position.piece?.name || `${position.piece_type} Piece`,
+    title: position.asset?.title || position.asset?.name || position.piece?.title || position.piece?.name || t("portfolio.pieceFallback", { type: position.piece_type }),
     description: position.asset?.description, imageUrl: position.asset?.image_url, quantity: Number(position.pieces_owned || 0),
     marketValue: Number(position.market_value || 0), gain: Number(position.pnl || 0), unclaimed: Number(position.unclaimed_dividends || 0),
     lifetime: Number(position.lifetime_dividends || 0), isOwner: position.is_owner,
-  })), [positions]);
+  })), [positions, t]);
   const totals = useMemo(() => holdings.reduce((sum, piece) => ({ value: sum.value + piece.marketValue, gain: sum.gain + piece.gain, ready: sum.ready + piece.unclaimed, lifetime: sum.lifetime + piece.lifetime }), { value: 0, gain: 0, ready: 0, lifetime: 0 }), [holdings]);
   const types = new Set(holdings.map((piece) => piece.type)).size;
 
@@ -48,27 +50,27 @@ export function PiecePortfolio() {
     try {
       const response = await fetch(piecesApiUrl("/pieces/dividends/claim"), { method: "POST", headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" }, body: JSON.stringify({}) });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || "The distribution could not be claimed.");
-      toast({ title: "Distribution moved to your wallet", description: `${money(Number(data.total_amount ?? totals.ready))} is now reflected in your wallet.` });
+      if (!response.ok) throw new Error(data.error || t("portfolio.claimFailed"));
+      toast({ title: t("portfolio.moved"), description: t("portfolio.movedCopy", { amount: money(Number(data.total_amount ?? totals.ready), locale) }) });
       await fetchPortfolio();
-    } catch (error) { toast({ title: "Could not claim distribution", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" }); }
+    } catch (error) { toast({ title: t("portfolio.couldNotClaim"), description: error instanceof Error ? error.message : t("common.tryAgain"), variant: "destructive" }); }
     finally { setClaiming(false); }
   };
 
-  if (loading) return <main className="grid min-h-[70vh] place-items-center"><div className="text-center"><Loader2 className="mx-auto h-7 w-7 animate-spin text-primary" /><p className="mt-3 text-sm text-muted-foreground">Gathering your Pieces…</p></div></main>;
+  if (loading) return <main className="grid min-h-[70vh] place-items-center"><div className="text-center"><Loader2 className="mx-auto h-7 w-7 animate-spin text-primary" /><p className="mt-3 text-sm text-muted-foreground">{t("portfolio.gathering")}</p></div></main>;
   return (
     <div className="min-h-screen bg-[#09090a] text-white">
       <header className="relative overflow-hidden border-b border-white/10 px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
         <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_12%_25%,rgba(255,85,0,.20),transparent_34%),radial-gradient(circle_at_86%_10%,rgba(168,85,247,.14),transparent_28%)]" />
         <div className="relative mx-auto max-w-7xl"><div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-          <div><p className="text-[11px] font-black uppercase tracking-[.28em] text-primary">Your ownership archive</p><h1 className="mt-3 max-w-3xl text-5xl font-black leading-[.92] tracking-[-.06em] sm:text-7xl">Pieces you helped<br /><span className="text-white/34">bring to life.</span></h1><p className="mt-5 max-w-xl text-sm leading-6 text-white/55 sm:text-base">A living record of the creators, places, and Moments you backed—and the value that participation returned.</p></div>
-          <div className="flex gap-2"><Button asChild variant="outline" className="rounded-xl border-white/15 bg-white/5 text-white hover:bg-white/10"><Link to="/wallet"><WalletCards className="mr-2 h-4 w-4" />Wallet</Link></Button><Button asChild className="rounded-xl"><Link to="/marketplace">Discover Pieces<ArrowRight className="ml-2 h-4 w-4" /></Link></Button></div>
-        </div>{holdings.length > 0 && <div className="mt-12 grid gap-px overflow-hidden rounded-[28px] border border-white/10 bg-white/10 sm:grid-cols-4"><Summary label="Current value" value={money(totals.value)} detail={`${holdings.length} holdings`} /><Summary label="Value change" value={`${totals.gain >= 0 ? "+" : "−"}${money(Math.abs(totals.gain))}`} detail="Across current holdings" positive={totals.gain >= 0} /><Summary label="Ready for wallet" value={money(totals.ready)} detail="Claimable distribution" positive={totals.ready > 0} /><Summary label="Lifetime returned" value={money(totals.lifetime)} detail={`Across ${types} Piece types`} /></div>}</div>
+          <div><p className="text-[11px] font-black uppercase tracking-[.28em] text-primary">{t("portfolio.eyebrow")}</p><h1 className="mt-3 max-w-3xl text-5xl font-black leading-[.92] tracking-[-.06em] sm:text-7xl">{t("portfolio.title1")}<br /><span className="text-white/34">{t("portfolio.title2")}</span></h1><p className="mt-5 max-w-xl text-sm leading-6 text-white/55 sm:text-base">{t("portfolio.copy")}</p></div>
+          <div className="flex gap-2"><Button asChild variant="outline" className="rounded-xl border-white/15 bg-white/5 text-white hover:bg-white/10"><Link to="/wallet"><WalletCards className="mr-2 h-4 w-4" />{t("common.wallet")}</Link></Button><Button asChild className="rounded-xl"><Link to="/marketplace">{t("portfolio.discover")}<ArrowRight className="ml-2 h-4 w-4" /></Link></Button></div>
+        </div>{holdings.length > 0 && <div className="mt-12 grid gap-px overflow-hidden rounded-[28px] border border-white/10 bg-white/10 sm:grid-cols-4"><Summary label={t("portfolio.currentValue")} value={money(totals.value, locale)} detail={t("portfolio.holdings", { count: formatNumber(holdings.length) })} /><Summary label={t("portfolio.valueChange")} value={`${totals.gain >= 0 ? "+" : "−"}${money(Math.abs(totals.gain), locale)}`} detail={t("portfolio.acrossHoldings")} positive={totals.gain >= 0} /><Summary label={t("portfolio.readyWallet")} value={money(totals.ready, locale)} detail={t("portfolio.claimable")} positive={totals.ready > 0} /><Summary label={t("portfolio.lifetime")} value={money(totals.lifetime, locale)} detail={t("portfolio.acrossTypes", { count: formatNumber(types) })} /></div>}</div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-        {loadError ? <State icon={RefreshCw} title="We couldn’t open your portfolio" copy={loadError} action="Try again" onAction={fetchPortfolio} /> : holdings.length === 0 ? <State icon={Layers3} title="Your first Piece starts with participation" copy="Back a creator, Moment, host, or place you believe in. The Piece becomes a lasting record of what you helped make possible." action="Explore available Pieces" href="/marketplace" /> : <>
-          <section className="mb-8 flex flex-col gap-4 rounded-[28px] border border-emerald-400/20 bg-emerald-400/[.055] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"><div className="flex items-start gap-4"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-400/12 text-emerald-300"><Sparkles className="h-5 w-5" /></div><div><p className="text-sm font-black">{totals.ready > 0 ? `${money(totals.ready)} is ready to move` : "All distributions are settled"}</p><p className="mt-1 text-xs leading-5 text-white/48">{totals.ready > 0 ? "Move verified Piece distributions into your wallet while keeping the source attached." : "New distributions will appear here with their source and status."}</p></div></div>{totals.ready > 0 && <Button onClick={claimAll} disabled={claiming} className="rounded-xl bg-emerald-300 text-black hover:bg-emerald-200">{claiming ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Gem className="mr-2 h-4 w-4" />}Move to wallet</Button>}</section>
-          <div className="mb-5 flex items-end justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.22em] text-white/35">Collection</p><h2 className="mt-1 text-2xl font-black tracking-[-.035em]">Your active Pieces</h2></div><span className="text-xs text-white/38">{holdings.length} total</span></div>
+        {loadError ? <State icon={RefreshCw} title={t("portfolio.openFailed")} copy={loadError} action={t("common.tryAgain")} onAction={fetchPortfolio} /> : holdings.length === 0 ? <State icon={Layers3} title={t("portfolio.firstTitle")} copy={t("portfolio.firstCopy")} action={t("portfolio.explore")} href="/marketplace" /> : <>
+          <section className="mb-8 flex flex-col gap-4 rounded-[28px] border border-emerald-400/20 bg-emerald-400/[.055] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"><div className="flex items-start gap-4"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-400/12 text-emerald-300"><Sparkles className="h-5 w-5" /></div><div><p className="text-sm font-black">{totals.ready > 0 ? t("portfolio.readyMove", { amount: money(totals.ready, locale) }) : t("portfolio.allSettled")}</p><p className="mt-1 text-xs leading-5 text-white/48">{totals.ready > 0 ? t("portfolio.readyMoveCopy") : t("portfolio.settledCopy")}</p></div></div>{totals.ready > 0 && <Button onClick={claimAll} disabled={claiming} className="rounded-xl bg-emerald-300 text-black hover:bg-emerald-200">{claiming ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Gem className="mr-2 h-4 w-4" />}{t("portfolio.moveWallet")}</Button>}</section>
+          <div className="mb-5 flex items-end justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.22em] text-white/35">{t("portfolio.collection")}</p><h2 className="mt-1 text-2xl font-black tracking-[-.035em]">{t("portfolio.active")}</h2></div><span className="text-xs text-white/38">{t("portfolio.total", { count: formatNumber(holdings.length) })}</span></div>
           <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">{holdings.map((piece) => <PieceHoldingCard key={piece.id} piece={piece} />)}</section>
         </>}
       </main>
