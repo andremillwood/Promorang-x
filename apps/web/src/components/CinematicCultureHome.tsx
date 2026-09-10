@@ -65,6 +65,7 @@ import { getSafeMediaUrl } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
+import { applyEncoreSchedule } from "@promorang/shared";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import { useI18n } from "@/i18n/I18nContext";
 import { OpsTheatreStatusPill } from "@/components/theater/OpsTheatreStatusPill";
@@ -357,7 +358,7 @@ export default function CinematicCultureHome() {
       if (commerceResult.error) throw commerceResult.error;
 
       return {
-        moments: (momentsResult.data || []) as PublicMoment[],
+        moments: ((momentsResult.data || []) as PublicMoment[]).map((moment) => applyEncoreSchedule(moment)),
         commerce: (commerceResult.data || []) as PublicCommerceListing[],
         content: (contentResult.data || []) as PublicContent[],
         missions: (missionsResult.data || []) as PublicMission[],

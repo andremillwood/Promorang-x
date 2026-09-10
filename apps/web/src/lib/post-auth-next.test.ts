@@ -28,6 +28,8 @@ describe("post-auth-next", () => {
     expect(roleFromNext("/stock")).toBe("merchant");
     expect(roleFromNext("/create/moment")).toBe("host");
     expect(roleFromNext("/create/campaign")).toBe("brand");
+    expect(roleFromNext("/free/sponsor")).toBe("brand");
+    expect(roleFromNext("/create/campaign?from=sponsor")).toBe("brand");
   });
 
   it("returns hosts to the proposal they started, not the member home", () => {

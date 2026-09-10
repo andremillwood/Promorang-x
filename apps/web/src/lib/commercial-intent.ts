@@ -1,4 +1,9 @@
+import { authEntryHref, rememberIntendedStakeholder } from "@promorang/shared";
+
 export type CommercialRole = "participant" | "creator" | "host" | "brand" | "merchant";
+
+export const BRAND_LANDING_PATH = "/for-brands?from=sponsor";
+export const BRAND_CAMPAIGN_PATH = "/create/campaign?from=sponsor";
 
 const SPONSOR_BRIEF_KEY = "promorang_sponsor_brief";
 const MARKETING_INTENT_KEY = "promorang_marketing_intent";
@@ -66,6 +71,7 @@ export function inferAuthRole(
     pathname.startsWith("/onboarding/brand") ||
     pathname.startsWith("/create/campaign") ||
     pathname.startsWith("/for-brands") ||
+    pathname.startsWith("/free/sponsor") ||
     pathname.startsWith("/offers")
   ) {
     return "brand";
@@ -108,6 +114,16 @@ export function splitPathAndSearch(value?: string | null) {
   return index === -1
     ? { pathname: next, search: "" }
     : { pathname: next.slice(0, index), search: next.slice(index) };
+}
+
+export function rememberBrandEntry(next = BRAND_CAMPAIGN_PATH) {
+  persistPreferredRole("brand");
+  if (typeof sessionStorage === "undefined") return;
+  rememberIntendedStakeholder(sessionStorage, { role: "brand", next });
+}
+
+export function brandAuthHref(user: unknown, next = BRAND_CAMPAIGN_PATH) {
+  return user ? next : authEntryHref({ mode: "signup", role: "brand", next });
 }
 
 export function mapSponsorActionToOutcome(action?: string) {

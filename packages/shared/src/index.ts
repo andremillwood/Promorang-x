@@ -34,6 +34,8 @@ export * from "./world-system-v2";
 export * from "./value-instruments";
 export * from "./aftrhrs";
 export * from "./aftrhrs-inventory";
+export * from "./encore";
+
 
 export type PromorangJourneyStepId =
   | "discover"

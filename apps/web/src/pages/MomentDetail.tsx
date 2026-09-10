@@ -27,6 +27,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { demoMoments } from "@/data/demo-moments";
 import { cultureEvents } from "@/data/culture-demo";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
+import { applyEncoreSchedule, ENCORE_END_ISO, ENCORE_RECURRENCE, ENCORE_START_ISO, isEncoreRecord, isEncoreSlug } from "@promorang/shared";
 import { getCuratedDiscoveryBySlug } from "@/data/discoveriesData";
 import { getSubMomentsForMoment } from "@/components/radar/MomentDetailModal";
 import type { MomentProps } from "@/components/radar/MomentCard";
@@ -234,7 +235,7 @@ const MomentDetail = () => {
         if (m.id.toLowerCase() === cleanId) return true;
         if (cleanId.includes("sophisticated") && m.title.toLowerCase().includes("sophisticated")) return true;
         if ((cleanId === "encore-live" || cleanId.includes("capleton") || cleanId.includes("encore-live")) && m.title.toLowerCase().includes("capleton")) return true;
-        if (cleanId === "encore" && !m.title.toLowerCase().includes("capleton") && (m.id.includes("0002") || m.title.toLowerCase().includes("encore"))) return true;
+        if ((isEncoreSlug(cleanId) || cleanId === "encore") && isEncoreRecord(m)) return true;
         if ((cleanId === "ilhh" || cleanId === "i-luv-hip-hop" || cleanId.includes("hip-hop") || cleanId.includes("hip hop")) && (m.id.includes("0001") || m.title.toLowerCase().includes("hip hop"))) return true;
         const normalizedTitle = m.title.toLowerCase().replace(/[^a-z0-9]/g, '');
         const normalizedInput = cleanId.replace(/[^a-z0-9]/g, '');
@@ -242,15 +243,16 @@ const MomentDetail = () => {
       });
 
       if (curatedMatch) {
-        momentData = {
+        const encoreMatch = isEncoreRecord(curatedMatch);
+        momentData = applyEncoreSchedule({
           id: curatedMatch.id,
           title: curatedMatch.title,
           description: curatedMatch.description,
           category: curatedMatch.intentType === "ATTEND" ? "Music & Parties" : curatedMatch.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
           location: curatedMatch.location,
           venue_name: curatedMatch.venueName,
-          starts_at: new Date(Date.now() + 86400000).toISOString(),
-          ends_at: null,
+          starts_at: encoreMatch ? ENCORE_START_ISO : new Date(Date.now() + 86400000).toISOString(),
+          ends_at: encoreMatch ? ENCORE_END_ISO : null,
           max_participants: 100,
           reward: `${curatedMatch.pointsReward} Points + PromoKey`,
           image_url: curatedMatch.image,
@@ -258,7 +260,8 @@ const MomentDetail = () => {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           is_curated_editorial: true,
-        } as unknown as Moment;
+          ...(encoreMatch ? ENCORE_RECURRENCE : {}),
+        }) as unknown as Moment;
         setParticipantCount(0);
         setHostProfile({
           display_name: curatedMatch.venueName,
@@ -274,7 +277,8 @@ const MomentDetail = () => {
           const { data, error } = await supabase.from("moments").select("*").eq("id", id.trim()).maybeSingle();
           if (!error && data) momentData = data;
         } else {
-          const { data, error } = await supabase.from("moments").select("*").eq("slug", cleanId).maybeSingle();
+          const slugs = isEncoreSlug(cleanId) ? ["encore", "encore-90s-fridays", "encore-wednesday-social-vip"] : [cleanId];
+          const { data, error } = await supabase.from("moments").select("*").in("slug", slugs).maybeSingle();
           if (!error && data) {
             momentData = data;
           } else {
@@ -382,7 +386,7 @@ const MomentDetail = () => {
         return;
       }
 
-      setMoment(momentData);
+      setMoment(applyEncoreSchedule(momentData as unknown as Record<string, unknown>) as unknown as Moment);
 
       // Safe loading of secondary metadata
       if (momentData.id && UUID_PATTERN.test(momentData.id)) {

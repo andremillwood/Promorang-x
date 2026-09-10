@@ -15,9 +15,20 @@ export const POST_AUTH_NEXT_KEY = "promorang_post_auth_next";
 const PATH_ROLES: Array<{ test: (path: string, search: string) => boolean; role: StakeholderNavRole }> = [
   { test: (path) => path.startsWith("/staff/scanner") || path.startsWith("/dashboard/venues"), role: "merchant" },
   { test: (path) => path === "/stock" || path.startsWith("/stock/"), role: "merchant" },
-  { test: (path) => path.startsWith("/create/campaign") || path.startsWith("/dashboard/campaigns") || path.startsWith("/offers"), role: "brand" },
-  { test: (path) => path.startsWith("/create/moment") || path.startsWith("/organizer"), role: "host" },
-  { test: (path, search) => path.startsWith("/content-drops") || search.includes("tab=publish"), role: "creator" },
+  { test: (path) => path.startsWith("/free/demand") || path.startsWith("/for-merchants"), role: "merchant" },
+  {
+    test: (path, search) => {
+      if (path.startsWith("/create/campaign") || path.startsWith("/dashboard/campaigns") || path.startsWith("/offers") || path.startsWith("/free/sponsor") || path.startsWith("/for-brands") || path.startsWith("/onboarding/brand")) {
+        return true;
+      }
+      if (!path.startsWith("/propose")) return false;
+      const params = new URLSearchParams(search);
+      return params.get("audience") === "brand" || params.get("from") === "sponsor";
+    },
+    role: "brand",
+  },
+  { test: (path) => path.startsWith("/create/moment") || path.startsWith("/organizer") || path.startsWith("/free/moment") || path.startsWith("/hosting"), role: "host" },
+  { test: (path, search) => path.startsWith("/content-drops") || path.startsWith("/free/creator") || search.includes("tab=publish"), role: "creator" },
   { test: (path) => path.startsWith("/admin"), role: "admin" },
 ];
 
@@ -31,8 +42,12 @@ function splitPath(raw?: string | null): { path: string; search: string } {
 export function inferStakeholderRoleFromPath(raw?: string | null): StakeholderNavRole | null {
   const { path, search } = splitPath(raw);
   if (!path) return null;
-  const fromQuery = new URLSearchParams(search).get("role");
-  if (fromQuery) return normalizeStakeholderRole(fromQuery);
+  const params = new URLSearchParams(search);
+  const requested = params.get("role") || params.get("audience");
+  if (requested === "creator" || requested === "host" || requested === "brand" || requested === "merchant" || requested === "agency" || requested === "promoter" || requested === "admin") {
+    return requested;
+  }
+  if (params.get("role")) return normalizeStakeholderRole(params.get("role"));
   const match = PATH_ROLES.find((item) => item.test(path, search));
   return match?.role || null;
 }

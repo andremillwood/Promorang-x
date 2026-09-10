@@ -1,4 +1,6 @@
-import type { MomentProps, SceneProps } from '@/components/radar/types';
+import { ENCORE_CADENCE, ENCORE_DOORS, ENCORE_MOMENT_ID, ENCORE_TITLE, ENCORE_VENUE_NAME } from '@promorang/shared';
+import type { MomentProps } from '@/components/radar/MomentCard';
+import type { SceneProps } from '@/components/radar/SceneCard';
 
 export const CURATED_KINGSTON_SCENES: SceneProps[] = [
   {
@@ -299,15 +301,15 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     isClaimed: false
   },
   {
-    id: '00000000-0000-0000-0002-000000000002',
-    title: 'Fiction Saturday Ultra VIP Experience',
-    description: 'High-energy nightclubbing in the heart of Kingston. Premium bottle service, guest international DJs, and exclusive access to the VIP Mezzanine.',
+    id: ENCORE_MOMENT_ID,
+    title: ENCORE_TITLE,
+    description: 'Encore 90s Fridays is the biweekly 90s night at Fiction. Unlock priority entry, secret table dividends, signature bottle service perks, and meet the people worth knowing.',
     intentType: 'ATTEND',
-    ownership: 'EDITORIAL DISCOVERY',
-    venueName: 'Fiction Nightclub',
+    ownership: 'PROMORANG PRESENTS',
+    venueName: ENCORE_VENUE_NAME,
     location: 'Marketplace, Constant Spring Rd, Kingston',
-    dateDisplay: 'Every Saturday from 10:30 PM',
-    image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800',
+    dateDisplay: `${ENCORE_CADENCE} from ${ENCORE_DOORS}`,
+    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
     promoKeysAvailable: 5,
     subMomentsCount: 2,
     attendeesCount: 220,

@@ -27,7 +27,7 @@ import {
 import { getSiteUrl } from "@/lib/discovery";
 import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModal";
 import { PromorangMap, MapMarkerItem } from "@/components/PromorangMap";
-import { authEntryHref, getStakeholderLens, worldObjectState } from "@promorang/shared";
+import { applyEncoreSchedule, authEntryHref, ENCORE_END_ISO, ENCORE_RECURRENCE, ENCORE_START_ISO, getStakeholderLens, isEncoreRecord, worldObjectState } from "@promorang/shared";
 import { DiscoverRightRail } from "@/components/discovery/DiscoverRightRail";
 import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
 import { useMarket } from "@/contexts/MarketContext";
@@ -216,9 +216,12 @@ const Discover = () => {
         };
       });
 
+      const scheduledDbMoments = dbMoments.map((moment) => applyEncoreSchedule(moment));
+
       const curatedAsMoments = CURATED_KINGSTON_MOMENTS.map((cm) => {
         const coords = CURATED_COORDINATES[cm.id] || DEFAULT_DISCOVER_CENTER;
-        return {
+        const isEncore = isEncoreRecord(cm);
+        return applyEncoreSchedule({
           id: cm.id,
           host_id: "editorial",
           title: cm.title,
@@ -228,25 +231,28 @@ const Discover = () => {
           venue_name: cm.venueName,
           latitude: coords.lat,
           longitude: coords.lng,
-          starts_at: new Date(Date.now() + 86400000).toISOString(),
-          ends_at: null,
+          starts_at: isEncore ? ENCORE_START_ISO : new Date(Date.now() + 86400000).toISOString(),
+          ends_at: isEncore ? ENCORE_END_ISO : null,
           max_participants: 50,
           reward: `${cm.pointsReward} Points + PromoKey`,
           image_url: cm.image,
           is_active: true,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        };
+          ...(isEncore ? ENCORE_RECURRENCE : {}),
+        });
       });
 
-      const seenTitles = new Set(dbMoments.map((m) => m.title.toLowerCase()));
+      const seenTitles = new Set(scheduledDbMoments.map((m) => m.title.toLowerCase()));
+      const hasDbEncore = scheduledDbMoments.some((moment) => isEncoreRecord(moment));
       const filteredCurated = curatedAsMoments.filter((cm) => {
+        if (hasDbEncore && isEncoreRecord(cm)) return false;
         if (seenTitles.has(cm.title.toLowerCase())) return false;
         const hay = `${cm.title} ${cm.description}`.toLowerCase();
         return !hay.includes("arla");
       });
 
-      return [...filteredCurated, ...dbMoments];
+      return [...filteredCurated, ...scheduledDbMoments];
     },
   });
 

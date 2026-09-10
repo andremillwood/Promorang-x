@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { getPresentsCatalog, redeemPresentsInvite } from "@/lib/presents";
 import { trackGrowthEvent } from "@/lib/marketing-attribution";
 import { useI18n } from "@/i18n/I18nContext";
+import { ENCORE_CADENCE } from "@promorang/shared";
 import "./PromorangPresents.css";
 
 const ACCESS_KEY = "promorang_presents_access";
@@ -38,11 +39,11 @@ export default function PromorangPresents() {
   const editions = [
     {
       id: "encore",
-      eyebrow: "WEDNESDAY / SOCIAL + VIP",
-      title: "Encore",
-      date: "Every Wednesday",
+      eyebrow: "FRIDAY / 90S",
+      title: "Encore 90s Fridays",
+      date: ENCORE_CADENCE,
       location: "Kingston",
-      description: "A room built for crews. Unlock priority entry, secret tables and the people worth knowing.",
+      description: "The biweekly 90s night. Unlock priority entry, secret tables and the people worth knowing.",
       unlock: "Secret table",
       requirement: "Bring 3 verified friends",
       tone: "amber",
@@ -144,7 +145,7 @@ export default function PromorangPresents() {
               <span>{t("promorangPresentsPage.privateDrops")}</span>
             </div>
             <div className="presents-ticket-meta">
-              <div><span>{t("promorangPresentsPage.ticketWed")}</span><strong>ENCORE</strong></div>
+              <div><span>{t("promorangPresentsPage.ticketFri")}</span><strong>ENCORE 90S</strong></div>
               <div><span>{t("promorangPresentsPage.ticketThu")}</span><strong>I LUV HIP HOP</strong></div>
             </div>
             <p className="presents-ticket-foot"><LockKeyhole size={14} /> {t("promorangPresentsPage.detailsUnlock")}</p>
