@@ -7,6 +7,7 @@ const AFTRHRS_PATHS = {
   moment: '/moments/aftrhrs',
   venue: '/venues/sea-deck',
   pass: '/moments/aftrhrs/pass',
+  passAlias: '/aftrhrs/pass',
   ambassador: '/moments/aftrhrs/ambassador',
   door: '/moments/aftrhrs/door',
   admin: '/admin/aftrhrs',

@@ -414,6 +414,7 @@ const App = () => (
                     <Route path="/scout/enrichment" element={<ProtectedRoute><ScoutEnrichment /></ProtectedRoute>} />
                     <Route path="/scout/events" element={<ProtectedRoute><EventScout /></ProtectedRoute>} />
                     <Route path="/aftrhrs" element={<AftrHrsExperience />} />
+                    <Route path="/aftrhrs/pass" element={<AftrHrsPass />} />
                     <Route path="/campaigns/aftrhrs" element={<Navigate to="/aftrhrs" replace />} />
                     <Route path="/moments/aftrhrs" element={<AftrHrsExperience />} />
                     <Route path="/moments/aftrhrs/pass" element={<AftrHrsPass />} />
