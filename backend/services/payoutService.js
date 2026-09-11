@@ -67,7 +67,7 @@ async function getPayoutMethods(userId) {
 /**
  * Request a manual withdrawal
  */
-async function requestWithdrawal(userId, amount, payoutMethodId) {
+async function requestWithdrawal(userId, amount, payoutMethodId, options = {}) {
     if (!supabase) throw new Error('Database not available');
 
     const { assertWithdrawalsEnabled, resolveUserParticipantTier } = require('../lib/participantMembership');
@@ -136,7 +136,8 @@ async function requestWithdrawal(userId, amount, payoutMethodId) {
             sendWithdrawalRequestedEmail(user.email, user.display_name || user.username, {
                 amount: amount,
                 paymentMethod: payoutMethod?.method_type || 'Unknown',
-                estimatedTime: '1-3 business days'
+                estimatedTime: '1-3 business days',
+                locale: options.locale,
             }).catch(err => console.error('Failed to send withdrawal request email:', err));
         }
     } catch (emailErr) {

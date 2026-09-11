@@ -3,11 +3,14 @@ import { getStakeholderLens, humanActionLabel } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWhatHappened } from "@/hooks/usePeopleExperience";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
+import { useI18n } from "@/i18n/I18nContext";
+import { localizeLens } from "@/i18n/localize";
 
 export default function WhatHappened() {
+  const { t } = useI18n();
   const [params] = useSearchParams();
   const { activeRole } = useAuth();
-  const lens = getStakeholderLens(activeRole);
+  const lens = localizeLens(getStakeholderLens(activeRole), t);
   const happened = useWhatHappened(params.get("hub") || undefined);
   const data = happened.data;
   const buckets = data?.buckets || {};
@@ -15,25 +18,25 @@ export default function WhatHappened() {
   return (
     <ExperienceShell
       eyebrow={lens.activity.label}
-      title="This week"
+      title={t("happened.title")}
       description={lens.activity.meaning}
       backTo="/dashboard"
     >
       <StatPile
-        label="People participated"
+        label={t("happened.participated")}
         value={data?.participated || 0}
-        hint={data?.earned ? `J$${Math.round(data.earned).toLocaleString()} generated` : "Verified movement only"}
+        hint={data?.earned ? t("happened.generated", { amount: Math.round(data.earned).toLocaleString() }) : t("happened.verifiedOnly")}
       />
 
       <section className="grid grid-cols-2 gap-3">
         {[
-          ["went somewhere", buckets.went],
-          ["bought something", buckets.bought],
-          ["answered Discoveries", buckets.answered],
-          ["shared something", buckets.shared],
-          ["brought friends", buckets.brought],
-          ["claimed a perk", buckets.claimed],
-          ["used a perk", buckets.used],
+          [t("happened.went"), buckets.went],
+          [t("happened.bought"), buckets.bought],
+          [t("happened.answered"), buckets.answered],
+          [t("happened.shared"), buckets.shared],
+          [t("happened.brought"), buckets.brought],
+          [t("happened.claimed"), buckets.claimed],
+          [t("happened.used"), buckets.used],
         ].map(([label, value]) => (
           <div key={String(label)} className="rounded-[1.4rem] border border-white/10 bg-white/[0.04] px-4 py-4">
             <p className="font-serif text-3xl font-bold">{value || 0}</p>
@@ -43,7 +46,7 @@ export default function WhatHappened() {
       </section>
 
       <section>
-        <h2 className="font-serif text-2xl font-bold">Your people are most interested in</h2>
+        <h2 className="font-serif text-2xl font-bold">{t("happened.interests")}</h2>
         {data?.topInterests?.length ? (
           <ol className="mt-3 space-y-2">
             {data.topInterests.map((interest: string, index: number) => (
@@ -53,23 +56,23 @@ export default function WhatHappened() {
             ))}
           </ol>
         ) : (
-          <p className="mt-2 text-sm text-white/45">Interest shows up after people start answering and showing up.</p>
+          <p className="mt-2 text-sm text-white/45">{t("happened.interestsEmpty")}</p>
         )}
       </section>
 
       <section>
-        <h2 className="font-serif text-2xl font-bold">Recent</h2>
+        <h2 className="font-serif text-2xl font-bold">{t("happened.recent")}</h2>
         {data?.recent?.length ? (
           <div className="mt-3 space-y-2">
             {data.recent.map((row: any) => (
               <p key={row.id} className="rounded-[1.2rem] border border-white/10 px-4 py-3 text-sm text-white/70">
-                {row.actorName || "Someone"} {humanActionLabel(row.action_type)}
+                {row.actorName || t("happened.someone")} {humanActionLabel(row.action_type)}
               </p>
             ))}
           </div>
         ) : (
           <div className="mt-3">
-            <QuietEmpty title="Quiet week" copy="When people claim, show up or answer, it will read like a story here." />
+            <QuietEmpty title={t("happened.quietTitle")} copy={t("happened.quietCopy")} />
           </div>
         )}
       </section>

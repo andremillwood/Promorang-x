@@ -6,22 +6,24 @@ import { LivePerkCard } from '@/components/perks/LivePerkCard';
 import { useNearbyBenefits } from '@/hooks/usePeopleExperience';
 import { 
   Sparkles, 
-  Share2, 
-  TrendingUp, 
-  Users, 
   Gift, 
   Radio, 
   HelpCircle, 
-  Ticket, 
-  Award,
-  ArrowRight,
-  Flame
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useI18n } from '@/i18n/I18nContext';
+import type { TranslationKey } from '@/i18n/translations';
+
+const SHARE_TABS: Array<{ id: 'all' | 'perks' | 'discoveries' | 'moments'; key: TranslationKey; icon: typeof Sparkles }> = [
+  { id: 'all', key: 'discover.shareAll', icon: Sparkles },
+  { id: 'perks', key: 'discover.sharePerks', icon: Gift },
+  { id: 'discoveries', key: 'discover.shareDiscoveries', icon: HelpCircle },
+  { id: 'moments', key: 'discover.shareMoments', icon: Radio },
+];
 
 export const ThingsWorthSharingFeed: React.FC = () => {
+  const { t, formatNumber } = useI18n();
   const nearby = useNearbyBenefits();
   const [filter, setFilter] = useState<'all' | 'perks' | 'discoveries' | 'moments'>('all');
 
@@ -37,39 +39,34 @@ export const ThingsWorthSharingFeed: React.FC = () => {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-xs font-mono font-bold uppercase tracking-wider text-purple-300">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>Creators → Distribute</span>
+              <span>{t("discover.shareCreators")}</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-              Things Worth Sharing
+              {t("discover.shareTitle")}
             </h2>
             <p className="text-sm text-zinc-300 max-w-2xl leading-relaxed">
-              Find exciting discoveries, exclusive merchant perks, and culture moments. Move your audience toward them and build verifiable distribution proof with PromoShare tickets & points.
+              {t("discover.shareCopy")}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 bg-black/50 p-4 rounded-2xl border border-white/10 shrink-0">
             <div className="text-center">
-              <span className="text-[10px] text-zinc-400 font-bold uppercase block">Live perks</span>
-              <span className="text-xl font-mono font-black text-emerald-400">{distributablePerks.length}</span>
+              <span className="text-[10px] text-zinc-400 font-bold uppercase block">{t("discover.shareLivePerks")}</span>
+              <span className="text-xl font-mono font-black text-emerald-400">{formatNumber(distributablePerks.length)}</span>
             </div>
             <div className="text-center border-l border-white/10 px-3">
-              <span className="text-[10px] text-zinc-400 font-bold uppercase block">Next move</span>
-              <span className="text-sm font-black text-purple-300">Share, then validate</span>
+              <span className="text-[10px] text-zinc-400 font-bold uppercase block">{t("discover.shareNextMove")}</span>
+              <span className="text-sm font-black text-purple-300">{t("discover.shareValidate")}</span>
             </div>
           </div>
         </div>
 
         {/* Filter Pills */}
         <div className="mt-6 flex flex-wrap items-center gap-2 pt-4 border-t border-white/10">
-          {[
-            { id: 'all', label: 'All Distributables', icon: Sparkles },
-            { id: 'perks', label: 'Perks & Drops', icon: Gift },
-            { id: 'discoveries', label: 'Discoveries & Polls', icon: HelpCircle },
-            { id: 'moments', label: 'Moments & Gatherings', icon: Radio },
-          ].map((tab) => (
+          {SHARE_TABS.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setFilter(tab.id as any)}
+              onClick={() => setFilter(tab.id)}
               className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all ${
                 filter === tab.id
                   ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/20'
@@ -77,7 +74,7 @@ export const ThingsWorthSharingFeed: React.FC = () => {
               }`}
             >
               <tab.icon className="w-3.5 h-3.5" />
-              <span>{tab.label}</span>
+              <span>{t(tab.key)}</span>
             </button>
           ))}
         </div>
@@ -93,9 +90,9 @@ export const ThingsWorthSharingFeed: React.FC = () => {
               ))
             : filter === 'perks' ? (
                 <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 md:col-span-2">
-                  <p className="font-serif text-2xl font-bold">No live perks to share yet</p>
-                  <p className="mt-2 text-sm text-white/55">Take one from Earn, or ask a merchant to put inventory up.</p>
-                  <Link to="/earn" className="mt-4 inline-block text-sm font-black text-emerald-400">Take a perk →</Link>
+                  <p className="font-serif text-2xl font-bold">{t("discover.shareNoPerks")}</p>
+                  <p className="mt-2 text-sm text-white/55">{t("discover.shareNoPerksCopy")}</p>
+                  <Link to="/earn" className="mt-4 inline-block text-sm font-black text-emerald-400">{t("discover.shareTakePerk")}</Link>
                 </div>
               ) : null)}
 
@@ -109,25 +106,25 @@ export const ThingsWorthSharingFeed: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between text-xs mb-3">
                   <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30 text-[11px] font-bold">
-                    Discovery Signal
+                    {t("discover.shareSignal")}
                   </Badge>
-                  <span className="text-zinc-500 text-[11px] font-mono">{disc.totalVotes} responses</span>
+                  <span className="text-zinc-500 text-[11px] font-mono">{t("discover.shareResponses", { count: formatNumber(disc.totalVotes) })}</span>
                 </div>
                 <h3 className="text-base font-black text-white leading-snug">{disc.question}</h3>
                 <p className="text-xs text-zinc-400 mt-2">
-                  Share this debate to rally your community. Attributed participants earn you draw tickets!
+                  {t("discover.shareDebate")}
                 </p>
               </div>
 
               <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
-                <span className="text-xs font-mono text-purple-300 font-bold">+1 Ticket per vote</span>
+                <span className="text-xs font-mono text-purple-300 font-bold">{t("discover.shareTicketVote")}</span>
                 <PromoShareAction
                   objectType="discovery"
                   objectId={disc.id}
                   slugOrPath={disc.slug}
                   title={disc.question}
-                  potentialReward={{ promoPoints: 25, tickets: 1, condition: 'when someone votes' }}
-                  buttonLabel="Share Poll"
+                  potentialReward={{ promoPoints: 25, tickets: 1, condition: t("discover.shareWhenVote") }}
+                  buttonLabel={t("discover.sharePoll")}
                   variant="compact"
                 />
               </div>
@@ -144,7 +141,7 @@ export const ThingsWorthSharingFeed: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between text-xs mb-3">
                   <Badge className="bg-purple-500/15 text-purple-300 border-purple-500/30 text-[11px] font-bold">
-                    Live Moment
+                    {t("discover.shareLiveMoment")}
                   </Badge>
                   <span className="text-zinc-500 text-[11px] font-mono">{moment.location}</span>
                 </div>
@@ -153,13 +150,13 @@ export const ThingsWorthSharingFeed: React.FC = () => {
               </div>
 
               <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
-                <span className="text-xs font-mono text-amber-400 font-bold">+2 Tickets on RSVP</span>
+                <span className="text-xs font-mono text-amber-400 font-bold">{t("discover.shareTicketsRsvp")}</span>
                 <PromoShareAction
                   objectType="moment"
                   objectId={moment.id}
                   title={moment.title}
-                  potentialReward={{ promoPoints: 50, tickets: 2, condition: 'when someone RSVPs or checks in' }}
-                  buttonLabel="Promote Gathering"
+                  potentialReward={{ promoPoints: 50, tickets: 2, condition: t("discover.shareWhenRsvp") }}
+                  buttonLabel={t("discover.sharePromote")}
                   variant="compact"
                 />
               </div>

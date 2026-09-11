@@ -12,6 +12,7 @@ import { DEMO_EMAIL_STORAGE_KEY, DemoRole } from "@/lib/demo-session";
 import { captureGrowthAttribution, markPendingSignup, trackGrowthEvent } from "@/lib/marketing-attribution";
 import { trackMetaEvent } from "@/components/MetaPixel";
 import { useI18n } from "@/i18n/I18nContext";
+import { localizeLens } from "@/i18n/localize";
 import { isCommercialNext, persistPostAuthNext, roleFromNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 import { persistPreferredRole } from "@/lib/commercial-intent";
@@ -23,12 +24,6 @@ import {
 } from "@promorang/shared";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
-
-const authSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  fullName: z.string().min(2, "Name must be at least 2 characters").optional(),
-});
 
 const roleInfo: Record<UserRole, { icon: typeof Users; title: string; description: string }> = {
   participant: {
@@ -88,7 +83,12 @@ const AuthPage = () => {
     role: searchParams.get("role"),
     next: nextPath,
   });
-  const intendedLens = intendedRole ? getStakeholderLens(intendedRole) : null;
+  const intendedLens = intendedRole ? localizeLens(getStakeholderLens(intendedRole), t) : null;
+  const authSchema = z.object({
+    email: z.string().email(t("auth.errorEmail")),
+    password: z.string().min(6, t("auth.passwordMin")),
+    fullName: z.string().min(2, t("auth.nameMin")).optional(),
+  });
   const unlockAim = promoCardAimFromNext(nextPath);
   const localizedRoleInfo: Record<UserRole, { title: string; description: string }> = {
     participant: { title: t("auth.participant"), description: t("persona.explorerDesc") },
@@ -296,7 +296,7 @@ const AuthPage = () => {
             className="inline-flex min-h-11 items-center gap-2 text-sm text-[#6d645a] transition-colors mb-4 sm:mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
-            {nextPath?.startsWith("/aftrhrs") || nextPath?.startsWith("/moments/aftrhrs") ? "Back to AftrHrs" : t("auth.back")}
+            {nextPath?.startsWith("/aftrhrs") || nextPath?.startsWith("/moments/aftrhrs") ? t("auth.backAftrHrs") : t("auth.back")}
           </Link>
 
           {/* Logo */}
@@ -312,7 +312,7 @@ const AuthPage = () => {
                 ? t("auth.brandContinueCopy")
                 : hostReturn ? t("auth.hostReturnLogin") : t("auth.loginCopy")
               : unlockAim
-                ? `Unlock ${unlockAim.label} on your PromoCard.`
+                ? t("auth.unlockAim", { aim: unlockAim.label })
                 : selectedRole === "brand"
                   ? t("auth.brandContinueCopy")
                   : hostReturn
@@ -322,18 +322,18 @@ const AuthPage = () => {
           {intendedLens && intendedRole && intendedRole !== "participant" ? (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-                {intendedLens.workspaceLabel} workspace
+                {t("auth.intendedWorkspace", { role: intendedLens.workspaceLabel })}
               </p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                You were brought here as a {intendedLens.workspaceLabel.toLowerCase()}. That role is registered on this login and signup — {intendedLens.putIn.detail}
+                {t("auth.intendedCopy", { role: intendedLens.workspaceLabel, detail: intendedLens.putIn.detail })}
               </p>
             </div>
           ) : null}
           {unlockAim && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Unlock this</p>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t("auth.unlockThis")}</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {unlockAim.cardLine} After you join, the card watches that — not a fake balance.
+                {unlockAim.cardLine} {t("auth.unlockWatch")}
               </p>
             </div>
           )}
@@ -349,7 +349,11 @@ const AuthPage = () => {
                   ? t("auth.brandContinueCopy")
                   : hostReturn
                     ? t("auth.hostReturnCopy")
-                    : `Sign in or create an account to continue ${selectedPlan ? `with the ${selectedPlan} plan` : selectedSku ? `with Moment package ${selectedSku}` : "with your selected Promorang route"}. You will not need to start over.`}
+                    : selectedPlan
+                      ? t("auth.continueWithPlan", { plan: selectedPlan })
+                      : selectedSku
+                        ? t("auth.continueWithSku", { sku: selectedSku })
+                        : t("auth.continueRoute")}
               </p>
             </div>
           )}
@@ -357,13 +361,13 @@ const AuthPage = () => {
           {/* Role Selection (Signup only) */}
           {mode === "signup" && !showRolePicker && (
             <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-[#171512]/10 bg-white/55 px-4 py-3">
-              <div><p className="text-sm font-black">Personal membership</p><p className="text-xs text-[#756b5f]">PromoCard, Moments and member benefits</p></div>
-              <button type="button" onClick={() => setShowRolePicker(true)} className="min-h-11 shrink-0 text-xs font-black text-primary">Business?</button>
+              <div><p className="text-sm font-black">{t("auth.personalMembership")}</p><p className="text-xs text-[#756b5f]">{t("auth.personalCopy")}</p></div>
+              <button type="button" onClick={() => setShowRolePicker(true)} className="min-h-11 shrink-0 text-xs font-black text-primary">{t("auth.business")}</button>
             </div>
           )}
           {mode === "signup" && showRolePicker && (
             <div className="mb-6">
-              <div className="mb-3 flex items-center justify-between"><Label className="text-sm font-medium">{t("auth.chooseRole")}</Label><button type="button" onClick={() => { setSelectedRole("participant"); setShowRolePicker(false); }} className="min-h-11 text-xs font-black text-primary">Use personal</button></div>
+              <div className="mb-3 flex items-center justify-between"><Label className="text-sm font-medium">{t("auth.chooseRole")}</Label><button type="button" onClick={() => { setSelectedRole("participant"); setShowRolePicker(false); }} className="min-h-11 text-xs font-black text-primary">{t("auth.usePersonal")}</button></div>
               <div className="grid grid-cols-2 gap-3">
                 {(Object.entries(roleInfo) as [UserRole, typeof roleInfo[UserRole]][]).map(
                   ([role, info]) => (
@@ -492,7 +496,7 @@ const AuthPage = () => {
           {/* Demo Accounts */}
           <div className="mt-8 pt-6 border-t border-[#171512]/10">
             <button type="button" onClick={() => setShowDemoAccess(value => !value)} className="flex min-h-11 w-full items-center justify-between text-left text-sm font-black">
-              <span>Preview a business workspace</span><span className="text-primary">{showDemoAccess ? "Hide" : "Open"}</span>
+              <span>{t("auth.previewWorkspace")}</span><span className="text-primary">{showDemoAccess ? t("auth.hide") : t("auth.open")}</span>
             </button>
             {showDemoAccess && <div className="pt-4">
             <div className="mb-4 text-center">

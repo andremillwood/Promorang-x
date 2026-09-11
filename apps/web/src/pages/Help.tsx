@@ -386,10 +386,10 @@ export default function HelpCenter() {
               className="p-6 bg-white/[0.03] border border-white/10 rounded-2xl hover:border-primary/50 transition group"
             >
               <HelpCircle className="w-8 h-8 text-primary mb-3" />
-              <h3 className="font-bold text-base mb-1">What is Promorang?</h3>
-              <p className="text-xs text-white/60 mb-3">The 60-second plain English breakdown of the whole ecosystem.</p>
+              <h3 className="font-bold text-base mb-1">{t("help.hubWhatTitle")}</h3>
+              <p className="text-xs text-white/60 mb-3">{t("help.hubWhatCopy")}</p>
               <div className="flex items-center text-primary text-xs font-black group-hover:translate-x-1 transition-transform">
-                Read Overview <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                {t("help.hubWhatCta")} <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </div>
             </Link>
 
@@ -398,10 +398,10 @@ export default function HelpCenter() {
               className="p-6 bg-white/[0.03] border border-white/10 rounded-2xl hover:border-primary/50 transition group"
             >
               <Compass className="w-8 h-8 text-primary mb-3" />
-              <h3 className="font-bold text-base mb-1">7-Day Operating Rhythm</h3>
-              <p className="text-xs text-white/60 mb-3">How Monday debates become Wednesday drops & weekend movement.</p>
+              <h3 className="font-bold text-base mb-1">{t("help.hubRhythmTitle")}</h3>
+              <p className="text-xs text-white/60 mb-3">{t("help.hubRhythmCopy")}</p>
               <div className="flex items-center text-primary text-xs font-black group-hover:translate-x-1 transition-transform">
-                See Cycle <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                {t("help.hubRhythmCta")} <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </div>
             </Link>
 
@@ -410,10 +410,10 @@ export default function HelpCenter() {
               className="p-6 bg-white/[0.03] border border-white/10 rounded-2xl hover:border-primary/50 transition group cursor-pointer"
             >
               <MessageSquare className="w-8 h-8 text-primary mb-3" />
-              <h3 className="font-bold text-base mb-1">Support & Tickets</h3>
-              <p className="text-xs text-white/60 mb-3">Direct help from our operations & community team.</p>
+              <h3 className="font-bold text-base mb-1">{t("help.hubSupportTitle")}</h3>
+              <p className="text-xs text-white/60 mb-3">{t("help.hubSupportCopy")}</p>
               <div className="flex items-center text-primary text-xs font-black group-hover:translate-x-1 transition-transform">
-                Contact Support <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                {t("help.hubSupportCta")} <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </div>
             </div>
           </div>
@@ -426,13 +426,13 @@ export default function HelpCenter() {
                 <h2 className="text-2xl md:text-3xl font-black">{t("help.library")}</h2>
               </div>
               <span className="text-xs text-white/40">
-                Showing {filteredGuides.length} {filteredGuides.length === 1 ? "guide" : "guides"}
+                {t(filteredGuides.length === 1 ? "help.showingGuides" : "help.showingGuidesMany", { count: filteredGuides.length })}
               </span>
             </div>
 
             {filteredGuides.length === 0 ? (
               <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-white/50 text-sm">
-                No step-by-step guides matched &quot;{searchQuery}&quot;. Try adjusting your keywords or category filter.
+                {t("help.noGuides", { query: searchQuery })}
               </div>
             ) : (
               <div className="grid md:grid-cols-2 gap-6">
@@ -488,13 +488,13 @@ export default function HelpCenter() {
                 <h2 className="text-2xl md:text-3xl font-black">{t("help.faq")}</h2>
               </div>
               <span className="text-xs text-white/40">
-                Showing {filteredFaqs.length} {filteredFaqs.length === 1 ? "question" : "questions"}
+                {t(filteredFaqs.length === 1 ? "help.showingFaqs" : "help.showingFaqsMany", { count: filteredFaqs.length })}
               </span>
             </div>
 
             {filteredFaqs.length === 0 ? (
               <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-white/50 text-sm">
-                No FAQs matched &quot;{searchQuery}&quot;.
+                {t("help.noFaqs", { query: searchQuery })}
               </div>
             ) : (
               <div className="space-y-3">

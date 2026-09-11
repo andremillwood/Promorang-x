@@ -4,8 +4,6 @@ import {
   PERK_KIND_LABELS,
   STOCK_FULFILLMENT_OPTIONS,
   getStakeholderHowLead,
-  inventoryOpenCopy,
-  inventoryOpenFollowCopy,
   inventoryPostedNext,
   type PerkKind,
   type PromoCardJourneyKind,
@@ -16,12 +14,15 @@ import { ExperienceShell } from "@/components/people/ExperienceShell";
 import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/i18n/I18nContext";
+import { localizedFulfillment, localizedInventoryFollow, localizedInventoryNext, localizedPerkKind } from "@/i18n/localize";
 
 const KINDS = (Object.entries(PERK_KIND_LABELS) as Array<[PerkKind, string]>).filter(([id]) =>
   ["merchant", "complimentary", "discount", "free_entry", "priority", "invitation", "custom"].includes(id),
 );
 
 export default function PutInventoryUp() {
+  const { t } = useI18n();
   const [params] = useSearchParams();
   const { user, profile, activeRole } = useAuth();
   const lensRole = params.get("role") || activeRole;
@@ -54,22 +55,22 @@ export default function PutInventoryUp() {
         offerId: result.offer?.id || result.opportunity?.sourceId,
         fulfillmentType: result.opportunity.fulfillmentType || fulfillment.fulfillmentType,
       });
-      toast({ title: "It’s up", description: inventoryOpenCopy(merchantName, title) });
+      toast({ title: t("stock.itsUp"), description: t("stock.openCopy", { who: merchantName, what: title }) });
     } catch (error) {
-      toast({ title: "Could not put that up yet", description: (error as Error).message, variant: "destructive" });
+      toast({ title: t("stock.couldNot"), description: (error as Error).message, variant: "destructive" });
     }
   };
 
   if (opened) {
     return (
-      <ExperienceShell eyebrow="It’s up" title={inventoryOpenCopy(merchantName, opened.title)} backTo="/dashboard">
+      <ExperienceShell eyebrow={t("stock.itsUp")} title={t("stock.openCopy", { who: merchantName, what: opened.title })} backTo="/dashboard">
         <p className="text-sm text-white/55">
-          {inventoryOpenFollowCopy(opened.fulfillmentType)}
+          {localizedInventoryFollow(opened.fulfillmentType, t)}
         </p>
         {opened.remaining != null ? (
-          <p className="text-sm text-white/45">{opened.remaining} available.</p>
+          <p className="text-sm text-white/45">{t("stock.available", { count: opened.remaining })}</p>
         ) : null}
-        {inventoryPostedNext(opened.fulfillmentType, opened.offerId).map((action) => (
+        {localizedInventoryNext(inventoryPostedNext(opened.fulfillmentType, opened.offerId), opened.fulfillmentType, t).map((action) => (
           <Link
             key={action.id}
             to={to(action.href)}
@@ -80,10 +81,10 @@ export default function PutInventoryUp() {
           </Link>
         ))}
         <Link to={to("/earn")} className="block rounded-[1.6rem] border border-white/10 px-5 py-5">
-          <p className="font-serif text-2xl font-bold">See it as an opportunity</p>
-          <p className="mt-1 text-sm text-white/50">Other people take it and drop it on their PromoCards.</p>
+          <p className="font-serif text-2xl font-bold">{t("stock.seeOpportunity")}</p>
+          <p className="mt-1 text-sm text-white/50">{t("stock.seeOpportunityCopy")}</p>
         </Link>
-        <Link to={to("/happened")} className="block text-center text-sm text-white/40">Watch claimed and used</Link>
+        <Link to={to("/happened")} className="block text-center text-sm text-white/40">{t("stock.watchClaimed")}</Link>
       </ExperienceShell>
     );
   }
@@ -99,7 +100,7 @@ export default function PutInventoryUp() {
     >
       <StakeholderHowLead role={lensRole} surface="stock" />
       <section>
-        <p className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40">How do they receive it?</p>
+        <p className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{t("stock.howReceive")}</p>
         <div className="grid grid-cols-2 gap-2">
           {STOCK_FULFILLMENT_OPTIONS.map((option) => (
             <button
@@ -108,54 +109,54 @@ export default function PutInventoryUp() {
               onClick={() => setJourney(option.id)}
               className={`min-h-16 rounded-[1.3rem] border px-3 py-3 text-left ${journey === option.id ? "border-primary bg-primary text-black" : "border-white/10 bg-white/[0.04]"}`}
             >
-              <p className="text-sm font-bold">{option.label}</p>
-              <p className={`mt-1 text-[11px] leading-4 ${journey === option.id ? "text-black/70" : "text-white/45"}`}>{option.detail}</p>
+              <p className="text-sm font-bold">{localizedFulfillment(option.id, t).label}</p>
+              <p className={`mt-1 text-[11px] leading-4 ${journey === option.id ? "text-black/70" : "text-white/45"}`}>{localizedFulfillment(option.id, t).detail}</p>
             </button>
           ))}
         </div>
       </section>
       <section>
         <div className="grid grid-cols-2 gap-2">
-          {KINDS.map(([id, label]) => (
+          {KINDS.map(([id]) => (
             <button
               key={id}
               type="button"
               onClick={() => setKind(id)}
               className={`min-h-14 rounded-[1.3rem] border px-3 text-sm font-bold ${kind === id ? "border-primary bg-primary text-black" : "border-white/10 bg-white/[0.04]"}`}
             >
-              {label}
+              {localizedPerkKind(id, t)}
             </button>
           ))}
         </div>
       </section>
 
       <label className="block">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">What do people get?</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{t("stock.whatGet")}</span>
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          placeholder="Free tasting, 2-for-1 Friday, first drink"
+          placeholder={t("stock.whatGetPh")}
           className="mt-2 min-h-14 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-white outline-none placeholder:text-white/30"
         />
       </label>
 
       <label className="block">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">How many?</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{t("stock.howMany")}</span>
         <input
           value={quantity}
           onChange={(event) => setQuantity(event.target.value)}
           inputMode="numeric"
-          placeholder="Leave blank if open"
+          placeholder={t("stock.howManyPh")}
           className="mt-2 min-h-14 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-white outline-none placeholder:text-white/30"
         />
       </label>
 
       <label className="block">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">What do people who move it earn?</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{t("stock.moversEarn")}</span>
         <input
           value={youEarn}
           onChange={(event) => setYouEarn(event.target.value)}
-          placeholder="Credit when someone uses it"
+          placeholder={t("stock.moversEarnPh")}
           className="mt-2 min-h-14 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-white outline-none placeholder:text-white/30"
         />
       </label>
@@ -166,7 +167,7 @@ export default function PutInventoryUp() {
         onClick={submit}
         className="min-h-14 w-full rounded-full bg-primary text-sm font-black text-black disabled:opacity-60"
       >
-        {provideInventory.isPending ? "Putting it up…" : "Put it up"}
+        {provideInventory.isPending ? t("stock.putting") : t("stock.putItUp")}
       </button>
     </ExperienceShell>
   );

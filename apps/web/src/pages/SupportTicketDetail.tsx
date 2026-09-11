@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertCircle, ArrowLeft, Clock3, Loader2, MessageSquareText } from "lucide-react";
 import { resolveCommerceCaseJourney } from "@promorang/shared";
+import { useI18n } from "@/i18n/I18nContext";
 
 type SupportTicket = {
   id: string;
@@ -25,6 +26,7 @@ type SupportTicket = {
 const apiBase = import.meta.env.VITE_API_URL || "https://api.promorang.co";
 
 export default function SupportTicketDetail() {
+  const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const [ticket, setTicket] = useState<SupportTicket | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,12 +54,12 @@ export default function SupportTicketDetail() {
 
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.error || "Failed to load ticket");
+        throw new Error(payload.error || t("support.loadTicketFailed"));
       }
 
       setTicket(payload);
     } catch (fetchError) {
-      setError(fetchError instanceof Error ? fetchError.message : "Failed to load ticket");
+      setError(fetchError instanceof Error ? fetchError.message : t("support.loadTicketFailed"));
     } finally {
       setLoading(false);
     }
@@ -65,14 +67,14 @@ export default function SupportTicketDetail() {
   async function appeal() {
     if (!ticket || !appealText.trim()) return;
     setAppealing(true);
-    try { const { data } = await supabase.auth.getSession(); const response = await fetch(`${apiBase}/api/support/commerce-cases/${ticket.id}/appeal`, { method: "POST", headers: { Authorization: `Bearer ${data.session?.access_token || ""}`, "Content-Type": "application/json" }, body: JSON.stringify({ message: appealText.trim() }) }); const payload = await response.json(); if (!response.ok) throw new Error(payload.error || "Appeal failed"); setTicket(payload.ticket); setAppealText(""); }
-    catch (appealError) { setError(appealError instanceof Error ? appealError.message : "Appeal failed"); }
+    try { const { data } = await supabase.auth.getSession(); const response = await fetch(`${apiBase}/api/support/commerce-cases/${ticket.id}/appeal`, { method: "POST", headers: { Authorization: `Bearer ${data.session?.access_token || ""}`, "Content-Type": "application/json" }, body: JSON.stringify({ message: appealText.trim() }) }); const payload = await response.json(); if (!response.ok) throw new Error(payload.error || t("support.appealFailed")); setTicket(payload.ticket); setAppealText(""); }
+    catch (appealError) { setError(appealError instanceof Error ? appealError.message : t("support.appealFailed")); }
     finally { setAppealing(false); }
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO title="Support Ticket | Promorang" description="Review the status of your Promorang support request." />
+      <SEO title={t("support.detailSeo")} description={t("support.detailSeoCopy")} />
 
       <main className="pt-24 pb-20 px-6">
         <div className="container max-w-4xl mx-auto space-y-6">
@@ -80,18 +82,18 @@ export default function SupportTicketDetail() {
             <Button variant="ghost" asChild className="px-0">
               <Link to="/support/tickets">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to tickets
+                {t("support.backTickets")}
               </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/contact">General contact</Link>
+              <Link to="/contact">{t("support.general")}</Link>
             </Button>
           </div>
 
           {loading ? (
             <div className="flex min-h-[360px] items-center justify-center text-muted-foreground">
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Loading ticket
+              {t("support.loadingTicket")}
             </div>
           ) : error ? (
             <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">

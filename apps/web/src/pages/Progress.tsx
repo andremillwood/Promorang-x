@@ -14,10 +14,12 @@ import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, WorldInvitationCard } from "@/components/people/ExperienceShell";
 import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 
 const DIMENSIONS: WorldPathDimension[] = ["discover", "connect", "create", "host", "keep", "support"];
 
 export default function Progress() {
+  const { t } = useI18n();
   const query = useWorldProgress();
   const to = useExperiencePath();
   const { setFaction } = useExperienceActions();
@@ -36,11 +38,11 @@ export default function Progress() {
     try {
       await setFaction.mutateAsync(world?.faction?.key === key ? null : key);
       toast({
-        title: world?.faction?.key === key ? "Philosophy cleared" : "Philosophy noted",
-        description: "Houses form from how you move. The war is Current versus Static — not people versus people.",
+        title: world?.faction?.key === key ? t("progress.philosophyCleared") : t("progress.philosophyNoted"),
+        description: t("progress.philosophyCopy"),
       });
     } catch (error) {
-      toast({ title: "Could not save that", description: (error as Error).message, variant: "destructive" });
+      toast({ title: t("progress.saveFailed"), description: (error as Error).message, variant: "destructive" });
     }
   };
 
@@ -55,8 +57,8 @@ export default function Progress() {
   return (
     <ExperienceShell
       eyebrow={world?.dispatch?.eyebrow || world?.slice?.seasonTitle || "Progress"}
-      title="What happened because of you"
-      description="Verified action only. House and path form from what counted. Until then, this page tells you what to do and why it pays."
+      title={t("progress.title")}
+      description={t("progress.copy")}
       backTo="/dashboard"
     >
       {world?.polarity?.line || world?.dispatch?.line ? (
@@ -67,7 +69,7 @@ export default function Progress() {
 
       {world?.latestReturn ? (
         <section className="space-y-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Latest Return</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("people.latestReturn")}</p>
           <ConsequenceReceipt receipt={world.latestReturn} />
         </section>
       ) : invitation ? (

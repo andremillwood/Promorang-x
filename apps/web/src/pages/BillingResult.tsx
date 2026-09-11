@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { trackMetaEvent } from "@/components/MetaPixel";
 import { API_BASE_URL } from "@/lib/api";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function BillingResult() {
+  const { t } = useI18n();
   const [params] = useSearchParams();
   const success = params.get("status") === "success";
   const sessionId = params.get("session_id");
@@ -50,12 +52,12 @@ export default function BillingResult() {
   }, [sessionId, success]);
 
   const confirmed = verification === "paid";
-  const title = confirmed ? "Payment confirmed" : success ? "Payment received" : "Billing update";
+  const title = confirmed ? t("billing.confirmed") : success ? t("billing.received") : t("billing.update");
   const message = confirmed
-    ? "Your payment was verified securely and your membership is being activated."
+    ? t("billing.confirmedCopy")
     : success
-      ? "Stripe received your checkout. Promorang activates paid benefits only after payment is verified."
-      : "Review your membership and billing status from your account.";
+      ? t("billing.receivedCopy")
+      : t("billing.updateCopy");
 
-  return <main className="grid min-h-screen place-items-center bg-[#090909] px-5 text-white"><section className="max-w-xl rounded-[2rem] border border-white/10 bg-[#141414] p-8 text-center md:p-12">{verification === "checking" ? <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" /> : <CheckCircle2 className="mx-auto h-12 w-12 text-primary" />}<h1 className="mt-6 text-4xl font-black tracking-[-.04em]">{title}</h1><p className="mt-4 text-sm leading-7 text-white/55">{message}</p><Button className="mt-7" asChild><Link to="/wallet">Open your wallet</Link></Button></section></main>;
+  return <main className="grid min-h-screen place-items-center bg-[#090909] px-5 text-white"><section className="max-w-xl rounded-[2rem] border border-white/10 bg-[#141414] p-8 text-center md:p-12">{verification === "checking" ? <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" /> : <CheckCircle2 className="mx-auto h-12 w-12 text-primary" />}<h1 className="mt-6 text-4xl font-black tracking-[-.04em]">{title}</h1><p className="mt-4 text-sm leading-7 text-white/55">{message}</p><Button className="mt-7" asChild><Link to="/wallet">{t("billing.openWallet")}</Link></Button></section></main>;
 }

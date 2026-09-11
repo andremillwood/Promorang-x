@@ -287,6 +287,7 @@ async function claimDigitalPass(user, body = {}) {
   await sendAftrHrsGuestEmail(user, {
     kind: 'pass',
     activationCode: data?.pass?.unique_code,
+    locale: body.locale,
   });
 
   return data;
@@ -322,7 +323,7 @@ async function joinMoment(user, body = {}) {
     .in('status', ['active', 'redeemed'])
     .limit(1);
   if (!existingPass?.length) {
-    await sendAftrHrsGuestEmail(user, { kind: 'rsvp' });
+    await sendAftrHrsGuestEmail(user, { kind: 'rsvp', locale: body.locale });
   }
   return data;
 }

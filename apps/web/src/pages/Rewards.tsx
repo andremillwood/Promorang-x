@@ -45,7 +45,6 @@ import {
     Search,
     ShieldCheck
 } from "lucide-react";
-import { format } from "date-fns";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { EconomyPathGuide } from "@/components/participant/EconomyPathGuide";
@@ -55,7 +54,7 @@ import { PersonalValueNav } from "@/components/value/PersonalValueNav";
 import { useI18n } from "@/i18n/I18nContext";
 
 const Rewards = () => {
-  const { t, formatNumber } = useI18n();
+  const { t, formatNumber, formatDate } = useI18n();
   const { user, roles } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -88,7 +87,7 @@ const Rewards = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Promorang Reward Unlock!',
+          title: t("rewardsPage.shareTitle"),
           text: text,
           url: window.location.origin
         });
@@ -400,7 +399,7 @@ const Rewards = () => {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-black text-xl text-foreground mb-1 italic font-serif leading-tight">{reward.reward_value}</h3>
                           <p className="text-xs text-muted-foreground line-clamp-1 mb-3">
-                            {reward.moment?.title || "Community Moment"}
+                            {reward.moment?.title || t("rewardsPage.communityMoment")}
                           </p>
                           <div className="flex items-center gap-2">
                              <div className="flex -space-x-2">
@@ -520,7 +519,7 @@ const Rewards = () => {
                             {reward.reward_value}
                           </h4>
                           <p className="text-[10px] text-muted-foreground font-medium">
-                            {t("rewardsPage.redeemedOn", { date: format(new Date(reward.claimed_at!), "MMM d, yyyy") })}
+                            {t("rewardsPage.redeemedOn", { date: formatDate(reward.claimed_at!, { month: "short", day: "numeric", year: "numeric" }) })}
                           </p>
                         </div>
                       </div>
@@ -597,7 +596,7 @@ const Rewards = () => {
                             {entry.source.replace(/_/g, ' ')}
                           </Badge>
                           <span className="text-[10px] text-muted-foreground">
-                            {format(new Date(entry.created_at), "MMM d, h:mm a")}
+                            {formatDate(entry.created_at, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
                           </span>
                         </div>
                       </div>

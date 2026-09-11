@@ -58,10 +58,10 @@ import { seededContentDrops } from "@/data/seeded-content-drops";
 import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
 
 const categoryFilters = [
-  { id: "all", label: "All Drops", icon: Sparkles },
-  { id: "food", label: "Food & Drinks", icon: Gift },
-  { id: "music", label: "Music & Nightlife", icon: Radio },
-  { id: "community", label: "Gatherings & Culture", icon: Users },
+  { id: "all", key: "discover.filterAllDrops" as const, icon: Sparkles },
+  { id: "food", key: "discover.filterFood" as const, icon: Gift },
+  { id: "music", key: "discover.filterMusic" as const, icon: Radio },
+  { id: "community", key: "discover.filterCommunity" as const, icon: Users },
 ];
 
 const CURATED_COORDINATES: Record<string, { lat: number; lng: number }> = {
@@ -92,10 +92,10 @@ const CURATED_COORDINATES: Record<string, { lat: number; lng: number }> = {
 
 const DEFAULT_DISCOVER_CENTER = { lat: 18.0179, lng: -76.8099 };
 
-const formatMomentDate = (value?: string | null) => {
-  if (!value) return "TBA";
+const formatMomentDate = (value: string | null | undefined, locale: string, tba: string) => {
+  if (!value) return tba;
   try {
-    return new Intl.DateTimeFormat("en-US", {
+    return new Intl.DateTimeFormat(locale === "es-419" ? "es-419" : locale === "pt-BR" ? "pt-BR" : "en-US", {
       weekday: "short",
       month: "short",
       day: "numeric",
@@ -103,7 +103,7 @@ const formatMomentDate = (value?: string | null) => {
       minute: "2-digit",
     }).format(new Date(value));
   } catch {
-    return "TBA";
+    return tba;
   }
 };
 
@@ -116,19 +116,18 @@ const HubEmptyState = ({
   noun: string;
   onShowLiveHub: () => void;
 }) => {
+  const { t } = useI18n();
   const isLiveHub = cityName.toLowerCase().includes("kingston");
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-8 text-center">
       <MapPin className="mx-auto h-8 w-8 text-primary" />
-      <h3 className="mt-4 text-lg font-black text-white">No live {noun} in {cityName} yet</h3>
+      <h3 className="mt-4 text-lg font-black text-white">{t("discover.emptyTitle", { noun, city: cityName })}</h3>
       <p className="mx-auto mt-2 max-w-md text-sm text-white/60">
-        {isLiveHub
-          ? "Nothing is posted in this hub right now. Check back shortly or explore another tab."
-          : "This hub is warming up. Kingston is the live pulse right now — switch there to see Moments, places, and signals already on the ground."}
+        {isLiveHub ? t("discover.emptyLive") : t("discover.emptyWarming")}
       </p>
       {!isLiveHub && (
         <Button onClick={onShowLiveHub} className="mt-5 rounded-2xl bg-primary text-white font-bold">
-          Browse Kingston
+          {t("discover.browseKingston")}
         </Button>
       )}
     </div>
@@ -138,7 +137,7 @@ const HubEmptyState = ({
 type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
 
 const Discover = () => {
-  const { t } = useI18n();
+  const { t, locale, formatNumber } = useI18n();
   const { user, activeRole } = useAuth();
   const { city, setCity } = useMarket();
   const { data: preferences } = useUserPreferences();
@@ -334,7 +333,7 @@ const Discover = () => {
             reward: m.reward || undefined,
             imageUrl: m.image_url || undefined,
             url: `/moments/${m.slug || m.id}`,
-            actionLabel: "View & RSVP →",
+            actionLabel: t("discover.viewRsvpArrow"),
           });
         }
       }
@@ -354,11 +353,11 @@ const Discover = () => {
           lng: v.longitude,
           title: v.name,
           subtitle: `${v.city} · ${v.venue_type_label}`,
-          category: "Verified Partner Venue",
-          reward: "Member Perks Available",
+          category: t("discover.verifiedVenue"),
+          reward: t("discover.memberPerks"),
           imageUrl: v.image_url,
           url: `/venues/${v.id}`,
-          actionLabel: "View Venue →",
+          actionLabel: t("discover.viewVenue"),
         });
       }
     });
@@ -390,13 +389,13 @@ const Discover = () => {
       onCastVote={async (poll, optionId) => {
         if (!poll.detailUrl) return;
         if (!user) {
-          toast.info("Sign in to verify local place information.");
+          toast.info(t("discover.signInVote"));
           return;
         }
         try {
           await castListingDiscoveryVote(poll.id, optionId);
         } catch (error: any) {
-          toast.error(error?.message?.includes("duplicate") ? "You already voted on this place." : "We couldn't record that vote.");
+          toast.error(error?.message?.includes("duplicate") ? t("discover.alreadyVoted") : t("discover.voteFailed"));
         }
       }}
     />
@@ -431,16 +430,16 @@ const Discover = () => {
               {t("discover.pathAlsoInCity")} · {city.name}
             </p>
             <button type="button" onClick={() => handleTabChange("perks")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-emerald-400/50 hover:text-white">
-              Perks & Drops
+              {t("discover.tabPerks")}
             </button>
             <button type="button" onClick={() => handleTabChange("moments")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-primary/50 hover:text-white">
-              Moments & Events
+              {t("discover.tabMoments")}
             </button>
             <button type="button" onClick={() => handleTabChange("distribute")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-purple-400/50 hover:text-white">
-              Things to Share
+              {t("discover.tabShare")}
             </button>
             <button type="button" onClick={() => handleTabChange("places")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-primary/50 hover:text-white">
-              Places & Venues
+              {t("discover.tabPlaces")}
             </button>
           </nav>
           <div className="mt-8 sm:mt-10 space-y-6">
@@ -455,7 +454,7 @@ const Discover = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white pb-16">
       <SEO
-        title="Discover Culture, Perks & Opportunities — Promorang"
+        title={t("discover.seoTitle")}
         description={stake.world.meaning}
         url={getSiteUrl("/discover")}
       />
@@ -465,12 +464,12 @@ const Discover = () => {
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <Badge className="rounded-full bg-primary text-white font-black text-[10px] uppercase tracking-wider border-none">
-                {stake.workspaceLabel} → World
+                {t("discover.worldBadge", { workspace: stake.workspaceLabel })}
               </Badge>
               <span className="text-xs text-white/50 font-semibold">{city.name}</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-              {stake.world.label === "World" ? "Discover What's Worth Doing & Choosing" : stake.world.label}
+              {stake.world.label === "World" ? t("discover.heroFallback") : stake.world.label}
             </h1>
             <p className="text-white/60 text-xs sm:text-sm max-w-xl">
               {stake.world.meaning}
@@ -514,7 +513,7 @@ const Discover = () => {
             }`}
           >
             <Gift className="h-4 w-4" />
-            <span>Perks & Drops</span>
+            <span>{t("discover.tabPerks")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
               {hubPerks.length}
             </span>
@@ -529,7 +528,7 @@ const Discover = () => {
             }`}
           >
             <Ticket className="h-4 w-4" />
-            <span>Moments & Events</span>
+            <span>{t("discover.tabMoments")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
               {hubMoments.length}
             </span>
@@ -544,9 +543,9 @@ const Discover = () => {
             }`}
           >
             <Share2 className="h-4 w-4 text-purple-300" />
-            <span>Things to Share</span>
+            <span>{t("discover.tabShare")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">
-              Earn Tickets
+              {t("discover.earnTickets")}
             </span>
           </button>
 
@@ -559,7 +558,7 @@ const Discover = () => {
             }`}
           >
             <Store className="h-4 w-4" />
-            <span>Places & Venues</span>
+            <span>{t("discover.tabPlaces")}</span>
           </button>
         </div>
 
@@ -573,13 +572,13 @@ const Discover = () => {
                   <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
                       <Store className="w-3.5 h-3.5" />
-                      <span>Businesses → Offer</span>
+                      <span>{t("discover.businessOffer")}</span>
                     </div>
                     <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">
-                      Live perks in {city.name}
+                      {t("discover.livePerksIn", { city: city.name })}
                     </h3>
                     <p className="text-xs text-white/60">
-                      Place offers follow the city you are in. Shop drops, digital events, and new music releases still show here even if they are not tied to a street.
+                      {t("discover.livePerksCopy")}
                     </p>
                   </div>
 
@@ -589,7 +588,7 @@ const Discover = () => {
                   >
                     <Link to={putPerkUpHref}>
                       <Plus className="w-4 h-4" />
-                      <span>Put a perk up</span>
+                      <span>{t("discover.putPerkUp")}</span>
                     </Link>
                   </Button>
                 </div>
@@ -610,7 +609,7 @@ const Discover = () => {
                         }`}
                       >
                         <Icon className="h-3.5 w-3.5" />
-                        <span>{cat.label}</span>
+                        <span>{t(cat.key)}</span>
                       </button>
                     );
                   })}
@@ -627,7 +626,7 @@ const Discover = () => {
                     {localPerks.length > 0 && (
                       <div className="space-y-4">
                         <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/40">
-                          In {city.name}
+                          {t("discover.inCity", { city: city.name })}
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {localPerks.map((perk) => (
@@ -639,10 +638,10 @@ const Discover = () => {
                     {anywherePerks.length > 0 && (
                       <div className="space-y-4">
                         <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/40">
-                          Anywhere
+                          {t("discover.anywhere")}
                         </p>
                         <p className="text-xs text-white/50">
-                          E-commerce, digital events, and new music on streaming platforms.
+                          {t("discover.anywhereCopy")}
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {anywherePerks.map((perk) => (
@@ -657,11 +656,11 @@ const Discover = () => {
                   <div className="space-y-4">
                     <HubEmptyState
                       cityName={city.name}
-                      noun="perks"
+                      noun={t("discover.nounPerks")}
                       onShowLiveHub={() => setCity(getDefaultCityHub())}
                     />
                     <Link to={putPerkUpHref} className="block text-center text-sm font-black text-emerald-400">
-                      Put a live perk up →
+                      {t("discover.putPerkUpArrow")}
                     </Link>
                   </div>
                 )}
@@ -686,7 +685,7 @@ const Discover = () => {
                         }`}
                       >
                         <Icon className="h-3.5 w-3.5" />
-                        <span>{cat.label}</span>
+                        <span>{t(cat.key)}</span>
                       </button>
                     );
                   })}
@@ -701,11 +700,11 @@ const Discover = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                     <div className="relative z-10 space-y-3 max-w-xl">
-                      <Badge className="bg-primary text-white font-bold text-xs">Featured Moment</Badge>
+                      <Badge className="bg-primary text-white font-bold text-xs">{t("discover.featured")}</Badge>
                       <h2 className="text-2xl sm:text-4xl font-black text-white">{featuredMoment.title}</h2>
                       <p className="text-xs sm:text-sm text-white/70">{featuredMoment.description}</p>
                       <Button asChild className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-xs px-6 py-2.5">
-                        <Link to={`/moments/${featuredMoment.id}`}>View Moment &amp; RSVP →</Link>
+                        <Link to={`/moments/${featuredMoment.id}`}>{t("discover.viewRsvp")}</Link>
                       </Button>
                     </div>
                   </div>
@@ -746,7 +745,7 @@ const Discover = () => {
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                           <Badge className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white border border-white/10 text-[10px] font-bold uppercase">
-                            {item.category || "Gathering"}
+                            {item.category || t("discover.gathering")}
                           </Badge>
                         </div>
 
@@ -754,7 +753,7 @@ const Discover = () => {
                           <div className="space-y-1.5">
                             <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
                               <Calendar className="h-3.5 w-3.5" />
-                              <span>{formatMomentDate(status.displayStartsAt)}</span>
+                              <span>{formatMomentDate(status.displayStartsAt, locale, t("discover.tba"))}</span>
                             </div>
                             <h3 className="text-base font-bold text-white group-hover:text-primary transition-colors line-clamp-1">
                               {item.title}
@@ -788,7 +787,7 @@ const Discover = () => {
                 {filteredMoments.length === 0 && (
                   <HubEmptyState
                     cityName={city.name}
-                    noun="Moments"
+                    noun={t("discover.nounMoments")}
                     onShowLiveHub={() => setCity(getDefaultCityHub())}
                   />
                 )}
@@ -805,10 +804,10 @@ const Discover = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div>
-                    <h3 className="text-xl font-bold text-white">Curated Places & Cultural Venues</h3>
-                    <p className="text-xs text-white/50">Verified partner venues in {city.name}.</p>
+                    <h3 className="text-xl font-bold text-white">{t("discover.placesTitle")}</h3>
+                    <p className="text-xs text-white/50">{t("discover.placesCopy", { city: city.name })}</p>
                   </div>
-                  <span className="text-xs font-semibold text-white/50">{hubVenues.length} verified spots</span>
+                  <span className="text-xs font-semibold text-white/50">{t("discover.verifiedSpots", { count: formatNumber(hubVenues.length) })}</span>
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -842,7 +841,7 @@ const Discover = () => {
                       </p>
                       <Button asChild variant="outline" className="w-full rounded-2xl border-white/15 bg-white/5 text-white hover:bg-primary hover:border-primary font-bold text-xs">
                         <a href={`https://maps.google.com/?q=${venue.latitude},${venue.longitude}`} target="_blank" rel="noopener noreferrer">
-                          View Location &amp; Directions ↗
+                          {t("discover.viewDirections")}
                         </a>
                       </Button>
                     </div>
@@ -851,7 +850,7 @@ const Discover = () => {
                 {hubVenues.length === 0 && (
                   <HubEmptyState
                     cityName={city.name}
-                    noun="venues"
+                    noun={t("discover.nounVenues")}
                     onShowLiveHub={() => setCity(getDefaultCityHub())}
                   />
                 )}

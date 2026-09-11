@@ -3,12 +3,13 @@ import { Link, useLocation, useSearchParams } from "react-router-dom";
 import {
   firstGivenName,
   getStakeholderLens,
-  homeGreeting,
   presentWorldRunTitle,
   resolvePromoCardFace,
   resolveStakeholderHomeMove,
   resolveWorldInvitation,
 } from "@promorang/shared";
+import { useI18n } from "@/i18n/I18nContext";
+import { localizeLens, localizedGreeting } from "@/i18n/localize";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
@@ -31,6 +32,7 @@ const money = (value: number) => {
 const PREVIEW_ROLES = ["participant", "creator", "host", "merchant", "brand"] as const;
 
 export default function PeopleHome() {
+  const { t } = useI18n();
   const { user, profile, activeRole, roles } = useAuth();
   const workspaceRoles = (roles || []).filter((role) => ["host", "creator", "merchant", "brand", "agency", "admin"].includes(role));
   const home = useExperienceHome();
@@ -56,10 +58,10 @@ export default function PeopleHome() {
   });
   const role = data?.role || (["creator", "host", "promoter", "merchant", "brand"].includes(String(activeRole)) ? "contributor" : "member");
   const lensRole = previewRole || activeRole || role;
-  const lens = getStakeholderLens(lensRole);
+  const lens = localizeLens(getStakeholderLens(lensRole), t);
   const isMemberWorkspace = lens.role === "participant";
   const isPreview = location.pathname.startsWith("/app-preview");
-  const greeting = homeGreeting(givenName);
+  const greeting = localizedGreeting(givenName, t);
   const description = lens.promise;
   const perksGiven = Number(data?.outcomes?.ledger?.perksGiven || 0);
   const nextMove = resolveStakeholderHomeMove(lensRole, {
@@ -76,25 +78,25 @@ export default function PeopleHome() {
     Number(data?.outcomes?.ledger?.perksClaimed || 0),
   );
   const ticker = role === "operator" && Number(data?.happening || 0)
-    ? `${data?.happening || 0} showed up this week`
-    : Number(data?.peopleThisMonth || 0)
-      ? `+${data.peopleThisMonth} people this month`
-      : lens.ticker;
+      ? t(Number(data?.happening || 0) === 1 ? "people.showedWeekOne" : "people.showedWeekMany", { count: data?.happening || 0 })
+      : Number(data?.peopleThisMonth || 0)
+        ? t("people.peopleThisMonth", { count: data.peopleThisMonth })
+        : lens.ticker;
 
   if (home.isLoading) {
     return (
-      <ExperienceShell title={greeting} seoTitle="Home" description={description}>
-        <ExperienceLoading label="Getting your perks and communities ready…" />
+      <ExperienceShell title={greeting} seoTitle={t("people.homeSeo")} description={description}>
+        <ExperienceLoading label={t("people.homeLoad")} />
       </ExperienceShell>
     );
   }
 
   if (!data && home.isError) {
     return (
-      <ExperienceShell title="Your home" eyebrow="PROMORANG">
+      <ExperienceShell title={t("people.homeFallbackTitle")} eyebrow="PROMORANG">
         <QuietEmpty
-          title="Couldn’t load your home"
-          copy="Try again to see your perks, community and activity."
+          title={t("people.homeErrorTitle")}
+          copy={t("people.homeErrorCopy")}
           action={
             <button
               type="button"
@@ -102,7 +104,7 @@ export default function PeopleHome() {
               onClick={() => void home.refetch()}
               className="min-h-11 text-sm font-bold text-primary disabled:opacity-50"
             >
-              {home.isFetching ? "Trying again…" : "Try again"}
+              {home.isFetching ? t("common.tryingAgain") : t("common.tryAgain")}
             </button>
           }
         />
@@ -113,7 +115,7 @@ export default function PeopleHome() {
   return (
     <ExperienceShell
       title={greeting}
-      seoTitle="Home"
+      seoTitle={t("people.homeSeo")}
       description={description}
       hero={(
         <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black/50 px-5 pb-5 pt-6 shadow-[0_0_40px_rgba(255,85,0,0.16)] backdrop-blur-xl">
@@ -125,12 +127,12 @@ export default function PeopleHome() {
             </p>
             <h1 className="mt-4 font-serif text-[2.55rem] font-bold leading-[0.9] tracking-tight sm:text-5xl">{greeting}</h1>
             <p className="mt-3 max-w-md text-sm leading-6 text-white/60">{description}</p>
-            <Link to={to("/card")} aria-label="Open your PromoCard" className="experience-interactive group mx-auto mt-6 block max-w-md rounded-[22px]">
+            <Link to={to("/card")} aria-label={t("people.openCardAria")} className="experience-interactive group mx-auto mt-6 block max-w-md rounded-[22px]">
               <PromoCardFace
                 className="max-w-none"
                 interactive={false}
                 model={resolvePromoCardFace({
-                  holder: givenName === "there" ? "Your card" : givenName,
+                  holder: givenName === "there" ? t("people.yourCard") : givenName,
                   useThis: data?.card?.useThis,
                   nearbyCount: data?.card?.nearby?.length || 0,
                   nextBenefitTitle: data?.card?.nextBenefit?.title,
@@ -144,7 +146,7 @@ export default function PeopleHome() {
                 })}
               />
               <span className="mt-3 flex min-h-11 items-center justify-between px-1 text-sm font-semibold text-amber-200">
-                Open your PromoCard <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                {t("people.openCard")} <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
               <p className="mt-2 px-1 text-xs leading-5 text-white/45">{lens.promoCard.meaning}</p>
             </Link>
@@ -159,7 +161,7 @@ export default function PeopleHome() {
       )}
     >
       {isPreview ? (
-        <nav aria-label="Preview this home as another role" className="flex flex-wrap gap-2">
+        <nav aria-label={t("people.previewRoles")} className="flex flex-wrap gap-2">
           {PREVIEW_ROLES.map((item) => (
             <Link
               key={item}
@@ -177,71 +179,71 @@ export default function PeopleHome() {
       <StakeholderSetupPlaybook role={lensRole} />
       {hasMovement ? (
         <PaperReceipt
-          heading="What’s in play"
+          heading={t("people.inPlay")}
           lines={
             isMemberWorkspace
               ? [
-                  { label: "On your card", value: String(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0) },
-                  { label: "Rooms", value: String(data?.communities?.length || 0) },
-                  { label: "Claimed", value: String(data?.happened?.buckets?.claimed || 0) },
-                  { label: "Used", value: String(data?.happened?.buckets?.used || 0), strong: true },
+                  { label: t("people.onYourCard"), value: String(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0) },
+                  { label: t("people.rooms"), value: String(data?.communities?.length || 0) },
+                  { label: t("people.claimed"), value: String(data?.happened?.buckets?.claimed || 0) },
+                  { label: t("common.used"), value: String(data?.happened?.buckets?.used || 0), strong: true },
                 ]
               : [
-                  { label: "People", value: String(data?.people || 0) },
-                  { label: "Verified activity", value: money(Number(data?.earned || 0)) },
-                  { label: "Given", value: String(perksGiven) },
-                  { label: "On PromoCards now", value: String(data?.outcomes?.ledger?.perksClaimed || 0), strong: true },
+                  { label: t("people.people"), value: String(data?.people || 0) },
+                  { label: t("people.verifiedActivity"), value: money(Number(data?.earned || 0)) },
+                  { label: t("people.given"), value: String(perksGiven) },
+                  { label: t("people.onCardsNow"), value: String(data?.outcomes?.ledger?.perksClaimed || 0), strong: true },
                 ]
           }
           footer={role === "operator"
-            ? `${data?.happening || 0} ${data?.happening === 1 ? "person showed up" : "people showed up"} this week.`
-            : "Numbers stay quiet until someone actually does something."}
+            ? t(Number(data?.happening || 0) === 1 ? "people.showedWeekOne" : "people.showedWeekMany", { count: data?.happening || 0 })
+            : t("people.numbersQuiet")}
         />
       ) : null}
 
       {workspaceRoles.length ? (
         <section className="rounded-[1.75rem] border border-primary/25 bg-primary/10 p-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">You also operate here</p>
-          <h2 className="mt-2 font-serif text-2xl font-bold">This is the member home, not your host desk.</h2>
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">{t("people.alsoOperate")}</p>
+          <h2 className="mt-2 font-serif text-2xl font-bold">{t("people.memberHomeNotDesk")}</h2>
           <p className="mt-2 text-sm leading-6 text-white/60">
-            PromoCard, people, and tonight’s rooms live here. Hosting, creator work, merchant demand, and brand activations open in the workspace.
+            {t("people.memberHomeCopy")}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link to="/dashboard?view=studio" className="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 text-sm font-black text-black">
-              Open {activeRole === "admin" ? "studio" : `${activeRole} workspace`}
+              {activeRole === "admin" ? t("people.openStudio") : t("people.openWorkspace", { role: String(activeRole) })}
             </Link>
             {workspaceRoles.includes("admin") ? (
               <Link to="/admin?tab=command" className="inline-flex min-h-11 items-center rounded-xl border border-white/15 px-4 text-sm font-bold text-white">
-                Admin command
+                {t("people.adminCommand")}
               </Link>
             ) : null}
             <Link to="/propose/new?from=home&role=host" className="inline-flex min-h-11 items-center rounded-xl border border-white/15 px-4 text-sm font-bold text-white">
-              Continue an activation
+              {t("people.continueActivation")}
             </Link>
           </div>
         </section>
       ) : null}
 
-      <LiveLoopActions role={String(activeRole || role)} title="Make it live" />
+      <LiveLoopActions role={String(activeRole || role)} title={t("people.makeLive")} />
       {isMemberWorkspace ? <LiveReleaseSignal drops={releaseDrops} /> : null}
 
       {!isMemberWorkspace ? (
         <section className="grid gap-3">
           <StakeholderPutInPass role={lensRole} />
           <Link to={to(lens.world.href)} className="block">
-            <TicketPass kicker="The world" title="See the Scene" detail={lens.world.meaning} stub="WORLD" stubLabel="Open" />
+            <TicketPass kicker={t("people.theWorld")} title={t("people.seeScene")} detail={lens.world.meaning} stub="WORLD" stubLabel={t("common.open")} />
           </Link>
           <Link to={to(lens.activity.href)} className="block">
-            <TicketPass kicker="Activity" title={lens.activity.href === "/happened" ? "What happened" : "Recent activity"} detail={lens.activity.meaning} stub="DID" stubLabel="Open" />
+            <TicketPass kicker={t("people.activity")} title={lens.activity.href === "/happened" ? t("people.whatHappened") : t("people.recentActivity")} detail={lens.activity.meaning} stub="DID" stubLabel={t("common.open")} />
           </Link>
         </section>
       ) : (
         <section className="space-y-3">
-          <h2 className="font-serif text-2xl font-bold">For you</h2>
+          <h2 className="font-serif text-2xl font-bold">{t("people.forYou")}</h2>
           {world?.currentMove ? (
             <Link to={to(world.currentMove.href || invitation?.nextHref || "/discover")} className="block">
               <TicketPass
-                kicker={world.currentMove.eyebrow || "Tonight"}
+                kicker={world.currentMove.eyebrow || t("common.tonight")}
                 title={world.currentMove.title}
                 detail={
                   world.identity?.line
@@ -253,7 +255,7 @@ export default function PeopleHome() {
                       ].filter(Boolean).join(" ")
                 }
                 stub="GO"
-                stubLabel="Live"
+                stubLabel={t("common.live")}
                 imageUrl={world.currentMove.imageUrl}
                 imageAlt={world.currentMove.imageAlt || world.currentMove.title}
               />
@@ -261,37 +263,37 @@ export default function PeopleHome() {
           ) : (
             <Link to="/discover?tab=perks" className="block">
               <TicketPass
-                kicker="What’s happening"
-                title="Browse live perks"
+                kicker={t("people.whatsHappening")}
+                title={t("people.browsePerks")}
                 detail={
                   world?.identity?.line
-                    ? "These are offers businesses already put up. Pick one for your card. You do not have to join a crew or answer a poll first."
-                    : `${invitation.benefit} These are offers businesses already put up. Pick one for your card. You do not have to join a crew or answer a poll first.`
+                    ? t("people.browsePerksCopy")
+                    : `${invitation.benefit} ${t("people.browsePerksCopy")}`
                 }
                 stub="GO"
-                stubLabel="Live"
+                stubLabel={t("common.live")}
               />
             </Link>
           )}
           {world?.crew ? (
             <Link to={to("/crews")} className="block">
               <TicketPass
-                kicker="Who you move with"
+                kicker={t("people.whoYouMoveWith")}
                 title={world.crew.name}
-                detail={`${world.crew.size} people · ${presentWorldRunTitle(world.crew.runTitle)}`}
+                detail={t("people.peopleCount", { count: world.crew.size, run: presentWorldRunTitle(world.crew.runTitle) })}
                 stub="CREW"
-                stubLabel="Open"
+                stubLabel={t("common.open")}
               />
             </Link>
           ) : null}
           {world?.crew && world?.guild ? (
             <Link to={to("/guilds")} className="block">
               <TicketPass
-                kicker="Who coordinates the Scene"
+                kicker={t("people.whoCoordinates")}
                 title={world.guild.name}
-                detail={`${world.guild.crewCount} Crews · ${world.guild.line || "Scene federation"}`}
+                detail={t("people.crewCount", { count: world.guild.crewCount, line: world.guild.line || t("people.sceneFederation") })}
                 stub="GUILD"
-                stubLabel="Open"
+                stubLabel={t("common.open")}
               />
             </Link>
           ) : null}
@@ -300,7 +302,7 @@ export default function PeopleHome() {
 
       {isMemberWorkspace && world?.latestReturn ? (
         <section className="space-y-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Latest Return</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("people.latestReturn")}</p>
           <ConsequenceReceipt receipt={world.latestReturn} />
         </section>
       ) : null}
@@ -308,31 +310,31 @@ export default function PeopleHome() {
       {!isMemberWorkspace && lens.putIn.href !== "/stock" && (data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole))) ? (
         <Link to={to("/stock")} className="block">
           <TicketPass
-            kicker="Inventory"
-            title="Put something up"
-            detail="Other people move it. You see claimed and used."
+            kicker={t("people.inventory")}
+            title={t("people.putSomethingUp")}
+            detail={t("people.putSomethingUpCopy")}
             stub="STOCK"
-            stubLabel="Open"
+            stubLabel={t("common.open")}
           />
         </Link>
       ) : null}
 
       {!isMemberWorkspace ? (
         <section className="space-y-3">
-          <h2 className="font-serif text-2xl font-bold">What they asked</h2>
+            <h2 className="font-serif text-2xl font-bold">{t("people.whatTheyAsked")}</h2>
           <DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" />
           <div className="flex items-center justify-between">
-            <h2 className="font-serif text-2xl font-bold">Perks you can give</h2>
-            <Link to={to("/give")} className="text-sm text-primary">See all</Link>
+            <h2 className="font-serif text-2xl font-bold">{t("people.perksYouCanGive")}</h2>
+            <Link to={to("/give")} className="text-sm text-primary">{t("common.seeAll")}</Link>
           </div>
           {data?.perks?.length ? (
             <div className="grid gap-3">
               {data.perks.slice(0, 3).map((perk: { id: string; source?: string; title: string; remaining?: number }) => (
                 <Link key={perk.id} to={to("/give")} className="block">
                   <TicketPass
-                    kicker={perk.source === "yours" ? "Yours" : "Available"}
+                    kicker={perk.source === "yours" ? t("people.yours") : t("people.available")}
                     title={perk.title}
-                    detail={perk.remaining != null ? `${perk.remaining} remaining` : "Ready to drop"}
+                    detail={perk.remaining != null ? t("people.remainingCount", { count: perk.remaining }) : t("people.readyToDrop")}
                     stub="DROP"
                     stubLabel="Perk"
                   />
@@ -340,7 +342,7 @@ export default function PeopleHome() {
               ))}
             </div>
           ) : (
-            <QuietEmpty title="Nothing to give yet" copy="When a merchant or brand opens inventory, it will show up here." action={<Link to={to("/give")} className="text-sm font-bold text-primary">Make a perk</Link>} />
+            <QuietEmpty title={t("people.nothingToGive")} copy={t("people.nothingToGiveCopy")} action={<Link to={to("/give")} className="text-sm font-bold text-primary">{t("people.makeAPerk")}</Link>} />
           )}
         </section>
       ) : null}
@@ -348,12 +350,12 @@ export default function PeopleHome() {
       {data?.opportunityItems?.length ? (
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-serif text-2xl font-bold">Opportunities</h2>
-            <Link to={to("/earn")} className="text-sm text-primary">Earn</Link>
+            <h2 className="font-serif text-2xl font-bold">{t("people.opportunities")}</h2>
+            <Link to={to("/earn")} className="text-sm text-primary">{t("common.earn")}</Link>
           </div>
           {data.opportunityItems.slice(0, 2).map((item: { id: string; title: string; youEarn?: string }) => (
             <Link key={item.id} to={to("/earn")} className="block">
-              <TicketPass kicker="Earn" title={item.title} detail={item.youEarn} stub="TAKE" stubLabel="Open" />
+              <TicketPass kicker={t("common.earn")} title={item.title} detail={item.youEarn} stub="TAKE" stubLabel={t("common.open")} />
             </Link>
           ))}
         </section>
@@ -363,20 +365,20 @@ export default function PeopleHome() {
         isMemberWorkspace ? null : (
         <Link to={to("/start")} className="block">
           <TicketPass
-            kicker="First room"
-            title="Bring your people together"
-            detail="Start a community and give people a reason to join."
+            kicker={t("people.firstRoom")}
+            title={t("people.bringPeople")}
+            detail={t("people.bringPeopleCopy")}
             stub="ROOM"
-            stubLabel="Open"
+            stubLabel={t("common.open")}
           />
         </Link>
         )
       ) : (
         <Link to={`/scenes/${data.communities[0].slug}`} className="block">
           <TicketPass
-            kicker="Your community"
+            kicker={t("people.yourCommunity")}
             title={data.communities[0].title}
-            detail="The room you already have. Keep it moving."
+            detail={t("people.yourCommunityCopy")}
             stub="IN"
             stubLabel="Room"
           />
@@ -385,7 +387,7 @@ export default function PeopleHome() {
 
       {!isMemberWorkspace ? (
         <Link to="/dashboard?view=studio" className="block text-center text-xs text-white/30">
-          Open the older studio tools
+          {t("people.olderStudio")}
         </Link>
       ) : null}
     </ExperienceShell>

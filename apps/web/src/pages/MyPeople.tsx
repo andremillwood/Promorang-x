@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { useExperienceNetwork, useExperienceActions } from "@/hooks/usePeopleExperience";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function MyPeople() {
+  const { t } = useI18n();
   const network = useExperienceNetwork();
   const { invite } = useExperienceActions();
   const { toast } = useToast();
@@ -19,21 +21,21 @@ export default function MyPeople() {
         : { shareUrl: `${window.location.origin}/auth?mode=signup` };
       await navigator.clipboard.writeText(result.shareUrl);
       setCopied(true);
-      toast({ title: "Invite ready", description: "The link is on your clipboard." });
+      toast({ title: t("peopleNet.inviteReady"), description: t("peopleNet.inviteReadyCopy") });
     } catch (error) {
-      toast({ title: "Could not copy invite", description: (error as Error).message, variant: "destructive" });
+      toast({ title: t("peopleNet.copyFailed"), description: (error as Error).message, variant: "destructive" });
     }
   };
 
   return (
     <ExperienceShell
-      eyebrow="Your people"
-      title="People you actually moved"
-      description="Optional. Invite a friend if you want them on Promorang. This is not required to use your card. If they claim or use something because of you, it shows up here — that is not an affiliate dashboard yet."
+      eyebrow={t("peopleNet.eyebrow")}
+      title={t("peopleNet.title")}
+      description={t("peopleNet.copy")}
     >
       <section className="grid grid-cols-2 gap-3">
-        <StatPile label="People" value={data?.people || 0} hint={data?.thisMonth ? `+${data.thisMonth} this month` : "Start with one invite"} />
-        <StatPile label="Brought by you" value={data?.direct || 0} hint={`${data?.throughNetwork || 0} through your network`} />
+        <StatPile label={t("people.people")} value={data?.people || 0} hint={data?.thisMonth ? t("peopleNet.hintMonth", { count: data.thisMonth }) : t("peopleNet.hintStart")} />
+        <StatPile label={t("peopleNet.broughtByYou")} value={data?.direct || 0} hint={t("peopleNet.throughNetwork", { count: data?.throughNetwork || 0 })} />
       </section>
 
       <button
@@ -41,12 +43,12 @@ export default function MyPeople() {
         onClick={handleInvite}
         className="min-h-14 w-full rounded-full bg-primary text-sm font-black text-black"
       >
-        {copied ? "Invite copied" : "Invite a friend"}
+        {copied ? t("peopleNet.inviteCopied") : t("peopleNet.inviteFriend")}
       </button>
 
       <section>
-        <h2 className="font-serif text-2xl font-bold">Top contributors</h2>
-        <p className="mt-1 text-sm text-white/50">People who bring people who actually show up.</p>
+        <h2 className="font-serif text-2xl font-bold">{t("peopleNet.topContributors")}</h2>
+        <p className="mt-1 text-sm text-white/50">{t("peopleNet.topCopy")}</p>
         {network.isLoading ? (
           <div className="mt-4 h-32 animate-pulse rounded-[1.5rem] bg-white/5" />
         ) : data?.topContributors?.length ? (
@@ -56,12 +58,12 @@ export default function MyPeople() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className="font-serif text-2xl font-bold">{person.name}</h3>
-                    <p className="mt-1 text-sm text-white/55">{person.people} people · {person.active} active</p>
+                    <p className="mt-1 text-sm text-white/55">{t("peopleNet.peopleActive", { people: person.people, active: person.active })}</p>
                   </div>
-                  <p className="text-xs text-white/40">{person.verifiedActions} verified</p>
+                  <p className="text-xs text-white/40">{t("peopleNet.verified", { count: person.verifiedActions })}</p>
                 </div>
                 {person.attributedValue ? (
-                  <p className="mt-2 text-sm text-primary">J${Math.round(person.attributedValue).toLocaleString()} attributed</p>
+                  <p className="mt-2 text-sm text-primary">{t("peopleNet.attributed", { amount: Math.round(person.attributedValue).toLocaleString() })}</p>
                 ) : null}
               </article>
             ))}
@@ -69,9 +71,9 @@ export default function MyPeople() {
         ) : (
           <div className="mt-4">
             <QuietEmpty
-              title="No contributors yet"
-              copy="When someone in your network starts bringing people who actually do things, they will show up here."
-              action={<Link to="/give" className="text-sm font-bold text-primary">Give them a reason to join</Link>}
+              title={t("peopleNet.emptyTitle")}
+              copy={t("peopleNet.emptyCopy")}
+              action={<Link to="/give" className="text-sm font-bold text-primary">{t("peopleNet.giveReason")}</Link>}
             />
           </div>
         )}

@@ -41,13 +41,13 @@ import { CommerceReceiptRail } from "@/components/commerce/CommerceReceiptRail";
 import { CouponWalletRail } from "@/components/commerce/CouponWalletRail";
 import { PersonalValueNav } from "@/components/value/PersonalValueNav";
 import { DigitalWalletPass3D } from "@/components/wallet/DigitalWalletPass3D";
-import { guestPassStatus, PARTICIPANT_ECONOMY } from "@promorang/shared";
+import { PARTICIPANT_ECONOMY } from "@promorang/shared";
 import { useParticipantMembership } from "@/hooks/useParticipantMembership";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
+import { localizedGuestPassStatus } from "@/i18n/localize";
 import { ValueInstrumentCard } from "@/components/value/ValueInstrumentCard";
 import { GemSpendBenefits } from "@/components/economy/WhatIsWhatMap";
-import { VALUE_INSTRUMENTS, VALUE_STORY } from "@promorang/shared";
 import { useAftrHrs } from "@/hooks/useAftrHrs";
 
 type GemsTransaction = {
@@ -80,33 +80,34 @@ type GemsBalanceSnapshot = {
 const GEM_PACKS = [10, 25, 50, 100];
 
 function AftrHrsWalletRail() {
+  const { t } = useI18n();
   const { data } = useAftrHrs();
   if (!data.pass) {
     return (
       <Link to="/moments/aftrhrs" className="w-full max-w-[420px] rounded-2xl border border-white/15 bg-black/50 px-4 py-3 text-left text-white">
         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">AftrHrs</p>
-        <p className="mt-1 text-sm font-bold">Claim or present your Sea Deck pass</p>
+        <p className="mt-1 text-sm font-bold">{t("wallet.aftrhrsClaim")}</p>
       </Link>
     );
   }
   return (
     <Link to="/aftrhrs/pass" className="w-full max-w-[420px] rounded-2xl border border-cyan-300/30 bg-cyan-300/10 px-4 py-3 text-left text-white">
-      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">AftrHrs Digital Free Pass</p>
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">{t("wallet.aftrhrsPass")}</p>
       <p className="mt-1 font-mono text-lg font-black tracking-[0.14em]">{data.pass.unique_code}</p>
-      <p className="text-xs text-white/60">Arrive before 11:30 PM to get in free · {guestPassStatus(data.pass.status)}</p>
+      <p className="text-xs text-white/60">{t("wallet.aftrhrsArrive")} · {localizedGuestPassStatus(data.pass.status, t)}</p>
     </Link>
   );
 }
 
-const formatCurrency = (value: number, currency = "USD") =>
-  new Intl.NumberFormat("en-US", {
+const formatCurrency = (value: number, currency = "USD", locale = "en") =>
+  new Intl.NumberFormat(locale === "es-419" ? "es-419" : locale === "pt-BR" ? "pt-BR" : "en-US", {
     style: "currency",
     currency,
     maximumFractionDigits: 2,
   }).format(value);
 
 const formatSignedValue = (value: number) => `${value >= 0 ? "+" : ""}${Number(value).toLocaleString()}`;
-const errorMessage = (error: unknown) => error instanceof Error ? error.message : "Something went wrong";
+const errorMessage = (error: unknown, fallback: string) => error instanceof Error ? error.message : fallback;
 
 const Wallet = () => {
   const { t, locale, formatNumber } = useI18n();
@@ -184,8 +185,8 @@ const Wallet = () => {
       });
     } catch (error: unknown) {
       toast({
-        title: "Wallet unavailable",
-        description: errorMessage(error) || "Could not load Gems balance.",
+        title: t("wallet.unavailable"),
+        description: errorMessage(error, t("wallet.loadGemsFailed")) || t("wallet.loadGemsFailed"),
         variant: "destructive",
       });
     } finally {
@@ -213,8 +214,8 @@ const Wallet = () => {
       setGemsTransactions(data.transactions || []);
     } catch (error: unknown) {
       toast({
-        title: "Transactions unavailable",
-        description: errorMessage(error) || "Could not load Gems transactions.",
+        title: t("wallet.txUnavailable"),
+        description: errorMessage(error, t("wallet.loadTxFailed")) || t("wallet.loadTxFailed"),
         variant: "destructive",
       });
     } finally {
@@ -237,8 +238,8 @@ const Wallet = () => {
     setBuyDialogOpen(false);
 
     toast({
-      title: "Payment confirmed",
-      description: "Your Gems balance should update shortly after payment settlement.",
+      title: t("wallet.paymentConfirmed"),
+      description: t("wallet.paymentConfirmedCopy"),
     });
 
     setTimeout(() => {
@@ -259,15 +260,15 @@ const Wallet = () => {
         body: JSON.stringify({ quantity: convertQuantity }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Conversion failed");
+      if (!response.ok) throw new Error(result.error || t("wallet.conversionFailed"));
       await refreshWallet();
       setConvertDialogOpen(false);
       toast({
-        title: `${convertQuantity} PromoKey${convertQuantity > 1 ? "s" : ""} unlocked`,
-        description: `${(convertQuantity * PARTICIPANT_ECONOMY.pointsPerPromoKey).toLocaleString()} Points moved into access you can use.`,
+        title: t(convertQuantity > 1 ? "wallet.keysUnlockedPlural" : "wallet.keysUnlocked", { count: formatNumber(convertQuantity) }),
+        description: t("wallet.pointsMoved", { count: formatNumber(convertQuantity * PARTICIPANT_ECONOMY.pointsPerPromoKey) }),
       });
     } catch (error: unknown) {
-      toast({ title: "Could not convert Points", description: errorMessage(error), variant: "destructive" });
+      toast({ title: t("wallet.convertFailed"), description: errorMessage(error, t("wallet.somethingWrong")), variant: "destructive" });
     } finally {
       setConverting(false);
     }
@@ -286,10 +287,10 @@ const Wallet = () => {
       await gemActions.requestWithdrawal.mutateAsync({ amount: Number(withdrawAmount), note: withdrawNote });
       setWithdrawDialogOpen(false);
       setWithdrawNote("");
-      toast({ title: "Withdrawal requested", description: `${Number(withdrawAmount).toLocaleString()} Gems are now pending review.` });
+      toast({ title: t("wallet.withdrawRequested"), description: t("wallet.withdrawRequestedCopy", { count: formatNumber(Number(withdrawAmount)) }) });
       await refreshWallet();
     } catch (error: unknown) {
-      toast({ title: "Could not request withdrawal", description: errorMessage(error), variant: "destructive" });
+      toast({ title: t("wallet.withdrawFailed"), description: errorMessage(error, t("wallet.somethingWrong")), variant: "destructive" });
     }
   };
 
@@ -358,18 +359,18 @@ const Wallet = () => {
       <main className="w-full space-y-8 px-4 sm:px-6 lg:px-8 py-6">
         <GuidanceDisclosure
           id="wallet:economy-path"
-          eyebrow="Wallet path"
-          title="How participation becomes usable value"
-          summary={`Points come from showing up, answering, or using a perk. ${pointsPerKey} Points become 1 PromoKey for a limited funded night. Gems are platform money (1 Gem = $1). Funded work is on Earn.`}
+          eyebrow={t("wallet.pathEyebrow")}
+          title={t("wallet.pathTitle")}
+          summary={t("wallet.pathSummary", { points: formatNumber(pointsPerKey) })}
           className="mt-0"
         >
           <section className="overflow-hidden rounded-2xl border border-border bg-card">
             <div className="grid md:grid-cols-4">
               {[
-                ["01", "Show up", "Check in, use a perk, or answer a real question"],
-                ["02", "Earn Points", "Points are a score, not money. You cannot cash them out."],
-                ["03", "Unlock", `${pointsPerKey} Points become 1 PromoKey for a limited night or drop`],
-                ["04", "Funded work", "Paid gigs from brands live on Earn, not on this wallet page"],
+                ["01", t("wallet.step1Title"), t("wallet.step1Copy")],
+                ["02", t("wallet.step2Title"), t("wallet.step2Copy")],
+                ["03", t("wallet.step3Title"), t("wallet.step3Copy", { points: formatNumber(pointsPerKey) })],
+                ["04", t("wallet.step4Title"), t("wallet.step4Copy")],
               ].map(([number, title, text], index) => (
                 <div key={number} className={`relative p-5 ${index < 3 ? "border-b border-border md:border-b-0 md:border-r" : ""}`}>
                   <div className="text-[10px] font-black tracking-[0.25em] text-primary">{number}</div>
@@ -384,20 +385,20 @@ const Wallet = () => {
         <section aria-labelledby="available-value-heading" className="space-y-5">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Available now</p>
-              <h2 id="available-value-heading" className="mt-1 text-3xl font-black tracking-[-.045em]">What your value can do</h2>
-              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Each balance has one job. Use it, convert it, or see exactly why it is waiting.</p>
+              <p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">{t("wallet.availableNow")}</p>
+              <h2 id="available-value-heading" className="mt-1 text-3xl font-black tracking-[-.045em]">{t("wallet.valueCanDo")}</h2>
+              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{t("wallet.valueCanDoCopy")}</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button asChild variant="outline" className="rounded-xl"><Link to="/economy">What is what <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
-              <Button asChild variant="outline" className="rounded-xl"><Link to="/portfolio">View your Pieces <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+              <Button asChild variant="outline" className="rounded-xl"><Link to="/economy">{t("wallet.whatIsWhat")} <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+              <Button asChild variant="outline" className="rounded-xl"><Link to="/portfolio">{t("wallet.viewPieces")} <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
             </div>
           </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            <ValueInstrumentCard icon={Coins} label="Points" value={formatNumber(points)} meaning={VALUE_INSTRUMENTS.points.job} status="Not money" tone="amber" loading={walletLoading} progress={nextKeyProgress} progressLabel={`${Math.max(0, pointsPerKey - (points % pointsPerKey))} to next PromoKey`} actionLabel="Convert to PromoKeys" onAction={() => setConvertDialogOpen(true)} disabled={availableConversions < 1} disabledReason={`Need ${Math.max(0, pointsPerKey - points)} more Points`} />
-            <ValueInstrumentCard icon={KeyRound} label="PromoKeys" value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning={VALUE_INSTRUMENTS.promokeys.job} status="Unlocks doors" tone="orange" loading={walletLoading} actionLabel="See funded work" onAction={() => window.location.assign("/earn")} />
-            <ValueInstrumentCard icon={Gem} label="Gems" value={formatNumber(gemsSnapshot.balance || gems)} meaning={VALUE_INSTRUMENTS.gems.is} status={Number(gemsSnapshot.pending_purchase_redemption_balance || 0) > 0 ? "Partly pending" : "Buy or earn"} tone="violet" loading={gemsLoading} actionLabel={canBuyGems ? "Buy or manage Gems" : "View Gem details"} onAction={() => { setCheckoutActive(false); setBuyDialogOpen(true); }} />
-            <ValueInstrumentCard icon={DollarSign} label="Withdrawable" value={formatCurrency(Number(gemsSnapshot.withdrawable_balance || 0))} meaning={cashOutLocked ? "Starter can earn this value. Professional is what unlocks cash-out." : pendingWithdrawalGems > 0 ? `${formatNumber(pendingWithdrawalGems)} Gems are already under review.` : "The portion currently eligible to request as a payout."} status={cashOutLocked ? "Upgrade to cash out" : pendingWithdrawalGems > 0 ? "Request pending" : "Eligible now"} tone="emerald" loading={gemsLoading || withdrawalsLoading} actionLabel={cashOutLocked ? "Unlock Professional" : "Request withdrawal"} onAction={() => { if (cashOutLocked) window.location.assign("/membership/checkout?plan=professional"); else setWithdrawDialogOpen(true); }} disabled={!canWithdrawGems || (!cashOutLocked && Number(gemsSnapshot.withdrawable_balance || 0) <= 0)} disabledReason={!canWithdrawGems ? `Unavailable in ${country.name}` : cashOutLocked ? "Professional unlocks withdrawals" : "Nothing eligible yet"} />
+            <ValueInstrumentCard icon={Coins} label={t("wallet.pointsLabel")} value={formatNumber(points)} meaning={t("wallet.pointsMeaning")} status={t("wallet.pointsStatus")} tone="amber" loading={walletLoading} progress={nextKeyProgress} progressLabel={t("wallet.nextKey", { count: formatNumber(Math.max(0, pointsPerKey - (points % pointsPerKey))) })} actionLabel={t("wallet.convertToKeys")} onAction={() => setConvertDialogOpen(true)} disabled={availableConversions < 1} disabledReason={t("wallet.needMorePoints", { count: formatNumber(Math.max(0, pointsPerKey - points)) })} />
+            <ValueInstrumentCard icon={KeyRound} label={t("wallet.keysLabel")} value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning={t("wallet.keysMeaning")} status={t("wallet.keysStatus")} tone="orange" loading={walletLoading} actionLabel={t("wallet.seeFunded")} onAction={() => window.location.assign("/earn")} />
+            <ValueInstrumentCard icon={Gem} label={t("wallet.gemsLabel")} value={formatNumber(gemsSnapshot.balance || gems)} meaning={t("wallet.gemsMeaning")} status={Number(gemsSnapshot.pending_purchase_redemption_balance || 0) > 0 ? t("wallet.gemsPending") : t("wallet.gemsReady")} tone="violet" loading={gemsLoading} actionLabel={canBuyGems ? t("wallet.buyOrManage") : t("wallet.viewGemDetails")} onAction={() => { setCheckoutActive(false); setBuyDialogOpen(true); }} />
+            <ValueInstrumentCard icon={DollarSign} label={t("wallet.withdrawable")} value={formatCurrency(Number(gemsSnapshot.withdrawable_balance || 0), "USD", locale)} meaning={cashOutLocked ? t("wallet.withdrawableLocked") : pendingWithdrawalGems > 0 ? t("wallet.withdrawablePending", { count: formatNumber(pendingWithdrawalGems) }) : t("wallet.withdrawableEligible")} status={cashOutLocked ? t("wallet.upgradeCashOut") : pendingWithdrawalGems > 0 ? t("wallet.requestPending") : t("wallet.eligibleNow")} tone="emerald" loading={gemsLoading || withdrawalsLoading} actionLabel={cashOutLocked ? t("wallet.unlockPro") : t("wallet.request")} onAction={() => { if (cashOutLocked) window.location.assign("/membership/checkout?plan=professional"); else setWithdrawDialogOpen(true); }} disabled={!canWithdrawGems || (!cashOutLocked && Number(gemsSnapshot.withdrawable_balance || 0) <= 0)} disabledReason={!canWithdrawGems ? t("wallet.unavailableIn", { place: country.name }) : cashOutLocked ? t("wallet.proUnlocks") : t("wallet.nothingEligible")} />
           </div>
           <GemSpendBenefits />
         </section>
@@ -617,7 +618,7 @@ const Wallet = () => {
                   <CardDescription className="text-xs">{t("wallet.historyCopy")}</CardDescription>
                 </div>
                 <Badge variant="outline" className="text-xs">
-                  {gemsTransactions.length} Events
+                  {t("wallet.events", { count: formatNumber(gemsTransactions.length) })}
                 </Badge>
               </div>
             </CardHeader>
@@ -665,7 +666,7 @@ const Wallet = () => {
                             </span>
                             {transaction.fiat_amount ? (
                               <div className="text-[11px] text-muted-foreground">
-                                {formatCurrency(Number(transaction.fiat_amount), transaction.fiat_currency || "USD")}
+                                {formatCurrency(Number(transaction.fiat_amount), transaction.fiat_currency || "USD", locale)}
                               </div>
                             ) : null}
                           </TableCell>
@@ -716,10 +717,10 @@ const Wallet = () => {
                               onClick={async () => {
                                 try {
                                   await gemActions.cancelWithdrawal.mutateAsync(request.id);
-                                  toast({ title: "Withdrawal cancelled", description: "The Gems returned to your wallet." });
+                                  toast({ title: t("wallet.withdrawCancelled"), description: t("wallet.withdrawCancelledCopy") });
                                   await refreshWallet();
                                 } catch (error: unknown) {
-                                  toast({ title: "Could not cancel request", description: errorMessage(error), variant: "destructive" });
+                                  toast({ title: t("wallet.cancelFailed"), description: errorMessage(error, t("wallet.somethingWrong")), variant: "destructive" });
                                 }
                               }}
                             >
@@ -788,7 +789,7 @@ const Wallet = () => {
                             to={`/r/${receipt.id}`}
                             className="inline-flex items-center gap-1 font-bold text-[11px] text-primary hover:underline"
                           >
-                            Inspect <ExternalLink className="h-3 w-3" />
+                            {t("wallet.inspect")} <ExternalLink className="h-3 w-3" />
                           </Link>
                         </div>
                       </div>
@@ -877,7 +878,7 @@ const Wallet = () => {
         </div>
 
         <section aria-labelledby="saved-value-heading" className="space-y-5 border-t border-border/60 pt-8">
-          <div><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Saved for later</p><h2 id="saved-value-heading" className="mt-1 text-2xl font-black tracking-[-.04em]">Passes, offers, and receipts</h2><p className="mt-2 text-sm text-muted-foreground">The things you can return to, redeem, or use as proof—kept separate from spendable balances.</p></div>
+          <div><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">{t("wallet.savedLater")}</p><h2 id="saved-value-heading" className="mt-1 text-2xl font-black tracking-[-.04em]">{t("wallet.savedLaterTitle")}</h2><p className="mt-2 text-sm text-muted-foreground">{t("wallet.savedLaterCopy")}</p></div>
           <CouponWalletRail />
           <CommerceReceiptRail />
         </section>
@@ -888,7 +889,7 @@ const Wallet = () => {
           <DialogHeader>
             <DialogTitle>{t("wallet.convertTitle")}</DialogTitle>
             <DialogDescription>
-              Convert {pointsPerKey} Points into 1 PromoKey. PromoKeys enter funded drops and gated opportunities once today's Master Key is active. Maximum {PARTICIPANT_ECONOMY.maxDailyPromoKeyConversions} conversions per day.
+              {t("wallet.convertCopy", { points: formatNumber(pointsPerKey), max: formatNumber(PARTICIPANT_ECONOMY.maxDailyPromoKeyConversions) })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-5">
@@ -918,7 +919,7 @@ const Wallet = () => {
           <DialogHeader>
             <DialogTitle>{t("wallet.buyTitle")}</DialogTitle>
             <DialogDescription>
-              1 Gem = $1. Buying Gems is how money enters Promorang. Spending those Gems — not paying cash outside — is what can unlock Pieces, Save & Win tickets, and PromoShare entries.
+              {t("wallet.buyCopy")}
             </DialogDescription>
           </DialogHeader>
 
@@ -965,7 +966,7 @@ const Wallet = () => {
                   onChange={(event) => setPurchaseAmount(Number(event.target.value || 0))}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Minimum $5. Maximum $1,000 per transaction. Current rate: 1 Gem = US$1. Purchased Gems can fund merchant-specific Gem Cards; they are not cash-redeemable by customers.
+                  {t("wallet.buyMin")}
                 </p>
               </div>
 
@@ -998,7 +999,7 @@ const Wallet = () => {
           <DialogHeader>
             <DialogTitle>{t("wallet.withdrawTitle")}</DialogTitle>
             <DialogDescription>
-              Earned Gems can be reviewed for payout at 1 Gem = US$1. Minimum request is 250 Gems.
+              {t("wallet.withdrawCopy")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">

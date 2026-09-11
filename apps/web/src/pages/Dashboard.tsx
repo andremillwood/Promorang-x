@@ -4,6 +4,7 @@ import { Suspense, lazy } from "react";
 import { ResumeMomentumBanner } from "@/components/intent/ResumeMomentumBanner";
 import { useUserIntentContinuity } from "@/hooks/useUserIntentContinuity";
 import { MobileNotificationBridgeBanner } from "@/components/notifications/MobileNotificationBridgeBanner";
+import { useI18n } from "@/i18n/I18nContext";
 
 const PeopleHome = lazy(() => import("@/pages/PeopleHome"));
 const ParticipantDashboardV2 = lazy(() => import("@/components/dashboards/CulturalCommandHome"));
@@ -29,6 +30,7 @@ const dashboardByRole = {
 } as const;
 
 const Dashboard = () => {
+  const { t } = useI18n();
   const { user, activeRole, loading } = useAuth();
   const { activeDraft, dismissDraft } = useUserIntentContinuity();
   const [params] = useSearchParams();
@@ -38,7 +40,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
+        <div className="animate-pulse text-muted-foreground">{t("common.loading")}</div>
       </div>
     );
   }

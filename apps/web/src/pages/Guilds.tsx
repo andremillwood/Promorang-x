@@ -5,8 +5,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceActions, useMyCrew, useMyGuild } from "@/hooks/usePeopleExperience";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n/I18nContext";
 
 export default function Guilds() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const crewQuery = useMyCrew();
   const guildQuery = useMyGuild();
@@ -20,24 +22,24 @@ export default function Guilds() {
   const copyInvite = async () => {
     if (!guild?.inviteCode) return;
     await navigator.clipboard.writeText(guild.inviteCode);
-    toast({ title: "Invite code copied", description: "Send it to another Crew already moving in this Scene." });
+    toast({ title: t("guilds.inviteCopied"), description: t("guilds.inviteCopiedCopy") });
   };
 
   const handleCreate = async () => {
     try {
       await createGuild.mutateAsync({ name: name.trim() || "Night Watch" });
-      toast({ title: "Guild formed", description: "Your Crew is the first seat. Invite 1–5 more Crews." });
+      toast({ title: t("guilds.formed"), description: t("guilds.formedCopy") });
     } catch (error) {
-      toast({ title: "Could not form a Guild", description: (error as Error).message, variant: "destructive" });
+      toast({ title: t("guilds.formFailed"), description: (error as Error).message, variant: "destructive" });
     }
   };
 
   const handleJoin = async () => {
     try {
       await joinGuild.mutateAsync(code.trim().toUpperCase());
-      toast({ title: "Your Crew is in", description: "The Guild now coordinates at Scene scale." });
+      toast({ title: t("guilds.crewIn"), description: t("guilds.crewInCopy") });
     } catch (error) {
-      toast({ title: "Could not join", description: (error as Error).message, variant: "destructive" });
+      toast({ title: t("guilds.joinFailed"), description: (error as Error).message, variant: "destructive" });
     }
   };
 
@@ -51,8 +53,8 @@ export default function Guilds() {
 
   if (!user) {
     return (
-      <ExperienceShell eyebrow="Guild" title="Who coordinates the Scene?" backTo="/dashboard">
-        <QuietEmpty title="Sign in to form a Guild" copy="A Guild is 2–6 Crews. Not a hierarchy." action={<Link to="/auth" className="text-sm font-bold text-primary">Sign in</Link>} />
+      <ExperienceShell eyebrow={t("guilds.eyebrow")} title={t("guilds.who")} backTo="/dashboard">
+        <QuietEmpty title={t("guilds.signInTitle")} copy={t("guilds.signInCopy")} action={<Link to="/auth" className="text-sm font-bold text-primary">{t("common.signIn")}</Link>} />
       </ExperienceShell>
     );
   }
@@ -60,15 +62,15 @@ export default function Guilds() {
   if (!crew) {
     return (
       <ExperienceShell
-        eyebrow="Guild"
-        title="Form a Crew first"
-        description="Guilds are Crews coordinating at Scene scale. Individuals do not join a Guild alone."
+        eyebrow={t("guilds.eyebrow")}
+        title={t("guilds.formCrewFirst")}
+        description={t("guilds.formCrewCopy")}
         backTo="/crews"
       >
         <QuietEmpty
-          title="No Crew yet"
-          copy="Form 3–8 people you will actually go out with. Then federate with other Crews."
-          action={<Link to="/crews" className="text-sm font-bold text-primary">Open Crews</Link>}
+          title={t("guilds.emptyCrewTitle")}
+          copy={t("guilds.emptyCrewCopy")}
+          action={<Link to="/crews" className="text-sm font-bold text-primary">{t("guilds.openCrews")}</Link>}
         />
       </ExperienceShell>
     );
@@ -76,9 +78,9 @@ export default function Guilds() {
 
   return (
     <ExperienceShell
-      eyebrow="Scene coordination"
-      title={guild?.name || "Form a Guild"}
-      description="2–6 Crews. One Scene. Flat — not an upline. Progress still comes from verified action."
+      eyebrow={t("guilds.coordination")}
+      title={guild?.name || t("guilds.form")}
+      description={t("guilds.copy")}
       backTo="/dashboard"
     >
       {guild ? (
@@ -88,7 +90,7 @@ export default function Guilds() {
               {guild.scene?.title || KINGSTON_AFTER_DARK_SLICE.sceneTitle}
             </p>
             <p className="mt-2 font-serif text-3xl font-bold">
-              {guild.crewCount || 0} Crews coordinating
+              {t("guilds.crewsCoordinating", { count: guild.crewCount || 0 })}
             </p>
             <p className="mt-2 text-sm text-white/60">{guild.readiness?.line}</p>
             {guild.contest?.mixedCrewNote ? (
@@ -100,25 +102,25 @@ export default function Guilds() {
                 onClick={() => void copyInvite()}
                 className="inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-5 text-sm font-black text-black"
               >
-                Copy invite · {guild.inviteCode}
+                {t("guilds.copyInvite", { code: guild.inviteCode })}
               </button>
               <Link
                 to="/progress"
                 className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/15 px-5 text-sm font-bold text-white"
               >
-                Season contest
+                {t("guilds.seasonContest")}
               </Link>
             </div>
           </section>
 
           <section>
-            <h2 className="font-serif text-2xl font-bold">Crews</h2>
+            <h2 className="font-serif text-2xl font-bold">{t("guilds.crews")}</h2>
             <div className="mt-3 space-y-2">
               {guild.crews?.map((item: { id: string; name: string; size: number; runTitle?: string | null; runCompleted?: number; runTotal?: number }) => (
                 <article key={item.id} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
                   <p className="font-serif text-xl font-bold">{item.name}</p>
                   <p className="mt-1 text-xs uppercase tracking-widest text-white/40">
-                    {item.size} {item.size === 1 ? "person" : "people"}
+                    {item.size === 1 ? t("guilds.personOne") : t("guilds.peopleMany", { count: item.size })}
                     {item.runTitle ? ` · ${item.runTitle} ${item.runCompleted || 0}/${item.runTotal || 4}` : ""}
                   </p>
                 </article>
@@ -129,13 +131,13 @@ export default function Guilds() {
       ) : (
         <>
           <QuietEmpty
-            title="No Guild yet"
-            copy={`${crew.name} can federate with 1–5 other Crews. This is not the invite ladder.`}
+            title={t("guilds.emptyTitle")}
+            copy={t("guilds.emptyCopy", { name: crew.name })}
           />
           <section className="space-y-3 rounded-[1.6rem] border border-white/10 px-5 py-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Form one</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("guilds.formOne")}</p>
             <label className="block text-sm text-white/60">
-              Guild name
+              {t("guilds.nameLabel")}
               <input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
@@ -148,13 +150,13 @@ export default function Guilds() {
               onClick={() => void handleCreate()}
               className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-black text-black disabled:opacity-60"
             >
-              {createGuild.isPending ? "Forming…" : "Form Guild"}
+              {createGuild.isPending ? t("guilds.forming") : t("guilds.formCta")}
             </button>
           </section>
           <section className="space-y-3 rounded-[1.6rem] border border-white/10 px-5 py-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Or attach this Crew</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("guilds.orAttach")}</p>
             <label className="block text-sm text-white/60">
-              Invite code
+              {t("guilds.inviteCode")}
               <input
                 value={code}
                 onChange={(event) => setCode(event.target.value.toUpperCase())}
@@ -168,13 +170,13 @@ export default function Guilds() {
               onClick={() => void handleJoin()}
               className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/15 text-sm font-bold text-white disabled:opacity-60"
             >
-              {joinGuild.isPending ? "Joining…" : "Join Guild"}
+              {joinGuild.isPending ? t("guilds.joining") : t("guilds.joinCta")}
             </button>
           </section>
         </>
       )}
       <Link to="/crews" className="block text-center text-xs text-white/30">
-        Back to your Crew
+        {t("guilds.backCrew")}
       </Link>
     </ExperienceShell>
   );

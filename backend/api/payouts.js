@@ -8,6 +8,7 @@ const router = express.Router();
 const payoutService = require('../services/payoutService');
 const roleService = require('../services/roleService');
 const { requireAuth } = require('../middleware/auth');
+const { localeFromRequest } = require('../services/emailI18n');
 
 /**
  * GET /api/payouts/methods
@@ -60,7 +61,9 @@ router.post('/withdraw', requireAuth, async (req, res) => {
             return res.status(400).json({ error: 'Amount and payout method ID are required' });
         }
 
-        const request = await payoutService.requestWithdrawal(userId, parseFloat(amount), payout_method_id);
+        const request = await payoutService.requestWithdrawal(userId, parseFloat(amount), payout_method_id, {
+            locale: localeFromRequest(req),
+        });
 
         res.json({
             success: true,

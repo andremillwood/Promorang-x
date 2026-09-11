@@ -1,3 +1,5 @@
+import { moreEn, moreEs, morePtBR } from "./catalog-more";
+
 export const supportedLocales = ["en", "es-419", "pt-BR"] as const;
 
 export type Locale = (typeof supportedLocales)[number];
@@ -5294,9 +5296,9 @@ const en = {
   "dashboard.accountSettings": "Account Settings",
 } as const;
 
-export type TranslationKey = keyof typeof en;
+type CoreTranslationKey = keyof typeof en;
 
-const es: Record<TranslationKey, string> = {
+const es: Record<CoreTranslationKey, string> = {
   "language.label": "Idioma",
   "theme.label": "Apariencia",
   "theme.light": "Claro",
@@ -10581,7 +10583,7 @@ const es: Record<TranslationKey, string> = {
   "dashboard.accountSettings": "Ajustes de la cuenta",
 };
 
-const ptBR: Record<TranslationKey, string> = {
+const ptBR: Record<CoreTranslationKey, string> = {
   "language.label": "Idioma",
   "theme.label": "Aparência",
   "theme.light": "Claro",
@@ -15866,8 +15868,10 @@ const ptBR: Record<TranslationKey, string> = {
   "dashboard.accountSettings": "Configurações da conta",
 };
 
+export type TranslationKey = CoreTranslationKey | keyof typeof moreEn;
+
 export const translations: Record<Locale, Record<TranslationKey, string>> = {
-  en,
-  "es-419": es,
-  "pt-BR": ptBR,
+  en: { ...en, ...moreEn },
+  "es-419": { ...es, ...moreEs },
+  "pt-BR": { ...ptBR, ...morePtBR },
 };
