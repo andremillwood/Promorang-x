@@ -55,7 +55,10 @@ export const AFTRHRS_PATHS = {
   door: "/moments/aftrhrs/door",
   admin: "/admin/aftrhrs",
   claimReturn: "/aftrhrs?claim=1",
+  wallet: "/wallet",
 } as const;
+
+export const AFTRHRS_PENDING_CLAIM_KEY = "promorang_aftrhrs_pending_claim";
 
 export const PASS_TYPES = ["digital-free", "physical-invitation", "paid", "guest-list"] as const;
 export type EventPassType = (typeof PASS_TYPES)[number];
@@ -457,6 +460,25 @@ export function isAftrHrsClaimReturn(path?: string | null): boolean {
   return params.get("claim") === "1" || params.get("intent") === "aftrhrs_claim";
 }
 
+export function isAftrHrsAuthIntent(intent?: string | null, next?: string | null): boolean {
+  if (intent === "aftrhrs_claim" || intent === "aftrhrs_pass") return true;
+  const pathname = String(next || "").split("?")[0];
+  return pathname === AFTRHRS_PATHS.landing
+    || pathname.startsWith(`${AFTRHRS_PATHS.landing}/`)
+    || pathname === AFTRHRS_PATHS.moment
+    || pathname.startsWith(`${AFTRHRS_PATHS.moment}/`);
+}
+
+export function shouldResumeAftrHrsClaim(input: {
+  authenticated: boolean;
+  hasPass: boolean;
+  soldOut?: boolean;
+  pendingTermsAccepted?: boolean;
+}): boolean {
+  if (!input.authenticated || input.hasPass || input.soldOut) return false;
+  return Boolean(input.pendingTermsAccepted);
+}
+
 export function ambassadorRemaining(allocation: number, distributed: number): number {
   return Math.max(0, Number(allocation || 0) - Number(distributed || 0));
 }
@@ -515,6 +537,18 @@ export const AFTRHRS_COPY = {
     "Your AftrHrs Digital Free Pass is secured. Arrive at Sea Deck before 11:30 PM to get in free. Present this pass at the door for validation. Admission remains subject to venue capacity, entry policies and successful pass verification.",
   arrivalRule:
     "RSVP holders must arrive before 11:30 PM to get in free.",
+  claimGuestCta: "Get my AftrHrs pass",
+  claimSignedInCta: "Claim My Free Pass",
+  authHeadline: "Get your AftrHrs pass",
+  authBody:
+    "Create a Promorang account to receive your AftrHrs Digital Free Pass. After you join, the door pass opens automatically — it is not the Promorang membership card.",
+  walletNeedClaim:
+    "A Promorang account is not the AftrHrs door pass. Claim your Digital Free Pass here, then show the QR at Sea Deck.",
+  walletHavePass:
+    "This is your AftrHrs door pass. Show this QR at Sea Deck — not the Promorang membership card.",
+  walletLoadError: "We could not load your AftrHrs pass. Try again.",
+  findPass:
+    "Your AftrHrs pass lives at the top of your Promorang wallet and at /aftrhrs/pass. The Promorang membership card is not the door pass.",
   poweredBy: "Powered by PROMORANG",
   when: AFTRHRS_CADENCE,
   doors: AFTRHRS_DOORS,
@@ -587,8 +621,12 @@ export const DEFAULT_AFTRHRS_FAQS = [
     answer: "Orchid Village, 20 Barbican Road, Kingston.",
   },
   {
+    question: "I signed up for Promorang. Where is my pass?",
+    answer: "Signing up creates your Promorang account. Your AftrHrs Digital Free Pass is a separate door pass. Open /aftrhrs/pass or the top of your wallet. If it is not there yet, claim it on the AftrHrs page and the QR appears in both places.",
+  },
+  {
     question: "How will my Digital Free Pass be verified?",
-    answer: "Present the unique QR code from your Promorang pass at Sea Deck. Staff scan it once. A redeemed pass cannot be scanned again.",
+    answer: "Present the unique QR code from your AftrHrs pass at Sea Deck. Open it from /aftrhrs/pass or the top of your wallet. Staff scan it once. A redeemed pass cannot be scanned again.",
   },
   {
     question: "Can I transfer my pass?",

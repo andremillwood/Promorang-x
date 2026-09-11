@@ -5,7 +5,7 @@ import SEO from "@/components/SEO";
 import { AFTRHRS_COPY, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, authPathForAftrHrsPass } from "@promorang/shared";
 import { useI18n } from "@/i18n/I18nContext";
 import { localizedGuestPassStatus } from "@/i18n/localize";
-import { useAftrHrs } from "@/hooks/useAftrHrs";
+import { useAftrHrs, useAftrHrsAutoClaim } from "@/hooks/useAftrHrs";
 import { getSiteUrl } from "@/lib/discovery";
 import { persistPostAuthNext } from "@/lib/post-auth-next";
 import promorangLogo from "@/assets/promorang-logo-full.png";
@@ -13,6 +13,7 @@ import promorangLogo from "@/assets/promorang-logo-full.png";
 export default function AftrHrsPass() {
   const { t } = useI18n();
   const { data, user } = useAftrHrs();
+  const { autoClaiming } = useAftrHrsAutoClaim({ redirectToPass: false });
   const pass = data.pass;
   const signInHref = authPathForAftrHrsPass();
 
@@ -76,13 +77,16 @@ export default function AftrHrsPass() {
           </div>
         ) : !pass ? (
           <div className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-            <p className="text-white/70">{t("aftrhrs.noPass")}</p>
-            <Link
-              to={AFTRHRS_PATHS.claimReturn}
-              className="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-black"
-            >
-              {t("aftrhrs.claimFree")}
-            </Link>
+            <p className="text-white/70">{autoClaiming ? t("aftrhrs.securing") : t("aftrhrs.noPass")}</p>
+            <p className="mt-3 text-sm text-white/55">{t("aftrhrs.findPass")}</p>
+            {!autoClaiming ? (
+              <Link
+                to={AFTRHRS_PATHS.claimReturn}
+                className="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-black"
+              >
+                {t("aftrhrs.claimFree")}
+              </Link>
+            ) : null}
           </div>
         ) : (
           <article className="mt-8 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04]">

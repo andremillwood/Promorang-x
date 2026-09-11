@@ -371,7 +371,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Fresh login: operators land in admin unless they asked for a consumer
       // destination such as Get PromoCard → /card. Page refresh still honors
       // an explicit role switch.
-      const consumerNext = isConsumerPostAuthNext(sessionStorage.getItem("promorang_post_auth_next"));
+      const consumerNext = isConsumerPostAuthNext(
+        sessionStorage.getItem("promorang_post_auth_next") || localStorage.getItem("promorang_post_auth_next"),
+      );
       const preferredRole =
         event === "SIGNED_IN" && fetchedRoles.includes("admin") && !consumerNext
           ? "admin"

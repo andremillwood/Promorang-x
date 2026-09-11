@@ -80,7 +80,8 @@ function needsAftrHrsFridayFaqs(faqs) {
   return faqs.some((faq) => /percentage|shown as|page reading|claim button|page counter|exactly \d+/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
     || faqs.some((faq) => /\b(20|30) Digital Free Passes\b/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
     || !faqs.some((faq) => String(faq?.answer || '').includes('11:30 PM'))
-    || !faqs.some((faq) => /every friday/i.test(`${faq?.question || ''} ${faq?.answer || ''}`));
+    || !faqs.some((faq) => /every friday/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
+    || !faqs.some((faq) => /signed up for Promorang/i.test(`${faq?.question || ''} ${faq?.answer || ''}`));
 }
 
 async function ensureAftrHrsMomentSchedule(edition) {

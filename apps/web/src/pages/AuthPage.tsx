@@ -13,12 +13,15 @@ import { captureGrowthAttribution, markPendingSignup, trackGrowthEvent } from "@
 import { trackMetaEvent } from "@/components/MetaPixel";
 import { useI18n } from "@/i18n/I18nContext";
 import { localizeLens } from "@/i18n/localize";
-import { isCommercialNext, persistPostAuthNext, roleFromNext } from "@/lib/post-auth-next";
+import { isCommercialNext, persistPostAuthNext, roleFromNext, sanitizePostAuthNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 import { persistPreferredRole } from "@/lib/commercial-intent";
 import {
+  AFTRHRS_COPY,
+  AFTRHRS_PATHS,
   clearIntendedStakeholder,
   getStakeholderLens,
+  isAftrHrsAuthIntent,
   rememberIntendedStakeholder,
   resolveIntendedStakeholderRole,
 } from "@promorang/shared";
@@ -89,6 +92,7 @@ const AuthPage = () => {
     password: z.string().min(6, t("auth.passwordMin")),
     fullName: z.string().min(2, t("auth.nameMin")).optional(),
   });
+  const aftrHrsAuth = isAftrHrsAuthIntent(commercialIntent, nextPath);
   const unlockAim = promoCardAimFromNext(nextPath);
   const localizedRoleInfo: Record<UserRole, { title: string; description: string }> = {
     participant: { title: t("auth.participant"), description: t("persona.explorerDesc") },
@@ -183,7 +187,13 @@ const AuthPage = () => {
             variant: "destructive",
           });
         } else {
-          navigate("/post-login", { replace: true });
+          persistPostAuthNext(nextPath);
+          navigate(
+            aftrHrsAuth
+              ? (sanitizePostAuthNext(nextPath) || AFTRHRS_PATHS.claimReturn)
+              : "/post-login",
+            { replace: true },
+          );
         }
       } else {
         persistPreferredRole(selectedRole);
@@ -211,10 +221,15 @@ const AuthPage = () => {
           });
           toast({
             title: t("auth.welcome"),
-            description: t("auth.accountCreated"),
+            description: aftrHrsAuth ? t("auth.aftrhrsCreated") : t("auth.accountCreated"),
           });
-          // New users always go through onboarding first
-          navigate("/post-login", { replace: true });
+          persistPostAuthNext(nextPath);
+          navigate(
+            aftrHrsAuth
+              ? (sanitizePostAuthNext(nextPath) || AFTRHRS_PATHS.claimReturn)
+              : "/post-login",
+            { replace: true },
+          );
         }
       }
     } finally {
@@ -304,10 +319,12 @@ const AuthPage = () => {
 
           {/* Header */}
           <h1 className="font-serif text-[2.35rem] leading-none font-black text-[#171512] mb-3 sm:text-3xl">
-            {mode === "login" ? t("auth.welcomeBack") : t("auth.join")}
+            {aftrHrsAuth ? AFTRHRS_COPY.authHeadline : mode === "login" ? t("auth.welcomeBack") : t("auth.join")}
           </h1>
           <p className="text-[#6d645a] leading-6 mb-7">
-            {mode === "login"
+            {aftrHrsAuth
+              ? AFTRHRS_COPY.authBody
+              : mode === "login"
               ? selectedRole === "brand"
                 ? t("auth.brandContinueCopy")
                 : hostReturn ? t("auth.hostReturnLogin") : t("auth.loginCopy")

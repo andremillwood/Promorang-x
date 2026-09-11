@@ -27,6 +27,8 @@ import {
   AFTRHRS_ADMIN_COPY,
   AFTRHRS_ADMIN_FUNNEL,
   isAftrHrsClaimReturn,
+  isAftrHrsAuthIntent,
+  shouldResumeAftrHrsClaim,
   nextParticipationState,
   publicRemainingPercent,
 } from "../src/aftrhrs";
@@ -210,6 +212,27 @@ describe("AftrHrs digital pass inventory", () => {
     expect(authPathForAftrHrsPass()).toContain("intent=aftrhrs_pass");
     expect(isAftrHrsPassPath("/aftrhrs/pass")).toBe(true);
     expect(isAftrHrsPassPath("/moments/aftrhrs/pass")).toBe(true);
+    expect(isAftrHrsAuthIntent("aftrhrs_claim", "/dashboard")).toBe(true);
+    expect(isAftrHrsAuthIntent(null, "/aftrhrs?claim=1")).toBe(true);
+    expect(isAftrHrsAuthIntent(null, "/wallet")).toBe(false);
+    expect(shouldResumeAftrHrsClaim({
+      authenticated: true,
+      hasPass: false,
+      pendingTermsAccepted: true,
+    })).toBe(true);
+    expect(shouldResumeAftrHrsClaim({
+      authenticated: true,
+      hasPass: false,
+      pendingTermsAccepted: false,
+    })).toBe(false);
+    expect(shouldResumeAftrHrsClaim({
+      authenticated: true,
+      hasPass: true,
+      pendingTermsAccepted: true,
+    })).toBe(false);
+    expect(AFTRHRS_COPY.findPass).toMatch(/wallet/);
+    expect(AFTRHRS_COPY.authBody).toMatch(/automatically/);
+    expect(DEFAULT_AFTRHRS_FAQS.some((faq) => faq.question.includes("signed up for Promorang"))).toBe(true);
     expect(evaluateDigitalPassClaim({
       edition,
       identity: {},

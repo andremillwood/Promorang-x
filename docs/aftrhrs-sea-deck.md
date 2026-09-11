@@ -21,7 +21,9 @@ Generic `/moments/:id` still works. The AftrHrs UUID (`00000000-0000-0000-0002-0
 
 - `public.moments` + `public.venue_profiles` / `public.venues` (same pattern as Plantation Cove / Midas)
 - `view_public_venue_directory` for `/venues/:slug`
-- Auth `next` + `persistPostAuthNext` for claim resume after login
+- Auth `next` + `persistPostAuthNext` (session + localStorage) for claim resume after login
+- Terms must be accepted before signup. That pending claim auto-issues the Digital Free Pass and opens `/aftrhrs/pass`
+- Wallet shows the AftrHrs QR above the Promorang membership card. Signup alone is not the door pass
 - Branded AftrHrs RSVP email (`sendAftrHrsRsvpEmail`) with the AftrHrs mark and Powered by PROMORANG
 - `telemetry` / `event_analytics_events` rather than a new analytics vendor
 - Admin `requireAdmin` / `user_roles`

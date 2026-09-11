@@ -61,7 +61,8 @@ const DEFAULT_AFTRHRS_FAQS = [
   { question: 'What is the cost without an invitation or RSVP?', answer: 'Entry without an invitation or RSVP is JMD $2,000.' },
   { question: 'What does the paid admission include?', answer: 'Paid patrons receive complimentary drink and wings.' },
   { question: 'Where is Sea Deck?', answer: 'Orchid Village, 20 Barbican Road, Kingston.' },
-  { question: 'How will my Digital Free Pass be verified?', answer: 'Present the unique QR code from your Promorang pass at Sea Deck. Staff scan it once. A redeemed pass cannot be scanned again.' },
+  { question: 'I signed up for Promorang. Where is my pass?', answer: 'Signing up creates your Promorang account. Your AftrHrs Digital Free Pass is a separate door pass. Open /aftrhrs/pass or the top of your wallet. If it is not there yet, claim it on the AftrHrs page and the QR appears in both places.' },
+  { question: 'How will my Digital Free Pass be verified?', answer: 'Present the unique QR code from your AftrHrs pass at Sea Deck. Open it from /aftrhrs/pass or the top of your wallet. Staff scan it once. A redeemed pass cannot be scanned again.' },
   { question: 'Can I transfer my pass?', answer: 'Each Digital Free Pass is for one person and cannot be transferred.' },
   { question: 'What happens if the venue reaches capacity?', answer: 'Admission remains subject to venue capacity and Sea Deck entry policies even with a valid pass or invitation.' },
 ];

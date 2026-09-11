@@ -16,6 +16,7 @@ import AppLayout from "@/components/layouts/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import GrowthTracker from "@/components/GrowthTracker";
 import MetaPixel from "@/components/MetaPixel";
+import { AftrHrsClaimResume } from "@/components/aftrhrs/AftrHrsClaimResume";
 import { MarketProvider } from "@/contexts/MarketContext";
 
 import ChunkErrorBoundary from "./components/ChunkErrorBoundary";
@@ -219,6 +220,7 @@ const App = () => (
               <MarketProvider>
               <DemoExperienceProvider>
                 <MetaPixel />
+                <AftrHrsClaimResume />
                 <GrowthTracker />
                 <ScrollToHash />
                 <RouteScrollManager />

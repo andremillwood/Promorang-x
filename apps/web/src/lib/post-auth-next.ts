@@ -38,16 +38,40 @@ export function sanitizePostAuthNext(next?: string | null): string | null {
   return trimmed;
 }
 
+function writePostAuthNext(value: string) {
+  sessionStorage.setItem(POST_AUTH_NEXT_KEY, value);
+  try {
+    localStorage.setItem(POST_AUTH_NEXT_KEY, value);
+  } catch {
+    // Private mode can block localStorage; sessionStorage still resumes same-tab auth.
+  }
+}
+
+function clearStoredPostAuthNext() {
+  sessionStorage.removeItem(POST_AUTH_NEXT_KEY);
+  try {
+    localStorage.removeItem(POST_AUTH_NEXT_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 export function persistPostAuthNext(next?: string | null) {
   if (typeof window === "undefined") return;
   const safe = sanitizePostAuthNext(next);
-  if (safe) sessionStorage.setItem(POST_AUTH_NEXT_KEY, safe);
+  if (safe) writePostAuthNext(safe);
+}
+
+export function peekPostAuthNext(): string | null {
+  if (typeof window === "undefined") return null;
+  return sanitizePostAuthNext(sessionStorage.getItem(POST_AUTH_NEXT_KEY))
+    || sanitizePostAuthNext(localStorage.getItem(POST_AUTH_NEXT_KEY));
 }
 
 export function consumePostAuthNext(): string | null {
   if (typeof window === "undefined") return null;
-  const stored = sanitizePostAuthNext(sessionStorage.getItem(POST_AUTH_NEXT_KEY));
-  sessionStorage.removeItem(POST_AUTH_NEXT_KEY);
+  const stored = peekPostAuthNext();
+  clearStoredPostAuthNext();
   return stored;
 }
 

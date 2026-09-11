@@ -29,6 +29,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { ShareButton } from "@/components/ShareButton";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
+import { AftrHrsHomePassBanner } from "@/components/aftrhrs/AftrHrsWalletPass";
 
 const getOpsTheatreStage = () => {
   const day = new Date().getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
@@ -88,6 +89,7 @@ export function CulturalCommandHome() {
 
   return (
     <div className="space-y-6 text-white pb-12 animate-in fade-in-50 duration-300">
+      <AftrHrsHomePassBanner />
       {/* 1. Header Greeting, Ops Theatre Stage & Live Status */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl border border-white/10 bg-gradient-to-r from-white/[0.04] via-white/[0.02] to-transparent backdrop-blur-xl">
         <div className="flex items-center gap-3.5">

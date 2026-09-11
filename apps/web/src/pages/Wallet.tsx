@@ -45,10 +45,9 @@ import { PARTICIPANT_ECONOMY } from "@promorang/shared";
 import { useParticipantMembership } from "@/hooks/useParticipantMembership";
 import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
-import { localizedGuestPassStatus } from "@/i18n/localize";
 import { ValueInstrumentCard } from "@/components/value/ValueInstrumentCard";
 import { GemSpendBenefits } from "@/components/economy/WhatIsWhatMap";
-import { useAftrHrs } from "@/hooks/useAftrHrs";
+import { AftrHrsWalletPass } from "@/components/aftrhrs/AftrHrsWalletPass";
 
 type GemsTransaction = {
   id: string;
@@ -78,26 +77,6 @@ type GemsBalanceSnapshot = {
 };
 
 const GEM_PACKS = [10, 25, 50, 100];
-
-function AftrHrsWalletRail() {
-  const { t } = useI18n();
-  const { data } = useAftrHrs();
-  if (!data.pass) {
-    return (
-      <Link to="/moments/aftrhrs" className="w-full max-w-[420px] rounded-2xl border border-white/15 bg-black/50 px-4 py-3 text-left text-white">
-        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">AftrHrs</p>
-        <p className="mt-1 text-sm font-bold">{t("wallet.aftrhrsClaim")}</p>
-      </Link>
-    );
-  }
-  return (
-    <Link to="/aftrhrs/pass" className="w-full max-w-[420px] rounded-2xl border border-cyan-300/30 bg-cyan-300/10 px-4 py-3 text-left text-white">
-      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">{t("wallet.aftrhrsPass")}</p>
-      <p className="mt-1 font-mono text-lg font-black tracking-[0.14em]">{data.pass.unique_code}</p>
-      <p className="text-xs text-white/60">{t("wallet.aftrhrsArrive")} · {localizedGuestPassStatus(data.pass.status, t)}</p>
-    </Link>
-  );
-}
 
 const formatCurrency = (value: number, currency = "USD", locale = "en") =>
   new Intl.NumberFormat(locale === "es-419" ? "es-419" : locale === "pt-BR" ? "pt-BR" : "en-US", {
@@ -331,6 +310,7 @@ const Wallet = () => {
           </div>
 
           <div className="flex flex-col items-center gap-4">
+            <AftrHrsWalletPass />
             <DigitalWalletPass3D
               displayName={user.user_metadata?.full_name || user.user_metadata?.name}
               userEmail={user.email}
@@ -339,7 +319,6 @@ const Wallet = () => {
               promoKeys={walletBalance?.promokeys || 0}
               gems={gems}
             />
-            <AftrHrsWalletRail />
             <div className="flex w-full max-w-[420px] gap-2">
               <Button className="flex-1 rounded-xl shadow-lg" asChild>
                 <Link to="/discover"><Sparkles className="mr-2 h-4 w-4" />{t("wallet.earn")}</Link>

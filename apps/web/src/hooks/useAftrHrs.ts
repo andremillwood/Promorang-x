@@ -1,7 +1,10 @@
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { API_BASE_URL } from "@/lib/api";
 import { localeRequestHeaders } from "@/i18n/geo-locale";
+import { clearAftrHrsClaimPending, hasAftrHrsClaimPending } from "@/lib/aftrhrs-claim";
 import { getGrowthAttribution, getGrowthSessionId } from "@/lib/marketing-attribution";
 import {
   AFTRHRS_COPY,
@@ -15,6 +18,7 @@ import {
   SEA_DECK_VENUE_ID,
   publicRemainingPercent,
   remainingDigitalPasses,
+  shouldResumeAftrHrsClaim,
 } from "@promorang/shared";
 
 export type AftrHrsAmbassador = {
@@ -216,7 +220,8 @@ export function useAftrHrs() {
     queryFn: async () => {
       try {
         return await request<AftrHrsSnapshot>("/public", token);
-      } catch {
+      } catch (error) {
+        if (token) throw error;
         return AFTRHRS_FALLBACK;
       }
     },
@@ -268,6 +273,7 @@ export function useAftrHrs() {
     data,
     remainingPercent,
     soldOut: remainingPercent <= 0 || data.edition.soldOut,
+    passLoadFailed: Boolean(token && snapshot.isError),
     token,
     user,
     track,
@@ -277,6 +283,48 @@ export function useAftrHrs() {
     follow,
     paths: AFTRHRS_PATHS,
   };
+}
+
+export function useAftrHrsAutoClaim(options?: { redirectToPass?: boolean }) {
+  const { data, user, claim, soldOut } = useAftrHrs();
+  const navigate = useNavigate();
+  const [autoClaiming, setAutoClaiming] = useState(false);
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (
+      !shouldResumeAftrHrsClaim({
+        authenticated: Boolean(user),
+        hasPass: Boolean(data.pass),
+        soldOut,
+        pendingTermsAccepted: hasAftrHrsClaimPending(),
+      })
+    ) {
+      return;
+    }
+    if (started.current) return;
+    started.current = true;
+    setAutoClaiming(true);
+    claim.mutateAsync(true)
+      .then(() => {
+        clearAftrHrsClaimPending();
+        if (options?.redirectToPass !== false) {
+          navigate(AFTRHRS_PATHS.passAlias, { replace: true });
+        }
+      })
+      .catch((error) => {
+        const code = (error as { code?: string }).code;
+        if (code === "already_claimed") {
+          clearAftrHrsClaimPending();
+          navigate(AFTRHRS_PATHS.passAlias, { replace: true });
+          return;
+        }
+        started.current = false;
+        setAutoClaiming(false);
+      });
+  }, [user, data.pass, soldOut, claim, navigate, options?.redirectToPass]);
+
+  return { autoClaiming };
 }
 
 export function useAftrHrsAdmin() {

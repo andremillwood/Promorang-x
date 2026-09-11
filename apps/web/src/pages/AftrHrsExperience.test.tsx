@@ -24,6 +24,8 @@ describe("AftrHrs landing states", () => {
     expect(release.body).not.toMatch(/\b30\b/);
     expect(AFTRHRS_COPY.arrivalRule).toContain("11:30 PM");
     expect(AFTRHRS_COPY.poweredBy).toBe("Powered by PROMORANG");
+    expect(AFTRHRS_COPY.claimGuestCta).toBe("Get my AftrHrs pass");
+    expect(AFTRHRS_COPY.findPass).toMatch(/membership card is not the door pass/);
     expect(AFTRHRS_COPY.when).toBe("Every Friday");
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/percentage|shown as|page reading|claim button|page counter/i);
     expect(JSON.stringify(AFTRHRS_COPY)).not.toMatch(/percentage|shown as/i);

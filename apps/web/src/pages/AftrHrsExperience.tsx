@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import {
   Calendar,
@@ -16,11 +16,12 @@ import SEO from "@/components/SEO";
 import { generateEventSchema } from "@/lib/seo-schemas";
 import { getSiteUrl } from "@/lib/discovery";
 import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_EVENT_SCHEDULE, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, AFTRHRS_START_ISO, isAftrHrsClaimReturn } from "@promorang/shared";
-import { useAftrHrs } from "@/hooks/useAftrHrs";
+import { useAftrHrs, useAftrHrsAutoClaim } from "@/hooks/useAftrHrs";
 import { useI18n } from "@/i18n/I18nContext";
 import { localizedRemainingLabel } from "@/i18n/localize";
 import type { TranslationKey } from "@/i18n/translations";
 import { captureGrowthAttribution } from "@/lib/marketing-attribution";
+import { markAftrHrsClaimPending } from "@/lib/aftrhrs-claim";
 import { persistPostAuthNext } from "@/lib/post-auth-next";
 import { toast } from "sonner";
 import promorangLogo from "@/assets/promorang-logo-full.png";
@@ -43,7 +44,9 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
 
 export default function AftrHrsExperience() {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const { data, remainingPercent, soldOut, user, claim, join, ambassadorRequest, follow, track } = useAftrHrs();
+  const { autoClaiming } = useAftrHrsAutoClaim();
   const [searchParams] = useSearchParams();
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [claiming, setClaiming] = useState(false);
@@ -117,8 +120,12 @@ export default function AftrHrsExperience() {
 
   const startClaim = async (event?: FormEvent) => {
     event?.preventDefault();
+    if (!termsAccepted) {
+      toast.error(t("aftrhrs.confirmTerms"));
+      return;
+    }
     if (!user) {
-      persistPostAuthNext(AFTRHRS_PATHS.claimReturn);
+      markAftrHrsClaimPending();
       window.location.assign(authPathForAftrHrsClaim());
       return;
     }
@@ -130,6 +137,7 @@ export default function AftrHrsExperience() {
     try {
       await claim.mutateAsync(true);
       toast.success(t("aftrhrs.passSecuredToast"));
+      navigate(AFTRHRS_PATHS.passAlias, { replace: true });
     } catch (error) {
       const code = (error as { code?: string }).code;
       if (code === "sold_out") {
@@ -326,6 +334,11 @@ export default function AftrHrsExperience() {
                 {t("aftrhrs.limitedCopy")}
               </p>
               <p className="mt-3 text-sm font-bold text-fuchsia-200">{t("aftrhrs.arrivalRule")}</p>
+              {shouldAutoClaim && user ? (
+                <p className="mt-3 text-sm font-bold text-cyan-200">{t("aftrhrs.lastStep")}</p>
+              ) : (
+                <p className="mt-3 text-sm text-white/55">{t("aftrhrs.findPass")}</p>
+              )}
               <form onSubmit={startClaim} className="mt-6 space-y-4">
                 <label className="flex items-start gap-3 text-sm text-white/75">
                   <input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} className="mt-1" />
@@ -333,10 +346,10 @@ export default function AftrHrsExperience() {
                 </label>
                 <button
                   type="submit"
-                  disabled={claiming}
+                  disabled={claiming || autoClaiming}
                   className="rounded-full bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-black disabled:opacity-60"
                 >
-                  {claiming ? t("aftrhrs.securing") : user ? t("aftrhrs.claimCta") : t("aftrhrs.signInClaim")}
+                  {claiming || autoClaiming ? t("aftrhrs.securing") : user ? t("aftrhrs.claimCta") : t("aftrhrs.signInClaim")}
                 </button>
               </form>
             </div>

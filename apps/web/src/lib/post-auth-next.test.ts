@@ -1,8 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   authPathForReturn,
+  consumePostAuthNext,
   defaultPostAuthPath,
   isCommercialNext,
+  peekPostAuthNext,
+  persistPostAuthNext,
+  POST_AUTH_NEXT_KEY,
   resolvePostAuthPath,
   roleFromNext,
   sanitizePostAuthNext,
@@ -59,4 +63,19 @@ describe("post-auth-next", () => {
       "/auth?next=%2Fpropose%2Fnew%3Ffrom%3Dsponsor%26audience%3Dbrand&role=brand",
     );
   });
+
+  it("keeps AftrHrs claim returns across a new tab via localStorage", () => {
+    persistPostAuthNext("/aftrhrs?claim=1");
+    expect(sessionStorage.getItem(POST_AUTH_NEXT_KEY)).toBe("/aftrhrs?claim=1");
+    expect(localStorage.getItem(POST_AUTH_NEXT_KEY)).toBe("/aftrhrs?claim=1");
+    sessionStorage.removeItem(POST_AUTH_NEXT_KEY);
+    expect(peekPostAuthNext()).toBe("/aftrhrs?claim=1");
+    expect(consumePostAuthNext()).toBe("/aftrhrs?claim=1");
+    expect(peekPostAuthNext()).toBeNull();
+  });
+});
+
+afterEach(() => {
+  sessionStorage.removeItem(POST_AUTH_NEXT_KEY);
+  localStorage.removeItem(POST_AUTH_NEXT_KEY);
 });

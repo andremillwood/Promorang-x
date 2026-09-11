@@ -6,7 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { isConsumerPostAuthNext } from "@/lib/auth-roles";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
 import { flushMarketingIntent } from "@/lib/marketing-attribution";
-import { consumePostAuthNext, resolvePostAuthPath, roleFromNext } from "@/lib/post-auth-next";
+import { AFTRHRS_PATHS } from "@promorang/shared";
+import { hasAftrHrsClaimPending } from "@/lib/aftrhrs-claim";
+import { consumePostAuthNext, peekPostAuthNext, resolvePostAuthPath, roleFromNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 
 /**
@@ -18,11 +20,16 @@ export function PostLoginRouter() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading) return;
+    if (!user) {
+      navigate(peekPostAuthNext() || "/auth?mode=login", { replace: true });
+      return;
+    }
 
     const determineLandingPage = async () => {
       await flushMarketingIntent().catch(() => undefined);
-      const requestedNext = consumePostAuthNext();
+      const requestedNext = consumePostAuthNext()
+        || (hasAftrHrsClaimPending() ? AFTRHRS_PATHS.claimReturn : null);
       const intendedRole =
         readIntendedStakeholderRole(sessionStorage) ||
         roleFromNext(requestedNext);
