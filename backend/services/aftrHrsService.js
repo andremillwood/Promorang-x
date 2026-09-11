@@ -81,7 +81,8 @@ function needsAftrHrsFridayFaqs(faqs) {
     || faqs.some((faq) => /\b(20|30) Digital Free Passes\b/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
     || !faqs.some((faq) => String(faq?.answer || '').includes('11:30 PM'))
     || !faqs.some((faq) => /every friday/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
-    || !faqs.some((faq) => /signed up for Promorang/i.test(`${faq?.question || ''} ${faq?.answer || ''}`));
+    || !faqs.some((faq) => /signed up for Promorang/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
+    || !faqs.some((faq) => /kingston after dark/i.test(`${faq?.question || ''} ${faq?.answer || ''}`));
 }
 
 async function ensureAftrHrsMomentSchedule(edition) {

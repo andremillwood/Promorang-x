@@ -28,7 +28,11 @@ import {
   AFTRHRS_ADMIN_FUNNEL,
   isAftrHrsClaimReturn,
   isAftrHrsAuthIntent,
+  isAftrHrsDoorNight,
+  isAftrHrsSceneSlug,
+  presentNightlifeAimLabel,
   shouldResumeAftrHrsClaim,
+  shouldSendGuestToAftrHrsFromScene,
   nextParticipationState,
   publicRemainingPercent,
 } from "../src/aftrhrs";
@@ -233,6 +237,29 @@ describe("AftrHrs digital pass inventory", () => {
     expect(AFTRHRS_COPY.findPass).toMatch(/wallet/);
     expect(AFTRHRS_COPY.authBody).toMatch(/automatically/);
     expect(DEFAULT_AFTRHRS_FAQS.some((faq) => faq.question.includes("signed up for Promorang"))).toBe(true);
+    expect(DEFAULT_AFTRHRS_FAQS.some((faq) => faq.question.includes("Kingston After Dark"))).toBe(true);
+    expect(isAftrHrsSceneSlug("kingston-after-dark")).toBe(true);
+    expect(isAftrHrsSceneSlug("food-and-taste")).toBe(false);
+    expect(presentNightlifeAimLabel("Kingston After Dark")).toBe("Nightlife");
+    expect(presentNightlifeAimLabel("Food")).toBe("Food");
+    expect(AFTRHRS_COPY.sceneIsNotThePass).toMatch(/not tonight's door/);
+    expect(shouldSendGuestToAftrHrsFromScene({
+      slug: "kingston-after-dark",
+      authenticated: false,
+      now: new Date("2026-09-11T22:00:00-05:00"),
+    })).toBe(true);
+    expect(shouldSendGuestToAftrHrsFromScene({
+      slug: "kingston-after-dark",
+      authenticated: true,
+      now: new Date("2026-09-11T22:00:00-05:00"),
+    })).toBe(false);
+    expect(shouldSendGuestToAftrHrsFromScene({
+      slug: "kingston-after-dark",
+      authenticated: false,
+      now: new Date("2026-09-10T22:00:00-05:00"),
+    })).toBe(false);
+    expect(isAftrHrsDoorNight(new Date("2026-09-11T22:00:00-05:00"))).toBe(true);
+    expect(isAftrHrsDoorNight(new Date("2026-09-10T22:00:00-05:00"))).toBe(false);
     expect(evaluateDigitalPassClaim({
       edition,
       identity: {},

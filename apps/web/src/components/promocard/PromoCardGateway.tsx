@@ -2,10 +2,13 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, CheckCircle2, MapPin, Ticket, WalletCards } from "lucide-react";
 import {
+  AFTRHRS_COPY,
+  AFTRHRS_PATHS,
   aimedEmptyPresentation,
   canUseBenefit,
   emptyPromoBenefitPresentation,
   inferPromoCardAim,
+  presentNightlifeAimLabel,
   presentPromoBenefit,
   PROMOCARD_AIMS,
   promoCardAimPath,
@@ -19,6 +22,7 @@ import { useMyPromoCard, useNearbyBenefits } from "@/hooks/usePeopleExperience";
 import { useVisitorLocation } from "@/hooks/useVisitorLocation";
 import { ALL_CITY_HUBS } from "@/lib/city-hubs";
 import { resolveStoredPromoCardAim, writePromoCardAim } from "@/lib/promocard-aim";
+import { AftrHrsPublicDoorCard } from "@/components/aftrhrs/AftrHrsPublicDoorCard";
 import { PromoBenefitCard } from "@/components/promocard/PromoBenefitCard";
 
 function nearbyMarketLabel(visitorCity?: string | null) {
@@ -72,6 +76,9 @@ export function PromoCardGateway() {
           authenticated: Boolean(user),
           href: user ? "/card" : promoCardUnlockHref({ next: "/card" }),
         });
+  if (presented?.headline) {
+    presented.headline = String(presented.headline).replace("KINGSTON AFTER DARK", "NIGHTLIFE");
+  }
 
   const marketLabel = nearbyMarketLabel(visitorCity);
   const nearbyLabel = marketLabel
@@ -79,16 +86,16 @@ export function PromoCardGateway() {
     : "See What’s Available Nearby";
 
   const canUnlock = Boolean(aim || featured);
-  const primaryHref = user ? (claimed ? "/card" : promoCardAimPath(aim)) : unlockHref;
+  const guestDoorHref = AFTRHRS_PATHS.landing;
+  const primaryHref = user ? (claimed ? "/card" : promoCardAimPath(aim)) : guestDoorHref;
   const primaryLabel = user
     ? claimed
       ? presented?.ctaLabel || "View My PromoCard"
       : aim
         ? "Unlock this"
         : "View My PromoCard"
-    : canUnlock
-      ? "Unlock this"
-      : "Get My PromoCard";
+    : AFTRHRS_COPY.claimGuestCta;
+  const unlockLabel = canUnlock ? "Unlock this" : "Get My PromoCard";
 
   function chooseAim(next: PromoCardAim) {
     writePromoCardAim(next);
@@ -101,6 +108,7 @@ export function PromoCardGateway() {
     <section className="relative overflow-hidden border-b border-white/10 bg-[#070707] text-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(255,85,0,0.2),transparent_30%),radial-gradient(circle_at_18%_82%,rgba(214,178,90,0.12),transparent_32%)]" />
       <div className={`container relative px-5 pt-[5.25rem] sm:px-6 sm:pb-20 sm:pt-28 lg:pt-32 ${user ? "pb-10" : "pb-24"}`}>
+        <AftrHrsPublicDoorCard />
         <div className="grid items-center gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">PromoCard</p>
@@ -131,7 +139,7 @@ export function PromoCardGateway() {
                           : "border-white/15 bg-white/[0.04] text-white hover:border-amber-300/40 hover:bg-white/[0.08]"
                       }`}
                     >
-                      {item.label}
+                      {presentNightlifeAimLabel(item.label)}
                     </button>
                   );
                 })}
@@ -147,6 +155,14 @@ export function PromoCardGateway() {
                 {primaryLabel}
                 <ArrowRight className="h-4 w-4" />
               </Link>
+              {!user ? (
+                <Link
+                  to={unlockHref}
+                  className="hidden min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-sm font-bold text-white transition hover:border-primary/40 hover:bg-white/[0.08] active:scale-[0.98] sm:inline-flex"
+                >
+                  {unlockLabel}
+                </Link>
+              ) : null}
               <Link
                 to="/discover"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-sm font-bold text-white transition hover:border-primary/40 hover:bg-white/[0.08] active:scale-[0.98]"
@@ -216,7 +232,7 @@ export function PromoCardGateway() {
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-black text-white shadow-[0_12px_28px_rgba(255,85,0,0.28)] active:scale-[0.98]"
             >
               <WalletCards className="h-4 w-4" />
-              {canUnlock ? "Unlock this" : "Get My PromoCard"}
+              {primaryLabel}
             </Link>
             <Link
               to="/discover"

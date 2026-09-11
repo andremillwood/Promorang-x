@@ -30,6 +30,8 @@ describe("AftrHrs landing states", () => {
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/percentage|shown as|page reading|claim button|page counter/i);
     expect(JSON.stringify(AFTRHRS_COPY)).not.toMatch(/percentage|shown as/i);
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/Every Friday/);
+    expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/Kingston After Dark/);
+    expect(AFTRHRS_COPY.sceneIsNotThePass).toMatch(/not tonight's door/);
   });
 
   it("registers the landing snapshot so crawlers receive AftrHrs artwork", () => {

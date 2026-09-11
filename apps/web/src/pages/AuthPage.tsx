@@ -22,6 +22,8 @@ import {
   clearIntendedStakeholder,
   getStakeholderLens,
   isAftrHrsAuthIntent,
+  isAftrHrsDoorNight,
+  presentNightlifeAimLabel,
   rememberIntendedStakeholder,
   resolveIntendedStakeholderRole,
 } from "@promorang/shared";
@@ -93,7 +95,12 @@ const AuthPage = () => {
     fullName: z.string().min(2, t("auth.nameMin")).optional(),
   });
   const aftrHrsAuth = isAftrHrsAuthIntent(commercialIntent, nextPath);
-  const unlockAim = promoCardAimFromNext(nextPath);
+  const unlockAim = aftrHrsAuth ? null : promoCardAimFromNext(nextPath);
+  const unlockAimLabel = presentNightlifeAimLabel(unlockAim?.label);
+  const showAftrHrsDoorHint = !aftrHrsAuth && (
+    unlockAim?.id === "kingston-after-dark"
+    || (isAftrHrsDoorNight() && selectedRole === "participant" && !hostReturn && !commercialIntent)
+  );
   const localizedRoleInfo: Record<UserRole, { title: string; description: string }> = {
     participant: { title: t("auth.participant"), description: t("persona.explorerDesc") },
     creator: { title: t("auth.creator"), description: t("persona.creatorDesc") },
@@ -329,7 +336,7 @@ const AuthPage = () => {
                 ? t("auth.brandContinueCopy")
                 : hostReturn ? t("auth.hostReturnLogin") : t("auth.loginCopy")
               : unlockAim
-                ? t("auth.unlockAim", { aim: unlockAim.label })
+                ? t("auth.unlockAim", { aim: unlockAimLabel })
                 : selectedRole === "brand"
                   ? t("auth.brandContinueCopy")
                   : hostReturn
@@ -346,11 +353,23 @@ const AuthPage = () => {
               </p>
             </div>
           ) : null}
+          {showAftrHrsDoorHint ? (
+            <Link
+              to={AFTRHRS_PATHS.landing}
+              className="mb-6 block rounded-xl border border-fuchsia-300/40 bg-fuchsia-400/10 p-4"
+            >
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-fuchsia-700">AftrHrs</p>
+              <p className="mt-2 text-sm leading-6 text-[#4a433c]">{AFTRHRS_COPY.authSceneHint}</p>
+              <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-[#171512]">
+                {AFTRHRS_COPY.claimGuestCta} →
+              </p>
+            </Link>
+          ) : null}
           {unlockAim && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t("auth.unlockThis")}</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {unlockAim.cardLine} {t("auth.unlockWatch")}
+                {unlockAim.cardLine.replace("Kingston After Dark", "Nightlife")} {t("auth.unlockWatch")}
               </p>
             </div>
           )}
