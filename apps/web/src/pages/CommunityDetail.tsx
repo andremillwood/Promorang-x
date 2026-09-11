@@ -2,10 +2,10 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, CalendarDays, Compass, Heart, MapPin, Share2, Sparkles, Users } from "lucide-react";
 import {
   getSceneHumanState,
+  isAftrHrsDoorNight,
   isAftrHrsSceneSlug,
   presentContestLine,
   sceneLocation,
-  shouldSendGuestToAftrHrsFromScene,
 } from "@promorang/shared";
 import { AftrHrsPublicDoorCard } from "@/components/aftrhrs/AftrHrsPublicDoorCard";
 import SEO from "@/components/SEO";
@@ -29,8 +29,11 @@ export default function CommunityDetail() {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const joinScene = useJoinScene(query.data?.scene);
-  if (!authLoading && shouldSendGuestToAftrHrsFromScene({ slug, authenticated: Boolean(user) })) {
-    return <Navigate to="/aftrhrs" replace />;
+  if (isAftrHrsSceneSlug(slug) && isAftrHrsDoorNight()) {
+    if (authLoading) {
+      return <main className="grid min-h-screen place-items-center bg-black text-white"><div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" /></main>;
+    }
+    if (!user) return <Navigate to="/aftrhrs" replace />;
   }
   if (query.isLoading) return <main className="grid min-h-screen place-items-center bg-black text-white"><div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" /></main>;
   if (!query.data) return <main className="grid min-h-screen place-items-center bg-black px-6 text-center text-white"><div><Heart className="mx-auto h-9 w-9 text-primary"/><h1 className="mt-5 font-serif text-4xl font-bold">{t("sceneDetail.unavailable")}</h1><Link to="/scenes" className="mt-6 inline-flex items-center gap-2 text-primary"><ArrowLeft className="h-4 w-4"/>{t("sceneDetail.browse")}</Link></div></main>;
