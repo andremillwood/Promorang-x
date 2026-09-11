@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import {
-  benefitCtaLabel,
-  benefitScarcityLabel,
   presentBenefitDescription,
   presentBenefitHeadline,
   type PromoCardBenefit,
 } from "@promorang/shared";
+import { useI18n } from "@/i18n/I18nContext";
+import { localizedBenefitCta, localizedBenefitScarcity } from "@/i18n/localize";
 
 export type LivePerkLike = {
   id: string;
@@ -41,7 +41,7 @@ export function livePerkHref(perk: LivePerkLike, intent: "claim" | "share" = "cl
   return "/discover?tab=perks";
 }
 
-function asBenefit(perk: LivePerkLike): PromoCardBenefit {
+function asBenefit(perk: LivePerkLike, participatingPlace: string): PromoCardBenefit {
   const remaining = perk.availableQuantity ?? perk.remainingQuantity ?? null;
   return {
     id: perk.id,
@@ -53,7 +53,7 @@ function asBenefit(perk: LivePerkLike): PromoCardBenefit {
     issuer: {
       id: null,
       type: "merchant",
-      name: perk.issuer?.name || perk.merchantName || "Participating place",
+      name: perk.issuer?.name || perk.merchantName || participatingPlace,
     },
     eligibility: {
       who: "everyone",
@@ -89,20 +89,19 @@ export function LivePerkCard({
   perk: LivePerkLike;
   intent?: "claim" | "share";
 }) {
+  const { t, formatDate } = useI18n();
   const href = livePerkHref(perk, intent);
-  const benefit = asBenefit(perk);
+  const benefit = asBenefit(perk, t("perk.participatingPlace"));
   const headline = presentBenefitHeadline(benefit);
   const description = presentBenefitDescription(benefit);
   const issuer = benefit.issuer.name;
   const used = perk.redemption?.recorded || perk.fulfillmentState === "redeemed";
-  const scarcity = used ? undefined : benefitScarcityLabel(benefit);
-  const action = used
-    ? "Already used"
-    : perk.redemption?.code
-      ? "Redeem Benefit"
-      : intent === "share"
-        ? "Share this perk"
-        : benefitCtaLabel(benefit);
+  const scarcity = used ? undefined : localizedBenefitScarcity(benefit, t, formatDate);
+  const action = localizedBenefitCta(benefit, t, {
+    used,
+    hasCode: Boolean(perk.redemption?.code),
+    intent,
+  });
 
   return (
     <Link
@@ -112,14 +111,14 @@ export function LivePerkCard({
       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">{issuer}</p>
       <p className="mt-1 text-xs text-white/45">
         {perk.availability === "anywhere"
-          ? perk.locationLabel || "Anywhere"
-          : perk.locationLabel || "Near you"}
+          ? perk.locationLabel || t("discover.anywhere")
+          : perk.locationLabel || t("perk.nearYou")}
       </p>
       <h4 className="mt-2 font-serif text-2xl font-bold uppercase tracking-tight text-white">{headline}</h4>
       {description ? <p className="mt-2 text-sm text-white/55">{description}</p> : null}
       {scarcity || perk.sharedBy?.name ? (
         <p className="mt-4 text-xs text-white/45">
-          {[scarcity, perk.sharedBy?.name ? `Shared by ${perk.sharedBy.name}` : null].filter(Boolean).join(" · ")}
+          {[scarcity, perk.sharedBy?.name ? t("perk.sharedBy", { name: perk.sharedBy.name }) : null].filter(Boolean).join(" · ")}
         </p>
       ) : null}
       <p className="mt-4 text-sm font-black text-emerald-400">{action}</p>

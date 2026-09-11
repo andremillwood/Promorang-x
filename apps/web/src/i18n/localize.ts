@@ -1,5 +1,10 @@
-import type { InventoryNextAction, StakeholderLens, StakeholderNavRole } from "@promorang/shared";
-import { isPlaceholderDisplayName, journeyKindForFulfillment } from "@promorang/shared";
+import type { InventoryNextAction, PromoCardBenefit, StakeholderLens, StakeholderNavRole } from "@promorang/shared";
+import {
+  classifyBenefitType,
+  isPlaceholderDisplayName,
+  journeyKindForFulfillment,
+  presentBenefitHeadline,
+} from "@promorang/shared";
 import type { TranslationKey } from "./translations";
 
 type Translate = (key: TranslationKey, variables?: Record<string, string | number>) => string;
@@ -134,4 +139,58 @@ export function localizedInventoryNext(
     }
     return action;
   });
+}
+
+export function localizedBenefitCta(
+  benefit: PromoCardBenefit,
+  t: Translate,
+  options: { used?: boolean; hasCode?: boolean; intent?: "claim" | "share" } = {},
+): string {
+  if (options.used) return t("perk.alreadyUsed");
+  if (options.hasCode) return t("perk.redeem");
+  if (options.intent === "share") return t("perk.shareThis");
+  const type = classifyBenefitType(benefit);
+  const headline = presentBenefitHeadline(benefit);
+  if (type === "fixed_discount" || type === "percentage_discount") {
+    return t("perk.claimHeadline", { headline });
+  }
+  if (type === "free_item") {
+    return /free/i.test(headline) ? t("perk.getHeadline", { headline }) : t("perk.claimBenefit");
+  }
+  if (type === "access") return /entry/i.test(headline) ? t("perk.unlockEntry") : t("perk.unlockAccess");
+  if (type === "bundle") return t("perk.unlockOffer");
+  return t("perk.seeBenefit");
+}
+
+export function localizedBenefitScarcity(
+  benefit: Pick<PromoCardBenefit, "availableQuantity" | "eligibility" | "expiresAt">,
+  t: Translate,
+  formatDate: (value: Date | string | number, options?: Intl.DateTimeFormatOptions) => string,
+  now = Date.now(),
+): string | undefined {
+  const remaining = benefit.availableQuantity ?? benefit.eligibility?.remaining ?? null;
+  const parts: string[] = [];
+  if (remaining != null && remaining > 0) {
+    parts.push(
+      remaining <= 8
+        ? t("perk.onlyLeft", { count: remaining })
+        : t("perk.remainingCount", { count: remaining }),
+    );
+  }
+  if (benefit.expiresAt) {
+    const expiry = Date.parse(benefit.expiresAt);
+    if (Number.isFinite(expiry) && expiry > now) {
+      const startToday = new Date(now);
+      startToday.setHours(0, 0, 0, 0);
+      const startMs = startToday.getTime();
+      if (expiry < startMs + 86_400_000) {
+        parts.push(new Date(expiry).getHours() >= 17 ? t("perk.endsTonight") : t("perk.availableToday"));
+      } else if (expiry < startMs + 2 * 86_400_000) {
+        parts.push(t("perk.endsTomorrow"));
+      } else {
+        parts.push(t("perk.expires", { date: formatDate(expiry, { month: "short", day: "numeric" }) }));
+      }
+    }
+  }
+  return parts.length ? parts.join(" · ") : undefined;
 }
