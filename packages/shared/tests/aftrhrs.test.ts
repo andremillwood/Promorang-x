@@ -245,7 +245,11 @@ describe("AftrHrs digital pass inventory", () => {
     expect(hrefForSceneMoment({ id: AFTRHRS_MOMENT_ID })).toBe("/aftrhrs");
     expect(sceneMomentsWithAftrHrs("kingston-after-dark", [{ id: "other", title: "Other" }])[0].title).toBe("AftrHrs");
     expect(AFTRHRS_COPY.homepageHeroBody).toMatch(/Friday moment in Kingston After Dark/);
-    expect(AFTRHRS_COPY.sceneMomentLine).toMatch(/Kingston After Dark/);
+    expect(AFTRHRS_COPY.homepageHeroEyebrow).toBe("Friday night");
+    expect(AFTRHRS_COPY.sceneMomentLine).toMatch(/AftrHrs at Sea Deck/);
+    expect(AFTRHRS_COPY.sceneListBody).toMatch(/Friday moment in this scene/);
+    expect(AFTRHRS_COPY.sceneAsideBody).toMatch(/This is Kingston After Dark/);
+    expect(AFTRHRS_COPY.sceneFeaturedLine).toBe("AftrHrs at Sea Deck");
     expect(evaluateDigitalPassClaim({
       edition,
       identity: {},

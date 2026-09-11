@@ -23,7 +23,7 @@ afterEach(async () => {
 });
 
 describe("AftrHrsPublicDoorCard", () => {
-  it("opens the AftrHrs moment pass from the scene card", async () => {
+  it("opens the AftrHrs door pass without naming the scene as the event", async () => {
     await act(async () => {
       root.render(
         <MemoryRouter>
@@ -31,9 +31,11 @@ describe("AftrHrsPublicDoorCard", () => {
         </MemoryRouter>,
       );
     });
+    expect(container).toHaveTextContent("Friday night");
     expect(container).toHaveTextContent("AftrHrs");
     expect(container).toHaveTextContent("Get my AftrHrs pass");
     expect(container).toHaveTextContent("Friday moment in Kingston After Dark");
+    expect(container).not.toHaveTextContent("Kingston After Dark · Friday");
     expect(container.querySelector("a")?.getAttribute("href")).toBe("/aftrhrs");
   });
 });

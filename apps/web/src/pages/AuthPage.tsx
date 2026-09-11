@@ -95,9 +95,8 @@ const AuthPage = () => {
   });
   const aftrHrsAuth = isAftrHrsAuthIntent(commercialIntent, nextPath);
   const unlockAim = aftrHrsAuth ? null : promoCardAimFromNext(nextPath);
-  const showAftrHrsDoorHint = !aftrHrsAuth && (
-    unlockAim?.id === "kingston-after-dark"
-    || (isAftrHrsDoorNight() && selectedRole === "participant" && !hostReturn && !commercialIntent)
+  const showAftrHrsDoorHint = !aftrHrsAuth && !unlockAim && (
+    isAftrHrsDoorNight() && selectedRole === "participant" && !hostReturn && !commercialIntent
   );
   const localizedRoleInfo: Record<UserRole, { title: string; description: string }> = {
     participant: { title: t("auth.participant"), description: t("persona.explorerDesc") },

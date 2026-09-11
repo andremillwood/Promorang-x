@@ -33,6 +33,17 @@ describe("AftrHrs landing states", () => {
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/Kingston After Dark/);
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/inside that scene/);
     expect(AFTRHRS_COPY.homepageHeroBody).toMatch(/Friday moment in Kingston After Dark/);
+    expect(AFTRHRS_COPY.homepageHeroEyebrow).toBe("Friday night");
+    expect(AFTRHRS_COPY.sceneAsideBody).toMatch(/This is Kingston After Dark/);
+  });
+
+  it("keeps AftrHrs inside the Kingston After Dark scene page", () => {
+    const scenePage = readFileSync(resolve(__dirname, "./CommunityDetail.tsx"), "utf8");
+    expect(scenePage).not.toContain("AftrHrsPublicDoorCard");
+    expect(scenePage).toContain("sceneMomentsWithAftrHrs");
+    expect(scenePage).toContain("sceneFeaturedLine");
+    expect(scenePage).toContain("isAftrHrsMoment");
+    expect(scenePage).toContain("AFTRHRS_PATHS.landing");
   });
 
   it("registers the landing snapshot so crawlers receive AftrHrs artwork", () => {
