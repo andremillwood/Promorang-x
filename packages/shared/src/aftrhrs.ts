@@ -190,6 +190,134 @@ export function guestPassStatus(status?: string | null): string {
   return "Ready";
 }
 
+export function guestPassType(type?: string | null): string {
+  if (type === "digital-free") return "Digital free pass";
+  if (type === "physical-invitation") return "Physical invitation";
+  if (type === "paid") return "Paid entry";
+  if (type === "guest-list") return "On the guest list";
+  return "Pass";
+}
+
+export function adminPassStatus(status?: string | null): string {
+  if (status === "redeemed") return "Already used at the door";
+  if (status === "cancelled") return "Cancelled — they cannot get in with this";
+  if (status === "expired") return "Expired";
+  if (status === "transferred") return "Moved to someone else";
+  return "Ready for the door";
+}
+
+export function ambassadorInviteProgress(distributed?: number | null, allocation?: number | null): string {
+  const given = Math.max(0, Number(distributed) || 0);
+  const total = Math.max(0, Number(allocation) || 0);
+  const left = Math.max(0, total - given);
+  if (total === 0) return "No invitations assigned yet.";
+  if (given === 0) return `None of ${total} invitations given out yet.`;
+  if (left === 0) return `All ${total} invitations have been given out.`;
+  return `${given} of ${total} invitations given out · ${left} left`;
+}
+
+export type AftrHrsFaq = { question: string; answer: string };
+
+export function normalizeAftrHrsFaqs(value: unknown): AftrHrsFaq[] {
+  const source = typeof value === "string"
+    ? (() => {
+      try {
+        return JSON.parse(value) as unknown;
+      } catch {
+        return [];
+      }
+    })()
+    : value;
+  if (!Array.isArray(source)) return [];
+  return source
+    .map((item) => {
+      const row = item && typeof item === "object" ? item as Record<string, unknown> : {};
+      return {
+        question: String(row.question || "").trim(),
+        answer: String(row.answer || "").trim(),
+      };
+    })
+    .filter((item) => item.question || item.answer);
+}
+
+export function readAftrHrsAdminEdition(edition?: Record<string, unknown> | null) {
+  const row = edition || {};
+  const policies = (row.venue_policies || row.venuePolicies || {}) as Record<string, unknown>;
+  const pageMode = String(row.page_mode ?? row.pageMode ?? "live") === "post-event" ? "post-event" : "live";
+  return {
+    allocation: String(row.digital_allocation ?? row.digitalAllocation ?? ""),
+    claimsOpen: Boolean(row.claims_open ?? row.claimsOpen ?? true),
+    published: row.published !== false,
+    pageMode: pageMode as "live" | "post-event",
+    policy: String(policies.entry_policy ?? policies.entryPolicy ?? ""),
+    faqs: normalizeAftrHrsFaqs(row.faqs),
+  };
+}
+
+export const AFTRHRS_ADMIN_FUNNEL = [
+  { key: "landing_view", label: "Opened the page", hint: "People who looked at AftrHrs" },
+  { key: "moment_join", label: "Joined the night", hint: "People who said they want in" },
+  { key: "pass_secured", label: "Have a pass", hint: "Passes that can still be used" },
+  { key: "checked_in", label: "Checked in", hint: "Already scanned at the door" },
+] as const;
+
+export const AFTRHRS_ADMIN_COPY = {
+  loading: "Loading the AftrHrs night desk…",
+  accessTitle: "You need permission to run AftrHrs",
+  accessBody: "Only approved Promorang staff can change tonight’s passes, door rules, or guest list.",
+  eyebrow: "AftrHrs night desk",
+  title: "Run tonight",
+  remaining: (count: number) => (
+    count <= 0
+      ? "No free digital passes are left. Guests can still find an ambassador."
+      : count === 1
+        ? "1 free digital pass is still available for Sea Deck."
+        : `${count} free digital passes are still available for Sea Deck.`
+  ),
+  settingsTitle: "Tonight’s settings",
+  settingsHelp: "These controls change what guests see and whether they can still claim a free pass.",
+  allocationLabel: "How many free digital passes can people claim?",
+  allocationHelp: "This is the cap for this week. People already holding a pass keep it.",
+  claimsLabel: "People can still claim a free digital pass",
+  claimsHelp: "Turn this off to stop new claims. Existing passes stay valid.",
+  publishedLabel: "Show AftrHrs to the public",
+  publishedHelp: "When this is off, guests cannot open the night page.",
+  pageModeLabel: "What should guests see right now?",
+  pageModeLive: "Tonight is on — people can claim and check in",
+  pageModeAfter: "The night is over — show the after-night page",
+  policyLabel: "Door rules guests will read",
+  policyHelp: "Plain language for who can come in, what they need, and anything Sea Deck wants guests to know.",
+  policyPlaceholder: "Example: Arrive before 11:30 PM with your pass. Sea Deck may still turn people away if the room is full.",
+  faqsTitle: "Questions guests ask",
+  faqsHelp: "Write the question the way a guest would ask it, then the answer they should read.",
+  faqQuestion: "Question",
+  faqAnswer: "Answer",
+  faqQuestionPlaceholder: "When should I arrive?",
+  faqAnswerPlaceholder: "Before 11:30 PM to get in free.",
+  addFaq: "Add a question",
+  removeFaq: "Remove this question",
+  save: "Save tonight’s settings",
+  saved: "Saved. Guests will see the new settings.",
+  saveFailed: "Could not save tonight’s settings.",
+  guestListTitle: "Who has a pass",
+  guestListHelp: "Codes are for the door. The words tell you what kind of pass it is and whether it still works.",
+  downloadList: "Download guest list",
+  downloadHint: "A spreadsheet for the door team.",
+  emptyGuests: "Nobody has a pass yet.",
+  passCode: "Door code",
+  cancelPass: "Cancel this pass",
+  cancelConfirm: "Cancel this pass? They will not be able to use it at the door.",
+  restorePass: "Put this pass back on the list",
+  ambassadorsTitle: "Who is giving out invitations",
+  ambassadorsHelp: "Each ambassador has a handful of physical invitations to give in person.",
+  emptyAmbassadors: "No ambassadors are set up yet.",
+  doorCode: "Door code",
+  publicPage: "See what guests see",
+  doorPage: "Door check-in",
+  venuePage: "Sea Deck venue",
+  momentsAdmin: "All Moments",
+} as const;
+
 export type AftrHrsRecurrenceLike = {
   recurrence_enabled?: boolean | null;
   recurrence_frequency?: string | null;
