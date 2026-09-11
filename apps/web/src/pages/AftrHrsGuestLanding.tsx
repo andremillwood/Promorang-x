@@ -8,8 +8,11 @@ import {
   AFTRHRS_EVENT_SCHEDULE,
   AFTRHRS_OG_IMAGE,
   AFTRHRS_PATHS,
+  AFTRHRS_SCENE_PATH,
+  AFTRHRS_SCENE_TITLE,
   AFTRHRS_START_ISO,
   DEFAULT_AFTRHRS_GUEST_FAQS,
+  guestGoingLine,
   guestLaneCopy,
   type AftrHrsGuestKind,
 } from "@promorang/shared";
@@ -60,7 +63,7 @@ function LaneMeter({
 }
 
 export default function AftrHrsGuestLanding() {
-  const { edition, guest, rsvp } = useAftrHrsGuest();
+  const { edition, guest, rsvp, communityCount } = useAftrHrsGuest();
   const [kind, setKind] = useState<AftrHrsGuestKind>("rsvp");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -115,6 +118,7 @@ export default function AftrHrsGuestLanding() {
 
   const selectedCopy = kind === "rsvp" ? rsvpCopy : passCopy;
   const bothClosed = rsvpCopy.mood === "closed" && passCopy.mood === "closed";
+  const goingLine = guestGoingLine(communityCount);
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -145,12 +149,21 @@ export default function AftrHrsGuestLanding() {
         <img src={edition.artwork.flyer || "/campaigns/aftrhrs/flyer.jpg"} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(192,38,211,0.28),transparent_45%),linear-gradient(180deg,rgba(0,0,0,0.2),#000)]" />
         <section className="relative z-10 mx-auto max-w-3xl px-4 pb-16 pt-12">
-          <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-fuchsia-200">Kingston After Dark</p>
+          <Link to={AFTRHRS_SCENE_PATH} className="text-[11px] font-bold uppercase tracking-[0.28em] text-fuchsia-200">
+            {AFTRHRS_SCENE_TITLE}
+          </Link>
           <h1 className="mt-4 max-w-xl font-sans text-5xl font-black uppercase leading-[0.88] tracking-[-0.06em] sm:text-6xl">
             {AFTRHRS_COPY.guestLandingHeadline}
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-white/70">{AFTRHRS_COPY.guestLandingLead}</p>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-white/55">{AFTRHRS_COPY.guestMomentLine}</p>
+          {goingLine ? (
+            <p className="mt-3 text-sm font-bold uppercase tracking-[0.14em] text-fuchsia-200">{goingLine}</p>
+          ) : null}
           <p className="mt-4 text-sm font-bold uppercase tracking-[0.14em] text-cyan-200">{AFTRHRS_COPY.arrivalRule}</p>
+          <Link to={AFTRHRS_PATHS.moment} className="mt-5 inline-flex text-xs font-black uppercase tracking-[0.16em] text-white/70 underline-offset-4 hover:text-white hover:underline">
+            {AFTRHRS_COPY.guestMomentCta}
+          </Link>
         </section>
       </div>
 
@@ -167,6 +180,9 @@ export default function AftrHrsGuestLanding() {
               </Link>
             ) : null}
             <p className="mt-6 text-sm leading-6 text-white/55">{AFTRHRS_COPY.guestUpsell}</p>
+            <Link to={AFTRHRS_PATHS.moment} className="mt-4 inline-flex text-xs font-black uppercase tracking-[0.16em] text-cyan-200 underline-offset-4 hover:underline">
+              {AFTRHRS_COPY.guestMomentCta}
+            </Link>
           </div>
         ) : (
           <>

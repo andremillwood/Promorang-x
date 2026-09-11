@@ -217,6 +217,13 @@ export function aftrHrsTicketPath(code?: string | null): string {
   return unique ? `${AFTRHRS_PATHS.ticket}/${encodeURIComponent(unique)}` : AFTRHRS_PATHS.ticket;
 }
 
+export function guestGoingLine(count?: number | null): string | null {
+  const going = Number(count || 0);
+  if (going < 1) return null;
+  if (going === 1) return AFTRHRS_COPY.guestGoingOne;
+  return AFTRHRS_COPY.guestGoingMany.replace("{count}", String(going));
+}
+
 export function aftrHrsMonthKey(now: Date | string | number = new Date()): string {
   return jamaicaDateParts(parseAftrHrsTime(now)).ymd.slice(0, 7);
 }
@@ -810,10 +817,14 @@ export const AFTRHRS_COPY = {
   guestDigitalCta: "Get the digital pass",
   guestLandingHeadline: "AftrHrs at Sea Deck",
   guestLandingLead:
-    "House on Friday. Put your name on the list — no Promorang account. Or hold a digital pass, like a physical invite, for the month.",
+    "House on Friday — the AftrHrs Moment in Kingston After Dark. Put your name on the list — no Promorang account. Or hold a digital pass, like a physical invite, for the month.",
+  guestMomentLine: "This Friday still lives in PROMORANG. Your RSVP counts as going on the AftrHrs Moment.",
+  guestMomentCta: "Open the AftrHrs Moment",
+  guestGoingOne: "1 already going",
+  guestGoingMany: "{count} already going",
   guestSuccessRsvp: "You are on this Friday’s list. Give your name at the door before 11:30 PM.",
   guestSuccessPass: "Your digital pass is on the way. Open the email for your door code — it covers the month.",
-  guestUpsell: "Want the rest of the night around this? PROMORANG is where the scene lives — later, not now.",
+  guestUpsell: "Want the rest of Kingston After Dark? The AftrHrs Moment is still in PROMORANG when you are ready.",
   guestTerms: "I understand free entry is before 11:30 PM and Sea Deck can still turn people away if the room is full.",
   guestNameLabel: "Name",
   guestEmailLabel: "Email",
@@ -941,11 +952,11 @@ export const DEFAULT_AFTRHRS_FAQS = [
 export const DEFAULT_AFTRHRS_GUEST_FAQS = [
   {
     question: "Do I need a Promorang account?",
-    answer: "No. This page is only the AftrHrs list. Name, email, and telephone are enough.",
+    answer: "No. This page is only the AftrHrs list. Name, email, and telephone are enough. Your RSVP still counts as going on the AftrHrs Moment.",
   },
   {
     question: "What is a Friday RSVP?",
-    answer: "You are on this Friday’s door list. Give your name when you arrive before 11:30 PM.",
+    answer: "You are on this Friday’s door list and on the AftrHrs Moment. Give your name when you arrive before 11:30 PM.",
   },
   {
     question: "What is the digital pass?",

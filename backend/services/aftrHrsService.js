@@ -315,10 +315,7 @@ async function publicSnapshot(userId) {
     followingVenue = Boolean(follow?.id);
   }
 
-  const { count: communityCount } = await supabase
-    .from('event_moment_participations')
-    .select('id', { count: 'exact', head: true })
-    .eq('event_id', edition.moment_id);
+  const communityCount = await countMomentGoing(edition.moment_id);
 
   const publicEdition = { ...edition };
   const allocation = Number(edition.digital_allocation || 0);
@@ -442,11 +439,13 @@ async function guestRsvp(body = {}) {
   })).catch((error) => ({ data: null, error }));
 
   if (!rpc.error && rpc.data) {
+    const code = rpc.data.entry?.unique_code || rpc.data.entry?.uniqueCode;
+    await attachGuestToMoment({ name, email, phone: body.phone || phone, code, kind });
     await sendGuestLandingEmail({
       name,
       email,
       kind,
-      code: rpc.data.entry?.unique_code || rpc.data.entry?.uniqueCode,
+      code,
       locale: body.locale,
     });
     await track(kind === 'digital-pass' ? 'guest_digital_pass' : 'guest_rsvp', {
@@ -562,11 +561,71 @@ async function guestRsvpFallback({ kind, name, email, phone, locale, source, cam
       updated_at: new Date().toISOString(),
     }).eq('id', release.id);
   }
+  await attachGuestToMoment({ name, email, phone, code: uniqueCode, kind });
   await sendGuestLandingEmail({ name, email, kind, code: uniqueCode, locale });
   await track(kind === 'digital-pass' ? 'guest_digital_pass' : 'guest_rsvp', {
     properties: { entry_id: data.id, kind },
   });
   return publicGuestResult(data, kind);
+}
+
+async function countMomentGoing(momentId = AFTRHRS_MOMENT_ID) {
+  const going = await Promise.resolve(supabase.rpc('moment_going_count', {
+    p_moment_id: momentId || AFTRHRS_MOMENT_ID,
+  })).catch((error) => ({ data: null, error }));
+  const counted = Number(going.data);
+  if (!going.error && Number.isFinite(counted)) return counted;
+
+  const [{ count: accountCount }, { count: guestCount }] = await Promise.all([
+    supabase
+      .from('event_moment_participations')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', momentId || AFTRHRS_MOMENT_ID),
+    supabase
+      .from('guest_moment_rsvps')
+      .select('id', { count: 'exact', head: true })
+      .eq('moment_id', momentId || AFTRHRS_MOMENT_ID)
+      .in('status', ['confirmed', 'checked_in']),
+  ]);
+  return (accountCount || 0) + (guestCount || 0);
+}
+
+async function attachGuestToMoment({ name, email, phone, code, kind }) {
+  if (!code || !name) return null;
+  const payload = {
+    p_name: name,
+    p_email: email || null,
+    p_phone: String(phone || ''),
+    p_code: String(code).toUpperCase(),
+    p_kind: kind || 'rsvp',
+    p_moment_id: AFTRHRS_MOMENT_ID,
+  };
+  const rpc = await Promise.resolve(supabase.rpc('aftrhrs_attach_guest_to_moment', payload))
+    .catch((error) => ({ data: null, error }));
+  if (!rpc.error) return rpc.data || true;
+  if (!/function|does not exist|schema cache/i.test(String(rpc.error.message || ''))) {
+    if (!/duplicate|unique|23505/i.test(String(rpc.error.message || ''))) {
+      console.warn('[AftrHrs] moment attach skipped:', rpc.error.message);
+    }
+    return null;
+  }
+
+  const { error } = await supabase.from('guest_moment_rsvps').insert({
+    moment_id: AFTRHRS_MOMENT_ID,
+    full_name: name,
+    mobile: String(phone || '').replace(/\D/g, '').slice(0, 40) || '0000000',
+    email: email || null,
+    guest_count: 1,
+    status: 'confirmed',
+    pass_code: String(code).toUpperCase(),
+    consent_email: true,
+    schedule_snapshot: { source: 'aftrhrs_guest', kind: kind || 'rsvp' },
+  });
+  if (error && error.code !== '23505' && !/duplicate|unique/i.test(error.message || '')) {
+    console.warn('[AftrHrs] moment attach skipped:', error.message);
+    return null;
+  }
+  return true;
 }
 
 async function sendGuestLandingEmail({ name, email, kind, code, locale }) {
@@ -1126,6 +1185,8 @@ module.exports = {
   AFTRHRS_MOMENT_ID,
   publicSnapshot,
   guestRsvp,
+  attachGuestToMoment,
+  countMomentGoing,
   publicTicket,
   adminDigitalRelease,
   track,

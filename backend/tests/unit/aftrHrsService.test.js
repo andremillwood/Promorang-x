@@ -187,6 +187,83 @@ test('guest RSVP is captured without a Promorang account', async () => {
   );
 });
 
+test('guest RSVP is mirrored onto the AftrHrs Moment going list', async () => {
+  mockRpc.mockImplementation((name) => {
+    if (name === 'aftrhrs_guest_rsvp') {
+      return Promise.resolve({
+        data: { entry: { id: 'g1', unique_code: 'AH-GUEST001', full_name: 'Ada Hall', kind: 'rsvp' }, kind: 'rsvp', remaining: 29 },
+        error: null,
+      });
+    }
+    if (name === 'aftrhrs_attach_guest_to_moment') {
+      return Promise.resolve({ data: 'moment-rsvp-1', error: null });
+    }
+    return Promise.resolve({ data: null, error: null });
+  });
+
+  await service.guestRsvp({
+    name: 'Ada Hall',
+    email: 'ada@example.com',
+    phone: '8765550101',
+    kind: 'rsvp',
+    termsAccepted: true,
+  });
+
+  expect(mockRpc).toHaveBeenCalledWith('aftrhrs_attach_guest_to_moment', expect.objectContaining({
+    p_code: 'AH-GUEST001',
+    p_name: 'Ada Hall',
+    p_email: 'ada@example.com',
+    p_kind: 'rsvp',
+  }));
+});
+
+test('guest RSVP writes guest_moment_rsvps when the attach RPC is missing', async () => {
+  const inserts = [];
+  mockRpc.mockImplementation((name) => {
+    if (name === 'aftrhrs_guest_rsvp') {
+      return Promise.resolve({
+        data: { entry: { id: 'g1', unique_code: 'AH-GUEST001', full_name: 'Ada Hall', kind: 'rsvp' }, kind: 'rsvp' },
+        error: null,
+      });
+    }
+    return Promise.reject(new Error('function aftrhrs_attach_guest_to_moment does not exist'));
+  });
+  mockFrom.mockImplementation((name) => {
+    const chain = table({ data: name === 'guest_moment_rsvps' ? { id: 'm1' } : null, error: null });
+    chain.insert = (row) => {
+      inserts.push({ name, row });
+      return chain;
+    };
+    return chain;
+  });
+
+  await service.guestRsvp({
+    name: 'Ada Hall',
+    email: 'ada@example.com',
+    phone: '8765550101',
+    kind: 'rsvp',
+    termsAccepted: true,
+  });
+
+  expect(inserts.some((item) => item.name === 'guest_moment_rsvps' && item.row.pass_code === 'AH-GUEST001')).toBe(true);
+});
+
+test('moment going count includes guest RSVPs when the RPC is missing', async () => {
+  mockRpc.mockRejectedValue(new Error('function moment_going_count does not exist'));
+  mockFrom.mockImplementation((name) => {
+    const result = {
+      data: null,
+      error: null,
+      count: name === 'event_moment_participations' ? 4 : name === 'guest_moment_rsvps' ? 7 : 0,
+    };
+    const chain = table(result);
+    chain.then = (resolve, reject) => Promise.resolve(result).then(resolve, reject);
+    return chain;
+  });
+
+  await expect(service.countMomentGoing('00000000-0000-0000-0002-000000000080')).resolves.toBe(11);
+});
+
 test('unauthenticated claimers are rejected before any write', async () => {
   await expect(service.claimDigitalPass(null, { termsAccepted: true }))
     .rejects.toMatchObject({ status: 401, code: 'unauthenticated' });

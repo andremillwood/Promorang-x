@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { applyEncoreSchedule } from "@promorang/shared";
+import { fetchMomentGoingCount } from "@/lib/moment-going";
 
 export interface ExploreMoment {
   id: string;
@@ -88,10 +89,7 @@ export function useExploreMoments(filters?: ExploreMomentFilters) {
 
       const momentsWithCounts = await Promise.all(
         (data || []).map(async (moment) => {
-          const { count } = await supabase
-            .from("moment_participants")
-            .select("*", { count: "exact", head: true })
-            .eq("moment_id", moment.id);
+          const count = await fetchMomentGoingCount(supabase, moment.id);
 
           return applyEncoreSchedule({
             ...moment,

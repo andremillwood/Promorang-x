@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { FollowButton } from "@/components/FollowButton";
 import { cultureImages } from "@/data/culture-demo";
 import { useI18n } from "@/i18n/I18nContext";
+import { fetchMomentGoingCount } from "@/lib/moment-going";
 
 interface FollowingUser {
     id: string;
@@ -131,10 +132,7 @@ const Following = () => {
                 // 5. Get participant counts for each moment
                 const momentsWithCounts = await Promise.all(
                     (momentsData || []).map(async (m: any) => {
-                        const { count } = await supabase
-                            .from('moment_participants')
-                            .select('*', { count: 'exact', head: true })
-                            .eq('moment_id', m.id);
+                        const count = await fetchMomentGoingCount(supabase, m.id);
 
                         return {
                             id: m.id,

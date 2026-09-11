@@ -19,7 +19,12 @@ describe("AftrHrs guest landing", () => {
     expect(landing).toContain("AFTRHRS_COPY.guestNameLabel");
     expect(landing).toContain("AFTRHRS_COPY.guestEmailLabel");
     expect(landing).toContain("AFTRHRS_COPY.guestPhoneLabel");
+    expect(landing).toContain("AFTRHRS_PATHS.moment");
+    expect(landing).toContain("guestGoingLine");
+    expect(landing).toContain("communityCount");
     expect(JSON.stringify(AFTRHRS_COPY.guestLandingLead)).not.toMatch(/30 RSVP|30 spots|\b50\b/i);
+    expect(AFTRHRS_COPY.guestMomentLine).toMatch(/PROMORANG/);
+    expect(AFTRHRS_COPY.guestMomentLine).toMatch(/going/);
     expect(JSON.stringify(DEFAULT_AFTRHRS_GUEST_FAQS)).not.toMatch(/30 RSVP|30 spots|\b50\b/i);
     expect(DEFAULT_AFTRHRS_GUEST_FAQS[0].answer).toMatch(/No/);
     expect(guestLaneCopy("rsvp", 90, false).cta).toBe(AFTRHRS_COPY.guestRsvpCta);

@@ -28,6 +28,7 @@ import { demoMoments } from "@/data/demo-moments";
 import { cultureEvents } from "@/data/culture-demo";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { applyEncoreSchedule, ENCORE_END_ISO, ENCORE_RECURRENCE, ENCORE_START_ISO, isEncoreRecord, isEncoreSlug } from "@promorang/shared";
+import { fetchMomentGoingCount } from "@/lib/moment-going";
 import { getCuratedDiscoveryBySlug } from "@/data/discoveriesData";
 import { getSubMomentsForMoment } from "@/components/radar/MomentDetailModal";
 import type { MomentProps } from "@/components/radar/MomentCard";
@@ -391,12 +392,7 @@ const MomentDetail = () => {
       // Safe loading of secondary metadata
       if (momentData.id && UUID_PATTERN.test(momentData.id)) {
         try {
-          const { count } = await supabase
-            .from("moment_participants")
-            .select("*", { count: "exact", head: true })
-            .eq("moment_id", momentData.id);
-
-          setParticipantCount(count || 0);
+          setParticipantCount(await fetchMomentGoingCount(supabase, momentData.id));
         } catch {
           // Ignore count error
         }

@@ -8,6 +8,7 @@ import { demoMoments } from "@/data/demo-moments";
 import heroImage from "@/assets/hero-moments.jpg";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import { getSafeMediaUrl } from "@/lib/utils";
+import { fetchMomentGoingCount } from "@/lib/moment-going";
 
 
 const heroMarks = [
@@ -132,15 +133,9 @@ const Hero = () => {
       const participantCounts = new Map<string, number>();
 
       if (moments.length > 0) {
-        const { data: participantRows, error: participantError } = await supabase
-          .from("moment_participants")
-          .select("moment_id");
-
-        if (participantError) throw participantError;
-
-        for (const row of participantRows || []) {
-          participantCounts.set(row.moment_id, (participantCounts.get(row.moment_id) || 0) + 1);
-        }
+        await Promise.all(moments.map(async (moment: { id: string }) => {
+          participantCounts.set(moment.id, await fetchMomentGoingCount(supabase, moment.id));
+        }));
       }
 
       return moments.map((moment: any): HeroSlide => {

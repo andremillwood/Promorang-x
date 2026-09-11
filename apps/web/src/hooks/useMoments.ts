@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { fetchMomentGoingCount } from "@/lib/moment-going";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -88,13 +89,7 @@ export function useParticipantCount(momentId: string) {
   return useQuery({
     queryKey: ["participant-count", momentId],
     queryFn: async () => {
-      const { count, error } = await supabase
-        .from("moment_participants")
-        .select("*", { count: "exact", head: true })
-        .eq("moment_id", momentId);
-
-      if (error) throw error;
-      return count || 0;
+      return fetchMomentGoingCount(supabase, momentId);
     },
   });
 }

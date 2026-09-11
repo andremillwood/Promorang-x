@@ -23,6 +23,7 @@ import {
   evaluateDigitalPassClaim,
   evaluateGuestEntry,
   formatPublicRemainingLabel,
+  guestGoingLine,
   guestLaneCopy,
   remainingCapacityMood,
   guestPassStatus,
@@ -308,6 +309,11 @@ describe("AftrHrs digital pass inventory", () => {
     expect(AFTRHRS_COPY.homepageHeroBody).toMatch(/no account/);
     expect(AFTRHRS_COPY.sceneCta).toBe("RSVP for Friday");
     expect(AFTRHRS_COPY.guestRsvpCta).toBe("RSVP for Friday");
+    expect(guestGoingLine(0)).toBeNull();
+    expect(guestGoingLine(1)).toBe("1 already going");
+    expect(guestGoingLine(12)).toBe("12 already going");
+    expect(AFTRHRS_COPY.guestMomentLine).toMatch(/PROMORANG/);
+    expect(AFTRHRS_COPY.guestMomentLine).toMatch(/going/);
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/30 digital|30 RSVP|30 passes|only 30/i);
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/\b50\b/);
     expect(AFTRHRS_COPY.homepageHeroEyebrow).toBe("Friday night");

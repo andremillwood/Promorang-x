@@ -375,6 +375,7 @@ export function useAftrHrsGuest() {
     ...snapshot,
     edition: snapshot.data?.edition || AFTRHRS_FALLBACK.edition,
     guest,
+    communityCount: snapshot.data?.communityCount || 0,
     rsvp,
   };
 }
