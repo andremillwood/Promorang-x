@@ -32,6 +32,7 @@ describe("AftrHrs landing states", () => {
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/Every Friday/);
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/Kingston After Dark/);
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/inside that scene/);
+    expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/claim again next week/i)
     expect(AFTRHRS_COPY.homepageHeroBody).toMatch(/Friday moment in Kingston After Dark/);
     expect(AFTRHRS_COPY.homepageHeroEyebrow).toBe("Friday night");
     expect(AFTRHRS_COPY.sceneAsideBody).toMatch(/This is Kingston After Dark/);

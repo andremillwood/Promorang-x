@@ -12,7 +12,7 @@ jest.mock('../../services/resendService', () => ({
 }));
 
 const service = require('../../services/aftrHrsService');
-const { AFTRHRS_CLAIM_ERRORS } = require('../../lib/aftrHrsRules');
+const { AFTRHRS_CLAIM_ERRORS, aftrHrsClaimFriday } = require('../../lib/aftrHrsRules');
 
 function table(result) {
   const chain = {
@@ -35,6 +35,13 @@ function table(result) {
 beforeEach(() => {
   jest.clearAllMocks();
   mockFrom.mockImplementation(() => table({ data: null, error: null, count: 0 }));
+});
+
+test('claim Friday stays tonight until Saturday 6am Jamaica, then opens next week', () => {
+  expect(aftrHrsClaimFriday(new Date('2026-09-11T21:00:00-05:00'))).toBe('2026-09-11');
+  expect(aftrHrsClaimFriday(new Date('2026-09-12T05:59:00-05:00'))).toBe('2026-09-11');
+  expect(aftrHrsClaimFriday(new Date('2026-09-12T06:00:00-05:00'))).toBe('2026-09-18');
+  expect(aftrHrsClaimFriday(new Date('2026-09-16T10:00:00-05:00'))).toBe('2026-09-18');
 });
 
 test('unauthorized users cannot open administrative controls', async () => {
@@ -94,6 +101,7 @@ test('public read enables weekly Friday recurrence and keeps claims open', async
     venue_id: '00000000-0000-0000-0003-000000000080',
     digital_allocation: 30,
     digital_claimed: 2,
+    week_friday: '2026-09-11',
     claim_closes_at: '2026-09-11T22:00:00-05:00',
     claims_open: true,
     faqs: [{ question: 'Where is Sea Deck?', answer: 'Orchid Village, 20 Barbican Road, Kingston.' }],

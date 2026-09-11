@@ -10,6 +10,8 @@ import {
   DEFAULT_AFTRHRS_FAQS,
   SEA_DECK_VENUE_ID,
   hasAftrHrsFridayRecurrence,
+  aftrHrsClaimFriday,
+  aftrHrsEditionSlug,
   aftrHrsDigitalReleaseView,
   authPathForAftrHrsClaim,
   authPathForAftrHrsPass,
@@ -177,6 +179,57 @@ describe("AftrHrs digital pass inventory", () => {
       now: "2026-09-18T21:00:00-05:00",
     });
     expect(result.ok).toBe(true);
+  });
+
+  it("opens a new Friday edition, expires unused passes, and lets guests claim again", async () => {
+    const store = createAftrHrsInventory();
+    const first = await store.claimDigitalPass({
+      userId: "return-guest",
+      email: "return@promorang.co",
+      authenticated: true,
+      termsAccepted: true,
+      now: "2026-09-11T21:00:00-05:00",
+    });
+    expect(first.ok).toBe(true);
+    if (first.ok) expect(first.pass.weekFriday).toBe("2026-09-11");
+
+    const stillTonight = await store.redeemPass(first.ok ? first.pass.uniqueCode : "", "2026-09-12T05:30:00-05:00");
+    expect(stillTonight.ok).toBe(true);
+
+    const nextWeek = await store.claimDigitalPass({
+      userId: "return-guest",
+      email: "return@promorang.co",
+      authenticated: true,
+      termsAccepted: true,
+      now: "2026-09-12T06:00:00-05:00",
+    });
+    expect(nextWeek.ok).toBe(true);
+    if (nextWeek.ok) {
+      expect(nextWeek.pass.weekFriday).toBe("2026-09-18");
+      expect(nextWeek.remaining).toBe(AFTRHRS_DIGITAL_PASS_LIMIT - 1);
+    }
+    expect(store.snapshot().edition.weekFriday).toBe("2026-09-18");
+    expect(store.snapshot().edition.digitalClaimed).toBe(1);
+    expect(store.snapshot().passes.filter((pass) => pass.status === "expired")).toHaveLength(0);
+
+    const unused = await store.claimDigitalPass({
+      userId: "no-show",
+      email: "noshow@promorang.co",
+      authenticated: true,
+      termsAccepted: true,
+      now: "2026-09-18T12:00:00-05:00",
+    });
+    expect(unused.ok).toBe(true);
+    const afterNight = await store.redeemPass(unused.ok ? unused.pass.uniqueCode : "", "2026-09-19T06:00:00-05:00");
+    expect(afterNight.ok).toBe(false);
+    if (!afterNight.ok) expect(afterNight.code).toBe("not_redeemable");
+    expect(store.snapshot().passes.find((pass) => pass.userId === "no-show")?.status).toBe("expired");
+    expect(aftrHrsClaimFriday("2026-09-11T21:00:00-05:00")).toBe("2026-09-11");
+    expect(aftrHrsClaimFriday("2026-09-12T05:59:00-05:00")).toBe("2026-09-11");
+    expect(aftrHrsClaimFriday("2026-09-12T06:00:00-05:00")).toBe("2026-09-18");
+    expect(aftrHrsClaimFriday("2026-09-14T12:00:00-05:00")).toBe("2026-09-18");
+    expect(aftrHrsEditionSlug("2026-09-11")).toBe("aftrhrs");
+    expect(aftrHrsEditionSlug("2026-09-18")).toBe("aftrhrs-2026-09-18");
   });
 
   it("closes claims after the configured deadline", async () => {

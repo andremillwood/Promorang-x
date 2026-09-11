@@ -17,8 +17,8 @@ const AFTRHRS_PATHS = {
 
 const AFTRHRS_CLAIM_ERRORS = {
   unauthenticated: 'Sign in to claim a Digital Free Pass.',
-  already_claimed: 'This account already holds an AftrHrs Digital Free Pass.',
-  identity_claimed: 'A Digital Free Pass is already attached to this verified email or telephone number.',
+  already_claimed: 'This account already holds this Friday’s AftrHrs Digital Free Pass.',
+  identity_claimed: 'A Digital Free Pass for this Friday is already attached to this verified email or telephone number.',
   sold_out: 'The digital free release has been secured.',
   closed: 'Digital Free Pass claims are closed.',
   unpublished: 'AftrHrs is not currently published.',
@@ -42,6 +42,8 @@ const AFTRHRS_ADMIN_EMAILS = ['admin@promorang.co', 'andre@promorang.co'];
 const AFTRHRS_DIGITAL_PASS_LIMIT = 30;
 const AFTRHRS_TIMEZONE = 'America/Jamaica';
 const AFTRHRS_START_ISO = '2026-09-11T22:00:00-05:00';
+const AFTRHRS_FIRST_FRIDAY = '2026-09-11';
+const AFTRHRS_WEEK_ROLLOVER_HOUR = 6;
 const AFTRHRS_WEEKDAY = 5;
 const AFTRHRS_RECURRENCE = {
   recurrence_enabled: true,
@@ -66,8 +68,46 @@ const DEFAULT_AFTRHRS_FAQS = [
   { question: 'What is Kingston After Dark?', answer: 'Kingston After Dark is the nightlife scene. AftrHrs is the Friday moment at Sea Deck inside that scene. Get the door pass on /aftrhrs.' },
   { question: 'How will my Digital Free Pass be verified?', answer: 'Present the unique QR code from your AftrHrs pass at Sea Deck. Open it from /aftrhrs/pass or the top of your wallet. Staff scan it once. A redeemed pass cannot be scanned again.' },
   { question: 'Can I transfer my pass?', answer: 'Each Digital Free Pass is for one person and cannot be transferred.' },
+  { question: 'Is my pass good every Friday?', answer: 'No. Each Digital Free Pass is for that Friday only. Unused passes expire after the night. Claim again next week — the 30 digital passes reset every Saturday morning.' },
   { question: 'What happens if the venue reaches capacity?', answer: 'Admission remains subject to venue capacity and Sea Deck entry policies even with a valid pass or invitation.' },
 ];
+
+function jamaicaDateParts(now = new Date()) {
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: AFTRHRS_TIMEZONE,
+    weekday: 'short',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    hourCycle: 'h23',
+  });
+  const parts = Object.fromEntries(formatter.formatToParts(now).map((part) => [part.type, part.value]));
+  const weekdays = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  return {
+    ymd: `${parts.year}-${parts.month}-${parts.day}`,
+    weekday: weekdays[parts.weekday] ?? now.getDay(),
+    hour: Number(parts.hour),
+  };
+}
+
+function addAftrHrsCalendarDays(ymd, days) {
+  const [year, month, day] = ymd.split('-').map(Number);
+  const utc = new Date(Date.UTC(year, month - 1, day + days));
+  return utc.toISOString().slice(0, 10);
+}
+
+function aftrHrsClaimFriday(now = new Date()) {
+  const parts = jamaicaDateParts(now instanceof Date ? now : new Date(now));
+  if (parts.weekday === 6 && parts.hour < AFTRHRS_WEEK_ROLLOVER_HOUR) return addAftrHrsCalendarDays(parts.ymd, -1);
+  if (parts.weekday === AFTRHRS_WEEKDAY) return parts.ymd;
+  if (parts.weekday === 6) return addAftrHrsCalendarDays(parts.ymd, 6);
+  return addAftrHrsCalendarDays(parts.ymd, AFTRHRS_WEEKDAY - parts.weekday);
+}
+
+function aftrHrsEditionSlug(weekFriday) {
+  return weekFriday === AFTRHRS_FIRST_FRIDAY ? AFTRHRS_MOMENT_SLUG : `${AFTRHRS_MOMENT_SLUG}-${weekFriday}`;
+}
 
 function hasAftrHrsFridayRecurrence(moment) {
   if (!moment || !moment.recurrence_enabled) return false;
@@ -118,9 +158,13 @@ module.exports = {
   AFTRHRS_DIGITAL_PASS_LIMIT,
   AFTRHRS_TIMEZONE,
   AFTRHRS_START_ISO,
+  AFTRHRS_FIRST_FRIDAY,
+  AFTRHRS_WEEK_ROLLOVER_HOUR,
   AFTRHRS_WEEKDAY,
   AFTRHRS_RECURRENCE,
   DEFAULT_AFTRHRS_FAQS,
+  aftrHrsClaimFriday,
+  aftrHrsEditionSlug,
   remainingDigitalPasses,
   publicRemainingPercent,
   hasAftrHrsFridayRecurrence,

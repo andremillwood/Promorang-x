@@ -12,6 +12,9 @@ export const AFTRHRS_EDITION_ID = "00000000-0000-0000-0004-000000000080";
 export const AFTRHRS_DIGITAL_PASS_LIMIT = 30;
 export const AFTRHRS_TIMEZONE = "America/Jamaica";
 export const AFTRHRS_START_ISO = "2026-09-11T22:00:00-05:00";
+export const AFTRHRS_FIRST_FRIDAY = "2026-09-11";
+/** Unused passes from last Friday expire at this Jamaica hour on Saturday. */
+export const AFTRHRS_WEEK_ROLLOVER_HOUR = 6;
 /** JS weekday: Sunday = 0 … Friday = 5. */
 export const AFTRHRS_WEEKDAY = 5;
 export const AFTRHRS_DOORS = "10:00 PM until";
@@ -98,8 +101,8 @@ export const PARTICIPATION_RANK: Record<MomentParticipationState, number> = {
 
 export const AFTRHRS_CLAIM_ERRORS = {
   unauthenticated: "Sign in to claim a Digital Free Pass.",
-  already_claimed: "This account already holds an AftrHrs Digital Free Pass.",
-  identity_claimed: "A Digital Free Pass is already attached to this verified email or telephone number.",
+  already_claimed: "This account already holds this Friday’s AftrHrs Digital Free Pass.",
+  identity_claimed: "A Digital Free Pass for this Friday is already attached to this verified email or telephone number.",
   sold_out: "The digital free release has been secured.",
   closed: "Digital Free Pass claims are closed.",
   unpublished: "AftrHrs is not currently published.",
@@ -130,6 +133,7 @@ export type AftrHrsEditionSnapshot = {
   claimOpensAt: string | null;
   claimClosesAt: string | null;
   pageMode: "live" | "post-event";
+  weekFriday?: string | null;
 };
 
 export type AftrHrsIdentity = {
@@ -507,13 +511,62 @@ export function hrefForSceneMoment(moment?: { id?: string | null; slug?: string 
   return isAftrHrsMoment(moment) ? AFTRHRS_PATHS.landing : `/moments/${moment?.id || ""}`;
 }
 
-export function jamaicaWeekday(now: Date = new Date()): number {
-  const weekday = new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
+export function jamaicaDateParts(now: Date = new Date()): {
+  ymd: string;
+  weekday: number;
+  hour: number;
+} {
+  const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: AFTRHRS_TIMEZONE,
-  }).format(now);
+    weekday: "short",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    hourCycle: "h23",
+  });
+  const parts = Object.fromEntries(formatter.formatToParts(now).map((part) => [part.type, part.value]));
   const weekdays: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-  return weekdays[weekday] ?? now.getDay();
+  return {
+    ymd: `${parts.year}-${parts.month}-${parts.day}`,
+    weekday: weekdays[parts.weekday] ?? now.getDay(),
+    hour: Number(parts.hour),
+  };
+}
+
+export function addAftrHrsCalendarDays(ymd: string, days: number): string {
+  const [year, month, day] = ymd.split("-").map(Number);
+  const utc = new Date(Date.UTC(year, month - 1, day + days));
+  return utc.toISOString().slice(0, 10);
+}
+
+/** Friday this claim, pass, and 30-pass pool belong to. Saturday 6:00 AM Jamaica opens the next Friday. */
+export function aftrHrsClaimFriday(now: Date | string | number = new Date()): string {
+  const parts = jamaicaDateParts(parseAftrHrsTime(now));
+  if (parts.weekday === 6 && parts.hour < AFTRHRS_WEEK_ROLLOVER_HOUR) {
+    return addAftrHrsCalendarDays(parts.ymd, -1);
+  }
+  if (parts.weekday === AFTRHRS_WEEKDAY) return parts.ymd;
+  if (parts.weekday === 6) return addAftrHrsCalendarDays(parts.ymd, 6);
+  return addAftrHrsCalendarDays(parts.ymd, AFTRHRS_WEEKDAY - parts.weekday);
+}
+
+export function aftrHrsEditionSlug(weekFriday: string): string {
+  return weekFriday === AFTRHRS_FIRST_FRIDAY ? AFTRHRS_MOMENT_SLUG : `${AFTRHRS_MOMENT_SLUG}-${weekFriday}`;
+}
+
+export function isCurrentAftrHrsPass(
+  pass: { status?: string | null; weekFriday?: string | null; editionWeekFriday?: string | null } | null | undefined,
+  now: Date | string | number = new Date(),
+): boolean {
+  if (!pass) return false;
+  if (pass.status !== "active" && pass.status !== "redeemed") return false;
+  const friday = String(pass.weekFriday || pass.editionWeekFriday || "").slice(0, 10);
+  return friday === aftrHrsClaimFriday(now);
+}
+
+export function jamaicaWeekday(now: Date = new Date()): number {
+  return jamaicaDateParts(now).weekday;
 }
 
 export function isAftrHrsDoorNight(now: Date = new Date()): boolean {
@@ -596,7 +649,7 @@ export const AFTRHRS_COPY = {
   walletNeedClaim:
     "A Promorang account is not the AftrHrs door pass. Claim your Digital Free Pass here, then show the QR at Sea Deck.",
   walletHavePass:
-    "This is your AftrHrs door pass. Show this QR at Sea Deck — not the Promorang membership card.",
+    "This is this Friday’s AftrHrs door pass. Show this QR at Sea Deck — not the Promorang membership card. Unused passes expire after the night.",
   walletLoadError: "We could not load your AftrHrs pass. Try again.",
   findPass:
     "Your AftrHrs pass lives at the top of your Promorang wallet and at /aftrhrs/pass. The Promorang membership card is not the door pass.",
@@ -698,6 +751,10 @@ export const DEFAULT_AFTRHRS_FAQS = [
   {
     question: "Can I transfer my pass?",
     answer: "Each Digital Free Pass is for one person and cannot be transferred.",
+  },
+  {
+    question: "Is my pass good every Friday?",
+    answer: "No. Each Digital Free Pass is for that Friday only. Unused passes expire after the night. Claim again next week — the 30 digital passes reset every Saturday morning.",
   },
   {
     question: "What happens if the venue reaches capacity?",

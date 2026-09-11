@@ -13,7 +13,10 @@ const {
   remainingDigitalPasses,
   publicRemainingPercent,
   AFTRHRS_DIGITAL_PASS_LIMIT,
+  AFTRHRS_FIRST_FRIDAY,
   DEFAULT_AFTRHRS_FAQS,
+  aftrHrsClaimFriday,
+  aftrHrsEditionSlug,
   hasAftrHrsFridayRecurrence,
   isAftrHrsFirstNightClaimClose,
 } = require('../lib/aftrHrsRules');
@@ -62,19 +65,114 @@ function isAdmin(user = {}) {
 }
 
 async function getEdition() {
+  const edition = await ensureAftrHrsWeeklyEdition();
+  return ensureCurrentRelease(edition);
+}
+
+async function fetchEditionByFriday(friday) {
   const { data, error } = await supabase
     .from('event_editions')
     .select(AFTRHRS_EDITION_SELECT)
-    .eq('slug', AFTRHRS_MOMENT_SLUG)
+    .eq('moment_id', AFTRHRS_MOMENT_ID)
+    .eq('week_friday', friday)
     .maybeSingle();
-  if (error) throw error;
-  if (!data) {
-    const err = new Error('AftrHrs edition was not found.');
-    err.status = 404;
-    err.code = 'not_found';
-    throw err;
+  if (error && !/week_friday|column/i.test(error.message || '')) throw error;
+  if (error) return null;
+  return data || null;
+}
+
+async function expireUnusedPriorPasses(friday) {
+  const { data: prior, error } = await supabase
+    .from('event_editions')
+    .select('id')
+    .eq('moment_id', AFTRHRS_MOMENT_ID)
+    .lt('week_friday', friday);
+  if (error || !prior?.length) return;
+  await supabase
+    .from('event_passes')
+    .update({ status: 'expired', updated_at: new Date().toISOString() })
+    .eq('status', 'active')
+    .in('edition_id', prior.map((row) => row.id));
+}
+
+async function ensureAftrHrsWeeklyEdition(now = new Date()) {
+  const friday = aftrHrsClaimFriday(now);
+  const rpcResult = await Promise.resolve(supabase.rpc('ensure_aftrhrs_weekly_edition', {
+    p_now: now instanceof Date ? now.toISOString() : new Date(now).toISOString(),
+  })).catch((error) => ({ data: null, error }));
+  const rpcEdition = rpcResult?.data;
+  const rpcError = rpcResult?.error;
+  if (!rpcError && rpcEdition) {
+    const { data } = await supabase
+      .from('event_editions')
+      .select(AFTRHRS_EDITION_SELECT)
+      .eq('id', rpcEdition.id || rpcEdition)
+      .maybeSingle();
+    if (data) return data;
   }
-  return ensureCurrentRelease(data);
+
+  await expireUnusedPriorPasses(friday).catch(() => undefined);
+  const current = await fetchEditionByFriday(friday);
+  if (current) return current;
+
+  const { data: latest } = await supabase
+    .from('event_editions')
+    .select(AFTRHRS_EDITION_SELECT)
+    .eq('moment_id', AFTRHRS_MOMENT_ID)
+    .order('week_friday', { ascending: false, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (latest && !latest.week_friday && latest.slug === AFTRHRS_MOMENT_SLUG) {
+    await supabase
+      .from('event_editions')
+      .update({ week_friday: AFTRHRS_FIRST_FRIDAY, updated_at: new Date().toISOString() })
+      .eq('id', latest.id);
+    if (friday === AFTRHRS_FIRST_FRIDAY) {
+      return { ...latest, week_friday: AFTRHRS_FIRST_FRIDAY };
+    }
+  }
+
+  if (latest && String(latest.week_friday || '').slice(0, 10) === friday) return latest;
+
+  const insert = {
+    moment_id: AFTRHRS_MOMENT_ID,
+    venue_id: latest?.venue_id || SEA_DECK_VENUE_ID,
+    slug: aftrHrsEditionSlug(friday),
+    title: latest?.title || 'AftrHrs',
+    tagline: latest?.tagline || null,
+    supporting_copy: latest?.supporting_copy || '',
+    powered_by: latest?.powered_by || 'Origin — Alric & Boyd',
+    music_categories: latest?.music_categories || ['Afro House', 'Classic House', 'House Fusion'],
+    published: true,
+    page_mode: 'live',
+    claims_open: true,
+    digital_allocation: AFTRHRS_DIGITAL_PASS_LIMIT,
+    digital_claimed: 0,
+    claim_opens_at: null,
+    claim_closes_at: null,
+    paid_admission_jmd: latest?.paid_admission_jmd || 2000,
+    paid_patron_benefit: latest?.paid_patron_benefit || 'Complimentary drink and wings',
+    venue_policies: latest?.venue_policies || {},
+    faqs: latest?.faqs || DEFAULT_AFTRHRS_FAQS,
+    artwork: latest?.artwork || {},
+    metadata: latest?.metadata || {},
+    week_friday: friday,
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data: created, error } = await supabase
+    .from('event_editions')
+    .insert(insert)
+    .select(AFTRHRS_EDITION_SELECT)
+    .single();
+  if (error) {
+    const again = await fetchEditionByFriday(friday);
+    if (again) return again;
+    if (latest) return latest;
+    throw error;
+  }
+  return created;
 }
 
 function needsAftrHrsFridayFaqs(faqs) {
@@ -83,6 +181,7 @@ function needsAftrHrsFridayFaqs(faqs) {
     || !faqs.some((faq) => String(faq?.answer || '').includes('11:30 PM'))
     || !faqs.some((faq) => /every friday/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
     || !faqs.some((faq) => /signed up for Promorang/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
+    || !faqs.some((faq) => /good every Friday|expire after the night|claim again next week/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
     || faqs.some((faq) => /not the Friday door|not tonight's door|not the event/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
     || !faqs.some((faq) => /inside that scene/i.test(`${faq?.question || ''} ${faq?.answer || ''}`));
 }
@@ -194,7 +293,7 @@ async function publicSnapshot(userId) {
   let followingVenue = false;
   if (userId) {
     const [{ data: passes }, { data: part }, { data: follow }] = await Promise.all([
-      supabase.from('event_passes').select('*').eq('event_id', edition.moment_id).eq('user_id', userId).in('status', ['active', 'redeemed']).order('claimed_at', { ascending: false }).limit(1),
+      supabase.from('event_passes').select('*').eq('edition_id', edition.id).eq('user_id', userId).in('status', ['active', 'redeemed']).order('claimed_at', { ascending: false }).limit(1),
       supabase.from('event_moment_participations').select('*').eq('event_id', edition.moment_id).eq('user_id', userId).maybeSingle(),
       supabase.from('venue_follows').select('id').eq('venue_id', edition.venue_id).eq('user_id', userId).maybeSingle(),
     ]);
@@ -506,7 +605,7 @@ async function adminOverview(user) {
   assertAdmin(user);
   const edition = await getEdition();
   const [{ data: passes }, { data: ambassadors }, { data: requests }, { data: events }] = await Promise.all([
-    supabase.from('event_passes').select('*').eq('event_id', edition.moment_id).order('claimed_at', { ascending: false }),
+    supabase.from('event_passes').select('*').eq('edition_id', edition.id).order('claimed_at', { ascending: false }),
     supabase.from('event_ambassador_allocations').select('*').eq('event_id', edition.moment_id),
     supabase.from('event_ambassador_requests').select('*').eq('event_id', edition.moment_id).order('created_at', { ascending: false }),
     supabase.from('event_analytics_events').select('name').eq('event_id', edition.moment_id),
@@ -553,7 +652,8 @@ async function adminUpdate(user, body = {}) {
     updated_at: new Date().toISOString(),
   };
   const patch = Object.fromEntries(Object.entries(allowed).filter(([, value]) => value !== undefined));
-  const { data, error } = await supabase.from('event_editions').update(patch).eq('slug', AFTRHRS_MOMENT_SLUG).select().single();
+  const edition = await getEdition();
+  const { data, error } = await supabase.from('event_editions').update(patch).eq('id', edition.id).select().single();
   if (error) throw error;
   if (body.venue) {
     await supabase.from('venue_profiles').update({
@@ -571,7 +671,7 @@ async function adminUpdatePass(user, passId, body = {}) {
   assertAdmin(user);
   const { data: current, error: currentError } = await supabase
     .from('event_passes')
-    .select('pass_type, status, event_id')
+    .select('pass_type, status, event_id, edition_id')
     .eq('id', passId)
     .single();
   if (currentError || !current) throw currentError || new Error('Pass not found');
@@ -581,23 +681,27 @@ async function adminUpdatePass(user, passId, body = {}) {
   const { data, error } = await supabase.from('event_passes').update(patch).eq('id', passId).select().single();
   if (error) throw error;
 
+  const editionFilter = current.edition_id
+    ? { column: 'id', value: current.edition_id }
+    : { column: 'moment_id', value: current.event_id };
+
   if (current.pass_type === 'digital-free') {
     if (body.status === 'cancelled' && current.status !== 'cancelled') {
-      const { data: edition } = await supabase.from('event_editions').select('digital_claimed').eq('moment_id', current.event_id).single();
+      const { data: edition } = await supabase.from('event_editions').select('digital_claimed').eq(editionFilter.column, editionFilter.value).single();
       if (edition) {
         await supabase.from('event_editions').update({
           digital_claimed: Math.max(0, Number(edition.digital_claimed || 1) - 1),
           updated_at: new Date().toISOString(),
-        }).eq('moment_id', current.event_id);
+        }).eq(editionFilter.column, editionFilter.value);
       }
     }
     if (body.status === 'active' && current.status === 'cancelled') {
-      const { data: edition } = await supabase.from('event_editions').select('digital_claimed').eq('moment_id', current.event_id).single();
+      const { data: edition } = await supabase.from('event_editions').select('digital_claimed').eq(editionFilter.column, editionFilter.value).single();
       if (edition) {
         await supabase.from('event_editions').update({
           digital_claimed: Number(edition.digital_claimed || 0) + 1,
           updated_at: new Date().toISOString(),
-        }).eq('moment_id', current.event_id);
+        }).eq(editionFilter.column, editionFilter.value);
       }
     }
   }

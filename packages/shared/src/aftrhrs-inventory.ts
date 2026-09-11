@@ -1,10 +1,13 @@
 import {
   AFTRHRS_CLAIM_ERRORS,
   AFTRHRS_DIGITAL_PASS_LIMIT,
+  AFTRHRS_FIRST_FRIDAY,
   AFTRHRS_EDITION_ID,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_MOMENT_SLUG,
   SEA_DECK_VENUE_ID,
+  aftrHrsClaimFriday,
+  aftrHrsEditionSlug,
   ambassadorRemaining,
   canDistributeInvitation,
   canRedeemPass,
@@ -38,6 +41,8 @@ export type StoredPass = {
   phone: string | null;
   campaign: string | null;
   referrer: string | null;
+  weekFriday: string;
+  editionId: string;
 };
 
 export type StoredAmbassador = {
@@ -112,6 +117,7 @@ export function defaultAftrHrsEdition(overrides: Partial<AftrHrsEditionSnapshot>
     claimOpensAt: null,
     claimClosesAt: null,
     pageMode: "live",
+    weekFriday: AFTRHRS_FIRST_FRIDAY,
     ...overrides,
   };
 }
@@ -140,10 +146,29 @@ export function createAftrHrsInventory(initial?: {
     return run;
   }
 
+  function applyWeeklyRollover(now?: Date | string | number) {
+    const friday = aftrHrsClaimFriday(now ?? new Date());
+    if (edition.weekFriday === friday) return friday;
+    if (edition.weekFriday && friday < edition.weekFriday) return edition.weekFriday;
+    for (const pass of passes.values()) {
+      if (pass.status === "active" && pass.weekFriday && pass.weekFriday < friday) {
+        passes.set(pass.id, { ...pass, status: "expired" });
+      }
+    }
+    edition = defaultAftrHrsEdition({
+      id: `edition-${friday}`,
+      slug: aftrHrsEditionSlug(friday),
+      weekFriday: friday,
+      digitalClaimed: 0,
+    });
+    return friday;
+  }
+
   function identityTaken(email: string | null, phone: string | null, exceptUserId?: string) {
     for (const pass of passes.values()) {
       if (pass.passType !== "digital-free") continue;
-      if (pass.status === "cancelled") continue;
+      if (pass.status !== "active" && pass.status !== "redeemed") continue;
+      if (pass.weekFriday !== edition.weekFriday) continue;
       if (exceptUserId && pass.userId === exceptUserId) continue;
       if (email && pass.email && pass.email === email) return true;
       if (phone && pass.phone && pass.phone === phone) return true;
@@ -153,7 +178,11 @@ export function createAftrHrsInventory(initial?: {
 
   function userDigitalPass(userId: string) {
     return [...passes.values()].find(
-      (pass) => pass.userId === userId && pass.passType === "digital-free" && pass.status !== "cancelled",
+      (pass) =>
+        pass.userId === userId
+        && pass.passType === "digital-free"
+        && (pass.status === "active" || pass.status === "redeemed")
+        && pass.weekFriday === edition.weekFriday,
     );
   }
 
@@ -172,6 +201,7 @@ export function createAftrHrsInventory(initial?: {
 
   function claimDigitalPass(input: ClaimInput): Promise<ClaimResult> {
     return enqueue(() => {
+      applyWeeklyRollover(input.now);
       const email = normalizeAftrHrsIdentity(input.email);
       const phone = normalizeAftrHrsPhone(input.phone);
       const existing = input.userId ? userDigitalPass(input.userId) : undefined;
@@ -206,6 +236,8 @@ export function createAftrHrsInventory(initial?: {
         phone,
         campaign: input.campaign || null,
         referrer: input.referrer || null,
+        weekFriday: edition.weekFriday || aftrHrsClaimFriday(input.now),
+        editionId: edition.id,
       };
       passes.set(pass.id, pass);
       edition = { ...edition, digitalClaimed: edition.digitalClaimed + 1 };
@@ -273,6 +305,8 @@ export function createAftrHrsInventory(initial?: {
         phone: normalizeAftrHrsPhone(input.phone),
         campaign: ambassador.trackingCode,
         referrer: input.ambassadorId,
+        weekFriday: edition.weekFriday || aftrHrsClaimFriday(input.now),
+        editionId: edition.id,
       };
       passes.set(pass.id, pass);
       ambassadors.set(input.ambassadorId, { ...ambassador, distributed: ambassador.distributed + 1 });
@@ -299,6 +333,7 @@ export function createAftrHrsInventory(initial?: {
 
   function redeemPass(rawCode: string, now?: Date | string | number) {
     return enqueue(() => {
+      applyWeeklyRollover(now);
       const uniqueCode = decodeAftrHrsPassPayload(rawCode);
       const pass = [...passes.values()].find((item) => item.uniqueCode === uniqueCode);
       if (!pass) return { ok: false as const, code: "not_found", message: AFTRHRS_CLAIM_ERRORS.not_found };
