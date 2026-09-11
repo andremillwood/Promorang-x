@@ -60,7 +60,7 @@ function Field({
 }
 
 export default function AftrHrsAdmin() {
-  const { data, isError, isLoading, token, update, updatePass } = useAftrHrsAdmin();
+  const { data, isError, isLoading, token, update, updatePass, digitalRelease } = useAftrHrsAdmin();
   const [allocation, setAllocation] = useState("");
   const [claimsOpen, setClaimsOpen] = useState(true);
   const [published, setPublished] = useState(true);
@@ -95,6 +95,9 @@ export default function AftrHrsAdmin() {
   const passes = (data.passes || []) as AdminPass[];
   const ambassadors = (data.ambassadors || []) as AdminAmbassador[];
   const remaining = Number(data.remaining || 0);
+  const guests = ((data.guests || []) as Array<Record<string, string>>);
+  const release = (data.digitalRelease || data.digital_release || null) as { claims_open?: boolean; claimsOpen?: boolean; claimed?: number; allocation?: number } | null;
+  const digitalOpen = Boolean(release?.claims_open ?? release?.claimsOpen);
 
   const save = async (event: FormEvent) => {
     event.preventDefault();
@@ -145,6 +148,51 @@ export default function AftrHrsAdmin() {
               <p className="mt-1 text-sm leading-6 text-white/50">{item.hint}</p>
             </div>
           ))}
+        </section>
+
+        <section className="rounded-3xl border border-white/10 p-5">
+          <h2 className="text-xl font-bold">{copy.guestRsvpTitle}</h2>
+          <p className="mt-1 max-w-xl text-sm leading-6 text-white/60">{copy.guestRsvpHelp}</p>
+          <p className="mt-3 text-sm text-white/70">{digitalOpen ? copy.digitalOpen : copy.digitalClosed}</p>
+          <p className="mt-1 text-sm text-white/50">
+            Friday list spots left: {Number(data.rsvpRemaining ?? 0)}. Digital drop claimed: {Number(release?.claimed || 0)} of {Number(release?.allocation || 0)}.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {digitalOpen ? (
+              <button
+                type="button"
+                className="h-11 rounded-full border border-white/20 px-5 text-sm font-semibold"
+                onClick={() => digitalRelease.mutate("close")}
+              >
+                {copy.closeDigital}
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="h-11 rounded-full bg-white px-5 text-sm font-bold text-black"
+                onClick={() => digitalRelease.mutate("open")}
+              >
+                {copy.openDigital}
+              </button>
+            )}
+            <Link to={AFTRHRS_PATHS.landing} className="inline-flex h-11 items-center text-sm font-semibold text-cyan-300">
+              {copy.guestLanding}
+            </Link>
+          </div>
+          {guests.length ? (
+            <ul className="mt-5 space-y-3">
+              {guests.slice(0, 40).map((row) => (
+                <li key={row.id || row.unique_code} className="rounded-2xl border border-white/10 px-4 py-3">
+                  <p className="font-semibold">{row.full_name || row.name}</p>
+                  <p className="mt-1 text-sm text-white/70">{guestPassType(row.kind)} · {adminPassStatus(row.status)}</p>
+                  <p className="mt-1 text-sm text-white/45">{row.email} · {row.phone}</p>
+                  {row.unique_code ? <p className="mt-1 text-sm text-white/45">{copy.passCode} {row.unique_code}</p> : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-4 text-sm text-white/55">{copy.emptyGuests}</p>
+          )}
         </section>
 
         <form onSubmit={save} className="space-y-6 rounded-3xl border border-white/10 p-5">

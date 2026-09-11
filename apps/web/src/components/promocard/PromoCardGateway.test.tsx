@@ -95,7 +95,7 @@ describe("PromoCardGateway", () => {
     expect(container).toHaveTextContent("Barbican");
     expect(container).toHaveTextContent("23 remaining");
     expect(container).toHaveTextContent("Unlock this");
-    expect(container).toHaveTextContent("Get my AftrHrs pass");
+    expect(container).toHaveTextContent("RSVP for Friday");
     expect(container).toHaveTextContent("What should your card open?");
     expect(container).toHaveTextContent("Kingston After Dark");
     expect(container).not.toHaveTextContent("Claim $500 Off");

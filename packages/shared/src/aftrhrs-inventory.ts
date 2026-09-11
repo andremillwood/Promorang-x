@@ -1,25 +1,32 @@
 import {
   AFTRHRS_CLAIM_ERRORS,
+  AFTRHRS_DIGITAL_PASS_BATCH,
   AFTRHRS_DIGITAL_PASS_LIMIT,
   AFTRHRS_FIRST_FRIDAY,
   AFTRHRS_EDITION_ID,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_MOMENT_SLUG,
+  AFTRHRS_RSVP_LIMIT,
   SEA_DECK_VENUE_ID,
   aftrHrsClaimFriday,
   aftrHrsEditionSlug,
+  aftrHrsMonthKey,
   ambassadorRemaining,
   canDistributeInvitation,
   canRedeemPass,
   decodeAftrHrsPassPayload,
   encodeAftrHrsPassPayload,
   evaluateDigitalPassClaim,
+  evaluateGuestEntry,
   nextParticipationState,
   normalizeAftrHrsIdentity,
+  normalizeAftrHrsName,
   normalizeAftrHrsPhone,
   participationAfterPassType,
   remainingDigitalPasses,
+  remainingGuestSlots,
   type AftrHrsEditionSnapshot,
+  type AftrHrsGuestKind,
   type EventPassStatus,
   type EventPassType,
   type MomentParticipationState,
@@ -118,9 +125,35 @@ export function defaultAftrHrsEdition(overrides: Partial<AftrHrsEditionSnapshot>
     claimClosesAt: null,
     pageMode: "live",
     weekFriday: AFTRHRS_FIRST_FRIDAY,
+    rsvpAllocation: AFTRHRS_RSVP_LIMIT,
+    rsvpClaimed: 0,
     ...overrides,
   };
 }
+
+export type StoredGuestEntry = {
+  id: string;
+  kind: AftrHrsGuestKind;
+  name: string;
+  email: string;
+  phone: string;
+  uniqueCode: string;
+  qrPayload: string;
+  status: EventPassStatus;
+  weekFriday: string | null;
+  monthKey: string | null;
+  releaseId: string | null;
+  claimedAt: string;
+  redeemedAt: string | null;
+};
+
+export type StoredDigitalRelease = {
+  id: string;
+  monthKey: string;
+  allocation: number;
+  claimed: number;
+  claimsOpen: boolean;
+};
 
 export function createAftrHrsInventory(initial?: {
   edition?: Partial<AftrHrsEditionSnapshot>;
@@ -131,6 +164,14 @@ export function createAftrHrsInventory(initial?: {
   const participations = new Map<string, StoredParticipation>();
   const ambassadors = new Map<string, StoredAmbassador>();
   const requests = new Map<string, StoredRequest>();
+  const guests = new Map<string, StoredGuestEntry>();
+  let digitalRelease: StoredDigitalRelease = {
+    id: "release-1",
+    monthKey: aftrHrsMonthKey(AFTRHRS_FIRST_FRIDAY),
+    allocation: AFTRHRS_DIGITAL_PASS_BATCH,
+    claimed: 0,
+    claimsOpen: true,
+  };
   let tail: Promise<unknown> = Promise.resolve();
 
   for (const ambassador of initial?.ambassadors || []) {
@@ -155,13 +196,38 @@ export function createAftrHrsInventory(initial?: {
         passes.set(pass.id, { ...pass, status: "expired" });
       }
     }
+    for (const guest of guests.values()) {
+      if (guest.kind === "rsvp" && guest.status === "active" && guest.weekFriday && guest.weekFriday < friday) {
+        guests.set(guest.id, { ...guest, status: "expired" });
+      }
+    }
     edition = defaultAftrHrsEdition({
       id: `edition-${friday}`,
       slug: aftrHrsEditionSlug(friday),
       weekFriday: friday,
       digitalClaimed: 0,
+      rsvpClaimed: 0,
     });
     return friday;
+  }
+
+  function expireStaleGuestPasses(now?: Date | string | number) {
+    const month = aftrHrsMonthKey(now ?? new Date());
+    for (const guest of guests.values()) {
+      if (guest.kind === "digital-pass" && guest.status === "active" && guest.monthKey && guest.monthKey < month) {
+        guests.set(guest.id, { ...guest, status: "expired" });
+      }
+    }
+  }
+
+  function guestHeld(kind: AftrHrsGuestKind, email: string | null, phone: string | null) {
+    return [...guests.values()].some((guest) => {
+      if (guest.kind !== kind) return false;
+      if (guest.status !== "active" && guest.status !== "redeemed") return false;
+      if (kind === "rsvp" && guest.weekFriday !== edition.weekFriday) return false;
+      if (kind === "digital-pass" && guest.monthKey !== digitalRelease.monthKey) return false;
+      return (email && guest.email === email) || (phone && guest.phone === phone);
+    });
   }
 
   function identityTaken(email: string | null, phone: string | null, exceptUserId?: string) {
@@ -334,15 +400,115 @@ export function createAftrHrsInventory(initial?: {
   function redeemPass(rawCode: string, now?: Date | string | number) {
     return enqueue(() => {
       applyWeeklyRollover(now);
+      expireStaleGuestPasses(now);
       const uniqueCode = decodeAftrHrsPassPayload(rawCode);
       const pass = [...passes.values()].find((item) => item.uniqueCode === uniqueCode);
-      if (!pass) return { ok: false as const, code: "not_found", message: AFTRHRS_CLAIM_ERRORS.not_found };
-      const allowed = canRedeemPass(pass.status);
+      if (pass) {
+        const allowed = canRedeemPass(pass.status);
+        if (!allowed.ok) return { ok: false as const, code: allowed.code, message: allowed.message };
+        const redeemed: StoredPass = { ...pass, status: "redeemed", redeemedAt: parseNow(now) };
+        passes.set(pass.id, redeemed);
+        setParticipation(pass.userId, "checked_in", "door");
+        return { ok: true as const, pass: redeemed };
+      }
+      const guest = [...guests.values()].find((item) => item.uniqueCode === uniqueCode);
+      if (!guest) return { ok: false as const, code: "not_found", message: AFTRHRS_CLAIM_ERRORS.not_found };
+      const allowed = canRedeemPass(guest.status);
       if (!allowed.ok) return { ok: false as const, code: allowed.code, message: allowed.message };
-      const redeemed: StoredPass = { ...pass, status: "redeemed", redeemedAt: parseNow(now) };
-      passes.set(pass.id, redeemed);
-      setParticipation(pass.userId, "checked_in", "door");
+      const redeemed: StoredGuestEntry = { ...guest, status: "redeemed", redeemedAt: parseNow(now) };
+      guests.set(guest.id, redeemed);
       return { ok: true as const, pass: redeemed };
+    });
+  }
+
+  function guestRsvp(input: {
+    kind: AftrHrsGuestKind;
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    termsAccepted?: boolean;
+    now?: Date | string | number;
+  }) {
+    return enqueue(() => {
+      applyWeeklyRollover(input.now);
+      expireStaleGuestPasses(input.now);
+      const name = normalizeAftrHrsName(input.name);
+      const email = normalizeAftrHrsIdentity(input.email);
+      const phone = normalizeAftrHrsPhone(input.phone);
+      const remaining = input.kind === "rsvp"
+        ? remainingGuestSlots(edition.rsvpAllocation || AFTRHRS_RSVP_LIMIT, edition.rsvpClaimed || 0)
+        : remainingGuestSlots(digitalRelease.allocation, digitalRelease.claimed);
+      const laneOpen = input.kind === "rsvp"
+        ? remaining > 0
+        : digitalRelease.claimsOpen && remaining > 0;
+      const decision = evaluateGuestEntry({
+        kind: input.kind,
+        name,
+        email,
+        phone,
+        termsAccepted: Boolean(input.termsAccepted),
+        published: edition.published,
+        laneOpen,
+        remaining,
+        alreadyHeld: guestHeld(input.kind, email, phone),
+      });
+      if (!decision.ok) {
+        return { ok: false as const, code: decision.code, message: decision.message, remaining };
+      }
+      const uniqueCode = code();
+      const friday = edition.weekFriday || aftrHrsClaimFriday(input.now);
+      const monthKey = aftrHrsMonthKey(input.now);
+      const entry: StoredGuestEntry = {
+        id: id("guest"),
+        kind: input.kind,
+        name: name!,
+        email: email!,
+        phone: phone!,
+        uniqueCode,
+        qrPayload: encodeAftrHrsPassPayload(uniqueCode),
+        status: "active",
+        weekFriday: input.kind === "rsvp" ? friday : null,
+        monthKey: input.kind === "digital-pass" ? monthKey : null,
+        releaseId: input.kind === "digital-pass" ? digitalRelease.id : null,
+        claimedAt: parseNow(input.now),
+        redeemedAt: null,
+      };
+      guests.set(entry.id, entry);
+      if (input.kind === "rsvp") {
+        edition = { ...edition, rsvpClaimed: Number(edition.rsvpClaimed || 0) + 1 };
+      } else {
+        digitalRelease = { ...digitalRelease, claimed: digitalRelease.claimed + 1 };
+        if (digitalRelease.claimed >= digitalRelease.allocation) {
+          digitalRelease = { ...digitalRelease, claimsOpen: false };
+        }
+      }
+      return {
+        ok: true as const,
+        entry,
+        remaining: input.kind === "rsvp"
+          ? remainingGuestSlots(edition.rsvpAllocation || AFTRHRS_RSVP_LIMIT, edition.rsvpClaimed || 0)
+          : remainingGuestSlots(digitalRelease.allocation, digitalRelease.claimed),
+      };
+    });
+  }
+
+  function closeDigitalRelease() {
+    return enqueue(() => {
+      digitalRelease = { ...digitalRelease, claimsOpen: false };
+      return { ...digitalRelease };
+    });
+  }
+
+  function openDigitalRelease(now?: Date | string | number) {
+    return enqueue(() => {
+      digitalRelease = {
+        id: id("release"),
+        monthKey: aftrHrsMonthKey(now ?? new Date()),
+        allocation: AFTRHRS_DIGITAL_PASS_BATCH,
+        claimed: 0,
+        claimsOpen: true,
+      };
+      return { ...digitalRelease };
     });
   }
 
@@ -359,6 +525,9 @@ export function createAftrHrsInventory(initial?: {
     requestAmbassador,
     fulfillInvitation,
     redeemPass,
+    guestRsvp,
+    closeDigitalRelease,
+    openDigitalRelease,
     joinMoment,
     markAttended,
     snapshot() {
@@ -366,7 +535,11 @@ export function createAftrHrsInventory(initial?: {
         edition: { ...edition },
         remaining: remainingDigitalPasses(edition),
         soldOut: remainingDigitalPasses(edition) <= 0,
+        rsvpRemaining: remainingGuestSlots(edition.rsvpAllocation || AFTRHRS_RSVP_LIMIT, edition.rsvpClaimed || 0),
+        digitalRemaining: remainingGuestSlots(digitalRelease.allocation, digitalRelease.claimed),
+        digitalRelease: { ...digitalRelease },
         passes: [...passes.values()],
+        guests: [...guests.values()],
         ambassadors: [...ambassadors.values()],
         requests: [...requests.values()],
         participations: [...participations.values()],

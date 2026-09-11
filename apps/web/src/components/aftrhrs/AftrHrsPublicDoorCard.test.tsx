@@ -33,7 +33,7 @@ describe("AftrHrsPublicDoorCard", () => {
     });
     expect(container).toHaveTextContent("Friday night");
     expect(container).toHaveTextContent("AftrHrs");
-    expect(container).toHaveTextContent("Get my AftrHrs pass");
+    expect(container).toHaveTextContent("RSVP for Friday");
     expect(container).toHaveTextContent("Friday moment in Kingston After Dark");
     expect(container).not.toHaveTextContent("Kingston After Dark · Friday");
     expect(container.querySelector("a")?.getAttribute("href")).toBe("/aftrhrs");

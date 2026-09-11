@@ -17,6 +17,7 @@ const REQUIRED_TEMPLATES = [
   'securityAlert',
   'supportTicket',
   'aftrHrsPass',
+  'aftrHrsGuestPass',
   'aftrHrsRsvp',
   'referralSignup',
   'referralActivation',

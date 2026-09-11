@@ -9,7 +9,12 @@ export const AFTRHRS_MOMENT_ID = "00000000-0000-0000-0002-000000000080";
 export const SEA_DECK_VENUE_ID = "00000000-0000-0000-0003-000000000080";
 export const AFTRHRS_EDITION_ID = "00000000-0000-0000-0004-000000000080";
 
+/** Weekly Promorang-account digital pass pool (the forked /moments/aftrhrs path). */
 export const AFTRHRS_DIGITAL_PASS_LIMIT = 30;
+/** Public Friday guest-list RSVP cap. Never print this number in guest copy. */
+export const AFTRHRS_RSVP_LIMIT = 30;
+/** Public digital-pass batch size. Admin closes a drop, then can open another. Never print this number. */
+export const AFTRHRS_DIGITAL_PASS_BATCH = 50;
 export const AFTRHRS_TIMEZONE = "America/Jamaica";
 export const AFTRHRS_START_ISO = "2026-09-11T22:00:00-05:00";
 export const AFTRHRS_FIRST_FRIDAY = "2026-09-11";
@@ -57,12 +62,16 @@ export const AFTRHRS_PATHS = {
   venue: "/venues/sea-deck",
   pass: "/moments/aftrhrs/pass",
   passAlias: "/aftrhrs/pass",
+  ticket: "/aftrhrs/ticket",
   ambassador: "/moments/aftrhrs/ambassador",
   door: "/moments/aftrhrs/door",
   admin: "/admin/aftrhrs",
-  claimReturn: "/aftrhrs?claim=1",
+  claimReturn: "/moments/aftrhrs?claim=1",
   wallet: "/wallet",
 } as const;
+
+export const AFTRHRS_GUEST_KINDS = ["rsvp", "digital-pass"] as const;
+export type AftrHrsGuestKind = (typeof AFTRHRS_GUEST_KINDS)[number];
 
 export const AFTRHRS_PENDING_CLAIM_KEY = "promorang_aftrhrs_pending_claim";
 
@@ -115,6 +124,21 @@ export const AFTRHRS_CLAIM_ERRORS = {
   forbidden: "You do not have permission to manage AftrHrs.",
 } as const;
 
+export const AFTRHRS_GUEST_ERRORS = {
+  name: "Tell us your name.",
+  email: "Use a real email so we can confirm your place.",
+  phone: "Add a telephone number we can reach.",
+  terms: "Confirm the door terms to continue.",
+  already_rsvp: "You are already on this Friday’s list.",
+  already_pass: "A digital pass is already attached to this email or telephone.",
+  rsvp_full: "This Friday’s list is full.",
+  pass_closed: "The digital pass drop is closed.",
+  unpublished: "AftrHrs is not currently published.",
+  not_found: "That door code was not found.",
+} as const;
+
+export type AftrHrsGuestErrorCode = keyof typeof AFTRHRS_GUEST_ERRORS;
+
 export type AftrHrsClaimErrorCode = keyof typeof AFTRHRS_CLAIM_ERRORS;
 
 export type AftrHrsClaimDecision =
@@ -134,6 +158,8 @@ export type AftrHrsEditionSnapshot = {
   claimClosesAt: string | null;
   pageMode: "live" | "post-event";
   weekFriday?: string | null;
+  rsvpAllocation?: number;
+  rsvpClaimed?: number;
 };
 
 export type AftrHrsIdentity = {
@@ -171,6 +197,30 @@ export function remainingDigitalPasses(edition: Pick<AftrHrsEditionSnapshot, "di
   return Math.max(0, Number(edition.digitalAllocation || 0) - Number(edition.digitalClaimed || 0));
 }
 
+export function remainingGuestSlots(allocation: number, claimed: number): number {
+  return Math.max(0, Number(allocation || 0) - Number(claimed || 0));
+}
+
+export function isValidAftrHrsEmail(value?: string | null): boolean {
+  const email = normalizeAftrHrsIdentity(value);
+  if (!email) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export function normalizeAftrHrsName(value?: string | null): string | null {
+  const name = String(value || "").trim().replace(/\s+/g, " ");
+  return name.length >= 2 ? name.slice(0, 80) : null;
+}
+
+export function aftrHrsTicketPath(code?: string | null): string {
+  const unique = String(code || "").trim().toUpperCase();
+  return unique ? `${AFTRHRS_PATHS.ticket}/${encodeURIComponent(unique)}` : AFTRHRS_PATHS.ticket;
+}
+
+export function aftrHrsMonthKey(now: Date | string | number = new Date()): string {
+  return jamaicaDateParts(parseAftrHrsTime(now)).ymd.slice(0, 7);
+}
+
 export function isDigitalPassSoldOut(edition: Pick<AftrHrsEditionSnapshot, "digitalAllocation" | "digitalClaimed">): boolean {
   return remainingDigitalPasses(edition) <= 0;
 }
@@ -194,6 +244,113 @@ export function formatPublicRemainingLabel(percent: number, soldOut = false): st
   return `${Math.max(0, Math.min(100, Math.round(Number(percent))))}%`;
 }
 
+export type AftrHrsCapacityMood = "closed" | "last" | "tight" | "filling" | "open";
+
+export function remainingCapacityMood(percent: number, soldOut = false): {
+  mood: AftrHrsCapacityMood;
+  label: string;
+  detail: string;
+} {
+  const value = Math.max(0, Math.min(100, Math.round(Number(percent || 0))));
+  if (soldOut || value <= 0) {
+    return { mood: "closed", label: "Closed", detail: "This lane is closed." };
+  }
+  if (value <= 20) {
+    return { mood: "last", label: "Almost gone", detail: `${value}% still open` };
+  }
+  if (value <= 45) {
+    return { mood: "tight", label: "Going fast", detail: `${value}% still open` };
+  }
+  if (value <= 75) {
+    return { mood: "filling", label: "Filling up", detail: `${value}% still open` };
+  }
+  return { mood: "open", label: "Still room", detail: `${value}% still open` };
+}
+
+export function guestLaneCopy(kind: AftrHrsGuestKind, percent: number, soldOut = false) {
+  const mood = remainingCapacityMood(percent, soldOut);
+  if (kind === "rsvp") {
+    if (mood.mood === "closed") {
+      return {
+        ...mood,
+        eyebrow: "This Friday",
+        title: "The list is full",
+        body: "This Friday’s guest list is closed. A digital pass still covers the month if that drop is open.",
+        cta: "List closed",
+      };
+    }
+    return {
+      ...mood,
+      eyebrow: "This Friday",
+      title: "Get on the list",
+      body: "Name, email, telephone. Give your name at the door. Free if you arrive before 11:30 PM.",
+      cta: "RSVP for Friday",
+    };
+  }
+  if (mood.mood === "closed") {
+    return {
+      ...mood,
+      eyebrow: "Digital pass",
+      title: "This drop is closed",
+      body: "The current digital pass drop is closed. Friday RSVP may still be open.",
+      cta: "Drop closed",
+    };
+  }
+  return {
+    ...mood,
+    eyebrow: "Digital pass",
+    title: "Hold a month invite",
+    body: "Like a physical invite. Gets you in free for the month. We email a door code — no account.",
+    cta: "Get the digital pass",
+  };
+}
+
+export type AftrHrsGuestEntryInput = {
+  kind: AftrHrsGuestKind;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  termsAccepted?: boolean;
+  published?: boolean;
+  laneOpen?: boolean;
+  remaining?: number;
+  alreadyHeld?: boolean;
+};
+
+export function evaluateGuestEntry(input: AftrHrsGuestEntryInput): AftrHrsClaimDecision {
+  if (input.published === false) {
+    return { ok: false, code: "unpublished", message: AFTRHRS_GUEST_ERRORS.unpublished };
+  }
+  if (!normalizeAftrHrsName(input.name)) {
+    return { ok: false, code: "terms", message: AFTRHRS_GUEST_ERRORS.name };
+  }
+  if (!isValidAftrHrsEmail(input.email)) {
+    return { ok: false, code: "terms", message: AFTRHRS_GUEST_ERRORS.email };
+  }
+  if (!normalizeAftrHrsPhone(input.phone)) {
+    return { ok: false, code: "terms", message: AFTRHRS_GUEST_ERRORS.phone };
+  }
+  if (!input.termsAccepted) {
+    return { ok: false, code: "terms", message: AFTRHRS_GUEST_ERRORS.terms };
+  }
+  if (input.alreadyHeld) {
+    return input.kind === "digital-pass"
+      ? { ok: false, code: "already_claimed", message: AFTRHRS_GUEST_ERRORS.already_pass }
+      : { ok: false, code: "already_claimed", message: AFTRHRS_GUEST_ERRORS.already_rsvp };
+  }
+  if (input.laneOpen === false) {
+    return input.kind === "digital-pass"
+      ? { ok: false, code: "closed", message: AFTRHRS_GUEST_ERRORS.pass_closed }
+      : { ok: false, code: "sold_out", message: AFTRHRS_GUEST_ERRORS.rsvp_full };
+  }
+  if (Number(input.remaining ?? 1) <= 0) {
+    return input.kind === "digital-pass"
+      ? { ok: false, code: "closed", message: AFTRHRS_GUEST_ERRORS.pass_closed }
+      : { ok: false, code: "sold_out", message: AFTRHRS_GUEST_ERRORS.rsvp_full };
+  }
+  return { ok: true };
+}
+
 export function guestPassStatus(status?: string | null): string {
   if (status === "redeemed") return "Used";
   if (status === "cancelled" || status === "expired") return "No longer valid";
@@ -201,10 +358,10 @@ export function guestPassStatus(status?: string | null): string {
 }
 
 export function guestPassType(type?: string | null): string {
-  if (type === "digital-free") return "Digital free pass";
+  if (type === "digital-free" || type === "digital-pass") return "Digital free pass";
   if (type === "physical-invitation") return "Physical invitation";
   if (type === "paid") return "Paid entry";
-  if (type === "guest-list") return "On the guest list";
+  if (type === "guest-list" || type === "rsvp") return "On the guest list";
   return "Pass";
 }
 
@@ -309,8 +466,15 @@ export const AFTRHRS_ADMIN_COPY = {
   save: "Save tonight’s settings",
   saved: "Saved. Guests will see the new settings.",
   saveFailed: "Could not save tonight’s settings.",
+  guestLanding: "Public RSVP page",
   guestListTitle: "Who has a pass",
   guestListHelp: "Codes are for the door. The words tell you what kind of pass it is and whether it still works.",
+  guestRsvpTitle: "Friday list and digital passes",
+  guestRsvpHelp: "The public page captures name, email, and telephone. Friday RSVPs reset each week. Digital passes come in drops — close one, then open another.",
+  closeDigital: "Close this digital drop",
+  openDigital: "Open another digital drop",
+  digitalClosed: "The digital drop is closed. Open another when you are ready.",
+  digitalOpen: "A digital drop is open for guests.",
   downloadList: "Download guest list",
   downloadHint: "A spreadsheet for the door team.",
   emptyGuests: "Nobody has a pass yet.",
@@ -417,7 +581,7 @@ export function decodeAftrHrsPassPayload(raw: string | null | undefined): string
   const text = String(raw).trim();
   if (!text) return "";
 
-  const urlMatch = text.match(/(?:promorang:\/\/aftrhrs\/redeem\/|\/moments\/aftrhrs\/door\?code=|[?&]code=)([A-Z0-9-]+)/i);
+  const urlMatch = text.match(/(?:promorang:\/\/aftrhrs\/redeem\/|\/moments\/aftrhrs\/door\?code=|\/aftrhrs\/ticket\/|[?&]code=)([A-Z0-9-]+)/i);
   if (urlMatch?.[1]) return urlMatch[1].toUpperCase();
 
   if (text.startsWith("{")) {
@@ -642,6 +806,18 @@ export const AFTRHRS_COPY = {
   arrivalRule:
     "RSVP holders must arrive before 11:30 PM to get in free.",
   claimGuestCta: "Get my AftrHrs pass",
+  guestRsvpCta: "RSVP for Friday",
+  guestDigitalCta: "Get the digital pass",
+  guestLandingHeadline: "AftrHrs at Sea Deck",
+  guestLandingLead:
+    "House on Friday. Put your name on the list — no Promorang account. Or hold a digital pass, like a physical invite, for the month.",
+  guestSuccessRsvp: "You are on this Friday’s list. Give your name at the door before 11:30 PM.",
+  guestSuccessPass: "Your digital pass is on the way. Open the email for your door code — it covers the month.",
+  guestUpsell: "Want the rest of the night around this? PROMORANG is where the scene lives — later, not now.",
+  guestTerms: "I understand free entry is before 11:30 PM and Sea Deck can still turn people away if the room is full.",
+  guestNameLabel: "Name",
+  guestEmailLabel: "Email",
+  guestPhoneLabel: "Telephone",
   claimSignedInCta: "Claim My Free Pass",
   authHeadline: "Get your AftrHrs pass",
   authBody:
@@ -657,9 +833,9 @@ export const AFTRHRS_COPY = {
   sceneListBody: "AftrHrs is the Friday moment in this scene.",
   homepageHeroEyebrow: "Friday night",
   homepageHeroBody:
-    "The Friday moment in Kingston After Dark. Get the door pass for Sea Deck.",
-  authSceneHint: "AftrHrs is Friday night in Kingston After Dark. Get the door pass for Sea Deck.",
-  sceneCta: "Get the AftrHrs pass",
+    "The Friday moment in Kingston After Dark. RSVP for Sea Deck — no account needed.",
+  authSceneHint: "AftrHrs is Friday night in Kingston After Dark. RSVP for Sea Deck.",
+  sceneCta: "RSVP for Friday",
   sceneFeaturedLabel: "Tonight in this scene",
   sceneFeaturedLine: "AftrHrs at Sea Deck",
   sceneAsideEyebrow: "Friday in this scene",
@@ -669,9 +845,9 @@ export const AFTRHRS_COPY = {
   when: AFTRHRS_CADENCE,
   doors: AFTRHRS_DOORS,
   whenLine: AFTRHRS_WHEN_LINE,
-  metaTitle: "AftrHrs at Sea Deck | Limited Free Passes on Promorang",
+  metaTitle: "AftrHrs at Sea Deck | RSVP for Friday",
   metaDescription:
-    "Join AftrHrs every Friday at Sea Deck, powered by Origin: Alric & Boyd and PROMORANG. Claim a limited Digital Free Pass or connect with an AftrHrs Ambassador for a physical invitation.",
+    "AftrHrs every Friday at Sea Deck. RSVP with your name, email, and telephone — or hold a digital pass for the month. Powered by Origin: Alric & Boyd.",
 } as const;
 
 export function aftrHrsDigitalReleaseView(input: { soldOut: boolean; hasPass: boolean }) {
@@ -738,15 +914,15 @@ export const DEFAULT_AFTRHRS_FAQS = [
   },
   {
     question: "I signed up for Promorang. Where is my pass?",
-    answer: "Signing up creates your Promorang account. Your AftrHrs Digital Free Pass is a separate door pass. Open /aftrhrs/pass or the top of your wallet. If it is not there yet, claim it on the AftrHrs page and the QR appears in both places.",
+    answer: "The public AftrHrs page does not need a Promorang account. If you claimed inside Promorang, your pass is at /aftrhrs/pass or the top of your wallet. Friday guests RSVP on /aftrhrs with name, email, and telephone.",
   },
   {
     question: "What is Kingston After Dark?",
-    answer: "Kingston After Dark is the nightlife scene. AftrHrs is the Friday moment at Sea Deck inside that scene. Get the door pass on /aftrhrs.",
+    answer: "Kingston After Dark is the nightlife scene. AftrHrs is the Friday moment at Sea Deck inside that scene. RSVP on /aftrhrs.",
   },
   {
     question: "How will my Digital Free Pass be verified?",
-    answer: "Present the unique QR code from your AftrHrs pass at Sea Deck. Open it from /aftrhrs/pass or the top of your wallet. Staff scan it once. A redeemed pass cannot be scanned again.",
+    answer: "Digital pass holders show the unique QR from the email ticket. Friday RSVP guests give their name at the door. Staff scan a pass once. A redeemed pass cannot be scanned again.",
   },
   {
     question: "Can I transfer my pass?",
@@ -754,10 +930,33 @@ export const DEFAULT_AFTRHRS_FAQS = [
   },
   {
     question: "Is my pass good every Friday?",
-    answer: "No. Each Digital Free Pass is for that Friday only. Unused passes expire after the night. Claim again next week — the 30 digital passes reset every Saturday morning.",
+    answer: "A Friday RSVP is for that Friday only. Unused list spots open again next week. A digital pass works like a physical invite for the month.",
   },
   {
     question: "What happens if the venue reaches capacity?",
     answer: "Admission remains subject to venue capacity and Sea Deck entry policies even with a valid pass or invitation.",
+  },
+] as const;
+
+export const DEFAULT_AFTRHRS_GUEST_FAQS = [
+  {
+    question: "Do I need a Promorang account?",
+    answer: "No. This page is only the AftrHrs list. Name, email, and telephone are enough.",
+  },
+  {
+    question: "What is a Friday RSVP?",
+    answer: "You are on this Friday’s door list. Give your name when you arrive before 11:30 PM.",
+  },
+  {
+    question: "What is the digital pass?",
+    answer: "It works like a physical invite. It gets you in free for the month. We email a door code and a ticket you can show.",
+  },
+  {
+    question: "When is AftrHrs?",
+    answer: "Every Friday from 10:00 PM at Sea Deck, Orchid Village, 20 Barbican Road, Kingston.",
+  },
+  {
+    question: "What if the list or the drop is closed?",
+    answer: "When a lane fills, it closes. Friday RSVP opens again next week. Digital passes open again when another drop is released.",
   },
 ] as const;

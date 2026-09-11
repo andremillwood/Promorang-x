@@ -5,7 +5,7 @@ import { AFTRHRS_COPY, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, DEFAULT_AFTRHRS_FAQS, af
 
 describe("AftrHrs landing states", () => {
   it("sends unauthenticated claimers back to the claim flow after login", () => {
-    expect(authPathForAftrHrsClaim()).toContain("next=%2Faftrhrs%3Fclaim%3D1");
+    expect(authPathForAftrHrsClaim()).toContain("next=%2Fmoments%2Faftrhrs%3Fclaim%3D1");
     expect(authPathForAftrHrsClaim()).toContain("intent=aftrhrs_claim");
     expect(authPathForAftrHrsPass()).toContain("next=%2Faftrhrs%2Fpass");
     expect(AFTRHRS_PATHS.passAlias).toBe("/aftrhrs/pass");
@@ -32,7 +32,7 @@ describe("AftrHrs landing states", () => {
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/Every Friday/);
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/Kingston After Dark/);
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/inside that scene/);
-    expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/claim again next week/i)
+    expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).toMatch(/open again next week/i)
     expect(AFTRHRS_COPY.homepageHeroBody).toMatch(/Friday moment in Kingston After Dark/);
     expect(AFTRHRS_COPY.homepageHeroEyebrow).toBe("Friday night");
     expect(AFTRHRS_COPY.sceneAsideBody).toMatch(/This is Kingston After Dark/);
@@ -49,6 +49,10 @@ describe("AftrHrs landing states", () => {
 
   it("registers the landing snapshot so crawlers receive AftrHrs artwork", () => {
     const source = readFileSync(resolve(__dirname, "../../scripts/generate-public-seo.mjs"), "utf8");
+    const app = readFileSync(resolve(__dirname, "../App.tsx"), "utf8");
+    expect(app).toContain("AftrHrsGuestLanding");
+    expect(app).toContain('path="/aftrhrs/ticket/:code"');
+    expect(app).toContain('path="/moments/aftrhrs"');
     expect(source).toContain('path: "/aftrhrs"');
     expect(source).toContain('path: "/moments/aftrhrs"');
     expect(source).toContain('path: "/campaigns/aftrhrs"');

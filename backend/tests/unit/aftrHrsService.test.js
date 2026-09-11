@@ -161,6 +161,32 @@ test('public read enables weekly Friday recurrence and keeps claims open', async
   expect(snap.edition.claim_closes_at).toBeNull();
 });
 
+test('guest RSVP is captured without a Promorang account', async () => {
+  mockRpc.mockResolvedValue({
+    data: { entry: { id: 'g1', unique_code: 'AH-GUEST001', full_name: 'Ada Hall', kind: 'rsvp' }, kind: 'rsvp', remaining: 29 },
+    error: null,
+  });
+  const result = await service.guestRsvp({
+    name: 'Ada Hall',
+    email: 'ada@example.com',
+    phone: '8765550101',
+    kind: 'rsvp',
+    termsAccepted: true,
+  });
+  expect(mockRpc).toHaveBeenCalledWith('aftrhrs_guest_rsvp', expect.objectContaining({
+    p_kind: 'rsvp',
+    p_email: 'ada@example.com',
+  }));
+  expect(result.kind).toBe('rsvp');
+  expect(result.ticketPath).toBeNull();
+  const { sendAftrHrsRsvpEmail } = require('../../services/resendService');
+  expect(sendAftrHrsRsvpEmail).toHaveBeenCalledWith(
+    'ada@example.com',
+    'Ada Hall',
+    expect.objectContaining({ kind: 'rsvp' }),
+  );
+});
+
 test('unauthenticated claimers are rejected before any write', async () => {
   await expect(service.claimDigitalPass(null, { termsAccepted: true }))
     .rejects.toMatchObject({ status: 401, code: 'unauthenticated' });

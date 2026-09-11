@@ -1,6 +1,7 @@
 const { supabase } = require('../lib/supabase');
 const {
   AFTRHRS_CLAIM_ERRORS,
+  AFTRHRS_GUEST_ERRORS,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_MOMENT_SLUG,
   AFTRHRS_SCENE_SLUG,
@@ -11,12 +12,21 @@ const {
   SEA_DECK_VENUE_SLUG,
   decodeAftrHrsPassPayload,
   remainingDigitalPasses,
+  remainingGuestSlots,
   publicRemainingPercent,
   AFTRHRS_DIGITAL_PASS_LIMIT,
+  AFTRHRS_RSVP_LIMIT,
+  AFTRHRS_DIGITAL_PASS_BATCH,
   AFTRHRS_FIRST_FRIDAY,
   DEFAULT_AFTRHRS_FAQS,
   aftrHrsClaimFriday,
   aftrHrsEditionSlug,
+  aftrHrsMonthKey,
+  aftrHrsTicketPath,
+  normalizeAftrHrsIdentity,
+  normalizeAftrHrsName,
+  normalizeAftrHrsPhone,
+  isValidAftrHrsEmail,
   hasAftrHrsFridayRecurrence,
   isAftrHrsFirstNightClaimClose,
 } = require('../lib/aftrHrsRules');
@@ -66,6 +76,7 @@ function isAdmin(user = {}) {
 
 async function getEdition() {
   const edition = await ensureAftrHrsWeeklyEdition();
+  await Promise.resolve(supabase.rpc('aftrhrs_expire_stale_guest_entries')).catch(() => undefined);
   return ensureCurrentRelease(edition);
 }
 
@@ -149,6 +160,8 @@ async function ensureAftrHrsWeeklyEdition(now = new Date()) {
     claims_open: true,
     digital_allocation: AFTRHRS_DIGITAL_PASS_LIMIT,
     digital_claimed: 0,
+    rsvp_allocation: AFTRHRS_RSVP_LIMIT,
+    rsvp_claimed: 0,
     claim_opens_at: null,
     claim_closes_at: null,
     paid_admission_jmd: latest?.paid_admission_jmd || 2000,
@@ -181,7 +194,7 @@ function needsAftrHrsFridayFaqs(faqs) {
     || !faqs.some((faq) => String(faq?.answer || '').includes('11:30 PM'))
     || !faqs.some((faq) => /every friday/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
     || !faqs.some((faq) => /signed up for Promorang/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
-    || !faqs.some((faq) => /good every Friday|expire after the night|claim again next week/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
+    || !faqs.some((faq) => /good every Friday|expire after the night|claim again next week|open again next week/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
     || faqs.some((faq) => /not the Friday door|not tonight's door|not the event/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
     || !faqs.some((faq) => /inside that scene/i.test(`${faq?.question || ''} ${faq?.answer || ''}`));
 }
@@ -311,12 +324,16 @@ async function publicSnapshot(userId) {
   const allocation = Number(edition.digital_allocation || 0);
   delete publicEdition.digital_allocation;
   delete publicEdition.digital_claimed;
+  delete publicEdition.rsvp_allocation;
+  delete publicEdition.rsvp_claimed;
   delete publicEdition.metadata;
   if (publicEdition.venue_policies && typeof publicEdition.venue_policies === 'object') {
     const policies = { ...publicEdition.venue_policies };
     delete policies.notes;
     publicEdition.venue_policies = policies;
   }
+
+  const guest = await guestLaneSnapshot(edition);
 
   return {
     edition: {
@@ -327,6 +344,7 @@ async function publicSnapshot(userId) {
       venueSlug: SEA_DECK_VENUE_SLUG,
       venueId: edition.venue_id || SEA_DECK_VENUE_ID,
     },
+    guest,
     ambassadors: (ambassadors || []).map((row) => ({
       id: row.ambassador_user_id,
       name: row.name,
@@ -341,6 +359,291 @@ async function publicSnapshot(userId) {
     followingVenue,
     communityCount: communityCount || 0,
   };
+}
+
+function guestFail(code, message, status = 422) {
+  const err = new Error(message);
+  err.status = status;
+  err.code = code;
+  return err;
+}
+
+async function readOpenDigitalRelease() {
+  const { data, error } = await supabase
+    .from('aftrhrs_digital_releases')
+    .select('*')
+    .eq('claims_open', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error && /aftrhrs_digital_releases|does not exist|column/i.test(error.message || '')) return null;
+  if (error) return null;
+  return data || null;
+}
+
+async function readLatestDigitalRelease() {
+  const open = await readOpenDigitalRelease();
+  if (open) return open;
+  const { data, error } = await supabase
+    .from('aftrhrs_digital_releases')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) return null;
+  return data || null;
+}
+
+async function guestLaneSnapshot(edition) {
+  const rsvpAllocation = Number(edition?.rsvp_allocation ?? AFTRHRS_RSVP_LIMIT);
+  const rsvpClaimed = Number(edition?.rsvp_claimed ?? 0);
+  const rsvpRemaining = remainingGuestSlots(rsvpAllocation, rsvpClaimed);
+  const release = await readLatestDigitalRelease();
+  const digitalAllocation = Number(release?.allocation ?? AFTRHRS_DIGITAL_PASS_BATCH);
+  const digitalClaimed = Number(release?.claimed ?? 0);
+  const digitalRemaining = remainingGuestSlots(digitalAllocation, digitalClaimed);
+  const digitalOpen = release ? Boolean(release.claims_open) && digitalRemaining > 0 : true;
+  return {
+    rsvp: {
+      remainingPercent: publicRemainingPercent(rsvpRemaining, rsvpAllocation),
+      soldOut: rsvpRemaining <= 0,
+      open: Boolean(edition?.published !== false) && rsvpRemaining > 0,
+    },
+    digitalPass: {
+      remainingPercent: digitalOpen ? publicRemainingPercent(digitalRemaining, digitalAllocation) : 0,
+      soldOut: !digitalOpen,
+      open: Boolean(edition?.published !== false) && digitalOpen,
+    },
+  };
+}
+
+async function guestRsvp(body = {}) {
+  if (String(body.website || body.honeypot || '').trim()) {
+    return { ok: true, silent: true };
+  }
+  const kind = body.kind === 'digital-pass' ? 'digital-pass' : 'rsvp';
+  const name = normalizeAftrHrsName(body.name || body.fullName);
+  const email = normalizeAftrHrsIdentity(body.email);
+  const phone = normalizeAftrHrsPhone(body.phone || body.telephone);
+  if (!name) throw guestFail('terms', AFTRHRS_GUEST_ERRORS.name);
+  if (!isValidAftrHrsEmail(email)) throw guestFail('terms', AFTRHRS_GUEST_ERRORS.email);
+  if (!phone) throw guestFail('terms', AFTRHRS_GUEST_ERRORS.phone);
+  if (!body.termsAccepted) throw guestFail('terms', AFTRHRS_GUEST_ERRORS.terms);
+
+  const rpc = await Promise.resolve(supabase.rpc('aftrhrs_guest_rsvp', {
+    p_kind: kind,
+    p_name: name,
+    p_email: email,
+    p_phone: body.phone || body.telephone || phone,
+    p_terms_accepted: true,
+    p_source: body.source || 'landing',
+    p_campaign: body.campaign || null,
+    p_referrer: body.referrer || null,
+  })).catch((error) => ({ data: null, error }));
+
+  if (!rpc.error && rpc.data) {
+    await sendGuestLandingEmail({
+      name,
+      email,
+      kind,
+      code: rpc.data.entry?.unique_code || rpc.data.entry?.uniqueCode,
+      locale: body.locale,
+    });
+    await track(kind === 'digital-pass' ? 'guest_digital_pass' : 'guest_rsvp', {
+      properties: { entry_id: rpc.data.entry?.id, kind },
+    });
+    return publicGuestResult(rpc.data.entry || rpc.data, kind);
+  }
+  if (rpc.error && !/function|does not exist|schema cache/i.test(String(rpc.error.message || ''))) {
+    const mapped = rpcError(rpc.error);
+    if (mapped.code === 'already_claimed') {
+      mapped.message = kind === 'digital-pass' ? AFTRHRS_GUEST_ERRORS.already_pass : AFTRHRS_GUEST_ERRORS.already_rsvp;
+    }
+    if (mapped.code === 'sold_out') mapped.message = AFTRHRS_GUEST_ERRORS.rsvp_full;
+    if (mapped.code === 'closed') mapped.message = AFTRHRS_GUEST_ERRORS.pass_closed;
+    throw mapped;
+  }
+
+  return guestRsvpFallback({ kind, name, email, phone: body.phone || phone, locale: body.locale, source: body.source, campaign: body.campaign, referrer: body.referrer });
+}
+
+function publicGuestResult(entry, kind) {
+  const code = entry?.unique_code || entry?.uniqueCode || null;
+  return {
+    ok: true,
+    kind,
+    name: entry?.full_name || entry?.name || null,
+    ticketPath: kind === 'digital-pass' && code ? aftrHrsTicketPath(code) : null,
+    code: kind === 'digital-pass' ? code : null,
+  };
+}
+
+async function guestRsvpFallback({ kind, name, email, phone, locale, source, campaign, referrer }) {
+  const edition = await getEdition();
+  if (edition.published === false) throw guestFail('unpublished', AFTRHRS_GUEST_ERRORS.unpublished, 409);
+
+  if (kind === 'rsvp') {
+    const remaining = remainingGuestSlots(edition.rsvp_allocation ?? AFTRHRS_RSVP_LIMIT, edition.rsvp_claimed ?? 0);
+    if (remaining <= 0) throw guestFail('sold_out', AFTRHRS_GUEST_ERRORS.rsvp_full, 409);
+    const { data: existing } = await supabase
+      .from('aftrhrs_guest_entries')
+      .select('id')
+      .eq('kind', 'rsvp')
+      .eq('week_friday', edition.week_friday)
+      .in('status', ['active', 'redeemed'])
+      .or(`email_normalized.eq.${email},phone_normalized.eq.${normalizeAftrHrsPhone(phone)}`)
+      .limit(1);
+    if (existing?.length) throw guestFail('already_claimed', AFTRHRS_GUEST_ERRORS.already_rsvp, 409);
+  } else {
+    let release = await readLatestDigitalRelease();
+    if (!release) {
+      const created = await supabase.from('aftrhrs_digital_releases').insert({
+        month_key: aftrHrsMonthKey(),
+        batch_index: 1,
+        allocation: AFTRHRS_DIGITAL_PASS_BATCH,
+        claimed: 0,
+        claims_open: true,
+      }).select().single();
+      release = created.data;
+    }
+    const remaining = remainingGuestSlots(release?.allocation ?? AFTRHRS_DIGITAL_PASS_BATCH, release?.claimed ?? 0);
+    if (!release || !release.claims_open || remaining <= 0) {
+      throw guestFail('closed', AFTRHRS_GUEST_ERRORS.pass_closed, 409);
+    }
+    const { data: existing } = await supabase
+      .from('aftrhrs_guest_entries')
+      .select('id')
+      .eq('kind', 'digital-pass')
+      .eq('month_key', release.month_key)
+      .in('status', ['active', 'redeemed'])
+      .or(`email_normalized.eq.${email},phone_normalized.eq.${normalizeAftrHrsPhone(phone)}`)
+      .limit(1);
+    if (existing?.length) throw guestFail('already_claimed', AFTRHRS_GUEST_ERRORS.already_pass, 409);
+  }
+
+  const uniqueCode = `AH-${Math.random().toString(36).slice(2, 6).toUpperCase()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  const release = kind === 'digital-pass' ? await readOpenDigitalRelease() : null;
+  const insert = {
+    kind,
+    full_name: name,
+    email,
+    email_normalized: email,
+    phone: String(phone),
+    phone_normalized: normalizeAftrHrsPhone(phone),
+    unique_code: uniqueCode,
+    qr_payload: `promorang://aftrhrs/redeem/${uniqueCode}`,
+    status: 'active',
+    edition_id: kind === 'rsvp' ? edition.id : null,
+    week_friday: kind === 'rsvp' ? edition.week_friday : null,
+    release_id: release?.id || null,
+    month_key: kind === 'digital-pass' ? (release?.month_key || aftrHrsMonthKey()) : null,
+    terms_accepted_at: new Date().toISOString(),
+    source: source || 'landing',
+    campaign: campaign || null,
+    referrer: referrer || null,
+  };
+  const { data, error } = await supabase.from('aftrhrs_guest_entries').insert(insert).select().single();
+  if (error) {
+    if (error.code === '23505') {
+      throw guestFail('already_claimed', kind === 'digital-pass' ? AFTRHRS_GUEST_ERRORS.already_pass : AFTRHRS_GUEST_ERRORS.already_rsvp, 409);
+    }
+    throw error;
+  }
+  if (kind === 'rsvp') {
+    await supabase.from('event_editions').update({
+      rsvp_claimed: Number(edition.rsvp_claimed || 0) + 1,
+      updated_at: new Date().toISOString(),
+    }).eq('id', edition.id);
+  } else if (release) {
+    const nextClaimed = Number(release.claimed || 0) + 1;
+    await supabase.from('aftrhrs_digital_releases').update({
+      claimed: nextClaimed,
+      claims_open: nextClaimed < Number(release.allocation || AFTRHRS_DIGITAL_PASS_BATCH),
+      updated_at: new Date().toISOString(),
+    }).eq('id', release.id);
+  }
+  await sendGuestLandingEmail({ name, email, kind, code: uniqueCode, locale });
+  await track(kind === 'digital-pass' ? 'guest_digital_pass' : 'guest_rsvp', {
+    properties: { entry_id: data.id, kind },
+  });
+  return publicGuestResult(data, kind);
+}
+
+async function sendGuestLandingEmail({ name, email, kind, code, locale }) {
+  if (!email) return;
+  try {
+    const { sendAftrHrsRsvpEmail } = require('./resendService');
+    await sendAftrHrsRsvpEmail(email, name || 'there', {
+      kind: kind === 'digital-pass' ? 'guest-pass' : 'rsvp',
+      activationCode: code,
+      ticketPath: kind === 'digital-pass' ? aftrHrsTicketPath(code) : null,
+      locale,
+    });
+  } catch (emailError) {
+    console.warn('[AftrHrs] guest email skipped:', emailError.message);
+  }
+}
+
+async function publicTicket(code) {
+  const unique = decodeAftrHrsPassPayload(code);
+  if (!unique) throw guestFail('not_found', AFTRHRS_GUEST_ERRORS.not_found, 404);
+  const { data, error } = await supabase
+    .from('aftrhrs_guest_entries')
+    .select('full_name, kind, unique_code, qr_payload, status, week_friday, month_key, claimed_at, redeemed_at')
+    .eq('unique_code', unique)
+    .maybeSingle();
+  if (error || !data) throw guestFail('not_found', AFTRHRS_GUEST_ERRORS.not_found, 404);
+  return {
+    name: data.full_name,
+    kind: data.kind,
+    code: data.unique_code,
+    qrPayload: data.qr_payload,
+    status: data.status,
+    weekFriday: data.week_friday,
+    monthKey: data.month_key,
+    claimedAt: data.claimed_at,
+    redeemedAt: data.redeemed_at,
+  };
+}
+
+async function adminDigitalRelease(user, body = {}) {
+  assertAdmin(user);
+  const action = String(body.action || '').toLowerCase();
+  if (action === 'close') {
+    const rpc = await Promise.resolve(supabase.rpc('aftrhrs_close_digital_release')).catch((error) => ({ data: null, error }));
+    if (!rpc.error && rpc.data) return rpc.data;
+    const current = await readOpenDigitalRelease();
+    if (!current) throw guestFail('closed', AFTRHRS_GUEST_ERRORS.pass_closed, 409);
+    const { data, error } = await supabase.from('aftrhrs_digital_releases').update({
+      claims_open: false,
+      closed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }).eq('id', current.id).select().single();
+    if (error) throw error;
+    return data;
+  }
+  if (action === 'open') {
+    const rpc = await Promise.resolve(supabase.rpc('aftrhrs_open_digital_release')).catch((error) => ({ data: null, error }));
+    if (!rpc.error && rpc.data) return rpc.data;
+    const open = await readOpenDigitalRelease();
+    if (open) {
+      await supabase.from('aftrhrs_digital_releases').update({
+        claims_open: false,
+        closed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }).eq('id', open.id);
+    }
+    const { data, error } = await supabase.from('aftrhrs_digital_releases').insert({
+      month_key: aftrHrsMonthKey(),
+      batch_index: 1,
+      allocation: AFTRHRS_DIGITAL_PASS_BATCH,
+      claimed: 0,
+      claims_open: true,
+    }).select().single();
+    if (error) throw error;
+    return data;
+  }
+  throw guestFail('terms', 'Use close or open for the digital drop.');
 }
 
 async function track(name, payload = {}) {
@@ -535,14 +838,66 @@ async function redeemPass(user, body = {}) {
     p_notes: body.notes || null,
     p_device: body.device || {},
   });
-  if (error) {
-    const mapped = rpcError(error);
-    console.warn('[AftrHrs] redeem rejected', { actor: user.id, code, reason: mapped.code });
-    throw mapped;
+  if (!error && data) {
+    console.info('[AftrHrs] redeem complete', { actor: user.id, passId: data?.id });
+    await track('check_in', { userId: data?.user_id, properties: { pass_id: data?.id, actor: user.id } });
+    return data;
   }
-  console.info('[AftrHrs] redeem complete', { actor: user.id, passId: data?.id });
-  await track('check_in', { userId: data?.user_id, properties: { pass_id: data?.id, actor: user.id } });
-  return data;
+  const guest = await redeemGuestEntry(user, code, body);
+  if (guest) return guest;
+  const mapped = rpcError(error || new Error('NOT_FOUND'));
+  console.warn('[AftrHrs] redeem rejected', { actor: user.id, code, reason: mapped.code });
+  throw mapped;
+}
+
+async function redeemGuestEntry(user, code, body = {}) {
+  const rpc = await Promise.resolve(supabase.rpc('redeem_aftrhrs_guest_entry', {
+    p_actor_user_id: user.id,
+    p_code: code,
+    p_notes: body.notes || null,
+    p_device: body.device || {},
+  })).catch((error) => ({ data: null, error }));
+  if (!rpc.error && rpc.data) {
+    await track('guest_check_in', { properties: { entry_id: rpc.data.id, kind: rpc.data.kind, actor: user.id } });
+    return rpc.data;
+  }
+  if (rpc.error && /ALREADY_REDEEMED|NOT_REDEEMABLE/.test(String(rpc.error.message || ''))) {
+    throw rpcError(rpc.error);
+  }
+
+  const { data, error } = await supabase
+    .from('aftrhrs_guest_entries')
+    .select('*')
+    .eq('unique_code', code)
+    .maybeSingle();
+  if (error || !data) return null;
+  if (data.status === 'redeemed') {
+    const err = new Error(AFTRHRS_CLAIM_ERRORS.already_redeemed);
+    err.status = 409;
+    err.code = 'already_redeemed';
+    throw err;
+  }
+  if (data.status !== 'active') {
+    const err = new Error(AFTRHRS_CLAIM_ERRORS.not_redeemable);
+    err.status = 409;
+    err.code = 'not_redeemable';
+    throw err;
+  }
+  const { data: redeemed, error: updateError } = await supabase
+    .from('aftrhrs_guest_entries')
+    .update({
+      status: 'redeemed',
+      redeemed_at: new Date().toISOString(),
+      redeemed_by: user.id,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', data.id)
+    .eq('status', 'active')
+    .select()
+    .single();
+  if (updateError || !redeemed) return null;
+  await track('guest_check_in', { properties: { entry_id: redeemed.id, kind: redeemed.kind, actor: user.id } });
+  return redeemed;
 }
 
 async function ambassadorDashboard(user) {
@@ -604,11 +959,13 @@ function assertAdmin(user) {
 async function adminOverview(user) {
   assertAdmin(user);
   const edition = await getEdition();
-  const [{ data: passes }, { data: ambassadors }, { data: requests }, { data: events }] = await Promise.all([
+  const [{ data: passes }, { data: ambassadors }, { data: requests }, { data: events }, { data: guests }, digitalRelease] = await Promise.all([
     supabase.from('event_passes').select('*').eq('edition_id', edition.id).order('claimed_at', { ascending: false }),
     supabase.from('event_ambassador_allocations').select('*').eq('event_id', edition.moment_id),
     supabase.from('event_ambassador_requests').select('*').eq('event_id', edition.moment_id).order('created_at', { ascending: false }),
     supabase.from('event_analytics_events').select('name').eq('event_id', edition.moment_id),
+    supabase.from('aftrhrs_guest_entries').select('*').order('claimed_at', { ascending: false }).limit(500),
+    readLatestDigitalRelease(),
   ]);
   const counts = (events || []).reduce((acc, row) => {
     acc[row.name] = (acc[row.name] || 0) + 1;
@@ -617,6 +974,9 @@ async function adminOverview(user) {
   return {
     edition,
     remaining: remainingDigitalPasses({ digitalAllocation: edition.digital_allocation, digitalClaimed: edition.digital_claimed }),
+    rsvpRemaining: remainingGuestSlots(edition.rsvp_allocation ?? AFTRHRS_RSVP_LIMIT, edition.rsvp_claimed ?? 0),
+    digitalRelease,
+    guests: guests || [],
     passes: passes || [],
     ambassadors: ambassadors || [],
     requests: requests || [],
@@ -738,23 +1098,36 @@ async function adminSaveAmbassador(user, body = {}) {
 
 async function guestListCsv(user) {
   assertAdmin(user);
-  const { data, error } = await supabase
-    .from('event_passes')
-    .select('unique_code, pass_type, status, user_id, ambassador_id, claim_source, campaign, claimed_at, redeemed_at')
-    .eq('event_id', AFTRHRS_MOMENT_ID)
-    .order('claimed_at', { ascending: true });
+  const [{ data, error }, { data: guests }] = await Promise.all([
+    supabase
+      .from('event_passes')
+      .select('unique_code, pass_type, status, user_id, ambassador_id, claim_source, campaign, claimed_at, redeemed_at')
+      .eq('event_id', AFTRHRS_MOMENT_ID)
+      .order('claimed_at', { ascending: true }),
+    supabase
+      .from('aftrhrs_guest_entries')
+      .select('unique_code, kind, status, full_name, email, phone, week_friday, month_key, claimed_at, redeemed_at')
+      .order('claimed_at', { ascending: true }),
+  ]);
   if (error) throw error;
-  const header = 'unique_code,pass_type,status,user_id,ambassador_id,claim_source,campaign,claimed_at,redeemed_at';
-  const lines = (data || []).map((row) => [
-    row.unique_code, row.pass_type, row.status, row.user_id, row.ambassador_id,
-    row.claim_source, row.campaign, row.claimed_at, row.redeemed_at,
+  const header = 'source,unique_code,pass_type,status,name,email,phone,week_friday,month_key,claimed_at,redeemed_at';
+  const accountLines = (data || []).map((row) => [
+    'account', row.unique_code, row.pass_type, row.status, '', '', '', '', '',
+    row.claimed_at, row.redeemed_at,
   ].map((value) => JSON.stringify(value ?? '')).join(','));
-  return [header, ...lines].join('\n');
+  const guestLines = (guests || []).map((row) => [
+    'guest', row.unique_code, row.kind, row.status, row.full_name, row.email, row.phone,
+    row.week_friday, row.month_key, row.claimed_at, row.redeemed_at,
+  ].map((value) => JSON.stringify(value ?? '')).join(','));
+  return [header, ...accountLines, ...guestLines].join('\n');
 }
 
 module.exports = {
   AFTRHRS_MOMENT_ID,
   publicSnapshot,
+  guestRsvp,
+  publicTicket,
+  adminDigitalRelease,
   track,
   claimDigitalPass,
   joinMoment,

@@ -327,6 +327,67 @@ export function useAftrHrsAutoClaim(options?: { redirectToPass?: boolean }) {
   return { autoClaiming };
 }
 
+export type AftrHrsGuestLane = {
+  remainingPercent: number;
+  soldOut: boolean;
+  open: boolean;
+};
+
+export type AftrHrsGuestPublic = {
+  rsvp: AftrHrsGuestLane;
+  digitalPass: AftrHrsGuestLane;
+};
+
+const GUEST_FALLBACK: AftrHrsGuestPublic = {
+  rsvp: { remainingPercent: 100, soldOut: false, open: true },
+  digitalPass: { remainingPercent: 100, soldOut: false, open: true },
+};
+
+export function useAftrHrsGuest() {
+  const snapshot = useQuery({
+    queryKey: ["aftrhrs-guest"],
+    queryFn: async () => {
+      try {
+        return await request<AftrHrsSnapshot & { guest?: AftrHrsGuestPublic }>("/public");
+      } catch {
+        return { ...AFTRHRS_FALLBACK, guest: GUEST_FALLBACK };
+      }
+    },
+  });
+  const guest = snapshot.data?.guest || GUEST_FALLBACK;
+  const rsvp = useMutation({
+    mutationFn: (body: { name: string; email: string; phone: string; kind: "rsvp" | "digital-pass"; termsAccepted: boolean; website?: string }) =>
+      request<{ ok: boolean; kind: string; name?: string; ticketPath?: string | null; code?: string | null; silent?: boolean }>("/guest-rsvp", undefined, {
+        method: "POST",
+        body: JSON.stringify({ ...body, ...attribution() }),
+      }),
+    onSuccess: () => snapshot.refetch(),
+  });
+  return {
+    ...snapshot,
+    edition: snapshot.data?.edition || AFTRHRS_FALLBACK.edition,
+    guest,
+    rsvp,
+  };
+}
+
+export function useAftrHrsGuestTicket(code?: string) {
+  return useQuery({
+    queryKey: ["aftrhrs-ticket", code],
+    queryFn: () => request<{
+      name: string;
+      kind: string;
+      code: string;
+      qrPayload: string;
+      status: string;
+      weekFriday?: string | null;
+      monthKey?: string | null;
+    }>(`/ticket/${encodeURIComponent(String(code || "").toUpperCase())}`),
+    enabled: Boolean(code),
+    retry: false,
+  });
+}
+
 export function useAftrHrsAdmin() {
   const { session } = useAuth();
   const token = session?.access_token;
@@ -346,7 +407,12 @@ export function useAftrHrsAdmin() {
       request(`/admin/passes/${id}`, token, { method: "PATCH", body: JSON.stringify({ status }) }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["aftrhrs-admin"] }),
   });
-  return { ...query, token, update, updatePass };
+  const digitalRelease = useMutation({
+    mutationFn: (action: "close" | "open") =>
+      request("/admin/digital-release", token, { method: "POST", body: JSON.stringify({ action }) }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["aftrhrs-admin"] }),
+  });
+  return { ...query, token, update, updatePass, digitalRelease };
 }
 
 export function useAftrHrsAmbassador() {

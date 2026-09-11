@@ -1648,18 +1648,29 @@ function aftrHrsAssetUrl(path) {
   return buildPublicAssetUrl(path);
 }
 
-function buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode, locale }) {
+function aftrHrsEmailKind(kind) {
+  if (kind === 'guest-pass') return 'aftrHrsGuestPass';
+  if (kind === 'pass') return 'aftrHrsPass';
+  return 'aftrHrsRsvp';
+}
+
+function buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode, ticketPath, locale }) {
   const aftrHrsLogo = aftrHrsAssetUrl('/campaigns/aftrhrs/logo.jpg');
   const promorangLogo = EMAIL_CONFIG.logoUrl;
   const site = EMAIL_CONFIG.frontendUrl;
-  const isPass = kind === 'pass';
-  const content = getEmailContent(isPass ? 'aftrHrsPass' : 'aftrHrsRsvp', locale, {
+  const isAccountPass = kind === 'pass';
+  const isGuestPass = kind === 'guest-pass';
+  const isPass = isAccountPass || isGuestPass;
+  const content = getEmailContent(aftrHrsEmailKind(kind), locale, {
     name: userName || 'there',
     activationCode: activationCode || '',
   });
   const passUrl = getLocalizedEmailUrl('/aftrhrs/pass', locale, site);
   const landingUrl = getLocalizedEmailUrl('/aftrhrs', locale, site);
-  const ctaUrl = isPass ? passUrl : landingUrl;
+  const ticketUrl = ticketPath
+    ? getLocalizedEmailUrl(ticketPath, locale, site)
+    : (activationCode ? getLocalizedEmailUrl(`/aftrhrs/ticket/${encodeURIComponent(String(activationCode).toUpperCase())}`, locale, site) : landingUrl);
+  const ctaUrl = isGuestPass ? ticketUrl : isAccountPass ? passUrl : landingUrl;
   const lang = htmlLangForLocale(locale);
 
   return `<!DOCTYPE html>
@@ -1713,7 +1724,7 @@ function buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode, locale }) {
                 </tr>
               </table>
               <p style="margin:8px 0 0;text-align:center;color:#737373;font-size:12px;line-height:1.6;">
-                ${isPass ? `${content.signInNote} <a href="${landingUrl}" style="color:#a3a3a3;text-decoration:underline;">${content.viewAftrHrs}</a>` : `<a href="${landingUrl}" style="color:#a3a3a3;text-decoration:underline;">www.promorang.co/aftrhrs</a>`}
+                ${isAccountPass ? `${content.signInNote} <a href="${landingUrl}" style="color:#a3a3a3;text-decoration:underline;">${content.viewAftrHrs}</a>` : `<a href="${landingUrl}" style="color:#a3a3a3;text-decoration:underline;">www.promorang.co/aftrhrs</a>`}
               </p>
               <div style="margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.1);text-align:center;">
                 <img src="${promorangLogo}" alt="PROMORANG" width="36" height="36" style="display:block;margin:0 auto 10px;border:0;">
@@ -1730,30 +1741,34 @@ function buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode, locale }) {
 </html>`;
 }
 
-function buildAftrHrsRsvpEmailText({ userName, kind, activationCode, locale }) {
-  const isPass = kind === 'pass';
+function buildAftrHrsRsvpEmailText({ userName, kind, activationCode, ticketPath, locale }) {
+  const isAccountPass = kind === 'pass';
+  const isGuestPass = kind === 'guest-pass';
   const site = EMAIL_CONFIG.frontendUrl;
-  const content = getEmailContent(isPass ? 'aftrHrsPass' : 'aftrHrsRsvp', locale, {
+  const content = getEmailContent(aftrHrsEmailKind(kind), locale, {
     name: userName || 'there',
   });
   const passUrl = getLocalizedEmailUrl('/aftrhrs/pass', locale, site);
   const landingUrl = getLocalizedEmailUrl('/aftrhrs', locale, site);
+  const ticketUrl = ticketPath
+    ? getLocalizedEmailUrl(ticketPath, locale, site)
+    : (activationCode ? getLocalizedEmailUrl(`/aftrhrs/ticket/${encodeURIComponent(String(activationCode).toUpperCase())}`, locale, site) : landingUrl);
   return [
     content.greeting,
     content.preheader,
     content.arrive,
     content.venue,
     activationCode ? activationCode : null,
-    isPass ? passUrl : landingUrl,
+    isGuestPass ? ticketUrl : isAccountPass ? passUrl : landingUrl,
     content.powered,
   ].filter(Boolean).join('\n\n');
 }
 
 async function sendAftrHrsRsvpEmail(userEmail, userName, rsvpData = {}) {
-  const { kind = 'pass', activationCode, locale } = rsvpData;
-  const html = buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode, locale });
-  const text = buildAftrHrsRsvpEmailText({ userName, kind, activationCode, locale });
-  const content = getEmailContent(kind === 'pass' ? 'aftrHrsPass' : 'aftrHrsRsvp', locale, {
+  const { kind = 'pass', activationCode, ticketPath, locale } = rsvpData;
+  const html = buildAftrHrsRsvpEmailHtml({ userName, kind, activationCode, ticketPath, locale });
+  const text = buildAftrHrsRsvpEmailText({ userName, kind, activationCode, ticketPath, locale });
+  const content = getEmailContent(aftrHrsEmailKind(kind), locale, {
     name: userName || 'there',
   });
 
@@ -1762,7 +1777,7 @@ async function sendAftrHrsRsvpEmail(userEmail, userName, rsvpData = {}) {
     subject: content.subject,
     html,
     text,
-    tags: [{ name: 'type', value: kind === 'pass' ? 'aftrhrs-pass' : 'aftrhrs-rsvp' }, { name: 'locale', value: content.locale }],
+    tags: [{ name: 'type', value: kind === 'guest-pass' ? 'aftrhrs-guest-pass' : kind === 'pass' ? 'aftrhrs-pass' : 'aftrhrs-rsvp' }, { name: 'locale', value: content.locale }],
   });
 }
 

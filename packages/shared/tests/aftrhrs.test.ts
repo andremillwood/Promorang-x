@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   AFTRHRS_COPY,
+  AFTRHRS_DIGITAL_PASS_BATCH,
   AFTRHRS_DIGITAL_PASS_LIMIT,
+  AFTRHRS_RSVP_LIMIT,
   AFTRHRS_OG_IMAGE,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_PATHS,
@@ -19,7 +21,10 @@ import {
   decodeAftrHrsPassPayload,
   encodeAftrHrsPassPayload,
   evaluateDigitalPassClaim,
+  evaluateGuestEntry,
   formatPublicRemainingLabel,
+  guestLaneCopy,
+  remainingCapacityMood,
   guestPassStatus,
   guestPassType,
   adminPassStatus,
@@ -259,12 +264,14 @@ describe("AftrHrs digital pass inventory", () => {
   it("builds an authenticated return into the claim flow", () => {
     const path = authPathForAftrHrsClaim();
     expect(path).toContain("/auth?");
-    expect(path).toContain("next=%2Faftrhrs%3Fclaim%3D1");
+    expect(path).toContain("next=%2Fmoments%2Faftrhrs%3Fclaim%3D1");
     expect(path).toContain("intent=aftrhrs_claim");
     expect(AFTRHRS_PATHS.landing).toBe("/aftrhrs");
     expect(isAftrHrsClaimReturn("/aftrhrs?claim=1")).toBe(true);
     expect(isAftrHrsClaimReturn("/moments/aftrhrs?claim=1")).toBe(true);
     expect(AFTRHRS_PATHS.passAlias).toBe("/aftrhrs/pass");
+    expect(AFTRHRS_PATHS.ticket).toBe("/aftrhrs/ticket");
+    expect(AFTRHRS_PATHS.claimReturn).toBe("/moments/aftrhrs?claim=1");
     expect(authPathForAftrHrsPass()).toContain("next=%2Faftrhrs%2Fpass");
     expect(authPathForAftrHrsPass()).toContain("intent=aftrhrs_pass");
     expect(isAftrHrsPassPath("/aftrhrs/pass")).toBe(true);
@@ -298,6 +305,11 @@ describe("AftrHrs digital pass inventory", () => {
     expect(hrefForSceneMoment({ id: AFTRHRS_MOMENT_ID })).toBe("/aftrhrs");
     expect(sceneMomentsWithAftrHrs("kingston-after-dark", [{ id: "other", title: "Other" }])[0].title).toBe("AftrHrs");
     expect(AFTRHRS_COPY.homepageHeroBody).toMatch(/Friday moment in Kingston After Dark/);
+    expect(AFTRHRS_COPY.homepageHeroBody).toMatch(/no account/);
+    expect(AFTRHRS_COPY.sceneCta).toBe("RSVP for Friday");
+    expect(AFTRHRS_COPY.guestRsvpCta).toBe("RSVP for Friday");
+    expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/30 digital|30 RSVP|30 passes|only 30/i);
+    expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/\b50\b/);
     expect(AFTRHRS_COPY.homepageHeroEyebrow).toBe("Friday night");
     expect(AFTRHRS_COPY.sceneMomentLine).toMatch(/AftrHrs at Sea Deck/);
     expect(AFTRHRS_COPY.sceneListBody).toMatch(/Friday moment in this scene/);
@@ -416,6 +428,153 @@ describe("AftrHrs digital pass inventory", () => {
     await store.markAttended("lifecycle");
     expect(store.snapshot().participations[0]?.state).toBe("attended");
     expect(nextParticipationState("attended", "interested")).toBe("attended");
+  });
+});
+
+describe("AftrHrs public guest RSVP", () => {
+  it("captures a Friday RSVP without a Promorang account", async () => {
+    const store = createAftrHrsInventory();
+    const result = await store.guestRsvp({
+      kind: "rsvp",
+      name: "Ada Hall",
+      email: "ada@example.com",
+      phone: "8765550101",
+      termsAccepted: true,
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.entry.kind).toBe("rsvp");
+      expect(result.entry.email).toBe("ada@example.com");
+      expect(result.remaining).toBe(AFTRHRS_RSVP_LIMIT - 1);
+    }
+    expect(store.snapshot().edition.rsvpClaimed).toBe(1);
+  });
+
+  it("issues a monthly digital pass in batches and closes the drop when it fills", async () => {
+    const store = createAftrHrsInventory();
+    const first = await store.guestRsvp({
+      kind: "digital-pass",
+      name: "Ben Cole",
+      email: "ben@example.com",
+      phone: "8765550102",
+      termsAccepted: true,
+    });
+    expect(first.ok).toBe(true);
+    if (first.ok) expect(first.remaining).toBe(AFTRHRS_DIGITAL_PASS_BATCH - 1);
+
+    const repeat = await store.guestRsvp({
+      kind: "digital-pass",
+      name: "Ben Cole",
+      email: "ben@example.com",
+      phone: "8765550102",
+      termsAccepted: true,
+    });
+    expect(repeat.ok).toBe(false);
+    if (!repeat.ok) expect(repeat.code).toBe("already_claimed");
+
+    const filled = await Promise.all(
+      Array.from({ length: AFTRHRS_DIGITAL_PASS_BATCH }, (_, index) =>
+        store.guestRsvp({
+          kind: "digital-pass",
+          name: `Guest ${index}`,
+          email: `guest${index}@example.com`,
+          phone: `8765551${String(index).padStart(3, "0")}`,
+          termsAccepted: true,
+        }),
+      ),
+    );
+    expect(filled.filter((item) => item.ok)).toHaveLength(AFTRHRS_DIGITAL_PASS_BATCH - 1);
+    expect(store.snapshot().digitalRelease.claimsOpen).toBe(false);
+
+    const closed = await store.guestRsvp({
+      kind: "digital-pass",
+      name: "Late Guest",
+      email: "late@example.com",
+      phone: "8765550199",
+      termsAccepted: true,
+    });
+    expect(closed.ok).toBe(false);
+    if (!closed.ok) expect(closed.code).toBe("closed");
+
+    await store.openDigitalRelease();
+    const nextDrop = await store.guestRsvp({
+      kind: "digital-pass",
+      name: "Next Drop",
+      email: "next@example.com",
+      phone: "8765550200",
+      termsAccepted: true,
+    });
+    expect(nextDrop.ok).toBe(true);
+  });
+
+  it("lets the door scan a guest digital pass and a Friday RSVP code", async () => {
+    const store = createAftrHrsInventory();
+    const pass = await store.guestRsvp({
+      kind: "digital-pass",
+      name: "Cara",
+      email: "cara@example.com",
+      phone: "8765550103",
+      termsAccepted: true,
+    });
+    expect(pass.ok).toBe(true);
+    if (!pass.ok) return;
+    const first = await store.redeemPass(`promorang://aftrhrs/redeem/${pass.entry.uniqueCode}`);
+    expect(first.ok).toBe(true);
+    const second = await store.redeemPass(pass.entry.uniqueCode);
+    expect(second.ok).toBe(false);
+    if (!second.ok) expect(second.code).toBe("already_redeemed");
+  });
+
+  it("opens a fresh Friday RSVP list after Saturday morning without touching the digital drop", async () => {
+    const store = createAftrHrsInventory();
+    const friday = await store.guestRsvp({
+      kind: "rsvp",
+      name: "Dana",
+      email: "dana@example.com",
+      phone: "8765550104",
+      termsAccepted: true,
+      now: "2026-09-11T21:00:00-05:00",
+    });
+    expect(friday.ok).toBe(true);
+    const pass = await store.guestRsvp({
+      kind: "digital-pass",
+      name: "Eli",
+      email: "eli@example.com",
+      phone: "8765550105",
+      termsAccepted: true,
+      now: "2026-09-11T21:00:00-05:00",
+    });
+    expect(pass.ok).toBe(true);
+
+    const nextWeek = await store.guestRsvp({
+      kind: "rsvp",
+      name: "Dana",
+      email: "dana@example.com",
+      phone: "8765550104",
+      termsAccepted: true,
+      now: "2026-09-12T06:00:00-05:00",
+    });
+    expect(nextWeek.ok).toBe(true);
+    expect(store.snapshot().edition.rsvpClaimed).toBe(1);
+    expect(store.snapshot().digitalRelease.claimed).toBe(1);
+  });
+
+  it("describes remaining room without naming the caps", () => {
+    expect(remainingCapacityMood(100).label).toBe("Still room");
+    expect(remainingCapacityMood(60).label).toBe("Filling up");
+    expect(remainingCapacityMood(30).label).toBe("Going fast");
+    expect(remainingCapacityMood(10).label).toBe("Almost gone");
+    expect(guestLaneCopy("rsvp", 0, true).title).toBe("The list is full");
+    expect(guestLaneCopy("digital-pass", 0, true).title).toBe("This drop is closed");
+    expect(guestLaneCopy("rsvp", 90, false).body).not.toMatch(/30 RSVP|30 spots|only 30/i);
+    expect(guestLaneCopy("digital-pass", 90, false).body).not.toMatch(/\b50\b/);
+    expect(evaluateGuestEntry({
+      kind: "rsvp",
+      name: "A",
+      email: "bad",
+      phone: "8765550101",
+      termsAccepted: true,
+    }).ok).toBe(false);
   });
 });
 

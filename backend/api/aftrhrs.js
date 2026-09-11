@@ -38,6 +38,22 @@ router.post('/track', optionalAuth, async (req, res) => {
   }
 });
 
+router.post('/guest-rsvp', async (req, res) => {
+  try {
+    return ok(res, await service.guestRsvp({ ...(req.body || {}), locale: localeFromRequest(req) }), 201);
+  } catch (error) {
+    return fail(res, error);
+  }
+});
+
+router.get('/ticket/:code', async (req, res) => {
+  try {
+    return ok(res, await service.publicTicket(req.params.code));
+  } catch (error) {
+    return fail(res, error);
+  }
+});
+
 router.post('/claim', requireAuth, async (req, res) => {
   try {
     return ok(res, await service.claimDigitalPass(req.user, { ...(req.body || {}), locale: localeFromRequest(req) }), 201);
@@ -122,6 +138,14 @@ router.get('/admin', requireAuth, requireAdmin, async (req, res) => {
 router.patch('/admin', requireAuth, requireAdmin, async (req, res) => {
   try {
     return ok(res, await service.adminUpdate(req.user, req.body || {}));
+  } catch (error) {
+    return fail(res, error);
+  }
+});
+
+router.post('/admin/digital-release', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    return ok(res, await service.adminDigitalRelease(req.user, req.body || {}));
   } catch (error) {
     return fail(res, error);
   }

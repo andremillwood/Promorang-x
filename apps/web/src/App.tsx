@@ -198,6 +198,8 @@ const MerchantActionStudio = lazy(() => import("./pages/MerchantActionStudio"));
 const ActivatedReferralsDashboard = lazy(() => import("./pages/ActivatedReferralsDashboard"));
 const StaffScanner = lazy(() => import("./pages/StaffScanner"));
 const AftrHrsExperience = lazy(() => import("./pages/AftrHrsExperience"));
+const AftrHrsGuestLanding = lazy(() => import("./pages/AftrHrsGuestLanding"));
+const AftrHrsGuestTicket = lazy(() => import("./pages/AftrHrsGuestTicket"));
 const AftrHrsPass = lazy(() => import("./pages/AftrHrsPass"));
 const AftrHrsAmbassador = lazy(() => import("./pages/AftrHrsAmbassador"));
 const AftrHrsDoor = lazy(() => import("./pages/AftrHrsDoor"));
@@ -415,7 +417,8 @@ const App = () => (
                     <Route path="/venues/:slug" element={<VenueProfile />} />
                     <Route path="/scout/enrichment" element={<ProtectedRoute><ScoutEnrichment /></ProtectedRoute>} />
                     <Route path="/scout/events" element={<ProtectedRoute><EventScout /></ProtectedRoute>} />
-                    <Route path="/aftrhrs" element={<AftrHrsExperience />} />
+                    <Route path="/aftrhrs" element={<AftrHrsGuestLanding />} />
+                    <Route path="/aftrhrs/ticket/:code" element={<AftrHrsGuestTicket />} />
                     <Route path="/aftrhrs/pass" element={<AftrHrsPass />} />
                     <Route path="/campaigns/aftrhrs" element={<Navigate to="/aftrhrs" replace />} />
                     <Route path="/moments/aftrhrs" element={<AftrHrsExperience />} />

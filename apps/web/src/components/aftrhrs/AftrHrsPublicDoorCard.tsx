@@ -17,7 +17,7 @@ export function AftrHrsPublicDoorCard() {
         {AFTRHRS_COPY.homepageHeroBody}
       </p>
       <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-white">
-        {AFTRHRS_COPY.claimGuestCta} →
+        {AFTRHRS_COPY.guestRsvpCta} →
       </p>
     </Link>
   );

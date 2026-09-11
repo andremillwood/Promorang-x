@@ -9,10 +9,11 @@ const AFTRHRS_PATHS = {
   venue: '/venues/sea-deck',
   pass: '/moments/aftrhrs/pass',
   passAlias: '/aftrhrs/pass',
+  ticket: '/aftrhrs/ticket',
   ambassador: '/moments/aftrhrs/ambassador',
   door: '/moments/aftrhrs/door',
   admin: '/admin/aftrhrs',
-  claimReturn: '/aftrhrs?claim=1',
+  claimReturn: '/moments/aftrhrs?claim=1',
 };
 
 const AFTRHRS_CLAIM_ERRORS = {
@@ -31,8 +32,59 @@ const AFTRHRS_CLAIM_ERRORS = {
   forbidden: 'You do not have permission to manage AftrHrs.',
 };
 
+const AFTRHRS_GUEST_ERRORS = {
+  name: 'Tell us your name.',
+  email: 'Use a real email so we can confirm your place.',
+  phone: 'Add a telephone number we can reach.',
+  terms: 'Confirm the door terms to continue.',
+  already_rsvp: 'You are already on this Friday’s list.',
+  already_pass: 'A digital pass is already attached to this email or telephone.',
+  rsvp_full: 'This Friday’s list is full.',
+  pass_closed: 'The digital pass drop is closed.',
+  unpublished: 'AftrHrs is not currently published.',
+  not_found: 'That door code was not found.',
+};
+
 function remainingDigitalPasses(edition) {
   return Math.max(0, Number(edition.digitalAllocation || edition.digital_allocation || 0) - Number(edition.digitalClaimed || edition.digital_claimed || 0));
+}
+
+function remainingGuestSlots(allocation, claimed) {
+  return Math.max(0, Number(allocation || 0) - Number(claimed || 0));
+}
+
+function normalizeAftrHrsIdentity(value) {
+  if (!value) return null;
+  const trimmed = String(value).trim().toLowerCase();
+  return trimmed || null;
+}
+
+function normalizeAftrHrsPhone(value) {
+  if (!value) return null;
+  const digits = String(value).replace(/\D/g, '');
+  if (digits.length < 7) return null;
+  if (digits.length === 11 && digits.startsWith('1')) return digits.slice(1);
+  return digits;
+}
+
+function normalizeAftrHrsName(value) {
+  const name = String(value || '').trim().replace(/\s+/g, ' ');
+  return name.length >= 2 ? name.slice(0, 80) : null;
+}
+
+function isValidAftrHrsEmail(value) {
+  const email = normalizeAftrHrsIdentity(value);
+  if (!email) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function aftrHrsTicketPath(code) {
+  const unique = String(code || '').trim().toUpperCase();
+  return unique ? `${AFTRHRS_PATHS.ticket}/${encodeURIComponent(unique)}` : AFTRHRS_PATHS.ticket;
+}
+
+function aftrHrsMonthKey(now = new Date()) {
+  return jamaicaDateParts(now instanceof Date ? now : new Date(now)).ymd.slice(0, 7);
 }
 
 const AFTRHRS_PUBLIC_REMAINING_SKEW_POINTS = 10;
@@ -40,6 +92,8 @@ const AFTRHRS_PUBLIC_REMAINING_TRUTH_AT = 70;
 const AFTRHRS_FREE_ARRIVAL_CUTOFF = '11:30 PM';
 const AFTRHRS_ADMIN_EMAILS = ['admin@promorang.co', 'andre@promorang.co'];
 const AFTRHRS_DIGITAL_PASS_LIMIT = 30;
+const AFTRHRS_RSVP_LIMIT = 30;
+const AFTRHRS_DIGITAL_PASS_BATCH = 50;
 const AFTRHRS_TIMEZONE = 'America/Jamaica';
 const AFTRHRS_START_ISO = '2026-09-11T22:00:00-05:00';
 const AFTRHRS_FIRST_FRIDAY = '2026-09-11';
@@ -64,11 +118,11 @@ const DEFAULT_AFTRHRS_FAQS = [
   { question: 'What is the cost without an invitation or RSVP?', answer: 'Entry without an invitation or RSVP is JMD $2,000.' },
   { question: 'What does the paid admission include?', answer: 'Paid patrons receive complimentary drink and wings.' },
   { question: 'Where is Sea Deck?', answer: 'Orchid Village, 20 Barbican Road, Kingston.' },
-  { question: 'I signed up for Promorang. Where is my pass?', answer: 'Signing up creates your Promorang account. Your AftrHrs Digital Free Pass is a separate door pass. Open /aftrhrs/pass or the top of your wallet. If it is not there yet, claim it on the AftrHrs page and the QR appears in both places.' },
-  { question: 'What is Kingston After Dark?', answer: 'Kingston After Dark is the nightlife scene. AftrHrs is the Friday moment at Sea Deck inside that scene. Get the door pass on /aftrhrs.' },
-  { question: 'How will my Digital Free Pass be verified?', answer: 'Present the unique QR code from your AftrHrs pass at Sea Deck. Open it from /aftrhrs/pass or the top of your wallet. Staff scan it once. A redeemed pass cannot be scanned again.' },
+  { question: 'I signed up for Promorang. Where is my pass?', answer: 'The public AftrHrs page does not need a Promorang account. If you claimed inside Promorang, your pass is at /aftrhrs/pass or the top of your wallet. Friday guests RSVP on /aftrhrs with name, email, and telephone.' },
+  { question: 'What is Kingston After Dark?', answer: 'Kingston After Dark is the nightlife scene. AftrHrs is the Friday moment at Sea Deck inside that scene. RSVP on /aftrhrs.' },
+  { question: 'How will my Digital Free Pass be verified?', answer: 'Digital pass holders show the unique QR from the email ticket. Friday RSVP guests give their name at the door. Staff scan a pass once. A redeemed pass cannot be scanned again.' },
   { question: 'Can I transfer my pass?', answer: 'Each Digital Free Pass is for one person and cannot be transferred.' },
-  { question: 'Is my pass good every Friday?', answer: 'No. Each Digital Free Pass is for that Friday only. Unused passes expire after the night. Claim again next week — the 30 digital passes reset every Saturday morning.' },
+  { question: 'Is my pass good every Friday?', answer: 'A Friday RSVP is for that Friday only. Unused list spots open again next week. A digital pass works like a physical invite for the month.' },
   { question: 'What happens if the venue reaches capacity?', answer: 'Admission remains subject to venue capacity and Sea Deck entry policies even with a valid pass or invitation.' },
 ];
 
@@ -140,7 +194,7 @@ function decodeAftrHrsPassPayload(raw) {
   if (raw == null) return '';
   const text = String(raw).trim();
   if (!text) return '';
-  const urlMatch = text.match(/(?:promorang:\/\/aftrhrs\/redeem\/|\/moments\/aftrhrs\/door\?code=|[?&]code=)([A-Z0-9-]+)/i);
+  const urlMatch = text.match(/(?:promorang:\/\/aftrhrs\/redeem\/|\/moments\/aftrhrs\/door\?code=|\/aftrhrs\/ticket\/|[?&]code=)([A-Z0-9-]+)/i);
   if (urlMatch?.[1]) return urlMatch[1].toUpperCase();
   return text.toUpperCase();
 }
@@ -153,9 +207,12 @@ module.exports = {
   SEA_DECK_VENUE_ID,
   AFTRHRS_PATHS,
   AFTRHRS_CLAIM_ERRORS,
+  AFTRHRS_GUEST_ERRORS,
   AFTRHRS_FREE_ARRIVAL_CUTOFF,
   AFTRHRS_ADMIN_EMAILS,
   AFTRHRS_DIGITAL_PASS_LIMIT,
+  AFTRHRS_RSVP_LIMIT,
+  AFTRHRS_DIGITAL_PASS_BATCH,
   AFTRHRS_TIMEZONE,
   AFTRHRS_START_ISO,
   AFTRHRS_FIRST_FRIDAY,
@@ -166,6 +223,13 @@ module.exports = {
   aftrHrsClaimFriday,
   aftrHrsEditionSlug,
   remainingDigitalPasses,
+  remainingGuestSlots,
+  normalizeAftrHrsIdentity,
+  normalizeAftrHrsPhone,
+  normalizeAftrHrsName,
+  isValidAftrHrsEmail,
+  aftrHrsTicketPath,
+  aftrHrsMonthKey,
   publicRemainingPercent,
   hasAftrHrsFridayRecurrence,
   isAftrHrsFirstNightClaimClose,
