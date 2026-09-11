@@ -3,7 +3,6 @@ import { createRoot, type Root } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resolvePromoCardAim } from "@promorang/shared";
-import { I18nProvider } from "@/i18n/I18nContext";
 import { FillCardMoves } from "./FillCardMoves";
 
 let root: Root;
@@ -12,11 +11,9 @@ let container: HTMLDivElement;
 async function renderMoves(authenticated = false) {
   await act(async () => {
     root.render(
-      <I18nProvider>
-        <MemoryRouter initialEntries={["/app-preview/card"]}>
-          <FillCardMoves aim={resolvePromoCardAim("food")} authenticated={authenticated} />
-        </MemoryRouter>
-      </I18nProvider>,
+      <MemoryRouter initialEntries={["/app-preview/card"]}>
+        <FillCardMoves aim={resolvePromoCardAim("food")} authenticated={authenticated} />
+      </MemoryRouter>,
     );
   });
 }
