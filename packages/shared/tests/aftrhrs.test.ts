@@ -19,6 +19,13 @@ import {
   evaluateDigitalPassClaim,
   formatPublicRemainingLabel,
   guestPassStatus,
+  guestPassType,
+  adminPassStatus,
+  ambassadorInviteProgress,
+  normalizeAftrHrsFaqs,
+  readAftrHrsAdminEdition,
+  AFTRHRS_ADMIN_COPY,
+  AFTRHRS_ADMIN_FUNNEL,
   isAftrHrsClaimReturn,
   nextParticipationState,
   publicRemainingPercent,
@@ -132,6 +139,16 @@ describe("AftrHrs digital pass inventory", () => {
     expect(JSON.stringify(DEFAULT_AFTRHRS_FAQS)).not.toMatch(/percentage|shown as|page reading|claim button|page counter/i);
     expect(guestPassStatus("active")).toBe("Ready");
     expect(guestPassStatus("redeemed")).toBe("Used");
+    expect(guestPassType("digital-free")).toBe("Digital free pass");
+    expect(guestPassType("physical-invitation")).toBe("Physical invitation");
+    expect(adminPassStatus("active")).toBe("Ready for the door");
+    expect(adminPassStatus("redeemed")).toBe("Already used at the door");
+    expect(ambassadorInviteProgress(0, 15)).toBe("None of 15 invitations given out yet.");
+    expect(ambassadorInviteProgress(3, 15)).toBe("3 of 15 invitations given out · 12 left");
+    expect(AFTRHRS_ADMIN_COPY.claimsLabel).toMatch(/free digital pass/i);
+    expect(AFTRHRS_ADMIN_COPY.pageModeLive).toMatch(/tonight is on/i);
+    expect(JSON.stringify(AFTRHRS_ADMIN_COPY)).not.toMatch(/FAQ JSON|page mode|Claims open|Export CSV|Reinstate|admin-editable/i);
+    expect(AFTRHRS_ADMIN_FUNNEL.every((item) => !item.label.includes("_"))).toBe(true);
     expect(AFTRHRS_OG_IMAGE.path).toBe("/og/aftrhrs.jpg");
     expect(AFTRHRS_OG_IMAGE.alt).toBe("AftrHrs at Sea Deck");
     expect(AFTRHRS_COPY.when).toBe("Every Friday");
@@ -306,5 +323,25 @@ describe("AftrHrs digital pass inventory", () => {
     await store.markAttended("lifecycle");
     expect(store.snapshot().participations[0]?.state).toBe("attended");
     expect(nextParticipationState("attended", "interested")).toBe("attended");
+  });
+});
+
+describe("AftrHrs admin language", () => {
+  it("reads edition settings without asking staff to type JSON", () => {
+    const edition = readAftrHrsAdminEdition({
+      digital_allocation: 30,
+      claims_open: false,
+      published: true,
+      page_mode: "post-event",
+      venue_policies: { entry_policy: "Arrive before 11:30 PM." },
+      faqs: JSON.stringify([{ question: "When?", answer: "Every Friday." }]),
+    });
+    expect(edition.allocation).toBe("30");
+    expect(edition.claimsOpen).toBe(false);
+    expect(edition.pageMode).toBe("post-event");
+    expect(edition.policy).toContain("11:30");
+    expect(normalizeAftrHrsFaqs(edition.faqs)).toEqual([{ question: "When?", answer: "Every Friday." }]);
+    expect(AFTRHRS_ADMIN_COPY.faqsHelp).toMatch(/question/i);
+    expect(AFTRHRS_ADMIN_COPY.downloadList).toBe("Download guest list");
   });
 });
