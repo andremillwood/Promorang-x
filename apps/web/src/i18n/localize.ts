@@ -194,3 +194,42 @@ export function localizedBenefitScarcity(
   }
   return parts.length ? parts.join(" · ") : undefined;
 }
+
+const AIM_COPY_SUFFIX: Record<string, "Kad" | "Barbican" | "Food" | "Tonight"> = {
+  "kingston-after-dark": "Kad",
+  barbican: "Barbican",
+  food: "Food",
+  tonight: "Tonight",
+};
+
+export function localizedAimCopy(
+  id: string | null | undefined,
+  t: Translate,
+): { label: string; line: string; watching: string } | null {
+  const suffix = AIM_COPY_SUFFIX[String(id || "")];
+  if (!suffix) return null;
+  return {
+    label: t(`card.aim${suffix}` as TranslationKey),
+    line: t(`card.aim${suffix}Line` as TranslationKey),
+    watching: t(`card.aim${suffix}Watch` as TranslationKey),
+  };
+}
+
+export function localizedPathTitle(dimension: string, t: Translate): string {
+  return t(`progress.path.${dimension}` as TranslationKey);
+}
+
+export function localizedFactionCopy(
+  key: string,
+  t: Translate,
+): { title: string; line: string; verb: string } {
+  return {
+    title: t(`progress.faction.${key}.title` as TranslationKey),
+    line: t(`progress.faction.${key}.line` as TranslationKey),
+    verb: t(`progress.faction.${key}.verb` as TranslationKey),
+  };
+}
+
+export function localizedCrewRoleTitle(key: string, t: Translate): string {
+  return t(`progress.crewRole.${key}` as TranslationKey);
+}

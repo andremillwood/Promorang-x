@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { fillCardHref, fillCardMoves, type PromoCardAim } from "@promorang/shared";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
+import { useI18n } from "@/i18n/I18nContext";
 
 type FillCardMovesProps = {
   aim?: PromoCardAim | null;
@@ -16,10 +17,11 @@ function experienceAwarePath(path: string, to: (value: string) => string): strin
 }
 
 export function FillCardMoves({ aim, authenticated }: FillCardMovesProps) {
+  const { t } = useI18n();
   const to = useExperiencePath();
   const moves = fillCardMoves(aim);
   return (
-    <nav aria-label="Ways to fill your card" className="mt-4 grid gap-2 sm:grid-cols-2">
+    <nav aria-label={t("card.fillAria")} className="mt-4 grid gap-2 sm:grid-cols-2">
       {moves.map((move) => {
         const href = fillCardHref(experienceAwarePath(move.path, to), authenticated);
         return (
@@ -31,7 +33,7 @@ export function FillCardMoves({ aim, authenticated }: FillCardMovesProps) {
             <p className="text-sm font-black text-white">{move.label}</p>
             <p className="mt-1 text-xs leading-5 text-white/50">{move.detail}</p>
             <span className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary">
-              Continue
+              {t("card.fillContinue")}
               <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
             </span>
           </Link>
