@@ -1,6 +1,9 @@
 export const AFTRHRS_MOMENT_SLUG = "aftrhrs";
 export const SEA_DECK_VENUE_SLUG = "sea-deck";
+/** AftrHrs is a Moment inside this Scene — not a second scene. */
 export const AFTRHRS_SCENE_SLUG = "kingston-after-dark";
+export const AFTRHRS_SCENE_TITLE = "Kingston After Dark";
+export const AFTRHRS_SCENE_PATH = `/scenes/${AFTRHRS_SCENE_SLUG}`;
 
 export const AFTRHRS_MOMENT_ID = "00000000-0000-0000-0002-000000000080";
 export const SEA_DECK_VENUE_ID = "00000000-0000-0000-0003-000000000080";
@@ -473,6 +476,37 @@ export function isAftrHrsSceneSlug(slug?: string | null): boolean {
   return String(slug || "").trim().toLowerCase() === AFTRHRS_SCENE_SLUG;
 }
 
+export function isAftrHrsMoment(moment?: { id?: string | null; slug?: string | null } | null): boolean {
+  const id = String(moment?.id || "").trim().toLowerCase();
+  const slug = String(moment?.slug || "").trim().toLowerCase();
+  return id === AFTRHRS_MOMENT_ID || slug === AFTRHRS_MOMENT_SLUG;
+}
+
+export const AFTRHRS_SCENE_MOMENT = {
+  id: AFTRHRS_MOMENT_ID,
+  slug: AFTRHRS_MOMENT_SLUG,
+  title: "AftrHrs",
+  venue_name: "Sea Deck",
+  location: "Orchid Village, 20 Barbican Road, Kingston",
+  starts_at: AFTRHRS_START_ISO,
+  image_url: "/campaigns/aftrhrs/flyer.jpg",
+} as const;
+
+export function sceneMomentsWithAftrHrs<T extends { id?: string | null; slug?: string | null }>(
+  sceneSlug: string | null | undefined,
+  moments: T[] | null | undefined,
+): Array<T | typeof AFTRHRS_SCENE_MOMENT> {
+  const list = Array.isArray(moments) ? [...moments] : [];
+  if (!isAftrHrsSceneSlug(sceneSlug)) return list;
+  const featured = list.find((row) => isAftrHrsMoment(row));
+  const rest = list.filter((row) => !isAftrHrsMoment(row));
+  return featured ? [featured, ...rest] : [AFTRHRS_SCENE_MOMENT, ...rest];
+}
+
+export function hrefForSceneMoment(moment?: { id?: string | null; slug?: string | null } | null): string {
+  return isAftrHrsMoment(moment) ? AFTRHRS_PATHS.landing : `/moments/${moment?.id || ""}`;
+}
+
 export function jamaicaWeekday(now: Date = new Date()): number {
   const weekday = new Intl.DateTimeFormat("en-US", {
     weekday: "short",
@@ -484,23 +518,6 @@ export function jamaicaWeekday(now: Date = new Date()): number {
 
 export function isAftrHrsDoorNight(now: Date = new Date()): boolean {
   return jamaicaWeekday(now) === AFTRHRS_WEEKDAY;
-}
-
-export function shouldSendGuestToAftrHrsFromScene(input: {
-  slug?: string | null;
-  authenticated?: boolean;
-  now?: Date;
-}): boolean {
-  return isAftrHrsSceneSlug(input.slug)
-    && !input.authenticated
-    && isAftrHrsDoorNight(input.now);
-}
-
-/** Kingston After Dark is the nightlife scene, not the Friday door. */
-export function presentNightlifeAimLabel(label?: string | null): string {
-  return String(label || "").trim().toLowerCase() === "kingston after dark"
-    ? "Nightlife"
-    : String(label || "");
 }
 
 export function shouldResumeAftrHrsClaim(input: {
@@ -583,12 +600,12 @@ export const AFTRHRS_COPY = {
   walletLoadError: "We could not load your AftrHrs pass. Try again.",
   findPass:
     "Your AftrHrs pass lives at the top of your Promorang wallet and at /aftrhrs/pass. The Promorang membership card is not the door pass.",
-  sceneIsNotThePass:
-    "Kingston After Dark is the nightlife scene on Promorang. It is not tonight's door. AftrHrs at Sea Deck is the pass you show.",
-  homepageHeroEyebrow: "Tonight at Sea Deck",
+  sceneMomentLine: "Friday night in Kingston After Dark · Sea Deck",
+  homepageHeroEyebrow: "Kingston After Dark · Friday",
   homepageHeroBody:
-    "This is the AftrHrs door pass. Kingston After Dark is not the event — it is the nightlife scene. Get the pass here.",
-  authSceneHint: "Looking for AftrHrs at Sea Deck? That is the door pass — not Kingston After Dark.",
+    "AftrHrs is the Friday moment in Kingston After Dark. Get the door pass for Sea Deck here.",
+  authSceneHint: "AftrHrs is Friday night in Kingston After Dark. Get the door pass for Sea Deck.",
+  sceneCta: "Get the AftrHrs pass",
   poweredBy: "Powered by PROMORANG",
   when: AFTRHRS_CADENCE,
   doors: AFTRHRS_DOORS,
@@ -665,8 +682,8 @@ export const DEFAULT_AFTRHRS_FAQS = [
     answer: "Signing up creates your Promorang account. Your AftrHrs Digital Free Pass is a separate door pass. Open /aftrhrs/pass or the top of your wallet. If it is not there yet, claim it on the AftrHrs page and the QR appears in both places.",
   },
   {
-    question: "Why am I seeing Kingston After Dark?",
-    answer: "Kingston After Dark is Promorang's nightlife scene, not the Friday door. AftrHrs at Sea Deck is the pass you show. Open /aftrhrs — not the Kingston After Dark page, and not the PromoCard nightlife filter.",
+    question: "What is Kingston After Dark?",
+    answer: "Kingston After Dark is the nightlife scene. AftrHrs is the Friday moment at Sea Deck inside that scene. Get the door pass on /aftrhrs.",
   },
   {
     question: "How will my Digital Free Pass be verified?",

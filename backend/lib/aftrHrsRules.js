@@ -1,5 +1,6 @@
 const AFTRHRS_MOMENT_SLUG = 'aftrhrs';
 const SEA_DECK_VENUE_SLUG = 'sea-deck';
+const AFTRHRS_SCENE_SLUG = 'kingston-after-dark';
 const AFTRHRS_MOMENT_ID = '00000000-0000-0000-0002-000000000080';
 const SEA_DECK_VENUE_ID = '00000000-0000-0000-0003-000000000080';
 const AFTRHRS_PATHS = {
@@ -62,7 +63,7 @@ const DEFAULT_AFTRHRS_FAQS = [
   { question: 'What does the paid admission include?', answer: 'Paid patrons receive complimentary drink and wings.' },
   { question: 'Where is Sea Deck?', answer: 'Orchid Village, 20 Barbican Road, Kingston.' },
   { question: 'I signed up for Promorang. Where is my pass?', answer: 'Signing up creates your Promorang account. Your AftrHrs Digital Free Pass is a separate door pass. Open /aftrhrs/pass or the top of your wallet. If it is not there yet, claim it on the AftrHrs page and the QR appears in both places.' },
-  { question: 'Why am I seeing Kingston After Dark?', answer: 'Kingston After Dark is Promorang\'s nightlife scene, not the Friday door. AftrHrs at Sea Deck is the pass you show. Open /aftrhrs — not the Kingston After Dark page, and not the PromoCard nightlife filter.' },
+  { question: 'What is Kingston After Dark?', answer: 'Kingston After Dark is the nightlife scene. AftrHrs is the Friday moment at Sea Deck inside that scene. Get the door pass on /aftrhrs.' },
   { question: 'How will my Digital Free Pass be verified?', answer: 'Present the unique QR code from your AftrHrs pass at Sea Deck. Open it from /aftrhrs/pass or the top of your wallet. Staff scan it once. A redeemed pass cannot be scanned again.' },
   { question: 'Can I transfer my pass?', answer: 'Each Digital Free Pass is for one person and cannot be transferred.' },
   { question: 'What happens if the venue reaches capacity?', answer: 'Admission remains subject to venue capacity and Sea Deck entry policies even with a valid pass or invitation.' },
@@ -107,6 +108,7 @@ function decodeAftrHrsPassPayload(raw) {
 module.exports = {
   AFTRHRS_MOMENT_SLUG,
   SEA_DECK_VENUE_SLUG,
+  AFTRHRS_SCENE_SLUG,
   AFTRHRS_MOMENT_ID,
   SEA_DECK_VENUE_ID,
   AFTRHRS_PATHS,

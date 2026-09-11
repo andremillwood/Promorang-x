@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Heart, MapPin, Search, Users } from "lucide-react";
-import { AFTRHRS_COPY, AFTRHRS_PATHS, isAftrHrsSceneSlug, sceneLocation, shouldSendGuestToAftrHrsFromScene } from "@promorang/shared";
-import { useAuth } from "@/contexts/AuthContext";
+import { AFTRHRS_COPY, isAftrHrsSceneSlug, sceneLocation } from "@promorang/shared";
 import SEO from "@/components/SEO";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { useScenes } from "@/hooks/useScenes";
@@ -11,14 +10,8 @@ import { useI18n } from "@/i18n/I18nContext";
 
 export default function Communities() {
   const { t } = useI18n();
-  const { user } = useAuth();
   const scenes = useScenes();
   const featured = scenes.data?.[0];
-  const sceneHref = (slug: string) => (
-    shouldSendGuestToAftrHrsFromScene({ slug, authenticated: Boolean(user) })
-      ? AFTRHRS_PATHS.landing
-      : `/scenes/${slug}`
-  );
   return (
     <main className="min-h-full flex-1 bg-black pb-24 text-white">
       <SEO title={t("scenes.seoTitle")} description={t("scenes.seoDescription")} url={getSiteUrl("/scenes")} schema={generateLocationCollectionSchema("Promorang Scenes", getSiteUrl("/scenes"), (scenes.data || []).map((scene) => ({ title: scene.title, url: getSiteUrl(`/scenes/${scene.slug}`) })))} />
@@ -50,10 +43,10 @@ export default function Communities() {
         {scenes.isLoading ? <div className="grid gap-4 md:grid-cols-2"><div className="h-[440px] animate-pulse rounded-[2rem] bg-white/[.05]" /><div className="h-[440px] animate-pulse rounded-[2rem] bg-white/[.05]" /></div> : scenes.data?.length ? (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-12">
             {scenes.data.map((scene, index) => (
-              <Link key={scene.id} to={sceneHref(scene.slug)} className={`group relative isolate min-h-[440px] overflow-hidden rounded-[2rem] border border-white/10 ${index % 3 === 0 ? "xl:col-span-7" : "xl:col-span-5"}`}>
+              <Link key={scene.id} to={`/scenes/${scene.slug}`} className={`group relative isolate min-h-[440px] overflow-hidden rounded-[2rem] border border-white/10 ${index % 3 === 0 ? "xl:col-span-7" : "xl:col-span-5"}`}>
                 {scene.image_url ? <img src={scene.image_url} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" /> : <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(249,115,22,.32),transparent_34%),#15110e]" />}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/18 to-black/10" />
-                <div className="absolute inset-x-0 bottom-0 p-7 sm:p-9"><p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.22em] text-primary"><MapPin className="h-3.5 w-3.5" />{isAftrHrsSceneSlug(scene.slug) ? "Door tonight · AftrHrs at Sea Deck" : sceneLocation(scene)}</p><h3 className="mt-4 font-serif text-4xl font-bold leading-none sm:text-5xl">{isAftrHrsSceneSlug(scene.slug) ? "AftrHrs" : scene.title}</h3><p className="mt-3 max-w-lg text-sm leading-6 text-white/58">{isAftrHrsSceneSlug(scene.slug) ? AFTRHRS_COPY.sceneIsNotThePass : (scene.metadata.tagline || scene.description)}</p></div>
+                <div className="absolute inset-x-0 bottom-0 p-7 sm:p-9"><p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.22em] text-primary"><MapPin className="h-3.5 w-3.5" />{isAftrHrsSceneSlug(scene.slug) ? AFTRHRS_COPY.sceneMomentLine : sceneLocation(scene)}</p><h3 className="mt-4 font-serif text-4xl font-bold leading-none sm:text-5xl">{scene.title}</h3><p className="mt-3 max-w-lg text-sm leading-6 text-white/58">{isAftrHrsSceneSlug(scene.slug) ? AFTRHRS_COPY.homepageHeroBody : (scene.metadata.tagline || scene.description)}</p></div>
                 <span className="absolute right-5 top-5 grid h-12 w-12 place-items-center rounded-full border border-white/20 bg-black/30 backdrop-blur transition group-hover:bg-primary group-hover:text-black"><ArrowRight className="h-4 w-4" /></span>
               </Link>
             ))}

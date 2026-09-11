@@ -17,7 +17,7 @@ Dedicated Promorang Moment + venue campaign. This is not a microsite: it reuses 
 
 Generic `/moments/:id` still works. The AftrHrs UUID (`00000000-0000-0000-0002-000000000080`) redirects to the dedicated page.
 
-**Kingston After Dark is not the door.** That name is the Promorang nightlife scene (`/scenes/kingston-after-dark`). On Friday, guests who open that scene are sent to `/aftrhrs`. Staff should say **promorang.co/aftrhrs**, never “open Kingston After Dark.”
+**AftrHrs is the Friday Moment in Kingston After Dark.** The scene is `/scenes/kingston-after-dark`. The door pass is `/aftrhrs`. Do not treat them as two products — the moment belongs on the scene.
 
 ## What was reused
 

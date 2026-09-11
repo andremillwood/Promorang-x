@@ -15,7 +15,7 @@ import {
 import SEO from "@/components/SEO";
 import { generateEventSchema } from "@/lib/seo-schemas";
 import { getSiteUrl } from "@/lib/discovery";
-import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_EVENT_SCHEDULE, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, AFTRHRS_START_ISO, isAftrHrsClaimReturn } from "@promorang/shared";
+import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_EVENT_SCHEDULE, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, AFTRHRS_SCENE_PATH, AFTRHRS_SCENE_TITLE, AFTRHRS_START_ISO, isAftrHrsClaimReturn } from "@promorang/shared";
 import { useAftrHrs, useAftrHrsAutoClaim } from "@/hooks/useAftrHrs";
 import { useI18n } from "@/i18n/I18nContext";
 import { localizedRemainingLabel } from "@/i18n/localize";
@@ -238,6 +238,9 @@ export default function AftrHrsExperience() {
               <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-white/70">
                 {t("aftrhrs.tagline")}
               </p>
+              <Link to={AFTRHRS_SCENE_PATH} className="mt-3 inline-block text-[11px] font-bold uppercase tracking-[0.28em] text-fuchsia-200">
+                {AFTRHRS_SCENE_TITLE}
+              </Link>
               <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.28em] text-white/55">
                 {t("aftrhrs.poweredByOrigin")}
               </p>

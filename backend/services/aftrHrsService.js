@@ -3,6 +3,7 @@ const {
   AFTRHRS_CLAIM_ERRORS,
   AFTRHRS_MOMENT_ID,
   AFTRHRS_MOMENT_SLUG,
+  AFTRHRS_SCENE_SLUG,
   AFTRHRS_PATHS,
   AFTRHRS_RECURRENCE,
   AFTRHRS_START_ISO,
@@ -82,7 +83,8 @@ function needsAftrHrsFridayFaqs(faqs) {
     || !faqs.some((faq) => String(faq?.answer || '').includes('11:30 PM'))
     || !faqs.some((faq) => /every friday/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
     || !faqs.some((faq) => /signed up for Promorang/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
-    || !faqs.some((faq) => /kingston after dark/i.test(`${faq?.question || ''} ${faq?.answer || ''}`));
+    || faqs.some((faq) => /not the Friday door|not tonight's door|not the event/i.test(`${faq?.question || ''} ${faq?.answer || ''}`))
+    || !faqs.some((faq) => /inside that scene/i.test(`${faq?.question || ''} ${faq?.answer || ''}`));
 }
 
 async function ensureAftrHrsMomentSchedule(edition) {
@@ -143,7 +145,34 @@ async function ensureCurrentRelease(edition) {
     }
   }
 
+  await ensureAftrHrsSceneLink().catch((error) => {
+    console.warn('[AftrHrs] scene link skipped:', error.message);
+  });
   return ensureAftrHrsMomentSchedule(next);
+}
+
+async function ensureAftrHrsSceneLink() {
+  const { data: scene, error: sceneError } = await supabase
+    .from('scenes')
+    .select('id')
+    .eq('slug', AFTRHRS_SCENE_SLUG)
+    .maybeSingle();
+  if (sceneError) throw sceneError;
+  if (!scene?.id) return;
+  const { data: link, error: linkError } = await supabase
+    .from('moment_scene_links')
+    .select('id')
+    .eq('moment_id', AFTRHRS_MOMENT_ID)
+    .eq('scene_id', scene.id)
+    .maybeSingle();
+  if (linkError) throw linkError;
+  if (link) return;
+  const { error } = await supabase.from('moment_scene_links').insert({
+    moment_id: AFTRHRS_MOMENT_ID,
+    scene_id: scene.id,
+    relationship: 'featured',
+  });
+  if (error && !/duplicate|unique/i.test(error.message || '')) throw error;
 }
 
 async function publicSnapshot(userId) {

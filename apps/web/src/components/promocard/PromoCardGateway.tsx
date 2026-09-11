@@ -8,7 +8,6 @@ import {
   canUseBenefit,
   emptyPromoBenefitPresentation,
   inferPromoCardAim,
-  presentNightlifeAimLabel,
   presentPromoBenefit,
   PROMOCARD_AIMS,
   promoCardAimPath,
@@ -76,9 +75,6 @@ export function PromoCardGateway() {
           authenticated: Boolean(user),
           href: user ? "/card" : promoCardUnlockHref({ next: "/card" }),
         });
-  if (presented?.headline) {
-    presented.headline = String(presented.headline).replace("KINGSTON AFTER DARK", "NIGHTLIFE");
-  }
 
   const marketLabel = nearbyMarketLabel(visitorCity);
   const nearbyLabel = marketLabel
@@ -139,7 +135,7 @@ export function PromoCardGateway() {
                           : "border-white/15 bg-white/[0.04] text-white hover:border-amber-300/40 hover:bg-white/[0.08]"
                       }`}
                     >
-                      {presentNightlifeAimLabel(item.label)}
+                      {item.label}
                     </button>
                   );
                 })}

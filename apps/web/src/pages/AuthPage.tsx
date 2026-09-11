@@ -23,7 +23,6 @@ import {
   getStakeholderLens,
   isAftrHrsAuthIntent,
   isAftrHrsDoorNight,
-  presentNightlifeAimLabel,
   rememberIntendedStakeholder,
   resolveIntendedStakeholderRole,
 } from "@promorang/shared";
@@ -96,7 +95,6 @@ const AuthPage = () => {
   });
   const aftrHrsAuth = isAftrHrsAuthIntent(commercialIntent, nextPath);
   const unlockAim = aftrHrsAuth ? null : promoCardAimFromNext(nextPath);
-  const unlockAimLabel = presentNightlifeAimLabel(unlockAim?.label);
   const showAftrHrsDoorHint = !aftrHrsAuth && (
     unlockAim?.id === "kingston-after-dark"
     || (isAftrHrsDoorNight() && selectedRole === "participant" && !hostReturn && !commercialIntent)
@@ -336,7 +334,7 @@ const AuthPage = () => {
                 ? t("auth.brandContinueCopy")
                 : hostReturn ? t("auth.hostReturnLogin") : t("auth.loginCopy")
               : unlockAim
-                ? t("auth.unlockAim", { aim: unlockAimLabel })
+                ? t("auth.unlockAim", { aim: unlockAim.label })
                 : selectedRole === "brand"
                   ? t("auth.brandContinueCopy")
                   : hostReturn
@@ -369,7 +367,7 @@ const AuthPage = () => {
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t("auth.unlockThis")}</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {unlockAim.cardLine.replace("Kingston After Dark", "Nightlife")} {t("auth.unlockWatch")}
+                {unlockAim.cardLine} {t("auth.unlockWatch")}
               </p>
             </div>
           )}

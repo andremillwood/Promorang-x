@@ -137,7 +137,7 @@ export default function Progress() {
       {health.length ? (
         <section>
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Scene contribution</p>
-          <h2 className="mt-2 font-serif text-3xl font-bold">{world?.slice?.sceneTitle || "Your scene"}</h2>
+          <h2 className="mt-2 font-serif text-3xl font-bold">{world?.slice?.sceneTitle || "Kingston After Dark"}</h2>
           <p className="mt-2 text-sm text-white/50">Counts from your verified actions. Empty means nothing has been proven yet.</p>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
             {health.map((item: { dimension: string; label: string; count: number }) => (

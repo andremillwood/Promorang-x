@@ -17,7 +17,7 @@ export function AftrHrsPublicDoorCard({ variant = "home" }: { variant?: "home" |
         AftrHrs
       </p>
       <p className={`mt-2 leading-6 text-white/75 ${compact ? "text-sm" : "max-w-xl text-sm sm:text-base"}`}>
-        {compact ? AFTRHRS_COPY.sceneIsNotThePass : AFTRHRS_COPY.homepageHeroBody}
+        {compact ? AFTRHRS_COPY.sceneMomentLine : AFTRHRS_COPY.homepageHeroBody}
       </p>
       <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-white">
         {AFTRHRS_COPY.claimGuestCta} →

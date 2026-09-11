@@ -28,11 +28,11 @@ import {
   AFTRHRS_ADMIN_FUNNEL,
   isAftrHrsClaimReturn,
   isAftrHrsAuthIntent,
-  isAftrHrsDoorNight,
+  hrefForSceneMoment,
+  isAftrHrsMoment,
   isAftrHrsSceneSlug,
-  presentNightlifeAimLabel,
+  sceneMomentsWithAftrHrs,
   shouldResumeAftrHrsClaim,
-  shouldSendGuestToAftrHrsFromScene,
   nextParticipationState,
   publicRemainingPercent,
 } from "../src/aftrhrs";
@@ -238,28 +238,14 @@ describe("AftrHrs digital pass inventory", () => {
     expect(AFTRHRS_COPY.authBody).toMatch(/automatically/);
     expect(DEFAULT_AFTRHRS_FAQS.some((faq) => faq.question.includes("signed up for Promorang"))).toBe(true);
     expect(DEFAULT_AFTRHRS_FAQS.some((faq) => faq.question.includes("Kingston After Dark"))).toBe(true);
+    expect(DEFAULT_AFTRHRS_FAQS.find((faq) => faq.question.includes("Kingston After Dark"))?.answer).toMatch(/inside that scene/);
     expect(isAftrHrsSceneSlug("kingston-after-dark")).toBe(true);
     expect(isAftrHrsSceneSlug("food-and-taste")).toBe(false);
-    expect(presentNightlifeAimLabel("Kingston After Dark")).toBe("Nightlife");
-    expect(presentNightlifeAimLabel("Food")).toBe("Food");
-    expect(AFTRHRS_COPY.sceneIsNotThePass).toMatch(/not tonight's door/);
-    expect(shouldSendGuestToAftrHrsFromScene({
-      slug: "kingston-after-dark",
-      authenticated: false,
-      now: new Date("2026-09-11T22:00:00-05:00"),
-    })).toBe(true);
-    expect(shouldSendGuestToAftrHrsFromScene({
-      slug: "kingston-after-dark",
-      authenticated: true,
-      now: new Date("2026-09-11T22:00:00-05:00"),
-    })).toBe(false);
-    expect(shouldSendGuestToAftrHrsFromScene({
-      slug: "kingston-after-dark",
-      authenticated: false,
-      now: new Date("2026-09-10T22:00:00-05:00"),
-    })).toBe(false);
-    expect(isAftrHrsDoorNight(new Date("2026-09-11T22:00:00-05:00"))).toBe(true);
-    expect(isAftrHrsDoorNight(new Date("2026-09-10T22:00:00-05:00"))).toBe(false);
+    expect(isAftrHrsMoment({ id: AFTRHRS_MOMENT_ID })).toBe(true);
+    expect(hrefForSceneMoment({ id: AFTRHRS_MOMENT_ID })).toBe("/aftrhrs");
+    expect(sceneMomentsWithAftrHrs("kingston-after-dark", [{ id: "other", title: "Other" }])[0].title).toBe("AftrHrs");
+    expect(AFTRHRS_COPY.homepageHeroBody).toMatch(/Friday moment in Kingston After Dark/);
+    expect(AFTRHRS_COPY.sceneMomentLine).toMatch(/Kingston After Dark/);
     expect(evaluateDigitalPassClaim({
       edition,
       identity: {},
