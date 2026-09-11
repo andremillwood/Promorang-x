@@ -80,13 +80,13 @@ export default function AftrHrsAdmin() {
   }, [data]);
 
   if (isLoading) {
-    return <main className="min-h-screen bg-zinc-950 px-4 py-16 text-white">{copy.loading}</main>;
+    return <main className="rounded-2xl bg-zinc-950 px-4 py-10 font-sans text-white">{copy.loading}</main>;
   }
   if (isError || !data) {
     return (
-      <main className="min-h-screen bg-zinc-950 px-4 py-16 text-center text-white">
-        <h1 className="text-3xl font-bold">{copy.accessTitle}</h1>
-        <p className="mx-auto mt-3 max-w-md text-white/60">{copy.accessBody}</p>
+      <main className="rounded-2xl bg-zinc-950 px-4 py-10 text-center font-sans text-white">
+        <h1 className="text-2xl font-bold tracking-normal sm:text-3xl">{copy.accessTitle}</h1>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/60 sm:text-base">{copy.accessBody}</p>
       </main>
     );
   }
@@ -128,12 +128,12 @@ export default function AftrHrsAdmin() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-950 px-4 py-12 text-white">
+    <main className="rounded-2xl bg-zinc-950 px-4 py-6 font-sans text-white sm:px-5 sm:py-8">
       <SEO title="AftrHrs night desk" description="Run the AftrHrs pass release and Sea Deck night." />
-      <div className="mx-auto max-w-5xl space-y-8">
+      <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
         <header>
           <p className="text-sm font-semibold text-cyan-300">{copy.eyebrow}</p>
-          <h1 className="mt-2 text-4xl font-bold tracking-tight">{copy.title}</h1>
+          <h1 className="mt-2 text-3xl font-bold tracking-normal sm:text-4xl">{copy.title}</h1>
           <p className="mt-2 max-w-xl text-base leading-7 text-white/70">{copy.remaining(remaining)}</p>
         </header>
 
@@ -141,7 +141,7 @@ export default function AftrHrsAdmin() {
           {AFTRHRS_ADMIN_FUNNEL.map((item) => (
             <div key={item.key} className="rounded-2xl border border-white/10 p-4">
               <p className="text-sm font-semibold text-white">{item.label}</p>
-              <p className="mt-2 text-3xl font-bold">{funnel[item.key] || 0}</p>
+              <p className="mt-2 text-3xl font-bold tracking-normal">{funnel[item.key] || 0}</p>
               <p className="mt-1 text-sm leading-6 text-white/50">{item.hint}</p>
             </div>
           ))}
@@ -149,7 +149,7 @@ export default function AftrHrsAdmin() {
 
         <form onSubmit={save} className="space-y-6 rounded-3xl border border-white/10 p-5">
           <div>
-            <h2 className="text-xl font-bold">{copy.settingsTitle}</h2>
+            <h2 className="text-xl font-bold tracking-normal">{copy.settingsTitle}</h2>
             <p className="mt-1 text-sm leading-6 text-white/60">{copy.settingsHelp}</p>
           </div>
 
@@ -283,7 +283,7 @@ export default function AftrHrsAdmin() {
         <section className="rounded-3xl border border-white/10 p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-xl font-bold">{copy.guestListTitle}</h2>
+              <h2 className="text-xl font-bold tracking-normal">{copy.guestListTitle}</h2>
               <p className="mt-1 max-w-xl text-sm leading-6 text-white/60">{copy.guestListHelp}</p>
             </div>
             <button
@@ -342,7 +342,7 @@ export default function AftrHrsAdmin() {
         </section>
 
         <section className="rounded-3xl border border-white/10 p-5">
-          <h2 className="text-xl font-bold">{copy.ambassadorsTitle}</h2>
+          <h2 className="text-xl font-bold tracking-normal">{copy.ambassadorsTitle}</h2>
           <p className="mt-1 text-sm leading-6 text-white/60">{copy.ambassadorsHelp}</p>
           {ambassadors.length === 0 ? (
             <p className="mt-4 text-sm text-white/55">{copy.emptyAmbassadors}</p>

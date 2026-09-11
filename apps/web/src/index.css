@@ -206,6 +206,28 @@
     font-family: "Promorang Space", "Fraunces", Georgia, serif;
     @apply font-semibold tracking-tight;
   }
+
+  /* Admin ops screens must stay readable on iOS WebKit. Fraunces + font-black
+     synthesizes extra strokes that look like missing spaces and extra letters. */
+  [data-admin-surface] {
+    font-family: "Promorang Space", "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: 0.01em;
+    word-spacing: 0.18em;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  [data-admin-surface] h1,
+  [data-admin-surface] h2,
+  [data-admin-surface] h3,
+  [data-admin-surface] h4,
+  [data-admin-surface] h5,
+  [data-admin-surface] h6,
+  [data-admin-surface] .font-display {
+    font-family: "Promorang Space", "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-synthesis: none;
+    letter-spacing: 0.01em;
+    word-spacing: 0.18em;
+  }
 }
 
 @layer components {

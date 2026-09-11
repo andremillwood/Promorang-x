@@ -28,6 +28,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { format } from "date-fns";
+import { ADMIN_AFTRHRS_TAB_HREF, isAftrHrsMoment } from "@/lib/admin-surface";
 
 const STATUS_FILTERS = ["all", "draft", "scheduled", "joinable", "active", "closed", "archived"];
 
@@ -115,30 +116,30 @@ export function AdminMomentsTab() {
               className="bg-card border border-border rounded-xl p-4 hover:shadow-card transition-shadow"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
+                <div className="min-w-0 flex-1 font-sans">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
                     <MomentStatusBadge status={moment.status as MomentStatus} />
                     {getVisibilityBadge(moment.visibility)}
                   </div>
                   
-                  <h3 className="font-semibold text-foreground text-lg truncate">
+                  <h3 className="text-lg font-semibold tracking-normal text-foreground break-words">
                     {moment.title}
                   </h3>
                   
                   {moment.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                    <p className="mt-1 text-sm leading-6 tracking-normal text-muted-foreground line-clamp-3">
                       {moment.description}
                     </p>
                   )}
                   
-                  <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      {moment.location}
+                  <div className="mt-3 flex flex-col gap-2 text-sm leading-6 tracking-normal text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                    <span className="flex items-start gap-1.5">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span className="break-words">{moment.location}</span>
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {format(new Date(moment.starts_at), "MMM d, yyyy 'at' h:mm a")}
+                    <span className="flex items-start gap-1.5">
+                      <Clock className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>{format(new Date(moment.starts_at), "MMM d, yyyy 'at' h:mm a")}</span>
                     </span>
                   </div>
                   
@@ -150,16 +151,23 @@ export function AdminMomentsTab() {
                           {(moment.host_profile?.full_name || "H").charAt(0)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm leading-6 tracking-normal text-muted-foreground">
                         Hosted by {moment.host_profile.full_name || "Anonymous"}
                       </span>
                     </div>
                   )}
                 </div>
                 
-                <div className="flex items-center gap-2 self-start sm:self-auto">
+                <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+                  {isAftrHrsMoment(moment) ? (
+                    <Button size="sm" className="shrink-0" asChild>
+                      <Link to={ADMIN_AFTRHRS_TAB_HREF}>
+                        RSVPs
+                      </Link>
+                    </Button>
+                  ) : null}
                   <Button variant="outline" size="sm" className="shrink-0" asChild>
-                    <Link to={`/moments/${moment.id}`}>
+                    <Link to={isAftrHrsMoment(moment) ? "/moments/aftrhrs" : `/moments/${moment.id}`}>
                       <Eye className="w-4 h-4 mr-1" />
                       View
                     </Link>

@@ -71,6 +71,7 @@ import { AdminEventVerificationReviewTab } from "@/components/admin/AdminEventVe
 import { AdminDiscoveryAcquisitionTab } from "@/components/admin/AdminDiscoveryAcquisitionTab";
 import { PromoPilotCompiler } from "@/components/campaigns/PromoPilotCompiler";
 import { AdminVerificationHub } from "@/components/admin/AdminVerificationHub";
+import { AdminMobileToolSwitch } from "@/components/admin/AdminMobileToolSwitch";
 import { useI18n } from "@/i18n/I18nContext";
 import AftrHrsAdmin from "@/pages/admin/AftrHrsAdmin";
 
@@ -218,9 +219,17 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="w-full space-y-6 pb-20 text-white animate-in fade-in-50 duration-300">
+    <div data-admin-surface className="w-full space-y-6 pb-20 text-white animate-in fade-in-50 duration-300">
+      <AdminMobileToolSwitch
+        groups={ADMIN_NAV_GROUPS}
+        activeTab={activeTab}
+        onChange={handleTabChange}
+        search={navSearch}
+        onSearch={setNavSearch}
+      />
+
       {/* 1. Master Admin Command Header & Category Strip */}
-      <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-cyan-950/20 via-[#0e1218] to-[#0a0d12] backdrop-blur-xl p-5 shadow-2xl space-y-4">
+      <div className="hidden rounded-2xl border border-white/10 bg-gradient-to-r from-cyan-950/20 via-[#0e1218] to-[#0a0d12] p-5 shadow-2xl space-y-4 backdrop-blur-xl lg:block">
         {/* Top Header Row */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
