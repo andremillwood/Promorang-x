@@ -354,7 +354,7 @@ const AuthPage = () => {
               </p>
             </div>
           )}
-          {(commercialIntent || hostReturn || selectedRole === "brand") && !(intendedLens && intendedRole && intendedRole !== "participant") && (
+          {!aftrHrsAuth && (commercialIntent || hostReturn || selectedRole === "brand") && !(intendedLens && intendedRole && intendedRole !== "participant") && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
                 {selectedRole === "brand"
@@ -376,7 +376,7 @@ const AuthPage = () => {
           )}
 
           {/* Role Selection (Signup only) */}
-          {mode === "signup" && !showRolePicker && (
+          {mode === "signup" && !aftrHrsAuth && !showRolePicker && (
             <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-[#171512]/10 bg-white/55 px-4 py-3">
               <div><p className="text-sm font-black">{t("auth.personalMembership")}</p><p className="text-xs text-[#756b5f]">{t("auth.personalCopy")}</p></div>
               <button type="button" onClick={() => setShowRolePicker(true)} className="min-h-11 shrink-0 text-xs font-black text-primary">{t("auth.business")}</button>

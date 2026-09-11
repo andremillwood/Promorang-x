@@ -578,7 +578,7 @@ export function aftrHrsDigitalReleaseView(input: { soldOut: boolean; hasPass: bo
   }
   return {
     kind: "claim" as const,
-    primaryCta: "Claim My Free Pass",
+    primaryCta: AFTRHRS_COPY.claimGuestCta,
     eventUnavailable: false,
   };
 }
