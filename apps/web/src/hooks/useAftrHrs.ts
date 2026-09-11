@@ -356,11 +356,19 @@ export function useAftrHrsGuest() {
   });
   const guest = snapshot.data?.guest || GUEST_FALLBACK;
   const rsvp = useMutation({
-    mutationFn: (body: { name: string; email: string; phone: string; kind: "rsvp" | "digital-pass"; termsAccepted: boolean; website?: string }) =>
-      request<{ ok: boolean; kind: string; name?: string; ticketPath?: string | null; code?: string | null; silent?: boolean }>("/guest-rsvp", undefined, {
-        method: "POST",
-        body: JSON.stringify({ ...body, ...attribution() }),
-      }),
+    mutationFn: async (body: { name: string; email: string; phone: string; kind: "rsvp" | "digital-pass"; termsAccepted: boolean; website?: string }) => {
+      try {
+        return await request<{ ok: boolean; kind: string; name?: string; ticketPath?: string | null; code?: string | null; silent?: boolean }>("/guest-rsvp", undefined, {
+          method: "POST",
+          body: JSON.stringify({ ...body, ...attribution() }),
+        });
+      } catch (error) {
+        if (error instanceof TypeError) {
+          throw new Error("We could not reach the list. Try again in a moment.");
+        }
+        throw error;
+      }
+    },
     onSuccess: () => snapshot.refetch(),
   });
   return {

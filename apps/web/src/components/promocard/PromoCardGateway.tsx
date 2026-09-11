@@ -90,7 +90,7 @@ export function PromoCardGateway() {
       : aim
         ? "Unlock this"
         : "View My PromoCard"
-    : AFTRHRS_COPY.claimGuestCta;
+    : AFTRHRS_COPY.guestRsvpCta;
   const unlockLabel = canUnlock ? "Unlock this" : "Get My PromoCard";
 
   function chooseAim(next: PromoCardAim) {
