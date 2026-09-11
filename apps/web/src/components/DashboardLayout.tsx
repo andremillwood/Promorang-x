@@ -36,6 +36,7 @@ import {
   PanelLeftOpen,
   Coins,
   ArrowUpRight,
+  Music2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,6 +55,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { useMarket } from "@/contexts/MarketContext";
 import { firstGivenName, getStakeholderLens } from "@promorang/shared";
 import { stakeholderMobileNav, stakeholderNavItems } from "@/config/stakeholderNav";
+import { ADMIN_AFTRHRS_TAB_HREF, adminChromePageMeta } from "@/lib/admin-surface";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "promoter" | "marketing" | "admin";
 
@@ -125,6 +127,9 @@ const isNavItemActive = (pathname: string, href: string, search: string) => {
 };
 
 const getPageMeta = (pathname: string, search: string, role: UserRole) => {
+  const adminMeta = adminChromePageMeta(pathname, search);
+  if (adminMeta) return adminMeta;
+
   const lensMatch = getStakeholderLens(role).destinations.find((item) =>
     isNavItemActive(pathname, item.href, search) && item.id !== "today",
   );
@@ -171,6 +176,7 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { icon: Home, label: "Command Center", href: "/admin?tab=command", group: "primary" },
     { icon: Users, label: "Users & KYC", href: "/admin?tab=users", group: "primary" },
     { icon: Calendar, label: "Moments & Venues", href: "/admin?tab=moments", group: "primary" },
+    { icon: Music2, label: "AftrHrs RSVPs", href: ADMIN_AFTRHRS_TAB_HREF, group: "primary" },
     { icon: Coins, label: "Community Vaults", href: "/nodes", group: "primary" },
     { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
     { icon: WalletCards, label: "Platform Wallet", href: "/wallet", group: "utility" },
@@ -237,6 +243,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
   const isDashboardHome = location.pathname === "/dashboard" || location.pathname === "/home";
+  const isAdminRoute = location.pathname.startsWith("/admin");
   const hidePageHeader = isImmersiveProductRoute || isDashboardHome;
   const showCompactDemoBanner = !isDashboardHome && !isImmersiveProductRoute;
   const pageMeta = getPageMeta(location.pathname, location.search, safeRole);
@@ -257,7 +264,10 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
     : stakeholderMobileNav(safeRole);
 
   return (
-    <div className="app-shell-mobile relative flex min-h-screen min-h-dvh overflow-x-clip bg-background transition-colors duration-300">
+    <div
+      className="app-shell-mobile relative flex min-h-screen min-h-dvh overflow-x-clip bg-background transition-colors duration-300"
+      {...(isAdminRoute ? { "data-admin-surface": true } : {})}
+    >
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:rounded-xl focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-primary-foreground focus:shadow-2xl focus:outline-none focus:ring-2 focus:ring-ring"
@@ -660,7 +670,10 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             </Link>
           </div>
           {safeRole !== "participant" ? <div className="mt-2 flex items-center justify-between gap-2 rounded-full border border-border/70 bg-muted/40 px-3 py-1.5 shadow-soft">
-            <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.12em] text-primary">
+            <p className={cn(
+              "min-w-0 truncate text-[11px] font-semibold text-primary",
+              isAdminRoute ? "tracking-normal" : "uppercase tracking-[0.12em]",
+            )}>
               {roleInfo.label} · {pageMeta.label}
             </p>
             <div className={cn("h-2 w-2 shrink-0 rounded-full", roleInfo.color)} />
