@@ -1,14 +1,10 @@
 import SEO from "@/components/SEO";
 import CinematicCultureHome from "@/components/CinematicCultureHome";
-import ConsumerHomePreview from "@/pages/ConsumerHomePreview";
 import ConsumerMomentPreview from "@/pages/ConsumerMomentPreview";
 import { useLayoutEffect } from "react";
-import { useI18n } from "@/i18n/I18nContext";
 
 const Index = () => {
-  const { t } = useI18n();
   const searchParams = new URLSearchParams(window.location.search);
-  const isConsumerPreview = searchParams.get("preview") === "consumer";
   const consumerMomentId = searchParams.get("moment");
 
   useLayoutEffect(() => {
@@ -17,19 +13,15 @@ const Index = () => {
     }
   }, []);
 
-  if (isConsumerPreview && consumerMomentId) {
+  if (consumerMomentId && new URLSearchParams(window.location.search).get("preview") === "consumer") {
     return <ConsumerMomentPreview />;
-  }
-
-  if (isConsumerPreview) {
-    return <ConsumerHomePreview />;
   }
 
   return (
     <div className="min-h-screen">
       <SEO
-        title={t("home.seoTitle")}
-        description={t("home.seoDescription")}
+        title="Promorang — Your city gives something back"
+        description="Discover Moments, local benefits and cultural experiences. Show up with your PromoCard and unlock more from your city."
       />
       <CinematicCultureHome />
     </div>

@@ -36,15 +36,19 @@ import {
   Flame,
   Sparkles,
   Share2,
+  WalletCards,
+  QrCode,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
+import { PublicHomeBar } from "@/components/culture/PublicHomeBar";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
-import { NightPathJourney } from "@/components/marketing/NightPathJourney";
-import { MobilePromoHome, PromoCardGateway } from "@/components/promocard";
+import { MobilePromoHome } from "@/components/promocard";
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
 import { SampleContentNotice } from "@/components/content/ContentProvenance";
 import { possessiveLocation, useVisitorLocation } from "@/hooks/useVisitorLocation";
+import { InteractiveReceiptStudio } from "@/components/value/InteractiveReceiptStudio";
+import { StakeholderValueHub } from "@/components/value/StakeholderValueHub";
 import heroImage from "@/assets/hero-moments.jpg";
 import momentConcert from "@/assets/moment-concert.jpg";
 import momentFoodFestival from "@/assets/moment-food-festival.jpg";
@@ -65,7 +69,6 @@ import { getSafeMediaUrl } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
-import { applyEncoreSchedule } from "@promorang/shared";
 import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import { useI18n } from "@/i18n/I18nContext";
 import { OpsTheatreStatusPill } from "@/components/theater/OpsTheatreStatusPill";
@@ -358,7 +361,7 @@ export default function CinematicCultureHome() {
       if (commerceResult.error) throw commerceResult.error;
 
       return {
-        moments: ((momentsResult.data || []) as PublicMoment[]).map((moment) => applyEncoreSchedule(moment)),
+        moments: (momentsResult.data || []) as PublicMoment[],
         commerce: (commerceResult.data || []) as PublicCommerceListing[],
         content: (contentResult.data || []) as PublicContent[],
         missions: (missionsResult.data || []) as PublicMission[],
@@ -432,7 +435,16 @@ export default function CinematicCultureHome() {
       href: "/missions", action: "View mission",
     })),
   ].slice(0, 10);
-  const activeHeroItem = heroItems[heroItemIndex % Math.max(heroItems.length, 1)];
+  const activeHeroItem = heroItems[heroItemIndex % Math.max(heroItems.length, 1)] || {
+    id: "promocard-nearby",
+    kind: "PromoCard benefit",
+    title: "New benefits are landing at participating places",
+    image: momentFoodFestival,
+    detail: visitorLocation || "Kingston",
+    value: "Available soon",
+    href: "/shop",
+    action: "Explore PromoCard",
+  };
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -470,11 +482,11 @@ export default function CinematicCultureHome() {
 
   return (
     <main className="min-h-screen bg-black text-white">
-      {user ? <HomeFeedToggle /> : null}
-      <PromoCardGateway />
+      {user ? <div className="hidden md:block"><HomeFeedToggle /></div> : null}
+      <PublicHomeBar />
       <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} />
       <div className="hidden md:block">
-      <section ref={heroRef} className="relative overflow-hidden border-b border-white/10 md:min-h-[92svh]">
+      <section ref={heroRef} className="relative overflow-hidden border-b border-white/10 md:min-h-[calc(100svh-4.5rem)]">
         {/* Parallax Background Layer */}
         <motion.div
           style={{ y: shouldReduceMotion ? 0 : bgY, scale: shouldReduceMotion ? 1 : bgScale }}
@@ -491,24 +503,31 @@ export default function CinematicCultureHome() {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black to-transparent" />
 
         {/* 3D Floating Ecosystem Badges */}
-        <div className="hidden md:block">
+        <div className="hidden 2xl:block">
           <HeroFloatingBadges scrollYProgress={scrollYProgress} reducedMotion={shouldReduceMotion} />
         </div>
 
-        <div className="container relative z-10 flex flex-col px-5 pb-24 pt-24 md:min-h-[92svh] md:justify-start md:px-6 md:pb-16 md:pt-44 lg:pt-52">
+        <div className="container relative z-10 grid px-5 py-12 md:min-h-[calc(100svh-4.5rem)] md:px-6 md:py-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(380px,0.78fr)] lg:items-center lg:gap-10 xl:gap-16">
           <motion.div
             style={{ y: shouldReduceMotion ? 0 : contentY, opacity: shouldReduceMotion ? 1 : contentOpacity }}
-            className="w-full max-w-full space-y-3 will-change-transform md:max-w-4xl md:space-y-4"
+            className="w-full max-w-full space-y-3 will-change-transform md:max-w-4xl md:space-y-4 lg:max-w-none"
           >
             <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex max-w-full items-center space-x-2 rounded-full border border-orange-500/40 bg-orange-500/20 px-3 py-1.5 text-[11px] font-black leading-4 text-orange-300 md:px-3.5 md:text-xs">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                </span>
+                <span className="line-clamp-2">{t("home.pulse")}</span>
+              </div>
               <OpsTheatreStatusPill onOpenOrientation={() => setOrientationOpen(true)} showDetails />
             </div>
 
-            <h2 className="max-w-4xl font-sans text-[clamp(2.45rem,11.5vw,7.5rem)] font-black uppercase leading-[0.86] tracking-[-0.065em] text-white md:leading-[0.82] md:tracking-[-0.075em]">
+            <h1 className="max-w-4xl font-sans text-[clamp(2.45rem,11.5vw,7.5rem)] font-black uppercase leading-[0.86] tracking-[-0.065em] text-white md:leading-[0.84] md:tracking-[-0.07em] lg:text-[clamp(3.75rem,5vw,6.25rem)]">
               <span className="block">{t("home.heroLine1")}</span>
               <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">{t("home.heroLine2")}</span>
               <span className="block">{t("home.heroLine3")}</span>
-            </h2>
+            </h1>
             <p className="mt-4 max-w-xl text-sm leading-6 text-white/75 md:mt-5 md:text-lg md:leading-7">
               {t("home.heroCopy")}
             </p>
@@ -517,47 +536,33 @@ export default function CinematicCultureHome() {
             </p>
             <div className="mt-5 grid w-full grid-cols-2 gap-2.5 sm:mt-7 sm:flex sm:max-w-2xl sm:flex-wrap sm:gap-3">
               <Link
-                to="/discover?tab=discoveries"
-                onClick={() => rememberMarketingIntent("hero_explore_discover", "/discover?tab=discoveries", "participant")}
+                to="/discover"
+                onClick={() => rememberMarketingIntent("hero_explore_today", "/discover", "participant")}
                 className="col-span-2 inline-flex min-h-12 min-w-0 items-center justify-center gap-2.5 rounded-xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-wider text-white shadow-[0_16px_40px_rgba(255,85,0,0.3)] transition-all hover:bg-orange-600 active:scale-[0.98] sm:col-auto sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm"
               >
                 <Compass className="h-4 w-4" />
                 <span>{t("home.exploreMoments")}</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
+            </div>
+            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45 sm:text-xs">
+              {t("home.runAPlace")}{" "}
               <Link
                 to="/hosting"
                 onClick={() => rememberMarketingIntent("hero_host_moment", "/hosting", "host")}
-                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
+                className="text-white/80 underline-offset-4 hover:text-white hover:underline"
               >
-                <Users className="h-4 w-4 text-emerald-400" />
-                <span>{t("nav.hostMoment")}</span>
+                {t("home.forHosts")}
               </Link>
-              <Link
-                to="/for-creators"
-                onClick={() => rememberMarketingIntent("hero_creators", "/for-creators", "creator")}
-                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
-              >
-                <PlayCircle className="h-4 w-4 text-violet-400" />
-                <span>{t("nav.forCreators")}</span>
-              </Link>
-              <Link
-                to="/for-merchants"
-                onClick={() => rememberMarketingIntent("hero_merchants", "/for-merchants", "merchant")}
-                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
-              >
-                <Store className="h-4 w-4 text-amber-400" />
-                <span>{t("nav.forMerchants")}</span>
-              </Link>
+              {" · "}
               <Link
                 to="/for-brands"
                 onClick={() => rememberMarketingIntent("hero_brands", "/for-brands", "brand")}
-                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-3 py-2.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-md transition-all hover:border-primary/50 hover:bg-white/[0.1] active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm sm:tracking-wider"
+                className="text-white/80 underline-offset-4 hover:text-white hover:underline"
               >
-                <Building2 className="h-4 w-4 text-cyan-400" />
-                <span>{t("nav.forBrands")}</span>
+                {t("home.forBrands")}
               </Link>
-            </div>
+            </p>
 
             {/* Live Social Proof & Outcomes Ticker */}
             <div className="hidden pt-2 flex-wrap items-center gap-3 text-xs sm:flex">
@@ -582,11 +587,11 @@ export default function CinematicCultureHome() {
           {activeHeroItem ? (
             <motion.div
               style={{ y: shouldReduceMotion ? 0 : cardParallaxY }}
-              className="mt-7 w-full max-w-sm md:mt-12 lg:absolute lg:bottom-16 lg:right-6 xl:right-8 will-change-transform z-20"
+              className="z-20 mt-8 w-full max-w-[27rem] justify-self-center will-change-transform md:mt-10 lg:mt-0 lg:justify-self-end"
             >
               <TiltCard3D
-                maxTilt={shouldReduceMotion ? 0 : 12}
-                scaleOnHover={1.03}
+                maxTilt={shouldReduceMotion ? 0 : 8}
+                scaleOnHover={1.018}
                 onMouseEnter={() => setHeroInteractionPaused(true)}
                 onMouseLeave={() => setHeroInteractionPaused(false)}
                 onFocusCapture={() => setHeroInteractionPaused(true)}
@@ -594,78 +599,77 @@ export default function CinematicCultureHome() {
                   if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setHeroInteractionPaused(false);
                 }}
               >
-                <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-white/25 bg-black/80 shadow-[0_24px_80px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-300">
-                  {activeHeroItem.image ? (
-                    <img src={activeHeroItem.image} alt="" className="h-28 w-full object-cover sm:h-36" />
-                  ) : (
-                    <div className="h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(255,106,0,0.35),transparent_38%),linear-gradient(135deg,#28160b,#080808)]" />
-                  )}
-                  <div className="p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("home.live")}</p>
-                      <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-300">{activeHeroItem.kind}</span>
-                    </div>
-                    <Link to={activeHeroItem.href} className="group block">
-                      <h2 className="mt-3 text-2xl font-black leading-none tracking-[-0.04em] text-white transition group-hover:text-primary">{activeHeroItem.title}</h2>
-                      <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3 text-xs">
-                        <span className="min-w-0 truncate text-white/50">{activeHeroItem.detail}</span>
-                        <span className="shrink-0 font-bold text-white/80">{activeHeroItem.value}</span>
-                      </div>
-                      <span className="mt-3 inline-flex items-center gap-2 text-xs font-black text-primary">{activeHeroItem.action}<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
-                    </Link>
-                    {heroItems.length > 1 ? (
-                      <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
-                        <span className="text-[10px] font-bold text-white/35">{heroItemIndex % heroItems.length + 1} / {heroItems.length}</span>
-                        <div className="flex gap-2">
-                          <button type="button" aria-label={t("home.previous")} onClick={() => setHeroItemIndex((index) => (index - 1 + heroItems.length) % heroItems.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronLeft className="h-4 w-4" /></button>
-                          <button type="button" aria-label={heroRotationPaused ? t("home.resume") : t("home.pause")} aria-pressed={heroRotationPaused} onClick={() => setHeroRotationPaused((paused) => !paused)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary">{heroRotationPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}</button>
-                          <button type="button" aria-label={t("home.next")} onClick={() => setHeroItemIndex((index) => (index + 1) % heroItems.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronRight className="h-4 w-4" /></button>
+                <div className="relative aspect-[1.586/1] overflow-hidden rounded-[1.5rem] border border-amber-200/30 bg-[radial-gradient(circle_at_82%_14%,rgba(255,147,59,0.32),transparent_27%),linear-gradient(145deg,#262526_0%,#101011_48%,#030303_100%)] p-5 shadow-[0_28px_75px_rgba(0,0,0,0.68),0_10px_32px_rgba(255,92,0,0.14),inset_0_1px_0_rgba(255,255,255,0.16)] transition-all duration-300">
+                  <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(115deg,transparent_28%,rgba(255,255,255,.13)_42%,transparent_56%)]" />
+                  <div className="relative flex h-full flex-col justify-between">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-amber-200 to-orange-500 text-black shadow-[0_8px_24px_rgba(255,126,0,0.25)]">
+                          <WalletCards className="h-5 w-5" />
+                        </span>
+                        <div>
+                          <p className="text-sm font-black uppercase tracking-[0.18em] text-white">PromoCard</p>
+                          <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.13em] text-white/42">Member access · Kingston</p>
                         </div>
                       </div>
-                    ) : null}
+                      <QrCode className="h-8 w-8 text-white/35" aria-label="Scan your PromoCard" />
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-200/70">Your city opens here</p>
+                      <p className="mt-2 max-w-sm font-serif text-[clamp(1.8rem,2.6vw,2.75rem)] font-black uppercase leading-[0.84] tracking-[-0.045em] text-amber-100">
+                        Show up.<br />More comes back.
+                      </p>
+                    </div>
+
+                    <div className="flex items-end justify-between gap-4 border-t border-white/10 pt-4">
+                      <div>
+                        <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/35">Member since</p>
+                        <p className="mt-1 text-xs font-black tracking-[0.16em] text-white/85">PROMO · 0001</p>
+                      </div>
+                      <Link
+                        to={user ? "/wallet" : "/auth?mode=signup&next=/wallet"}
+                        className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 text-xs font-black text-white shadow-[0_12px_28px_rgba(255,85,0,0.3)] transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                      >
+                        {user ? "Open my card" : "Get my card"}<ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </TiltCard3D>
+
+              <div className="relative z-10 -mt-4 ml-auto w-[91%] overflow-hidden rounded-2xl border border-white/15 bg-black/88 shadow-[0_18px_55px_rgba(0,0,0,0.64)] backdrop-blur-xl">
+                <div className="flex items-stretch">
+                  {activeHeroItem.image ? <img src={activeHeroItem.image} alt="" className="h-24 w-28 shrink-0 object-cover" /> : null}
+                  <div className="min-w-0 flex-1 p-3.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary">Open on your card</p>
+                      <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2 py-0.5 text-[8px] font-black uppercase tracking-wider text-emerald-300">{activeHeroItem.kind}</span>
+                    </div>
+                    <Link to={activeHeroItem.href} className="group mt-2 block">
+                      <h2 className="line-clamp-2 text-base font-black leading-[1.08] tracking-[-0.025em] text-white transition group-hover:text-primary">{activeHeroItem.title}</h2>
+                      <span className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-black text-primary">{activeHeroItem.action}<ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" /></span>
+                    </Link>
+                  </div>
+                </div>
+                {heroItems.length > 1 ? (
+                  <div className="flex items-center justify-between border-t border-white/10 px-4 py-2.5">
+                    <span className="text-[10px] font-bold text-white/35">{heroItemIndex % heroItems.length + 1} / {heroItems.length} · benefits near you</span>
+                    <div className="flex gap-1.5">
+                      <button type="button" aria-label={t("home.previous")} onClick={() => setHeroItemIndex((index) => (index - 1 + heroItems.length) % heroItems.length)} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronLeft className="h-4 w-4" /></button>
+                      <button type="button" aria-label={heroRotationPaused ? t("home.resume") : t("home.pause")} aria-pressed={heroRotationPaused} onClick={() => setHeroRotationPaused((paused) => !paused)} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary">{heroRotationPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}</button>
+                      <button type="button" aria-label={t("home.next")} onClick={() => setHeroItemIndex((index) => (index + 1) % heroItems.length)} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronRight className="h-4 w-4" /></button>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </motion.div>
           ) : null}
-        </div>
-      </section>
-      </div>
-
-      <section className="border-b border-white/10 bg-[#080808]">
-        <div className="container px-5 py-10 md:px-6 md:py-14">
-          <div className="grid gap-6 lg:grid-cols-[1.1fr_.9fr] lg:items-end">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.playEyebrow")}</p>
-              <h2 className="mt-3 max-w-2xl text-3xl font-black uppercase leading-[0.9] tracking-[-0.05em] md:text-5xl">
-                {t("home.playTitle")} <span className="text-primary">{t("home.playAccent")}</span>
-              </h2>
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-white/58">{t("home.playCopy")}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                [t("home.playMissions"), "/missions"],
-                [t("home.playProgress"), "/progress"],
-                [t("home.playGuilds"), "/guilds"],
-                [t("home.playCard"), "/card"],
-              ].map(([label, href]) => (
-                <Link
-                  key={href}
-                  to={href}
-                  className="inline-flex min-h-12 items-center justify-between rounded-2xl border border-white/12 bg-white/[0.04] px-4 text-xs font-black uppercase tracking-wide text-white/80 transition hover:border-primary/50 hover:text-white"
-                >
-                  {label}
-                  <ArrowRight className="h-3.5 w-3.5 text-primary" />
-                </Link>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
       <LeadMagnetGateway />
 
-      <div className="hidden md:block">
       <section className="relative overflow-hidden border-b border-white/10 bg-[#070707]">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(255,106,0,0.16),transparent_32%)]" />
         <div className="container relative px-6 py-14 md:py-20">
@@ -682,7 +686,7 @@ export default function CinematicCultureHome() {
             <nav aria-label="Homepage discovery shortcuts" className="flex flex-wrap gap-2">
               {[
                 [CalendarDays, t("home.shortcutMoments"), "/discover/moments"],
-                [Flame, t("home.shortcutPolls"), "/discover?tab=discoveries"],
+                [Flame, t("home.shortcutPolls"), "/discover"],
                 [Compass, t("home.shortcutSpots"), "/discover"],
                 [Tag, t("home.shortcutRewards"), "/rewards"],
                 [Store, t("home.shortcutMerchants"), "/merchants"],
@@ -699,136 +703,120 @@ export default function CinematicCultureHome() {
             </nav>
           </div>
 
-          <div className="mb-10 rounded-[2rem] border border-white/10 bg-white/[0.03] px-5 py-6 sm:px-6 sm:py-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.nightEyebrow")}</p>
-            <h3 className="mt-2 max-w-3xl text-3xl font-black uppercase leading-[0.9] tracking-[-0.05em] md:text-4xl">
-              {t("home.nightTitle")} <span className="text-primary">{t("home.nightAccent")}</span>
-            </h3>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">{t("home.nightCopy")}</p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                ["home.night1Label", "home.night1Title", "home.night1Text", "/discover?tab=discoveries"],
-                ["home.night2Label", "home.night2Title", "home.night2Text", "/promoshare"],
-                ["home.night3Label", "home.night3Title", "home.night3Text", "/card"],
-                ["home.night4Label", "home.night4Title", "home.night4Text", "/progress"],
-              ].map(([label, title, text, href]) => (
-                <Link
-                  key={href}
-                  to={href}
-                  className="rounded-2xl border border-white/10 bg-black/30 px-4 py-4 transition hover:border-primary/40"
-                >
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t(label as "home.night1Label")}</p>
-                  <p className="mt-2 font-serif text-xl font-bold text-white">{t(title as "home.night1Title")}</p>
-                  <p className="mt-2 text-xs leading-5 text-white/50">{t(text as "home.night1Text")}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <NightPathJourney className="mb-10" />
-
-          <DiscoveriesFeedSection />
-
+          {/* 4 CORE ECOSYSTEM PILLARS */}
           <div className="my-8">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.pillarsEyebrow")}</p>
-                <h3 className="text-2xl font-black uppercase tracking-tight text-white sm:text-3xl">
-                  {t("home.pillarsTitle")} <span className="text-primary">{t("home.pillarsAccent")}</span>
-                </h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">The Ecosystem Architecture</p>
+                <h3 className="text-2xl font-black uppercase tracking-tight text-white sm:text-3xl">4 Pillars of Promorang</h3>
               </div>
+              <span className="hidden sm:inline-block text-xs font-medium text-white/50">From Culture to Shared Wealth</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Pillar 1: Moments & Passes */}
               <Link
-                to="/discover?tab=discoveries"
+                to="/discover/moments"
                 className="group p-5 rounded-3xl border border-orange-500/30 bg-gradient-to-b from-orange-500/10 via-zinc-950 to-zinc-950 hover:border-orange-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      {t("home.pillar1Badge")}
+                      1. Moments &amp; Passes
                     </span>
                     <Flame className="w-4 h-4 text-orange-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-orange-300 transition-colors leading-snug">
-                    {t("home.pillar1Title")}
+                    Access Dope Nights &amp; Fill Venues
                   </h4>
-                  <p className="text-xs text-zinc-400 leading-relaxed">{t("home.pillar1Copy")}</p>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Exclusive guestlist passes, Kingston DJ nights, beach fetes, and dead-night venue revival from 0 to 230+ guests.
+                  </p>
                 </div>
                 <div className="pt-2 text-xs font-black text-orange-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>{t("home.pillar1Cta")}</span>
+                  <span>Explore Moments</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
 
+              {/* Pillar 2: PromoCard & Margin Clearinghouse */}
               <Link
-                to="/promoshare"
-                className="group p-5 rounded-3xl border border-purple-500/30 bg-gradient-to-b from-purple-500/10 via-zinc-950 to-zinc-950 hover:border-purple-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[10px] font-black uppercase tracking-wider">
-                      {t("home.pillar2Badge")}
-                    </span>
-                    <Share2 className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
-                  </div>
-                  <h4 className="text-lg font-black text-white group-hover:text-purple-300 transition-colors leading-snug">
-                    {t("home.pillar2Title")}
-                  </h4>
-                  <p className="text-xs text-zinc-400 leading-relaxed">{t("home.pillar2Copy")}</p>
-                </div>
-                <div className="pt-2 text-xs font-black text-purple-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>{t("home.pillar2Cta")}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
-              </Link>
-
-              <Link
-                to="/card"
+                to="/shop"
                 className="group p-5 rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-500/10 via-zinc-950 to-zinc-950 hover:border-emerald-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      {t("home.pillar3Badge")}
+                      2. PromoCard &amp; Margin
                     </span>
                     <Store className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-emerald-300 transition-colors leading-snug">
-                    {t("home.pillar3Title")}
+                    Split-Tender Perks at Partner Spots
                   </h4>
-                  <p className="text-xs text-zinc-400 leading-relaxed">{t("home.pillar3Copy")}</p>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Restore promotional spending balance through verified actions and apply eligible value to food, drinks, and retail purchases.
+                  </p>
                 </div>
                 <div className="pt-2 text-xs font-black text-emerald-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>{t("home.pillar3Cta")}</span>
+                  <span>View Member Perks</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
 
+              {/* Pillar 3: PromoShare & Sponsor Draws */}
               <Link
-                to="/progress"
+                to="/economy/promoshare-gems"
+                className="group p-5 rounded-3xl border border-purple-500/30 bg-gradient-to-b from-purple-500/10 via-zinc-950 to-zinc-950 hover:border-purple-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[10px] font-black uppercase tracking-wider">
+                      3. After you move the room
+                    </span>
+                    <Share2 className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+                  </div>
+                  <h4 className="text-lg font-black text-white group-hover:text-purple-300 transition-colors leading-snug">
+                    Your share filled Friday
+                  </h4>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Tia sent the night to four friends. Three walked in. She kept a ticket into a prize already paid for — not a like count.
+                  </p>
+                </div>
+                <div className="pt-2 text-xs font-black text-purple-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
+                  <span>See how tickets work</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Link>
+
+              {/* Pillar 4: Pieces you can hold */}
+              <Link
+                to="/wallet"
                 className="group p-5 rounded-3xl border border-cyan-500/30 bg-gradient-to-b from-cyan-500/10 via-zinc-950 to-zinc-950 hover:border-cyan-500 transition-all shadow-xl space-y-3 flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-black uppercase tracking-wider">
-                      {t("home.pillar4Badge")}
+                      4. Pieces
                     </span>
                     <Coins className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <h4 className="text-lg font-black text-white group-hover:text-cyan-300 transition-colors leading-snug">
-                    {t("home.pillar4Title")}
+                    Hold a slice of a night
                   </h4>
-                  <p className="text-xs text-zinc-400 leading-relaxed">{t("home.pillar4Copy")}</p>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Pieces are a share of a recurring Moment. Trades only count when they settle.
+                  </p>
                 </div>
                 <div className="pt-2 text-xs font-black text-cyan-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform border-t border-white/5">
-                  <span>{t("home.pillar4Cta")}</span>
+                  <span>Open Pieces</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
             </div>
           </div>
+
+          <DiscoveriesFeedSection />
 
           <div className="pt-9">
             <SectionHeader eyebrow={t("home.secMomentsEyebrow")} title={t("home.secMomentsTitle")} accent={t("home.secMomentsAccent")} action={t("home.secMomentsAction")} actionHref="/discover/moments" />
@@ -904,11 +892,43 @@ export default function CinematicCultureHome() {
                 <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Store className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">{t("home.meetMerchantsTitle")}</strong><span className="text-xs text-white/45">{t("home.meetMerchantsDesc")}</span></span></span>
                 <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
               </Link>
-              <Link to="/earn" className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-primary/45">
+              <Link to="/rewards" className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-primary/45">
                 <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Gift className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">{t("home.claimPerksTitle")}</strong><span className="text-xs text-white/45">{t("home.claimPerksDesc")}</span></span></span>
                 <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden border-b border-white/10 bg-[#080808]">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(255,106,0,0.14),transparent_28%),radial-gradient(circle_at_88%_65%,rgba(255,106,0,0.08),transparent_24%)]" />
+        <div className="container relative px-6 py-16 md:py-24">
+          <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-end">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("home.economyEyebrow")}</p>
+              <h2 className="mt-4 max-w-xl text-4xl font-black uppercase leading-[0.88] tracking-[-0.06em] md:text-6xl">
+                {t("home.economyTitle")} <span className="text-primary">{t("home.economyAccent")}</span>
+              </h2>
+            </div>
+            <div className="max-w-2xl lg:justify-self-end">
+              <p className="text-lg leading-8 text-white/72">
+                {t("home.economyCopy")}
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {[t("home.chipSocial"), t("home.chipCreator"), t("home.chipCommerce"), t("home.chipProof"), t("home.chipRewards")].map((item) => (
+                  <span key={item} className="rounded-full border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/55">{item}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-12">
+            <InteractiveReceiptStudio />
+          </div>
+
+          <div className="mt-16 pt-16 border-t border-white/10">
+            <StakeholderValueHub initialRole="guest" showHeroBanner={true} />
           </div>
         </div>
       </section>
@@ -1014,7 +1034,7 @@ export default function CinematicCultureHome() {
                 promise: t("home.roleHostPromise"),
                 value: ["Verify visits", "Prompt customer content", "Give people a reason to return"],
                 cta: t("home.roleHostCta"),
-                href: `/auth?mode=signup&role=host&next=${encodeURIComponent("/propose/new?from=home")}`,
+                href: "/auth?mode=signup&role=merchant&next=/create/moment",
                 footnote: t("home.roleHostFootnote"),
               },
               {
