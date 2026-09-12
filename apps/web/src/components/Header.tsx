@@ -109,8 +109,8 @@ const Header = () => {
           : "border-b border-border/60 bg-background/85 text-foreground shadow-sm"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="flex items-center justify-between h-14 gap-2 sm:h-16 sm:gap-3 lg:gap-6">
+      <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8">
+        <nav className="flex h-14 min-w-0 items-center justify-between gap-2 sm:h-16 sm:gap-3 min-[1800px]:gap-6">
           {/* 1. Left Zone: Brand Logo & Desktop Nav */}
           <div className="flex items-center gap-3 xl:gap-6 shrink-0">
             <Link
@@ -413,12 +413,12 @@ const Header = () => {
           </div>
 
           {/* 2. Center/Right Zone: Search & Location */}
-          <div className="hidden items-center gap-2.5 flex-1 justify-end max-w-lg sm:flex">
+          <div className="hidden min-w-0 flex-1 items-center justify-end gap-2.5 xl:flex min-[1800px]:max-w-lg">
             {/* City Quick Switcher */}
-            <CityQuickSwitcher className="hidden md:inline-flex" />
+            <CityQuickSwitcher className="hidden min-[1800px]:inline-flex" />
 
             {/* Global Search Trigger */}
-            <div className="w-full max-w-[200px] sm:max-w-[260px]">
+            <div className="w-full max-w-[200px] min-[1800px]:max-w-[260px]">
               <HeaderSearchPreview />
             </div>
           </div>
@@ -432,7 +432,7 @@ const Header = () => {
             {user ? (
               <>
                 {/* Global Ticket & Balances Pill */}
-                <GlobalTicketBalancePill className="hidden md:inline-flex" />
+                <GlobalTicketBalancePill className="hidden min-[1800px]:inline-flex" />
 
                 {/* Activity Pulse Notifications */}
                 <DropdownMenu>
@@ -481,7 +481,7 @@ const Header = () => {
                       )}
                       <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full border border-background bg-emerald-500" />
                     </div>
-                    <span className="text-xs font-semibold text-white/90 hidden sm:inline max-w-[100px] truncate">
+                    <span className="hidden max-w-[100px] truncate text-xs font-semibold text-white/90 min-[1800px]:inline">
                       {userDisplayName}
                     </span>
                     <ChevronDown className="w-3.5 h-3.5 text-white/40 group-hover:text-white/80 transition-colors shrink-0" />
