@@ -64,6 +64,7 @@ export interface PlatformStats {
 
 export interface MomentForApproval {
   id: string;
+  slug?: string | null;
   title: string;
   description: string | null;
   category: string;

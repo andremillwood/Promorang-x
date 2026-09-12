@@ -203,8 +203,6 @@ const AftrHrsGuestTicket = lazy(() => import("./pages/AftrHrsGuestTicket"));
 const AftrHrsPass = lazy(() => import("./pages/AftrHrsPass"));
 const AftrHrsAmbassador = lazy(() => import("./pages/AftrHrsAmbassador"));
 const AftrHrsDoor = lazy(() => import("./pages/AftrHrsDoor"));
-const AftrHrsAdmin = lazy(() => import("./pages/admin/AftrHrsAdmin"));
-
 
 const queryClient = new QueryClient();
 const CanonicalSceneRedirect = () => { const { slug } = useParams(); return <Navigate to={`/scenes/${slug || ""}`} replace />; };
@@ -425,7 +423,7 @@ const App = () => (
                     <Route path="/moments/aftrhrs/pass" element={<AftrHrsPass />} />
                     <Route path="/moments/aftrhrs/ambassador" element={<ProtectedRoute><AftrHrsAmbassador /></ProtectedRoute>} />
                     <Route path="/moments/aftrhrs/door" element={<ProtectedRoute><AftrHrsDoor /></ProtectedRoute>} />
-                    <Route path="/admin/aftrhrs" element={<ProtectedRoute><AftrHrsAdmin /></ProtectedRoute>} />
+                    <Route path="/admin/aftrhrs" element={<Navigate to="/admin?tab=aftrhrs" replace />} />
                     <Route path="/moments/:id" element={<MomentDetail />} />
                     <Route path="/moments/:id/record" element={<MomentRecord />} />
                     <Route path="/moments/:id/edit" element={<ProtectedRoute><EditMoment /></ProtectedRoute>} />
