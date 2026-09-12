@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CalendarDays, MapPin, Radio } from "lucide-react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import {
   firstGivenName,
@@ -23,6 +23,8 @@ import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { seededContentDrops } from "@/data/seeded-content-drops";
+import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
+import { momentLifecycleLabel } from "@/services/moment-feed";
 
 const money = (value: number) => {
   if (!value) return "J$0";
@@ -36,6 +38,7 @@ export default function PeopleHome() {
   const { user, profile, activeRole, roles } = useAuth();
   const workspaceRoles = (roles || []).filter((role) => ["host", "creator", "merchant", "brand", "agency", "admin"].includes(role));
   const home = useExperienceHome();
+  const momentFeed = useCanonicalMomentFeed();
   const contentDrops = useContentDrops("active");
   const releaseDrops = contentDrops.data?.length ? contentDrops.data : seededContentDrops;
   const to = useExperiencePath();
@@ -177,6 +180,22 @@ export default function PeopleHome() {
       ) : null}
       <StakeholderLoopTrail role={lensRole} />
       <StakeholderSetupPlaybook role={lensRole} />
+      <section className="space-y-3" aria-labelledby="happening-now-title">
+        <div className="flex items-end justify-between gap-3">
+          <div><p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Verified calendar</p><h2 id="happening-now-title" className="font-serif text-2xl font-bold">Now & next</h2></div>
+          <Link to="/discover/moments" className="text-sm font-bold text-primary">See calendar</Link>
+        </div>
+        {momentFeed.isLoading ? <div className="h-36 animate-pulse rounded-[1.6rem] border border-white/10 bg-white/[0.03]" /> : momentFeed.isError ? (
+          <div role="status" className="rounded-[1.6rem] border border-amber-400/20 bg-amber-400/5 px-5 py-5"><p className="font-serif text-xl font-bold">Live timing unavailable</p><p className="mt-1 text-sm text-white/50">We are not showing unconfirmed listings in its place.</p></div>
+        ) : momentFeed.data.moments.length ? (
+          <div className="grid gap-3">{momentFeed.data.moments.filter((moment) => moment.lifecycle !== "recently_ended").slice(0, 3).map((moment) => (
+            <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="group grid grid-cols-[72px_1fr] gap-4 rounded-[1.6rem] border border-white/10 bg-white/[0.04] p-3">
+              <div className="relative h-[72px] overflow-hidden rounded-2xl bg-primary/10">{moment.image_url ? <img src={moment.image_url} alt="" className="h-full w-full object-cover" /> : <Radio className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 text-primary" />}</div>
+              <div className="min-w-0 self-center"><p className={`text-[10px] font-black uppercase tracking-[0.18em] ${moment.lifecycle === "live" ? "text-emerald-300" : "text-primary"}`}>{momentLifecycleLabel(moment.lifecycle)}</p><p className="mt-1 truncate font-serif text-xl font-bold group-hover:text-primary">{moment.title}</p><div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-white/45"><span className="inline-flex items-center gap-1"><CalendarDays className="h-3 w-3" />{new Date(moment.starts_at).toLocaleString("en-JM", { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span><span className="inline-flex items-center gap-1 truncate"><MapPin className="h-3 w-3" />{moment.venue_name || moment.location}</span></div></div>
+            </Link>
+          ))}</div>
+        ) : <QuietEmpty title="Nothing confirmed right now" copy="New moments appear here only when their time and place can be verified." />}
+      </section>
       {hasMovement ? (
         <PaperReceipt
           heading={t("people.inPlay")}

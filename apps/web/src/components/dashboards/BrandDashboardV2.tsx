@@ -28,6 +28,7 @@ import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { TeamSlashModal } from "@/components/TeamSlashModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
+import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 
 // Modular Brand Consoles
 import BrandCampaignFlightDeck from "@/components/brand/BrandCampaignFlightDeck";
@@ -40,6 +41,7 @@ export function BrandDashboardV2() {
   const { user, organizations, activeOrgId, profile } = useAuth();
   const { data: campaigns, isLoading: campaignsLoading } = useBrandCampaigns();
   const { isLoading: statsLoading } = useBrandStats();
+  const momentFeed = useCanonicalMomentFeed();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const defaultTab = searchParams.get("tab") || "campaigns";
@@ -185,11 +187,11 @@ export function BrandDashboardV2() {
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
         {[
           { id: "demand", label: "City Asks", icon: Vote, hint: "What people named", count: "Live asks" },
-          { id: "campaigns", label: "Active Promotions", icon: Megaphone, hint: "Live campaigns & budget", count: `${activeCampaigns.length || 2} Live` },
-          { id: "opportunities", label: "Find Events to Sponsor", icon: Target, hint: "Top local events & venues", count: "3 Ready" },
-          { id: "creators", label: "Creator Posts", icon: Users, hint: "Review photo & video posts", count: "1 Ready" },
-          { id: "correlation", label: "Customer Foot-Traffic", icon: Link2, hint: "See who visited in person", count: "4.9x ROI" },
-          { id: "insights", label: "Budget & Payouts", icon: Coins, hint: "Safe escrow & balances", count: "$6.4k Safe" },
+          { id: "campaigns", label: "Active Promotions", icon: Megaphone, hint: "Live campaigns & budget", count: `${activeCampaigns.length} Live` },
+          { id: "opportunities", label: "Find Events to Sponsor", icon: Target, hint: "Verified upcoming inventory", count: momentFeed.isLoading ? "Checking" : `${(momentFeed.data?.moments || []).filter((moment) => moment.sponsorship_ready).length} Ready` },
+          { id: "creators", label: "Creator Posts", icon: Users, hint: "Review photo & video posts", count: "Review" },
+          { id: "correlation", label: "Customer Foot-Traffic", icon: Link2, hint: "Verified visits only", count: "Measured" },
+          { id: "insights", label: "Budget & Payouts", icon: Coins, hint: "Held budget & balances", count: `${totalRedemptions} redeemed` },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

@@ -3,6 +3,52 @@ const router = express.Router();
 const momentService = require('../services/momentService');
 const { requireAuth } = require('../middleware/auth');
 const { supabase } = require('../lib/supabase');
+const { buildMomentFeed } = require('../services/momentFeedService');
+
+// GET /api/moments/feed - Canonical, time-aware public inventory for every surface
+router.get('/feed', async (req, res) => {
+    try {
+        const { data: moments, error } = await supabase
+            .from('moments')
+            .select('*')
+            .eq('is_active', true)
+            .order('starts_at', { ascending: true })
+            .limit(500);
+
+        if (error) throw error;
+
+        const momentIds = (moments || []).map((moment) => moment.id);
+        const brandNamesByMoment = {};
+        if (momentIds.length > 0) {
+            const { data: associations } = await supabase
+                .from('view_moment_brand_associations')
+                .select('moment_id,brand_id')
+                .in('moment_id', momentIds);
+
+            const brandIds = [...new Set((associations || []).map((association) => association.brand_id).filter(Boolean))];
+            const { data: brands } = brandIds.length
+                ? await supabase.from('organizations').select('id,name').in('id', brandIds)
+                : { data: [] };
+            const brandNameById = Object.fromEntries((brands || []).map((brand) => [brand.id, brand.name]));
+
+            (associations || []).forEach((association) => {
+                const brandName = brandNameById[association.brand_id];
+                if (!brandName) return;
+                brandNamesByMoment[association.moment_id] ||= [];
+                if (!brandNamesByMoment[association.moment_id].includes(brandName)) {
+                    brandNamesByMoment[association.moment_id].push(brandName);
+                }
+            });
+        }
+
+        const feed = buildMomentFeed(moments || [], brandNamesByMoment);
+        res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
+        res.json({ success: true, data: feed });
+    } catch (err) {
+        console.error('Canonical moment feed error:', err);
+        res.status(500).json({ success: false, error: 'Failed to load current moment inventory' });
+    }
+});
 
 // GET /api/moments/me/history - User's verified moment history
 router.get('/me/history', requireAuth, async (req, res) => {

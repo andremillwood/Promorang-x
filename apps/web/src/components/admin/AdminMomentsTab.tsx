@@ -26,15 +26,19 @@ import {
   MapPin,
   Clock,
   Pencil,
+  AlertTriangle,
+  Radio,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ADMIN_AFTRHRS_TAB_HREF, isAftrHrsMoment } from "@/lib/admin-surface";
+import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 
 const STATUS_FILTERS = ["all", "draft", "scheduled", "joinable", "active", "closed", "archived"];
 
 export function AdminMomentsTab() {
   const { data: moments, isLoading } = useMomentsForApproval();
   const updateStatus = useUpdateMomentStatus();
+  const publicFeed = useCanonicalMomentFeed();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -73,6 +77,14 @@ export function AdminMomentsTab() {
 
   return (
     <div className="space-y-6">
+      {publicFeed.data ? (
+        <section className="grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-4" aria-label="Moment inventory health">
+          <div><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Surfaced now</p><p className="mt-1 text-2xl font-black">{publicFeed.data.health.surfaced}</p></div>
+          <div><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Live now</p><p className="mt-1 flex items-center gap-2 text-2xl font-black"><Radio className="h-5 w-5 text-emerald-500" />{publicFeed.data.counts.live}</p></div>
+          <div><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Coming up</p><p className="mt-1 text-2xl font-black">{publicFeed.data.counts.starting_soon + publicFeed.data.counts.upcoming}</p></div>
+          <div className={publicFeed.data.health.needs_attention ? "text-amber-600" : "text-emerald-600"}><p className="text-xs font-bold uppercase tracking-wider">Needs attention</p><p className="mt-1 flex items-center gap-2 text-2xl font-black"><AlertTriangle className="h-5 w-5" />{publicFeed.data.health.needs_attention}</p></div>
+        </section>
+      ) : null}
       {/* Search and Filters */}
       <div className="flex flex-col gap-4 sm:flex-row">
         <div className="relative flex-1 sm:max-w-sm">

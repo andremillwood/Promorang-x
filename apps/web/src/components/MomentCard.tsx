@@ -20,6 +20,8 @@ type Moment = Tables<"moments"> & {
   recurrence_enabled?: boolean | null;
   recurrence_frequency?: "daily" | "weekly" | "monthly" | null;
   recurrence_interval?: number | null;
+  lifecycle?: "live" | "starting_soon" | "upcoming" | "recently_ended";
+  effective_ends_at?: string | null;
   venue_category?: string | null;
   moment_archetype?: string | null;
   conversion_type?: string | null;
@@ -163,7 +165,14 @@ export function MomentCard({
   const recurrenceLabel = getRecurrenceLabel(moment);
   const momentStatus = getMomentStatus(moment);
   const occurrence = momentStatus.occurrence;
-  const isPast = momentStatus.isPast;
+  const isPast = moment.lifecycle === "recently_ended" || (!moment.lifecycle && momentStatus.isPast);
+  const lifecycleLabel = moment.lifecycle === "live"
+    ? "Live now"
+    : moment.lifecycle === "starting_soon"
+      ? "Starting soon"
+      : moment.lifecycle === "recently_ended"
+        ? "Last night"
+        : "Coming up";
   const isExampleMoment = Boolean(moment.isExample || moment.content_origin === "demo" || moment.content_origin === "platform_seed");
   const actionLabel = conversionLabel || formActionLabel(moment.conversion_type) || "Check-in";
   const unlockLabel = moment.reward ? "Reward available" : recurrenceLabel ? "Build standing" : "Earn a Mark";
@@ -234,11 +243,11 @@ export function MomentCard({
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {isPast ? (
             <span className="w-fit rounded-full border border-red-500/40 bg-red-500/80 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-md backdrop-blur-sm">
-              Concluded
+              {lifecycleLabel}
             </span>
           ) : (
             <span className="w-fit rounded-full border border-white/15 bg-black/70 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-md backdrop-blur-sm">
-              {t("momentCard.badge")}
+              {moment.lifecycle ? lifecycleLabel : t("momentCard.badge")}
             </span>
           )}
           {originLabel && (

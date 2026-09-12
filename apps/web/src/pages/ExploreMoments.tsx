@@ -3,7 +3,6 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
 import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
@@ -16,9 +15,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, BookOpen, Clock, Compass, MapPin, Repeat2, Search, Sparkles, TrendingUp } from "lucide-react";
 import { getSiteUrl, slugifySegment } from "@/lib/discovery";
 import { useI18n } from "@/i18n/I18nContext";
-import { applyEncoreSchedule } from "@promorang/shared";
-
-type PublicMoment = Tables<"view_public_moment_directory">;
+import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
+import type { CanonicalMoment, MomentLifecycle } from "@/services/moment-feed";
 
 const categories = [
   { value: "all", label: "All categories", emoji: "✨" },
@@ -47,27 +45,9 @@ const ExploreMoments = () => {
     categories.some((category) => category.value === requestedCategory) ? requestedCategory! : "all",
   );
   const [sortBy, setSortBy] = useState<"soonest" | "popular">("soonest");
-  const [momentMode, setMomentMode] = useState<"live" | "recurring" | "examples">("live");
+  const [momentMode, setMomentMode] = useState<"current" | "recurring" | "examples">("current");
 
-  const momentsQuery = useQuery({
-    queryKey: ["explore-moments", activeCategory],
-    queryFn: async () => {
-      let query = supabase
-        .from("view_public_moment_directory")
-        .select("*")
-        .eq("is_active", true)
-        .order("starts_at", { ascending: true })
-        .limit(72);
-
-      if (activeCategory !== "all") {
-        query = query.eq("category", activeCategory);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return (data || []).map((moment) => applyEncoreSchedule(moment)) as PublicMoment[];
-    },
-  });
+  const momentsQuery = useCanonicalMomentFeed();
 
   const linkedContentQuery = useQuery({
     queryKey: ["explore-moments-linked-content"],
@@ -85,7 +65,8 @@ const ExploreMoments = () => {
 
   const filteredMoments = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    const base = (momentsQuery.data || []).filter((moment) => {
+    const base = (momentsQuery.data?.moments || []).filter((moment) => {
+      if (activeCategory !== "all" && moment.category !== activeCategory) return false;
       if (momentMode === "recurring" && !moment.recurrence_enabled) return false;
       if (!query) return true;
 
@@ -111,7 +92,7 @@ const ExploreMoments = () => {
 
       return new Date(a.starts_at || "").getTime() - new Date(b.starts_at || "").getTime();
     });
-  }, [momentsQuery.data, momentMode, searchQuery, sortBy]);
+  }, [activeCategory, momentsQuery.data, momentMode, searchQuery, sortBy]);
 
   const featuredLocations = Array.from(
     new Map(
@@ -138,10 +119,11 @@ const ExploreMoments = () => {
     .slice(0, 6);
 
   const isLoading = momentsQuery.isLoading || linkedContentQuery.isLoading;
-  const liveCount = momentsQuery.data?.length || 0;
-  const recurringCount = (momentsQuery.data || []).filter((moment) => moment.recurrence_enabled).length;
+  const liveCount = momentsQuery.data?.counts.live || 0;
+  const upcomingCount = (momentsQuery.data?.counts.starting_soon || 0) + (momentsQuery.data?.counts.upcoming || 0);
+  const recurringCount = (momentsQuery.data?.moments || []).filter((moment) => moment.recurrence_enabled).length;
   const activeModeLabel =
-    momentMode === "examples" ? "Example playbooks" : momentMode === "recurring" ? "Recurring moments" : "Moments to join";
+    momentMode === "examples" ? "Example playbooks" : momentMode === "recurring" ? "Recurring moments" : "Now and next";
   const matchingPreviews = exampleMoments.filter(
     (moment) => activeCategory === "all" || moment.category === activeCategory,
   );
@@ -185,7 +167,7 @@ const ExploreMoments = () => {
                   {t("exploreMoments.heroSubtitle")}
                 </p>
                 <div className="flex gap-6 border-l border-primary/50 pl-5">
-                  {[[t("exploreMoments.live"), liveCount], [t("exploreMoments.recurring"), recurringCount], [t("exploreMoments.previews"), exampleMoments.length]].map(([label, value]) => (
+                  {[["Live now", liveCount], ["Coming up", upcomingCount], [t("exploreMoments.recurring"), recurringCount]].map(([label, value]) => (
                     <div key={label}>
                       <p className="text-2xl font-black">{value}</p>
                       <p className="text-[10px] font-black uppercase tracking-[0.15em] text-white/40">{label}</p>
@@ -269,7 +251,7 @@ const ExploreMoments = () => {
             </div>
             <div className="flex flex-wrap items-center gap-2 rounded-full border border-border bg-card p-1 shadow-sm">
               {[
-                { value: "live", label: "Live", icon: Sparkles },
+                { value: "current", label: "Now & next", icon: Sparkles },
                 { value: "recurring", label: "Recurring", icon: Repeat2 },
                 { value: "examples", label: "Examples", icon: BookOpen },
               ].map((mode) => {
@@ -329,22 +311,32 @@ const ExploreMoments = () => {
                   ))}
                 </MasonryGrid>
               </section>
+            ) : momentsQuery.isError ? (
+              <div role="alert" className="rounded-3xl border border-amber-500/25 bg-amber-500/5 px-6 py-12 text-center">
+                <Clock className="mx-auto h-8 w-8 text-amber-500" />
+                <h3 className="mt-4 text-2xl font-black">We can’t confirm the live calendar right now</h3>
+                <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">We will not substitute examples or stale listings. Try again to load verified current moments.</p>
+                <Button className="mt-5" variant="outline" onClick={() => momentsQuery.refetch()}>Try again</Button>
+              </div>
             ) : filteredMoments.length > 0 ? (
-              <MasonryGrid columns={{ sm: 1, md: 2, lg: 3, xl: 4 }} gap={20}>
-                {filteredMoments.map((moment) => (
-                  <MomentCard
-                    key={moment.id}
-                    moment={{
-                      ...(moment as any),
-                      id: moment.id || "",
-                      title: moment.title || "Untitled moment",
-                      location: moment.location || [moment.city, moment.country].filter(Boolean).join(", "),
-                      content_origin: "stakeholder_created",
-                    }}
-                    onSave={(id) => console.log("Saved:", id)}
-                  />
-                ))}
-              </MasonryGrid>
+              <div className="space-y-9">
+                {(["live", "starting_soon", "upcoming", "recently_ended"] as MomentLifecycle[]).map((lifecycle) => {
+                  const items = filteredMoments.filter((moment) => moment.lifecycle === lifecycle);
+                  if (!items.length) return null;
+                  const title = lifecycle === "live" ? "Live now" : lifecycle === "starting_soon" ? "Starting soon" : lifecycle === "upcoming" ? "Coming up" : "Last night";
+                  return <section key={lifecycle} aria-labelledby={`moment-${lifecycle}`}>
+                    <div className="mb-4 flex items-center gap-3">
+                      <h3 id={`moment-${lifecycle}`} className="text-xl font-black">{title}</h3>
+                      <Badge variant="outline" className="rounded-full">{items.length}</Badge>
+                    </div>
+                    <MasonryGrid columns={{ sm: 1, md: 2, lg: 3, xl: 4 }} gap={20}>
+                      {items.map((moment: CanonicalMoment) => (
+                        <MomentCard key={moment.id} moment={{ ...moment, ends_at: moment.effective_ends_at } as any} />
+                      ))}
+                    </MasonryGrid>
+                  </section>;
+                })}
+              </div>
             ) : searchQuery ? (
               <div className="rounded-3xl border border-white/10 bg-white/[0.035] px-6 py-14 text-center">
                 <Search className="mx-auto h-8 w-8 text-primary" />
