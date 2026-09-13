@@ -2,6 +2,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { I18nProvider } from "@/i18n/I18nContext";
 import MyPromoCard from "./MyPromoCard";
 
 const { query, aimState } = vi.hoisted(() => ({
@@ -47,9 +48,11 @@ const click = async (label: string) => {
 const renderCard = async () => {
   await act(async () => {
     root.render(
-      <MemoryRouter initialEntries={["/app-preview/card"]}>
-        <MyPromoCard />
-      </MemoryRouter>,
+      <I18nProvider>
+        <MemoryRouter initialEntries={["/app-preview/card"]}>
+          <MyPromoCard />
+        </MemoryRouter>
+      </I18nProvider>,
     );
   });
 };
@@ -274,9 +277,11 @@ describe("PromoCard journey", () => {
     query.data = { perks: [], givenName: "Ada" };
     await act(async () => {
       root.render(
-        <MemoryRouter initialEntries={["/card?role=merchant"]}>
-          <MyPromoCard />
-        </MemoryRouter>,
+        <I18nProvider>
+          <MemoryRouter initialEntries={["/card?role=merchant"]}>
+            <MyPromoCard />
+          </MemoryRouter>
+        </I18nProvider>,
       );
     });
     expect(container).toHaveTextContent("The card people show at your counter");

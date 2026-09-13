@@ -3,7 +3,6 @@ import {
   CREW_RUN_ROLES,
   WORLD_FACTIONS,
   WORLD_FACTION_KEYS,
-  WORLD_PATH_TITLES,
   presentContestLine,
   presentWorldRunTitle,
   resolveWorldInvitation,
@@ -15,11 +14,12 @@ import { ExperienceShell, WorldInvitationCard } from "@/components/people/Experi
 import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/i18n/I18nContext";
+import { localizedCrewRoleTitle, localizedFactionCopy, localizedPathTitle } from "@/i18n/localize";
 
 const DIMENSIONS: WorldPathDimension[] = ["discover", "connect", "create", "host", "keep", "support"];
 
 export default function Progress() {
-  const { t } = useI18n();
+  const { t, formatNumber } = useI18n();
   const query = useWorldProgress();
   const to = useExperiencePath();
   const { setFaction } = useExperienceActions();
@@ -56,7 +56,7 @@ export default function Progress() {
 
   return (
     <ExperienceShell
-      eyebrow={world?.dispatch?.eyebrow || world?.slice?.seasonTitle || "Progress"}
+      eyebrow={world?.dispatch?.eyebrow || world?.slice?.seasonTitle || t("progress.eyebrow")}
       title={t("progress.title")}
       description={t("progress.copy")}
       backTo="/dashboard"
@@ -78,13 +78,12 @@ export default function Progress() {
 
       {world?.identity?.line || world?.worldSystem?.resonance?.cue || invitation?.formingLine ? (
         <section>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">How you move</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("progress.howYouMove")}</p>
           <h2 className="mt-2 font-serif text-3xl font-bold">
-            {world?.identity?.line || world?.worldSystem?.resonance?.cue || "A path is not named yet"}
+            {world?.identity?.line || world?.worldSystem?.resonance?.cue || t("progress.pathUnnamed")}
           </h2>
           <p className="mt-2 text-sm text-white/50">
-            {invitation?.formingLine
-              || "House is how you tend to move. Path is what you have demonstrated. Neither is chosen at signup."}
+            {invitation?.formingLine || t("progress.housePath")}
           </p>
           {world?.house ? (
             <p className="mt-3 text-sm text-white/60">{world.house.line}</p>
@@ -109,26 +108,26 @@ export default function Progress() {
 
       {world?.worldSystem?.returnChain ? (
         <section className="rounded-[1.4rem] border border-white/10 px-5 py-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Your Throw returned</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("progress.throwReturned")}</p>
           <h2 className="mt-2 font-serif text-2xl font-bold">{world.worldSystem.returnChain.heading}</h2>
           <p className="mt-2 text-sm text-white/50">{world.worldSystem.returnChain.line}</p>
           {world.worldSystem.returnChain.moving ? (
-            <p className="mt-2 text-xs text-white/35">The chain is still moving.</p>
+            <p className="mt-2 text-xs text-white/35">{t("progress.chainMoving")}</p>
           ) : null}
         </section>
       ) : null}
 
       <section>
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Becoming good at</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("progress.becoming")}</p>
         <h2 className="mt-2 font-serif text-3xl font-bold">
-          {world?.path?.forming ? world.path.cue : "A path has not formed yet"}
+          {world?.path?.forming ? world.path.cue : t("progress.pathNotFormed")}
         </h2>
-        <p className="mt-2 text-sm text-white/50">Three matching verified actions before a title appears.</p>
+        <p className="mt-2 text-sm text-white/50">{t("progress.threeActions")}</p>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {DIMENSIONS.map((dimension) => (
             <article key={dimension} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
-              <p className="text-xs uppercase tracking-widest text-white/40">{WORLD_PATH_TITLES[dimension]}</p>
-              <p className="mt-1 font-serif text-3xl font-bold">{counts[dimension] || 0}</p>
+              <p className="text-xs uppercase tracking-widest text-white/40">{localizedPathTitle(dimension, t)}</p>
+              <p className="mt-1 font-serif text-3xl font-bold">{formatNumber(counts[dimension] || 0)}</p>
             </article>
           ))}
         </div>
@@ -136,14 +135,14 @@ export default function Progress() {
 
       {health.length ? (
         <section>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Scene contribution</p>
-          <h2 className="mt-2 font-serif text-3xl font-bold">{world?.slice?.sceneTitle || "Kingston After Dark"}</h2>
-          <p className="mt-2 text-sm text-white/50">Counts from your verified actions. Empty means nothing has been proven yet.</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("progress.sceneContribution")}</p>
+          <h2 className="mt-2 font-serif text-3xl font-bold">{world?.slice?.sceneTitle || t("progress.kingstonAfterDark")}</h2>
+          <p className="mt-2 text-sm text-white/50">{t("progress.countsCopy")}</p>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
             {health.map((item: { dimension: string; label: string; count: number }) => (
               <article key={item.dimension} className="rounded-[1.3rem] border border-white/10 px-3 py-4">
                 <p className="text-[10px] uppercase tracking-widest text-white/40">{item.label}</p>
-                <p className="mt-1 font-serif text-2xl font-bold">{item.count}</p>
+                <p className="mt-1 font-serif text-2xl font-bold">{formatNumber(item.count)}</p>
               </article>
             ))}
           </div>
@@ -152,9 +151,9 @@ export default function Progress() {
 
       {world?.contest || world?.polarity ? (
         <section>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Current versus Static</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("progress.currentVsStatic")}</p>
           <h2 className="mt-2 font-serif text-3xl font-bold">
-            {(world.contest?.totalCurrent || 0) > 0 ? "Who is moving the Scene" : "The Scene is waiting"}
+            {(world.contest?.totalCurrent || 0) > 0 ? t("progress.whoMoving") : t("progress.sceneWaiting")}
           </h2>
           <p className="mt-2 text-sm text-white/50">
             {(world.contest?.totalCurrent || 0) > 0
@@ -165,13 +164,20 @@ export default function Progress() {
             <>
               {world.contest?.mixedCrewNote ? <p className="mt-2 text-sm text-white/45">{world.contest.mixedCrewNote}</p> : null}
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {world.contest?.board?.map((row: { key: string; title: string; verb: string; current: number; rank: number }) => (
+                {world.contest?.board?.map((row: { key: string; title: string; verb: string; current: number; rank: number }) => {
+                  const faction = WORLD_FACTIONS[row.key as keyof typeof WORLD_FACTIONS]
+                    ? localizedFactionCopy(row.key, t)
+                    : { title: row.title, verb: row.verb, line: "" };
+                  return (
                   <article key={row.key} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
-                    <p className="text-[10px] uppercase tracking-widest text-white/40">#{row.rank} · {row.verb}</p>
-                    <p className="mt-1 font-serif text-2xl font-bold">{row.title}</p>
-                    <p className="mt-1 text-sm text-white/50">{row.current} verified {row.current === 1 ? "move" : "moves"}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-white/40">#{row.rank} · {faction.verb}</p>
+                    <p className="mt-1 font-serif text-2xl font-bold">{faction.title}</p>
+                    <p className="mt-1 text-sm text-white/50">
+                      {t(row.current === 1 ? "progress.moveOne" : "progress.moveMany", { count: formatNumber(row.current) })}
+                    </p>
                   </article>
-                ))}
+                  );
+                })}
               </div>
             </>
           ) : null}
@@ -180,9 +186,9 @@ export default function Progress() {
 
       {world?.territories?.length ? (
         <section>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Territory · standing</p>
-          <h2 className="mt-2 font-serif text-3xl font-bold">Kingston corridors</h2>
-          <p className="mt-2 text-sm text-white/50">Not ownership. Standing comes from verified presence and support.</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("progress.territory")}</p>
+          <h2 className="mt-2 font-serif text-3xl font-bold">{t("progress.corridors")}</h2>
+          <p className="mt-2 text-sm text-white/50">{t("progress.territoryCopy")}</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             {world.territories.map((area: { key: string; title: string; state: string; standingLine: string; presenceCount: number; supportCount: number }) => (
               <article key={area.key} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
@@ -190,7 +196,10 @@ export default function Progress() {
                 <p className="mt-1 font-serif text-2xl font-bold">{area.title}</p>
                 <p className="mt-2 text-sm text-white/50">{area.standingLine}</p>
                 <p className="mt-2 text-xs text-white/35">
-                  {area.presenceCount} presence · {area.supportCount} support
+                  {t("progress.presenceSupport", {
+                    presence: formatNumber(area.presenceCount),
+                    support: formatNumber(area.supportCount),
+                  })}
                 </p>
               </article>
             ))}
@@ -199,37 +208,39 @@ export default function Progress() {
       ) : null}
 
       <section className="rounded-[1.6rem] border border-white/10 px-5 py-5">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Who you move with</p>
-        <h2 className="mt-2 font-serif text-2xl font-bold">{world?.crew?.name || "No Crew yet"}</h2>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("progress.whoMoveWith")}</p>
+        <h2 className="mt-2 font-serif text-2xl font-bold">{world?.crew?.name || t("progress.noCrew")}</h2>
         <p className="mt-1 text-sm text-white/50">
           {world?.crew
-            ? `${presentWorldRunTitle(world.crew.runTitle)} · ${world.crew.runCompleted || 0}/${world.crew.runTotal || 4}`
-            : "Form 3–8 people. Run roles are temporary."}
+            ? t("progress.crewRun", {
+                title: presentWorldRunTitle(world.crew.runTitle),
+                completed: formatNumber(world.crew.runCompleted || 0),
+                total: formatNumber(world.crew.runTotal || 4),
+              })
+            : t("progress.formCrew")}
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs text-white/45">
           {Object.values(CREW_RUN_ROLES).filter((role) => role.key !== "chronicler").map((role) => (
-            <span key={role.key}>{role.title}</span>
+            <span key={role.key}>{localizedCrewRoleTitle(role.key, t)}</span>
           ))}
         </div>
         <div className="mt-4 flex flex-wrap gap-4">
-          <Link to={to("/crews")} className="text-sm font-bold text-primary">Open Crew</Link>
+          <Link to={to("/crews")} className="text-sm font-bold text-primary">{t("progress.openCrew")}</Link>
           <Link to={to("/guilds")} className="text-sm font-bold text-primary">
-            {world?.guild?.name || "Open Guild"}
+            {world?.guild?.name || t("progress.openGuild")}
           </Link>
         </div>
       </section>
 
       <section>
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Philosophy · optional</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("progress.philosophyOptional")}</p>
         <h2 className="mt-2 font-serif text-3xl font-bold">
-          {world?.house?.title ? `${world.house.title} House` : "House forms from how you move"}
+          {world?.house?.title ? t("progress.houseNamed", { title: world.house.title }) : t("progress.houseForms")}
         </h2>
-        <p className="mt-2 text-sm text-white/50">
-          Ember, Tide, Radiant, and Grove are earned from verified movement. They are not chosen at signup and they are not a Crew. A leftover philosophy below does not change your House.
-        </p>
+        <p className="mt-2 text-sm text-white/50">{t("progress.philosophyLead")}</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {WORLD_FACTION_KEYS.map((key) => {
-            const faction = WORLD_FACTIONS[key];
+            const faction = localizedFactionCopy(key, t);
             const active = world?.faction?.key === key;
             return (
               <button
@@ -250,7 +261,7 @@ export default function Progress() {
       </section>
 
       <Link to="/happened" className="block text-center text-xs text-white/30">
-        Operator view of what your people did
+        {t("progress.operatorView")}
       </Link>
     </ExperienceShell>
   );
