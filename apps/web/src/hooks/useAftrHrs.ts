@@ -397,13 +397,13 @@ export function useAftrHrsGuestTicket(code?: string) {
   });
 }
 
-export function useAftrHrsAdmin() {
+export function useAftrHrsAdmin(weekFriday?: string) {
   const { session } = useAuth();
   const token = session?.access_token;
   const queryClient = useQueryClient();
   const query = useQuery({
-    queryKey: ["aftrhrs-admin"],
-    queryFn: () => request<Record<string, unknown>>("/admin", token),
+    queryKey: ["aftrhrs-admin", weekFriday || "current"],
+    queryFn: () => request<Record<string, unknown>>(`/admin${weekFriday ? `?weekFriday=${encodeURIComponent(weekFriday)}` : ""}`, token),
     enabled: Boolean(token),
     retry: false,
   });

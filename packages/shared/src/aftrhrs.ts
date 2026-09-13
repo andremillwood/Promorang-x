@@ -430,9 +430,9 @@ export function readAftrHrsAdminEdition(edition?: Record<string, unknown> | null
 
 export const AFTRHRS_ADMIN_FUNNEL = [
   { key: "landing_view", label: "Opened the page", hint: "People who looked at AftrHrs" },
-  { key: "moment_join", label: "Joined the night", hint: "People who said they want in" },
-  { key: "pass_secured", label: "Have a pass", hint: "Passes that can still be used" },
-  { key: "checked_in", label: "Checked in", hint: "Already scanned at the door" },
+  { key: "guest_list", label: "Guest list RSVPs", hint: "Names reserved for this Friday" },
+  { key: "digital_pass", label: "Digital passes", hint: "Door passes for this Friday" },
+  { key: "checked_in", label: "Checked in", hint: "Scanned at the door this Friday" },
 ] as const;
 
 export const AFTRHRS_ADMIN_COPY = {

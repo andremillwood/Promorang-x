@@ -22,6 +22,20 @@ type AdminPass = {
   status: string;
   pass_type?: string;
   passType?: string;
+  claimed_at?: string;
+};
+
+type AdminGuest = {
+  id: string;
+  full_name?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  kind?: string;
+  status: string;
+  unique_code?: string;
+  claimed_at?: string;
+  week_friday?: string;
 };
 
 type AdminAmbassador = {
@@ -60,13 +74,17 @@ function Field({
 }
 
 export default function AftrHrsAdmin() {
-  const { data, isError, isLoading, token, update, updatePass, digitalRelease } = useAftrHrsAdmin();
+  const [selectedFriday, setSelectedFriday] = useState("");
+  const { data, isError, isLoading, token, update, updatePass, digitalRelease } = useAftrHrsAdmin(selectedFriday || undefined);
   const [allocation, setAllocation] = useState("");
   const [claimsOpen, setClaimsOpen] = useState(true);
   const [published, setPublished] = useState(true);
   const [pageMode, setPageMode] = useState<"live" | "post-event">("live");
   const [policy, setPolicy] = useState("");
   const [faqs, setFaqs] = useState<AftrHrsFaq[]>([]);
+  const [guestSearch, setGuestSearch] = useState("");
+  const [guestType, setGuestType] = useState<"all" | "rsvp" | "digital-pass">("all");
+  const [guestStatus, setGuestStatus] = useState<"all" | "active" | "redeemed">("all");
 
   useEffect(() => {
     if (!data) return;
@@ -77,6 +95,7 @@ export default function AftrHrsAdmin() {
     setPageMode(edition.pageMode);
     setPolicy(edition.policy);
     setFaqs(edition.faqs.length ? edition.faqs : [{ question: "", answer: "" }]);
+    if (!selectedFriday && data.selectedFriday) setSelectedFriday(String(data.selectedFriday));
   }, [data]);
 
   if (isLoading) {
@@ -95,9 +114,29 @@ export default function AftrHrsAdmin() {
   const passes = (data.passes || []) as AdminPass[];
   const ambassadors = (data.ambassadors || []) as AdminAmbassador[];
   const remaining = Number(data.remaining || 0);
-  const guests = ((data.guests || []) as Array<Record<string, string>>);
+  const guests = ((data.guests || []) as AdminGuest[]);
+  const editions = ((data.editions || []) as Array<{ id: string; title?: string; weekFriday?: string }>);
   const release = (data.digitalRelease || data.digital_release || null) as { claims_open?: boolean; claimsOpen?: boolean; claimed?: number; allocation?: number } | null;
   const digitalOpen = Boolean(release?.claims_open ?? release?.claimsOpen);
+  const selectedNight = String(data.selectedFriday || selectedFriday || "");
+  const viewingCurrentNight = selectedNight === String(data.currentFriday || selectedNight);
+  const formatNight = (friday: string) => {
+    if (!friday) return "Current Friday";
+    return new Intl.DateTimeFormat("en-JM", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })
+      .format(new Date(`${friday}T12:00:00Z`));
+  };
+  const allEntries = [
+    ...guests.map((guest) => ({ ...guest, entryType: guest.kind === "digital-pass" ? "digital-pass" as const : "rsvp" as const })),
+    ...passes.map((pass) => ({ ...pass, entryType: "digital-pass" as const, full_name: "Promorang member", email: "", phone: "" })),
+  ];
+  const normalizedSearch = guestSearch.trim().toLowerCase();
+  const visibleEntries = allEntries.filter((entry) => {
+    if (guestType !== "all" && entry.entryType !== guestType) return false;
+    if (guestStatus !== "all" && entry.status !== guestStatus) return false;
+    if (!normalizedSearch) return true;
+    return [entry.full_name, entry.email, entry.phone, entry.unique_code || entry.uniqueCode]
+      .some((value) => String(value || "").toLowerCase().includes(normalizedSearch));
+  });
 
   const save = async (event: FormEvent) => {
     event.preventDefault();
@@ -117,7 +156,7 @@ export default function AftrHrsAdmin() {
   };
 
   const downloadGuestList = () => {
-    fetch(`${API_BASE_URL}/aftrhrs/admin/guest-list.csv`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API_BASE_URL}/aftrhrs/admin/guest-list.csv?weekFriday=${encodeURIComponent(selectedNight)}`, { headers: { Authorization: `Bearer ${token}` } })
       .then((response) => response.blob())
       .then((blob) => {
         const url = URL.createObjectURL(blob);
@@ -134,11 +173,31 @@ export default function AftrHrsAdmin() {
     <main className="rounded-2xl bg-zinc-950 px-4 py-6 font-sans text-white sm:px-5 sm:py-8">
       <SEO title="AftrHrs night desk" description="Run the AftrHrs pass release and Sea Deck night." />
       <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
-        <header>
+        <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
           <p className="text-sm font-semibold text-cyan-300">{copy.eyebrow}</p>
           <h1 className="mt-2 text-3xl font-bold tracking-normal sm:text-4xl">{copy.title}</h1>
           <p className="mt-2 max-w-xl text-base leading-7 text-white/70">{copy.remaining(remaining)}</p>
+          </div>
+          <label className="block min-w-64 text-sm font-semibold text-white">
+            AftrHrs night
+            <select
+              aria-label="AftrHrs night"
+              value={selectedNight}
+              onChange={(event) => setSelectedFriday(event.target.value)}
+              className="mt-2 h-12 w-full rounded-xl border border-white/15 bg-black px-3 text-base text-white"
+            >
+              {editions.map((item) => (
+                <option key={item.id} value={item.weekFriday || ""}>{formatNight(item.weekFriday || "")}</option>
+              ))}
+            </select>
+          </label>
         </header>
+
+        <p className="rounded-2xl border border-cyan-300/20 bg-cyan-300/5 px-4 py-3 text-sm text-cyan-100">
+          Showing only {formatNight(selectedNight)}. Changing the night updates every count and guest below.
+          {!viewingCurrentNight ? " This is a past night, so its settings are read-only." : ""}
+        </p>
 
         <section aria-label="How the night is going" className="grid gap-3 sm:grid-cols-4">
           {AFTRHRS_ADMIN_FUNNEL.map((item) => (
@@ -157,7 +216,7 @@ export default function AftrHrsAdmin() {
           <p className="mt-1 text-sm text-white/50">
             Friday list spots left: {Number(data.rsvpRemaining ?? 0)}. Digital drop claimed: {Number(release?.claimed || 0)} of {Number(release?.allocation || 0)}.
           </p>
-          <div className="mt-4 flex flex-wrap gap-3">
+          {viewingCurrentNight ? <div className="mt-4 flex flex-wrap gap-3">
             {digitalOpen ? (
               <button
                 type="button"
@@ -178,14 +237,38 @@ export default function AftrHrsAdmin() {
             <Link to={AFTRHRS_PATHS.landing} className="inline-flex h-11 items-center text-sm font-semibold text-cyan-300">
               {copy.guestLanding}
             </Link>
+          </div> : null}
+          <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto_auto]">
+            <input
+              type="search"
+              value={guestSearch}
+              onChange={(event) => setGuestSearch(event.target.value)}
+              placeholder="Search name, email, phone, or pass code"
+              aria-label="Search RSVPs"
+              className="h-11 rounded-xl border border-white/15 bg-black px-3 text-sm text-white placeholder:text-white/35"
+            />
+            <select aria-label="Filter by RSVP type" value={guestType} onChange={(event) => setGuestType(event.target.value as typeof guestType)} className="h-11 rounded-xl border border-white/15 bg-black px-3 text-sm">
+              <option value="all">All types</option>
+              <option value="rsvp">Guest list</option>
+              <option value="digital-pass">Digital passes</option>
+            </select>
+            <select aria-label="Filter by status" value={guestStatus} onChange={(event) => setGuestStatus(event.target.value as typeof guestStatus)} className="h-11 rounded-xl border border-white/15 bg-black px-3 text-sm">
+              <option value="all">All statuses</option>
+              <option value="active">Ready</option>
+              <option value="redeemed">Checked in</option>
+            </select>
           </div>
-          {guests.length ? (
+          <p className="mt-3 text-xs text-white/45">Showing {visibleEntries.length} of {allEntries.length} records for this night.</p>
+          {visibleEntries.length ? (
             <ul className="mt-5 space-y-3">
-              {guests.slice(0, 40).map((row) => (
-                <li key={row.id || row.unique_code} className="rounded-2xl border border-white/10 px-4 py-3">
-                  <p className="font-semibold">{row.full_name || row.name}</p>
-                  <p className="mt-1 text-sm text-white/70">{guestPassType(row.kind)} · {adminPassStatus(row.status)}</p>
-                  <p className="mt-1 text-sm text-white/45">{row.email} · {row.phone}</p>
+              {visibleEntries.slice(0, 100).map((row) => (
+                <li key={`${row.entryType}-${row.id || row.unique_code}`} className="rounded-2xl border border-white/10 px-4 py-3">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <p className="font-semibold">{row.full_name || row.name || "Promorang member"}</p>
+                    <span className="rounded-full border border-white/15 px-2.5 py-1 text-xs text-white/65">{row.entryType === "rsvp" ? "Guest list" : "Digital pass"}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-white/70">{adminPassStatus(row.status)}</p>
+                  {row.email || row.phone ? <p className="mt-1 text-sm text-white/45">{[row.email, row.phone].filter(Boolean).join(" · ")}</p> : null}
                   {row.unique_code ? <p className="mt-1 text-sm text-white/45">{copy.passCode} {row.unique_code}</p> : null}
                 </li>
               ))}
@@ -195,7 +278,7 @@ export default function AftrHrsAdmin() {
           )}
         </section>
 
-        <form onSubmit={save} className="space-y-6 rounded-3xl border border-white/10 p-5">
+        {viewingCurrentNight ? <form onSubmit={save} className="space-y-6 rounded-3xl border border-white/10 p-5">
           <div>
             <h2 className="text-xl font-bold tracking-normal">{copy.settingsTitle}</h2>
             <p className="mt-1 text-sm leading-6 text-white/60">{copy.settingsHelp}</p>
@@ -326,7 +409,7 @@ export default function AftrHrsAdmin() {
           >
             {copy.save}
           </button>
-        </form>
+        </form> : null}
 
         <section className="rounded-3xl border border-white/10 p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
