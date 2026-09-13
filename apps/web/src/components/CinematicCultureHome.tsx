@@ -484,8 +484,7 @@ export default function CinematicCultureHome() {
     <main className="min-h-screen bg-black text-white">
       {user ? <div className="hidden md:block"><HomeFeedToggle /></div> : null}
       <PublicHomeBar />
-      <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} />
-      <div className="hidden md:block">
+      {/* One responsive "superhero": culture discovery + PromoCard value in the same opening. */}
       <section ref={heroRef} className="relative overflow-hidden border-b border-white/10 md:min-h-[calc(100svh-4.5rem)]">
         {/* Parallax Background Layer */}
         <motion.div
@@ -538,11 +537,19 @@ export default function CinematicCultureHome() {
               <Link
                 to="/discover"
                 onClick={() => rememberMarketingIntent("hero_explore_today", "/discover", "participant")}
-                className="col-span-2 inline-flex min-h-12 min-w-0 items-center justify-center gap-2.5 rounded-xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-wider text-white shadow-[0_16px_40px_rgba(255,85,0,0.3)] transition-all hover:bg-orange-600 active:scale-[0.98] sm:col-auto sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm"
+                className="inline-flex min-h-12 min-w-0 items-center justify-center gap-2.5 rounded-xl bg-primary px-4 py-3 text-[11px] font-black uppercase tracking-wider text-white shadow-[0_16px_40px_rgba(255,85,0,0.3)] transition-all hover:bg-orange-600 active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm"
               >
                 <Compass className="h-4 w-4" />
                 <span>{t("home.exploreMoments")}</span>
                 <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/shop"
+                onClick={() => rememberMarketingIntent("hero_use_promocard", "/shop", "participant")}
+                className="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-xl border border-white/25 bg-black/55 px-4 py-3 text-[11px] font-black uppercase tracking-wider text-white backdrop-blur transition-all hover:border-primary hover:text-primary active:scale-[0.98] sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                <span>Use PromoCard</span>
               </Link>
             </div>
             <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45 sm:text-xs">
@@ -668,6 +675,9 @@ export default function CinematicCultureHome() {
         </div>
       </section>
 
+      <MobilePromoHome offers={homepageCommerce} moments={homepageMoments} />
+
+      <div className="hidden md:block">
       <LeadMagnetGateway />
 
       <section className="relative overflow-hidden border-b border-white/10 bg-[#070707]">

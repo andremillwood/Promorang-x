@@ -29,7 +29,7 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
       <section className="px-5 py-12">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#a34a1a]">Use it nearby</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#a34a1a]">Continue with your PromoCard</p>
             <h2 className="mt-2 max-w-[15rem] font-serif text-[2rem] font-black leading-[0.96] tracking-[-0.04em]">
               Your next outing can cost less.
             </h2>
