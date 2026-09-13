@@ -129,7 +129,7 @@ router.post('/ambassador/fulfill', requireAuth, async (req, res) => {
 
 router.get('/admin', requireAuth, requireAdmin, async (req, res) => {
   try {
-    return ok(res, await service.adminOverview(req.user));
+    return ok(res, await service.adminOverview(req.user, { weekFriday: req.query.weekFriday }));
   } catch (error) {
     return fail(res, error);
   }
@@ -169,9 +169,10 @@ router.post('/admin/ambassadors', requireAuth, requireAdmin, async (req, res) =>
 
 router.get('/admin/guest-list.csv', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const csv = await service.guestListCsv(req.user);
+    const csv = await service.guestListCsv(req.user, { weekFriday: req.query.weekFriday });
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename="aftrhrs-guest-list.csv"');
+    const suffix = req.query.weekFriday ? `-${String(req.query.weekFriday).slice(0, 10)}` : '';
+    res.setHeader('Content-Disposition', `attachment; filename="aftrhrs-guest-list${suffix}.csv"`);
     return res.status(200).send(csv);
   } catch (error) {
     return fail(res, error);

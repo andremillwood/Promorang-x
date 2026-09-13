@@ -78,7 +78,13 @@ describe("AftrHrs admin page language", () => {
         venue_policies: { entry_policy: "Arrive before 11:30 PM." },
         faqs: [{ question: "When is AftrHrs?", answer: "Every Friday." }],
       },
-      funnel: { landing_view: 40, moment_join: 8, pass_secured: 2, checked_in: 1 },
+      funnel: { landing_view: 40, guest_list: 1, digital_pass: 1, checked_in: 1 },
+      selectedFriday: "2026-09-18",
+      currentFriday: "2026-09-18",
+      editions: [{ id: "edition-1", title: "AftrHrs", weekFriday: "2026-09-18" }],
+      guests: [
+        { id: "guest-1", full_name: "Friday Guest", email: "friday@example.com", phone: "8765551111", kind: "rsvp", status: "active", week_friday: "2026-09-18" },
+      ],
       passes: [
         { id: "pass-1", unique_code: "AH-A40022461", pass_type: "digital-free", status: "active" },
       ],
@@ -92,6 +98,12 @@ describe("AftrHrs admin page language", () => {
     expect(container).toHaveTextContent("Ready for the door");
     expect(container).toHaveTextContent("None of 15 invitations given out yet.");
     expect(container).toHaveTextContent("Download guest list");
+    expect(container).toHaveTextContent("Friday, 18 September 2026");
+    expect(container).toHaveTextContent("Friday Guest");
+    expect(container).toHaveTextContent("Guest list RSVPs");
+    expect(container).toHaveTextContent("Digital passes");
+    expect(container.querySelector('input[aria-label="Search RSVPs"]')).not.toBeNull();
+    expect(container.querySelector('select[aria-label="Filter by RSVP type"]')).not.toBeNull();
     expect(container).not.toHaveTextContent("FAQ JSON");
     expect(container).not.toHaveTextContent("Claims open");
     expect(container).not.toHaveTextContent("digital-free");

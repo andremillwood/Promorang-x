@@ -25,6 +25,35 @@ async function deliverChannel(channel, destination, message) {
   return data.id || data.message_id || null;
 }
 
+async function notifyAdminOfRsvp(rsvp, moment) {
+  const adminEmail = process.env.ADMIN_ALERT_EMAIL || 'admin@promorang.co';
+  const operationsUrl = `${resend.EMAIL_CONFIG.frontendUrl.replace(/\/$/, '')}/host/moments/${moment.id}/guests`;
+  const details = [
+    ['Guest', rsvp.full_name],
+    ['Email', rsvp.email || 'Not provided'],
+    ['Mobile', rsvp.mobile],
+    ['Places', rsvp.guest_count || 1],
+    ['Group', rsvp.group_name || 'Individual RSVP'],
+    ['Pass', rsvp.pass_code],
+  ];
+  const content = details.map(([label, value]) => `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`).join('');
+  return resend.sendEmail({
+    to: adminEmail,
+    subject: `New RSVP: ${moment.title} — ${rsvp.full_name}`,
+    text: `New RSVP for ${moment.title}. ${details.map(([label, value]) => `${label}: ${value}`).join('. ')}`,
+    html: resend.getBaseTemplate({
+      title: `New RSVP for ${escapeHtml(moment.title)}`,
+      preheader: `${escapeHtml(rsvp.full_name)} reserved ${Number(rsvp.guest_count || 1)} place${Number(rsvp.guest_count || 1) === 1 ? '' : 's'}`,
+      content,
+      ctaUrl: operationsUrl,
+      ctaText: 'Open guest list',
+      footerNote: 'This is an operational notification for the Promorang admin team.',
+    }),
+    emailType: 'guest-rsvp-admin-notification',
+    metadata: { operational: true, rsvp_id: rsvp.id, moment_id: moment.id },
+  });
+}
+
 function destinationFor(rsvp, channel) {
   if (channel === 'email') return rsvp.consent_email ? rsvp.email : null;
   if (channel === 'sms') return rsvp.consent_sms ? rsvp.mobile : null;
@@ -74,7 +103,9 @@ async function queueAndDeliver(rsvp, moment, eventType, version = '1') {
   const destinations = [
     rsvp.consent_whatsapp && rsvp.mobile ? ['whatsapp', rsvp.mobile] : null,
     rsvp.consent_sms && rsvp.mobile ? ['sms', rsvp.mobile] : null,
-    rsvp.consent_email && rsvp.email ? ['email', rsvp.email] : null,
+    // The initial receipt is transactional: entering an email while confirming
+    // an RSVP is enough to send it. Consent still controls later reminders.
+    rsvp.email && (eventType === 'confirmation' || rsvp.consent_email) ? ['email', rsvp.email] : null,
   ].filter(Boolean);
   const results = [];
   for (const [channel, destination] of destinations) {
@@ -84,6 +115,16 @@ async function queueAndDeliver(rsvp, moment, eventType, version = '1') {
     if (!delivery) { results.push({ channel, status: 'duplicate' }); continue; }
     try { const reference = await deliverChannel(channel, destination, message); await supabase.from('guest_rsvp_deliveries').update({ status:'sent',provider_reference:reference,attempted_at:new Date().toISOString(),delivered_at:new Date().toISOString(),updated_at:new Date().toISOString() }).eq('id',delivery.id); results.push({ channel,status:'sent' }); }
     catch (sendError) { await supabase.from('guest_rsvp_deliveries').update({ status:'failed',error_message:String(sendError.message).slice(0,500),retry_count:0,next_attempt_at:retryDelay(0),attempted_at:new Date().toISOString(),updated_at:new Date().toISOString() }).eq('id',delivery.id); results.push({ channel,status:'failed',error:sendError.message }); }
+  }
+  if (eventType === 'confirmation') {
+    try {
+      const adminResult = await notifyAdminOfRsvp(rsvp, moment);
+      results.push(adminResult.success
+        ? { channel: 'admin_email', status: 'sent' }
+        : { channel: 'admin_email', status: 'failed', error: adminResult.error || 'Email provider rejected delivery' });
+    } catch (sendError) {
+      results.push({ channel: 'admin_email', status: 'failed', error: sendError.message });
+    }
   }
   return results;
 }
@@ -121,4 +162,4 @@ async function processUpcomingReminders() {
   return summary;
 }
 
-module.exports={queueAndDeliver,processMomentChanges,processUpcomingReminders,retryDelivery,retryFailedDeliveries};
+module.exports={queueAndDeliver,processMomentChanges,processUpcomingReminders,retryDelivery,retryFailedDeliveries,notifyAdminOfRsvp};

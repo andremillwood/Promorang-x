@@ -1015,36 +1015,64 @@ function assertAdmin(user) {
   }
 }
 
-async function adminOverview(user) {
+function entryFriday(row) {
+  if (row.week_friday) return String(row.week_friday).slice(0, 10);
+  if (!row.claimed_at) return null;
+  return aftrHrsClaimFriday(new Date(row.claimed_at));
+}
+
+async function adminOverview(user, options = {}) {
   assertAdmin(user);
-  const edition = await getEdition();
-  const [{ data: passes }, { data: ambassadors }, { data: requests }, { data: events }, { data: guests }, digitalRelease] = await Promise.all([
+  const currentEdition = await getEdition();
+  const { data: availableEditions } = await supabase
+    .from('event_editions')
+    .select('id,title,week_friday,published,page_mode')
+    .eq('moment_id', AFTRHRS_MOMENT_ID)
+    .order('week_friday', { ascending: false, nullsFirst: false });
+  const requestedFriday = String(options.weekFriday || '').slice(0, 10);
+  const selectedSummary = (availableEditions || []).find((row) => String(row.week_friday || '').slice(0, 10) === requestedFriday);
+  const edition = selectedSummary ? (await fetchEditionByFriday(requestedFriday) || currentEdition) : currentEdition;
+  const selectedFriday = String(edition.week_friday || '').slice(0, 10);
+  const [{ data: passes }, { data: ambassadors }, { data: requests }, { data: events }, { data: allGuests }, digitalRelease] = await Promise.all([
     supabase.from('event_passes').select('*').eq('edition_id', edition.id).order('claimed_at', { ascending: false }),
     supabase.from('event_ambassador_allocations').select('*').eq('event_id', edition.moment_id),
     supabase.from('event_ambassador_requests').select('*').eq('event_id', edition.moment_id).order('created_at', { ascending: false }),
-    supabase.from('event_analytics_events').select('name').eq('event_id', edition.moment_id),
+    supabase.from('event_analytics_events').select('name,created_at').eq('event_id', edition.moment_id),
     supabase.from('aftrhrs_guest_entries').select('*').order('claimed_at', { ascending: false }).limit(500),
     readLatestDigitalRelease(),
   ]);
-  const counts = (events || []).reduce((acc, row) => {
+  const guests = (allGuests || []).filter((row) => entryFriday(row) === selectedFriday);
+  const selectedEvents = (events || []).filter((row) => !row.created_at || aftrHrsClaimFriday(new Date(row.created_at)) === selectedFriday);
+  const counts = selectedEvents.reduce((acc, row) => {
     acc[row.name] = (acc[row.name] || 0) + 1;
     return acc;
   }, {});
   return {
     edition,
+    currentFriday: String(currentEdition.week_friday || '').slice(0, 10),
+    selectedFriday,
+    editions: (availableEditions || []).map((row) => ({
+      id: row.id,
+      title: row.title,
+      weekFriday: row.week_friday,
+      published: row.published,
+      pageMode: row.page_mode,
+    })),
     remaining: remainingDigitalPasses({ digitalAllocation: edition.digital_allocation, digitalClaimed: edition.digital_claimed }),
     rsvpRemaining: remainingGuestSlots(edition.rsvp_allocation ?? AFTRHRS_RSVP_LIMIT, edition.rsvp_claimed ?? 0),
     digitalRelease,
-    guests: guests || [],
+    guests,
     passes: passes || [],
     ambassadors: ambassadors || [],
     requests: requests || [],
     funnel: {
       landing_view: counts.landing_view || 0,
-      moment_join: counts.moment_join || 0,
-      pass_secured: (passes || []).filter((pass) => pass.status !== 'cancelled').length,
+      guest_list: guests.filter((guest) => guest.kind === 'rsvp' && !['cancelled', 'expired'].includes(guest.status)).length,
+      digital_pass: guests.filter((guest) => guest.kind === 'digital-pass' && !['cancelled', 'expired'].includes(guest.status)).length
+        + (passes || []).filter((pass) => pass.status !== 'cancelled' && pass.status !== 'expired').length,
       reminder_reached: counts.reminder_reached || 0,
-      checked_in: (passes || []).filter((pass) => pass.status === 'redeemed').length,
+      checked_in: guests.filter((guest) => guest.status === 'redeemed').length
+        + (passes || []).filter((pass) => pass.status === 'redeemed').length,
       attended: counts.attended || 0,
       retained: counts.future_edition_interest || 0,
       failed_claims: counts.digital_pass_claim_failed || 0,
@@ -1155,13 +1183,17 @@ async function adminSaveAmbassador(user, body = {}) {
   return data;
 }
 
-async function guestListCsv(user) {
+async function guestListCsv(user, options = {}) {
   assertAdmin(user);
-  const [{ data, error }, { data: guests }] = await Promise.all([
+  const currentEdition = await getEdition();
+  const requestedFriday = String(options.weekFriday || '').slice(0, 10);
+  const edition = requestedFriday ? (await fetchEditionByFriday(requestedFriday) || currentEdition) : currentEdition;
+  const selectedFriday = String(edition.week_friday || '').slice(0, 10);
+  const [{ data, error }, { data: allGuests }] = await Promise.all([
     supabase
       .from('event_passes')
       .select('unique_code, pass_type, status, user_id, ambassador_id, claim_source, campaign, claimed_at, redeemed_at')
-      .eq('event_id', AFTRHRS_MOMENT_ID)
+      .eq('edition_id', edition.id)
       .order('claimed_at', { ascending: true }),
     supabase
       .from('aftrhrs_guest_entries')
@@ -1169,6 +1201,7 @@ async function guestListCsv(user) {
       .order('claimed_at', { ascending: true }),
   ]);
   if (error) throw error;
+  const guests = (allGuests || []).filter((row) => entryFriday(row) === selectedFriday);
   const header = 'source,unique_code,pass_type,status,name,email,phone,week_friday,month_key,claimed_at,redeemed_at';
   const accountLines = (data || []).map((row) => [
     'account', row.unique_code, row.pass_type, row.status, '', '', '', '', '',
