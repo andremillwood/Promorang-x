@@ -27,10 +27,6 @@ export function PostLoginRouter() {
       return;
     }
 
-    // A fresh Supabase SIGNED_IN event exposes the user before AuthContext has
-    // finished fetching user_roles and choosing activeRole. Routing during that
-    // gap incorrectly treats commercial users as participants. Wait for the
-    // workspace context instead of resolving a fallback destination too early.
     if (roles.length === 0 || !activeRole || routingStarted.current) return;
     routingStarted.current = true;
 
@@ -48,10 +44,15 @@ export function PostLoginRouter() {
         setActiveRole(appliedRole);
       }
 
+      // `/home` is the generic first-run participant destination emitted by the
+      // join funnel, not a task-specific deep link. Preserve it through required
+      // onboarding instead of letting it silently bypass onboarding.
+      const genericFirstRunHome = requestedNext === "/home" && effectiveRole === "participant";
+
       // Explicit job/claim intent remains higher priority than generic account
       // setup. Consume it only when we actually use it so interrupted auth can
       // still be resumed across tabs.
-      if (requestedNext) {
+      if (requestedNext && !genericFirstRunHome) {
         const destination = peekPostAuthNext() ? (consumePostAuthNext() || requestedNext) : requestedNext;
         const aimed = promoCardAimFromNext(destination);
         if (aimed) writePromoCardAim(aimed);
@@ -78,9 +79,6 @@ export function PostLoginRouter() {
         if (!userStateError) {
           onboardingCompleted = Boolean(userState?.onboarding_completed);
         } else {
-          // Compatibility only for older accounts if the canonical user lookup
-          // itself is unavailable. Never convert a database error directly into
-          // a completed onboarding state.
           const { data: legacyPreferences } = await supabase
             .from("user_preferences")
             .select("user_id")
@@ -92,6 +90,12 @@ export function PostLoginRouter() {
 
       if (!onboardingCompleted) {
         navigate(resolvePostAuthPath({ role: effectiveRole, onboardingCompleted: false }), { replace: true });
+        return;
+      }
+
+      if (genericFirstRunHome) {
+        const destination = peekPostAuthNext() ? (consumePostAuthNext() || "/home") : "/home";
+        navigate(destination, { replace: true });
         return;
       }
 
