@@ -1,9 +1,11 @@
 import { authEntryHref, rememberIntendedStakeholder } from "@promorang/shared";
 
-export type CommercialRole = "participant" | "creator" | "host" | "brand" | "merchant";
+export type CommercialRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency";
 
 export const BRAND_LANDING_PATH = "/for-brands?from=sponsor";
 export const BRAND_CAMPAIGN_PATH = "/create/campaign?from=sponsor";
+export const AGENCY_LANDING_PATH = "/for-agencies?from=sponsor";
+export const AGENCY_CLIENTS_PATH = "/dashboard?view=studio&tab=clients";
 
 const SPONSOR_BRIEF_KEY = "promorang_sponsor_brief";
 const MARKETING_INTENT_KEY = "promorang_marketing_intent";
@@ -16,10 +18,11 @@ export type SponsorBrief = {
   proof?: string;
   insight?: string;
   name?: string;
+  audience?: "brand" | "agency";
   capturedAt: string;
 };
 
-const COMMERCIAL_ROLES: CommercialRole[] = ["participant", "creator", "host", "brand", "merchant"];
+const COMMERCIAL_ROLES: CommercialRole[] = ["participant", "creator", "host", "brand", "merchant", "agency"];
 
 function isCommercialRole(value: string | null | undefined): value is CommercialRole {
   return Boolean(value && COMMERCIAL_ROLES.includes(value as CommercialRole));
@@ -44,7 +47,8 @@ export function readSponsorBrief(): SponsorBrief | null {
 
 export function readStoredCommercialAudience(): CommercialRole | null {
   if (typeof window === "undefined") return null;
-  if (readSponsorBrief()) return "brand";
+  const brief = readSponsorBrief();
+  if (brief) return brief.audience === "agency" ? "agency" : "brand";
   try {
     const intent = JSON.parse(sessionStorage.getItem(MARKETING_INTENT_KEY) || "null");
     return isCommercialRole(intent?.audience) ? intent.audience : null;
@@ -67,6 +71,10 @@ export function inferAuthRole(
   const explicit = params.get("role") || params.get("audience");
   if (isCommercialRole(explicit)) return explicit;
 
+  if (pathname.startsWith("/for-agencies")) {
+    return "agency";
+  }
+
   if (
     pathname.startsWith("/onboarding/brand") ||
     pathname.startsWith("/create/campaign") ||
@@ -86,6 +94,7 @@ export function inferAuthRole(
   }
 
   if (pathname.startsWith("/propose")) {
+    if (storedAudience === "agency") return "agency";
     return storedAudience === "brand" ? "brand" : "host";
   }
 
@@ -122,8 +131,18 @@ export function rememberBrandEntry(next = BRAND_CAMPAIGN_PATH) {
   rememberIntendedStakeholder(sessionStorage, { role: "brand", next });
 }
 
+export function rememberAgencyEntry(next = AGENCY_CLIENTS_PATH) {
+  persistPreferredRole("agency");
+  if (typeof sessionStorage === "undefined") return;
+  rememberIntendedStakeholder(sessionStorage, { role: "agency", next });
+}
+
 export function brandAuthHref(user: unknown, next = BRAND_CAMPAIGN_PATH) {
   return user ? next : authEntryHref({ mode: "signup", role: "brand", next });
+}
+
+export function agencyAuthHref(user: unknown, next = AGENCY_CLIENTS_PATH) {
+  return user ? next : authEntryHref({ mode: "signup", role: "agency", next });
 }
 
 export function mapSponsorActionToOutcome(action?: string) {
