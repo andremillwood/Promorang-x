@@ -407,7 +407,7 @@ const App = () => (
                     <Route path="/merchant/coupons" element={<MerchantCouponHub />} />
                     <Route path="/merchant/scan" element={<StaffScanner />} />
                     <Route path="/staff/scanner" element={<StaffScanner />} />
-                    <Route path="/flash-sales" element={<GemRushPage />} />
+                    <Route path="/flash-sales" element={import.meta.env.DEV ? <GemRushPage /> : <Navigate to="/shop" replace />} />
 
                     <Route path="/categories/:categorySlug" element={<CategoryArchive />} />
                     <Route path="/locations/:countrySlug" element={<LocationArchive />} />

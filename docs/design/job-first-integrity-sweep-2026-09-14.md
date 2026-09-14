@@ -37,6 +37,9 @@ The follow-up also removed financial-looking claims that survived the first swee
 - Merchant Results no longer invents GMV, Gems retained, arrivals, repeat rate, APY, location count, or settlement success. It shows recorded transaction-derived points and action counts, with explicit loading, error, and evidence-strength language.
 - Save & Win navigation no longer claims “ZERO RISK” or “100% Protected”; it points people to eligibility and withdrawal terms.
 - The daily streak modal no longer promises dividend yield or unverified Gem drops.
+- The Pieces marketplace no longer substitutes fictional pools, balances, APR, or capital figures when its APIs are empty or unavailable. Development fixtures remain development-only.
+- Piece profiles no longer manufacture holder counts, market capitalization, or a fixed APR when those fields are absent.
+- The hard-coded Gem Rush catalogue is now development-only; production redirects that legacy route to the live shop.
 
 The pre-consolidation work remains preserved in the named stash `codex-pre-main-consolidation-2026-09-14`; it was not applied wholesale because several of its navigation and economy decisions conflict with the current release contract.
 

@@ -23,8 +23,6 @@ import {
   TriangleAlert, 
   Route, 
   WalletCards,
-  Coins,
-  Sparkles,
   Layers,
   ArrowUpDown,
   Crown
@@ -157,20 +155,23 @@ const DEFAULT_SAMPLE_PIECES: Piece[] = [
   },
 ];
 
+const RELEASE_PIECES = import.meta.env.DEV || import.meta.env.MODE === 'test' ? DEFAULT_SAMPLE_PIECES : [];
+
 export function TradingMarketplace() {
   const { t } = useI18n();
   const { user, session } = useAuth();
   const { toast } = useToast();
-  const [pieces, setPieces] = useState<Piece[]>(DEFAULT_SAMPLE_PIECES);
-  const [filteredPieces, setFilteredPieces] = useState<Piece[]>(DEFAULT_SAMPLE_PIECES);
-  const [loading, setLoading] = useState(false);
+  const [pieces, setPieces] = useState<Piece[]>(RELEASE_PIECES);
+  const [filteredPieces, setFilteredPieces] = useState<Piece[]>(RELEASE_PIECES);
+  const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'volume' | 'price' | 'trending'>('volume');
   const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null);
   const [tradeAction, setTradeAction] = useState<'buy' | 'sell'>('buy');
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
-  const [gemsBalance, setGemsBalance] = useState(250);
+  const [gemsBalance, setGemsBalance] = useState(0);
   const [userPieces, setUserPieces] = useState(0);
 
   const apiBaseUrl = (import.meta.env.VITE_API_URL || 'https://api.promorang.co').replace(/\/$/, '');
@@ -188,6 +189,8 @@ export function TradingMarketplace() {
   }, [pieces, searchQuery, selectedType, sortBy]);
 
   const fetchPools = async () => {
+    setLoading(true);
+    setLoadFailed(false);
     try {
       const response = await fetch(apiUrl('/pieces/pools?status=active'), {
         headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
@@ -198,11 +201,16 @@ export function TradingMarketplace() {
         if (data.pools && data.pools.length > 0) {
           setPieces(data.pools);
         } else {
-          setPieces(DEFAULT_SAMPLE_PIECES);
+          setPieces(RELEASE_PIECES);
         }
+      } else {
+        throw new Error(`Pool request failed with ${response.status}`);
       }
     } catch {
-      setPieces(DEFAULT_SAMPLE_PIECES);
+      setPieces(RELEASE_PIECES);
+      setLoadFailed(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -219,7 +227,7 @@ export function TradingMarketplace() {
         setGemsBalance(data.balance || 0);
       }
     } catch {
-      setGemsBalance(250);
+      setGemsBalance(0);
     }
   };
 
@@ -324,7 +332,7 @@ export function TradingMarketplace() {
 
       {/* Live Market Marquee Metrics */}
       <div className="border-b border-border/40 bg-neutral-900/40 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 grid grid-cols-2 gap-4">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
               <TrendingUp className="w-3 h-3 text-cyan-400" /> Active Syndicates
@@ -336,18 +344,6 @@ export function TradingMarketplace() {
               <Gem className="w-3 h-3 text-violet-400" /> 24h Volume
             </span>
             <p className="text-xl font-black text-violet-400 mt-0.5">{totalMarketVolume.toLocaleString()} Gems</p>
-          </div>
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-emerald-400" /> Top Dividend Yield
-            </span>
-            <p className="text-xl font-black text-emerald-400 mt-0.5">19.2% APR</p>
-          </div>
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <Coins className="w-3 h-3 text-amber-400" /> Capital Backed
-            </span>
-            <p className="text-xl font-black text-foreground mt-0.5">$48,200 USD</p>
           </div>
         </div>
       </div>
@@ -415,12 +411,21 @@ export function TradingMarketplace() {
 
       {/* Pieces Grid */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {filteredPieces.length === 0 ? (
+        {loading ? (
+          <div className="py-16 text-center" role="status">
+            <Loader2 className="mx-auto h-8 w-8 animate-spin text-cyan-400" />
+            <p className="mt-3 text-sm text-muted-foreground">Loading recorded pools…</p>
+          </div>
+        ) : filteredPieces.length === 0 ? (
           <div className="text-center py-16 rounded-2xl border border-dashed border-border/60 bg-neutral-900/30">
             <TriangleAlert className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-foreground">No pieces match this filter</h3>
+            <h3 className="text-lg font-bold text-foreground">{loadFailed ? "Pools could not be loaded" : "No live pools available"}</h3>
             <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-              Try adjusting your search query or selecting another category tab.
+              {loadFailed
+                ? "No sample market data has been substituted. Try again when the service is available."
+                : searchQuery || selectedType !== "all"
+                  ? "Try adjusting your search or selecting another category."
+                  : "Recorded pools will appear here when they are active."}
             </p>
           </div>
         ) : (
@@ -451,4 +456,3 @@ export function TradingMarketplace() {
 }
 
 export default TradingMarketplace;
-

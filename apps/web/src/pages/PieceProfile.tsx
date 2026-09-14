@@ -246,9 +246,6 @@ export function PieceProfile() {
                     <TrendingUp className="w-3 h-3" /> Live AMM Pool
                   </Badge>
                 )}
-                <Badge variant="outline" className="text-cyan-400 border-cyan-500/30 bg-cyan-500/10">
-                  18.4% Est. APR
-                </Badge>
               </div>
 
               <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">{title}</h1>
@@ -277,11 +274,11 @@ export function PieceProfile() {
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
                     <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Co-Producers</span>
-                    <span className="font-semibold text-emerald-400">{Number(profile.stats?.holder_count || 24)} Backers</span>
+                    <span className="font-semibold text-emerald-400">{Number(profile.stats?.holder_count || 0)} Backers</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
                     <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Market Cap</span>
-                    <span className="font-semibold text-white/90">{Number(profile.stats?.market_cap || 12500).toFixed(2)} Gems</span>
+                    <span className="font-semibold text-white/90">{Number(profile.stats?.market_cap || 0).toFixed(2)} Gems</span>
                   </div>
                 </CardContent>
               </Card>
@@ -482,4 +479,3 @@ export function PieceProfile() {
 }
 
 export default PieceProfile;
-
