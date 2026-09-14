@@ -18,73 +18,56 @@ if (!supabaseUrl || !supabaseServiceKey) {
   });
 }
 
-async function findAuthUserByEmail(email) {
-  if (!supabase) return null;
-  const normalized = String(email || '').trim().toLowerCase();
-  if (!normalized) return null;
-
-  let page = 1;
-  const perPage = 200;
-  while (page <= 10) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
-    if (error) throw error;
-    const users = data?.users || [];
-    const matched = users.find((user) => String(user.email || '').trim().toLowerCase() === normalized);
-    if (matched) return matched;
-    if (users.length < perPage) break;
-    page += 1;
-  }
-  return null;
-}
-
 async function ensurePandxtraManchesterHillsClient() {
   if (!supabase) return;
 
   try {
-    const account = await findAuthUserByEmail('pandxtra@gmail.com');
-    if (!account?.id) {
-      console.warn('[ManagedClientBootstrap] Pandxtra auth account not found; skipping managed client bootstrap.');
-      return;
-    }
-
-    let { data: agency, error: agencyLookupError } = await supabase
+    const { data: agency, error: agencyLookupError } = await supabase
       .from('organizations')
-      .select('id, name, slug, type')
+      .select('id, name, slug, type, owner_id')
       .eq('slug', 'pandxtra')
       .maybeSingle();
 
     if (agencyLookupError) throw agencyLookupError;
-
-    if (!agency) {
-      const { data: createdAgency, error: createAgencyError } = await supabase
-        .from('organizations')
-        .insert({
-          name: 'Pandxtra',
-          slug: 'pandxtra',
-          type: 'agency',
-          created_by: account.id,
-        })
-        .select('id, name, slug, type')
-        .single();
-      if (createAgencyError) throw createAgencyError;
-      agency = createdAgency;
+    if (!agency?.id) {
+      console.warn('[ManagedClientBootstrap] Pandxtra organization not found; skipping managed client bootstrap.');
+      return;
     }
 
-    await supabase
+    let accountId = agency.owner_id || null;
+    if (!accountId) {
+      const { data: ownerMembership, error: ownerMembershipError } = await supabase
+        .from('organization_members')
+        .select('user_id')
+        .eq('organization_id', agency.id)
+        .eq('role', 'owner')
+        .limit(1)
+        .maybeSingle();
+      if (ownerMembershipError) throw ownerMembershipError;
+      accountId = ownerMembership?.user_id || null;
+    }
+
+    if (!accountId) {
+      console.warn('[ManagedClientBootstrap] Pandxtra owner could not be resolved; skipping managed client bootstrap.');
+      return;
+    }
+
+    const { error: agencyUpdateError } = await supabase
       .from('organizations')
       .update({
-        owner_id: account.id,
+        owner_id: accountId,
         contact_email: 'pandxtra@gmail.com',
         billing_email: 'pandxtra@gmail.com',
         claim_status: 'claimed',
       })
       .eq('id', agency.id);
+    if (agencyUpdateError) throw agencyUpdateError;
 
     const { error: agencyMembershipError } = await supabase
       .from('organization_members')
       .upsert({
         organization_id: agency.id,
-        user_id: account.id,
+        user_id: accountId,
         role: 'owner',
       }, { onConflict: 'organization_id,user_id' });
     if (agencyMembershipError) throw agencyMembershipError;
@@ -117,7 +100,7 @@ async function ensurePandxtraManchesterHillsClient() {
           slug: 'manchester-hills-foods',
           type: 'brand',
           website: 'https://manchesterhillsfoods.com',
-          created_by: account.id,
+          created_by: accountId,
         })
         .select('id, name, slug, type, website')
         .single();
@@ -143,7 +126,7 @@ async function ensurePandxtraManchesterHillsClient() {
       .from('organization_members')
       .upsert({
         organization_id: client.id,
-        user_id: account.id,
+        user_id: accountId,
         role: 'owner',
       }, { onConflict: 'organization_id,user_id' });
     if (clientMembershipError) throw clientMembershipError;
@@ -161,8 +144,8 @@ async function ensurePandxtraManchesterHillsClient() {
     const { error: roleError } = await supabase
       .from('user_roles')
       .upsert([
-        { user_id: account.id, role: 'agency', revoked_at: null },
-        { user_id: account.id, role: 'brand', revoked_at: null },
+        { user_id: accountId, role: 'agency', revoked_at: null },
+        { user_id: accountId, role: 'brand', revoked_at: null },
       ], { onConflict: 'user_id,role' });
     if (roleError) throw roleError;
 
