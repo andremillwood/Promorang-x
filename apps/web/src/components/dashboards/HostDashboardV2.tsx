@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Calendar, Handshake, Radio, ShieldCheck, BarChart3, Vote, Plus } from "lucide-react";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
@@ -12,24 +11,20 @@ import HostProofReviewConsole from "@/components/host/HostProofReviewConsole";
 import HostSponsorshipConsole from "@/components/host/HostSponsorshipConsole";
 import HostImpactYieldConsole from "@/components/host/HostImpactYieldConsole";
 
+const HOST_TABS = new Set(["demand", "moments", "pulse", "review", "sponsorships", "impact"]);
+
 export function HostDashboardV2() {
   const { data: hostedMoments, isLoading: momentsLoading } = useHostedMoments();
   const [searchParams, setSearchParams] = useSearchParams();
-  const defaultTab = searchParams.get("tab") || "moments";
-  const [activeTab, setActiveTab] = useState(defaultTab);
-
-  useEffect(() => {
-    const requestedTab = searchParams.get("tab");
-    if (requestedTab) setActiveTab(requestedTab);
-  }, [searchParams]);
+  const requestedTab = searchParams.get("tab");
+  const activeTab = requestedTab && HOST_TABS.has(requestedTab) ? requestedTab : "moments";
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    setSearchParams((previous) => {
-      const next = new URLSearchParams(previous);
-      next.set("tab", value);
-      return next;
-    });
+    if (!HOST_TABS.has(value)) return;
+    const next = new URLSearchParams(searchParams);
+    next.set("view", "studio");
+    next.set("tab", value);
+    setSearchParams(next);
   };
 
   const momentCount = hostedMoments?.length || 0;
