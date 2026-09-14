@@ -126,6 +126,7 @@ const Crews = lazy(() => import("./pages/Crews"));
 const Guilds = lazy(() => import("./pages/Guilds"));
 const DropClaim = lazy(() => import("./pages/DropClaim"));
 const StartCommunity = lazy(() => import("./pages/StartCommunity"));
+const CommunityPortal = lazy(() => import("./pages/CommunityPortal"));
 const PutInventoryUp = lazy(() => import("./pages/PutInventoryUp"));
 const Participants = lazy(() => import("./pages/Participants"));
 const Activity = lazy(() => import("./pages/Activity"));
@@ -334,6 +335,7 @@ const App = () => (
                     <Route path="/happened" element={<ProtectedRoute><WhatHappened /></ProtectedRoute>} />
                     <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
                     <Route path="/card" element={<ProtectedRoute><MyPromoCard /></ProtectedRoute>} />
+                    <Route path="/community/:tab?" element={<ProtectedRoute><CommunityPortal /></ProtectedRoute>} />
                     <Route path="/crews" element={<ProtectedRoute><Crews /></ProtectedRoute>} />
                     <Route path="/guilds" element={<ProtectedRoute><Guilds /></ProtectedRoute>} />
                     <Route path="/start" element={<ProtectedRoute><StartCommunity /></ProtectedRoute>} />
