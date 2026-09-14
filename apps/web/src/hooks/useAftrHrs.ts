@@ -16,8 +16,6 @@ import {
   AFTRHRS_START_ISO,
   DEFAULT_AFTRHRS_FAQS,
   SEA_DECK_VENUE_ID,
-  publicRemainingPercent,
-  remainingDigitalPasses,
   shouldResumeAftrHrsClaim,
 } from "@promorang/shared";
 
@@ -69,7 +67,6 @@ export type AftrHrsSnapshot = {
     venue_policies: Record<string, string | null>;
     artwork: Record<string, string>;
     remaining: number;
-    remainingPercent?: number;
     soldOut: boolean;
     venueSlug: string;
     moments?: { starts_at?: string | null; image_url?: string | null; venue_name?: string | null } | null;
@@ -92,7 +89,6 @@ export type AftrHrsSnapshot = {
   pass: AftrHrsPass | null;
   participation: { state: string; reminder_opt_in?: boolean } | null;
   followingVenue: boolean;
-  communityCount: number;
 };
 
 export const AFTRHRS_FALLBACK: AftrHrsSnapshot = {
@@ -125,7 +121,6 @@ export const AFTRHRS_FALLBACK: AftrHrsSnapshot = {
       og: AFTRHRS_OG_IMAGE_PATH,
     },
     remaining: AFTRHRS_DIGITAL_PASS_LIMIT,
-    remainingPercent: publicRemainingPercent(AFTRHRS_DIGITAL_PASS_LIMIT, AFTRHRS_DIGITAL_PASS_LIMIT),
     soldOut: false,
     venueSlug: "sea-deck",
     moments: { starts_at: AFTRHRS_START_ISO, image_url: "/campaigns/aftrhrs/flyer.jpg", venue_name: "Sea Deck", ...AFTRHRS_RECURRENCE },
@@ -175,7 +170,6 @@ export const AFTRHRS_FALLBACK: AftrHrsSnapshot = {
   pass: null,
   participation: null,
   followingVenue: false,
-  communityCount: 0,
 };
 
 async function request<T>(path: string, token?: string, options: RequestInit = {}): Promise<T> {
@@ -260,19 +254,10 @@ export function useAftrHrs() {
   });
 
   const data = snapshot.data || AFTRHRS_FALLBACK;
-  const remainingPercent = data.edition.remainingPercent ?? publicRemainingPercent(
-    remainingDigitalPasses({
-      digitalAllocation: data.edition.digital_allocation,
-      digitalClaimed: data.edition.digital_claimed,
-    }),
-    data.edition.digital_allocation,
-  );
-
   return {
     ...snapshot,
     data,
-    remainingPercent,
-    soldOut: remainingPercent <= 0 || data.edition.soldOut,
+    soldOut: data.edition.soldOut,
     passLoadFailed: Boolean(token && snapshot.isError),
     token,
     user,
@@ -328,7 +313,6 @@ export function useAftrHrsAutoClaim(options?: { redirectToPass?: boolean }) {
 }
 
 export type AftrHrsGuestLane = {
-  remainingPercent: number;
   soldOut: boolean;
   open: boolean;
 };
@@ -339,8 +323,8 @@ export type AftrHrsGuestPublic = {
 };
 
 const GUEST_FALLBACK: AftrHrsGuestPublic = {
-  rsvp: { remainingPercent: 100, soldOut: false, open: true },
-  digitalPass: { remainingPercent: 100, soldOut: false, open: true },
+  rsvp: { soldOut: false, open: true },
+  digitalPass: { soldOut: false, open: true },
 };
 
 export function useAftrHrsGuest() {
@@ -375,7 +359,6 @@ export function useAftrHrsGuest() {
     ...snapshot,
     edition: snapshot.data?.edition || AFTRHRS_FALLBACK.edition,
     guest,
-    communityCount: snapshot.data?.communityCount || 0,
     rsvp,
   };
 }

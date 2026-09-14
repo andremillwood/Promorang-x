@@ -47,9 +47,6 @@ export default function AftrHrsAmbassador() {
 
   const allocation = (data?.allocation || {}) as {
     name?: string;
-    allocation?: number;
-    distributed?: number;
-    remaining?: number;
     tracking_code?: string;
     sharePath?: string;
   };
@@ -81,18 +78,6 @@ export default function AftrHrsAmbassador() {
         <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">{t("aftrhrs.ambEyebrow")}</p>
         <h1 className="mt-3 text-4xl font-black uppercase">{allocation.name || t("aftrhrs.ambDefault")}</h1>
         {isLoading ? <p className="mt-6 text-white/50">Loading allocation…</p> : null}
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {[
-            ["Allocated", allocation.allocation || 0],
-            ["Distributed", allocation.distributed || 0],
-            ["Remaining", allocation.remaining || 0],
-          ].map(([label, value]) => (
-            <div key={String(label)} className="rounded-2xl border border-white/10 p-4">
-              <p className="text-xs uppercase tracking-[0.16em] text-white/40">{label}</p>
-              <p className="mt-2 text-3xl font-black">{value}</p>
-            </div>
-          ))}
-        </div>
         <p className="mt-4 text-sm text-white/50">Share link: {allocation.sharePath} · Code {allocation.tracking_code}</p>
 
         <form onSubmit={submit} className="mt-10 space-y-3 rounded-3xl border border-white/10 p-5">

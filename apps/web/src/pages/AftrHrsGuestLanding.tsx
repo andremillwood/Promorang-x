@@ -12,7 +12,6 @@ import {
   AFTRHRS_SCENE_TITLE,
   AFTRHRS_START_ISO,
   DEFAULT_AFTRHRS_GUEST_FAQS,
-  guestGoingLine,
   guestLaneCopy,
   type AftrHrsGuestKind,
 } from "@promorang/shared";
@@ -22,18 +21,16 @@ import promorangLogo from "@/assets/promorang-logo-full.png";
 
 function LaneMeter({
   kind,
-  percent,
   soldOut,
   selected,
   onSelect,
 }: {
   kind: AftrHrsGuestKind;
-  percent: number;
   soldOut: boolean;
   selected: boolean;
   onSelect: () => void;
 }) {
-  const copy = guestLaneCopy(kind, percent, soldOut);
+  const copy = guestLaneCopy(kind, soldOut ? 0 : 100, soldOut);
   return (
     <button
       type="button"
@@ -50,20 +47,15 @@ function LaneMeter({
       <p className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">{copy.eyebrow}</p>
       <h2 className="mt-2 text-2xl font-black uppercase tracking-[-0.04em]">{copy.title}</h2>
       <p className="mt-2 text-sm leading-6 text-white/65">{copy.body}</p>
-      <div className="mt-4 flex items-end justify-between gap-3">
-        <p className="text-xs font-black uppercase tracking-[0.16em] text-fuchsia-200">{copy.label}</p>
-        <p className="text-3xl font-black tracking-[-0.05em]">{copy.mood === "closed" ? "—" : `${percent}%`}</p>
-      </div>
-      <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-        <div className="h-full bg-gradient-to-r from-fuchsia-400 to-cyan-300" style={{ width: `${copy.mood === "closed" ? 0 : percent}%` }} />
-      </div>
-      <p className="mt-2 text-[11px] uppercase tracking-[0.16em] text-white/45">{copy.detail}</p>
+      <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-fuchsia-200">
+        {copy.mood === "closed" ? "Closed" : "Available"}
+      </p>
     </button>
   );
 }
 
 export default function AftrHrsGuestLanding() {
-  const { edition, guest, rsvp, communityCount } = useAftrHrsGuest();
+  const { edition, guest, rsvp } = useAftrHrsGuest();
   const [kind, setKind] = useState<AftrHrsGuestKind>("rsvp");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -73,8 +65,8 @@ export default function AftrHrsGuestLanding() {
   const [done, setDone] = useState<{ kind: AftrHrsGuestKind; ticketPath?: string | null } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const rsvpCopy = guestLaneCopy("rsvp", guest.rsvp.remainingPercent, guest.rsvp.soldOut);
-  const passCopy = guestLaneCopy("digital-pass", guest.digitalPass.remainingPercent, guest.digitalPass.soldOut);
+  const rsvpCopy = guestLaneCopy("rsvp", guest.rsvp.soldOut ? 0 : 100, guest.rsvp.soldOut);
+  const passCopy = guestLaneCopy("digital-pass", guest.digitalPass.soldOut ? 0 : 100, guest.digitalPass.soldOut);
 
   useEffect(() => {
     captureGrowthAttribution();
@@ -118,7 +110,6 @@ export default function AftrHrsGuestLanding() {
 
   const selectedCopy = kind === "rsvp" ? rsvpCopy : passCopy;
   const bothClosed = rsvpCopy.mood === "closed" && passCopy.mood === "closed";
-  const goingLine = guestGoingLine(communityCount);
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -157,9 +148,6 @@ export default function AftrHrsGuestLanding() {
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-white/70">{AFTRHRS_COPY.guestLandingLead}</p>
           <p className="mt-3 max-w-xl text-sm leading-6 text-white/55">{AFTRHRS_COPY.guestMomentLine}</p>
-          {goingLine ? (
-            <p className="mt-3 text-sm font-bold uppercase tracking-[0.14em] text-fuchsia-200">{goingLine}</p>
-          ) : null}
           <p className="mt-4 text-sm font-bold uppercase tracking-[0.14em] text-cyan-200">{AFTRHRS_COPY.arrivalRule}</p>
           <Link to={AFTRHRS_PATHS.moment} className="mt-5 inline-flex text-xs font-black uppercase tracking-[0.16em] text-white/70 underline-offset-4 hover:text-white hover:underline">
             {AFTRHRS_COPY.guestMomentCta}
@@ -187,8 +175,8 @@ export default function AftrHrsGuestLanding() {
         ) : (
           <>
             <div className="grid gap-4 sm:grid-cols-2">
-              <LaneMeter kind="rsvp" percent={guest.rsvp.remainingPercent} soldOut={guest.rsvp.soldOut} selected={kind === "rsvp"} onSelect={() => setKind("rsvp")} />
-              <LaneMeter kind="digital-pass" percent={guest.digitalPass.remainingPercent} soldOut={guest.digitalPass.soldOut} selected={kind === "digital-pass"} onSelect={() => setKind("digital-pass")} />
+              <LaneMeter kind="rsvp" soldOut={guest.rsvp.soldOut} selected={kind === "rsvp"} onSelect={() => setKind("rsvp")} />
+              <LaneMeter kind="digital-pass" soldOut={guest.digitalPass.soldOut} selected={kind === "digital-pass"} onSelect={() => setKind("digital-pass")} />
             </div>
 
             <form onSubmit={submit} className="mt-8 space-y-4 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">

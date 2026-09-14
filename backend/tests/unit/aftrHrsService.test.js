@@ -159,6 +159,10 @@ test('public read enables weekly Friday recurrence and keeps claims open', async
   expect(editionPatch.claim_closes_at).toBeNull();
   expect(editionPatch.faqs.some((faq) => /every friday/i.test(`${faq.question} ${faq.answer}`))).toBe(true);
   expect(snap.edition.claim_closes_at).toBeNull();
+  expect(snap.edition).not.toHaveProperty('remainingPercent');
+  expect(snap).not.toHaveProperty('communityCount');
+  expect(snap.guest.rsvp).not.toHaveProperty('remainingPercent');
+  expect(snap.guest.digitalPass).not.toHaveProperty('remainingPercent');
 });
 
 test('guest RSVP is captured without a Promorang account', async () => {

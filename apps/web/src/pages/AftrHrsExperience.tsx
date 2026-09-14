@@ -9,7 +9,6 @@ import {
   Share2,
   Sparkles,
   Ticket,
-  Users,
   MessageCircle,
 } from "lucide-react";
 import SEO from "@/components/SEO";
@@ -18,7 +17,6 @@ import { getSiteUrl } from "@/lib/discovery";
 import { aftrHrsDigitalReleaseView, authPathForAftrHrsClaim, AFTRHRS_COPY, AFTRHRS_EVENT_SCHEDULE, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, AFTRHRS_SCENE_PATH, AFTRHRS_SCENE_TITLE, AFTRHRS_START_ISO, isAftrHrsClaimReturn } from "@promorang/shared";
 import { useAftrHrs, useAftrHrsAutoClaim } from "@/hooks/useAftrHrs";
 import { useI18n } from "@/i18n/I18nContext";
-import { localizedRemainingLabel } from "@/i18n/localize";
 import type { TranslationKey } from "@/i18n/translations";
 import { captureGrowthAttribution } from "@/lib/marketing-attribution";
 import { markAftrHrsClaimPending } from "@/lib/aftrhrs-claim";
@@ -45,7 +43,7 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
 export default function AftrHrsExperience() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { data, remainingPercent, soldOut, user, claim, join, ambassadorRequest, follow, track } = useAftrHrs();
+  const { data, soldOut, user, claim, join, ambassadorRequest, follow, track } = useAftrHrs();
   const { autoClaiming } = useAftrHrsAutoClaim();
   const [searchParams] = useSearchParams();
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -165,7 +163,11 @@ export default function AftrHrsExperience() {
     }
   };
 
-  const remainingLabel = localizedRemainingLabel(remainingPercent, soldOut, t);
+  const availabilityLabel = data.pass
+    ? t("aftrhrs.passSecured")
+    : soldOut
+      ? t("aftrhrs.soldOutHeadline")
+      : t("aftrhrs.limitedPass");
   const releaseCta =
     release.kind === "pass"
       ? t("aftrhrs.ctaPass")
@@ -263,7 +265,7 @@ export default function AftrHrsExperience() {
                   {t("aftrhrs.viewVenue")}
                 </Link>
                 <p className="text-xs uppercase tracking-[0.18em] text-cyan-300">
-                  {remainingLabel}
+                  {availabilityLabel}
                 </p>
               </div>
             </div>
@@ -357,11 +359,9 @@ export default function AftrHrsExperience() {
               </form>
             </div>
             <aside className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/45">{t("aftrhrs.freePasses")}</p>
-              <p className="mt-4 text-6xl font-black tracking-[-0.06em]">{remainingPercent}%</p>
-              <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
-                <div className="h-full bg-gradient-to-r from-fuchsia-400 to-cyan-300" style={{ width: `${remainingPercent}%` }} />
-              </div>
+              <Ticket className="h-8 w-8 text-cyan-300" />
+              <p className="mt-4 text-xs font-black uppercase tracking-[0.2em] text-white/45">{availabilityLabel}</p>
+              <p className="mt-3 text-sm leading-6 text-white/65">{t("aftrhrs.arrivalRule")}</p>
             </aside>
           </div>
         )}
@@ -452,9 +452,6 @@ export default function AftrHrsExperience() {
               <button type="button" onClick={share} className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-black uppercase tracking-[0.16em]">
                 <Share2 className="h-4 w-4" /> {t("aftrhrs.inviteFriends")}
               </button>
-              <span className="inline-flex items-center gap-2 text-sm text-white/55">
-                <Users className="h-4 w-4 text-cyan-300" /> {t("aftrhrs.going", { count: data.communityCount })}
-              </span>
             </div>
           </div>
           <div className="rounded-[2rem] border border-white/10 p-6">
@@ -569,7 +566,7 @@ export default function AftrHrsExperience() {
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">
-              {remainingLabel}
+              {availabilityLabel}
             </p>
             <p className="truncate text-xs text-white/55">{t("aftrhrs.when")} · {t("aftrhrs.doors")} · {t("aftrhrs.seaDeck")}</p>
           </div>
