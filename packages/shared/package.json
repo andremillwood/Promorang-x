@@ -12,6 +12,12 @@
       "import": "./src/index.ts",
       "require": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./stakeholder-success": {
+      "types": "./src/stakeholder-success.ts",
+      "import": "./src/stakeholder-success.ts",
+      "require": "./src/stakeholder-success.ts",
+      "default": "./src/stakeholder-success.ts"
     }
   },
   "files": [
