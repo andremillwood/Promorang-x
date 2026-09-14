@@ -18,6 +18,7 @@ import { PromoCardEconomyExplainer } from "@/components/promocard";
 
 const ForAgencies = () => {
     const { t } = useI18n();
+    const agencySignupPath = "/auth?mode=signup&role=agency";
 
     const features: Array<{ icon: typeof Briefcase; titleKey: TranslationKey; descKey: TranslationKey }> = [
         {
@@ -59,7 +60,6 @@ const ForAgencies = () => {
                 description={t("forAgencies.seoDescription")}
             />
             <div className="marketing-refined min-h-screen bg-background">
-            {/* Hero Section */}
             <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-brand">
                 <div className="container px-6">
                     <div className="max-w-4xl mx-auto text-center">
@@ -79,7 +79,7 @@ const ForAgencies = () => {
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
                             <Button variant="secondary" size="xl" className="font-bold shadow-xl" asChild>
-                                <Link to="/auth?role=brand">
+                                <Link to={agencySignupPath}>
                                     {t("forAgencies.startManaging")}
                                     <ArrowRight className="w-5 h-5 ml-2" />
                                 </Link>
@@ -93,7 +93,6 @@ const ForAgencies = () => {
 
             <LeadMagnetGateway audience="brand" />
 
-            {/* Features Section */}
             <section className="py-20 md:py-32">
                 <div className="container px-6">
                     <div className="max-w-2xl mx-auto text-center mb-16">
@@ -124,7 +123,6 @@ const ForAgencies = () => {
                 </div>
             </section>
 
-            {/* CTA Section */}
             <section className="py-20 md:py-32 bg-charcoal text-cream relative overflow-hidden">
                 <div className="absolute inset-0 bg-primary/10"></div>
                 <div className="container px-6 relative z-10">
@@ -139,7 +137,7 @@ const ForAgencies = () => {
                             {t("forAgencies.ctaCopy")}
                         </p>
                         <Button variant="hero" size="xl" asChild>
-                            <Link to="/auth?role=brand">
+                            <Link to={agencySignupPath}>
                                 {t("forAgencies.openAccount")}
                                 <ArrowRight className="w-5 h-5 ml-2" />
                             </Link>
