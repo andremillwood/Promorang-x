@@ -18,7 +18,7 @@ describe("stakeholder navigation", () => {
   it("routes merchant destinations through the consolidated workspace", () => {
     const items = stakeholderMobileNav("merchant");
     expect(items.map((item) => item.href)).toEqual([
-      "/dashboard",
+      "/dashboard?tab=home",
       "/dashboard?tab=promotions",
       "/dashboard?tab=customers",
       "/dashboard?tab=results",
