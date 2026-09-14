@@ -353,7 +353,7 @@ export function PieceProfile() {
                 <div className="rounded-xl border bg-muted/20 p-4">
                   <Users className="h-5 w-5 text-primary" />
                   <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{t("pieceProfile.liquidityNow")}</p>
-                  <p className="mt-2 text-sm font-semibold">{profile.pool ? `${Number(profile.stats?.holder_count || 24)} holders · active pool` : "No active pool"}</p>
+                  <p className="mt-2 text-sm font-semibold">{profile.pool ? `${Number(profile.stats?.holder_count || 0)} holders · active pool` : "No active pool"}</p>
                   <p className="mt-2 text-xs leading-5 text-muted-foreground">A pool enables exchange; it does not guarantee a buyer, stable price or easy exit.</p>
                 </div>
               </div>
