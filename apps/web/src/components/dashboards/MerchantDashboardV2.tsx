@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BarChart3, MapPin, QrCode, ShoppingBag, Store, Vote } from "lucide-react";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
@@ -11,24 +10,20 @@ import MerchantOrdersHub from "@/components/merchant/MerchantOrdersHub";
 import MerchantVenueStudio from "@/components/merchant/MerchantVenueStudio";
 import MerchantYieldAnalytics from "@/components/merchant/MerchantYieldAnalytics";
 
+const MERCHANT_TABS = new Set(["demand", "storefront", "redemptions", "commerce", "venues", "analytics"]);
+
 export function MerchantDashboardV2() {
   const { data: venues, isLoading: venuesLoading } = useMerchantVenues();
   const [searchParams, setSearchParams] = useSearchParams();
-  const defaultTab = searchParams.get("tab") || "storefront";
-  const [activeTab, setActiveTab] = useState(defaultTab);
-
-  useEffect(() => {
-    const requestedTab = searchParams.get("tab");
-    if (requestedTab) setActiveTab(requestedTab);
-  }, [searchParams]);
+  const requestedTab = searchParams.get("tab");
+  const activeTab = requestedTab && MERCHANT_TABS.has(requestedTab) ? requestedTab : "storefront";
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    setSearchParams((previous) => {
-      const next = new URLSearchParams(previous);
-      next.set("tab", value);
-      return next;
-    });
+    if (!MERCHANT_TABS.has(value)) return;
+    const next = new URLSearchParams(searchParams);
+    next.set("view", "studio");
+    next.set("tab", value);
+    setSearchParams(next);
   };
 
   const venueCount = venues?.length || 0;
