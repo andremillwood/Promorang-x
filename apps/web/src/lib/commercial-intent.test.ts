@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  AGENCY_CLIENTS_PATH,
+  AGENCY_LANDING_PATH,
   BRAND_CAMPAIGN_PATH,
   BRAND_LANDING_PATH,
+  agencyAuthHref,
   brandAuthHref,
   buildAuthHref,
   inferAuthRole,
@@ -11,14 +14,17 @@ import {
 } from "./commercial-intent";
 
 describe("inferAuthRole", () => {
-  it("reads an explicit brand audience on the propose path", () => {
+  it("reads explicit brand and agency audiences", () => {
     expect(inferAuthRole("/propose", "?audience=brand")).toBe("brand");
     expect(inferAuthRole("/propose/new", "?audience=brand")).toBe("brand");
+    expect(inferAuthRole("/free/sponsor", "?role=agency")).toBe("agency");
+    expect(inferAuthRole("/for-agencies")).toBe("agency");
   });
 
-  it("treats a generic proposal as host-facing unless a stored brand audience exists", () => {
+  it("treats a generic proposal as host-facing unless a stored commercial audience exists", () => {
     expect(inferAuthRole("/propose/new")).toBe("host");
     expect(inferAuthRole("/propose/new", "", "brand")).toBe("brand");
+    expect(inferAuthRole("/propose/new", "", "agency")).toBe("agency");
   });
 
   it("infers brand and host destinations from their working surfaces", () => {
@@ -31,7 +37,7 @@ describe("inferAuthRole", () => {
   });
 });
 
-describe("brandAuthHref", () => {
+describe("commercial auth hrefs", () => {
   it("sends a guest into the brand campaign workspace, not a host proposal", () => {
     expect(BRAND_LANDING_PATH).toBe("/for-brands?from=sponsor");
     expect(BRAND_CAMPAIGN_PATH).toBe("/create/campaign?from=sponsor");
@@ -39,6 +45,15 @@ describe("brandAuthHref", () => {
       "/auth?mode=signup&role=brand&next=%2Fcreate%2Fcampaign%3Ffrom%3Dsponsor",
     );
     expect(brandAuthHref({ id: "user-1" })).toBe("/create/campaign?from=sponsor");
+  });
+
+  it("keeps an agency on the client-first workspace contract", () => {
+    expect(AGENCY_LANDING_PATH).toBe("/for-agencies?from=sponsor");
+    expect(AGENCY_CLIENTS_PATH).toBe("/dashboard?view=studio&tab=clients");
+    expect(agencyAuthHref(null)).toBe(
+      "/auth?mode=signup&role=agency&next=%2Fdashboard%3Fview%3Dstudio%26tab%3Dclients",
+    );
+    expect(agencyAuthHref({ id: "user-1" })).toBe("/dashboard?view=studio&tab=clients");
   });
 });
 
