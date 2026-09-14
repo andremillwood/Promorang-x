@@ -22,16 +22,13 @@ import { OnboardingProvider, useOnboarding } from '@/context/OnboardingContext';
 import { NotificationNavigationObserver } from '@/components/NotificationNavigationObserver';
 
 export {
-  // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient({
@@ -59,7 +56,6 @@ export default function RootLayout() {
       });
   }, [stripePublishableKey]);
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -90,7 +86,7 @@ export default function RootLayout() {
 }
 
 function InitialLayout() {
-  const { session, isLoading } = useAuth();
+  const { session, activeRole, isLoading } = useAuth();
   const { completed: onboardingCompleted, loading: onboardingLoading } = useOnboarding();
   const segments = useSegments();
   const router = useRouter();
@@ -105,15 +101,16 @@ function InitialLayout() {
 
     const inAuthGroup = segments[0] === 'auth';
     const inOnboarding = segments[0] === 'onboarding';
+    const roleLanding = activeRole && activeRole !== 'participant' ? '/(tabs)/dashboard' : '/(tabs)';
 
     if (session && !onboardingCompleted && !inOnboarding) {
       router.replace('/onboarding');
     } else if (session && onboardingCompleted && (inAuthGroup || inOnboarding)) {
-      router.replace('/(tabs)');
+      router.replace(roleLanding as any);
     } else if (!session && !inAuthGroup) {
       router.replace('/auth/login');
     }
-  }, [session, isLoading, onboardingCompleted, onboardingLoading, segments, isMounted]);
+  }, [session, activeRole, isLoading, onboardingCompleted, onboardingLoading, segments, isMounted]);
 
   return <><NotificationNavigationObserver /><RootLayoutNav /></>;
 }
