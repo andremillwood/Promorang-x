@@ -42,6 +42,7 @@ import { PromoCardFace, PromoCardWorldContext } from "@/components/promorang/Sig
 import { FillCardMoves } from "@/components/promocard/FillCardMoves";
 import { StakeholderPutInPass } from "@/components/people/StakeholderLoop";
 import { PromoCardActions } from "@/components/promocard/PromoCardActions";
+import { CommunityCardLink } from "@/components/community/CommunityCardLink";
 import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
 import type { OfferIssuance } from "@/hooks/useOffers";
 import {
@@ -311,6 +312,7 @@ export default function MyPromoCard() {
             lastLoaded={Boolean(card.isError && face.credential)}
           />
 
+          <CommunityCardLink />
           {stake.role !== "participant" ? <StakeholderPutInPass role={stake.role} /> : null}
 
           <PromoCardWorldContext

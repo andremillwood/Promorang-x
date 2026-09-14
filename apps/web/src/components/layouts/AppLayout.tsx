@@ -62,7 +62,8 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname) || isDropLanding || isAftrHrsLanding;
     const showFooterCta = !["/live", "/pulse"].includes(location.pathname);
 
-    if (isConsumerPreview || isOrganizerWorkspace || isDropLanding || isAftrHrsLanding) {
+    const isPrivateCommunity = location.pathname === "/community" || location.pathname.startsWith("/community/");
+    if (isConsumerPreview || isOrganizerWorkspace || isDropLanding || isAftrHrsLanding || isPrivateCommunity) {
         return <>{children || <Outlet />}</>;
     }
 
