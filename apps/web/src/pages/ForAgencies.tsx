@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import {
     Briefcase,
     TrendingUp,
@@ -91,7 +90,25 @@ const ForAgencies = () => {
 
             <PromoCardEconomyExplainer audience="agency" />
 
-            <LeadMagnetGateway audience="brand" />
+            <section className="border-y border-border bg-secondary/25 py-14 md:py-20">
+                <div className="container px-6">
+                    <div className="mx-auto grid max-w-5xl gap-6 rounded-[2rem] border border-border bg-card p-6 md:grid-cols-[1fr_auto] md:items-center md:p-8">
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Agency starting point</p>
+                            <h2 className="mt-2 font-serif text-3xl font-bold tracking-tight">Connect one client before you launch anything.</h2>
+                            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+                                Agency work stays legible when the client account is established first. Then campaigns, activity and proof remain attached to the correct brand or venue instead of falling into a generic workspace.
+                            </p>
+                        </div>
+                        <Button variant="hero" size="lg" asChild>
+                            <Link to={agencySignupPath}>
+                                Open Agency workspace
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </div>
+                </div>
+            </section>
 
             <section className="py-20 md:py-32">
                 <div className="container px-6">
