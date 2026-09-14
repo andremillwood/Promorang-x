@@ -28,6 +28,18 @@ If a live query is empty or fails, PROMORANG must not replace it with a developm
 
 ## Deep fixes completed
 
+### Main-first consolidation follow-up
+
+The `87b8f969a` mainline was compared with the earlier local product pass before any work was reapplied. Main remains authoritative for the job-first workspace model and the Today · People · Create · Earn · Card customer loop. The older parallel navigation experiment was not restored.
+
+The follow-up also removed financial-looking claims that survived the first sweep:
+
+- Merchant Results no longer invents GMV, Gems retained, arrivals, repeat rate, APY, location count, or settlement success. It shows recorded transaction-derived points and action counts, with explicit loading, error, and evidence-strength language.
+- Save & Win navigation no longer claims “ZERO RISK” or “100% Protected”; it points people to eligibility and withdrawal terms.
+- The daily streak modal no longer promises dividend yield or unverified Gem drops.
+
+The pre-consolidation work remains preserved in the named stash `codex-pre-main-consolidation-2026-09-14`; it was not applied wholesale because several of its navigation and economy decisions conflict with the current release contract.
+
 ### Production content drops
 
 `apps/web/src/data/seeded-content-drops.ts`

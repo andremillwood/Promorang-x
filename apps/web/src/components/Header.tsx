@@ -26,7 +26,6 @@ import {
   Layers,
   Gem,
   User as UserIcon,
-  Archive,
   Bookmark,
   Settings,
   LogOut,
@@ -275,9 +274,9 @@ const Header = () => {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                          Save &amp; Win Vaults <span className="text-[9px] font-bold px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/40">ZERO RISK</span>
+                          Save &amp; Win Vaults <span className="text-[9px] font-bold px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/40">TERMS APPLY</span>
                         </p>
-                        <p className="text-[10px] text-white/50 leading-tight">100% Protected savings &amp; recurring cash pots</p>
+                        <p className="text-[10px] text-white/50 leading-tight">Eligibility, access, and withdrawal terms apply</p>
                       </div>
                     </Link>
                   </DropdownMenuItem>

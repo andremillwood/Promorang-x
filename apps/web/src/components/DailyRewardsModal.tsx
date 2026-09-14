@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, Calendar, Gift, Sparkles, Check, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Calendar, Gift, Check, Lock } from 'lucide-react';
 
 interface DailyRewardsModalProps {
   isOpen: boolean;
@@ -12,7 +12,7 @@ const STREAK_DAYS = [
   { day: 2, reward: '25 Gems', claimed: true, icon: '💎' },
   { day: 3, reward: '1x Piece Boost', claimed: false, current: true, icon: '⚡' },
   { day: 4, reward: '50 Gems', claimed: false, icon: '💎' },
-  { day: 5, reward: '2x Dividend', claimed: false, icon: '🚀' },
+  { day: 5, reward: '2x Points', claimed: false, icon: '🚀' },
   { day: 6, reward: '100 Gems', claimed: false, icon: '💎' },
   { day: 7, reward: 'Mystery Rare Chest', claimed: false, isGrand: true, icon: '👑' },
 ];
@@ -55,7 +55,7 @@ export const DailyRewardsModal: React.FC<DailyRewardsModalProps> = ({
 
         <h2 className="text-2xl font-bold text-white mb-1">7-Day Reward Matrix</h2>
         <p className="text-xs text-zinc-400 mb-6">
-          Check in every day to escalate your Promorang dividend yields and Gem drops!
+          Check in consistently to build your streak. Rewards are shown only when their terms are active.
         </p>
 
         {/* Matrix Grid */}

@@ -91,7 +91,7 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/create", label: "Create", description: "Launch a Moment, contribution prompt, or activation with clear human and commercial return." },
   { match: "/vault", label: "Vault", description: "Memories, active perks, and the value that stays with the participant." },
   { match: "/wallet", label: "Wallet", description: "Balances, transactions, and advanced value tools." },
-  { match: "/nodes", label: "Save & Win Vaults", description: "100% Protected savings bonuses and weekly/monthly community prize pots." },
+  { match: "/nodes", label: "Save & Win Vaults", description: "Savings-linked community draws with published eligibility and withdrawal terms." },
   { match: "/portfolio", label: "Pieces", description: "Your complementary piece positions, related value, and collectible exposure." },
   { match: "/liquidity", label: "Liquidity", description: "Pools, LP positions, and the layer that keeps value moving." },
   { match: "/promoshare", label: "PromoShare", description: "Qualified actions, creator movement, Gems-funded value, and sponsor-backed return." },
