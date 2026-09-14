@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
@@ -28,12 +28,13 @@ import { TeamSlashModal } from "@/components/TeamSlashModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 
-// Modular Brand Consoles
 import BrandCampaignFlightDeck from "@/components/brand/BrandCampaignFlightDeck";
 import BrandOpportunityRadar from "@/components/brand/BrandOpportunityRadar";
 import BrandCreatorBureau from "@/components/brand/BrandCreatorBureau";
 import BrandCorrelationMap from "@/components/brand/BrandCorrelationMap";
 import BrandIntelligenceConsole from "@/components/brand/BrandIntelligenceConsole";
+
+const BRAND_TABS = new Set(["demand", "campaigns", "opportunities", "creators", "correlation", "insights"]);
 
 export function BrandDashboardV2() {
   const { user, organizations, activeOrgId, profile, agencyClients } = useAuth();
@@ -41,9 +42,8 @@ export function BrandDashboardV2() {
   useBrandStats();
   const momentFeed = useCanonicalMomentFeed();
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const defaultTab = searchParams.get("tab") || "campaigns";
-  const [activeTab, setActiveTab] = useState(defaultTab);
+  const requestedTab = searchParams.get("tab");
+  const activeTab = requestedTab && BRAND_TABS.has(requestedTab) ? requestedTab : "campaigns";
 
   const [wheelOpen, setWheelOpen] = useState(false);
   const [slashOpen, setSlashOpen] = useState(false);
@@ -57,17 +57,12 @@ export function BrandDashboardV2() {
   const isManchesterHills =
     activeOrg?.slug === "manchester-hills-foods" || activeBrandName.toLowerCase().includes("manchester hills");
 
-  useEffect(() => {
-    const requestedTab = searchParams.get("tab");
-    if (requestedTab) setActiveTab(requestedTab);
-  }, [searchParams]);
-
-  const handleTabChange = (val: string) => {
-    setActiveTab(val);
-    setSearchParams((prev) => {
-      prev.set("tab", val);
-      return prev;
-    });
+  const handleTabChange = (value: string) => {
+    if (!BRAND_TABS.has(value)) return;
+    const next = new URLSearchParams(searchParams);
+    next.set("view", "studio");
+    next.set("tab", value);
+    setSearchParams(next);
   };
 
   const activeCampaigns = campaigns?.filter((c) => c.is_active) || [];
