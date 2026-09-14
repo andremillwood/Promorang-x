@@ -5,6 +5,7 @@ import { ResumeMomentumBanner } from "@/components/intent/ResumeMomentumBanner";
 import { useUserIntentContinuity } from "@/hooks/useUserIntentContinuity";
 import { MobileNotificationBridgeBanner } from "@/components/notifications/MobileNotificationBridgeBanner";
 import { RoleJobFirstGuide } from "@/components/dashboard/RoleJobFirstGuide";
+import { ManagedWorkspaceContext } from "@/components/dashboard/ManagedWorkspaceContext";
 import { useI18n } from "@/i18n/I18nContext";
 
 const PeopleHome = lazy(() => import("@/pages/PeopleHome"));
@@ -80,6 +81,7 @@ const Dashboard = () => {
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
+      <ManagedWorkspaceContext />
       <RoleJobFirstGuide role={resolvedRole} />
       <MobileNotificationBridgeBanner />
       {activeDraft && <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />}
