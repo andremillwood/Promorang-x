@@ -12,55 +12,28 @@ import { PromorangNativeMap, MapMarkerItem } from '../PromorangNativeMap';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const SAMPLE_DROP_PINS: MapMarkerItem[] = [
-  {
-    id: 'pin-1',
-    title: 'Downtown Coffee Co.',
-    description: 'Free Pastry w/ Any Cold Brew • 0.3mi',
-    latitude: 33.749,
-    longitude: -84.388,
-    category: 'Food & Drink',
-  },
-  {
-    id: 'pin-2',
-    title: 'Pulse Fitness Studio',
-    description: '50% Off First Class Drop-In • 0.8mi',
-    latitude: 33.755,
-    longitude: -84.382,
-    category: 'Wellness',
-  },
-  {
-    id: 'pin-3',
-    title: 'Metropolitan Cinema',
-    description: '2-for-1 Ticket Pass Drop • 1.2mi',
-    latitude: 33.742,
-    longitude: -84.394,
-    category: 'Entertainment',
-  },
-];
-
 interface PromoHeatmapViewProps {
+  pins?: MapMarkerItem[];
   onSelectDropPin?: (pin: MapMarkerItem) => void;
   onOpenScanner?: () => void;
 }
 
 export const PromoHeatmapView: React.FC<PromoHeatmapViewProps> = ({
+  pins = [],
   onSelectDropPin,
   onOpenScanner,
 }) => {
-  const [selectedPin, setSelectedPin] = useState<MapMarkerItem | null>(
-    SAMPLE_DROP_PINS[0]
-  );
+  const [selectedPin, setSelectedPin] = useState<MapMarkerItem | null>(pins[0] || null);
 
   return (
     <View style={styles.container}>
       {/* Dark Spatial Heatmap Base */}
-      <PromorangNativeMap markers={SAMPLE_DROP_PINS} style={styles.map} />
+      <PromorangNativeMap markers={pins} style={styles.map} />
 
       {/* Top Floating Controls Pill */}
       <View style={styles.topControlPill}>
         <Ionicons name="map-outline" size={16} color="#FFD700" />
-        <Text style={styles.topControlText}>3 Sponsorship Drops Nearby</Text>
+        <Text style={styles.topControlText}>{pins.length ? `${pins.length} verified ${pins.length === 1 ? 'drop' : 'drops'} nearby` : 'No verified drops nearby'}</Text>
       </View>
 
       {/* Snapchat-Style Bottom Drawer Card */}

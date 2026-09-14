@@ -105,40 +105,7 @@ export function PieceProfile() {
       if (!response.ok) throw new Error(data.error || 'Failed to load piece profile');
       setProfile(data);
     } catch {
-      // Fallback demo mock profile if backend is empty
-      setProfile({
-        piece_type: pieceType as PieceType,
-        asset_id: assetId,
-        asset: {
-          id: assetId,
-          title: pieceType === 'moment' ? 'I Luv Hip Hop Kingston Syndicate' : 'Premier Cultural Equity Drop',
-          description: 'Fractional co-producer equity in recurring cultural nightlife, ticket revenue distributions, and VIP experiential milestones.',
-          image_url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
-        },
-        stats: {
-          current_price: 12.50,
-          volume_24h: 3450,
-          holder_count: 24,
-          change_24h: 8.5,
-          market_cap: 12500,
-        },
-        pool: {
-          id: 'pool_demo',
-          status: 'active',
-          pieces_reserve: 350,
-          currency_reserve: 4375,
-          last_price: 12.50,
-          volume_24h: 3450,
-        },
-        journey: {
-          summary: 'Verified ticket revenue share from event syndication settlements deposited directly to co-producers.',
-          steps: [
-            { step: 'Minting & Allocation', description: 'Fractional shares created to fund experiential production.' },
-            { step: 'Event Execution', description: 'Recurring ticket sales and VIP packages generate gross revenues.' },
-            { step: 'Automatic Dividend Settlement', description: 'Box office shares settle as instant Gem distributions.' },
-          ]
-        },
-      });
+      setProfile(null);
     } finally {
       setLoading(false);
     }
@@ -179,17 +146,12 @@ export function PieceProfile() {
     const count = parseFloat(swapPiecesCount) || 0;
     if (count <= 0) return;
 
-    setIsSwapping(true);
-    setTimeout(() => {
-      setIsSwapping(false);
-      const totalCost = (count * currentPrice).toFixed(2);
-      toast({
-        title: swapTab === 'buy' ? "🎉 Pieces Purchased!" : "Pieces Sold!",
-        description: swapTab === 'buy'
-          ? `Successfully acquired ${count} ${title} pieces for ${totalCost} Gems.`
-          : `Successfully sold ${count} ${title} pieces for ${totalCost} Gems.`,
-      });
-    }, 1000);
+    setIsSwapping(false);
+    toast({
+      title: 'Trade not submitted',
+      description: 'Live Piece order execution is not available from this screen. No Gems or Pieces moved.',
+      variant: 'destructive',
+    });
   };
 
   if (loading) {
@@ -210,7 +172,7 @@ export function PieceProfile() {
   }
 
   const title = profile.asset.title || profile.asset.name || `${profile.piece_type} piece`;
-  const currentPrice = Number(profile.pool?.last_price || profile.stats?.current_price || 12.50);
+  const currentPrice = Number(profile.pool?.last_price || profile.stats?.current_price || 0);
   const swapCountNum = parseFloat(swapPiecesCount) || 0;
   const estimatedSwapCost = (swapCountNum * currentPrice).toFixed(2);
 
@@ -228,11 +190,11 @@ export function PieceProfile() {
             </Button>
 
             {/* Creator / Owner Management Shortcut */}
-            <Button asChild variant="outline" size="sm" className="border-amber-500/40 text-amber-300 hover:bg-amber-500/10 font-bold">
+            {import.meta.env.DEV ? <Button asChild variant="outline" size="sm" className="border-amber-500/40 text-amber-300 hover:bg-amber-500/10 font-bold">
               <Link to={`/pieces/${profile.piece_type}/${profile.asset_id}/manage`} className="flex items-center gap-1.5">
                 <Crown className="w-3.5 h-3.5 text-amber-400" /> Syndicate Creator Studio
               </Link>
-            </Button>
+            </Button> : null}
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[1fr_380px] items-end">

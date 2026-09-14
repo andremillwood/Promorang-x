@@ -131,7 +131,7 @@ export default function CampaignIntelligence() {
   const [campaignDates, setCampaignDates] = useState('Next 14 Days');
   const [location, setLocation] = useState('Kingston, Jamaica');
   const [constraints, setConstraints] = useState('');
-  const [organizationId, setOrganizationId] = useState('org_demo_1');
+  const [organizationId, setOrganizationId] = useState('');
 
   // Operator Execution State
   const [loading, setLoading] = useState(false);
@@ -145,20 +145,9 @@ export default function CampaignIntelligence() {
   const [publishedCampaign, setPublishedCampaign] = useState<{ campaignId: string; status: string } | null>(null);
 
   // Live Telemetry & Diagnostics State
-  const [activeCampaignId, setActiveCampaignId] = useState('camp_demo_99');
+  const [activeCampaignId, setActiveCampaignId] = useState('');
   const [runningDiagnostics, setRunningDiagnostics] = useState(false);
-  const [telemetry, setTelemetry] = useState<TelemetryData | null>({
-    campaignId: 'camp_demo_99',
-    title: 'Downtown Kingston Culinary Tasting',
-    status: 'active',
-    targetCount: 50,
-    verifiedParticipations: 28,
-    completionPercentage: '56.0%',
-    checkInVelocity: '4.2 visits/hour',
-    gemRewardBurn: 1400,
-    promoPointsDistributed: 1400,
-    rejectionRate: '1.8%'
-  });
+  const [telemetry, setTelemetry] = useState<TelemetryData | null>(null);
   const [diagnostics, setDiagnostics] = useState<DiagnosticData | null>(null);
 
   const [activeTab, setActiveTab] = useState('overview');
@@ -196,16 +185,14 @@ export default function CampaignIntelligence() {
       const json = await response.json();
 
       if (!response.ok || !json.success) {
-        simulateLocalPlan();
-        toast.info('Generated campaign plan using platform intelligence graph');
-        return;
+        throw new Error(json.error || 'Campaign plan service did not return a report.');
       }
 
       setPlanReport(json.data.report);
       toast.success('Campaign Intelligence report compiled successfully!');
     } catch (err) {
-      simulateLocalPlan();
-      toast.info('Compiled campaign plan using platform engine');
+      setPlanReport(null);
+      toast.error(err instanceof Error ? err.message : 'Campaign plan could not be compiled.');
     } finally {
       setLoading(false);
     }
@@ -296,7 +283,8 @@ export default function CampaignIntelligence() {
       });
 
       const json = await response.json();
-      const draftId = json.data?.draftId || `draft_${Date.now()}`;
+      if (!response.ok || !json.success || !json.data?.draftId) throw new Error(json.error || 'The draft was not saved.');
+      const draftId = json.data.draftId;
       
       setSavedDraftInfo({
         draftId,
@@ -305,12 +293,8 @@ export default function CampaignIntelligence() {
 
       toast.success(`Campaign DRAFT saved! (ID: ${draftId})`);
     } catch (err) {
-      const fallbackId = `draft_${Date.now()}`;
-      setSavedDraftInfo({
-        draftId: fallbackId,
-        title: planReport.objectiveSummary
-      });
-      toast.success(`Saved Campaign DRAFT! (ID: ${fallbackId})`);
+      setSavedDraftInfo(null);
+      toast.error(err instanceof Error ? err.message : 'Campaign draft could not be saved.');
     } finally {
       setSavingDraft(false);
     }
@@ -318,7 +302,11 @@ export default function CampaignIntelligence() {
 
   // Phase 2: Approve & Publish Campaign
   const handleApproveAndPublish = async () => {
-    const draftId = savedDraftInfo?.draftId || `draft_${Date.now()}`;
+    const draftId = savedDraftInfo?.draftId;
+    if (!draftId) {
+      toast.error('Save a confirmed campaign draft before publishing.');
+      return;
+    }
     if (!confirmBudgetLock) {
       toast.error('Please check the human budget lock confirmation checkbox before publishing.');
       return;
@@ -341,17 +329,15 @@ export default function CampaignIntelligence() {
       });
 
       const json = await response.json();
+      if (!response.ok || !json.success) throw new Error(json.error || 'The campaign was not activated.');
       setPublishedCampaign({
         campaignId: draftId,
         status: 'active'
       });
       toast.success(`Campaign Published & Activated! (Status: ACTIVE)`);
     } catch (err) {
-      setPublishedCampaign({
-        campaignId: draftId,
-        status: 'active'
-      });
-      toast.success(`Campaign Published & Activated! (Budget funding locked)`);
+      setPublishedCampaign(null);
+      toast.error(err instanceof Error ? err.message : 'Campaign activation failed. No active status was recorded.');
     } finally {
       setActivating(false);
     }
@@ -364,7 +350,7 @@ export default function CampaignIntelligence() {
 
     try {
       const token = localStorage.getItem('supabase.auth.token') || '';
-      await fetch('/api/agent/campaign-operator/mobilize', {
+      const response = await fetch('/api/agent/campaign-operator/mobilize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -377,9 +363,12 @@ export default function CampaignIntelligence() {
         })
       });
 
+      const json = await response.json();
+      if (!response.ok || !json.success) throw new Error(json.error || 'Invitations were not issued.');
+
       toast.success(`Mobilized ${planReport.networkInventory.creators.length} Creators & Activated matched Moments!`);
     } catch (err) {
-      toast.success(`Issued invitations to ${planReport.networkInventory.creators.length} Creators!`);
+      toast.error(err instanceof Error ? err.message : 'Creator invitations could not be issued.');
     } finally {
       setMobilizing(false);
     }
@@ -405,13 +394,11 @@ export default function CampaignIntelligence() {
       if (json.data) {
         setDiagnostics(json.data.diagnosis);
         if (json.data.telemetry) setTelemetry(json.data.telemetry);
-      } else {
-        simulateLocalDiagnostics();
-      }
+      } else throw new Error(json.error || 'No live diagnostics were returned.');
       toast.success('Performance Diagnostics compiled!');
     } catch (err) {
-      simulateLocalDiagnostics();
-      toast.info('Compiled performance diagnostics from telemetry engine');
+      setDiagnostics(null);
+      toast.error(err instanceof Error ? err.message : 'Live diagnostics could not be loaded.');
     } finally {
       setRunningDiagnostics(false);
     }

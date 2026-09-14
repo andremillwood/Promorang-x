@@ -37,6 +37,8 @@ const SAMPLE_MARKERS: MapMarkerItem[] = [
   },
 ];
 
+const RELEASE_MARKERS = __DEV__ ? SAMPLE_MARKERS : [];
+
 export default function NativeMapScreen() {
   return (
     <SafeAreaView style={styles.screen}>
@@ -51,7 +53,14 @@ export default function NativeMapScreen() {
       </View>
 
       <View style={styles.mapContainer}>
-        <PromorangNativeMap markers={SAMPLE_MARKERS} showsUserLocation={true} />
+        <PromorangNativeMap markers={RELEASE_MARKERS} showsUserLocation={true} />
+        {RELEASE_MARKERS.length === 0 ? (
+          <View style={styles.emptyState} pointerEvents="none">
+            <Ionicons name="map-outline" size={22} color={Colors.primary} />
+            <Text style={styles.emptyTitle}>No verified map listings available</Text>
+            <Text style={styles.emptyDetail}>Search still works while live Moment and venue coordinates are unavailable.</Text>
+          </View>
+        ) : null}
       </View>
     </SafeAreaView>
   );
@@ -80,4 +89,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: { color: Colors.white, fontFamily: 'SpaceMono', fontSize: 13, letterSpacing: 1 },
   mapContainer: { flex: 1, margin: Spacing.container, borderRadius: 20, overflow: 'hidden' },
+  emptyState: { position: 'absolute', left: 18, right: 18, bottom: 18, padding: 16, borderRadius: 18, backgroundColor: 'rgba(13,13,13,.92)', borderWidth: 1, borderColor: Colors.border },
+  emptyTitle: { color: Colors.white, fontSize: 14, fontWeight: '800', marginTop: 8 },
+  emptyDetail: { color: Colors.gray[400], fontSize: 12, lineHeight: 18, marginTop: 4 },
 });

@@ -78,7 +78,7 @@ export default function ProofReviewScreen() {
           distance: moment?.location ? `At ${moment.location}` : 'Location attached by participant',
           image: item.proof_bundle?.media_url || content?.media_url || fallbackProofImage,
           caption: item.proof_bundle?.caption || content?.description || 'Contribution submitted for review.',
-          reward: 'Gem eligibility pending',
+          reward: 'Vault record eligibility',
           platform: item.proof_bundle?.source || content?.platform || 'promorang-mobile',
           source: 'proof_submissions',
           live: true,
@@ -97,46 +97,14 @@ export default function ProofReviewScreen() {
       .order('posted_at', { ascending: true })
       .limit(25);
 
-const DEMO_REVIEW_ITEMS: ReviewItem[] = [
-  {
-    id: 'demo-review-1',
-    contentId: 'c1',
-    creatorId: 'u1',
-    name: 'Maya Lin',
-    handle: '@mayavlog',
-    momentId: 'm1',
-    moment: 'Austin Rooftop Sunset Listening Party',
-    time: '12m ago',
-    distance: 'At Downtown Austin, TX',
-    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=85',
-    caption: 'Verified check-in & behind the scenes video reel at the rooftop vinyl set!',
-    reward: '250 Gems payout eligible',
-    platform: 'instagram',
-    source: 'proof_submissions',
-    live: false,
-  },
-  {
-    id: 'demo-review-2',
-    contentId: 'c2',
-    creatorId: 'u2',
-    name: 'Marcus Vance',
-    handle: '@marcusvance',
-    momentId: 'm2',
-    moment: 'Speakeasy Secret Cocktail Drop',
-    time: '45m ago',
-    distance: 'At East Side, Austin, TX',
-    image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1000&q=85',
-    caption: 'Arrived at Midnight Lounge before 10 PM. Signature cocktail pass redeemed at counter.',
-    reward: '150 Gems payout eligible',
-    platform: 'tiktok',
-    source: 'proof_submissions',
-    live: false,
-  },
-];
-
-    if (queryError || (!data || data.length === 0)) {
+    if (queryError) {
+      setError(queryError.message || proofError?.message || 'The live contribution queue could not be loaded.');
+      setItems([]);
+      setIndex(0);
+    } else if (!data || data.length === 0) {
       setError(null);
-      setItems(DEMO_REVIEW_ITEMS);
+      setItems([]);
+      setIndex(0);
     } else {
       setError(null);
       setItems((data || []).map((item: any) => {
@@ -154,7 +122,7 @@ const DEMO_REVIEW_ITEMS: ReviewItem[] = [
           distance: 'Location attached by participant',
           image: item.media_url || fallbackProofImage,
           caption: item.description || 'Contribution submitted for review.',
-          reward: 'Gem eligibility pending',
+          reward: 'Vault record eligibility',
           platform: item.platform || 'promorang-mobile',
           source: 'content_items',
           live: true,
@@ -252,10 +220,7 @@ const DEMO_REVIEW_ITEMS: ReviewItem[] = [
 
       setItems((existing) => existing.filter((item) => item.id !== current.id));
       setIndex((value) => Math.min(value, Math.max(queue.length - 2, 0)));
-    } else {
-      setTimeout(() => setIndex((value) => value + 1), 180);
     }
-
     setDeciding(false);
   };
 
@@ -273,9 +238,9 @@ const DEMO_REVIEW_ITEMS: ReviewItem[] = [
   if (!current) {
     return (
       <View style={styles.complete}>
-        <View style={styles.completeMark}><Ionicons name="checkmark-done" size={35} color={Colors.black} /></View>
-        <Text style={styles.completeEyebrow}>QUEUE CLEAR</Text>
-        <Text style={styles.completeTitle}>Every contribution has a decision.</Text>
+        <View style={styles.completeMark}><Ionicons name={error ? "cloud-offline" : "checkmark-done"} size={35} color={Colors.black} /></View>
+        <Text style={styles.completeEyebrow}>{error ? 'QUEUE UNAVAILABLE' : 'QUEUE CLEAR'}</Text>
+        <Text style={styles.completeTitle}>{error ? 'Contributions could not be loaded.' : 'No contributions are waiting for review.'}</Text>
         <Text style={styles.completeDetail}>{Object.values(decisions).filter((value) => value === 'approved').length} approved · {Object.values(decisions).filter((value) => value === 'rejected').length} returned</Text>
         {error ? <Text style={styles.completeWarning}>Live queue unavailable. Pull to retry when you are back online.</Text> : null}
         <Pressable style={styles.completeButton} onPress={() => router.back()}><Text style={styles.completeButtonText}>Back to Studio</Text><Ionicons name="arrow-forward" size={17} color={Colors.black} /></Pressable>
@@ -306,20 +271,20 @@ const DEMO_REVIEW_ITEMS: ReviewItem[] = [
         <View style={styles.person}>
           <View style={styles.avatar}><Text style={styles.avatarText}>{current.name.split(' ').map((name) => name[0]).join('')}</Text></View>
           <View style={styles.personCopy}><Text style={styles.personName}>{current.name}</Text><Text style={styles.personHandle}>{current.handle} · {current.time}</Text></View>
-          <View style={styles.reliability}><Ionicons name="shield-checkmark" size={14} color={Colors.success} /><Text style={styles.reliabilityText}>92%</Text></View>
+          <View style={styles.reliability}><Ionicons name="document-text" size={14} color={Colors.success} /><Text style={styles.reliabilityText}>Record attached</Text></View>
         </View>
 
         <Text style={styles.sectionEyebrow}>EVIDENCE SIGNALS</Text>
         <View style={styles.signals}>
           <Signal icon="location" label="Location" value={current.distance} state="strong" />
-          <Signal icon="time" label="Time" value="Inside active window" state="strong" />
+          <Signal icon="time" label="Time" value="Submission timestamp recorded" state="neutral" />
           <Signal icon="images" label="Source" value={current.source === 'proof_submissions' ? 'Moment-linked contribution' : current.platform} state="strong" />
-          <Signal icon="person" label="History" value={current.live ? 'Creator record attached' : '10 of 11 contributions approved'} state="neutral" />
+          <Signal icon="person" label="History" value="No prior approval claim shown" state="neutral" />
         </View>
 
         <View style={styles.reward}>
           <View style={styles.rewardIcon}><Ionicons name="sparkles" size={20} color={Colors.primary} /></View>
-          <View style={styles.rewardCopy}><Text style={styles.rewardLabel}>APPROVAL WILL UNLOCK</Text><Text style={styles.rewardTitle}>{current.reward} + Vault memory</Text><Text style={styles.rewardDetail}>Gem release depends on the activation rules; this also counts toward PromoShare qualification.</Text></View>
+          <View style={styles.rewardCopy}><Text style={styles.rewardLabel}>APPROVAL RECORD</Text><Text style={styles.rewardTitle}>{current.reward}</Text><Text style={styles.rewardDetail}>Approval records the contribution. Any additional benefit depends on the published activation rules.</Text></View>
         </View>
 
         <Text style={styles.guidance}>Approve only when the evidence clearly supports real participation. Returned contributions go back with a chance to add clearer context.</Text>

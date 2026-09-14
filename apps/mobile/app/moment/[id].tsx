@@ -43,7 +43,7 @@ export default function MomentDetailScreen() {
         setLoading(false);
         return;
       }
-      if (id.startsWith('demo')) {
+      if (__DEV__ && id.startsWith('demo')) {
         const { DEMO_MOMENTS } = require('@/hooks/useMoments');
         const demoItem = DEMO_MOMENTS.find((m: any) => m.id === id) || DEMO_MOMENTS[0];
         setMoment(demoItem);

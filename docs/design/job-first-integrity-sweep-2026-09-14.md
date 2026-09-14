@@ -40,6 +40,15 @@ The follow-up also removed financial-looking claims that survived the first swee
 - The Pieces marketplace no longer substitutes fictional pools, balances, APR, or capital figures when its APIs are empty or unavailable. Development fixtures remain development-only.
 - Piece profiles no longer manufacture holder counts, market capitalization, or a fixed APR when those fields are absent.
 - The hard-coded Gem Rush catalogue is now development-only; production redirects that legacy route to the live shop.
+- Public receipt URLs now fail closed when the ledger does not return a receipt. Preset receipts remain development/test fixtures and API failure can no longer manufacture “verified” proof, attribution, hashes, or rewards.
+- The browser-simulated Piece owner settlement studio is development-only. Production does not expose its fictional cap table or pretend to distribute dividends without a real authorized ledger operation.
+- Merchant mobile scanning now fails closed: service failure cannot locally mark a receipt fulfilled or present an unverified code as valid, and receipt loading no longer falls back to sample commerce records.
+- Studio review no longer substitutes approvable demo submissions or invented reliability/history claims when its live queue is empty or unavailable.
+- Mobile map surfaces no longer present static Atlanta venues and sponsorship offers as nearby live inventory in production. Empty live data is labelled explicitly.
+- PromoCard mobile web no longer substitutes generic offers when live inventory is empty, and mobile Moment demo records are restricted to development builds.
+- Campaign Intelligence no longer fabricates saved draft IDs, active campaigns, creator mobilization, telemetry, or successful diagnostics after API failure.
+- KYC cannot submit temporary browser preview URLs as identity documents; the incomplete secure-upload path now stops with an explicit not-submitted result.
+- Piece profiles fail closed when unavailable and no longer simulate successful buy/sell orders. The mobile staking prototype and its sample APY pools are development-only.
 
 The pre-consolidation work remains preserved in the named stash `codex-pre-main-consolidation-2026-09-14`; it was not applied wholesale because several of its navigation and economy decisions conflict with the current release contract.
 

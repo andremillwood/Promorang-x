@@ -517,7 +517,7 @@ const App = () => (
                     <Route path="/marketplace" element={<ProtectedRoute><TradingMarketplace /></ProtectedRoute>} />
                     <Route path="/portfolio" element={<ProtectedRoute><PiecePortfolio /></ProtectedRoute>} />
                     <Route path="/pieces/:pieceType/:assetId" element={<ProtectedRoute><PieceProfile /></ProtectedRoute>} />
-                    <Route path="/pieces/:pieceType/:assetId/manage" element={<ProtectedRoute><PieceOwnerManage /></ProtectedRoute>} />
+                    <Route path="/pieces/:pieceType/:assetId/manage" element={import.meta.env.DEV ? <ProtectedRoute><PieceOwnerManage /></ProtectedRoute> : <Navigate to="/portfolio" replace />} />
                     <Route path="/kyc" element={<ProtectedRoute><KYCPage /></ProtectedRoute>} />
                     <Route path="/liquidity" element={<ProtectedRoute><LiquidityDashboard /></ProtectedRoute>} />
                   </Route>

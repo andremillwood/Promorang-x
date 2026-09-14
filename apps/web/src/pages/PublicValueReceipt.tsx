@@ -227,21 +227,25 @@ const PRESET_RECEIPTS: Record<string, { receipt: ValueReceiptData; causation: Ca
   },
 };
 
+const RELEASE_PRESET_RECEIPTS = import.meta.env.DEV || import.meta.env.MODE === "test" ? PRESET_RECEIPTS : {};
+
 export default function PublicValueReceipt() {
   const { id } = useParams<{ id: string }>();
   const [receipt, setReceipt] = useState<ValueReceiptData | null>(null);
   const [causation, setCausation] = useState<CausationNode | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadReceipt() {
       if (!id) return;
       setLoading(true);
+      setLoadError(null);
 
       // Check if preset scenario
-      if (PRESET_RECEIPTS[id]) {
-        setReceipt(PRESET_RECEIPTS[id].receipt);
-        setCausation(PRESET_RECEIPTS[id].causation);
+      if (RELEASE_PRESET_RECEIPTS[id]) {
+        setReceipt(RELEASE_PRESET_RECEIPTS[id].receipt);
+        setCausation(RELEASE_PRESET_RECEIPTS[id].causation);
         setLoading(false);
         return;
       }
@@ -291,46 +295,19 @@ export default function PublicValueReceipt() {
           }
         }
       } catch (err) {
-        console.warn("Error fetching remote receipt, using fallback view:", err);
+        console.warn("Error fetching remote receipt:", err);
       }
 
-      // Default fallback
-      const fallback: ValueReceiptData = {
-        id: id || "rec_sample",
-        receiptNumber: `REC-${(id || "sample").slice(0, 8).toUpperCase()}`,
-        actorHandle: "@contributor",
-        actionType: "share",
-        actionTitle: "Verified Contribution Proof",
-        targetEntity: "Promorang Ecosystem",
-        timestamp: "Verified Record",
-        status: "verified",
-        verificationMethod: "Cryptographic Causation Audit",
-        proofHash: `0x${(id || "abcdef123456").slice(0, 16)}`,
-        metrics: [
-          { label: "Verification", value: "Passed", highlight: true },
-          { label: "Attribution", value: "Direct" },
-        ],
-        rewards: [
-          { type: "points", label: "Reward Points", value: "+250 pts" },
-          { type: "badge", label: "Vault Proof", value: "Stored in Vault" },
-        ],
-      };
-
-      setReceipt(fallback);
-      setCausation({
-        id: "node_fallback",
-        actorHandle: fallback.actorHandle,
-        action: fallback.actionTitle,
-        timestamp: fallback.timestamp,
-        status: "verified",
-      });
+      setReceipt(null);
+      setCausation(null);
+      setLoadError("This receipt could not be verified from the public ledger.");
       setLoading(false);
     }
 
     loadReceipt();
   }, [id]);
 
-  if (loading || !receipt) {
+  if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#070709] text-white">
         <div className="text-center">
@@ -338,6 +315,21 @@ export default function PublicValueReceipt() {
           <p className="mt-4 font-mono text-sm text-white/50">Fetching verified proof receipt...</p>
         </div>
       </div>
+    );
+  }
+
+  if (loadError || !receipt) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#070709] px-4 text-white">
+        <div role="alert" className="w-full max-w-lg rounded-3xl border border-rose-500/25 bg-rose-500/10 p-8 text-center">
+          <ShieldCheck className="mx-auto h-10 w-10 text-rose-300" />
+          <h1 className="mt-4 text-2xl font-black">Receipt not verified</h1>
+          <p className="mt-3 text-sm leading-6 text-white/60">{loadError || "No verified receipt record was returned."}</p>
+          <Button asChild variant="outline" className="mt-6 border-white/20 bg-transparent text-white hover:bg-white/10">
+            <Link to="/">Return to Promorang</Link>
+          </Button>
+        </div>
+      </main>
     );
   }
 
