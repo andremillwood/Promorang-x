@@ -1,0 +1,1 @@
+Executable phase: route, nav, merchant home, promotion builder.
