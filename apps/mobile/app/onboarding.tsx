@@ -92,7 +92,7 @@ export default function OnboardingScreen() {
       }
 
       await markCompleted();
-      router.replace('/(tabs)');
+      router.replace((role === 'participant' ? '/(tabs)' : '/(tabs)/dashboard') as any);
     } catch (error) {
       Alert.alert('Could not finish setup', error instanceof Error ? error.message : 'Please try again.');
     } finally {
