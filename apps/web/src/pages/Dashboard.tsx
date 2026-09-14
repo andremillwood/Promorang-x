@@ -31,6 +31,8 @@ const dashboardByRole = {
   agency: AgencyDashboard,
 } as const;
 
+const merchantWorkspaceTabs = new Set(["home", "promotions", "customers", "results", "business"]);
+
 const Dashboard = () => {
   const { t } = useI18n();
   const { user, activeRole, loading } = useAuth();
@@ -57,12 +59,14 @@ const Dashboard = () => {
 
   const resolvedRole = activeRole || "participant";
 
-  // Give the merchant workspace an explicit home route so the global shell can
-  // distinguish Home from Promotions / Customers / Results / Business without
-  // marking multiple navigation items active at once. Legacy studio links and
-  // role switches still land safely because they are normalized here.
-  if (resolvedRole === "merchant" && !peopleView && !params.get("tab")) {
-    return <Navigate to="/dashboard?tab=home" replace />;
+  // Give the merchant workspace one canonical set of tabs. This both makes the
+  // global navigation state unambiguous and catches stale deep links such as
+  // the former storefront/redemptions tabs without exposing a dead workspace.
+  if (resolvedRole === "merchant" && !peopleView) {
+    const merchantTab = params.get("tab");
+    if (!merchantTab || !merchantWorkspaceTabs.has(merchantTab)) {
+      return <Navigate to="/dashboard?tab=home" replace />;
+    }
   }
 
   const commercialStudio = ["host", "creator", "merchant", "brand", "agency"].includes(resolvedRole);
