@@ -13,7 +13,6 @@ const {
   decodeAftrHrsPassPayload,
   remainingDigitalPasses,
   remainingGuestSlots,
-  publicRemainingPercent,
   AFTRHRS_DIGITAL_PASS_LIMIT,
   AFTRHRS_RSVP_LIMIT,
   AFTRHRS_DIGITAL_PASS_BATCH,
@@ -315,10 +314,7 @@ async function publicSnapshot(userId) {
     followingVenue = Boolean(follow?.id);
   }
 
-  const communityCount = await countMomentGoing(edition.moment_id);
-
   const publicEdition = { ...edition };
-  const allocation = Number(edition.digital_allocation || 0);
   delete publicEdition.digital_allocation;
   delete publicEdition.digital_claimed;
   delete publicEdition.rsvp_allocation;
@@ -335,7 +331,6 @@ async function publicSnapshot(userId) {
   return {
     edition: {
       ...publicEdition,
-      remainingPercent: publicRemainingPercent(remaining, allocation),
       soldOut: remaining <= 0,
       paths: AFTRHRS_PATHS,
       venueSlug: SEA_DECK_VENUE_SLUG,
@@ -354,7 +349,6 @@ async function publicSnapshot(userId) {
     pass,
     participation,
     followingVenue,
-    communityCount: communityCount || 0,
   };
 }
 
@@ -402,12 +396,10 @@ async function guestLaneSnapshot(edition) {
   const digitalOpen = release ? Boolean(release.claims_open) && digitalRemaining > 0 : true;
   return {
     rsvp: {
-      remainingPercent: publicRemainingPercent(rsvpRemaining, rsvpAllocation),
       soldOut: rsvpRemaining <= 0,
       open: Boolean(edition?.published !== false) && rsvpRemaining > 0,
     },
     digitalPass: {
-      remainingPercent: digitalOpen ? publicRemainingPercent(digitalRemaining, digitalAllocation) : 0,
       soldOut: !digitalOpen,
       open: Boolean(edition?.published !== false) && digitalOpen,
     },
@@ -979,8 +971,9 @@ async function ambassadorDashboard(user) {
   ]);
   return {
     allocation: {
-      ...allocation,
-      remaining: Math.max(0, allocation.allocation - allocation.distributed),
+      id: allocation.id,
+      name: allocation.name,
+      tracking_code: allocation.tracking_code,
       sharePath: `${AFTRHRS_PATHS.moment}?ref=${allocation.tracking_code}`,
     },
     requests: requests || [],
