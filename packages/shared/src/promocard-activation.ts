@@ -9,7 +9,7 @@ import { inventoryPostedNext } from "./promocard-journey";
  * not Discover tours, localStorage perk posts, or bounty/marketing pilots.
  */
 
-export type ActivationRole = 'merchant' | 'host' | 'creator' | 'people' | 'explorer';
+export type ActivationRole = 'merchant' | 'host' | 'creator' | 'agency' | 'people' | 'explorer';
 
 export type FirstAction = {
   id: string;
@@ -30,112 +30,51 @@ export const LIVE_PATHS = {
   launchCampaign: '/create/campaign',
   contentDrops: '/content-drops',
   happened: '/happened',
+  agencyClients: '/dashboard?view=studio&tab=clients',
+  agencyImpact: '/dashboard?view=studio&tab=impact',
   liveDrop: (slug: string) => `/drop/${slug}`,
 } as const;
 
 const MERCHANT_ACTIONS: FirstAction[] = [
-  {
-    id: 'put-perk-up',
-    label: 'Put a perk up',
-    href: LIVE_PATHS.putPerkUp,
-    why: 'The loop starts when a merchant supplies one real benefit.',
-  },
-  {
-    id: 'share-perk',
-    label: 'Share it',
-    href: LIVE_PATHS.sharePerk,
-    why: 'A host or creator needs a live drop link to hand out.',
-  },
-  {
-    id: 'validate',
-    label: 'Validate at the counter',
-    href: LIVE_PATHS.validate,
-    why: 'Only a merchant-recorded redemption completes the loop.',
-  },
+  { id: 'put-perk-up', label: 'Put a perk up', href: LIVE_PATHS.putPerkUp, why: 'The loop starts when a merchant supplies one real benefit.' },
+  { id: 'share-perk', label: 'Share it', href: LIVE_PATHS.sharePerk, why: 'A host or creator needs a live drop link to hand out.' },
+  { id: 'validate', label: 'Validate at the counter', href: LIVE_PATHS.validate, why: 'Only a merchant-recorded redemption completes the loop.' },
 ];
 
 const HOST_ACTIONS: FirstAction[] = [
-  {
-    id: 'create-moment',
-    label: 'Create tonight’s gathering',
-    href: LIVE_PATHS.createMoment,
-    why: 'A host gathering is the place a perk gets used.',
-  },
-  {
-    id: 'attach-perk',
-    label: 'Attach a live perk',
-    href: LIVE_PATHS.sharePerk,
-    why: 'Share a merchant perk as a drop the door can hand out.',
-  },
-  {
-    id: 'validate',
-    label: 'Send the merchant to validate',
-    href: LIVE_PATHS.validate,
-    why: 'The merchant still records the redemption. The host does not simulate it.',
-  },
+  { id: 'create-moment', label: 'Create tonight’s gathering', href: LIVE_PATHS.createMoment, why: 'A host gathering is the place a perk gets used.' },
+  { id: 'attach-perk', label: 'Attach a live perk', href: LIVE_PATHS.sharePerk, why: 'Share a merchant perk as a drop the door can hand out.' },
+  { id: 'validate', label: 'Send the merchant to validate', href: LIVE_PATHS.validate, why: 'The merchant still records the redemption. The host does not simulate it.' },
 ];
 
 const CREATOR_ACTIONS: FirstAction[] = [
-  {
-    id: 'publish-drop',
-    label: 'Publish a Release',
-    href: LIVE_PATHS.contentDrops,
-    why: 'A song, story, or episode is origin. The original stays where it lives.',
-  },
-  {
-    id: 'attach-perk',
-    label: 'Attach a room or perk',
-    href: LIVE_PATHS.sharePerk,
-    why: 'Hosts, merchants, and brands catch the release here. Sharing is not the payday.',
-  },
-  {
-    id: 'take-perk',
-    label: 'Or take a live perk to move',
-    href: LIVE_PATHS.takePerk,
-    why: 'If you are distributing someone else’s inventory, take it first.',
-  },
+  { id: 'publish-drop', label: 'Publish a Release', href: LIVE_PATHS.contentDrops, why: 'A song, story, or episode is origin. The original stays where it lives.' },
+  { id: 'attach-perk', label: 'Attach a room or perk', href: LIVE_PATHS.sharePerk, why: 'Hosts, merchants, and brands catch the release here. Sharing is not the payday.' },
+  { id: 'take-perk', label: 'Or take a live perk to move', href: LIVE_PATHS.takePerk, why: 'If you are distributing someone else’s inventory, take it first.' },
 ];
 
 const BRAND_ACTIONS: FirstAction[] = [
-  {
-    id: 'fund-perk',
-    label: 'Fund a real benefit',
-    href: LIVE_PATHS.putPerkUp,
-    why: 'A campaign without inventory is a draft. A merchant still validates use.',
-  },
-  {
-    id: 'launch-campaign',
-    label: 'Launch the campaign',
-    href: LIVE_PATHS.launchCampaign,
-    why: 'Choose the flight: who, where, and what counts.',
-  },
-  {
-    id: 'watch-attributed',
-    label: 'Watch attributed use',
-    href: LIVE_PATHS.happened,
-    why: 'Pay on recorded use, not impressions.',
-  },
+  { id: 'fund-perk', label: 'Fund a real benefit', href: LIVE_PATHS.putPerkUp, why: 'A campaign without inventory is a draft. A merchant still validates use.' },
+  { id: 'launch-campaign', label: 'Launch the campaign', href: LIVE_PATHS.launchCampaign, why: 'Choose the flight: who, where, and what counts.' },
+  { id: 'watch-attributed', label: 'Watch attributed use', href: LIVE_PATHS.happened, why: 'Pay on recorded use, not impressions.' },
+];
+
+const AGENCY_ACTIONS: FirstAction[] = [
+  { id: 'connect-client', label: 'Connect your first client', href: LIVE_PATHS.agencyClients, why: 'Client ownership must be clear before an activation is launched or measured.' },
+  { id: 'launch-client-activation', label: 'Launch a client activation', href: LIVE_PATHS.agencyClients, why: 'Choose the client workspace first so activity and proof stay attached to the right account.' },
+  { id: 'review-client-proof', label: 'Review client impact', href: LIVE_PATHS.agencyImpact, why: 'The agency loop closes when the client can see a recorded outcome, not merely campaign activity.' },
 ];
 
 const PEOPLE_ACTIONS: FirstAction[] = [
-  {
-    id: 'card',
-    label: 'Open PromoCard',
-    href: LIVE_PATHS.card,
-    why: 'Use this, available nearby, and the next benefit are the member actions.',
-  },
-  {
-    id: 'take-perk',
-    label: 'Claim a nearby perk',
-    href: LIVE_PATHS.takePerk,
-    why: 'A claim is only live if a merchant already put the perk up.',
-  },
+  { id: 'card', label: 'Open PromoCard', href: LIVE_PATHS.card, why: 'Use this, available nearby, and the next benefit are the member actions.' },
+  { id: 'take-perk', label: 'Claim a nearby perk', href: LIVE_PATHS.takePerk, why: 'A claim is only live if a merchant already put the perk up.' },
 ];
 
 export function firstActionsForRole(role: string | null | undefined): FirstAction[] {
   const key = String(role || '').toLowerCase();
   if (key === 'merchant') return MERCHANT_ACTIONS;
-  if (key === 'brand' || key === 'marketing' || key === 'agency') return BRAND_ACTIONS;
+  if (key === 'agency') return AGENCY_ACTIONS;
+  if (key === 'brand' || key === 'marketing') return BRAND_ACTIONS;
   if (key === 'host') return HOST_ACTIONS;
   if (key === 'creator') return CREATOR_ACTIONS;
   return PEOPLE_ACTIONS;
@@ -143,7 +82,8 @@ export function firstActionsForRole(role: string | null | undefined): FirstActio
 
 export function landingPathForRole(role: string | null | undefined): string {
   const key = String(role || '').toLowerCase();
-  if (key === 'merchant' || key === 'brand') return LIVE_PATHS.putPerkUp;
+  if (key === 'agency') return LIVE_PATHS.agencyClients;
+  if (key === 'merchant' || key === 'brand' || key === 'marketing') return LIVE_PATHS.putPerkUp;
   if (key === 'host') return LIVE_PATHS.createMoment;
   if (key === 'creator') return LIVE_PATHS.contentDrops;
   return LIVE_PATHS.card;
