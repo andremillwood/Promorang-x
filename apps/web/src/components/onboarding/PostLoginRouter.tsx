@@ -13,7 +13,12 @@ import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 
 /**
  * Post-Login Router
- * Intelligently routes users based on role + completion state
+ *
+ * Invariants:
+ * - explicit intent survives authentication and onboarding
+ * - role intent is applied before selecting a workspace
+ * - onboarding completion comes from the canonical users state
+ * - acquisition flows never silently fall back to the public homepage
  */
 export function PostLoginRouter() {
   const { user, activeRole, roles, setActiveRole, loading, applyIntendedRole } = useAuth();
@@ -28,21 +33,22 @@ export function PostLoginRouter() {
 
     const determineLandingPage = async () => {
       await flushMarketingIntent().catch(() => undefined);
-      const requestedNext = consumePostAuthNext()
-        || (hasAftrHrsClaimPending() ? AFTRHRS_PATHS.claimReturn : null);
+
+      // Do not consume the stored destination until we know onboarding is done.
+      // Onboarding itself consumes it after completion so the original job is
+      // resumed instead of being lost.
+      const storedNext = peekPostAuthNext();
+      const aftrHrsClaimReturn = hasAftrHrsClaimPending() ? AFTRHRS_PATHS.claimReturn : null;
+      const requestedNext = storedNext || aftrHrsClaimReturn;
       const intendedRole =
         readIntendedStakeholderRole(sessionStorage) ||
         roleFromNext(requestedNext);
       const appliedRole = intendedRole ? await applyIntendedRole(user.id, intendedRole) : activeRole;
-      if (requestedNext) {
-        const aimed = promoCardAimFromNext(requestedNext);
-        if (aimed) writePromoCardAim(aimed);
-        if (appliedRole && appliedRole !== activeRole) {
-          setActiveRole(appliedRole);
-        }
-        navigate(requestedNext, { replace: true });
-        return;
+
+      if (appliedRole && appliedRole !== activeRole) {
+        setActiveRole(appliedRole);
       }
+
       const demoSession = readDemoSession();
       if (demoSession) {
         navigate(getDemoLandingPath(demoSession.role), { replace: true });
@@ -54,24 +60,56 @@ export function PostLoginRouter() {
         return;
       }
 
-      // Onboarding is the only prerequisite. First actions belong on the
-      // dashboard, not in a chain of forced redirects after every sign-in.
-      const { data, error } = await supabase
-        .from("user_preferences")
+      // Door/pass acquisition is intentionally low-friction: a guest who came
+      // to claim access should finish that claim before a general onboarding
+      // survey. All other first-run intents are preserved through onboarding.
+      if (aftrHrsClaimReturn && !storedNext) {
+        navigate(aftrHrsClaimReturn, { replace: true });
+        return;
+      }
+
+      // `onboarding_completed` is canonical on public.users. Older accounts may
+      // predate that flag, so if the users lookup itself fails we only use the
+      // existence of a preferences row as a compatibility fallback. We never
+      // interpret a database error as "completed" by default.
+      const { data: userState, error: userStateError } = await supabase
+        .from("users")
         .select("onboarding_completed")
-        .eq("user_id", user.id)
+        .eq("id", user.id)
         .maybeSingle();
+
+      let onboardingCompleted = Boolean(userState?.onboarding_completed);
+      if (userStateError) {
+        const { data: legacyPreferences } = await supabase
+          .from("user_preferences")
+          .select("user_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        onboardingCompleted = Boolean(legacyPreferences?.user_id);
+      }
+
+      if (!onboardingCompleted) {
+        navigate("/onboarding", { replace: true });
+        return;
+      }
+
+      if (requestedNext) {
+        const destination = storedNext ? (consumePostAuthNext() || requestedNext) : requestedNext;
+        const aimed = promoCardAimFromNext(destination);
+        if (aimed) writePromoCardAim(aimed);
+        navigate(destination, { replace: true });
+        return;
+      }
 
       navigate(resolvePostAuthPath({
         role: appliedRole || activeRole,
-        onboardingCompleted: error ? true : Boolean(data?.onboarding_completed),
+        onboardingCompleted: true,
       }), { replace: true });
     };
 
     determineLandingPage();
   }, [user, activeRole, loading, navigate, roles, setActiveRole, applyIntendedRole]);
 
-  // Show loading while determining route
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
