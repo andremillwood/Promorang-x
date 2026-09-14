@@ -8,7 +8,7 @@ import { RoleJobFirstGuide } from "@/components/dashboard/RoleJobFirstGuide";
 import { useI18n } from "@/i18n/I18nContext";
 
 const PeopleHome = lazy(() => import("@/pages/PeopleHome"));
-const ParticipantDashboardV2 = lazy(() => import("@/components/dashboards/CulturalCommandHome"));
+const ParticipantDashboardV2 = lazy(() => import("@/components/dashboards/ParticipantDashboardV2"));
 const CreatorDashboardV2 = lazy(() => import("@/components/dashboards/CreatorDashboardV2"));
 const HostDashboardV2 = lazy(() => import("@/components/dashboards/HostDashboardV2"));
 const BrandDashboardV2 = lazy(() => import("@/components/dashboards/BrandDashboardV2"));
