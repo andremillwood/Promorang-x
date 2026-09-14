@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Onboarding = () => {
   const { t } = useI18n();
-  const { user, session, activeRole, loading: authLoading } = useAuth();
+  const { user, session, activeRole, loading: authLoading, applyIntendedRole } = useAuth();
   const { hasCompleted, isLoading: prefsLoading } = useHasCompletedOnboarding();
   const navigate = useNavigate();
 
@@ -45,8 +45,6 @@ const Onboarding = () => {
       }
     }
 
-    // Compatibility fallback for environments where the API route is not
-    // available yet. The canonical flag remains public.users.onboarding_completed.
     if (!completed) {
       const { error } = await supabase
         .from("users")
@@ -59,18 +57,6 @@ const Onboarding = () => {
   };
 
   const handleComplete = async (personaChoice?: string) => {
-    await markOnboardingComplete();
-
-    void trackGrowthEvent({
-      eventName: "onboarding_completed",
-      journey: personaChoice === "explorer" || personaChoice === "creator" ? "participant" : "commercial",
-      stage: "activated",
-      entityType: "onboarding",
-      entityId: "preferences",
-      idempotencyKey: `growth:onboarding:${getAnonymousId()}`,
-      properties: { persona: personaChoice || "explorer" },
-    });
-
     const roleMap: Record<string, string> = {
       explorer: "explorer",
       creator: "creator",
@@ -80,11 +66,31 @@ const Onboarding = () => {
       agency: "agency",
     };
     const roleId = (personaChoice && roleMap[personaChoice]) || "explorer";
+    const workspaceRole = roleId === "explorer" ? "participant" : roleId;
+
+    // The persona selected in onboarding is an access/workspace decision, not
+    // just presentation state. Register it before leaving onboarding so a
+    // refresh cannot collapse an agency, host, or creator back to participant.
+    if (user) {
+      await applyIntendedRole(user.id, workspaceRole);
+    }
+    await markOnboardingComplete();
+
+    void trackGrowthEvent({
+      eventName: "onboarding_completed",
+      journey: workspaceRole === "participant" || workspaceRole === "creator" ? "participant" : "commercial",
+      stage: "activated",
+      entityType: "onboarding",
+      entityId: "preferences",
+      idempotencyKey: `growth:onboarding:${getAnonymousId()}`,
+      properties: { persona: personaChoice || "explorer", role: workspaceRole },
+    });
+
     sessionStorage.setItem("promorang_role_pilot_active", "true");
     sessionStorage.setItem("promorang_role_pilot_role", roleId);
     sessionStorage.setItem("promorang_role_pilot_step", "0");
 
-    const next = consumePostAuthNext() || landingPathForRole(roleId);
+    const next = consumePostAuthNext() || landingPathForRole(workspaceRole);
     navigate(next === "/card" ? promoCardAimPath(readPromoCardAim()) : next, { replace: true });
   };
 
