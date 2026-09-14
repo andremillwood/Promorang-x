@@ -56,6 +56,15 @@ const Dashboard = () => {
   }
 
   const resolvedRole = activeRole || "participant";
+
+  // Give the merchant workspace an explicit home route so the global shell can
+  // distinguish Home from Promotions / Customers / Results / Business without
+  // marking multiple navigation items active at once. Legacy studio links and
+  // role switches still land safely because they are normalized here.
+  if (resolvedRole === "merchant" && !peopleView && !params.get("tab")) {
+    return <Navigate to="/dashboard?tab=home" replace />;
+  }
+
   const commercialStudio = ["host", "creator", "merchant", "brand", "agency"].includes(resolvedRole);
   const showStudio = studioView || (!peopleView && commercialStudio);
   const ResolvedDashboard = showStudio
