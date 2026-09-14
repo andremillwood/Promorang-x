@@ -56,51 +56,37 @@ Scores are product/design audit judgments, not automated test results.
 
 `docs/design/promorang-job-first-workspace-standard.md`
 
-Defines:
+Defines the five required questions, workspace state model, progressive disclosure, managed workspace context, empty-state behavior, metrics integrity, role contracts, and the 20-point scorecard.
 
-- five required questions
-- New → Preparing → Live → Proof Ready → Decision/Scale states
-- progressive disclosure
-- managed workspace context
-- empty-state rules
-- metrics integrity
-- role job contracts
-- 20-point audit scorecard
-
-## Shared UI primitive
+## Shared job-first UI
 
 `apps/web/src/components/dashboard/JobFirstWorkspaceGuide.tsx`
 
-Shows:
-
-- active context / identity
-- purpose
-- primary outcome
-- next move
-- proof contract
-- next decision
-- verified progress and milestones
-
-It uses the real `useRoleSuccessProgress()` hook rather than invented dashboard figures.
-
-## Role contracts
+Shows active context, purpose, outcome, next move, proof contract, next decision, and verified progress. It uses the real `useRoleSuccessProgress()` hook rather than invented dashboard figures.
 
 `apps/web/src/components/dashboard/RoleJobFirstGuide.tsx`
 
-Current contracts cover:
+Maps the doctrine to Participant, Creator, Host, Merchant, Brand, and Agency jobs.
 
-- Participant
-- Creator
-- Host
-- Merchant
-- Brand
-- Agency
+## Managed-client continuity
+
+`apps/web/src/components/dashboard/ManagedWorkspaceContext.tsx`
+
+When an agency operator enters a connected client workspace, PROMORANG now explicitly shows:
+
+- active client
+- client type
+- managing agency
+- attribution ownership
+- one-click return to the agency portfolio
+
+This is mounted at the dashboard level, so the context is not Manchester-Hills-specific.
 
 ## Routed dashboard enforcement
 
 `apps/web/src/pages/Dashboard.tsx`
 
-The job-first guide now precedes commercial workspaces. Participant home receives the same orientation before the people experience. The participant studio route now uses `ParticipantDashboardV2` instead of the more theatrical `CulturalCommandHome`.
+The job-first guide and managed-client context now precede commercial workspaces. Participant home receives the same orientation before the people experience. The participant studio route uses `ParticipantDashboardV2` instead of the more theatrical `CulturalCommandHome`.
 
 ---
 
@@ -109,58 +95,53 @@ The job-first guide now precedes commercial workspaces. Participant home receive
 ## Agency
 
 **Before: 14/20**  
-**Current: 18/20 — Strong**
+**Current: 19/20 — Strong**
 
 Job:
 
 - operate client work
 - create measurable client movement
 - package proof for the client
-- decide what to repeat, change or scale
+- decide what to repeat, change, or scale
 
 Implemented:
 
 - shared Agency job contract
 - real client/campaign progress from `useRoleSuccessProgress('agency')`
-- client portfolio and relationship counts remain real
+- real portfolio / relationship counts
+- persistent managed-client context when entering a client
+- one-click return to the agency workspace
 - Pandxtra → Manchester Hills Foods is an active full-service managed relationship
 
 Remaining:
 
-- persistent parent-agency context inside every managed client workspace
-- reusable "Return to agency portfolio" control
+- support multiple managing agencies explicitly if a client can later have more than one agency relationship
 
 ---
 
 ## Brand
 
 **New/empty before: 6/20**  
-**New/empty current: 19/20 — Strong**  
-**Active current: 16/20 — Usable, still jargon-heavy**
+**New/empty current: 20/20 — Strong**  
+**Active current: 17/20 — Strong, still jargon-heavy**
 
-Before, an empty brand could see:
-
-- Flight Command
-- Omni-Channel Flight Live
-- Brand Escrow
-- Creator Bureau
-- Correlation Map
-- fake fallback performance figures
+Before, an empty brand could see Flight Command, Omni-Channel Flight Live, Brand Escrow, Creator Bureau, Correlation Map, and fake fallback performance figures.
 
 Implemented:
 
-- empty brands now begin with purpose and customer outcome
+- empty brands begin with purpose and customer outcome
 - generic first experiment: `First 50 for [Brand]`
 - Manchester Hills: `Find Your Manchester Hills Flavour`
-- Manchester Hills first target: **50 attributable customer actions**
+- first target: **50 attributable customer actions**
 - required client inputs are explicit
 - fake fallback impressions/redemptions removed
 - shared Brand job-first guide precedes the broader toolset
+- managed agency/client context remains visible when an agency is operating the brand
 
 Remaining:
 
-- simplify active-state metaphors such as Flight Command / Flight Deck / Correlation Map / Intelligence Console / Escrow
-- preserve expert tools, but subordinate them to customer-outcome language
+- simplify active-state metaphors such as Flight Command, Flight Deck, Correlation Map, Intelligence Console, and Escrow
+- preserve expert tools while making customer-outcome language primary
 
 ---
 
@@ -179,8 +160,8 @@ Before:
 Implemented:
 
 - truthful zero-capable venue count
-- removed fake revenue, traffic, APY and live status
-- job-first guide uses real merchant progress
+- removed fake revenue, traffic, APY, and live status
+- real progress via `useRoleSuccessProgress('merchant')`
 - tools renamed around the customer job:
   - Customer demand
   - Offers & products
@@ -188,11 +169,12 @@ Implemented:
   - Orders
   - Places
   - Results
+- managed client context is visible when an agency operates a merchant client
 
 Remaining:
 
-- audit the individual Merchant consoles and their empty states
-- verify each proof path correctly distinguishes visit, redemption and paid order
+- audit individual Merchant consoles and their empty states
+- verify every proof path correctly distinguishes visit, redemption, and paid order
 
 ---
 
@@ -212,16 +194,13 @@ Implemented:
 
 - job contract: **Fill it. Run it. Prove who came.**
 - actual hosted Moment count only
-- fake proof, money and attendance metrics removed
-- tools simplified to:
-  - Audience demand
-  - Moments
-  - Live arrivals
-  - Proof review
-  - Sponsors
-  - Results
+- fake proof, money, and attendance metrics removed
+- tools simplified to Audience demand, Moments, Live arrivals, Proof review, Sponsors, and Results
+- Create Moment was rewritten around audience, outcome, and verified attendance proof
 
-Create Moment was also rewritten; see creation-flow audit.
+Remaining:
+
+- secondary proof / arrival consoles should receive the same empty-state audit
 
 ---
 
@@ -234,14 +213,14 @@ Before:
 
 - Creator Command Studio
 - Vanguard Creator Active
-- fake live jobs, bounty pool, visits, earnings and tier
+- fake live jobs, bounty pool, visits, earnings, and tier
 
 Implemented:
 
 - default starts on Opportunities
-- creator job: choose useful work → create/submit → cause attributable action → earn / build reputation
+- creator sequence: choose useful work → create/submit → cause attributable action → earn / build reputation
 - fake performance figures removed
-- real role progress via `useRoleSuccessProgress('creator')`
+- real progress via `useRoleSuccessProgress('creator')`
 
 Remaining:
 
@@ -257,18 +236,18 @@ Remaining:
 Positive existing behavior:
 
 - current move resolves from actual user state
-- verified calendar refuses to substitute unconfirmed listings on errors
+- verified calendar refuses to substitute unconfirmed listings when timing cannot be loaded
 - outcome receipts only appear when real movement exists
 - PromoCard is a personal value/proof object
 
 Implemented:
 
 - shared participant job contract precedes PeopleHome
-- participant studio route now uses `ParticipantDashboardV2`, avoiding the old Ops Theatre-heavy studio surface
+- participant studio route uses `ParticipantDashboardV2`
 
 Remaining:
 
-- audit PromoCard, Vault, Missions and Rewards sub-surfaces
+- audit PromoCard, Vault, Missions, and Rewards sub-surfaces
 - reduce game vocabulary wherever it obscures practical value
 
 ---
@@ -283,14 +262,14 @@ Positive findings:
 - membership purpose is explained before entry
 - active members land on **Your next community move**
 - next move is selected from actual eligible work
-- goals, role progress and next session are visible
+- goals, role progress, and next session are visible
 - Lead Room is separated from ordinary member work
-- test fixtures are explicitly test-only and not returned by API
+- test fixtures are explicitly test-only and not returned by the API
 
 Remaining:
 
 - audit Lead Room as its own operator role
-- do not add the shared job guide merely for visual consistency if it duplicates the already-good purpose-led hero
+- do not add duplicate job-first UI merely for visual consistency
 
 ---
 
@@ -299,26 +278,20 @@ Remaining:
 **Before: 4/20**  
 **Current: 18/20 — Strong**
 
-Before, the default command surface contained telemetry theater and hardcoded fallback claims such as:
-
-- `99.98% SLA`
-- `22ms`
-- `412 active`
-- fake recent activity
-- fallback user/Moment/support/proof/payout counts
+Before, the default command surface contained telemetry theater and hardcoded fallback claims including `99.98% SLA`, `22ms`, `412 active`, fake recent activity, and fallback queue counts.
 
 Implemented:
 
-- default Admin job is now exception resolution
+- Admin now opens around exception resolution
 - highest current exception becomes the next action
-- actual queries power users, Moments, verified check-ins, support, proof/moderation, payouts/KYC and supply
+- actual queries power users, Moments, verified check-ins, support, proof/moderation, payouts/KYC, and supply
 - zero displays as zero
-- fake SLA, latency, peers and recent activity removed
+- fake SLA, latency, peers, and recent activity removed
 
 Remaining:
 
-- secondary Admin navigation still needs static badge review, e.g. hardcoded `3 New`
-- secondary tabs need the same metric-integrity pass
+- audit static badges and counts in secondary Admin navigation
+- run the same integrity pass through Verification Hub, Payouts, Support, Moderation, Audit, and CRM
 
 ---
 
@@ -332,12 +305,12 @@ Already job-led:
 
 - begins with desired activation intent
 - compiler turns intent into a plan
-- saved record explicitly states desired outcome, action, proof, value and expected movement
+- saved record states desired outcome, action, proof, value, and expected movement
 - remains draft / unfunded until deliberately advanced
 
 Remaining:
 
-- replace `Proven Blueprints` with `Starter patterns` / `Example activation patterns` unless the proof basis for each pattern is documented
+- replace `Proven Blueprints` with `Starter patterns` / `Example activation patterns` unless each blueprint's proof basis is documented
 
 ---
 
@@ -346,7 +319,7 @@ Remaining:
 **Before: 8/20**  
 **Current: 18/20 — Strong**
 
-Critical old problem:
+Old critical problem:
 
 When no live release existed, `seededContentDrops` was substituted into the production live feed and counted as active inventory.
 
@@ -358,34 +331,31 @@ Implemented:
 - default Points = 0
 - default PromoShare entries = 0
 - PromoShare only enabled when deliberately configured
-- creation now asks what the release should cause
+- creation asks what the release should cause
 
 ---
 
 ## Merchant Inventory / Offer Creation
 
-`PutInventoryUp.tsx`
+**Before: 16/20**  
+**Current: 19/20 — Strong**
 
-**Current: 16/20 — Usable**
+Implemented:
 
-Strengths:
-
-- role/purpose lead already exists
-- fulfillment is explained
-- asks what the person receives
-- post-publish next actions exist
+- removed silent quantity default of 50
+- quantity is blank until the operator enters a real available amount
+- no mover/distributor reward is implied unless explicitly configured
+- explicit proof contract distinguishes a claim from stronger downstream proof
+- post-result decision is visible: replenish, change, close, or repeat
+- post-publish review points to what actually happened rather than projected success
 
 Remaining:
 
-- current default quantity `50` should be blank or explicitly labelled as a recommendation
-- make the proof event explicit before publish
-- make post-result decision explicit: replenish / change / close / repeat
+- eventually derive fulfillment-specific proof copy from structured proof types rather than generic copy
 
 ---
 
 ## Create Moment
-
-`CreateMoment.tsx`
 
 **Before: 10/20**  
 **Current: 19/20 — Strong**
@@ -394,9 +364,9 @@ Old integrity problems:
 
 - realistic fictional starter events and venues looked like production data
 - fake/default rewards were prefilled
-- capacity defaulted silently to 100
+- capacity silently defaulted to 100
 - UI implied admission configuration that was not part of the saved Moment insert
-- preview could look more live than it actually was
+- preview could look more live than it was
 
 Implemented:
 
@@ -413,36 +383,34 @@ Implemented:
 - attendance proof is explicit: **verified check-in; RSVP alone is intent**
 - intended audience and proof contract are saved into the Moment description
 - time/place must be real before continuing
-- collaborator split copy explicitly requires a real agreement
+- collaborator split copy requires a real agreement
 - draft preview says **Not live until you publish**
 - post-publish decision loop is explained
 
 Remaining:
 
 - eventually model audience/proof as structured fields rather than embedding them in description
-- persist explicit admission/ticket configuration only when the schema and checkout flow actually support it end-to-end
+- persist explicit admission/ticket configuration only when schema and checkout support it end-to-end
 
 ---
 
-# Managed workspace rule
+# Managed workspace rule — now implemented at dashboard level
 
-The Pandxtra → Manchester Hills flow established a platform-wide requirement.
+When an agency enters a connected client workspace, the interface now makes clear:
 
-Whenever one organization operates another, the screen must show:
+- who the client is
+- who is managing it
+- who owns the resulting work/data
+- how to return to the agency portfolio
 
-- active client organization
-- managing organization
-- attribution owner
-- current operator context
-- return-to-parent action
-
-Target pattern:
+Example target experience:
 
 > **Manchester Hills Foods**  
-> Brand workspace · Managed by Pandxtra  
-> Results belong to Manchester Hills Foods · Return to Pandxtra portfolio
+> Brand · Managed by Pandxtra  
+> Work and results created here belong to Manchester Hills Foods  
+> **Return to Pandxtra**
 
-This remains the largest cross-role structural gap after the current pass.
+The remaining future edge case is choosing the correct parent when one client has multiple agency relationships.
 
 ---
 
@@ -457,6 +425,7 @@ Removed or corrected:
 - Admin fake telemetry/SLA/latency/peers/recent activity/fallback queues
 - Content Drops seeded inventory masquerading as live inventory
 - Create Moment fictional starter venue/event/reward defaults
+- Merchant inventory's assumed quantity/reward behavior
 
 Rule:
 
@@ -470,7 +439,7 @@ Do not upgrade:
 - click → conversion
 - impression → demand
 
-unless the evidence actually supports the stronger claim.
+unless the evidence supports the stronger claim.
 
 ---
 
@@ -478,9 +447,9 @@ unless the evidence actually supports the stronger claim.
 
 | Surface | Before | Current | Status | Highest remaining issue |
 |---|---:|---:|---|---|
-| Agency | 14 | 18 | Strong | Persistent managed-client parent context |
-| Brand — new | 6 | 19 | Strong | Generalize managed context |
-| Brand — active | 11 | 16 | Usable | Advanced jargon/metaphors |
+| Agency | 14 | 19 | Strong | Multi-agency edge case later |
+| Brand — new | 6 | 20 | Strong | Active-state terminology |
+| Brand — active | 11 | 17 | Strong | Advanced jargon/metaphors |
 | Merchant | 6 | 18 | Strong | Secondary-console empty states |
 | Host | 5 | 18 | Strong | Secondary proof/arrival surfaces |
 | Creator | 5 | 18 | Strong | Mission-detail proof clarity |
@@ -489,32 +458,20 @@ unless the evidence actually supports the stronger claim.
 | Admin command | 4 | 18 | Strong | Secondary static badges/tabs |
 | Create Campaign | 18 | 18 | Strong | Blueprint wording |
 | Content Drops | 8 | 18 | Strong | Release-detail audit |
-| Merchant inventory | 16 | 16 | Usable | Default quantity + proof contract |
+| Merchant inventory | 16 | 19 | Strong | Structured fulfillment proof later |
 | Create Moment | 10 | 19 | Strong | Structured audience/proof fields later |
 
 ---
 
 # Next implementation order
 
-## P0 — Finish truth / integrity audit
+## P0 — Remaining truth/integrity search
 
-1. Search production-facing source for hardcoded performance numbers and unsupported `Live` / `Active` labels.
-2. Audit Admin secondary badges and queues.
-3. Audit seeded/demo fallbacks across production feeds.
-4. Fix Merchant inventory's silent quantity default.
+1. Search production-facing code for hardcoded performance figures and unsupported `Live` / `Active` labels.
+2. Audit seeded/demo fallback imports across production feeds.
+3. Audit static Admin badges and secondary queues.
 
-## P1 — Managed client continuity
-
-Build a reusable `ManagedWorkspaceContext` pattern and apply it to client workspaces.
-
-It must make clear:
-
-- who the operator is
-- who the client is
-- whose results are being recorded
-- how to return to the agency portfolio
-
-## P2 — Secondary job surfaces
+## P1 — Secondary job surfaces
 
 Participant:
 
@@ -554,13 +511,24 @@ Admin:
 - Audit Ledger
 - CRM / Growth
 
+## P2 — Data-model hardening
+
+Move job/proof concepts from presentation copy into structured data where needed:
+
+- intended audience
+- primary outcome
+- proof type
+- attribution confidence
+- post-result decision
+- funded/approved reward state
+
+This makes the UX standard enforceable by data rather than copy alone.
+
 ---
 
 # Definition of done
 
-A surface is not complete because it renders or exposes backend capability.
-
-It is complete when a first-time eligible user can answer without documentation:
+A surface is product-complete when a first-time eligible user can answer without documentation:
 
 1. Where am I and whose workspace is this?
 2. Why should I care about this page?
@@ -573,7 +541,7 @@ It is complete when a first-time eligible user can answer without documentation:
 9. Can I understand the page without PROMORANG vocabulary?
 10. Are advanced controls subordinate to the job?
 
-Target: **17/20 or better** before a primary workspace is product-complete.
+Target: **17/20 or better** before a primary workspace is considered product-complete.
 
 ---
 
