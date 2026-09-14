@@ -8,10 +8,12 @@ import { useI18n } from "@/i18n/I18nContext";
 import { landingPathForRole, promoCardAimPath } from "@promorang/shared";
 import { readPromoCardAim } from "@/lib/promocard-aim";
 import { consumePostAuthNext, defaultPostAuthPath } from "@/lib/post-auth-next";
+import { API_BASE_URL } from "@/lib/api";
+import { supabase } from "@/integrations/supabase/client";
 
 const Onboarding = () => {
   const { t } = useI18n();
-  const { user, activeRole, loading: authLoading } = useAuth();
+  const { user, session, activeRole, loading: authLoading } = useAuth();
   const { hasCompleted, isLoading: prefsLoading } = useHasCompletedOnboarding();
   const navigate = useNavigate();
 
@@ -22,35 +24,68 @@ const Onboarding = () => {
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    // If user has already completed onboarding, redirect to dashboard
     if (!prefsLoading && hasCompleted) {
-      navigate(consumePostAuthNext() || defaultPostAuthPath(activeRole));
+      navigate(consumePostAuthNext() || defaultPostAuthPath(activeRole), { replace: true });
     }
   }, [hasCompleted, prefsLoading, navigate, activeRole]);
 
-  const handleComplete = (personaChoice?: string) => {
+  const markOnboardingComplete = async () => {
+    if (!user) return;
+
+    let completed = false;
+    if (session?.access_token) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/users/onboarding/complete`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        completed = response.ok;
+      } catch {
+        completed = false;
+      }
+    }
+
+    // Compatibility fallback for environments where the API route is not
+    // available yet. The canonical flag remains public.users.onboarding_completed.
+    if (!completed) {
+      const { error } = await supabase
+        .from("users")
+        .update({ onboarding_completed: true })
+        .eq("id", user.id);
+      if (error) {
+        console.warn("[Onboarding] Could not persist completion state:", error.message);
+      }
+    }
+  };
+
+  const handleComplete = async (personaChoice?: string) => {
+    await markOnboardingComplete();
+
     void trackGrowthEvent({
-      eventName: "onboarding_completed", journey: "participant", stage: "activated",
-      entityType: "onboarding", entityId: "preferences",
+      eventName: "onboarding_completed",
+      journey: personaChoice === "explorer" || personaChoice === "creator" ? "participant" : "commercial",
+      stage: "activated",
+      entityType: "onboarding",
+      entityId: "preferences",
       idempotencyKey: `growth:onboarding:${getAnonymousId()}`,
+      properties: { persona: personaChoice || "explorer" },
     });
-    
-    // Automatically trigger role pilot HUD co-pilot for the user's chosen persona
+
     const roleMap: Record<string, string> = {
-      explorer: 'explorer',
-      creator: 'creator',
-      mayor: 'host',
-      merchant: 'merchant',
-      brand: 'brand',
-      agency: 'brand'
+      explorer: "explorer",
+      creator: "creator",
+      mayor: "host",
+      merchant: "merchant",
+      brand: "brand",
+      agency: "agency",
     };
-    const roleId = (personaChoice && roleMap[personaChoice]) || 'explorer';
-    sessionStorage.setItem('promorang_role_pilot_active', 'true');
-    sessionStorage.setItem('promorang_role_pilot_role', roleId);
-    sessionStorage.setItem('promorang_role_pilot_step', '0');
-    
+    const roleId = (personaChoice && roleMap[personaChoice]) || "explorer";
+    sessionStorage.setItem("promorang_role_pilot_active", "true");
+    sessionStorage.setItem("promorang_role_pilot_role", roleId);
+    sessionStorage.setItem("promorang_role_pilot_step", "0");
+
     const next = consumePostAuthNext() || landingPathForRole(roleId);
-    navigate(next === "/card" ? promoCardAimPath(readPromoCardAim()) : next);
+    navigate(next === "/card" ? promoCardAimPath(readPromoCardAim()) : next, { replace: true });
   };
 
   if (authLoading || prefsLoading) {
