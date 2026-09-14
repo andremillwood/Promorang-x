@@ -20,8 +20,9 @@ describe("post-auth-next", () => {
     expect(sanitizePostAuthNext("/auth")).toBeNull();
   });
 
-  it("recognizes host and commercial return paths", () => {
+  it("recognizes role and commercial return paths", () => {
     expect(isCommercialNext("/propose/new?from=moment")).toBe(true);
+    expect(isCommercialNext("/for-agencies")).toBe(true);
     expect(isCommercialNext("/discover/moments")).toBe(false);
     expect(roleFromNext("/propose/new?from=moment")).toBe("host");
     expect(roleFromNext("/propose?audience=brand")).toBe("brand");
@@ -29,6 +30,8 @@ describe("post-auth-next", () => {
     expect(roleFromNext("/for-creators")).toBe("creator");
     expect(roleFromNext("/for-merchants")).toBe("merchant");
     expect(roleFromNext("/for-brands")).toBe("brand");
+    expect(roleFromNext("/for-agencies")).toBe("agency");
+    expect(roleFromNext("/dashboard?view=studio&tab=clients&role=agency")).toBe("agency");
     expect(roleFromNext("/stock")).toBe("merchant");
     expect(roleFromNext("/create/moment")).toBe("host");
     expect(roleFromNext("/create/campaign")).toBe("brand");
@@ -36,18 +39,19 @@ describe("post-auth-next", () => {
     expect(roleFromNext("/create/campaign?from=sponsor")).toBe("brand");
   });
 
-  it("returns hosts to the proposal they started, not the member home", () => {
+  it("returns users to the job they started, not a generic home", () => {
     expect(resolvePostAuthPath({
       requestedNext: "/propose/new?from=moment",
       role: "admin",
     })).toBe("/propose/new?from=moment");
   });
 
-  it("lands commercial roles in the studio workspace when nothing was in progress", () => {
+  it("lands roles in their canonical workspace when nothing was in progress", () => {
     expect(defaultPostAuthPath("host")).toBe("/dashboard?view=studio");
     expect(defaultPostAuthPath("creator")).toBe("/dashboard?view=studio");
     expect(defaultPostAuthPath("merchant")).toBe("/dashboard?view=studio");
     expect(defaultPostAuthPath("brand")).toBe("/dashboard?view=studio");
+    expect(defaultPostAuthPath("agency")).toBe("/dashboard?view=studio&tab=clients");
     expect(defaultPostAuthPath("admin")).toBe("/admin?tab=command");
     expect(defaultPostAuthPath("participant")).toBe("/dashboard");
   });
@@ -61,6 +65,12 @@ describe("post-auth-next", () => {
   it("builds an auth URL that keeps a brand on the sponsor brief path", () => {
     expect(authPathForReturn("/propose/new?from=sponsor&audience=brand")).toBe(
       "/auth?next=%2Fpropose%2Fnew%3Ffrom%3Dsponsor%26audience%3Dbrand&role=brand",
+    );
+  });
+
+  it("builds an auth URL that preserves an agency client-workspace intent", () => {
+    expect(authPathForReturn("/dashboard?view=studio&tab=clients", { mode: "signup", role: "agency" })).toBe(
+      "/auth?mode=signup&role=agency&next=%2Fdashboard%3Fview%3Dstudio%26tab%3Dclients",
     );
   });
 
