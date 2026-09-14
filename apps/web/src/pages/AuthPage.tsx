@@ -27,7 +27,7 @@ import {
   resolveIntendedStakeholderRole,
 } from "@promorang/shared";
 
-type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
+type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency";
 
 const roleInfo: Record<UserRole, { icon: typeof Users; title: string; description: string }> = {
   participant: {
@@ -54,6 +54,11 @@ const roleInfo: Record<UserRole, { icon: typeof Users; title: string; descriptio
     icon: Store,
     title: "For Venues",
     description: "Welcome moments to your location",
+  },
+  agency: {
+    icon: Briefcase,
+    title: "For Agencies",
+    description: "Manage client accounts and prove outcomes",
   },
 };
 
@@ -104,6 +109,7 @@ const AuthPage = () => {
     host: { title: t("auth.host"), description: t("persona.mayorDesc") },
     brand: { title: t("auth.brand"), description: t("persona.brandDesc") },
     merchant: { title: t("auth.merchant"), description: t("persona.merchantDesc") },
+    agency: { title: t("auth.agency"), description: t("persona.agencyDesc") },
   };
 
   useEffect(() => {
@@ -130,7 +136,7 @@ const AuthPage = () => {
     if (searchParams.get("mode") === "login") setMode("login");
     const requestedRole = intendedRole || roleFromNext(nextPath);
     if (!requestedRole || requestedRole === "admin") return;
-    if (["participant", "creator", "host", "brand", "merchant"].includes(requestedRole)) {
+    if (["participant", "creator", "host", "brand", "merchant", "agency"].includes(requestedRole)) {
       persistPreferredRole(requestedRole as UserRole);
       setSelectedRole(requestedRole as UserRole);
       setShowRolePicker(requestedRole !== "participant");
@@ -633,7 +639,7 @@ const AuthPage = () => {
 
       {/* Right Panel - Visual */}
       <div className="hidden lg:flex flex-1 bg-gradient-sunset items-center justify-center p-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6bTAtMThDMzYgMTMuNzkxIDM0LjIwOSAxMiAzMiAxMnMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6bS0xOCAxOGMwLTIuMjA5LTEuNzkxLTQtNC00cy00IDEuNzkxLTQgNCAxLjc5MSA0IDQgNCA0LTEuNzkxIDQtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6bTAtMThDMzYgMTMuNzkxIDM0LjIwOSAxMiAzMiAxMnMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6bS0xOCAxOGMwLTIuMjA5LTEuNzkxLTQtNC00cy00IDEuNzkxLTQgNCAxLjc5MSA0IDQgNCA0LTEuNzkxIDQtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30" />
 
         <div className="relative z-10 text-center text-primary-foreground max-w-md">
           <h2 className="font-serif text-4xl font-bold mb-4">
