@@ -74,7 +74,9 @@ export function useHasCompletedOnboarding() {
     queryKey: ["onboarding-completed", user?.id],
     queryFn: async () => {
       if (!user) return false;
-      const { data, error } = await supabase
+      // Generated Supabase types do not yet include the legacy public.users
+      // table; use the same compatibility pattern as AuthContext.
+      const { data, error } = await (supabase as any)
         .from("users")
         .select("onboarding_completed")
         .eq("id", user.id)
