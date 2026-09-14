@@ -68,7 +68,7 @@ const EXTRA_ICONS: Record<string, LucideIcon> = {
 };
 
 const MERCHANT_NAV: StakeholderNavItem[] = [
-  { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
+  { icon: Home, label: "Home", href: "/dashboard?tab=home", group: "primary" },
   { icon: Gift, label: "Promotions", href: "/dashboard?tab=promotions", group: "primary", accent: true },
   { icon: Users, label: "Customers", href: "/dashboard?tab=customers", group: "primary" },
   { icon: BarChart3, label: "Sales & Results", href: "/dashboard?tab=results", group: "primary" },
