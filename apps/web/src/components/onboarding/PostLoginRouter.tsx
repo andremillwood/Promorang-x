@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { readIntendedStakeholderRole } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +18,7 @@ import { resolveSavedLandingPreference } from "@/lib/landing-page-preference";
 export function PostLoginRouter() {
   const { user, activeRole, roles, setActiveRole, loading, applyIntendedRole } = useAuth();
   const navigate = useNavigate();
+  const routingStarted = useRef(false);
 
   useEffect(() => {
     if (loading) return;
@@ -30,9 +31,8 @@ export function PostLoginRouter() {
     // finished fetching user_roles and choosing activeRole. Routing during that
     // gap incorrectly treats commercial users as participants. Wait for the
     // workspace context instead of resolving a fallback destination too early.
-    if (roles.length === 0 || !activeRole) return;
-
-    let cancelled = false;
+    if (roles.length === 0 || !activeRole || routingStarted.current) return;
+    routingStarted.current = true;
 
     const determineLandingPage = async () => {
       await flushMarketingIntent().catch(() => undefined);
@@ -43,8 +43,6 @@ export function PostLoginRouter() {
         roleFromNext(requestedNext);
       const appliedRole = intendedRole ? await applyIntendedRole(user.id, intendedRole) : activeRole;
       const effectiveRole = appliedRole || activeRole;
-
-      if (cancelled) return;
 
       // Explicit deep-link intent always wins. This preserves interrupted jobs
       // such as claim, proposal, card, campaign and RSVP flows.
@@ -74,8 +72,6 @@ export function PostLoginRouter() {
           .maybeSingle();
         onboardingCompleted = error ? true : Boolean(data?.onboarding_completed);
       }
-
-      if (cancelled) return;
 
       if (!onboardingCompleted) {
         navigate(resolvePostAuthPath({ role: effectiveRole, onboardingCompleted: false }), { replace: true });
@@ -108,14 +104,8 @@ export function PostLoginRouter() {
 
     determineLandingPage().catch((error) => {
       console.error("[PostLoginRouter] Failed to determine landing page:", error);
-      if (!cancelled) {
-        navigate(resolvePostAuthPath({ role: activeRole, onboardingCompleted: true }), { replace: true });
-      }
+      navigate(resolvePostAuthPath({ role: activeRole, onboardingCompleted: true }), { replace: true });
     });
-
-    return () => {
-      cancelled = true;
-    };
   }, [user, activeRole, loading, navigate, roles, setActiveRole, applyIntendedRole]);
 
   return (
