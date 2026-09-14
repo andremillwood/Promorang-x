@@ -67,10 +67,11 @@ export function PostLoginRouter() {
       }
 
       // `onboarding_completed` is an account lifecycle state on public.users.
-      // Discovery preferences are optional and cannot stand in for completion.
+      // The generated client types do not yet expose this legacy table, so use
+      // the same compatibility access pattern already used elsewhere in web.
       let onboardingCompleted = effectiveRole === "admin";
       if (effectiveRole !== "admin") {
-        const { data: userState, error: userStateError } = await supabase
+        const { data: userState, error: userStateError } = await (supabase as any)
           .from("users")
           .select("onboarding_completed")
           .eq("id", user.id)
