@@ -1,7 +1,14 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import fs from "fs";
 import { componentTagger } from "lovable-tagger";
+
+const resolvePackagePath = (pkgName: string) => {
+  const local = path.resolve(__dirname, `./node_modules/${pkgName}`);
+  if (fs.existsSync(local)) return local;
+  return path.resolve(__dirname, `../../node_modules/${pkgName}`);
+};
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -33,8 +40,8 @@ export default defineConfig(({ mode }) => {
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "@promorang/shared": path.resolve(__dirname, "../../packages/shared/src/index.ts"),
-      "react": path.resolve(__dirname, "./node_modules/react"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      "react": resolvePackagePath("react"),
+      "react-dom": resolvePackagePath("react-dom"),
     },
   },
   optimizeDeps: {

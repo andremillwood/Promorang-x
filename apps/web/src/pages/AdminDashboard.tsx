@@ -1,20 +1,15 @@
 import { useEffect, useState, useMemo } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useIsAdmin, usePlatformStats } from "@/hooks/useAdmin";
+import { useAdminAccessProfile, useIsAdmin } from "@/hooks/useAdmin";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { canAccessAdminTab, firstAdminTab } from "@/lib/admin-access";
 import {
   Users,
   Calendar,
   CheckCircle,
-  Gift,
-  Building2,
-  MapPin,
   TrendingUp,
   Shield,
   BarChart3,
@@ -23,7 +18,6 @@ import {
   Coins,
   Scale,
   Settings,
-  Zap,
   LifeBuoy,
   Activity,
   Megaphone,
@@ -31,14 +25,12 @@ import {
   Target,
   Store,
   ShoppingBag,
-  ChevronDown,
   UserPlus,
   ContactRound,
   ClipboardCheck,
   Search,
   ShieldCheck,
   Radio,
-  FileCheck,
   Music2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -65,14 +57,13 @@ import { AdminCommerceTab } from "@/components/admin/AdminCommerceTab";
 import { AdminGrowthTab } from "@/components/admin/AdminGrowthTab";
 import { AdminClaimablePagesTab } from "@/components/admin/AdminClaimablePagesTab";
 import { AdminLeadsCRM } from "@/components/admin/AdminLeadsCRM";
-import { AdminPresentsPanel } from "@/components/admin/AdminPresentsPanel";
 import { AdminEnrichmentReviewTab } from "@/components/admin/AdminEnrichmentReviewTab";
 import { AdminEventVerificationReviewTab } from "@/components/admin/AdminEventVerificationReviewTab";
 import { AdminDiscoveryAcquisitionTab } from "@/components/admin/AdminDiscoveryAcquisitionTab";
 import { PromoPilotCompiler } from "@/components/campaigns/PromoPilotCompiler";
 import { AdminVerificationHub } from "@/components/admin/AdminVerificationHub";
+import { AdminTeamAccessTab } from "@/components/admin/AdminTeamAccessTab";
 import { AdminMobileToolSwitch } from "@/components/admin/AdminMobileToolSwitch";
-import { useI18n } from "@/i18n/I18nContext";
 import AftrHrsAdmin from "@/pages/admin/AftrHrsAdmin";
 
 const ADMIN_TABS = new Set([
@@ -103,87 +94,112 @@ const ADMIN_TABS = new Set([
   "compiler",
   "create-moment",
   "claimable-pages",
+  "team-access",
   "aftrhrs",
 ]);
 
 type AdminNavItem = {
   value: string;
   label: string;
+  description: string;
   icon: LucideIcon;
   badge?: string;
 };
 
 const ADMIN_NAV_GROUPS: Array<{ label: string; items: AdminNavItem[] }> = [
   {
-    label: "Master Telemetry",
+    label: "Home & reports",
     items: [
-      { value: "command", label: "Master Command", icon: Shield, badge: "Live" },
-      { value: "verification-hub", label: "Verification Hub", icon: ShieldCheck, badge: "3 New" },
-      { value: "overview", label: "Analytics & ROI", icon: BarChart3 },
-      { value: "growth", label: "Growth Radar", icon: TrendingUp },
-      { value: "discovery", label: "Discovery Loop", icon: Target },
-      { value: "leads", label: "Leads & CRM", icon: ContactRound },
+      { value: "command", label: "Home", description: "See priorities and work requiring attention", icon: Shield, badge: "Live" },
+      { value: "overview", label: "Platform report", description: "Understand activity and results across Promorang", icon: BarChart3 },
+      { value: "growth", label: "Growth report", description: "Review acquisition and participation trends", icon: TrendingUp },
+      { value: "discovery", label: "Discovery performance", description: "See how people find and act on opportunities", icon: Target },
+      { value: "leads", label: "Prospective customers", description: "Follow organizations interested in Promorang", icon: ContactRound },
     ],
   },
   {
-    label: "Operations & Supply",
+    label: "People & reviews",
     items: [
-      { value: "moments", label: "Moments Directory", icon: Calendar },
-      { value: "claimable-pages", label: "Create for Owners", icon: UserPlus },
-      { value: "users", label: "User Accounts", icon: Users },
-      { value: "applications", label: "Host Applications", icon: Sparkles },
-      { value: "pioneer", label: "Pioneer Audit", icon: Target },
-      { value: "enrichment-review", label: "Scout Proof Review", icon: ClipboardCheck },
-      { value: "event-review", label: "Event Evidence", icon: Calendar },
-      { value: "aftrhrs", label: "AftrHrs", icon: Music2 },
-      { value: "operations", label: "Live Operations", icon: Activity },
+      { value: "verification-hub", label: "Reviews", description: "Work through identity, proof, and evidence checks", icon: ShieldCheck, badge: "New" },
+      { value: "users", label: "People", description: "Find accounts and understand a person's activity", icon: Users },
+      { value: "applications", label: "Host applications", description: "Review people applying to host Moments", icon: Sparkles },
+      { value: "moderation", label: "Content reviews", description: "Review reported or pending content", icon: Scale },
+      { value: "pioneer", label: "Pioneer contributions", description: "Review credited early contributions", icon: Target },
+      { value: "enrichment-review", label: "Place information reviews", description: "Check submitted place details and evidence", icon: ClipboardCheck },
+      { value: "event-review", label: "Event evidence", description: "Check submitted evidence for events", icon: Calendar },
+      { value: "support", label: "Support", description: "Help people resolve account and product questions", icon: LifeBuoy },
     ],
   },
   {
-    label: "Trust, Nodes & Treasury",
+    label: "Experiences & commerce",
     items: [
-      { value: "moderation", label: "Moderation Queue", icon: Scale },
-      { value: "payouts", label: "Payouts & Escrow", icon: DollarSign },
-      { value: "economy", label: "Gem Node Economy", icon: Coins },
-      { value: "access", label: "Access & PromoKeys", icon: KeyRound },
-      { value: "audit", label: "Audit Ledger", icon: Shield },
+      { value: "moments", label: "Moments & venues", description: "Find and manage live experiences and places", icon: Calendar },
+      { value: "claimable-pages", label: "Pages awaiting owners", description: "Prepare pages that an owner can claim", icon: UserPlus },
+      { value: "operations", label: "Operations", description: "Monitor active work and service exceptions", icon: Activity },
+      { value: "aftrhrs", label: "AftrHrs", description: "Manage RSVPs and the live night desk", icon: Music2 },
+      { value: "catalog", label: "Catalog", description: "Manage items and offers available to people", icon: Store },
+      { value: "commerce", label: "Orders", description: "Review orders, redemptions, and exceptions", icon: ShoppingBag },
+      { value: "compiler", label: "Activation setup", description: "Configure and prepare an Activation", icon: Radio },
+      { value: "proof-builder", label: "Proof requirements", description: "Define what participants need to submit", icon: CheckCircle },
+      { value: "create-moment", label: "Create a Moment", description: "Set up a new Moment for the platform", icon: Calendar },
     ],
   },
   {
-    label: "Platform Services",
+    label: "Money & communications",
     items: [
-      { value: "promopush", label: "PromoPush Broadcast", icon: Megaphone },
-      { value: "catalog", label: "Catalog Manager", icon: Store },
-      { value: "commerce", label: "Commerce & Orders", icon: ShoppingBag },
-      { value: "support", label: "Support Desk", icon: LifeBuoy },
+      { value: "promopush", label: "Announcements", description: "Send approved messages to selected audiences", icon: Megaphone },
+      { value: "payouts", label: "Payouts", description: "Review and approve money owed", icon: DollarSign },
+      { value: "economy", label: "Rewards & balances", description: "Review issued, committed, and available value", icon: Coins },
     ],
   },
   {
-    label: "System & Engine",
+    label: "Administration",
     items: [
-      { value: "compiler", label: "Campaign Compiler", icon: Radio },
-      { value: "proof-builder", label: "Proof Builder", icon: CheckCircle },
-      { value: "config", label: "System Config", icon: Settings },
+      { value: "team-access", label: "Admin team & access", description: "Invite, change, and revoke administrator responsibilities", icon: Users },
+      { value: "access", label: "Participation rules", description: "Define who can view, join, claim, or redeem", icon: KeyRound },
+      { value: "audit", label: "Admin activity", description: "Review important actions taken by administrators", icon: Shield },
+      { value: "config", label: "Platform settings", description: "Manage owner-only platform behavior and safeguards", icon: Settings },
     ],
   },
 ];
 
 const AdminDashboard = () => {
-  const { t, formatNumber } = useI18n();
   const { user, loading: authLoading } = useAuth();
   const isAdmin = useIsAdmin();
-  const { data: stats, isLoading: statsLoading } = usePlatformStats();
+  const { data: accessProfile, isLoading: accessLoading } = useAdminAccessProfile();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get("tab");
   const initialTab = requestedTab && ADMIN_TABS.has(requestedTab) ? requestedTab : "command";
   const [activeTab, setActiveTab] = useState(initialTab);
   const [navSearch, setNavSearch] = useState("");
 
+  const allowedNavGroups = useMemo(() => {
+    if (!accessProfile) return [];
+    return ADMIN_NAV_GROUPS
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => canAccessAdminTab(accessProfile.level, item.value, accessProfile.capabilities)),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [accessProfile]);
+
   useEffect(() => {
-    if (requestedTab && ADMIN_TABS.has(requestedTab)) {
-      setActiveTab(requestedTab);
+    if (!accessProfile) return;
+    const nextTab = requestedTab
+      && ADMIN_TABS.has(requestedTab)
+      && canAccessAdminTab(accessProfile.level, requestedTab, accessProfile.capabilities)
+      ? requestedTab
+      : firstAdminTab(accessProfile.level);
+
+    setActiveTab(nextTab);
+    if (requestedTab !== nextTab) {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("tab", nextTab);
+        return next;
+      }, { replace: true });
     }
-  }, [requestedTab]);
+  }, [accessProfile, requestedTab, setSearchParams]);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -195,18 +211,18 @@ const AdminDashboard = () => {
   };
 
   const allNavItems = useMemo(() => {
-    return ADMIN_NAV_GROUPS.flatMap((g) => g.items);
-  }, []);
+    return allowedNavGroups.flatMap((g) => g.items);
+  }, [allowedNavGroups]);
 
   const activeItem = allNavItems.find((item) => item.value === activeTab) || allNavItems[0];
 
   // Find which group contains the activeTab
-  const currentGroupIndex = ADMIN_NAV_GROUPS.findIndex((g) =>
+  const currentGroupIndex = allowedNavGroups.findIndex((g) =>
     g.items.some((item) => item.value === activeTab)
   );
-  const selectedGroup = currentGroupIndex !== -1 ? ADMIN_NAV_GROUPS[currentGroupIndex] : ADMIN_NAV_GROUPS[0];
+  const selectedGroup = currentGroupIndex !== -1 ? allowedNavGroups[currentGroupIndex] : allowedNavGroups[0];
 
-  if (authLoading || isAdmin === undefined) {
+  if (authLoading || accessLoading || isAdmin === undefined) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -214,22 +230,21 @@ const AdminDashboard = () => {
     );
   }
 
-  if (!user || !isAdmin) {
+  if (!user || !isAdmin || !accessProfile) {
     return <Navigate to="/" replace />;
   }
 
   return (
     <div data-admin-surface className="w-full space-y-6 pb-20 text-white animate-in fade-in-50 duration-300">
       <AdminMobileToolSwitch
-        groups={ADMIN_NAV_GROUPS}
+        groups={allowedNavGroups}
         activeTab={activeTab}
         onChange={handleTabChange}
         search={navSearch}
         onSearch={setNavSearch}
       />
-
-      {/* 1. Master Admin Command Header & Category Strip */}
-      <div className="hidden rounded-2xl border border-white/10 bg-gradient-to-r from-cyan-950/20 via-[#0e1218] to-[#0a0d12] p-5 shadow-2xl space-y-4 backdrop-blur-xl lg:block">
+      {/* Role-aware admin header and task navigation */}
+      <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-cyan-950/20 via-[#0e1218] to-[#0a0d12] backdrop-blur-xl p-5 shadow-2xl space-y-4">
         {/* Top Header Row */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
@@ -240,11 +255,11 @@ const AdminDashboard = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-xl font-bold tracking-tight text-white">Platform Administration</h1>
                 <span className="px-2 py-0.5 rounded-md bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] font-mono font-bold tracking-wide uppercase">
-                  ROOT • {activeItem.label}
+                  {accessProfile.label}
                 </span>
               </div>
               <p className="text-[11px] text-white/50 mt-0.5">
-                Master operational state, node telemetry, verification triage, and treasury controls.
+                {accessProfile.purpose} You are viewing <span className="text-white/70">{activeItem.label}</span>.
               </p>
             </div>
           </div>
@@ -256,34 +271,39 @@ const AdminDashboard = () => {
               <Input
                 value={navSearch}
                 onChange={(e) => setNavSearch(e.target.value)}
-                placeholder="Jump to tool..."
+                placeholder="What do you need to do?"
+                aria-label="Find an admin task"
                 className="h-8 pl-8 rounded-lg border-white/10 bg-white/5 text-white text-xs placeholder:text-white/40 focus:border-cyan-500/50"
               />
             </div>
 
-            <Button
-              size="sm"
-              onClick={() => handleTabChange("verification-hub")}
-              className="h-8 px-3 rounded-lg bg-cyan-400 hover:bg-cyan-500 text-black font-extrabold text-xs shadow-md shadow-cyan-400/20"
-            >
-              <ShieldCheck className="h-3.5 w-3.5 mr-1" />
-              Proof Hub
-            </Button>
+            {canAccessAdminTab(accessProfile.level, "verification-hub", accessProfile.capabilities) && (
+              <Button
+                size="sm"
+                onClick={() => handleTabChange("verification-hub")}
+                className="h-8 px-3 rounded-lg bg-cyan-400 hover:bg-cyan-500 text-black font-extrabold text-xs shadow-md shadow-cyan-400/20"
+              >
+                <ShieldCheck className="h-3.5 w-3.5 mr-1" />
+                Open reviews
+              </Button>
+            )}
 
-            <Button
-              size="sm"
-              onClick={() => handleTabChange("promopush")}
-              className="h-8 px-3 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs"
-            >
-              <Megaphone className="h-3 w-3 mr-1 text-primary" />
-              PromoPush
-            </Button>
+            {canAccessAdminTab(accessProfile.level, "support", accessProfile.capabilities) && (
+              <Button
+                size="sm"
+                onClick={() => handleTabChange("support")}
+                className="h-8 px-3 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs"
+              >
+                <LifeBuoy className="h-3 w-3 mr-1 text-primary" />
+                Open support
+              </Button>
+            )}
           </div>
         </div>
 
         {/* Category Navigation Pills (Groups) */}
         <div className="pt-3 border-t border-white/5 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          {ADMIN_NAV_GROUPS.map((group) => {
+          {allowedNavGroups.map((group) => {
             const isGroupActive = group.items.some((item) => item.value === activeTab);
 
             return (
@@ -334,7 +354,11 @@ const AdminDashboard = () => {
         {navSearch.trim().length > 0 && (
           <div className="p-2 rounded-xl bg-[#141822] border border-cyan-500/30 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5">
             {allNavItems
-              .filter((item) => item.label.toLowerCase().includes(navSearch.toLowerCase()))
+              .filter((item) => {
+                const query = navSearch.toLowerCase();
+                return item.label.toLowerCase().includes(query)
+                  || item.description.toLowerCase().includes(query);
+              })
               .map((item) => {
                 const Icon = item.icon;
                 return (
@@ -347,7 +371,10 @@ const AdminDashboard = () => {
                     className="flex items-center gap-2 p-2 rounded-lg text-left text-xs text-white/80 hover:bg-cyan-500/10 hover:text-cyan-300 transition"
                   >
                     <Icon className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
-                    <span className="truncate">{item.label}</span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-semibold">{item.label}</span>
+                      <span className="block truncate text-[10px] text-white/45">{item.description}</span>
+                    </span>
                   </button>
                 );
               })}
@@ -359,7 +386,7 @@ const AdminDashboard = () => {
       <div className="w-full min-w-0">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
           <TabsContent value="command" className="mt-0">
-            <AdminCommandCenter />
+            <AdminCommandCenter accessProfile={accessProfile} />
           </TabsContent>
 
           <TabsContent value="verification-hub" className="mt-0">
@@ -410,12 +437,12 @@ const AdminDashboard = () => {
               <AdminEventVerificationReviewTab />
             </TabsContent>
 
-            <TabsContent value="aftrhrs" className="mt-0">
-              <AftrHrsAdmin />
-            </TabsContent>
-
             <TabsContent value="operations" className="mt-0">
               <AdminOperationsTab />
+            </TabsContent>
+
+            <TabsContent value="aftrhrs" className="mt-0">
+              <AftrHrsAdmin />
             </TabsContent>
 
             <TabsContent value="moderation" className="mt-0">
@@ -464,6 +491,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="config" className="mt-0">
               <AdminConfigTab />
+            </TabsContent>
+
+            <TabsContent value="team-access" className="mt-0">
+              <AdminTeamAccessTab />
             </TabsContent>
 
             <TabsContent value="create-moment" className="mt-0">
