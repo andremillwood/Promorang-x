@@ -1,1 +1,0 @@
-Merchant overhaul is in code phase.

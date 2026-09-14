@@ -1,1 +1,0 @@
-Engineering entrypoint: identify router/nav files, then implement Merchant Home and guided builder.

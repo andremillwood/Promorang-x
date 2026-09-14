@@ -1,1 +1,0 @@
-Merchant overhaul design complete. Proceed with code.
