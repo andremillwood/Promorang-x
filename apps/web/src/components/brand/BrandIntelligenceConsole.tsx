@@ -1,130 +1,81 @@
-import React, { useState } from "react";
-import {
-  BarChart3,
-  DollarSign,
-  Gem,
-  Coins,
-  ShieldCheck,
-  TrendingUp,
-  Sparkles,
-  Calculator,
-  Building2,
-  Lock,
-  ArrowRight,
-  CheckCircle2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { BrandEstimator } from "@/components/brand/BrandEstimator";
-import { IntelligenceBureau } from "@/components/brand/IntelligenceBureau";
+import { BarChart3, CheckCircle2, CircleDollarSign, Megaphone, Scale, ShieldCheck } from "lucide-react";
+import { useBrandCampaigns } from "@/hooks/useCampaigns";
 
 export function BrandIntelligenceConsole() {
-  const { toast } = useToast();
-
-  const handleDepositTreasury = () => {
-    toast({
-      title: "Growth Escrow Funded! 🔒",
-      description: "Added $2,500 to smart campaign escrow vault for milestone disbarment.",
-    });
-  };
+  const campaignsQuery = useBrandCampaigns();
+  const campaigns = campaignsQuery.data || [];
+  const activeCampaigns = campaigns.filter((campaign) => campaign.is_active);
+  const verifiedResults = campaigns.reduce((total, campaign) => total + Number(campaign.redemptions || 0), 0);
 
   return (
     <div className="space-y-6">
-      {/* 1. Header & Treasury Identity */}
-      <div className="p-6 rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-black to-black backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-black font-black shadow-lg shadow-primary/20 shrink-0">
-            <Coins className="h-7 w-7 text-black" />
-          </div>
+      <section className="rounded-3xl border border-primary/25 bg-primary/5 p-5 sm:p-6">
+        <div className="flex items-start gap-3">
+          <div className="rounded-2xl bg-primary/10 p-3 text-primary"><BarChart3 className="h-5 w-5" /></div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Brand Treasury & Strategic Intelligence</h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase">
-                Escrow Protected
-              </span>
-            </div>
-            <p className="text-xs text-white/60 mt-1">
-              Milestone disbursement vaults, yield multipliers, and AI budget allocation forecasting.
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Evidence & decisions</p>
+            <h2 className="mt-2 text-2xl font-black text-white">Decide what deserves the next dollar.</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
+              This surface reports only campaign records and verified outcomes currently available to PROMORANG. Treasury balances, financial yield, ROI, and escrow protection are not shown unless they are backed by a real ledger and settlement flow.
             </p>
           </div>
         </div>
+      </section>
 
-        <Button
-          onClick={handleDepositTreasury}
-          className="h-11 px-5 rounded-2xl bg-primary hover:bg-primary/90 text-black font-extrabold text-xs shadow-[0_0_20px_rgba(255,106,0,0.35)]"
-        >
-          <DollarSign className="h-4 w-4 mr-1.5" />
-          Fund Campaign Escrow
-        </Button>
-      </div>
-
-      {/* 2. Treasury Telemetry Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-white/50">Locked Escrow Vault</span>
-            <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-              <Lock className="h-4 w-4" />
-            </span>
-          </div>
-          <div>
-            <p className="text-3xl font-black text-white">$6,400.00</p>
-            <p className="text-xs text-emerald-400 font-semibold mt-1">
-              Released upon verified host & creator proof
-            </p>
-          </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <Megaphone className="h-4 w-4 text-primary" />
+          <p className="mt-3 text-3xl font-black text-white">{campaignsQuery.isLoading ? "—" : campaigns.length.toLocaleString()}</p>
+          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Campaign records</p>
         </div>
-
-        <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-white/50">Gem Liquidity Yield</span>
-            <span className="p-2 rounded-xl bg-primary/10 text-primary">
-              <Gem className="h-4 w-4" />
-            </span>
-          </div>
-          <div>
-            <p className="text-3xl font-black text-white">4,200 Gems</p>
-            <p className="text-xs text-primary font-semibold mt-1">
-              14.2% APY in Promorang Liquidity Pool
-            </p>
-          </div>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+          <p className="mt-3 text-3xl font-black text-white">{campaignsQuery.isLoading ? "—" : activeCampaigns.length.toLocaleString()}</p>
+          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Active campaigns</p>
         </div>
-
-        <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-white/50">Disbursed This Quarter</span>
-            <span className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
-              <TrendingUp className="h-4 w-4" />
-            </span>
-          </div>
-          <div>
-            <p className="text-3xl font-black text-white">$14,850.00</p>
-            <p className="text-xs text-cyan-300 font-semibold mt-1">
-              Over 28 successful activations & drops
-            </p>
-          </div>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <ShieldCheck className="h-4 w-4 text-cyan-300" />
+          <p className="mt-3 text-3xl font-black text-white">{campaignsQuery.isLoading ? "—" : verifiedResults.toLocaleString()}</p>
+          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Recorded redemptions / results</p>
         </div>
       </div>
 
-      {/* 3. Dynamic Budget Estimator & Intelligence Bureau */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-6 space-y-4">
-          <div className="flex items-center gap-2">
-            <Calculator className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-black text-white">Campaign ROI & Budget Estimator</h3>
-          </div>
-          <BrandEstimator />
+      <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-6">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Decision framework</p>
+        <h3 className="mt-2 text-xl font-black text-white">What should happen after the evidence?</h3>
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          {[
+            {
+              icon: Scale,
+              title: "Compare against the objective",
+              copy: "Judge the campaign against the customer action it was built to create, not against generic reach or vanity metrics.",
+            },
+            {
+              icon: CircleDollarSign,
+              title: "Fund only what is understood",
+              copy: "A budget is an input. ROI is a conclusion. Do not display projected or modeled ROI as realized performance.",
+            },
+            {
+              icon: CheckCircle2,
+              title: "Repeat, change, or stop",
+              copy: "Use verified movement to decide whether to scale the same approach, revise the offer/audience, or stop investing in it.",
+            },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.title} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <Icon className="h-4 w-4 text-primary" />
+                <h4 className="mt-3 text-sm font-black text-white">{item.title}</h4>
+                <p className="mt-2 text-xs leading-5 text-white/50">{item.copy}</p>
+              </div>
+            );
+          })}
         </div>
+      </section>
 
-        <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-6 space-y-4">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-black text-white">Agency & Intelligence Bureau</h3>
-          </div>
-          <IntelligenceBureau />
-        </div>
-      </div>
+      <section className="rounded-2xl border border-dashed border-white/15 p-5 text-sm leading-6 text-white/50">
+        <strong className="text-white">Not asserted here:</strong> escrow balance, liquidity APY, realized ROI, quarterly disbursement, or AI budget performance. Those belong in the product only when the underlying financial and attribution records can support them.
+      </section>
     </div>
   );
 }
