@@ -4,6 +4,7 @@ import {
   isFullOperatorIdentity,
   mapWorkspaceRole,
   resolvePreferredWorkspaceRole,
+  workspaceRoleFromOrganizationType,
 } from "./auth-roles";
 
 describe("auth roles", () => {
@@ -24,6 +25,21 @@ describe("auth roles", () => {
     expect(
       resolvePreferredWorkspaceRole(["admin", "participant"], { savedRole: "participant" }),
     ).toBe("participant");
+  });
+
+  it("does not let an unordered participant row hide a real workspace role", () => {
+    expect(resolvePreferredWorkspaceRole(["participant", "agency"])).toBe("agency");
+    expect(resolvePreferredWorkspaceRole(["participant", "brand"])).toBe("brand");
+    expect(resolvePreferredWorkspaceRole(["participant", "merchant"])).toBe("merchant");
+    expect(resolvePreferredWorkspaceRole(["participant"])).toBe("participant");
+    expect(resolvePreferredWorkspaceRole([])).toBeNull();
+  });
+
+  it("maps canonical organization types to workspace roles", () => {
+    expect(workspaceRoleFromOrganizationType("agency")).toBe("agency");
+    expect(workspaceRoleFromOrganizationType("brand")).toBe("brand");
+    expect(workspaceRoleFromOrganizationType("merchant")).toBe("merchant");
+    expect(workspaceRoleFromOrganizationType("community")).toBeNull();
   });
 
   it("treats Get PromoCard next as a consumer destination", () => {

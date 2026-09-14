@@ -49,6 +49,14 @@ export function mapWorkspaceRole(role: string): WorkspaceRole {
   return "participant";
 }
 
+export function workspaceRoleFromOrganizationType(type?: string | null): WorkspaceRole | null {
+  const normalized = String(type || "").toLowerCase().trim();
+  if (normalized === "brand") return "brand";
+  if (normalized === "merchant") return "merchant";
+  if (normalized === "agency") return "agency";
+  return null;
+}
+
 export function isFullOperatorKey(role?: string | null): boolean {
   return FULL_OPERATOR_KEYS.has(String(role || "").toLowerCase().trim());
 }
@@ -81,5 +89,11 @@ export function resolvePreferredWorkspaceRole(
     if (availableRoles.includes(candidate)) return candidate;
   }
 
-  return availableRoles[0] ?? null;
+  // `user_roles` is not ordered by business importance. Accounts frequently
+  // carry participant alongside a commercial workspace role, so accepting the
+  // first row can silently send an agency/brand/merchant user to People Home.
+  // Participant is the universal fallback, not the preferred workspace when a
+  // more specific capability is available.
+  return availableRoles.find((role) => role !== "participant")
+    ?? (availableRoles.includes("participant") ? "participant" : null);
 }
