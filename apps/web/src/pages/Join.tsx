@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
-import { ArrowRight, Building2, CalendarDays, Megaphone, Store, Users, UserRound, BriefcaseBusiness } from "lucide-react";
+import { ArrowRight, Building2, CalendarDays, Megaphone, Store, Users, UserRound, Briefcase } from "lucide-react";
 
 const paths = [
   {
@@ -49,7 +49,7 @@ const paths = [
     description: "Operate campaigns and client growth from one system while keeping each client relationship and result clear.",
     href: "/for-agencies",
     cta: "Explore agency tools",
-    icon: BriefcaseBusiness,
+    icon: Briefcase,
   },
   {
     eyebrow: "I lead a community",
