@@ -1,33 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import {
-  Film,
-  Target,
-  Link2,
-  Coins,
-  Award,
-  Plus,
-  ArrowRight,
-  TrendingUp,
-  Sparkles,
-  DollarSign,
-  Gem,
-  Video,
-  ChevronRight,
-  Vote,
-} from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { Award, Coins, Film, Link2, Target, Vote } from "lucide-react";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
-import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { StoryGamificationRail } from "@/components/StoryGamificationRail";
-import { RightUtilityRail } from "@/components/RightUtilityRail";
-import { SpinWheelModal } from "@/components/SpinWheelModal";
-import { TeamSlashModal } from "@/components/TeamSlashModal";
-import { DailyRewardsModal } from "@/components/DailyRewardsModal";
-import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 
-// Modular Creator Consoles
 import CreatorStudioConsole from "@/components/creator/CreatorStudioConsole";
 import CreatorMissionsHub from "@/components/creator/CreatorMissionsHub";
 import CreatorAttributionMap from "@/components/creator/CreatorAttributionMap";
@@ -35,174 +11,89 @@ import CreatorEarningsVault from "@/components/creator/CreatorEarningsVault";
 import CreatorReputationDeck from "@/components/creator/CreatorReputationDeck";
 
 export function CreatorDashboardV2() {
-  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const defaultTab = searchParams.get("tab") || "studio";
+  const defaultTab = searchParams.get("tab") || "missions";
   const [activeTab, setActiveTab] = useState(defaultTab);
-
-  const [wheelOpen, setWheelOpen] = useState(false);
-  const [slashOpen, setSlashOpen] = useState(false);
-  const [streakOpen, setStreakOpen] = useState(false);
 
   useEffect(() => {
     const requestedTab = searchParams.get("tab");
     if (requestedTab) setActiveTab(requestedTab);
   }, [searchParams]);
 
-  const handleTabChange = (val: string) => {
-    setActiveTab(val);
-    setSearchParams((prev) => {
-      prev.set("tab", val);
-      return prev;
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      next.set("tab", value);
+      return next;
     });
   };
 
-  const creatorName = user?.user_metadata?.full_name?.split(" ")[0] || "Creator";
+  const tabs = [
+    { id: "demand", label: "Audience demand", hint: "What people are asking for", icon: Vote, count: "Listen" },
+    { id: "missions", label: "Opportunities", hint: "Work worth taking", icon: Target, count: "Choose" },
+    { id: "studio", label: "Create & submit", hint: "Your content and deliverables", icon: Film, count: "Create" },
+    { id: "attribution", label: "Attributed actions", hint: "What your work caused", icon: Link2, count: "Prove" },
+    { id: "earnings", label: "Earnings", hint: "Approved rewards and value", icon: Coins, count: "Review" },
+    { id: "reputation", label: "Reputation", hint: "What your proven work unlocks", icon: Award, count: "Build" },
+  ];
 
   return (
-    <div className="space-y-6 text-white pb-16 animate-in fade-in-50 duration-300">
-      {/* 0. Top Story & Action Rail */}
-      <StoryGamificationRail
-        onOpenWheel={() => setWheelOpen(true)}
-        onOpenStreak={() => setStreakOpen(true)}
-      />
+    <div className="space-y-6 pb-16 text-white animate-in fade-in-50 duration-300">
+      <section className="rounded-3xl border border-purple-500/20 bg-purple-950/15 p-5 sm:p-6">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-300">Creator tools</p>
+        <h2 className="mt-2 text-2xl font-black text-white">Choose useful work, cause an action, prove the result.</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
+          Promorang should help you earn because your creative work or distribution produced something verifiable — not because you learned a complicated creator dashboard. Start with the opportunity, then use the tools only when they are relevant.
+        </p>
+      </section>
 
-      {/* 1. Header & Live Creator Status Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl border border-purple-500/30 bg-gradient-to-r from-purple-950/40 via-black to-black backdrop-blur-xl">
-        <div className="flex items-center gap-3.5">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center text-black font-black shadow-lg shadow-purple-500/20 shrink-0">
-            <Film className="h-6 w-6 text-black" />
-          </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-black text-white">
-                Creator Command Studio
-              </h1>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-purple-500/40 bg-purple-500/10 text-purple-300 text-[10px] font-black uppercase tracking-wider">
-                <span className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />
-                <span>Vanguard Creator Active</span>
-              </span>
-            </div>
-            <p className="text-xs text-white/60 mt-0.5">
-              Take a live perk, share the drop, and get paid after the merchant validates the code.
-            </p>
-          </div>
-        </div>
-
-        {/* Quick Action Pills */}
-        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
-          <Link
-            to="/earn"
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-purple-400/40 bg-purple-400/10 hover:bg-purple-400/20 text-purple-300 text-xs font-black transition"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Take a perk</span>
-          </Link>
-
-          <Link
-            to="/give"
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-white/10 bg-white/5 hover:border-purple-400/40 hover:bg-white/10 transition"
-          >
-            <Link2 className="h-4 w-4 text-purple-400" />
-            <span className="text-xs font-black text-white">Share a drop</span>
-          </Link>
-        </div>
-      </div>
-
-      <LiveLoopActions role="creator" title="Today's live loop" />
-
-      {/* 3. The 5 Operational Creator Arenas */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
-        {[
-          { id: "demand", label: "Audience Ask", icon: Vote, hint: "What people named", count: "Live asks" },
-          { id: "studio", label: "Media Studio", icon: Film, hint: "Published stories", count: "3 Live" },
-          { id: "missions", label: "Bounties Board", icon: Target, hint: "Brand briefs", count: "$1.2k Pool" },
-          { id: "attribution", label: "O2O Smart Links", icon: Link2, hint: "Door check-ins", count: "158 Visits" },
-          { id: "earnings", label: "Earnings Vault", icon: Coins, hint: "Cash & Gems", count: "$465 Ready" },
-          { id: "reputation", label: "Cultural Tiers", icon: Award, hint: "Vibe score & rank", count: "L2 Vanguard" },
-        ].map((tab) => {
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
+        {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => handleTabChange(tab.id)}
-              className={`p-4 rounded-3xl border transition-all duration-200 flex flex-col justify-between min-h-[115px] text-left group ${
+              className={`flex min-h-[112px] flex-col justify-between rounded-3xl border p-4 text-left transition ${
                 isActive
-                  ? "border-purple-500 bg-purple-950/40 shadow-lg shadow-purple-500/10 ring-1 ring-purple-400/50"
+                  ? "border-purple-500 bg-purple-950/35 ring-1 ring-purple-500/40"
                   : "border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.05]"
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className={`p-2 rounded-2xl ${isActive ? "bg-purple-500 text-white" : "bg-white/5 text-purple-400 group-hover:scale-105 transition"}`}>
+              <div className="flex items-center justify-between gap-2">
+                <span className={`rounded-2xl p-2 ${isActive ? "bg-purple-500 text-white" : "bg-white/5 text-purple-400"}`}>
                   <Icon className="h-4 w-4" />
                 </span>
-                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isActive ? "bg-purple-500/20 text-purple-300 border border-purple-500/30" : "bg-white/5 text-white/50"}`}>
-                  {tab.count}
-                </span>
+                <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-bold text-white/50">{tab.count}</span>
               </div>
               <div>
-                <h3 className={`font-black text-xs ${isActive ? "text-purple-300" : "text-white group-hover:text-purple-300 transition"}`}>
-                  {tab.label}
-                </h3>
-                <p className="text-[10px] text-white/50">{tab.hint}</p>
+                <h3 className="text-xs font-black text-white">{tab.label}</h3>
+                <p className="mt-0.5 text-[10px] text-white/50">{tab.hint}</p>
               </div>
             </button>
           );
         })}
       </div>
 
-      {/* 4. Dedicated Modular Tab Content Viewports */}
-      <div className="grid gap-6 2xl:grid-cols-[minmax(0,2fr)_360px]">
-        <div className="min-w-0">
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-            <TabsList className="sr-only">
-              <TabsTrigger value="demand">Demand</TabsTrigger>
-              <TabsTrigger value="studio">Studio</TabsTrigger>
-              <TabsTrigger value="missions">Bounties</TabsTrigger>
-              <TabsTrigger value="attribution">Attribution</TabsTrigger>
-              <TabsTrigger value="earnings">Earnings</TabsTrigger>
-              <TabsTrigger value="reputation">Reputation</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="demand" className="mt-0">
-              <DiscoveryDemandInbox role="creator" />
-            </TabsContent>
-
-            <TabsContent value="studio" className="mt-0">
-              <CreatorStudioConsole />
-            </TabsContent>
-
-            <TabsContent value="missions" className="mt-0">
-              <CreatorMissionsHub />
-            </TabsContent>
-
-            <TabsContent value="attribution" className="mt-0">
-              <CreatorAttributionMap />
-            </TabsContent>
-
-            <TabsContent value="earnings" className="mt-0">
-              <CreatorEarningsVault />
-            </TabsContent>
-
-            <TabsContent value="reputation" className="mt-0">
-              <CreatorReputationDeck />
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Right Utility Rail */}
-        <RightUtilityRail
-          onOpenSlashModal={() => setSlashOpen(true)}
-          onOpenStreakModal={() => setStreakOpen(true)}
-        />
-      </div>
-
-      {/* Modals */}
-      <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
-      <TeamSlashModal isOpen={slashOpen} onClose={() => setSlashOpen(false)} />
-      <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+        <TabsList className="sr-only">
+          <TabsTrigger value="demand">Demand</TabsTrigger>
+          <TabsTrigger value="missions">Opportunities</TabsTrigger>
+          <TabsTrigger value="studio">Create</TabsTrigger>
+          <TabsTrigger value="attribution">Attribution</TabsTrigger>
+          <TabsTrigger value="earnings">Earnings</TabsTrigger>
+          <TabsTrigger value="reputation">Reputation</TabsTrigger>
+        </TabsList>
+        <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="creator" /></TabsContent>
+        <TabsContent value="missions" className="mt-0"><CreatorMissionsHub /></TabsContent>
+        <TabsContent value="studio" className="mt-0"><CreatorStudioConsole /></TabsContent>
+        <TabsContent value="attribution" className="mt-0"><CreatorAttributionMap /></TabsContent>
+        <TabsContent value="earnings" className="mt-0"><CreatorEarningsVault /></TabsContent>
+        <TabsContent value="reputation" className="mt-0"><CreatorReputationDeck /></TabsContent>
+      </Tabs>
     </div>
   );
 }
