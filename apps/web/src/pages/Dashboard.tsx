@@ -82,7 +82,7 @@ const Dashboard = () => {
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
       <ManagedWorkspaceContext />
-      <RoleJobFirstGuide role={resolvedRole} />
+      {resolvedRole !== "merchant" && <RoleJobFirstGuide role={resolvedRole} />}
       <MobileNotificationBridgeBanner />
       {activeDraft && <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />}
       <Suspense fallback={dashboardFallback}>
