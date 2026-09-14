@@ -46,7 +46,8 @@ const Onboarding = () => {
     }
 
     if (!completed) {
-      const { error } = await supabase
+      // public.users is a legacy table not yet represented by generated types.
+      const { error } = await (supabase as any)
         .from("users")
         .update({ onboarding_completed: true })
         .eq("id", user.id);
