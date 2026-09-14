@@ -20,8 +20,9 @@ describe("post-auth-next", () => {
     expect(sanitizePostAuthNext("/auth")).toBeNull();
   });
 
-  it("recognizes host and commercial return paths", () => {
+  it("recognizes role and commercial return paths", () => {
     expect(isCommercialNext("/propose/new?from=moment")).toBe(true);
+    expect(isCommercialNext("/for-agencies")).toBe(true);
     expect(isCommercialNext("/discover/moments")).toBe(false);
     expect(roleFromNext("/propose/new?from=moment")).toBe("host");
     expect(roleFromNext("/propose?audience=brand")).toBe("brand");
@@ -29,6 +30,8 @@ describe("post-auth-next", () => {
     expect(roleFromNext("/for-creators")).toBe("creator");
     expect(roleFromNext("/for-merchants")).toBe("merchant");
     expect(roleFromNext("/for-brands")).toBe("brand");
+    expect(roleFromNext("/for-agencies")).toBe("agency");
+    expect(roleFromNext("/dashboard?view=studio&tab=clients&role=agency")).toBe("agency");
     expect(roleFromNext("/stock")).toBe("merchant");
     expect(roleFromNext("/create/moment")).toBe("host");
     expect(roleFromNext("/create/campaign")).toBe("brand");
@@ -36,19 +39,19 @@ describe("post-auth-next", () => {
     expect(roleFromNext("/create/campaign?from=sponsor")).toBe("brand");
   });
 
-  it("returns hosts to the proposal they started, not the member home", () => {
+  it("returns users to the explicit job they started", () => {
     expect(resolvePostAuthPath({
       requestedNext: "/propose/new?from=moment",
       role: "admin",
     })).toBe("/propose/new?from=moment");
   });
 
-  it("lands each role in its correct default workspace", () => {
+  it("lands each role in its canonical default workspace", () => {
     expect(defaultPostAuthPath("host")).toBe("/dashboard?view=studio");
     expect(defaultPostAuthPath("creator")).toBe("/dashboard?view=studio");
     expect(defaultPostAuthPath("merchant")).toBe("/dashboard?view=studio");
     expect(defaultPostAuthPath("brand")).toBe("/dashboard?view=studio");
-    expect(defaultPostAuthPath("agency")).toBe("/dashboard?view=studio");
+    expect(defaultPostAuthPath("agency")).toBe("/dashboard?view=studio&tab=clients");
     expect(defaultPostAuthPath("promoter")).toBe("/promopush/promoter");
     expect(defaultPostAuthPath("marketing")).toBe("/promopush");
     expect(defaultPostAuthPath("admin")).toBe("/admin?tab=command");
