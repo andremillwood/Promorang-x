@@ -168,7 +168,7 @@ export function firstActionsForRole(role: string | null | undefined): FirstActio
 export function landingPathForRole(role: string | null | undefined): string {
   const key = String(role || '').toLowerCase();
   if (key === 'agency') return LIVE_PATHS.agencyClients;
-  if (key === 'merchant' || key === 'brand' || key === 'marketing') return LIVE_PATHS.putPerkUp;
+  if (key === 'merchant' || key === 'brand') return LIVE_PATHS.putPerkUp;
   if (key === 'host') return LIVE_PATHS.createMoment;
   if (key === 'creator') return LIVE_PATHS.contentDrops;
   return LIVE_PATHS.card;
