@@ -43,13 +43,16 @@ describe("post-auth-next", () => {
     })).toBe("/propose/new?from=moment");
   });
 
-  it("lands commercial roles in the studio workspace when nothing was in progress", () => {
+  it("lands each role in its correct default workspace", () => {
     expect(defaultPostAuthPath("host")).toBe("/dashboard?view=studio");
     expect(defaultPostAuthPath("creator")).toBe("/dashboard?view=studio");
     expect(defaultPostAuthPath("merchant")).toBe("/dashboard?view=studio");
     expect(defaultPostAuthPath("brand")).toBe("/dashboard?view=studio");
+    expect(defaultPostAuthPath("agency")).toBe("/dashboard?view=studio");
+    expect(defaultPostAuthPath("promoter")).toBe("/promopush/promoter");
+    expect(defaultPostAuthPath("marketing")).toBe("/promopush");
     expect(defaultPostAuthPath("admin")).toBe("/admin?tab=command");
-    expect(defaultPostAuthPath("participant")).toBe("/dashboard");
+    expect(defaultPostAuthPath("participant")).toBe("/home");
   });
 
   it("builds an auth URL that keeps the host return path", () => {
