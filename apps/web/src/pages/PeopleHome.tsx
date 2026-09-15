@@ -74,12 +74,15 @@ export default function PeopleHome() {
   });
 
   const hasMovement = Boolean(cardPerks || claimed || used || Number(data?.people || 0) || earned || perksGiven);
+  const participantHasSelected = Boolean(cardPerks || claimed || used);
+  const participantHasCommitted = Boolean(claimed || cardPerks || used);
+  const participantHasUsed = Boolean(used);
   const outcomeStages = isMemberWorkspace
     ? [
-        { id: "find", label: "Find something worthwhile", status: cardPerks || claimed || used ? "complete" as const : "current" as const },
-        { id: "keep", label: "Put it on your card", status: cardPerks ? "complete" as const : claimed ? "current" as const : "upcoming" as const },
-        { id: "use", label: "Use it", status: used ? "complete" as const : cardPerks ? "current" as const : "upcoming" as const },
-        { id: "return", label: "Come back for what fits you", status: used > 1 ? "current" as const : "upcoming" as const },
+        { id: "find", label: "Find something worthwhile", status: participantHasSelected ? "complete" as const : "current" as const },
+        { id: "keep", label: "Put it on your card", status: participantHasCommitted ? "complete" as const : participantHasSelected ? "current" as const : "upcoming" as const },
+        { id: "use", label: "Use it", status: participantHasUsed ? "complete" as const : participantHasCommitted ? "current" as const : "upcoming" as const },
+        { id: "return", label: "Come back for what fits you", status: participantHasUsed ? "current" as const : "upcoming" as const },
       ]
     : [
         { id: "put-in", label: lens.putIn.label, status: perksGiven || earned ? "complete" as const : "current" as const },
