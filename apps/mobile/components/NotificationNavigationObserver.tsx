@@ -35,16 +35,17 @@ export function NotificationNavigationObserver() {
       if (!destination) return;
 
       const gateState = gateStateRef.current;
-      // If auth/setup state is known to require a gate, persist the notification
-      // job before navigating. If state is still hydrating, the root gate will
-      // capture the destination after this push if a gate is actually needed.
       if (!gateState.isLoading && !gateState.onboardingLoading && (!gateState.session || !gateState.onboardingCompleted)) {
         await rememberPendingNavigation(String(destination));
       }
       router.push(destination);
     };
 
-    void Notifications.getLastNotificationResponseAsync().then(open);
+    void Notifications.getLastNotificationResponseAsync().then(async (response) => {
+      if (!response) return;
+      await open(response);
+      await Notifications.clearLastNotificationResponseAsync();
+    });
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       void open(response);
     });
