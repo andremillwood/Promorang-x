@@ -16,13 +16,13 @@ The goal is not to replace product logic. It is to make existing logic legible, 
 
 ## Current branch implementation
 
-The branch now includes a real authenticated-shell cutover, a migrated Participant Home, and the first signature objects.
+The branch now includes a Participant-first authenticated-shell canary, a migrated Participant Home, and the first signature objects.
 
-### Authenticated V2 shell
+### Participant V2 shell canary
 
-`AppLayout.tsx` now routes authenticated application traffic through `PromorangAppShell.tsx` instead of the legacy `DashboardLayout.tsx`.
+`AppLayout.tsx` routes authenticated **Participant** workspace traffic through `PromorangAppShell.tsx`.
 
-The legacy layout remains intact as a rollback reference while V2 is runtime-validated.
+Merchant, Creator, Host, Brand, Agency and Admin continue to use the legacy `DashboardLayout.tsx` until each role migration has runtime validation. The legacy layout remains intact as both production-safe fallback and migration reference.
 
 The V2 shell provides:
 
@@ -148,7 +148,7 @@ Use the least motion needed for context continuity, stage completion, verified s
 ## Migration order
 
 0. Foundation tokens + primitives
-1. App shell / workspace model
+1. Participant shell canary / workspace model
 2. Participant home
 3. PromoCard + Consequence Receipt
 4. Discover / canonical Opportunity object
@@ -161,7 +161,7 @@ Use the least motion needed for context continuity, stage completion, verified s
 
 ## Runtime validation status
 
-The branch remains draft-only. Vercel preview checks are currently blocked by the connected account build-rate limit rather than a reported application build failure. No successful CI/local runtime proof has yet been recorded for the shell cutover.
+The branch remains draft-only. Vercel preview checks are currently blocked by the connected account build-rate limit rather than a reported application build failure. No successful CI/local runtime proof has yet been recorded for the Participant shell canary.
 
 Do not merge or deploy based on source inspection alone.
 
