@@ -1,25 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { readIntendedStakeholderRole } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { isConsumerPostAuthNext } from "@/lib/auth-roles";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
 import { flushMarketingIntent } from "@/lib/marketing-attribution";
 import { AFTRHRS_PATHS } from "@promorang/shared";
 import { hasAftrHrsClaimPending } from "@/lib/aftrhrs-claim";
 import { consumePostAuthNext, peekPostAuthNext, resolvePostAuthPath, roleFromNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
-import { readWorkspaceStartPage } from "@/lib/workspace-start-page";
+import { resolveSavedLandingPreference } from "@/lib/landing-page-preference";
 
 /**
  * Post-Login Router
- * Intelligently routes users based on explicit intent, role, saved start page,
- * and onboarding completion.
+ * Routes only after authentication AND workspace-role hydration are complete.
  */
 export function PostLoginRouter() {
   const { user, activeRole, roles, setActiveRole, loading, applyIntendedRole } = useAuth();
   const navigate = useNavigate();
+  const routingStarted = useRef(false);
 
   useEffect(() => {
     if (loading) return;
@@ -27,6 +26,9 @@ export function PostLoginRouter() {
       navigate(peekPostAuthNext() || "/auth?mode=login", { replace: true });
       return;
     }
+
+    if (roles.length === 0 || !activeRole || routingStarted.current) return;
+    routingStarted.current = true;
 
     const determineLandingPage = async () => {
       await flushMarketingIntent().catch(() => undefined);
@@ -36,8 +38,8 @@ export function PostLoginRouter() {
         readIntendedStakeholderRole(sessionStorage) ||
         roleFromNext(requestedNext);
       const appliedRole = intendedRole ? await applyIntendedRole(user.id, intendedRole) : activeRole;
+      const effectiveRole = appliedRole || activeRole;
 
-      // Explicit deep-link intent always wins over a saved start-page preference.
       if (requestedNext) {
         const aimed = promoCardAimFromNext(requestedNext);
         if (aimed) writePromoCardAim(aimed);
@@ -54,35 +56,48 @@ export function PostLoginRouter() {
         return;
       }
 
-      if (appliedRole === "admin" || (roles.includes("admin") && !isConsumerPostAuthNext(requestedNext))) {
-        navigate(readWorkspaceStartPage(user.id, "admin") || "/admin?tab=command", { replace: true });
+      let onboardingCompleted = true;
+      if (effectiveRole !== "admin") {
+        const { data, error } = await supabase
+          .from("user_preferences")
+          .select("onboarding_completed")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        onboardingCompleted = error ? true : Boolean(data?.onboarding_completed);
+      }
+
+      if (!onboardingCompleted) {
+        navigate(resolvePostAuthPath({ role: effectiveRole, onboardingCompleted: false }), { replace: true });
         return;
       }
 
-      // Onboarding is the only prerequisite. First actions belong on the
-      // dashboard, not in a chain of forced redirects after every sign-in.
-      const { data, error } = await supabase
-        .from("user_preferences")
-        .select("onboarding_completed")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      const preferredLanding = resolveSavedLandingPreference({
+        path: user.user_metadata?.preferred_landing_path,
+        role: user.user_metadata?.preferred_landing_role,
+        roles,
+        activeRole: effectiveRole,
+      });
 
-      const role = appliedRole || activeRole;
-      const onboardingCompleted = error ? true : Boolean(data?.onboarding_completed);
-      const savedStartPage = onboardingCompleted
-        ? readWorkspaceStartPage(user.id, role)
-        : null;
+      if (preferredLanding?.path) {
+        if (preferredLanding.role && preferredLanding.role !== activeRole) {
+          setActiveRole(preferredLanding.role);
+        }
+        navigate(preferredLanding.path, { replace: true });
+        return;
+      }
 
-      navigate(savedStartPage || resolvePostAuthPath({
-        role,
-        onboardingCompleted,
+      navigate(resolvePostAuthPath({
+        role: effectiveRole,
+        onboardingCompleted: true,
       }), { replace: true });
     };
 
-    determineLandingPage();
+    determineLandingPage().catch((error) => {
+      console.error("[PostLoginRouter] Failed to determine landing page:", error);
+      navigate(resolvePostAuthPath({ role: activeRole, onboardingCompleted: true }), { replace: true });
+    });
   }, [user, activeRole, loading, navigate, roles, setActiveRole, applyIntendedRole]);
 
-  // Show loading while determining route
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
