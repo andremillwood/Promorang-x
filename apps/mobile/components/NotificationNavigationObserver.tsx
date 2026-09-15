@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Href, useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { resolveNotificationJourney } from '@promorang/shared';
 import { useAuth } from '@/context/AuthContext';
@@ -23,6 +23,8 @@ export function NotificationNavigationObserver() {
   const router = useRouter();
   const { session, isLoading } = useAuth();
   const { completed: onboardingCompleted, loading: onboardingLoading } = useOnboarding();
+  const gateStateRef = useRef({ session, isLoading, onboardingCompleted, onboardingLoading });
+  gateStateRef.current = { session, isLoading, onboardingCompleted, onboardingLoading };
 
   useEffect(() => {
     if (Platform.OS === 'web') return;
@@ -32,10 +34,11 @@ export function NotificationNavigationObserver() {
       const destination = destinationFor(response.notification.request.content.data);
       if (!destination) return;
 
+      const gateState = gateStateRef.current;
       // If auth/setup state is known to require a gate, persist the notification
       // job before navigating. If state is still hydrating, the root gate will
       // capture the destination after this push if a gate is actually needed.
-      if (!isLoading && !onboardingLoading && (!session || !onboardingCompleted)) {
+      if (!gateState.isLoading && !gateState.onboardingLoading && (!gateState.session || !gateState.onboardingCompleted)) {
         await rememberPendingNavigation(String(destination));
       }
       router.push(destination);
@@ -46,7 +49,7 @@ export function NotificationNavigationObserver() {
       void open(response);
     });
     return () => subscription.remove();
-  }, [router, session, isLoading, onboardingCompleted, onboardingLoading]);
+  }, [router]);
 
   return null;
 }
