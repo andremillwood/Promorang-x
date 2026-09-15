@@ -8,6 +8,7 @@ import { useAllUsers, useModerationOverview, usePlatformStats } from "@/hooks/us
 import { canAccessAdminTab, type AdminAccessProfile } from "@/lib/admin-access";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NextMove, OutcomeSurface, PageLead } from "@/components/promorang-v2";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://api.promorang.co";
 
@@ -162,6 +163,11 @@ export function AdminCommandCenter({ accessProfile }: { accessProfile: AdminAcce
 
   const loading = users.isLoading || moderation.isLoading || operations.isLoading || stats.isLoading;
   const hasLoadError = users.isError || moderation.isError || operations.isError || stats.isError;
+  const priorityWork = useMemo(
+    () => work.find((item) => item.urgent && (item.count || 0) > 0) || work.find((item) => (item.count || 0) > 0) || work[0],
+    [work],
+  );
+  const remainingWork = priorityWork ? work.filter((item) => item.id !== priorityWork.id) : work;
 
   async function refresh() {
     setIsRefreshing(true);
@@ -175,97 +181,116 @@ export function AdminCommandCenter({ accessProfile }: { accessProfile: AdminAcce
   }
 
   return (
-    <div className="space-y-6 text-white animate-in fade-in-50 duration-300">
-      <section className="overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-950/35 via-[#0d1218] to-[#080b10] shadow-xl">
-        <div className="grid gap-6 p-6 lg:grid-cols-[1.4fr_1fr] lg:p-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">Your admin home</p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Start with the work that needs you.</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
-              This workspace is shaped around your responsibilities as {accessProfile.label}. Open a queue below, complete what you can, and escalate anything outside your authority.
-            </p>
-          </div>
-          <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <ShieldCheck className="h-4 w-4 text-cyan-300" /> Your responsibilities
+    <div className="pr-v2-role-accent pr-v2-canvas rounded-[var(--pr-v2-radius-module)]" data-role="admin">
+      <div className="pr-v2-page space-y-9 py-2 sm:py-4">
+        <PageLead
+          eyebrow={`Admin · ${accessProfile.label}`}
+          title="What needs you?"
+          description="Start with the highest-priority work you are authorized to resolve. Everything else stays secondary until it needs attention."
+          action={
+            <Button size="sm" variant="outline" onClick={refresh} disabled={isRefreshing} className="border-white/10 bg-white/5 text-white hover:bg-white/10">
+              <RefreshCw className={`mr-2 h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} /> Refresh work
+            </Button>
+          }
+        />
+
+        {hasLoadError ? (
+          <div role="status" className="flex gap-3 border-y border-amber-500/20 py-4 text-sm text-amber-100">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+            <div>
+              <p className="font-semibold">Some live counts are unavailable.</p>
+              <p className="mt-1 text-xs text-amber-100/70">The work areas you can access are still available. Refresh to retry the live counts.</p>
             </div>
-            <ul className="mt-3 space-y-2">
+          </div>
+        ) : null}
+
+        {loading && !work.length ? (
+          <Skeleton className="h-56 rounded-[var(--pr-v2-radius-module)] bg-white/5" />
+        ) : priorityWork ? (
+          <NextMove
+            eyebrow={priorityWork.urgent ? "Highest priority" : "Start here"}
+            title={priorityWork.title}
+            description={priorityWork.description}
+            reason={typeof priorityWork.count === "number" ? `${priorityWork.count.toLocaleString()} ${priorityWork.countLabel || "items"} currently visible to your role.` : "This is the first available queue within your current access."}
+            action={
+              <Link to={priorityWork.href} className="pr-v2-focusable inline-flex min-h-11 items-center gap-2 rounded-[var(--pr-v2-radius-control)] bg-[hsl(var(--pr-v2-active-role))] px-5 text-sm font-bold text-black">
+                {priorityWork.action}<ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            }
+          />
+        ) : (
+          <OutcomeSurface>
+            <p className="font-semibold">No work queue is currently available for this access level.</p>
+            <p className="mt-2 text-sm text-[hsl(var(--pr-v2-text-2))]">If this is unexpected, review the administrator role and capabilities assigned to this account.</p>
+          </OutcomeSurface>
+        )}
+
+        <section aria-labelledby="admin-queue" className="space-y-3">
+          <div>
+            <p className="pr-v2-eyebrow">Operating queue</p>
+            <h2 id="admin-queue" className="pr-v2-heading mt-2">Everything else requiring attention</h2>
+          </div>
+          <div className="divide-y divide-white/10 border-y border-white/10">
+            {remainingWork.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link key={item.id} to={item.href} className="pr-v2-focusable group grid gap-3 py-5 sm:grid-cols-[42px_minmax(0,1fr)_auto] sm:items-center">
+                  <span className="grid size-10 place-items-center rounded-[var(--pr-v2-radius-control)] bg-[hsl(var(--pr-v2-active-role)/0.10)] text-[hsl(var(--pr-v2-active-role))]">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span className="flex flex-wrap items-center gap-2 font-semibold text-[hsl(var(--pr-v2-text-1))]">
+                      {item.title}
+                      {item.urgent ? <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-200">Priority</span> : null}
+                    </span>
+                    <span className="mt-1 block text-sm leading-6 text-[hsl(var(--pr-v2-text-2))]">{item.description}</span>
+                  </span>
+                  <span className="flex min-w-32 items-center justify-between gap-4 sm:justify-end">
+                    {typeof item.count === "number" ? (
+                      <span className="text-right">
+                        <span className="block text-lg font-semibold">{item.count.toLocaleString()}</span>
+                        <span className="block text-[10px] text-[hsl(var(--pr-v2-text-3))]">{item.countLabel}</span>
+                      </span>
+                    ) : null}
+                    <ArrowRight className="h-4 w-4 text-[hsl(var(--pr-v2-text-3))] transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="grid gap-6 border-t border-white/10 pt-7 lg:grid-cols-[1fr_1.2fr]">
+          <div>
+            <div className="flex items-center gap-2 text-sm font-semibold">
+              <ShieldCheck className="h-4 w-4 text-[hsl(var(--pr-v2-active-role))]" /> Your responsibilities
+            </div>
+            <ul className="mt-4 space-y-3">
               {ROLE_GUIDANCE[accessProfile.level].map((guidance) => (
-                <li key={guidance} className="flex gap-2 text-xs leading-5 text-white/65">
-                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                <li key={guidance} className="flex gap-2 text-sm leading-6 text-[hsl(var(--pr-v2-text-2))]">
+                  <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-emerald-400" />
                   <span>{guidance}</span>
                 </li>
               ))}
             </ul>
           </div>
-        </div>
-      </section>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">What needs attention</h3>
-          <p className="mt-1 text-sm text-white/50">Only work within your current access is shown here.</p>
-        </div>
-        <Button size="sm" variant="outline" onClick={refresh} disabled={isRefreshing} className="border-white/10 bg-white/5 text-white hover:bg-white/10">
-          <RefreshCw className={`mr-2 h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} /> Refresh work
-        </Button>
-      </div>
-
-      {hasLoadError && (
-        <div role="status" className="flex gap-3 rounded-xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm text-amber-100">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
-          <div>
-            <p className="font-semibold">Some live counts are unavailable.</p>
-            <p className="mt-1 text-xs text-amber-100/70">You can still open the work areas available to you. Refresh to try the counts again.</p>
-          </div>
-        </div>
-      )}
-
-      {loading && !work.length ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {[0, 1, 2].map((item) => <Skeleton key={item} className="h-48 rounded-2xl bg-white/5" />)}
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {work.map((item) => {
-            const Icon = item.icon;
-            const count = typeof item.count === "number" ? item.count.toLocaleString() : null;
-            return (
-              <article key={item.id} className="flex min-h-52 flex-col rounded-2xl border border-white/10 bg-[#0e1218] p-5 transition hover:border-cyan-500/30 hover:bg-[#111721]">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-300"><Icon className="h-5 w-5" /></div>
-                  {count && (
-                    <div className={`rounded-lg px-2.5 py-1 text-right ${item.urgent ? "bg-amber-500/10 text-amber-200" : "bg-white/5 text-white/70"}`}>
-                      <span className="block text-sm font-bold">{count}</span>
-                      <span className="block text-[10px]">{item.countLabel}</span>
-                    </div>
-                  )}
-                </div>
-                <h4 className="mt-4 font-semibold">{item.title}</h4>
-                <p className="mt-2 flex-1 text-sm leading-6 text-white/55">{item.description}</p>
-                <Button asChild variant="ghost" className="mt-4 w-full justify-between bg-white/5 text-white hover:bg-white/10">
-                  <Link to={item.href}>{item.action}<ArrowRight className="h-4 w-4" /></Link>
-                </Button>
-              </article>
-            );
-          })}
-        </div>
-      )}
-
-      {canSeeReports && stats.data && (
-        <section aria-labelledby="platform-summary-title" className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
-          <h3 id="platform-summary-title" className="text-sm font-semibold">Platform summary</h3>
-          <p className="mt-1 text-xs text-white/45">Live totals available to your role. These are not targets or promises.</p>
-          <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[["People", stats.data.totalUsers], ["Moments", stats.data.totalMoments], ["Participations", stats.data.totalParticipations], ["Check-ins", stats.data.totalCheckIns]].map(([label, value]) => (
-              <div key={String(label)} className="rounded-xl border border-white/5 bg-black/15 p-3">
-                <dt className="text-xs text-white/45">{label}</dt>
-                <dd className="mt-1 text-xl font-bold">{Number(value).toLocaleString()}</dd>
-              </div>
-            ))}
-          </dl>
+          {canSeeReports && stats.data ? (
+            <div>
+              <p className="text-sm font-semibold">Platform evidence</p>
+              <p className="mt-1 text-xs text-[hsl(var(--pr-v2-text-3))]">Live totals available to your role. These are context, not targets or promises.</p>
+              <dl className="mt-5 grid grid-cols-2 gap-x-7 gap-y-5">
+                {[["People", stats.data.totalUsers], ["Moments", stats.data.totalMoments], ["Participations", stats.data.totalParticipations], ["Check-ins", stats.data.totalCheckIns]].map(([label, value]) => (
+                  <div key={String(label)} className="border-t border-white/10 pt-3">
+                    <dt className="text-xs text-[hsl(var(--pr-v2-text-3))]">{label}</dt>
+                    <dd className="mt-1 text-2xl font-semibold tracking-[-0.03em]">{Number(value).toLocaleString()}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          ) : null}
         </section>
-      )}
+      </div>
     </div>
   );
 }
