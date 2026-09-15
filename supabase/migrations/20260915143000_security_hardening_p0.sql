@@ -12,11 +12,11 @@
 -- Privileged global role mutations: backend/service-role only.
 REVOKE ALL ON FUNCTION public.grant_user_role(uuid, text, uuid) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.grant_user_role(uuid, text, uuid) TO service_role;
-ALTER FUNCTION public.grant_user_role(uuid, text, uuid) SET search_path = public;
+ALTER FUNCTION public.grant_user_role(uuid, text, uuid) SET search_path = pg_catalog, public;
 
 REVOKE ALL ON FUNCTION public.revoke_user_role(uuid, character varying, text) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.revoke_user_role(uuid, character varying, text) TO service_role;
-ALTER FUNCTION public.revoke_user_role(uuid, character varying, text) SET search_path = public;
+ALTER FUNCTION public.revoke_user_role(uuid, character varying, text) SET search_path = pg_catalog, public;
 
 -- Organization RPCs are legitimate authenticated client actions, but anonymous
 -- execution is unnecessary and expands the exposed SECURITY DEFINER surface.
@@ -41,7 +41,7 @@ WITH (security_invoker = true)
 AS
 SELECT
   u.id AS host_id,
-  u.email AS host_email,
+  u.email::character varying(255) AS host_email,
   count(DISTINCT m.id) AS total_moments,
   sum(mep.total_amount_usd) AS total_rewards_distributed,
   count(DISTINCT r.user_id) AS total_participants,
