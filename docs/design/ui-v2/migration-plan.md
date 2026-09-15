@@ -29,20 +29,12 @@ Implemented:
 
 Merchant, Creator, Host, Brand, Agency and Admin remain on the legacy `DashboardLayout.tsx` until each role has been migrated and checked in a real runtime.
 
-This is deliberate risk containment, not an incomplete architectural decision.
+This is deliberate risk containment. The legacy shell remains intact as a rollback path.
 
-The V2 shell provides:
+Local comparison override:
 
-1. restrained dark chrome;
-2. existing `AuthContext` role/organization workspace state;
-3. role-aware desktop navigation;
-4. five-or-fewer mobile primary destinations;
-5. search/location/language/theme/profile access;
-6. semantic role accents;
-7. simpler primary-work versus secondary-tools hierarchy;
-8. preserved agency-client Brand/Merchant switching behavior.
-
-The legacy shell remains intact as a rollback path.
+- `?ui=v1` persists the legacy Participant shell on that device;
+- `?ui=v2` clears the override and restores the V2 Participant shell.
 
 ### Phase 2 — Participant Home: implemented, runtime validation pending
 
@@ -50,9 +42,9 @@ The legacy shell remains intact as a rollback path.
 
 **Next move + PromoCard → Outcome progress → Proof/Value → Consequence Receipt → Around you**
 
-Removed from the primary presentation are the former parallel teaching/playbook/tool layers. Their underlying routes and capabilities remain available.
+The former parallel teaching/playbook/tool layers were removed from the primary presentation without deleting their underlying routes or capabilities.
 
-### Phase 3 — Signature objects: started
+### Phase 3 — Signature objects: full PromoCard presentation migrated
 
 `PromoCardV2` renders the existing shared PromoCard face model. It does not invent another card state machine.
 
@@ -65,13 +57,17 @@ Authoritative face states remain:
 - used;
 - expired.
 
-`ConsequenceReceipt` is the canonical persistent proof/value artifact.
+The full `/card` route has been reorganized around:
 
-The full `/card` route has **not** yet been visually rewritten because it carries real redemption and fulfilment behavior that must be preserved and runtime-tested.
+**Card → Use now → What you have → Available to add → What comes next → Proof/value**
 
-### Phase 4 — Discover / Opportunity grammar: foundation implemented
+Existing fulfilment and redemption behavior remains wired through current helpers/components, including code/merchant validation, QR, manual/automatic/shipping issuance, expiry, code copy/focus return, card aim, nearby benefits, points/keys, memberships, world/community context, and expired history.
 
-`OpportunityCard` defines a shared opportunity anatomy:
+`ConsequenceReceipt` remains the canonical persistent proof/value artifact.
+
+### Phase 4 — Discover / Opportunity grammar: started incrementally
+
+`OpportunityCard` defines the canonical opportunity anatomy:
 
 - context/status;
 - title/description;
@@ -80,119 +76,181 @@ The full `/card` route has **not** yet been visually rewritten because it carrie
 - proof requirement/context;
 - one primary action.
 
-Discover itself remains on its existing implementation until the new object can be introduced incrementally without breaking search, tabs, map, filters, polls, perks, moments or acquisition flows.
+`LivePerkCard` now renders through `OpportunityCard` while preserving `livePerkHref`, localized benefit presentation, claim/share routing, drop/offer routing and return-to-card behavior.
+
+Discover itself has **not** been wholesale rewritten. Search, tabs, filters, map, polls, Moments and acquisition flows remain authoritative.
+
+### Phase 5 — Merchant commercial reference: Home canary implemented
+
+Merchant continues using the legacy authenticated shell.
+
+Only `/dashboard?tab=home` is canaried to `MerchantOutcomeHomeV2`. Promotions, Customers, Sales & Results and Business still render through the existing `MerchantDashboardV2` implementation.
+
+Merchant Home now follows:
+
+**Business context → Next move → Business goal → Success trail → Proof/value → Live promotions**
+
+The next-move logic is isolated in `merchant-outcome.ts` and tested. It may advance through setup, launch, verification and repeat recommendation from available facts, but it intentionally does **not** mark repeat customer or positive economics complete merely from redemption counts.
+
+Current merchant success trail:
+
+**Business ready → Promotion live → First verified customer → Business value → Repeat customer → Positive economics**
+
+`Attributed sales` remains unavailable (`—`) until transaction value is actually captured and attributable.
+
+### Phase 6 — Creator workstream: presentation migrated, truthfulness conservative
+
+`CreatorDashboardV2` no longer presents six equally weighted toolbox cards.
+
+Primary journey is now:
+
+**Choose useful work → Create/get approved → Cause verified action → Settle value → Earn stronger repeat work**
+
+Because the current dashboard wrapper does not have authoritative facts for approval, attribution, settlement or repeat work, only the first stage is shown as current. No later outcome is fabricated.
+
+Operational tabs remain available as compact secondary navigation:
+
+- Opportunities;
+- Current work;
+- Results;
+- Earnings;
+- Audience demand;
+- Reputation.
+
+### Phase 7 — Host lifecycle: presentation migrated, truthfulness conservative
+
+`HostDashboardV2` now follows:
+
+**Create Moment → Fill it → Run it → Verify attendance → Bring people back → Prove value to partners**
+
+The existing hosted-Moment count is the only fact used to advance the lifecycle. If at least one hosted Moment exists, `Create Moment` may be marked complete and `Fill it` current. Attendance, operating state, repeat behavior and partner proof are not inferred.
+
+Operational tabs remain available as compact secondary navigation:
+
+- Moments;
+- Live arrivals;
+- Proof review;
+- Results;
+- Audience demand;
+- Partners.
+
+### Phase 8 — Brand: intentionally held for runtime-backed migration
+
+Brand currently combines new-workspace onboarding, campaign operations, client/agency context, budget, attribution, intelligence and gamification. It is not being wholesale rewritten on source inspection alone.
+
+Target spine remains:
+
+**Define outcome → Fund → Launch → Attribute → Determine value → Decide**
+
+### Phase 9 — Admin: intentionally held for runtime-backed migration
+
+Admin already has a stronger Command Center path. Do not perform a cosmetic rewrite before the queue-first operating model can be runtime-validated.
+
+Target spine remains:
+
+**What needs attention → Resolve → Verify resolved → Next priority**
 
 ## Validation status
 
 Build/lint/test and rendered browser proof remain pending.
 
-Current Vercel checks are blocked by the connected account build-rate limit rather than a reported application compile failure. No successful CI/local runtime proof has yet been recorded for the new shell.
+Current Vercel checks are blocked by the connected account build-rate limit rather than a reported application compile failure. No successful CI/local runtime proof has yet been recorded for the branch.
+
+Tests have been added for semantic primitives, start-page validation, live-perk destination rules and Merchant outcome-state resolution, but their successful execution has not been proven in this environment.
 
 **Do not merge or deploy the V2 branch based on source inspection alone.**
 
-## Runtime acceptance — Participant shell
+## Runtime acceptance — Participant shell and Home
 
-Before expanding the shell beyond Participant, verify:
+Verify:
 
 - Participant login and post-login routing;
 - saved start-page precedence;
-- role switching away from Participant;
-- return to Participant;
-- organization switching where exposed;
-- mobile drawer;
-- mobile bottom nav;
+- `?ui=v1` / `?ui=v2` shell comparison;
+- role switching away from and back to Participant;
+- mobile drawer and bottom nav;
 - desktop navigation;
-- global search;
-- location switcher;
-- language/theme controls;
-- profile access;
-- sign out;
+- global search/location/language/theme/profile/sign-out controls;
 - deep links;
 - keyboard/focus order;
-- PWA prompt placement.
+- PWA prompt placement;
+- empty/new account;
+- nearby benefit;
+- claimed/ready PromoCard;
+- verified used benefit;
+- returned and expired states;
+- Moment feed empty/error/loading;
+- multi-role account.
 
-## Runtime acceptance — Participant Home
+## Runtime acceptance — Full PromoCard
 
-Verify representative real-account states:
+Verify representative real fulfilment states:
 
-1. empty/new account;
-2. nearby benefit available;
-3. claimed/ready PromoCard;
-4. verified used benefit;
-5. returned state;
-6. expired state;
-7. no confirmed Moments;
-8. Moment feed error/loading;
-9. multi-role account.
+1. code / merchant validation;
+2. QR issuance;
+3. manual fulfilment;
+4. automatic fulfilment;
+5. shipping state;
+6. expired benefit;
+7. recorded use;
+8. clipboard success/failure;
+9. dialog close and focus return;
+10. aim/filter persistence;
+11. nearby and next-benefit flows.
 
-Canonical visual checkpoints:
+## Runtime acceptance — Discover
+
+Verify:
+
+- live perk claim destinations;
+- share destinations;
+- used/credential-bearing return to PromoCard;
+- drop/offer links;
+- tabs/search/filter/map unchanged;
+- discovery polls/acquisition unchanged;
+- empty/loading/error states.
+
+## Runtime acceptance — Merchant Home
+
+Verify:
+
+- no-location state → Business;
+- location but no offers → Promotions;
+- live offer with no redemption → verification/business tools;
+- verified redemption → repeat recommendation;
+- no revenue claim without captured transaction value;
+- links back into the existing Merchant tabs;
+- active-offer and redemption counts against real data;
+- mobile and desktop layout.
+
+## Runtime acceptance — Creator
+
+Verify:
+
+- default Opportunity tab;
+- all six existing tool surfaces still reachable;
+- query-param tab deep links;
+- no false completion of approval, attribution, earnings or repeat work;
+- mobile horizontal tab usability.
+
+## Runtime acceptance — Host
+
+Verify:
+
+- zero-Moment state;
+- hosted-Moment state;
+- create-Moment route;
+- all existing Host consoles still reachable;
+- query-param tab deep links;
+- no inferred attendance/repeat/partner success;
+- mobile horizontal tab usability.
+
+## Visual checkpoints
+
+Canonical design QA viewports:
 
 - desktop 1440×1024;
 - mobile 390×844.
-
-## Full PromoCard migration contract
-
-When `/card` is migrated, preserve all current behavior:
-
-- code fulfilment;
-- merchant validation;
-- QR passes;
-- manual/automatic fulfilment;
-- shipping state;
-- expiry;
-- recorded use;
-- stored card aim;
-- clipboard/copy interactions;
-- offer issuance;
-- dialogs and recovery states.
-
-V2 information order should become:
-
-**Card → Use this now → Other active value → Used/expired history → Find something else**
-
-## Discover migration contract
-
-Discover should answer:
-
-**What is worth doing, claiming, visiting, joining or helping with now?**
-
-Migration sequence:
-
-1. keep existing data/query behavior;
-2. preserve tabs/search/filter/map;
-3. introduce canonical Opportunity presentation to live perks first;
-4. apply the same grammar to Moments where appropriate;
-5. demote secondary/explanatory rails;
-6. preserve discovery polling/acquisition flows;
-7. verify location/empty/loading/error states.
-
-## Commercial role migration order
-
-### Merchant
-
-Preserve the current outcome-first model:
-
-**Home → Promotions → Customers → Sales & Results → Business**
-
-Home is for doing. Results is for analysis. Never imply revenue when transaction value was not captured.
-
-### Creator
-
-**Available opportunity → Current work → Review → Attributed result → Settlement → Stronger next opportunity**
-
-### Host
-
-**Create → Fill → Operate → Verify → Bring back → Partner proof**
-
-### Brand
-
-**Define outcome → Fund → Launch → Attribute → Determine value → Decide**
-
-### Admin
-
-Queue-first Command Center:
-
-**What needs attention → Resolve → Verify resolved → Next priority**
 
 ## Legacy cleanup
 
