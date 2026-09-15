@@ -28,7 +28,6 @@ const START_PAGE_OPTIONS: Record<string, StartPageOption[]> = {
   ],
   brand: [
     { label: "Home", route: "/dashboard?view=studio" },
-    { label: "Campaigns", route: "/dashboard/campaigns" },
     { label: "Analytics", route: "/dashboard/analytics" },
   ],
   agency: [
