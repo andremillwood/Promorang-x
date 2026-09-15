@@ -1,6 +1,7 @@
 import { useLocation, Outlet as RouterOutlet } from "react-router-dom";
 const Outlet = RouterOutlet as any;
 import { useAuth } from "@/contexts/AuthContext";
+import DashboardLayout from "@/components/DashboardLayout";
 import PromorangAppShell from "@/components/promorang-v2/shell/PromorangAppShell";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -44,8 +45,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         location.pathname === path || location.pathname.startsWith(path + "/")
     ) || ["/growth", "/organizer"].includes(location.pathname);
 
-    // Consumer preview routes provide their own canonical participant shell and
-    // must not inherit the authenticated application shell or marketing chrome.
     const previewMode = new URLSearchParams(location.search).get("preview");
     const isConsumerPreview =
         location.pathname === "/app-preview" ||
@@ -91,11 +90,27 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     }
 
     if (user && !isCleanPage) {
-        return (
-            <PromorangAppShell currentRole={(activeRole || "participant") as any}>
+        const content = (
+            <>
                 {children || <Outlet />}
                 <PWAInstallPrompt />
-            </PromorangAppShell>
+            </>
+        );
+
+        // Canary the new shell on Participant first. Commercial/admin workspaces
+        // stay on the proven shell until each role migration is runtime-checked.
+        if ((activeRole || "participant") === "participant") {
+            return (
+                <PromorangAppShell currentRole="participant">
+                    {content}
+                </PromorangAppShell>
+            );
+        }
+
+        return (
+            <DashboardLayout currentRole={(activeRole || "participant") as any}>
+                {content}
+            </DashboardLayout>
         );
     }
 
