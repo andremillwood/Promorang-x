@@ -40,7 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const AVAILABLE_ROLES = ["participant", "host", "brand", "merchant", "admin"];
+const AVAILABLE_ROLES = ["participant", "host", "brand", "merchant"];
 const STATE_FILTERS = ["all", "flagged", "suspended", "limited", "kyc_pending"] as const;
 
 type StateFilter = (typeof STATE_FILTERS)[number];

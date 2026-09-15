@@ -78,11 +78,12 @@ export function useDiscovery(slug?: string) {
         }
       }
 
-      let { data: discovery, error } = await db
+      const { data: initialDiscovery, error } = await db
         .from("discoveries")
         .select("*")
         .eq("slug", slug)
         .maybeSingle();
+      let discovery = initialDiscovery;
 
       if (!discovery && slug) {
         const { data: byId } = await db

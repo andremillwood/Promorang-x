@@ -129,7 +129,9 @@ export class PromoCardService {
       const existing: BulkPassOrder[] = JSON.parse(localStorage.getItem(BULK_ORDERS_KEY) || "[]");
       existing.push(order);
       localStorage.setItem(BULK_ORDERS_KEY, JSON.stringify(existing));
-    } catch {}
+    } catch {
+      // Return the order even when local persistence is unavailable.
+    }
 
     return order;
   }

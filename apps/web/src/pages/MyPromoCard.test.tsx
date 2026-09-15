@@ -28,7 +28,21 @@ vi.mock("qrcode.react", () => ({
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({ user: { id: "test-member" }, profile: {}, activeRole: "participant" }),
 }));
+import { translations } from "@/i18n/translations";
+
 vi.mock("@/components/SEO", () => ({ default: () => null }));
+vi.mock("@/i18n/I18nContext", () => ({
+  useI18n: () => ({
+    locale: "en",
+    t: (key: string, variables?: Record<string, string | number>) => {
+      const template = (translations.en as Record<string, string>)[key] ?? key;
+      return Object.entries(variables ?? {}).reduce(
+        (result, [name, val]) => result.replaceAll(`{{${name}}}`, String(val)),
+        template,
+      );
+    },
+  }),
+}));
 let root: Root;
 let container: HTMLDivElement;
 const button = (label: string) => {

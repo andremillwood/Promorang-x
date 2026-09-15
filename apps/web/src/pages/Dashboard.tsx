@@ -31,6 +31,8 @@ const dashboardByRole = {
   agency: AgencyDashboard,
 } as const;
 
+const merchantWorkspaceTabs = new Set(["home", "promotions", "customers", "results", "business"]);
+
 const Dashboard = () => {
   const { t } = useI18n();
   const { user, activeRole, loading } = useAuth();
@@ -56,6 +58,17 @@ const Dashboard = () => {
   }
 
   const resolvedRole = activeRole || "participant";
+
+  // Give the merchant workspace one canonical set of tabs. This both makes the
+  // global navigation state unambiguous and catches stale deep links such as
+  // the former storefront/redemptions tabs without exposing a dead workspace.
+  if (resolvedRole === "merchant" && !peopleView) {
+    const merchantTab = params.get("tab");
+    if (!merchantTab || !merchantWorkspaceTabs.has(merchantTab)) {
+      return <Navigate to="/dashboard?tab=home" replace />;
+    }
+  }
+
   const commercialStudio = ["host", "creator", "merchant", "brand", "agency"].includes(resolvedRole);
   const showStudio = studioView || (!peopleView && commercialStudio);
   const ResolvedDashboard = showStudio
@@ -82,7 +95,7 @@ const Dashboard = () => {
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
       <ManagedWorkspaceContext />
-      <RoleJobFirstGuide role={resolvedRole} />
+      {resolvedRole !== "merchant" && <RoleJobFirstGuide role={resolvedRole} />}
       <MobileNotificationBridgeBanner />
       {activeDraft && <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />}
       <Suspense fallback={dashboardFallback}>

@@ -1,4 +1,10 @@
 const { createClient } = require('@supabase/supabase-js');
+const {
+  ADMIN_CAPABILITIES,
+  capabilitiesForRoles,
+  isAdminRole,
+  normalizeRoles,
+} = require('../lib/adminCapabilities');
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -23,7 +29,7 @@ const supabase = supabaseUrl && supabaseServiceKey
   })
   : null;
 
-const ADMIN_ROLES = ['admin', 'administrator', 'master_admin', 'moderator'];
+const ADMIN_ROLES = ['support', 'support_agent', 'admin', 'administrator', 'master_admin', 'moderator', 'platform_admin'];
 const PLATFORM_ADMIN_ROLES = ['admin', 'administrator', 'master_admin'];
 
 // Self-selected account categories are presentation/workflow context only.
@@ -55,6 +61,43 @@ async function getUserRoles(userId) {
   }
 
   return Array.from(roles);
+}
+
+async function getTrustedRequestRoles(req) {
+  if (req.adminRoles) return req.adminRoles;
+  const roles = normalizeRoles(await getUserRoles(req.user?.id));
+  req.adminRoles = roles;
+  req.user.roles = roles;
+  const primaryAdminRole = roles.find((role) => isAdminRole(role));
+  if (primaryAdminRole) req.user.role = primaryAdminRole;
+  return roles;
+}
+
+async function getTrustedRequestCapabilities(req) {
+  if (req.adminCapabilities) return req.adminCapabilities;
+  const roles = await getTrustedRequestRoles(req);
+  const capabilities = capabilitiesForRoles(roles);
+
+  if (supabase && roles.length > 0) {
+    const roleQuery = supabase.from('admin_role_capabilities').select('capability');
+    const grantQuery = supabase.from('admin_user_capability_grants').select('capability, expires_at, revoked_at');
+    const [{ data: roleRows, error: roleError }, { data: grantRows, error: grantError }] = await Promise.all([
+      typeof roleQuery.in === 'function' ? roleQuery.in('role', roles) : { data: [], error: null },
+      typeof grantQuery.eq === 'function' && typeof grantQuery.is === 'function'
+        ? grantQuery.eq('user_id', req.user.id).is('revoked_at', null)
+        : { data: [], error: null },
+    ]);
+    if (!roleError) for (const row of roleRows || []) capabilities.add(row.capability);
+    if (!grantError) {
+      const now = Date.now();
+      for (const row of grantRows || []) {
+        if (!row.expires_at || new Date(row.expires_at).getTime() > now) capabilities.add(row.capability);
+      }
+    }
+  }
+
+  req.adminCapabilities = capabilities;
+  return capabilities;
 }
 
 /**
@@ -386,10 +429,8 @@ const requireAdmin = async (req, res, next) => {
   }
 
   try {
-    const roles = await getUserRoles(req.user.id);
-    if (roles.some((role) => ADMIN_ROLES.includes(role))) {
-      req.user.roles = Array.from(new Set([...(req.user.roles || []), ...roles]));
-      req.user.role = roles.find((role) => ADMIN_ROLES.includes(role)) || req.user.role;
+    const roles = await getTrustedRequestRoles(req);
+    if (roles.some((role) => isAdminRole(role))) {
       return next();
     }
   } catch (error) {
@@ -397,6 +438,25 @@ const requireAdmin = async (req, res, next) => {
   }
 
   return res.status(403).json({ error: 'Admin access required' });
+};
+
+const requireCapability = (capability) => async (req, res, next) => {
+  if (!Object.values(ADMIN_CAPABILITIES).includes(capability)) {
+    return res.status(500).json({ error: 'Unknown administrative capability', code: 'UNKNOWN_CAPABILITY' });
+  }
+  if (!req.user) return res.status(401).json({ error: 'Authentication required' });
+
+  try {
+    const capabilities = await getTrustedRequestCapabilities(req);
+    if (capabilities.has(capability)) return next();
+  } catch (error) {
+    console.error('[Auth] Capability lookup failed:', error.message);
+  }
+  return res.status(403).json({
+    error: 'You do not have permission to perform this administrative task.',
+    code: 'CAPABILITY_REQUIRED',
+    required_capability: capability,
+  });
 };
 
 /**
@@ -461,4 +521,17 @@ const requireRole = (roles) => (req, res, next) => {
   });
 };
 
-module.exports = { requireAuth, requireAdmin, requirePlatformAdmin, requireMasterAdmin, requireRole, optionalAuth, resolveAdvertiserContext, resolveMerchantContext, getUserRoles };
+module.exports = {
+  requireAuth,
+  requireAdmin,
+  requirePlatformAdmin,
+  requireMasterAdmin,
+  requireCapability,
+  requireRole,
+  optionalAuth,
+  resolveAdvertiserContext,
+  resolveMerchantContext,
+  getUserRoles,
+  getTrustedRequestRoles,
+  getTrustedRequestCapabilities,
+};
