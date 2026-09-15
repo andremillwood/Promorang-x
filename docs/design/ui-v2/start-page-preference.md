@@ -1,40 +1,39 @@
-# Start-page preference — Phase 0 implementation
+# Start-page preference — reconciled implementation
 
-The V2 foundation includes a conservative first implementation of the previously requested user-selectable start page.
+PROMORANG now uses one authoritative start-page preference model shared with the current journey-integrity work.
 
 ## Current behavior
 
 Post-login precedence is:
 
 1. explicit requested/deep-linked destination;
-2. saved valid start page for the active user + role on the current device;
-3. existing role default.
+2. onboarding when still required;
+3. saved valid account-level landing preference;
+4. existing role default.
 
-The preference is editable in the existing Appearance/Preferences UI.
-
-The option list is an allowlist by role. Arbitrary URLs and cross-role destinations are rejected rather than stored.
+The preference is editable in Appearance/Preferences.
 
 ## Persistence scope
 
-The Phase 0 implementation is deliberately **device-local** using `localStorage`, namespaced by user ID and role.
+The preference is stored in Supabase Auth user metadata using:
 
-This avoids bundling a new database/RLS migration into the visual-foundation PR and makes the routing behavior testable without changing shared backend contracts.
+- `preferred_landing_path`;
+- `preferred_landing_role`.
 
-It is not yet a cross-device/account-synced preference.
+This means the preference follows the signed-in account across browsers/devices instead of being tied to one browser's local storage.
 
-## Account-synced follow-up
+## Validation
 
-Before promoting this preference to server persistence:
+Saved destinations are not trusted as arbitrary navigation input. `landing-page-preference.ts` builds an allowlist from the account's currently assigned roles and accepts only a matching internal destination.
 
-1. define a workspace-preference schema rather than a single unscoped user route;
-2. establish workspace identity (role + org/client context);
-3. add RLS that lets a user read/write only their own workspace preferences;
-4. update generated Supabase types;
-5. add query/mutation hooks;
-6. migrate valid device-local values when appropriate;
-7. retain the route allowlist on both read and write paths;
-8. test deep-link precedence, onboarding precedence, role switching and stale/removed routes.
+Role-specific studio destinations are shown only when the account still has the corresponding role. Stale, cross-role or arbitrary external values fall back to the current role default.
 
-## Security/product rule
+## Workspace-role rule
 
-A stored preference is never navigation authority by itself. It must validate against the currently supported destinations for the active role/workspace before use.
+`participant` is the universal fallback role, not the preferred workspace merely because it appears first in `user_roles`. When an account has a specific commercial role and no saved valid preference, the workspace resolver may prefer that specific role.
+
+Organization membership is also reconciled to canonical `brand`, `merchant` and `agency` workspace roles by the associated database migration.
+
+## Product rule
+
+A stored preference never overrides explicit intent. Deep links, interrupted claim flows, RSVP/card intent and similar requested destinations remain authoritative.
