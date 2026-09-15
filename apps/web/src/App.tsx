@@ -61,6 +61,7 @@ const EconomyConcept = lazy(() => import("./pages/EconomyConcept"));
 const SaveAndWin = lazy(() => import("./pages/SaveAndWin"));
 const VenueReportTeaser = lazy(() => import("./pages/VenueReportTeaser"));
 const Hosting = lazy(() => import("./pages/Hosting"));
+const Join = lazy(() => import("./pages/Join"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const MembershipCheckout = lazy(() => import("./pages/MembershipCheckout"));
 const BillingResult = lazy(() => import("./pages/BillingResult"));
@@ -268,6 +269,7 @@ const App = () => (
                     <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="/onboarding/brand" element={<BrandOnboarding />} />
                     <Route path="/post-login" element={<PostLoginRouter />} />
+                    <Route path="/join" element={<Join />} />
                     <Route path="/for-communities" element={<ForCommunities />} />
                     <Route path="/for-brands" element={<ForBrands />} />
                     <Route path="/solutions" element={<SolutionsHub />} />
@@ -320,11 +322,11 @@ const App = () => (
                     <Route path="/rsvp/:momentId" element={<GuestRsvp />} />
                     <Route path="/guest-pass/:token" element={<GuestPass />} />
                     <Route path="/host/moments/:momentId/guests" element={<ProtectedRoute><HostGuestOperations /></ProtectedRoute>} />
-                    <Route path="/join/participant" element={<Navigate to="/pricing" replace />} />
+                    <Route path="/join/participant" element={<Navigate to="/auth?mode=signup&role=participant&next=/home" replace />} />
                     <Route path="/join/venue" element={<Navigate to="/for-merchants" replace />} />
                     <Route path="/hosting" element={<Hosting />} />
                     <Route path="/host" element={<Navigate to="/hosting" replace />} />
-                    <Route path="/why-join" element={<Navigate to="/" replace />} />
+                    <Route path="/why-join" element={<Navigate to="/join" replace />} />
                     <Route path="/propose" element={<ProposeLanding />} />
                     <Route path="/create" element={<ProtectedRoute><CreateSomething /></ProtectedRoute>} />
                     <Route path="/demand" element={<ProtectedRoute><DemandInbox /></ProtectedRoute>} />

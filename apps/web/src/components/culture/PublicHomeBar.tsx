@@ -19,6 +19,7 @@ export function PublicHomeBar() {
             ["Moments", "/discover/moments"],
             ["Rewards", "/discover/rewards"],
             ["For hosts", "/hosting"],
+            ["Build with Promorang", "/join"],
           ].map(([label, href]) => (
             <Link key={href} to={href} className="rounded-full px-4 py-2 text-sm font-bold text-white/62 transition hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
               {label}
@@ -27,7 +28,10 @@ export function PublicHomeBar() {
         </nav>
 
         <div className="flex items-center gap-3 md:gap-2">
-          <Link to="/how-it-works" className="text-[11px] font-black uppercase tracking-[0.12em] text-white/55">
+          <Link to="/join" className="text-[11px] font-black uppercase tracking-[0.12em] text-white/55 md:hidden">
+            Build
+          </Link>
+          <Link to="/how-it-works" className="hidden text-[11px] font-black uppercase tracking-[0.12em] text-white/55 sm:inline">
             How it works
           </Link>
           <Link to="/shop" className="hidden min-h-10 items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-4 text-xs font-black text-white/75 transition hover:border-amber-300/40 hover:text-white md:inline-flex">
