@@ -1,6 +1,6 @@
 # PROMORANG UI V2 — Outcome OS
 
-Status: foundation implementation branch (`andre/ui-v2-foundation`).
+Status: active migration branch (`andre/ui-v2-foundation`).
 
 ## Purpose
 
@@ -14,59 +14,55 @@ The goal is not to replace product logic. It is to make existing logic legible, 
 
 **PROMORANG should understand the complexity so the stakeholder does not have to.**
 
-The UI should expose stakeholder jobs and verified outcomes before internal platform ontology.
+## Current branch implementation
+
+The branch now includes the first visible application of V2, not only design-system scaffolding.
+
+### Participant Home
+
+`PeopleHome.tsx` now follows:
+
+**Next move + PromoCard → Outcome progress → Proof/Value → Consequence Receipt → Around you**
+
+The previous parallel teaching/tool stack was removed from the Participant Home presentation while preserving the underlying capabilities and routes.
+
+### People experience shell
+
+`ExperienceShell.tsx` now uses the V2 dark canvas, contemporary sans hierarchy and restrained loading/empty states. This reduces the visual mismatch when moving from Participant Home to other people-facing surfaces while their deeper migrations are pending.
+
+### Start page
+
+Users can choose a role-valid local start page in Appearance/Preferences. Post-login precedence is:
+
+1. explicit deep link;
+2. saved valid role start page;
+3. role default.
+
+The first persistence version is device-local and scoped by user + role. Account-synced workspace persistence remains a schema/RLS follow-up.
 
 ## Visual character
 
-The product should feel premium, contemporary, culturally aware, editorial, human, and grounded in real-world activity.
+The product should feel premium, contemporary, culturally aware, editorial, human, and grounded in real-world activity. It must not become generic SaaS, neon-dashboard UI, crypto UI, a gaming interface, a nightlife-only product, a wall of cards, or a family of unrelated role dashboards.
 
-It must not become:
-
-- generic SaaS;
-- neon-dashboard UI;
-- crypto UI;
-- a gaming interface;
-- a nightlife-only product;
-- a wall of cards;
-- a family of unrelated role dashboards.
-
-## Default versus signature surfaces
-
-Default interface chrome is restrained.
-
-Signature PROMORANG objects may be expressive:
-
-- PromoCard;
-- Consequence Receipt;
-- Access Pass;
-- verified Proof;
-- Moment media;
-- Opportunity objects.
+Default interface chrome is restrained. Signature PROMORANG objects may be expressive: PromoCard, Consequence Receipt, Access Pass, verified Proof, Moment media and Opportunity objects.
 
 A useful rule: **quiet system, expressive objects.**
 
 ## Core role outcomes
 
-### Participant
-Find one worthwhile thing → commit → act → receive value → return.
+Participant: find one worthwhile thing → commit → act → receive value → return.
 
-### Creator
-Choose useful work → create/get approved → cause a verified action → settle value → earn stronger repeat work.
+Creator: choose useful work → create/get approved → cause a verified action → settle value → earn stronger repeat work.
 
-### Host
-Create Moment → fill → operate → verify attendance → bring people back → prove value to partners.
+Host: create Moment → fill → operate → verify attendance → bring people back → prove value to partners.
 
-### Merchant
-Business ready → promotion live → verified customer action → business value → repeat customer → positive economics.
+Merchant: business ready → promotion live → verified customer action → business value → repeat customer → positive economics.
 
-### Brand
-Define outcome → launch funded/fulfillable supply → attributed action → incremental value → reinvestment decision.
+Brand: define outcome → launch funded/fulfillable supply → attributed action → incremental value → reinvestment decision.
 
-### Agency
-Connect client → activate → prove client outcome → package proof → repeat work.
+Agency: connect client → activate → prove client outcome → package proof → repeat work.
 
-### Admin
-Work requiring attention → resolve → verify resolution → move to next operational priority.
+Admin: work requiring attention → resolve → verify resolution → move to next operational priority.
 
 ## Role home contract
 
@@ -79,71 +75,31 @@ Every major stakeholder home should make these questions answerable quickly:
 5. What value did I or the counterparty receive?
 6. What should happen next?
 
-Recommended composition:
-
-1. context / workspace;
-2. dominant `NextMove`;
-3. compact `OutcomeProgress`;
-4. proof + value;
-5. relevant current work;
-6. secondary history/tools.
+Recommended composition: context/workspace → dominant `NextMove` → compact `OutcomeProgress` → proof + value → relevant current work → secondary history/tools.
 
 ## Canonical semantic components
 
-Initial V2 primitives live in `apps/web/src/components/promorang-v2/`.
-
-Foundation:
-
-- `PageCanvas`
-- `PageLead`
-- `OutcomeSurface`
-- `NextMove`
-- `OutcomeProgress`
-- `ProofBlock`
-- `ValueBlock`
-- `EvidencePair`
-- `WorkspaceSwitcher`
-- `ConsequenceReceipt`
+Initial V2 primitives live in `apps/web/src/components/promorang-v2/`: `PageCanvas`, `PageLead`, `OutcomeSurface`, `NextMove`, `OutcomeProgress`, `ProofBlock`, `ValueBlock`, `EvidencePair`, `WorkspaceSwitcher`, and `ConsequenceReceipt`.
 
 New components should describe meaning, not styling. Prefer `ProofSummary` over `GlowCard`, `OpportunityCard` over `GlassPanel`, etc.
 
 ## Design token policy
 
-V2 semantic tokens live in `apps/web/src/styles/promorang-v2.css` and are loaded after the legacy stylesheet.
+V2 semantic tokens live in `apps/web/src/styles/promorang-v2.css` and are loaded after the legacy stylesheet. Migration is opt-in. Existing screens should not be globally restyled merely because V2 exists.
 
-Migration is opt-in. Existing screens should not be globally restyled merely because V2 exists.
+Do not introduce new hard-coded component colors when an appropriate semantic token exists. Role colors identify context; they do not repaint entire role products.
 
-Do not introduce new hard-coded component colors when an appropriate semantic token exists.
-
-Role colors identify context; they do not repaint entire role products.
-
-## Typography
+## Typography and containment
 
 Operational/product UI should use the contemporary sans stack. Expressive serif typography may remain for deliberately editorial surfaces, but it should not be the default product heading grammar.
 
-## Containment
-
-Do not wrap every section in a bordered card.
-
-Use hierarchy in this order:
-
-1. typography;
-2. spacing;
-3. alignment/grouping;
-4. divider/background shift;
-5. containment only when the region represents a meaningful object.
+Do not wrap every section in a bordered card. Prefer typography, spacing, alignment/grouping and divider/background shift before containment.
 
 ## Media
 
-Photography is part of the product system, not decoration.
+Photography is part of the product system, not decoration. Participant/culture surfaces have a high media allowance; Creator/Host medium; Brand selective evidence/campaign media; Merchant analytics low; Admin minimal except review context.
 
-- Participant/culture surfaces: high media allowance.
-- Creator/Host: medium media allowance.
-- Brand: selective evidence/campaign media.
-- Merchant analytics: low media allowance.
-- Admin: minimal media except review context.
-
-Prefer real, documentary-feeling people/places/objects and controlled contrast. Avoid random stock imagery, aggressive HDR, artificial skin treatment, and generic nightclub lasers as a default aesthetic.
+Prefer real, documentary-feeling people/places/objects and controlled contrast.
 
 ## Navigation grammar
 
@@ -151,53 +107,17 @@ The exact labels can differ by stakeholder, but primary navigation should preser
 
 **Home → Work/Opportunity → Relationships/Objects → Evidence/Results → Value/Account**
 
-Only a small number of destinations should be primary at once. Scenes, Missions, Drops, Guilds, Crews, PromoShare, Gems and other PROMORANG objects may remain valid product concepts without all becoming top-level navigation.
+Only a small number of destinations should be primary at once.
 
 ## Multi-role workspace model
 
-Multi-role users should operate through an explicit workspace switcher.
+Changing workspace should change role context, organization/client context, primary navigation, role home, success contract and available tools/permissions together.
 
-Changing workspace should change together:
+## Accessibility and motion
 
-- role context;
-- organization/client context;
-- primary navigation;
-- role home;
-- success contract;
-- available tools and permissions.
+V2 must preserve or improve visible focus, semantic labels/headings, keyboard navigation, target sizes generally >=44px where practical, status announcements, reduced motion, and meaningful loading/empty/error/cancelled/success states.
 
-The intended default-route precedence is:
-
-1. explicit deep-link intent;
-2. saved valid workspace start page;
-3. role default.
-
-Persistence for the saved workspace start page is a separate implementation item and must include database/type/RLS validation before release.
-
-## Accessibility
-
-V2 must preserve or improve:
-
-- visible focus;
-- semantic labels and headings;
-- keyboard navigation inherited from existing Radix primitives;
-- target sizes generally >= 44px where practical;
-- status announcements for dynamic state changes;
-- reduced-motion behavior;
-- meaningful loading/empty/error/cancelled/success states.
-
-Animation must never be the only carrier of state.
-
-## Motion
-
-Use the least motion needed to communicate:
-
-- context continuity;
-- stage completion;
-- verified success;
-- signature-object continuity.
-
-Do not add decorative continuous motion to operational interfaces.
+Use the least motion needed for context continuity, stage completion, verified success and signature-object continuity. Do not add decorative continuous motion to operational interfaces.
 
 ## Migration order
 
@@ -213,46 +133,6 @@ Do not add decorative continuous motion to operational interfaces.
 9. Secondary surfaces
 10. Legacy cleanup
 
-Do not skip to a full product reskin. Each phase should migrate a coherent journey and remove/deprecate the visual patterns it replaces.
-
-## Definition of done for a migrated screen
-
-A screen is not complete merely because it looks better.
-
-It must pass:
-
-### Hierarchy
-The primary action or operating priority is immediately understandable.
-
-### Role outcome
-The user can understand what success means in this context.
-
-### Proof integrity
-Verified facts are clearly distinguished from estimates/inference.
-
-### System fidelity
-Only approved V2 semantic tokens/components are introduced for the new presentation layer.
-
-### Responsive intent
-Desktop and mobile are both intentionally composed rather than one being a compressed version of the other.
-
-### State completeness
-Relevant loading, empty, error, success, cancellation and recovery states are designed.
-
-### Accessibility
-Focus, keyboard behavior, semantic labels, contrast and reduced motion remain valid.
-
-### Regression safety
-Existing functionality and permission boundaries continue to work.
-
 ## Agent / Cursor instruction
 
-When modifying a migrated surface:
-
-1. inspect `apps/web/src/components/promorang-v2/` before creating a new UI primitive;
-2. use V2 semantic tokens rather than one-off colors;
-3. do not introduce a new top-level navigation concept without demoting/replacing another;
-4. do not expose technical/internal vocabulary when ordinary stakeholder language is available;
-5. do not invent product behavior from design mockups;
-6. treat repository functionality and stakeholder-success contracts as authoritative;
-7. record intentional deviations in the relevant design/migration document.
+Before creating a new UI primitive, inspect `apps/web/src/components/promorang-v2/`. Use V2 semantic tokens rather than one-off colors. Do not introduce a new top-level navigation concept without demoting/replacing another. Do not expose technical/internal vocabulary when ordinary stakeholder language is available. Do not invent product behavior from design mockups. Treat repository functionality and stakeholder-success contracts as authoritative.
