@@ -19,6 +19,7 @@ describe("mobile pending navigation", () => {
     expect(safeMobileInternalDestination("//evil.example/moment/1")).toBeNull();
     expect(safeMobileInternalDestination("/auth/login")).toBeNull();
     expect(safeMobileInternalDestination("/onboarding")).toBeNull();
+    expect(safeMobileInternalDestination("/dashboard")).toBeNull();
     expect(safeMobileInternalDestination("/(tabs)")).toBeNull();
     expect(safeMobileInternalDestination("/moment\\evil")).toBeNull();
   });
