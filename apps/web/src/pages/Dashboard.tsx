@@ -13,6 +13,7 @@ const ParticipantDashboardV2 = lazy(() => import("@/components/dashboards/Partic
 const CreatorDashboardV2 = lazy(() => import("@/components/dashboards/CreatorDashboardV2"));
 const HostDashboardV2 = lazy(() => import("@/components/dashboards/HostDashboardV2"));
 const BrandDashboardV2 = lazy(() => import("@/components/dashboards/BrandDashboardV2"));
+const BrandOutcomeHomeV2 = lazy(() => import("@/components/dashboards/BrandOutcomeHomeV2"));
 const MerchantDashboardV2 = lazy(() => import("@/components/dashboards/MerchantDashboardV2"));
 const MerchantOutcomeHomeV2 = lazy(() => import("@/components/dashboards/MerchantOutcomeHomeV2"));
 const AgencyDashboard = lazy(() => import("@/components/dashboards/AgencyDashboard"));
@@ -60,9 +61,6 @@ const Dashboard = () => {
 
   const resolvedRole = activeRole || "participant";
 
-  // Give the merchant workspace one canonical set of tabs. This both makes the
-  // global navigation state unambiguous and catches stale deep links such as
-  // the former storefront/redemptions tabs without exposing a dead workspace.
   if (resolvedRole === "merchant" && !peopleView) {
     const merchantTab = params.get("tab");
     if (!merchantTab || !merchantWorkspaceTabs.has(merchantTab)) {
@@ -72,7 +70,9 @@ const Dashboard = () => {
 
   const commercialStudio = ["host", "creator", "merchant", "brand", "agency"].includes(resolvedRole);
   const showStudio = studioView || (!peopleView && commercialStudio);
-  const merchantHomeCanary = showStudio && resolvedRole === "merchant" && params.get("tab") === "home";
+  const currentTab = params.get("tab");
+  const merchantHomeCanary = showStudio && resolvedRole === "merchant" && currentTab === "home";
+  const brandHomeCanary = showStudio && resolvedRole === "brand" && (!currentTab || currentTab === "home");
   const ResolvedDashboard = showStudio
     ? (dashboardByRole[resolvedRole] || ParticipantDashboardV2)
     : PeopleHome;
@@ -97,11 +97,11 @@ const Dashboard = () => {
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
       <ManagedWorkspaceContext />
-      {resolvedRole !== "merchant" && <RoleJobFirstGuide role={resolvedRole} />}
+      {resolvedRole === "agency" && <RoleJobFirstGuide role="agency" />}
       <MobileNotificationBridgeBanner />
       {activeDraft && <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />}
       <Suspense fallback={dashboardFallback}>
-        {merchantHomeCanary ? <MerchantOutcomeHomeV2 /> : <ResolvedDashboard />}
+        {merchantHomeCanary ? <MerchantOutcomeHomeV2 /> : brandHomeCanary ? <BrandOutcomeHomeV2 /> : <ResolvedDashboard />}
       </Suspense>
     </div>
   );
