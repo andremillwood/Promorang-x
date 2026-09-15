@@ -13,6 +13,7 @@ const GATE_PATHS = new Set([
   "/auth",
   "/auth/login",
   "/onboarding",
+  "/dashboard",
   "/(tabs)",
   "/(tabs)/dashboard",
 ]);
