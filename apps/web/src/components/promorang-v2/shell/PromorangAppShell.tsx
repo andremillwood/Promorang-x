@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMarket } from "@/contexts/MarketContext";
 import { stakeholderMobileNav, stakeholderNavItems, type StakeholderNavItem } from "@/config/stakeholderNav";
 import { ADMIN_AFTRHRS_TAB_HREF } from "@/lib/admin-surface";
 import { cn } from "@/lib/utils";
@@ -91,6 +90,13 @@ function WorkspaceMenu({ role }: { role: UserRole }) {
     navigate("/dashboard");
   };
 
+  const switchAgencyClient = (client: any) => {
+    setActiveOrgId(client.id);
+    if (client.type === "brand") setActiveRole("brand");
+    if (client.type === "merchant") setActiveRole("merchant");
+    navigate("/dashboard");
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -142,7 +148,7 @@ function WorkspaceMenu({ role }: { role: UserRole }) {
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Agency clients</DropdownMenuLabel>
             {agencyClients.map((client) => (
-              <DropdownMenuItem key={client.id} onClick={() => switchOrg(client)} className="min-h-11">
+              <DropdownMenuItem key={client.id} onClick={() => switchAgencyClient(client)} className="min-h-11">
                 <span className="min-w-0">
                   <span className="block truncate">{client.name}</span>
                   <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">Manage as {client.type}</span>
@@ -185,7 +191,6 @@ function NavigationList({ items, pathname, search, onNavigate }: { items: Stakeh
 
 export default function PromorangAppShell({ children, currentRole }: { children: ReactNode; currentRole: UserRole }) {
   const { user, profile, signOut } = useAuth();
-  const { city } = useMarket();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
