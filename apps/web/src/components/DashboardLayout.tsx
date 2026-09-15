@@ -520,13 +520,6 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                           ))}
                         </>
                       )}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="flex items-center gap-3 py-3 text-primary group">
-                        <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                          <Plus className="w-4 h-4" />
-                        </div>
-                        <span className="font-semibold text-sm">Add Account</span>
-                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

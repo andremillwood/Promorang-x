@@ -18,23 +18,25 @@ export function useNotifications() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Realtime subscription
   useEffect(() => {
     if (!user) return;
 
+    const invalidateNotificationState = () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["unread-notifications", user.id] });
+    };
+
     const channel = supabase
-      .channel("notifications")
+      .channel(`notifications:${user.id}`)
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*",
           schema: "public",
           table: "notifications",
           filter: `user_id=eq.${user.id}`,
         },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
-        }
+        invalidateNotificationState,
       )
       .subscribe();
 

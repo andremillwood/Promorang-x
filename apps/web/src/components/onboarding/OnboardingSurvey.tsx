@@ -351,7 +351,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                       <button
                         onClick={() => {
                             setPersona("agency");
-                            setActiveRole("brand");
+                            setActiveRole("agency");
                         }}
                         className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
                             persona === "agency"

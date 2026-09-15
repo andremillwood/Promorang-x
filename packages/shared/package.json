@@ -12,6 +12,12 @@
       "import": "./src/index.ts",
       "require": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./mobile-navigation-intent": {
+      "types": "./src/mobile-navigation-intent.ts",
+      "import": "./src/mobile-navigation-intent.ts",
+      "require": "./src/mobile-navigation-intent.ts",
+      "default": "./src/mobile-navigation-intent.ts"
     }
   },
   "files": [

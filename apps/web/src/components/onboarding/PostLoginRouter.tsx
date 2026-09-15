@@ -27,16 +27,12 @@ export function PostLoginRouter() {
       return;
     }
 
-    // A fresh Supabase SIGNED_IN event exposes the user before AuthContext has
-    // finished fetching user_roles and choosing activeRole. Routing during that
-    // gap incorrectly treats commercial users as participants. Wait for the
-    // workspace context instead of resolving a fallback destination too early.
     if (roles.length === 0 || !activeRole || routingStarted.current) return;
     routingStarted.current = true;
 
     const determineLandingPage = async () => {
       await flushMarketingIntent().catch(() => undefined);
-      const requestedNext = consumePostAuthNext()
+      const requestedNext = peekPostAuthNext()
         || (hasAftrHrsClaimPending() ? AFTRHRS_PATHS.claimReturn : null);
       const intendedRole =
         readIntendedStakeholderRole(sessionStorage) ||
@@ -44,15 +40,23 @@ export function PostLoginRouter() {
       const appliedRole = intendedRole ? await applyIntendedRole(user.id, intendedRole) : activeRole;
       const effectiveRole = appliedRole || activeRole;
 
-      // Explicit deep-link intent always wins. This preserves interrupted jobs
-      // such as claim, proposal, card, campaign and RSVP flows.
-      if (requestedNext) {
-        const aimed = promoCardAimFromNext(requestedNext);
+      if (appliedRole && appliedRole !== activeRole) {
+        setActiveRole(appliedRole);
+      }
+
+      // `/home` is the generic first-run participant destination emitted by the
+      // join funnel, not a task-specific deep link. Preserve it through required
+      // onboarding instead of letting it silently bypass onboarding.
+      const genericFirstRunHome = requestedNext === "/home" && effectiveRole === "participant";
+
+      // Explicit job/claim intent remains higher priority than generic account
+      // setup. Consume it only when we actually use it so interrupted auth can
+      // still be resumed across tabs.
+      if (requestedNext && !genericFirstRunHome) {
+        const destination = peekPostAuthNext() ? (consumePostAuthNext() || requestedNext) : requestedNext;
+        const aimed = promoCardAimFromNext(destination);
         if (aimed) writePromoCardAim(aimed);
-        if (appliedRole && appliedRole !== activeRole) {
-          setActiveRole(appliedRole);
-        }
-        navigate(requestedNext, { replace: true });
+        navigate(destination, { replace: true });
         return;
       }
 
@@ -62,15 +66,27 @@ export function PostLoginRouter() {
         return;
       }
 
-      // Onboarding remains the only prerequisite for non-admin accounts.
-      let onboardingCompleted = true;
+      // `onboarding_completed` is an account lifecycle state on public.users.
+      // The generated client types do not yet expose this legacy table, so use
+      // the same compatibility access pattern already used elsewhere in web.
+      let onboardingCompleted = effectiveRole === "admin";
       if (effectiveRole !== "admin") {
-        const { data, error } = await supabase
-          .from("user_preferences")
+        const { data: userState, error: userStateError } = await (supabase as any)
+          .from("users")
           .select("onboarding_completed")
-          .eq("user_id", user.id)
+          .eq("id", user.id)
           .maybeSingle();
-        onboardingCompleted = error ? true : Boolean(data?.onboarding_completed);
+
+        if (!userStateError) {
+          onboardingCompleted = Boolean(userState?.onboarding_completed);
+        } else {
+          const { data: legacyPreferences } = await supabase
+            .from("user_preferences")
+            .select("user_id")
+            .eq("user_id", user.id)
+            .maybeSingle();
+          onboardingCompleted = Boolean(legacyPreferences?.user_id);
+        }
       }
 
       if (!onboardingCompleted) {
@@ -78,9 +94,15 @@ export function PostLoginRouter() {
         return;
       }
 
-      // Account-level preference is stored in auth metadata so it follows the
-      // user across browsers/devices. Only enumerated internal destinations are
-      // accepted; stale or unauthorized values fall back to the role default.
+      if (genericFirstRunHome) {
+        const destination = peekPostAuthNext() ? (consumePostAuthNext() || "/home") : "/home";
+        navigate(destination, { replace: true });
+        return;
+      }
+
+      // Account-level preference follows the user across browsers/devices. Only
+      // enumerated internal destinations are accepted; invalid values fall back
+      // to the active-role default.
       const preferredLanding = resolveSavedLandingPreference({
         path: user.user_metadata?.preferred_landing_path,
         role: user.user_metadata?.preferred_landing_role,

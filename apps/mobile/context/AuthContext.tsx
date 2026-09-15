@@ -1,26 +1,24 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import * as WebBrowser from 'expo-web-browser'
 import { makeRedirectUri } from 'expo-auth-session'
-import { AppState } from 'react-native'
+import { AppState, Platform } from 'react-native'
 import * as AppleAuthentication from 'expo-apple-authentication'
 import { deleteSecureItem, getSecureItem, setSecureItem } from '@/lib/secureStore'
 import * as Crypto from 'expo-crypto'
-import { Platform } from 'react-native'
 
 WebBrowser.maybeCompleteAuthSession()
 
 const ALLOW_DEMO_LOGIN = __DEV__ || process.env.EXPO_PUBLIC_ENABLE_DEMO_LOGIN === 'true'
+const ACTIVE_ROLE_KEY = 'promorang_active_role'
+const ACTIVE_ORG_KEY = 'promorang_active_org_id'
+const MANAGING_AGENCY_KEY = 'promorang_managing_agency_org_id'
 
-// Helper to extract params from URL (hash or query)
 function extractParamsFromUrl(url: string) {
     const params: Record<string, string> = {}
-    // Handle has params first (typical for implicit flow)
     let queryString = url.split('#')[1]
-    if (!queryString) {
-        queryString = url.split('?')[1]
-    }
+    if (!queryString) queryString = url.split('?')[1]
 
     if (queryString) {
         queryString.split('&').forEach(param => {
@@ -30,29 +28,38 @@ function extractParamsFromUrl(url: string) {
             params[key] = value
         })
     }
-    return params;
+    return params
 }
 
-export type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "admin";
+export type UserRole = 'participant' | 'creator' | 'host' | 'brand' | 'merchant' | 'agency' | 'admin'
+export const ALL_WORKSPACE_ROLES: UserRole[] = ['participant', 'creator', 'host', 'brand', 'merchant', 'agency', 'admin']
 
-export const ALL_WORKSPACE_ROLES: UserRole[] = ["participant", "creator", "host", "brand", "merchant", "agency", "admin"];
+type Organization = {
+    id: string
+    name: string
+    slug?: string | null
+    type?: string | null
+    avatar_url?: string | null
+    user_role?: string
+}
+
+type AgencyClient = Organization & {
+    relationship_type?: string
+    managing_agency_id: string
+}
 
 type AuthContextType = {
     session: Session | null
     user: User | null
     roles: UserRole[]
     activeRole: UserRole | null
-    setActiveRole: (role: UserRole) => void
+    setActiveRole: (role: UserRole) => Promise<void>
     chooseRole: (role: UserRole) => Promise<{ error: Error | null }>
-    organizations: any[]
-    agencyClients: Array<{
-        id: string
-        name: string
-        type: string
-        relationship_type?: string
-    }>
+    organizations: Organization[]
+    agencyClients: AgencyClient[]
     activeOrgId: string | null
-    setActiveOrgId: (id: string | null) => void
+    managingAgencyOrgId: string | null
+    setActiveOrgId: (id: string | null) => Promise<void>
     signInWithGoogle: () => Promise<void>
     signInWithApple: () => Promise<{ error: Error | null }>
     demoSignIn: (role: UserRole) => Promise<{ error: Error | null }>
@@ -65,12 +72,13 @@ const AuthContext = createContext<AuthContextType>({
     user: null,
     roles: [],
     activeRole: null,
-    setActiveRole: () => { },
+    setActiveRole: async () => { },
     chooseRole: async () => ({ error: null }),
     organizations: [],
     agencyClients: [],
     activeOrgId: null,
-    setActiveOrgId: () => { },
+    managingAgencyOrgId: null,
+    setActiveOrgId: async () => { },
     signInWithGoogle: async () => { },
     signInWithApple: async () => ({ error: null }),
     demoSignIn: async () => ({ error: null }),
@@ -82,95 +90,42 @@ export function useAuth() {
     return useContext(AuthContext)
 }
 
+const mapRole = (r: string): UserRole => {
+    const role = r.toLowerCase().trim()
+    if (role === 'master_admin' || role === 'super_admin' || role === 'admin') return 'admin'
+    if (role === 'advertiser' || role === 'sponsor') return 'brand'
+    if (role === 'organizer') return 'host'
+    if (role === 'user' || role === 'consumer') return 'participant'
+    if (ALL_WORKSPACE_ROLES.includes(role as UserRole)) return role as UserRole
+    return 'participant'
+}
+
+const orgRole = (type?: string | null): UserRole | null => {
+    if (type === 'brand') return 'brand'
+    if (type === 'merchant') return 'merchant'
+    if (type === 'agency') return 'agency'
+    return null
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session | null>(null)
     const [user, setUser] = useState<User | null>(null)
     const [roles, setRoles] = useState<UserRole[]>([])
     const [activeRole, setActiveRoleState] = useState<UserRole | null>(null)
-    const [organizations, setOrganizations] = useState<any[]>([])
+    const [organizations, setOrganizations] = useState<Organization[]>([])
     const [activeOrgId, setActiveOrgIdState] = useState<string | null>(null)
-    const [agencyClients, setAgencyClients] = useState<any[]>([])
+    const [agencyClients, setAgencyClients] = useState<AgencyClient[]>([])
+    const [managingAgencyOrgId, setManagingAgencyOrgId] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const managedClientSelectionRef = useRef<string | null>(null)
 
-    const fetchAgencyClients = async (agencyId: string) => {
+    const loadAgencyClients = async (agencyId: string): Promise<AgencyClient[]> => {
         const { data, error } = await supabase
             .from('agency_clients')
             .select(`
-        client_id,
-        relationship_type,
-        organizations:client_id (
-          id,
-          name,
-          slug,
-          type,
-          avatar_url
-        )
-      `)
-            .eq('agency_id', agencyId)
-            .eq('status', 'active');
-
-        if (error) {
-            console.error("Error fetching agency clients:", error);
-            return [];
-        }
-
-        const clients = data.map((d: any) => ({
-            ...d.organizations,
-            relationship_type: d.relationship_type
-        }));
-
-        setAgencyClients(clients);
-        return clients;
-    };
-
-const mapRole = (r: string): UserRole => {
-    const role = r.toLowerCase().trim();
-    if (role === 'master_admin' || role === 'super_admin' || role === 'admin') return 'admin';
-    if (role === 'advertiser' || role === 'sponsor') return 'brand';
-    if (role === 'organizer') return 'host';
-    if (role === 'user' || role === 'consumer') return 'participant';
-    if (ALL_WORKSPACE_ROLES.includes(role as UserRole)) {
-        return role as UserRole;
-    }
-    return 'participant';
-};
-
-    const fetchUserRoles = async (userId: string, sessionUser?: User | null) => {
-        const { data, error } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", userId);
-
-        if (error) {
-            console.error("Error fetching roles:", error);
-        }
-
-        const rawRoles = (data || []).map((r) => String(r.role || '').toLowerCase().trim());
-
-        if (
-            rawRoles.includes("admin") ||
-            rawRoles.includes("master_admin") ||
-            (sessionUser?.app_metadata as any)?.role === "master_admin" ||
-            (sessionUser?.user_metadata as any)?.role === "master_admin" ||
-            sessionUser?.email?.trim().toLowerCase() === "andremillwood@gmail.com"
-        ) {
-            return ALL_WORKSPACE_ROLES;
-        }
-
-        const mappedRoles = Array.from(new Set(rawRoles.map(mapRole)));
-        if (!mappedRoles.includes("participant")) {
-            mappedRoles.unshift("participant");
-        }
-        return mappedRoles;
-    };
-
-    const fetchUserOrganizations = async (userId: string) => {
-        const { data, error } = await supabase
-            .from("organization_members")
-            .select(`
-                organization_id,
-                role,
-                organizations (
+                client_id,
+                relationship_type,
+                organizations:client_id (
                     id,
                     name,
                     slug,
@@ -178,129 +133,286 @@ const mapRole = (r: string): UserRole => {
                     avatar_url
                 )
             `)
-            .eq("user_id", userId);
+            .eq('agency_id', agencyId)
+            .eq('status', 'active')
 
         if (error) {
-            console.error("Error fetching organizations:", error);
-            return [];
+            console.error('Error fetching agency clients:', error)
+            return []
         }
 
-        const orgs = data.map((m: any) => ({
-            ...m.organizations,
-            user_role: m.role
-        }));
+        return (data || []).map((d: any) => ({
+            ...d.organizations,
+            relationship_type: d.relationship_type,
+            managing_agency_id: agencyId,
+        }))
+    }
 
-        setOrganizations(orgs);
+    const fetchAgencyClients = async (agencyId: string) => {
+        const clients = await loadAgencyClients(agencyId)
+        setAgencyClients(clients)
+        setManagingAgencyOrgId(agencyId)
+        await setSecureItem(MANAGING_AGENCY_KEY, agencyId)
+        return clients
+    }
 
-        const savedOrgId = await getSecureItem("promorang_active_org_id");
-        if (savedOrgId && orgs.find(o => o.id === savedOrgId)) {
-            setActiveOrgIdState(savedOrgId);
-            const activeOrg = orgs.find(o => o.id === savedOrgId);
-            if (activeOrg?.type === 'agency') {
-                fetchAgencyClients(savedOrgId);
+    const fetchUserRoles = async (userId: string, sessionUser?: User | null) => {
+        const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', userId)
+        if (error) console.error('Error fetching roles:', error)
+
+        const rawRoles = (data || []).map((r) => String(r.role || '').toLowerCase().trim())
+        if (
+            rawRoles.includes('admin') || rawRoles.includes('master_admin') ||
+            (sessionUser?.app_metadata as any)?.role === 'master_admin' ||
+            (sessionUser?.user_metadata as any)?.role === 'master_admin' ||
+            sessionUser?.email?.trim().toLowerCase() === 'andremillwood@gmail.com'
+        ) return ALL_WORKSPACE_ROLES
+
+        const mappedRoles = Array.from(new Set(rawRoles.map(mapRole)))
+        if (!mappedRoles.includes('participant')) mappedRoles.unshift('participant')
+        return mappedRoles
+    }
+
+    const activateDirectOrg = async (org: Organization, syncRole = true) => {
+        managedClientSelectionRef.current = null
+        setActiveOrgIdState(org.id)
+        await setSecureItem(ACTIVE_ORG_KEY, org.id)
+        const role = orgRole(org.type)
+        if (syncRole && role) {
+            setActiveRoleState(role)
+            await setSecureItem(ACTIVE_ROLE_KEY, role)
+        }
+        if (org.type === 'agency') {
+            await fetchAgencyClients(org.id)
+        } else {
+            setAgencyClients([])
+            setManagingAgencyOrgId(null)
+            await deleteSecureItem(MANAGING_AGENCY_KEY)
+        }
+    }
+
+    const activateManagedClient = async (client: AgencyClient) => {
+        managedClientSelectionRef.current = client.id
+        setActiveOrgIdState(client.id)
+        await setSecureItem(ACTIVE_ORG_KEY, client.id)
+        setManagingAgencyOrgId(client.managing_agency_id)
+        await setSecureItem(MANAGING_AGENCY_KEY, client.managing_agency_id)
+        const role = orgRole(client.type)
+        if (role === 'brand' || role === 'merchant') {
+            setActiveRoleState(role)
+            await setSecureItem(ACTIVE_ROLE_KEY, role)
+        }
+    }
+
+    const fetchUserOrganizations = async (userId: string) => {
+        const { data, error } = await supabase
+            .from('organization_members')
+            .select(`organization_id, role, organizations (id, name, slug, type, avatar_url)`)
+            .eq('user_id', userId)
+
+        if (error) {
+            console.error('Error fetching organizations:', error)
+            return []
+        }
+
+        const orgs: Organization[] = (data || []).map((m: any) => ({ ...m.organizations, user_role: m.role }))
+        setOrganizations(orgs)
+
+        const savedOrgId = await getSecureItem(ACTIVE_ORG_KEY)
+        const savedRole = await getSecureItem(ACTIVE_ROLE_KEY) as UserRole | null
+        const savedManagingAgencyId = await getSecureItem(MANAGING_AGENCY_KEY)
+        const directSavedOrg = savedOrgId ? orgs.find(o => o.id === savedOrgId) : null
+        const agencyOrgs = orgs.filter(o => o.type === 'agency')
+        const desiredType = savedRole === 'brand' || savedRole === 'merchant' || savedRole === 'agency' ? savedRole : null
+
+        if (directSavedOrg) {
+            if (desiredType && directSavedOrg.type !== desiredType) {
+                const matchingDirect = orgs.find(org => org.type === desiredType)
+                if (matchingDirect) await activateDirectOrg(matchingDirect, true)
+                else await activateDirectOrg(directSavedOrg, false)
+            } else {
+                await activateDirectOrg(directSavedOrg, Boolean(desiredType))
             }
-        } else if (orgs.length > 0) {
-            setActiveOrgIdState(orgs[0].id);
-            if (orgs[0].type === 'agency') {
-                fetchAgencyClients(orgs[0].id);
+            return orgs
+        }
+
+        if (savedOrgId) {
+            const preferredAgency = savedManagingAgencyId ? agencyOrgs.find(o => o.id === savedManagingAgencyId) : null
+            if (preferredAgency) {
+                const clients = await loadAgencyClients(preferredAgency.id)
+                const savedClient = clients.find(client => client.id === savedOrgId)
+                if (savedClient) {
+                    setAgencyClients(clients)
+                    await activateManagedClient(savedClient)
+                    return orgs
+                }
+                await activateDirectOrg(preferredAgency, true)
+                return orgs
+            }
+
+            const matches: Array<{ agency: Organization; clients: AgencyClient[]; client: AgencyClient }> = []
+            for (const agency of agencyOrgs) {
+                const clients = await loadAgencyClients(agency.id)
+                const client = clients.find(candidate => candidate.id === savedOrgId)
+                if (client) matches.push({ agency, clients, client })
+            }
+            if (matches.length === 1) {
+                setAgencyClients(matches[0].clients)
+                await activateManagedClient(matches[0].client)
+                return orgs
+            }
+            if (agencyOrgs.length > 0) {
+                if (agencyOrgs.length === 1) await activateDirectOrg(agencyOrgs[0], true)
+                else {
+                    managedClientSelectionRef.current = null
+                    setActiveRoleState('agency')
+                    await setSecureItem(ACTIVE_ROLE_KEY, 'agency')
+                    setActiveOrgIdState(null)
+                    await deleteSecureItem(ACTIVE_ORG_KEY)
+                    setAgencyClients([])
+                    setManagingAgencyOrgId(null)
+                    await deleteSecureItem(MANAGING_AGENCY_KEY)
+                }
+                return orgs
             }
         }
 
-        return orgs;
-    };
+        if (savedRole === 'agency') {
+            if (agencyOrgs.length === 1) await activateDirectOrg(agencyOrgs[0], true)
+            else if (agencyOrgs.length > 1) {
+                managedClientSelectionRef.current = null
+                setActiveRoleState('agency')
+                setActiveOrgIdState(null)
+                setAgencyClients([])
+            }
+            return orgs
+        }
+
+        if (savedRole === 'brand' || savedRole === 'merchant') {
+            const matchingDirect = orgs.find(org => org.type === savedRole)
+            if (matchingDirect) {
+                await activateDirectOrg(matchingDirect, true)
+                return orgs
+            }
+        }
+
+        if (orgs.length > 0) await activateDirectOrg(orgs[0], false)
+        return orgs
+    }
 
     const setActiveRole = async (role: UserRole) => {
-        setActiveRoleState(role);
-        await setSecureItem("promorang_active_role", role);
-    };
+        setActiveRoleState(role)
+        await setSecureItem(ACTIVE_ROLE_KEY, role)
+
+        const selectedManagedId = managedClientSelectionRef.current || activeOrgId
+        const activeManagedClient = agencyClients.find(client => client.id === selectedManagedId)
+        const currentDirectOrg = organizations.find(org => org.id === activeOrgId)
+
+        if (role === 'agency') {
+            const recordedAgency = managingAgencyOrgId
+                ? organizations.find(org => org.id === managingAgencyOrgId && org.type === 'agency')
+                : null
+            const agencies = organizations.filter(org => org.type === 'agency')
+            const agency = recordedAgency || (agencies.length === 1 ? agencies[0] : null)
+            if (agency) await activateDirectOrg(agency, true)
+            return
+        }
+
+        if ((role === 'brand' || role === 'merchant') && activeManagedClient?.type === role) return
+        if (currentDirectOrg?.type === role) return
+
+        if (role === 'brand' || role === 'merchant') {
+            const matchingDirect = organizations.find(org => org.type === role)
+            if (matchingDirect) await activateDirectOrg(matchingDirect, true)
+        }
+    }
 
     const chooseRole = async (role: UserRole) => {
-        if (!user) return { error: new Error('Sign in before choosing a role.') };
-        const { error } = await supabase
-            .from('user_roles')
-            .upsert({ user_id: user.id, role }, { onConflict: 'user_id,role' });
-        if (error) return { error };
-        setRoles((current) => current.includes(role) ? current : [...current, role]);
-        await setActiveRole(role);
-        return { error: null };
-    };
+        if (!user) return { error: new Error('Sign in before choosing a role.') }
+        const { error } = await supabase.from('user_roles').upsert({ user_id: user.id, role }, { onConflict: 'user_id,role' })
+        if (error) return { error }
+        setRoles(current => current.includes(role) ? current : [...current, role])
+        await setActiveRole(role)
+        return { error: null }
+    }
 
     const setActiveOrgId = async (id: string | null) => {
-        setActiveOrgIdState(id);
-        if (id) {
-            await setSecureItem("promorang_active_org_id", id);
-            // If the new org is in our organizations list and is an agency, fetch clients
-            const org = organizations.find(o => o.id === id);
-            if (org?.type === 'agency') {
-                fetchAgencyClients(id);
-            } else if (!org) {
-                // If not in standard orgs, it might be a client impersonation - clear clients list or keep as is?
-                // For now, if switching to a client, we technically leave the agency context but might want to keep the "back" button logic or similar.
-                // In this simple implementation, we just clear if it's not an agency.
-                setAgencyClients([]);
-            } else {
-                setAgencyClients([]);
-            }
-        } else {
-            await deleteSecureItem("promorang_active_org_id");
-            setAgencyClients([]);
+        if (!id) {
+            managedClientSelectionRef.current = null
+            setActiveOrgIdState(null)
+            await deleteSecureItem(ACTIVE_ORG_KEY)
+            setAgencyClients([])
+            setManagingAgencyOrgId(null)
+            await deleteSecureItem(MANAGING_AGENCY_KEY)
+            return
         }
-    };
+
+        const directOrg = organizations.find(org => org.id === id)
+        if (directOrg) {
+            await activateDirectOrg(directOrg, true)
+            return
+        }
+
+        const managedClient = agencyClients.find(client => client.id === id)
+        if (managedClient) {
+            managedClientSelectionRef.current = managedClient.id
+            await activateManagedClient(managedClient)
+            return
+        }
+
+        const agency = managingAgencyOrgId ? organizations.find(org => org.id === managingAgencyOrgId && org.type === 'agency') : null
+        if (agency) await activateDirectOrg(agency, true)
+        else {
+            managedClientSelectionRef.current = null
+            setActiveOrgIdState(null)
+            await deleteSecureItem(ACTIVE_ORG_KEY)
+        }
+    }
 
     useEffect(() => {
-        const appStateSubscription = AppState.addEventListener('change', (state) => {
-            if (state === 'active') {
-                supabase.auth.startAutoRefresh()
-            } else {
-                supabase.auth.stopAutoRefresh()
-            }
+        const appStateSubscription = AppState.addEventListener('change', state => {
+            if (state === 'active') supabase.auth.startAutoRefresh()
+            else supabase.auth.stopAutoRefresh()
         })
 
+        const syncSessionContext = async (sessionUser: User) => {
+            const fetchedRoles = await fetchUserRoles(sessionUser.id, sessionUser)
+            setRoles(fetchedRoles)
+            await fetchUserOrganizations(sessionUser.id)
+
+            const savedRole = await getSecureItem(ACTIVE_ROLE_KEY) as UserRole | null
+            const hydratedOrgId = await getSecureItem(ACTIVE_ORG_KEY)
+            const hydratedManagingAgencyId = await getSecureItem(MANAGING_AGENCY_KEY)
+            const managedRoleIsAuthorized = Boolean(
+                hydratedOrgId && hydratedManagingAgencyId && (savedRole === 'brand' || savedRole === 'merchant')
+            )
+
+            if (savedRole && (fetchedRoles.includes(savedRole) || managedRoleIsAuthorized)) setActiveRoleState(savedRole)
+            else setActiveRoleState(fetchedRoles[0] || 'participant')
+        }
+
         const initAuth = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setSession(session);
-            setUser(session?.user ?? null);
-
-            if (session?.user) {
-                const fetchedRoles = await fetchUserRoles(session.user.id, session.user);
-                setRoles(fetchedRoles);
-                await fetchUserOrganizations(session.user.id);
-
-                const savedRole = await getSecureItem("promorang_active_role") as UserRole;
-                if (savedRole && fetchedRoles.includes(savedRole)) {
-                    setActiveRoleState(savedRole);
-                } else if (fetchedRoles.length > 0) {
-                    setActiveRoleState(fetchedRoles[0]);
-                } else {
-                    setActiveRoleState("participant");
-                }
-            }
-            setIsLoading(false);
-        };
-
-        initAuth();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            const { data: { session } } = await supabase.auth.getSession()
             setSession(session)
             setUser(session?.user ?? null)
+            if (session?.user) await syncSessionContext(session.user)
+            setIsLoading(false)
+        }
 
-            if (session?.user) {
-                const fetchedRoles = await fetchUserRoles(session.user.id, session.user);
-                setRoles(fetchedRoles);
-                await fetchUserOrganizations(session.user.id);
+        initAuth()
 
-                const savedRole = await getSecureItem("promorang_active_role") as UserRole;
-                if (savedRole && fetchedRoles.includes(savedRole)) {
-                    setActiveRoleState(savedRole);
-                } else if (fetchedRoles.length > 0) {
-                    setActiveRoleState(fetchedRoles[0]);
-                }
-            } else {
-                setRoles([]);
-                setOrganizations([]);
-                setActiveRoleState(null);
-                setActiveOrgIdState(null);
-                setAgencyClients([]);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
+            setSession(nextSession)
+            setUser(nextSession?.user ?? null)
+            if (nextSession?.user) await syncSessionContext(nextSession.user)
+            else {
+                managedClientSelectionRef.current = null
+                setRoles([])
+                setOrganizations([])
+                setActiveRoleState(null)
+                setActiveOrgIdState(null)
+                setAgencyClients([])
+                setManagingAgencyOrgId(null)
             }
             setIsLoading(false)
         })
@@ -309,53 +421,28 @@ const mapRole = (r: string): UserRole => {
             appStateSubscription.remove()
             subscription.unsubscribe()
         }
-    }, [])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const signInWithGoogle = async () => {
         try {
-            const redirectUrl = makeRedirectUri({
-                scheme: 'promorang',
-                path: 'auth/callback',
-                native: 'promorang://auth/callback',
-            })
-            if (__DEV__) {
-                console.info('[Auth] Add this exact URL to Supabase Redirect URLs:', redirectUrl)
-            }
-
+            const redirectUrl = makeRedirectUri({ scheme: 'promorang', path: 'auth/callback', native: 'promorang://auth/callback' })
+            if (__DEV__) console.info('[Auth] Add this exact URL to Supabase Redirect URLs:', redirectUrl)
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
-                options: {
-                    redirectTo: redirectUrl,
-                    skipBrowserRedirect: true,
-                    queryParams: {
-                        access_type: 'offline',
-                        prompt: 'consent',
-                    },
-                },
+                options: { redirectTo: redirectUrl, skipBrowserRedirect: true, queryParams: { access_type: 'offline', prompt: 'consent' } },
             })
-
             if (error) throw error
             if (!data?.url) throw new Error('No auth URL returned from Supabase')
-
             const authorizationUrl = new URL(data.url)
             if (__DEV__) {
                 console.info('[Auth] Supabase project:', authorizationUrl.host)
-                console.info(
-                    '[Auth] Callback sent to Supabase:',
-                    authorizationUrl.searchParams.get('redirect_to')
-                )
+                console.info('[Auth] Callback sent to Supabase:', authorizationUrl.searchParams.get('redirect_to'))
             }
-
             const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl)
-
             if (result.type === 'success' && result.url) {
                 const params = extractParamsFromUrl(result.url)
-
                 if (params.access_token && params.refresh_token) {
-                    const { error } = await supabase.auth.setSession({
-                        access_token: params.access_token,
-                        refresh_token: params.refresh_token,
-                    })
+                    const { error } = await supabase.auth.setSession({ access_token: params.access_token, refresh_token: params.refresh_token })
                     if (error) throw error
                 }
             }
@@ -365,42 +452,20 @@ const mapRole = (r: string): UserRole => {
     }
 
     const signInWithApple = async () => {
-        if (Platform.OS !== 'ios') {
-            return { error: new Error('Sign in with Apple is available on iPhone and iPad.') }
-        }
-
+        if (Platform.OS !== 'ios') return { error: new Error('Sign in with Apple is available on iPhone and iPad.') }
         try {
             setIsLoading(true)
             const rawNonce = Crypto.randomUUID()
-            const hashedNonce = await Crypto.digestStringAsync(
-                Crypto.CryptoDigestAlgorithm.SHA256,
-                rawNonce
-            )
+            const hashedNonce = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, rawNonce)
             const credential = await AppleAuthentication.signInAsync({
-                requestedScopes: [
-                    AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-                    AppleAuthentication.AppleAuthenticationScope.EMAIL,
-                ],
+                requestedScopes: [AppleAuthentication.AppleAuthenticationScope.FULL_NAME, AppleAuthentication.AppleAuthenticationScope.EMAIL],
                 nonce: hashedNonce,
             })
-
-            if (!credential.identityToken) {
-                throw new Error('Apple did not return a valid identity token.')
-            }
-
-            const fullName = [credential.fullName?.givenName, credential.fullName?.familyName]
-                .filter(Boolean)
-                .join(' ')
-            const { error } = await supabase.auth.signInWithIdToken({
-                provider: 'apple',
-                token: credential.identityToken,
-                nonce: rawNonce,
-            })
+            if (!credential.identityToken) throw new Error('Apple did not return a valid identity token.')
+            const fullName = [credential.fullName?.givenName, credential.fullName?.familyName].filter(Boolean).join(' ')
+            const { error } = await supabase.auth.signInWithIdToken({ provider: 'apple', token: credential.identityToken, nonce: rawNonce })
             if (error) throw error
-
-            if (fullName) {
-                await supabase.auth.updateUser({ data: { full_name: fullName, name: fullName } })
-            }
+            if (fullName) await supabase.auth.updateUser({ data: { full_name: fullName, name: fullName } })
             return { error: null }
         } catch (error: any) {
             if (error?.code === 'ERR_REQUEST_CANCELED') return { error: null }
@@ -413,33 +478,16 @@ const mapRole = (r: string): UserRole => {
     }
 
     const demoSignIn = async (role: UserRole) => {
-        if (!ALLOW_DEMO_LOGIN) {
-            return { error: new Error('Demo login is disabled for this build') }
-        }
-
+        if (!ALLOW_DEMO_LOGIN) return { error: new Error('Demo login is disabled for this build') }
         try {
             setIsLoading(true)
             const apiBaseUrl = (process.env.EXPO_PUBLIC_API_URL || 'https://api.promorang.co').replace(/\/$/, '')
-            const response = await fetch(`${apiBaseUrl}/api/auth/demo/${role}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({}),
-            })
+            const response = await fetch(`${apiBaseUrl}/api/auth/demo/${role}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) })
             const payload = await response.json().catch(() => null)
-
-            if (!response.ok) {
-                throw new Error(payload?.details || payload?.error || 'Failed to prepare demo account')
-            }
-            if (!payload?.email || !payload?.password) {
-                throw new Error('Demo account response was missing credentials')
-            }
-
-            const { error } = await supabase.auth.signInWithPassword({
-                email: payload.email,
-                password: payload.password,
-            })
+            if (!response.ok) throw new Error(payload?.details || payload?.error || 'Failed to prepare demo account')
+            if (!payload?.email || !payload?.password) throw new Error('Demo account response was missing credentials')
+            const { error } = await supabase.auth.signInWithPassword({ email: payload.email, password: payload.password })
             if (error) throw error
-
             return { error: null }
         } catch (error) {
             const demoError = error instanceof Error ? error : new Error('Demo login failed')
@@ -452,30 +500,21 @@ const mapRole = (r: string): UserRole => {
 
     const signOut = async () => {
         await supabase.auth.signOut()
+        managedClientSelectionRef.current = null
         setRoles([])
         setOrganizations([])
         setAgencyClients([])
+        setManagingAgencyOrgId(null)
         setActiveRoleState(null)
         setActiveOrgIdState(null)
+        await Promise.all([deleteSecureItem(ACTIVE_ROLE_KEY), deleteSecureItem(ACTIVE_ORG_KEY), deleteSecureItem(MANAGING_AGENCY_KEY)])
     }
 
     return (
         <AuthContext.Provider value={{
-            session,
-            user,
-            roles,
-            activeRole,
-            setActiveRole,
-            chooseRole,
-            organizations,
-            activeOrgId,
-            setActiveOrgId,
-            agencyClients,
-            signInWithGoogle,
-            signInWithApple,
-            demoSignIn,
-            signOut,
-            isLoading
+            session, user, roles, activeRole, setActiveRole, chooseRole, organizations, activeOrgId,
+            managingAgencyOrgId, setActiveOrgId, agencyClients, signInWithGoogle, signInWithApple,
+            demoSignIn, signOut, isLoading,
         }}>
             {children}
         </AuthContext.Provider>
