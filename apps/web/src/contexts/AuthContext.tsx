@@ -143,12 +143,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return clients;
   };
 
-  const activateDirectOrg = (org: Organization) => {
+  const activateDirectOrg = (org: Organization, syncRole = true) => {
     setActiveOrgIdState(org.id);
     localStorage.setItem(ACTIVE_ORG_KEY, org.id);
 
     const roleForOrg = org.type ? orgTypeToRole[org.type] : null;
-    if (roleForOrg) {
+    if (syncRole && roleForOrg) {
       setActiveRoleState(roleForOrg);
       localStorage.setItem(ACTIVE_ROLE_KEY, roleForOrg);
     }
@@ -175,9 +175,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Storage-backed role preferences apply only when they do not conflict with
-  // an active managed client. Managed client authority comes from the agency
-  // relationship, not from a direct user_roles grant.
   useEffect(() => {
     if (roles.length === 0) return;
 
@@ -204,22 +201,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         : null;
       const agencies = organizations.filter((org) => org.type === "agency");
       const agency = recordedAgency || (agencies.length === 1 ? agencies[0] : null);
-      if (agency) activateDirectOrg(agency);
+      if (agency) activateDirectOrg(agency, true);
       return;
     }
 
-    if ((role === "brand" || role === "merchant") && activeManagedClient?.type === role) {
-      // A same-role switch while managing a client must not jump to the user's
-      // own Brand/Merchant organization.
-      return;
-    }
-
+    if ((role === "brand" || role === "merchant") && activeManagedClient?.type === role) return;
     if (currentDirectOrg?.type === role) return;
 
     const desiredType = roleToOrgType[role];
     if (desiredType) {
       const matchingOrg = organizations.find((org) => org.type === desiredType);
-      if (matchingOrg) activateDirectOrg(matchingOrg);
+      if (matchingOrg) activateDirectOrg(matchingOrg, true);
     }
   };
 
@@ -235,7 +227,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const directOrg = organizations.find((org) => org.id === id);
     if (directOrg) {
-      activateDirectOrg(directOrg);
+      activateDirectOrg(directOrg, true);
       return;
     }
 
@@ -245,13 +237,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Do not persist an unresolved organization ID. If a managed client's
-    // access has disappeared, recover to the recorded managing agency.
     const recordedAgency = managingAgencyOrgId
       ? organizations.find((org) => org.id === managingAgencyOrgId && org.type === "agency")
       : null;
     if (recordedAgency) {
-      activateDirectOrg(recordedAgency);
+      activateDirectOrg(recordedAgency, true);
     } else {
       setActiveOrgIdState(null);
       localStorage.removeItem(ACTIVE_ORG_KEY);
@@ -290,9 +280,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const directSavedOrg = savedOrgId ? orgs.find((org) => org.id === savedOrgId) : null;
     const agencyOrgs = orgs.filter((org) => org.type === "agency");
     const effectiveRole = preferredRole || resolvePreferredRole(roles);
+    const desiredOrgType = effectiveRole ? roleToOrgType[effectiveRole] : null;
 
     if (directSavedOrg) {
-      activateDirectOrg(directSavedOrg);
+      if (desiredOrgType && directSavedOrg.type !== desiredOrgType) {
+        const matchingDirect = orgs.find((org) => org.type === desiredOrgType);
+        if (matchingDirect) activateDirectOrg(matchingDirect, true);
+        else activateDirectOrg(directSavedOrg, false);
+      } else {
+        activateDirectOrg(directSavedOrg, Boolean(desiredOrgType));
+      }
       return orgs;
     }
 
@@ -310,9 +307,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return orgs;
         }
 
-        // Revoked client: return to the exact agency that established context.
         setAgencyClients(clients);
-        activateDirectOrg(preferredAgency);
+        activateDirectOrg(preferredAgency, true);
         return orgs;
       }
 
@@ -330,10 +326,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (agencyOrgs.length > 0) {
-        // Legacy saved client with ambiguous/no current relationship: never
-        // fall through to an unrelated owned Brand/Merchant organization.
         if (agencyOrgs.length === 1) {
-          activateDirectOrg(agencyOrgs[0]);
+          activateDirectOrg(agencyOrgs[0], true);
         } else {
           setActiveRoleState("agency");
           localStorage.setItem(ACTIVE_ROLE_KEY, "agency");
@@ -347,10 +341,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    const desiredOrgType = effectiveRole ? roleToOrgType[effectiveRole] : null;
     if (desiredOrgType === "agency") {
       if (agencyOrgs.length === 1) {
-        activateDirectOrg(agencyOrgs[0]);
+        activateDirectOrg(agencyOrgs[0], true);
       } else if (agencyOrgs.length > 1) {
         setActiveRoleState("agency");
         localStorage.setItem(ACTIVE_ROLE_KEY, "agency");
@@ -367,7 +360,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const nextActiveOrg = matchingOrg || orgs[0] || null;
 
     if (nextActiveOrg) {
-      activateDirectOrg(nextActiveOrg);
+      activateDirectOrg(nextActiveOrg, Boolean(desiredOrgType));
     } else {
       setActiveOrgIdState(null);
       localStorage.removeItem(ACTIVE_ORG_KEY);
