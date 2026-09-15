@@ -6,6 +6,8 @@ import {
   WorkspaceSwitcher,
   type OutcomeStage,
 } from "./foundation";
+import { PromoCardV2 } from "./PromoCardV2";
+import { OpportunityCard } from "./OpportunityCard";
 
 describe("Promorang UI V2 foundation", () => {
   it("exposes the dominant next move as a labelled region", () => {
@@ -53,5 +55,43 @@ describe("Promorang UI V2 foundation", () => {
     });
 
     expect(onChange).toHaveBeenCalledWith("merchant:1");
+  });
+
+  it("communicates PromoCard state without relying on color", () => {
+    render(
+      <PromoCardV2
+        model={{
+          state: "ready",
+          holder: "Andre",
+          headline: "Encore access is ready",
+          detail: "Show this at the door.",
+          places: "Oasis",
+          action: "Use it",
+          footerCue: "Claim, then use",
+          credential: "ENCORE25",
+          canFlip: true,
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("article", { name: /PromoCard for Andre/i })).toHaveAccessibleName(/Ready to use/i);
+    expect(screen.getByText("ENCORE25")).toBeInTheDocument();
+  });
+
+  it("keeps opportunity value and proof explicit", () => {
+    render(
+      <OpportunityCard
+        title="Store visit campaign"
+        description="Visit a participating location and publish one approved story."
+        value="J$8,000"
+        proof="Verified store visit + approved story"
+        actionLabel="View opportunity"
+        action={<a href="/earn/store-visit">View opportunity</a>}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Store visit campaign" })).toBeInTheDocument();
+    expect(screen.getByText("J$8,000")).toBeInTheDocument();
+    expect(screen.getByText("Verified store visit + approved story")).toBeInTheDocument();
   });
 });
