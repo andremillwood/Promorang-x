@@ -16,7 +16,23 @@ The goal is not to replace product logic. It is to make existing logic legible, 
 
 ## Current branch implementation
 
-The branch now includes the first visible application of V2, not only design-system scaffolding.
+The branch now includes a real authenticated-shell cutover, a migrated Participant Home, and the first signature objects.
+
+### Authenticated V2 shell
+
+`AppLayout.tsx` now routes authenticated application traffic through `PromorangAppShell.tsx` instead of the legacy `DashboardLayout.tsx`.
+
+The legacy layout remains intact as a rollback reference while V2 is runtime-validated.
+
+The V2 shell provides:
+
+- restrained dark authenticated chrome;
+- explicit role + organization workspace switching using existing `AuthContext` state;
+- role-aware desktop navigation;
+- five-or-fewer mobile primary destinations;
+- global search, location, language/theme and profile access;
+- semantic role accents rather than whole-role color themes;
+- a cleaner separation between primary work and secondary tools.
 
 ### Participant Home
 
@@ -26,9 +42,17 @@ The branch now includes the first visible application of V2, not only design-sys
 
 The previous parallel teaching/tool stack was removed from the Participant Home presentation while preserving the underlying capabilities and routes.
 
+### Signature objects
+
+V2 now includes:
+
+- `PromoCardV2` — renders the existing shared PromoCard face states (`empty`, `nearby`, `ready`, `returned`, `used`, `expired`) with a distinctive PROMORANG object treatment without changing redemption semantics;
+- `ConsequenceReceipt` — persistent proof/value artifact;
+- `OpportunityCard` — canonical opportunity anatomy for future Participant, Creator, Host, Merchant and Brand use.
+
 ### People experience shell
 
-`ExperienceShell.tsx` now uses the V2 dark canvas, contemporary sans hierarchy and restrained loading/empty states. This reduces the visual mismatch when moving from Participant Home to other people-facing surfaces while their deeper migrations are pending.
+`ExperienceShell.tsx` now uses the V2 dark canvas, contemporary sans hierarchy and restrained loading/empty states.
 
 ### Start page
 
@@ -79,7 +103,7 @@ Recommended composition: context/workspace → dominant `NextMove` → compact `
 
 ## Canonical semantic components
 
-Initial V2 primitives live in `apps/web/src/components/promorang-v2/`: `PageCanvas`, `PageLead`, `OutcomeSurface`, `NextMove`, `OutcomeProgress`, `ProofBlock`, `ValueBlock`, `EvidencePair`, `WorkspaceSwitcher`, and `ConsequenceReceipt`.
+Initial V2 primitives live in `apps/web/src/components/promorang-v2/`: `PageCanvas`, `PageLead`, `OutcomeSurface`, `NextMove`, `OutcomeProgress`, `ProofBlock`, `ValueBlock`, `EvidencePair`, `WorkspaceSwitcher`, `ConsequenceReceipt`, `PromoCardV2`, and `OpportunityCard`.
 
 New components should describe meaning, not styling. Prefer `ProofSummary` over `GlowCard`, `OpportunityCard` over `GlassPanel`, etc.
 
@@ -113,6 +137,8 @@ Only a small number of destinations should be primary at once.
 
 Changing workspace should change role context, organization/client context, primary navigation, role home, success contract and available tools/permissions together.
 
+The V2 shell surfaces the role/organization state already managed by `AuthContext`; it does not create a second workspace authority.
+
 ## Accessibility and motion
 
 V2 must preserve or improve visible focus, semantic labels/headings, keyboard navigation, target sizes generally >=44px where practical, status announcements, reduced motion, and meaningful loading/empty/error/cancelled/success states.
@@ -125,13 +151,19 @@ Use the least motion needed for context continuity, stage completion, verified s
 1. App shell / workspace model
 2. Participant home
 3. PromoCard + Consequence Receipt
-4. Merchant
-5. Creator
-6. Host
-7. Brand
-8. Admin
-9. Secondary surfaces
-10. Legacy cleanup
+4. Discover / canonical Opportunity object
+5. Merchant
+6. Creator
+7. Host
+8. Brand
+9. Admin
+10. Secondary surfaces + legacy cleanup
+
+## Runtime validation status
+
+The branch remains draft-only. Vercel preview checks are currently blocked by the connected account build-rate limit rather than a reported application build failure. No successful CI/local runtime proof has yet been recorded for the shell cutover.
+
+Do not merge or deploy based on source inspection alone.
 
 ## Agent / Cursor instruction
 
