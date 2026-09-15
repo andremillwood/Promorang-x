@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { isPlaceholderDisplayName, readIntendedStakeholderRole, rememberIntendedStakeholder } from "@promorang/shared";
 import { supabase } from "@/integrations/supabase/client";
@@ -92,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [managingAgencyOrgId, setManagingAgencyOrgId] = useState<string | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const managedClientSelectionRef = useRef<string | null>(null);
 
   const mapRole = (role: string): UserRole => mapWorkspaceRole(role);
 
@@ -144,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const activateDirectOrg = (org: Organization, syncRole = true) => {
+    managedClientSelectionRef.current = null;
     setActiveOrgIdState(org.id);
     localStorage.setItem(ACTIVE_ORG_KEY, org.id);
 
@@ -163,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const activateManagedClient = (client: AgencyClient) => {
+    managedClientSelectionRef.current = client.id;
     setActiveOrgIdState(client.id);
     localStorage.setItem(ACTIVE_ORG_KEY, client.id);
     setManagingAgencyOrgId(client.managing_agency_id);
@@ -192,7 +195,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setActiveRoleState(role);
     localStorage.setItem(ACTIVE_ROLE_KEY, role);
 
-    const activeManagedClient = agencyClients.find((client) => client.id === activeOrgId);
+    const selectedManagedId = managedClientSelectionRef.current || activeOrgId;
+    const activeManagedClient = agencyClients.find((client) => client.id === selectedManagedId);
     const currentDirectOrg = organizations.find((org) => org.id === activeOrgId);
 
     if (role === "agency") {
@@ -217,6 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const setActiveOrgId = (id: string | null) => {
     if (!id) {
+      managedClientSelectionRef.current = null;
       setActiveOrgIdState(null);
       localStorage.removeItem(ACTIVE_ORG_KEY);
       setAgencyClients([]);
@@ -233,6 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const managedClient = agencyClients.find((client) => client.id === id);
     if (managedClient) {
+      managedClientSelectionRef.current = managedClient.id;
       activateManagedClient(managedClient);
       return;
     }
@@ -243,6 +249,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (recordedAgency) {
       activateDirectOrg(recordedAgency, true);
     } else {
+      managedClientSelectionRef.current = null;
       setActiveOrgIdState(null);
       localStorage.removeItem(ACTIVE_ORG_KEY);
     }
@@ -329,6 +336,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (agencyOrgs.length === 1) {
           activateDirectOrg(agencyOrgs[0], true);
         } else {
+          managedClientSelectionRef.current = null;
           setActiveRoleState("agency");
           localStorage.setItem(ACTIVE_ROLE_KEY, "agency");
           setActiveOrgIdState(null);
@@ -345,6 +353,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (agencyOrgs.length === 1) {
         activateDirectOrg(agencyOrgs[0], true);
       } else if (agencyOrgs.length > 1) {
+        managedClientSelectionRef.current = null;
         setActiveRoleState("agency");
         localStorage.setItem(ACTIVE_ROLE_KEY, "agency");
         setActiveOrgIdState(null);
@@ -362,6 +371,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (nextActiveOrg) {
       activateDirectOrg(nextActiveOrg, Boolean(desiredOrgType));
     } else {
+      managedClientSelectionRef.current = null;
       setActiveOrgIdState(null);
       localStorage.removeItem(ACTIVE_ORG_KEY);
       setAgencyClients([]);
@@ -505,6 +515,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
         }, 0);
       } else {
+        managedClientSelectionRef.current = null;
         setRoles([]);
         setOrganizations([]);
         setActiveOrgIdState(null);
@@ -590,6 +601,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    managedClientSelectionRef.current = null;
     setRoles([]);
     setOrganizations([]);
     setAgencyClients([]);
