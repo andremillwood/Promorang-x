@@ -3,6 +3,12 @@ import { useTheme, type Theme } from "@/contexts/ThemeContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { localeNames, supportedLocales, type Locale } from "@/i18n/translations";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  getStartPageOptions,
+  readWorkspaceStartPage,
+  writeWorkspaceStartPage,
+} from "@/lib/workspace-start-page";
 
 const themeOptions: Array<{ value: Theme; labelKey: "theme.light" | "theme.dark" | "theme.system"; icon: typeof Sun }> = [
   { value: "light", labelKey: "theme.light", icon: Sun },
@@ -13,6 +19,17 @@ const themeOptions: Array<{ value: Theme; labelKey: "theme.light" | "theme.dark"
 export const AppearancePreferences = ({ className }: { className?: string }) => {
   const { locale, setLocale, t } = useI18n();
   const { theme, setTheme } = useTheme();
+  const { user, activeRole } = useAuth();
+  const startPageOptions = getStartPageOptions(activeRole);
+  const savedStartPage = user ? readWorkspaceStartPage(user.id, activeRole) : null;
+
+  const setStartPage = (route: string) => {
+    if (!user) return;
+    writeWorkspaceStartPage(user.id, activeRole, route);
+    // The preference is intentionally device-local in this first safe release.
+    // Force a small local re-render without introducing a second state source.
+    window.dispatchEvent(new Event("promorang:start-page-changed"));
+  };
 
   return (
     <div className={cn("space-y-6", className)}>
@@ -76,6 +93,44 @@ export const AppearancePreferences = ({ className }: { className?: string }) => 
           })}
         </div>
       </div>
+
+      {user ? (
+        <div>
+          <div className="mb-3">
+            <p className="text-sm font-semibold text-foreground">Start PROMORANG on</p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              Choose the default page for your current {activeRole || "participant"} workspace. Links you intentionally open still take priority.
+            </p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3" key={`${activeRole}:${savedStartPage || "default"}`}>
+            {startPageOptions.map((option, index) => {
+              const active = savedStartPage ? savedStartPage === option.route : index === 0;
+              return (
+                <button
+                  key={option.route}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => setStartPage(option.route)}
+                  className={cn(
+                    "min-h-11 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition",
+                    active
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                  )}
+                >
+                  <span className="flex items-center justify-between gap-2">
+                    {option.label}
+                    {active && <Check className="h-4 w-4 text-primary" aria-hidden="true" />}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-[11px] leading-4 text-muted-foreground">
+            This first version is saved on this device. Account-synced workspace preferences require the planned schema/RLS migration before release.
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 };
