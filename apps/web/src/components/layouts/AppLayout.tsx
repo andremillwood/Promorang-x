@@ -13,12 +13,28 @@ interface AppLayoutProps {
     children?: React.ReactNode;
 }
 
+const PARTICIPANT_SHELL_OVERRIDE_KEY = "promorang:participant-shell";
+
 const AppLayout = ({ children }: AppLayoutProps) => {
     const { user, activeRole, loading, profile } = useAuth();
     const location = useLocation();
 
     const [showRankCelebration, setShowRankCelebration] = useState(false);
     const [currentRank, setCurrentRank] = useState<number | null>(null);
+
+    const uiOverride = new URLSearchParams(location.search).get("ui");
+    const storedShellOverride = typeof window === "undefined"
+        ? null
+        : localStorage.getItem(PARTICIPANT_SHELL_OVERRIDE_KEY);
+    const forceLegacyParticipantShell = uiOverride === "v1" || (uiOverride !== "v2" && storedShellOverride === "v1");
+
+    useEffect(() => {
+        if (uiOverride === "v1") {
+            localStorage.setItem(PARTICIPANT_SHELL_OVERRIDE_KEY, "v1");
+        } else if (uiOverride === "v2") {
+            localStorage.removeItem(PARTICIPANT_SHELL_OVERRIDE_KEY);
+        }
+    }, [uiOverride]);
 
     useEffect(() => {
         if (profile?.maturity_state !== undefined) {
@@ -97,9 +113,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </>
         );
 
-        // Canary the new shell on Participant first. Commercial/admin workspaces
-        // stay on the proven shell until each role migration is runtime-checked.
-        if ((activeRole || "participant") === "participant") {
+        // Canary V2 on Participant first. `?ui=v1` persists a local rollback;
+        // `?ui=v2` clears it. Commercial/admin roles remain on the proven shell.
+        if ((activeRole || "participant") === "participant" && !forceLegacyParticipantShell) {
             return (
                 <PromorangAppShell currentRole="participant">
                     {content}
