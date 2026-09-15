@@ -181,11 +181,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return mappedRoles
     }
 
-    const activateDirectOrg = async (org: Organization) => {
+    const activateDirectOrg = async (org: Organization, syncRole = true) => {
         setActiveOrgIdState(org.id)
         await setSecureItem(ACTIVE_ORG_KEY, org.id)
         const role = orgRole(org.type)
-        if (role) {
+        if (syncRole && role) {
             setActiveRoleState(role)
             await setSecureItem(ACTIVE_ROLE_KEY, role)
         }
@@ -242,9 +242,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const savedManagingAgencyId = await getSecureItem(MANAGING_AGENCY_KEY)
         const directSavedOrg = savedOrgId ? orgs.find(o => o.id === savedOrgId) : null
         const agencyOrgs = orgs.filter(o => o.type === 'agency')
+        const desiredType = savedRole === 'brand' || savedRole === 'merchant' || savedRole === 'agency'
+            ? savedRole
+            : null
 
         if (directSavedOrg) {
-            await activateDirectOrg(directSavedOrg)
+            if (desiredType && directSavedOrg.type !== desiredType) {
+                const matchingDirect = orgs.find(org => org.type === desiredType)
+                if (matchingDirect) await activateDirectOrg(matchingDirect, true)
+                else await activateDirectOrg(directSavedOrg, false)
+            } else {
+                await activateDirectOrg(directSavedOrg, Boolean(desiredType))
+            }
             return orgs
         }
 
@@ -262,9 +271,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     return orgs
                 }
 
-                // Client access was revoked: recover to the agency that owned
-                // the managed context rather than selecting an unrelated org.
-                await activateDirectOrg(preferredAgency)
+                await activateDirectOrg(preferredAgency, true)
                 return orgs
             }
 
@@ -281,23 +288,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 return orgs
             }
 
-            if (matches.length > 1 || (agencyOrgs.length > 1 && savedRole === 'agency')) {
-                // Multiple agencies and no authoritative owner is ambiguous.
-                // Keep the role, but require an explicit organization choice.
-                setActiveRoleState('agency')
-                await setSecureItem(ACTIVE_ROLE_KEY, 'agency')
-                setActiveOrgIdState(null)
-                await deleteSecureItem(ACTIVE_ORG_KEY)
-                setAgencyClients([])
-                setManagingAgencyOrgId(null)
-                await deleteSecureItem(MANAGING_AGENCY_KEY)
+            if (agencyOrgs.length > 0) {
+                if (agencyOrgs.length === 1) {
+                    await activateDirectOrg(agencyOrgs[0], true)
+                } else {
+                    setActiveRoleState('agency')
+                    await setSecureItem(ACTIVE_ROLE_KEY, 'agency')
+                    setActiveOrgIdState(null)
+                    await deleteSecureItem(ACTIVE_ORG_KEY)
+                    setAgencyClients([])
+                    setManagingAgencyOrgId(null)
+                    await deleteSecureItem(MANAGING_AGENCY_KEY)
+                }
                 return orgs
             }
         }
 
         if (savedRole === 'agency') {
             if (agencyOrgs.length === 1) {
-                await activateDirectOrg(agencyOrgs[0])
+                await activateDirectOrg(agencyOrgs[0], true)
             } else if (agencyOrgs.length > 1) {
                 setActiveRoleState('agency')
                 setActiveOrgIdState(null)
@@ -309,12 +318,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (savedRole === 'brand' || savedRole === 'merchant') {
             const matchingDirect = orgs.find(org => org.type === savedRole)
             if (matchingDirect) {
-                await activateDirectOrg(matchingDirect)
+                await activateDirectOrg(matchingDirect, true)
                 return orgs
             }
         }
 
-        if (orgs.length > 0) await activateDirectOrg(orgs[0])
+        if (orgs.length > 0) await activateDirectOrg(orgs[0], false)
         return orgs
     }
 
@@ -331,21 +340,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 : null
             const agencies = organizations.filter(org => org.type === 'agency')
             const agency = recordedAgency || (agencies.length === 1 ? agencies[0] : null)
-            if (agency) await activateDirectOrg(agency)
+            if (agency) await activateDirectOrg(agency, true)
             return
         }
 
-        if ((role === 'brand' || role === 'merchant') && activeManagedClient?.type === role) {
-            // The role already describes the managed client. Do not jump to a
-            // direct organization of the same type.
-            return
-        }
-
+        if ((role === 'brand' || role === 'merchant') && activeManagedClient?.type === role) return
         if (currentDirectOrg?.type === role) return
 
         if (role === 'brand' || role === 'merchant') {
             const matchingDirect = organizations.find(org => org.type === role)
-            if (matchingDirect) await activateDirectOrg(matchingDirect)
+            if (matchingDirect) await activateDirectOrg(matchingDirect, true)
         }
     }
 
@@ -372,7 +376,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         const directOrg = organizations.find(org => org.id === id)
         if (directOrg) {
-            await activateDirectOrg(directOrg)
+            await activateDirectOrg(directOrg, true)
             return
         }
 
@@ -382,14 +386,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return
         }
 
-        // Never persist an organization the authenticated user cannot resolve.
-        // If a previously saved managed client disappeared, recover to its
-        // recorded managing agency when possible.
         const agency = managingAgencyOrgId
             ? organizations.find(org => org.id === managingAgencyOrgId && org.type === 'agency')
             : null
         if (agency) {
-            await activateDirectOrg(agency)
+            await activateDirectOrg(agency, true)
         } else {
             setActiveOrgIdState(null)
             await deleteSecureItem(ACTIVE_ORG_KEY)
@@ -408,9 +409,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await fetchUserOrganizations(sessionUser.id)
 
             const savedRole = await getSecureItem(ACTIVE_ROLE_KEY) as UserRole | null
-            if (savedRole && fetchedRoles.includes(savedRole)) {
-                setActiveRoleState(current => current || savedRole)
-            } else if (!activeRole) {
+            const hydratedOrgId = await getSecureItem(ACTIVE_ORG_KEY)
+            const hydratedManagingAgencyId = await getSecureItem(MANAGING_AGENCY_KEY)
+            const managedRoleIsAuthorized = Boolean(
+                hydratedOrgId &&
+                hydratedManagingAgencyId &&
+                (savedRole === 'brand' || savedRole === 'merchant')
+            )
+
+            if (savedRole && (fetchedRoles.includes(savedRole) || managedRoleIsAuthorized)) {
+                setActiveRoleState(savedRole)
+            } else {
                 setActiveRoleState(fetchedRoles[0] || 'participant')
             }
         }
