@@ -1,37 +1,19 @@
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/contexts/AuthContext";
-import { BrandImpactDashboard } from "@/components/brand/BrandImpactDashboard";
-import { RoleActivationPanel } from "@/components/activation/RoleActivationPanel";
-import { QuickAddClient } from "@/components/agency/QuickAddClient";
-import { DashboardHero } from "@/components/dashboard/DashboardSurface";
-import { DashboardWorkspaceNav } from "@/components/dashboard/DashboardWorkspaceNav";
 import { Button } from "@/components/ui/button";
+import { BrandImpactDashboard } from "@/components/brand/BrandImpactDashboard";
+import { QuickAddClient } from "@/components/agency/QuickAddClient";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useDeleteAgencyRelationship, useAgencyRelationships } from "@/hooks/useAgencyClients";
-import {
-  ArrowRight,
-  Briefcase,
-  Building2,
-  Sparkles,
-  Store,
-  TrendingUp,
-} from "lucide-react";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useI18n } from "@/i18n/I18nContext";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, Briefcase, Building2, Store, TrendingUp } from "lucide-react";
+import { useMemo, useState } from "react";
+import { EvidencePair, NextMove, OutcomeProgress, OutcomeSurface, PageLead } from "@/components/promorang-v2";
 
 const roleTone = {
-  brand: {
-    label: "Brand Client",
-    icon: Building2,
-    chip: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-  },
-  merchant: {
-    label: "Venue Client",
-    icon: Store,
-    chip: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-  },
+  brand: { label: "Brand client", icon: Building2 },
+  merchant: { label: "Merchant client", icon: Store },
 } as const;
 
 type ClientCampaign = {
@@ -43,20 +25,19 @@ type ClientCampaign = {
   updated_at: string;
 };
 
-const AgencyDashboard = () => {
-  const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState("clients");
+type AgencyTab = "clients" | "activations" | "impact";
+
+export default function AgencyDashboard() {
+  const [activeTab, setActiveTab] = useState<AgencyTab>("clients");
   const { agencyClients, organizations, activeOrgId, setActiveOrgId, setActiveRole, refreshWorkspaceContext } = useAuth();
   const { toast } = useToast();
   const activeOrg = organizations.find((org) => org.id === activeOrgId);
   const relationshipQuery = useAgencyRelationships({
     agencyId: activeOrgId,
-    enabled: !!activeOrgId && activeOrg?.type === "agency",
+    enabled: Boolean(activeOrgId && activeOrg?.type === "agency"),
   });
   const deleteRelationship = useDeleteAgencyRelationship();
 
-  const brandClients = agencyClients.filter((client) => client.type === "brand").length;
-  const venueClients = agencyClients.filter((client) => client.type === "merchant").length;
   const brandClientIds = agencyClients.filter((client) => client.type === "brand").map((client) => client.id);
   const clientCampaignQuery = useQuery({
     queryKey: ["agency-client-campaigns", activeOrgId, brandClientIds.join(",")],
@@ -73,214 +54,255 @@ const AgencyDashboard = () => {
       return (data || []) as ClientCampaign[];
     },
   });
+
   const clientCampaigns = clientCampaignQuery.data || [];
   const activeClientCampaigns = clientCampaigns.filter((campaign) => campaign.is_active);
   const provenClientCampaigns = clientCampaigns.filter((campaign) => Number(campaign.redemptions || 0) > 0);
+  const totalVerifiedActions = clientCampaigns.reduce((sum, campaign) => sum + Number(campaign.redemptions || 0), 0);
   const pendingRelationships = (relationshipQuery.data?.relationships || []).filter((relationship) => relationship.status === "pending").length;
 
+  const nextMove = agencyClients.length === 0
+    ? {
+        title: "Connect the first client you will operate for.",
+        description: "Add one brand or merchant account so client work, ownership and proof stay attached to the right workspace.",
+        label: "Add client",
+        tab: "clients" as const,
+      }
+    : activeClientCampaigns.length === 0
+      ? {
+          title: "Choose a client and launch one measurable activation.",
+          description: "Open the client workspace first. The client—not the agency dashboard—should own the activation, budget and resulting evidence.",
+          label: "Choose client",
+          tab: "clients" as const,
+        }
+      : provenClientCampaigns.length === 0
+        ? {
+            title: "Get one client activation to a verified customer action.",
+            description: "Live activity is not yet a client result. Review execution and remove whatever is blocking the first attributable action.",
+            label: "Review activations",
+            tab: "activations" as const,
+          }
+        : {
+            title: "Turn verified client movement into a client decision.",
+            description: "Package the evidence clearly enough for the client to decide what to repeat, change or stop. Do not turn redemptions into invented revenue.",
+            label: "Review client proof",
+            tab: "impact" as const,
+          };
+
+  const stages = [
+    { id: "connect", label: "Client connected", status: agencyClients.length > 0 ? "complete" as const : "current" as const },
+    { id: "launch", label: "Activation live", status: activeClientCampaigns.length > 0 ? "complete" as const : agencyClients.length > 0 ? "current" as const : "upcoming" as const },
+    { id: "prove", label: "Verified client outcome", status: provenClientCampaigns.length > 0 ? "complete" as const : activeClientCampaigns.length > 0 ? "current" as const : "upcoming" as const },
+    { id: "package", label: "Proof packaged", status: provenClientCampaigns.length > 0 ? "current" as const : "upcoming" as const },
+    { id: "repeat", label: "Repeat client work", status: "upcoming" as const },
+  ];
+
+  const tabs: Array<{ id: AgencyTab; label: string }> = [
+    { id: "clients", label: "Clients" },
+    { id: "activations", label: "Client work" },
+    { id: "impact", label: "Proof" },
+  ];
+
+  const relationships = useMemo(
+    () => (relationshipQuery.data?.relationships || []).filter((relationship) => relationship.agency_id === activeOrgId),
+    [activeOrgId, relationshipQuery.data?.relationships],
+  );
+
   return (
-    <div className="space-y-6 sm:space-y-8">
-      <DashboardHero
-        badge={t("agencyDash.badge")}
-        title={t("agencyDash.title")}
-        description={t("agencyDash.copy", { name: activeOrg?.name || t("agencyDash.badge") })}
-        actions={[
-          agencyClients.length === 0
-            ? { label: "Connect your first client", onClick: () => setActiveTab("clients"), icon: Building2 }
-            : clientCampaigns.length === 0
-              ? { label: "Choose a client to activate", onClick: () => setActiveTab("clients"), icon: Building2 }
-              : provenClientCampaigns.length > 0
-                ? { label: "Package client proof", onClick: () => setActiveTab("impact"), icon: TrendingUp }
-                : { label: "Review active client work", onClick: () => setActiveTab("activations"), icon: Sparkles },
-          { label: "Open client portfolio", onClick: () => setActiveTab("clients"), icon: Briefcase },
-          { label: "Choose client workspace", onClick: () => setActiveTab("clients"), icon: Building2 },
-          { label: "Review client impact", onClick: () => setActiveTab("impact"), icon: TrendingUp },
-        ]}
-        stats={[
-          { label: t("agencyDash.clientAccounts"), value: agencyClients.length.toString(), helper: "Managed directly", icon: Briefcase, accentClass: "text-primary-light" },
-          { label: t("agencyDash.brandClients"), value: brandClients.toString(), helper: "Brand relationships", icon: Building2, accentClass: "text-sky-300" },
-          { label: t("agencyDash.venueClients"), value: venueClients.toString(), helper: "Venue relationships", icon: Store, accentClass: "text-emerald-300" },
-          { label: t("agencyDash.liveActivations"), value: activeClientCampaigns.length.toString(), helper: "Across connected clients", icon: Sparkles, accentClass: "text-amber-300" },
-          { label: t("agencyDash.provenResults"), value: provenClientCampaigns.length.toString(), helper: "Ready for client review", icon: TrendingUp, accentClass: "text-emerald-300" },
-        ]}
-        isLoading={clientCampaignQuery.isLoading}
-      />
+    <div className="pr-v2-role-accent pr-v2-canvas rounded-[var(--pr-v2-radius-module)]" data-role="agency">
+      <div className="pr-v2-page space-y-9 py-2 sm:py-4">
+        <PageLead
+          eyebrow="Agency · Home"
+          title={activeOrg?.name || "Agency portfolio"}
+          description="Operate client work in the correct client workspace, prove an outcome, and bring the evidence back to the client."
+          action={<QuickAddClient organizationId={activeOrgId} />}
+        />
 
-      <DashboardWorkspaceNav
-        eyebrow={t("agencyDash.eyebrow")}
-        title={t("agencyDash.workspaceTitle")}
-        activeValue={activeTab}
-        onValueChange={setActiveTab}
-        anchorId="agency-workspace"
-        items={[
-          { value: "clients", label: t("agencyDash.tabClients"), icon: Building2 },
-          { value: "activations", label: t("agencyDash.tabActivations"), icon: Sparkles },
-          { value: "impact", label: t("agencyDash.tabImpact"), icon: TrendingUp },
-        ]}
-      />
+        <NextMove
+          title={nextMove.title}
+          description={nextMove.description}
+          reason="This recommendation uses only connected-client, live-campaign and recorded-redemption facts available to this agency workspace."
+          action={
+            <Button onClick={() => setActiveTab(nextMove.tab)} className="bg-[hsl(var(--pr-v2-active-role))] font-bold text-black hover:brightness-110">
+              {nextMove.label}<ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          }
+        />
 
-      <section aria-labelledby="agency-attention-heading" className="grid gap-3 rounded-3xl border border-border/70 bg-card/55 p-5 sm:grid-cols-3 sm:p-6">
-        <div className="sm:col-span-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("agencyDash.portfolioAttention")}</p>
-          <h2 id="agency-attention-heading" className="mt-2 font-serif text-2xl font-semibold">{t("agencyDash.attentionHeading")}</h2>
-        </div>
-        {[
-          { label: "Relationship requests", value: pendingRelationships, detail: pendingRelationships ? "Approve or decline client access." : "No access requests waiting.", action: "clients" },
-          { label: "Activations in motion", value: activeClientCampaigns.length, detail: activeClientCampaigns.length ? "Check execution and unblock delivery." : "No client activations are live.", action: "activations" },
-          { label: "Results ready", value: provenClientCampaigns.length, detail: provenClientCampaigns.length ? "Turn verified outcomes into a client decision." : "No proven result is ready yet.", action: "impact" },
-        ].map((item) => (
-          <button key={item.label} type="button" onClick={() => setActiveTab(item.action)} className="group rounded-2xl border border-border/60 bg-background/60 p-4 text-left transition hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <div className="flex items-start justify-between gap-3"><p className="text-sm font-bold">{item.label}</p><span className="font-serif text-3xl font-semibold text-primary">{item.value}</span></div>
-            <p className="mt-3 text-xs leading-5 text-muted-foreground">{item.detail}</p>
-            <span className="mt-4 inline-flex items-center text-xs font-bold text-primary">Open workspace <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition group-hover:translate-x-1" /></span>
-          </button>
-        ))}
-      </section>
+        <OutcomeProgress stages={stages} />
 
-      <div id="agency-workspace" className={`${activeTab === "clients" ? "scroll-mt-28" : "hidden"} rounded-3xl border border-border bg-card p-5 sm:p-6`}>
-        <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Current Account</p>
-            <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">{activeOrg?.name || "Agency portfolio"}</h3>
-            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-              Use this view to connect brand and venue clients, manage their work, and package clear proof of outcomes.
-            </p>
-          </div>
-          <QuickAddClient organizationId={activeOrgId} />
-        </div>
-      </div>
+        <EvidencePair
+          proof={{
+            value: clientCampaignQuery.isLoading ? "…" : totalVerifiedActions,
+            label: "Recorded client actions",
+            description: "Campaign redemptions across connected Brand clients. These are attributable actions, not automatically sales or incremental value.",
+          }}
+          value={{
+            value: "—",
+            label: "Client business value",
+            description: "Not inferred by the agency layer. Use the client workspace and approved evidence to establish value.",
+          }}
+        />
 
-      <div className={`${activeTab === "activations" ? "scroll-mt-28" : "hidden"} grid gap-6`}>
-        <div className="min-w-0">
-      <RoleActivationPanel
-        eyebrow="Agency Today"
-        title="Prove one client outcome end to end."
-        description="Agencies win when they make the first managed result undeniable: add a client account, launch a campaign, then show the attributed movement back to that client."
-        items={[
-          {
-            title: "Add first client",
-            description: "Connect the first brand or venue account you will manage.",
-            status: agencyClients.length > 0 ? "done" : "current",
-            ctaLabel: "Add client",
-            onClick: () => window.scrollTo({ top: 0, behavior: "smooth" }),
-          },
-          {
-            title: "Launch first activation",
-            description: "Open the client account first so ownership, budget, and results stay attached to the correct workspace.",
-            status: "todo",
-            onClick: () => setActiveTab("clients"),
-            ctaLabel: "Choose client",
-          },
-          {
-            title: "Export first result",
-            description: "Use the impact layer as the proof artifact for your client relationship.",
-            status: "todo",
-            href: "#agency-impact",
-            ctaLabel: "Review impact",
-          },
-        ]}
-      />
-        </div>
-      </div>
+        <nav aria-label="Agency workspace" className="flex gap-6 overflow-x-auto border-b border-white/10">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`pr-v2-focusable min-h-11 whitespace-nowrap border-b-2 px-1 py-3 text-sm font-semibold ${activeTab === tab.id ? "border-[hsl(var(--pr-v2-active-role))] text-[hsl(var(--pr-v2-text-1))]" : "border-transparent text-[hsl(var(--pr-v2-text-3))]"}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
 
-      <div className={`${activeTab === "clients" ? "" : "hidden"} grid gap-6`}>
-        <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Client Portfolio</p>
-              <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Managed Accounts</h3>
-            </div>
-            <Badge className="border border-primary/20 bg-primary/10 text-primary">
-              {agencyClients.length} active
-            </Badge>
-          </div>
-
-          <div className="mt-5 space-y-3">
-            {relationshipQuery.data?.relationships?.length ? (
-              relationshipQuery.data.relationships
-                .filter((relationship) => relationship.agency_id === activeOrgId)
-                .map((relationship) => {
-                const client = relationship.client;
-                if (!client) return null;
-                const tone = roleTone[client.type as keyof typeof roleTone] || roleTone.brand;
-                const ClientIcon = tone.icon;
-
-                return (
-                  <div key={relationship.id} className="rounded-2xl border border-border/60 bg-background/60 p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                          <ClientIcon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-foreground">{client.name}</p>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {relationship.relationship_type ? `${relationship.relationship_type} relationship` : "Managed account"}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={`border ${tone.chip}`}>{tone.label}</Badge>
-                        <Badge variant="outline" className="text-[10px] uppercase">
-                          {relationship.status}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setActiveOrgId(client.id);
-                          if (client.type === "brand") setActiveRole("brand");
-                          if (client.type === "merchant") setActiveRole("merchant");
-                        }}
-                      >
-                        Open account
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={async () => {
-                          try {
-                            await deleteRelationship.mutateAsync(relationship.id);
-                            await refreshWorkspaceContext();
-                            toast({
-                              title: "Client disconnected",
-                              description: `${client.name} was removed from this agency portfolio.`,
-                            });
-                          } catch (error: unknown) {
-                            toast({
-                              title: "Disconnect failed",
-                              description: error instanceof Error ? error.message : "Try again.",
-                              variant: "destructive",
-                            });
-                          }
-                        }}
-                      >
-                        Remove client
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                No agency clients connected yet. Add a client account to start operating campaigns across brands and venues.
+        {activeTab === "clients" ? (
+          <section aria-labelledby="agency-clients" className="space-y-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="pr-v2-eyebrow">Portfolio</p>
+                <h2 id="agency-clients" className="pr-v2-heading mt-2">Connected clients</h2>
+                <p className="pr-v2-body mt-2">Open the actual client workspace before creating or changing client work.</p>
               </div>
+              {pendingRelationships > 0 ? <Badge className="w-fit border border-amber-300/20 bg-amber-300/10 text-amber-200">{pendingRelationships} relationship request{pendingRelationships === 1 ? "" : "s"} waiting</Badge> : null}
+            </div>
+
+            {relationshipQuery.isLoading ? (
+              <div role="status" aria-label="Loading clients" className="h-32 animate-pulse rounded-[var(--pr-v2-radius-module)] border border-white/10 bg-white/[0.03]" />
+            ) : relationships.length ? (
+              <div className="divide-y divide-white/10 border-y border-white/10">
+                {relationships.map((relationship) => {
+                  const client = relationship.client;
+                  if (!client) return null;
+                  const tone = roleTone[client.type as keyof typeof roleTone] || roleTone.brand;
+                  const ClientIcon = tone.icon;
+                  const campaignCount = clientCampaigns.filter((campaign) => campaign.organization_id === client.id).length;
+                  const clientVerifiedActions = clientCampaigns
+                    .filter((campaign) => campaign.organization_id === client.id)
+                    .reduce((sum, campaign) => sum + Number(campaign.redemptions || 0), 0);
+
+                  return (
+                    <article key={relationship.id} className="grid gap-4 py-5 lg:grid-cols-[42px_minmax(0,1fr)_auto] lg:items-center">
+                      <span className="grid size-10 place-items-center rounded-[var(--pr-v2-radius-control)] bg-[hsl(var(--pr-v2-active-role)/0.10)] text-[hsl(var(--pr-v2-active-role))]">
+                        <ClientIcon className="h-5 w-5" aria-hidden="true" />
+                      </span>
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-semibold">{client.name}</p>
+                          <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[hsl(var(--pr-v2-text-3))]">{tone.label}</span>
+                          <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[hsl(var(--pr-v2-text-3))]">{relationship.status}</span>
+                        </div>
+                        <p className="mt-1 text-sm text-[hsl(var(--pr-v2-text-2))]">{campaignCount} activation{campaignCount === 1 ? "" : "s"} · {clientVerifiedActions} recorded action{clientVerifiedActions === 1 ? "" : "s"}</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setActiveOrgId(client.id);
+                            if (client.type === "brand") setActiveRole("brand");
+                            if (client.type === "merchant") setActiveRole("merchant");
+                          }}
+                        >
+                          Open client<ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={async () => {
+                            try {
+                              await deleteRelationship.mutateAsync(relationship.id);
+                              await refreshWorkspaceContext();
+                              toast({ title: "Client disconnected", description: `${client.name} was removed from this agency portfolio.` });
+                            } catch (error: unknown) {
+                              toast({ title: "Disconnect failed", description: error instanceof Error ? error.message : "Try again.", variant: "destructive" });
+                            }
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <OutcomeSurface>
+                <p className="font-semibold">No client is connected yet.</p>
+                <p className="mt-2 text-sm text-[hsl(var(--pr-v2-text-2))]">Connect one Brand or Merchant client to begin operating work in the right ownership context.</p>
+              </OutcomeSurface>
             )}
-          </div>
-        </div>
+          </section>
+        ) : null}
 
-      </div>
+        {activeTab === "activations" ? (
+          <section aria-labelledby="agency-activations" className="space-y-4">
+            <div>
+              <p className="pr-v2-eyebrow">Client work</p>
+              <h2 id="agency-activations" className="pr-v2-heading mt-2">Activations in motion</h2>
+              <p className="pr-v2-body mt-2">Use this as a portfolio view. Make changes inside the corresponding client workspace.</p>
+            </div>
 
-      <div id="agency-impact" className={activeTab === "impact" ? "scroll-mt-28" : "hidden"}>
-        <BrandImpactDashboard />
+            {clientCampaignQuery.isLoading ? (
+              <div role="status" aria-label="Loading client work" className="h-32 animate-pulse rounded-[var(--pr-v2-radius-module)] border border-white/10 bg-white/[0.03]" />
+            ) : clientCampaigns.length ? (
+              <div className="divide-y divide-white/10 border-y border-white/10">
+                {clientCampaigns.map((campaign) => {
+                  const client = agencyClients.find((item) => item.id === campaign.organization_id);
+                  return (
+                    <div key={campaign.id} className="grid gap-3 py-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-semibold">{campaign.title}</p>
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${campaign.is_active ? "bg-emerald-400/10 text-emerald-300" : "bg-white/5 text-[hsl(var(--pr-v2-text-3))]"}`}>{campaign.is_active ? "Live" : "Not live"}</span>
+                        </div>
+                        <p className="mt-1 text-sm text-[hsl(var(--pr-v2-text-2))]">{client?.name || "Client"} · {Number(campaign.redemptions || 0)} recorded redemption{Number(campaign.redemptions || 0) === 1 ? "" : "s"}</p>
+                      </div>
+                      {client ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setActiveOrgId(client.id);
+                            if (client.type === "brand") setActiveRole("brand");
+                            if (client.type === "merchant") setActiveRole("merchant");
+                          }}
+                        >
+                          Open client
+                        </Button>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <OutcomeSurface>
+                <p className="font-semibold">No client activation is available yet.</p>
+                <p className="mt-2 text-sm text-[hsl(var(--pr-v2-text-2))]">Choose a connected client and create the work inside that client workspace.</p>
+                <Button onClick={() => setActiveTab("clients")} variant="link" className="mt-3 px-0 text-[hsl(var(--pr-v2-active-role))]">Choose client</Button>
+              </OutcomeSurface>
+            )}
+          </section>
+        ) : null}
+
+        {activeTab === "impact" ? (
+          <section id="agency-impact" aria-labelledby="agency-impact-title" className="space-y-4">
+            <div>
+              <p className="pr-v2-eyebrow">Proof</p>
+              <h2 id="agency-impact-title" className="pr-v2-heading mt-2">Package what happened for the client</h2>
+              <p className="pr-v2-body mt-2">Use verified evidence to support a client decision. Do not convert activity into unsupported revenue or lift claims.</p>
+            </div>
+            <BrandImpactDashboard />
+          </section>
+        ) : null}
+
+        <section className="grid gap-5 border-t border-white/10 pt-7 sm:grid-cols-4">
+          <div><Briefcase className="h-4 w-4 text-[hsl(var(--pr-v2-active-role))]" /><p className="mt-3 text-xs text-[hsl(var(--pr-v2-text-3))]">Clients</p><p className="mt-1 text-2xl font-semibold">{agencyClients.length}</p></div>
+          <div><Building2 className="h-4 w-4 text-[hsl(var(--pr-v2-active-role))]" /><p className="mt-3 text-xs text-[hsl(var(--pr-v2-text-3))]">Client activations</p><p className="mt-1 text-2xl font-semibold">{clientCampaignQuery.isLoading ? "…" : clientCampaigns.length}</p></div>
+          <div><Store className="h-4 w-4 text-[hsl(var(--pr-v2-active-role))]" /><p className="mt-3 text-xs text-[hsl(var(--pr-v2-text-3))]">Live work</p><p className="mt-1 text-2xl font-semibold">{clientCampaignQuery.isLoading ? "…" : activeClientCampaigns.length}</p></div>
+          <div><TrendingUp className="h-4 w-4 text-[hsl(var(--pr-v2-active-role))]" /><p className="mt-3 text-xs text-[hsl(var(--pr-v2-text-3))]">Proven campaigns</p><p className="mt-1 text-2xl font-semibold">{clientCampaignQuery.isLoading ? "…" : provenClientCampaigns.length}</p></div>
+        </section>
       </div>
     </div>
   );
-};
-
-export default AgencyDashboard;
+}
