@@ -3,6 +3,7 @@ import { Href, useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { resolveNotificationJourney } from '@promorang/shared';
+import { safeMobileInternalDestination } from '@promorang/shared/mobile-navigation-intent';
 import { useAuth } from '@/context/AuthContext';
 import { useOnboarding } from '@/context/OnboardingContext';
 import { rememberPendingNavigation } from '@/lib/pendingNavigation';
@@ -11,12 +12,13 @@ type NotificationData = Record<string, unknown>;
 
 function destinationFor(data: NotificationData): Href | null {
   const stringValue = (value: unknown) => typeof value === 'string' ? value : null;
-  return resolveNotificationJourney({
+  const resolved = resolveNotificationJourney({
     type: stringValue(data.type || data.notification_type), relatedId: stringValue(data.related_id || data.relatedId),
     route: stringValue(data.route || data.path || data.href), momentId: stringValue(data.moment_id || data.momentId),
     memoryId: stringValue(data.memory_id || data.memoryId), sceneSlug: stringValue(data.scene_slug || data.sceneSlug),
     receiptId: stringValue(data.receipt_id || data.receiptId), proposalId: stringValue(data.proposal_id || data.proposalId), productId: stringValue(data.product_id || data.productId),
-  }).destination as Href;
+  }).destination;
+  return safeMobileInternalDestination(resolved) as Href | null;
 }
 
 export function NotificationNavigationObserver() {
