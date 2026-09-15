@@ -1,71 +1,62 @@
 # PROMORANG UI V2 Migration Plan
 
-Base: `andre/local-working-state`
-Foundation branch: `andre/ui-v2-foundation`
+Base: `andre/local-working-state`  
+Migration branch: `andre/ui-v2-foundation`
 
-## Current implementation status
+## Current status
 
-### Phase 0 — Foundation: implemented, validation pending
+### Phase 0 — Foundation: implemented, runtime validation pending
 
-Implemented on the branch:
+Implemented:
 
 - V2 semantic token layer;
 - dark authenticated canvas tokens;
-- role accent tokens;
-- spacing/radius hierarchy;
-- sans-first product typography classes;
+- semantic role accents;
+- spacing/radius/type hierarchy;
 - reduced-motion baseline;
-- `PageCanvas`;
-- `PageLead`;
-- `OutcomeSurface`;
-- `NextMove`;
-- `OutcomeProgress`;
-- `ProofBlock` / `ValueBlock`;
-- `EvidencePair`;
+- `PageCanvas`, `PageLead`, `OutcomeSurface`;
+- `NextMove`, `OutcomeProgress`, `ProofBlock`, `ValueBlock`, `EvidencePair`;
 - `WorkspaceSwitcher`;
-- canonical `ConsequenceReceipt`;
+- `ConsequenceReceipt`;
 - `PromoCardV2`;
 - canonical `OpportunityCard`;
-- component tests;
-- role-valid local start-page preference and tests.
+- semantic component tests;
+- validated local start-page preference and tests.
 
-Build/lint/test proof remains pending because the current Vercel checks are blocked by account build-rate limits, the repository has no GitHub Actions run on the PR, and the available local container cannot currently establish a clean GitHub-backed runtime.
+### Phase 1 — Participant shell canary: implemented, runtime validation pending
 
-### Phase 1 — Shell: implemented as reversible V2 cutover, runtime validation pending
+`AppLayout.tsx` uses `PromorangAppShell.tsx` only when the active role is `participant`.
 
-`AppLayout.tsx` now routes authenticated app traffic through `promorang-v2/shell/PromorangAppShell.tsx`.
+Merchant, Creator, Host, Brand, Agency and Admin remain on the legacy `DashboardLayout.tsx` until each role has been migrated and checked in a real runtime.
 
-The legacy `DashboardLayout.tsx` has deliberately not been deleted or rewritten. It remains available as a rollback reference until V2 has real runtime proof.
+This is deliberate risk containment, not an incomplete architectural decision.
 
-The new shell currently provides:
+The V2 shell provides:
 
-1. restrained authenticated dark chrome;
-2. role + organization workspace switching backed by existing `AuthContext` state;
+1. restrained dark chrome;
+2. existing `AuthContext` role/organization workspace state;
 3. role-aware desktop navigation;
 4. five-or-fewer mobile primary destinations;
 5. search/location/language/theme/profile access;
 6. semantic role accents;
-7. a simpler primary-work versus secondary-tools hierarchy.
+7. simpler primary-work versus secondary-tools hierarchy;
+8. preserved agency-client Brand/Merchant switching behavior.
 
-The shared `ExperienceShell` used by people-facing routes also uses the V2 dark canvas, sans-first hierarchy and restrained loading/empty states.
+The legacy shell remains intact as a rollback path.
 
-### Phase 2 — Participant flagship: first migration implemented
+### Phase 2 — Participant Home: implemented, runtime validation pending
 
-`PeopleHome.tsx` has been migrated from the previous stacked teaching/tool model to the Outcome OS hierarchy:
+`PeopleHome.tsx` now follows:
 
-1. one dominant `NextMove`;
-2. V2 PromoCard beside the action;
-3. compact outcome progress;
-4. proof + value;
-5. persistent Consequence Receipt when movement exists;
-6. verified current Moments under `Around you`;
-7. operating workspaces separated from the personal home.
+**Next move + PromoCard → Outcome progress → Proof/Value → Consequence Receipt → Around you**
 
-The migration intentionally removes the old above-the-fold combination of stakeholder loop trail, setup playbook, paper receipt, live-loop actions and other parallel teaching surfaces from Participant Home. Their underlying routes and capabilities have not been deleted.
+Removed from the primary presentation are the former parallel teaching/playbook/tool layers. Their underlying routes and capabilities remain available.
 
 ### Phase 3 — Signature objects: started
 
-`PromoCardV2` now renders the existing shared PromoCard face model rather than inventing a parallel state machine. Existing model states remain authoritative:
+`PromoCardV2` renders the existing shared PromoCard face model. It does not invent another card state machine.
+
+Authoritative face states remain:
 
 - empty;
 - nearby;
@@ -74,13 +65,13 @@ The migration intentionally removes the old above-the-fold combination of stakeh
 - used;
 - expired.
 
-The full `/card` route still uses its existing fulfilment/redemption machinery and has not yet been visually rewritten. This is intentional until runtime validation is available.
+`ConsequenceReceipt` is the canonical persistent proof/value artifact.
 
-`ConsequenceReceipt` is implemented as a persistent verified outcome/value artifact.
+The full `/card` route has **not** yet been visually rewritten because it carries real redemption and fulfilment behavior that must be preserved and runtime-tested.
 
 ### Phase 4 — Discover / Opportunity grammar: foundation implemented
 
-`OpportunityCard` now defines a canonical opportunity anatomy:
+`OpportunityCard` defines a shared opportunity anatomy:
 
 - context/status;
 - title/description;
@@ -89,195 +80,141 @@ The full `/card` route still uses its existing fulfilment/redemption machinery a
 - proof requirement/context;
 - one primary action.
 
-The large existing Discover implementation has not yet been rewritten. The next Discover migration should replace presentation patterns incrementally while preserving search, filters, tabs, map, polling, live perks, moments and discovery acquisition behavior.
+Discover itself remains on its existing implementation until the new object can be introduced incrementally without breaking search, tabs, map, filters, polls, perks, moments or acquisition flows.
 
----
+## Validation status
 
-## Migration philosophy
+Build/lint/test and rendered browser proof remain pending.
 
-This is a staged product-interface migration, not a screenshot recreation and not a rewrite of PROMORANG functionality.
+Current Vercel checks are blocked by the connected account build-rate limit rather than a reported application compile failure. No successful CI/local runtime proof has yet been recorded for the new shell.
 
-Every phase must preserve auth and role resolution, permission boundaries, stakeholder-success contracts, data semantics, deep-link behavior, valid existing routes, and backend contracts unless a separately documented change is required.
+**Do not merge or deploy the V2 branch based on source inspection alone.**
 
-Each phase should reduce visual/system ambiguity rather than create another coexisting pattern.
+## Runtime acceptance — Participant shell
 
----
+Before expanding the shell beyond Participant, verify:
 
-## Phase 0 — Foundation
-
-### Exit criteria
-
-- build/lint/tests pass;
-- existing screens remain stable unless explicitly opted into V2;
-- new V2 components use semantic tokens;
-- basic semantic/accessibility tests pass.
-
----
-
-## Phase 1 — Shell and workspace context
-
-### Runtime acceptance
-
-Before removing the legacy shell, verify:
-
-- role switching;
-- organization switching;
-- agency client switching;
-- participant navigation;
-- Merchant/Brand/Creator/Host/Agency navigation;
-- Admin command-center access;
-- mobile bottom navigation;
+- Participant login and post-login routing;
+- saved start-page precedence;
+- role switching away from Participant;
+- return to Participant;
+- organization switching where exposed;
 - mobile drawer;
-- profile/sign-out;
+- mobile bottom nav;
+- desktop navigation;
 - global search;
 - location switcher;
+- language/theme controls;
+- profile access;
+- sign out;
 - deep links;
-- PWA prompt placement;
-- keyboard/focus order.
+- keyboard/focus order;
+- PWA prompt placement.
 
-The legacy layout should remain until these checks pass.
+## Runtime acceptance — Participant Home
 
-### Start page preference
+Verify representative real-account states:
 
-Current branch implements a safe first version using device-local storage namespaced by user + role.
+1. empty/new account;
+2. nearby benefit available;
+3. claimed/ready PromoCard;
+4. verified used benefit;
+5. returned state;
+6. expired state;
+7. no confirmed Moments;
+8. Moment feed error/loading;
+9. multi-role account.
 
-Required precedence is implemented as:
+Canonical visual checkpoints:
 
-1. explicit deep-link intent;
-2. saved valid start page for current role;
-3. role default.
+- desktop 1440×1024;
+- mobile 390×844.
 
-Account-synced persistence remains a release follow-up and requires schema migration, generated Supabase type update, RLS review, hook/query mutation, workspace-aware validation, and post-login resolver tests. Do not store arbitrary unvalidated URLs.
+## Full PromoCard migration contract
 
----
+When `/card` is migrated, preserve all current behavior:
 
-## Phase 2 — Participant flagship
-
-### First viewport contract
-
-The participant should immediately understand what is worth doing now, what they currently have access to, what recently happened, and the next useful action.
-
-### Remaining
-
-- runtime-check Participant Home in the new shell;
-- add desktop/mobile screenshot regression coverage;
-- verify next-move correctness against real accounts with empty, claimed and used states.
-
----
-
-## Phase 3 — Signature objects
-
-### PromoCard full-page migration
-
-Do not rewrite fulfilment logic. Preserve:
-
-- code flows;
+- code fulfilment;
 - merchant validation;
 - QR passes;
-- automatic/manual fulfilment;
-- shipping states;
+- manual/automatic fulfilment;
+- shipping state;
 - expiry;
 - recorded use;
-- stored aim/intention;
+- stored card aim;
 - clipboard/copy interactions;
-- offer issuance and dialogs.
+- offer issuance;
+- dialogs and recovery states.
 
-The V2 full page should use the existing data/state machine and reorganize it into:
+V2 information order should become:
 
 **Card → Use this now → Other active value → Used/expired history → Find something else**
 
-### Consequence Receipt
+## Discover migration contract
 
-Persistent proof of what occurred and who received what value.
-
-Minimum anatomy: action/event, time/status, verified outcome, stakeholder value, counterparty consequence when relevant, and next action.
-
----
-
-## Phase 4 — Discover / Opportunity grammar
-
-Discover should become the canonical place to answer:
+Discover should answer:
 
 **What is worth doing, claiming, visiting, joining or helping with now?**
 
-Do not delete existing Discover capabilities just to simplify the page.
-
 Migration sequence:
 
-1. preserve existing tabs/search/filter/map behavior;
-2. migrate live perk/opportunity presentation first;
-3. migrate Moments into the same hierarchy;
-4. demote explanatory/secondary rails;
-5. preserve discovery polling/acquisition flows;
-6. verify empty/location/loading/error states.
+1. keep existing data/query behavior;
+2. preserve tabs/search/filter/map;
+3. introduce canonical Opportunity presentation to live perks first;
+4. apply the same grammar to Moments where appropriate;
+5. demote secondary/explanatory rails;
+6. preserve discovery polling/acquisition flows;
+7. verify location/empty/loading/error states.
 
----
+## Commercial role migration order
 
-## Phase 5 — Merchant commercial reference
+### Merchant
 
-Preserve the existing outcome-first Merchant architecture.
+Preserve the current outcome-first model:
 
-Primary navigation remains conceptually Home, Promotions, Customers, Sales & Results, Business.
+**Home → Promotions → Customers → Sales & Results → Business**
 
-Home is for doing, not analyzing. Results owns deeper analytics. Never show transaction/revenue claims when transaction value has not been captured.
+Home is for doing. Results is for analysis. Never imply revenue when transaction value was not captured.
 
----
+### Creator
 
-## Phase 6 — Creator workstream
+**Available opportunity → Current work → Review → Attributed result → Settlement → Stronger next opportunity**
 
-Replace permanent toolbox exposure with progressive work state: available opportunity → accepted/current work → review/approval → live attribution → settlement → stronger next opportunity.
+### Host
 
----
+**Create → Fill → Operate → Verify → Bring back → Partner proof**
 
-## Phase 7 — Host lifecycle
+### Brand
 
-Host Home should be lifecycle-aware: no Moment → Create; upcoming + underfilled → Fill; live/day-of → Operate; ended → Verify; verified → Bring people back; repeat proof → Partner proof/reinvestment.
+**Define outcome → Fund → Launch → Attribute → Determine value → Decide**
 
----
+### Admin
 
-## Phase 8 — Brand decision platform
+Queue-first Command Center:
 
-Permanent journey spine: **Define outcome → Fund → Launch → Attribute → Determine incremental value → Decide**.
+**What needs attention → Resolve → Verify resolved → Next priority**
 
-Campaigns are executions within that cycle, not the primary mental model.
+## Legacy cleanup
 
----
+Do not delete the legacy shell or old primitives merely because V2 equivalents exist.
 
-## Phase 9 — Admin operations
+For each migrated journey:
 
-Admin should be queue-first. Command Center is the operating model. Default questions: what needs attention, what is highest priority, what can I resolve now, did the resolution succeed?
+1. list old callers;
+2. migrate active callers;
+3. mark replaced patterns deprecated;
+4. remove only after zero active use and runtime validation;
+5. keep docs current so coding agents do not rediscover obsolete patterns.
 
----
+## Global quality gate
 
-## Phase 10 — Secondary surfaces + legacy cleanup
+A migrated journey is complete only when:
 
-After each migrated journey: list callers, migrate active callers, mark legacy component/style deprecated, remove after no active use remains, and update docs so agents do not rediscover obsolete patterns.
-
----
-
-# Visual QA contract
-
-Canonical screenshot coverage should eventually include Participant Home desktop + mobile, PromoCard desktop + mobile, Merchant Home desktop + mobile, Creator Home, Host event-day state, Brand Home, Admin Command Center, and onboarding/login role transition.
-
-Target design QA viewports: desktop 1440×1024 and mobile 390×844. Additional responsive checks are required.
-
-# Accessibility gate
-
-Before a migrated journey is complete, verify visible focus, keyboard traversal, appropriate landmarks/headings, accessible names, status/error announcement where dynamic, target sizing, reduced-motion behavior, contrast, tab/menu/dialog semantics from existing primitives, and loading/empty/error/cancellation/recovery behavior.
-
-# Proof/data integrity gate
-
-UI wording must distinguish verified fact, calculated fact, attributed fact, estimate/inference, and unavailable metric. Do not visually celebrate a proxy as if it were a verified stakeholder outcome.
-
-# Per-phase PR template
-
-Every migration PR should answer:
-
-1. Which user journey was migrated?
-2. What V1 patterns were replaced?
-3. What business/product behavior intentionally stayed unchanged?
-4. What loading/empty/error/success/cancel/recovery states were covered?
-5. What desktop/mobile evidence was checked?
-6. What tests changed?
-7. What legacy APIs remain and why?
-8. What remains explicitly unverified?
+- the primary action is immediately understandable;
+- stakeholder success is explicit;
+- verified facts are distinct from estimates/proxies;
+- loading, empty, error, success and recovery states exist;
+- desktop and mobile are intentional;
+- focus/keyboard/reduced-motion behavior is valid;
+- current functionality and permissions do not regress;
+- visual proof exists from the running application.
